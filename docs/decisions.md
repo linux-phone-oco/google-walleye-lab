@@ -282,3 +282,25 @@ About
 
 Research
 : walleye-dtbo-overlay-merge-why-how-it-stands
+
+
+<a id="2026-11-17-walleye-mainline-light-images"></a>
+### 2026-11-17-walleye-mainline-light-images
+
+Date
+: 2026-11-17
+
+Brief
+: First light images ml1 (Image.gz) and ml2 (lz4 frame): the control's header and footer, our kernel, our -@ dtb, a mass_storage init that never pets the SoC watchdog
+
+Decision
+: ml1/ml2 are packed from the control's header, offsets and AVB footer with our kernel (v7.3 + QCOM_WDT=y), our -@ dtb with a watchdog@17817000 node, and init-ml (mass_storage window, serial walleye-first-boot, product 'Pixel 2 walleye (mainline)', /dev/watchdog opened and never petted). Command line: earlycon=msm_serial_dm,0xc1b0000 clk_ignore_unused ignore_loglevel panic=5 plus the stock androidboot.* words; the vendor-kernel words (lpm_levels, msm_rtb, swiotlb, service_locator, ...) are dropped. Proof: tests/host/mainline-light-up.sh (USB strings, no host permission).
+
+Why
+: The item asks for exactly these parts; mainline v7.3 msm8998.dtsi has no apss watchdog node and QCOM_WDT was a module (the initramfs has none), so without both the phone could not return by itself. The watchdog address/bark SPI are the downstream MSM8998 values, not measured: if the node faults the kernel panics and panic=5 resets, which also returns.
+
+Rejected
+: qcom_wdt.arm_on_probe=1/reboot=w (porthole's out-of-tree patches, no mainline effect); keeping the vendor cmdline (vendor-only options); a network function (ncm attribute writes panicked the vendor kernel, and the host has no ECM/RNDIS)
+
+About
+: walleye-first-fastboot-boot

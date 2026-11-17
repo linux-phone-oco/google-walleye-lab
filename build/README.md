@@ -107,3 +107,12 @@ gadget4's init plus one more step, everything else byte-identical (the control's
 `5b` adds the `ncm.usb0` function and the config symlink, no UDC bind; `5c` adds the UDC bind (first of `/sys/class/udc`), `usb0` at 172.16.43.1 and `telnetd`.
 Each init keeps gadget4's kmsg marker before any mount, alive markers every 30 s and the self-reboot at 120 s (`reboot -f`, then sysrq b). `build/build-vendor-gadget5.sh WORK_DIR
 CONTROL_BOOT_IMG OUT_DIR [VENDOR4_RAMDISK]` builds all three and counts fourteen checks each (as gadget4's, plus: the init holds exactly its step's parts). Not run on the phone: the keeper's tries.
+
+## First light images ml1 and ml2 (our mainline kernel)
+
+`build/build-kernel.sh KERNEL_TREE OUT_DIR` (into a new OUT_DIR, e.g. `~/Projects/walleye-build/out-ml`: the older images stay reproducible from `out`) now also
+builds in the SoC watchdog (`QCOM_WDT`; the dts has a `watchdog@17817000` node, address and bark interrupt from the downstream MSM8998 tree, not measured on this phone).
+`build/build-mainline-light.sh WORK_DIR CONTROL_BOOT_IMG KERNEL_OUT_DIR OUT_DIR` packs the control's header and AVB footer around our kernel, our -@ dtb and
+`build/initramfs-mainline/init-ml` (mass_storage window, serial walleye-first-boot, product "Pixel 2 walleye (mainline)"; opens /dev/watchdog and never pets it).
+`boot-ml1.img` has the kernel as Image.gz, `boot-ml2.img` as an lz4 frame like the stock one. Command line: `earlycon=msm_serial_dm,0xc1b0000 clk_ignore_unused
+ignore_loglevel panic=5` plus the stock `androidboot.*` words. `tests/host/mainline-light-up.sh` is the host proof: a USB device with our strings.

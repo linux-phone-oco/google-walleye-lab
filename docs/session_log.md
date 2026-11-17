@@ -559,3 +559,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-builder-mainline-light"></a>
+### Builder: ml1 and ml2 images (first light of our mainline kernel)
+
+Entry date
+: 2026-11-17
+
+Done
+: Built v7.3 + walleye.config (+QCOM_WDT, MASS_STORAGE, RD_XZ) into out-ml; added the watchdog node to the dts, build/initramfs-mainline/init-ml, build/build-mainline-light.sh (32 checks, rebuild gives the same hashes) and tests/host/mainline-light-up.sh. Images in ~/Projects/walleye-build/images-ml: boot-ml1.img 41d8efc0c6e5c3ed3086e66f605c39ddc4a0bcb8a0e266a2cbbd010738cc636b, boot-ml2.img 63b2977f1f21c5de40b2c8efcbb0f033860ad5fae2c3ee9eca052f77f5979add, initramfs-mainline-light.cpio.xz 9feb844211c3e5b636b2481eb920d36cdf698eaf4441090574edd943a69b7e01 (SHA256SUMS beside them). Not run: the init under QEMU (syntax checked only), dtc W=1 on the new node. An early hang (before the watchdog opens) still needs the author's power hold.
+
+Considered
+: ml2 pack: raw Image in an lz4 frame (-9 -BI -B7) as build-bisect.sh does
+
+About
+: walleye-first-fastboot-boot

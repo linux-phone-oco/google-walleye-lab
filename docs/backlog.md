@@ -1523,10 +1523,10 @@ Rank
 ### First light of OUR mainline v7.3 kernel: the control's header/footer, our kernel (gzip and lz4 variants) + the overlay-symbols dtb + a gadget init that shows itself in lsusb
 
 Status
-: open
+: done
 
 Note
-: Facts: s4/s3o (stock kernel + our -@ dtb) left fastboot at 12 s: the bootloader's overlay merge accepts our dtb now (lab PR 60); the stock kernel with our dtb returns to Android after ~36 s (it cannot run on a mainline dtb: expected). Earlier a/b/e/f (our kernel Image.gz + non-symbols dtb) were accepted but never started; s2 (our kernel lz4 + stock dtb) fell back: the kernel's compression or format may matter too, hence ml1/ml2. The returns without hands: a panic (panic=5) and the watchdog; an early hang still needs the author's hold - say it in the item's outcome table. WHEN DONE queue walleye-try-mainline-light (needs phone, rank 1, no waits): ml1, then ml2, each from the first state, 150 s watch with lsusb -v by port every second, plus the slot report and the bootreason after the return.
+: Built: ml1 and ml2 (see the decision 2026-11-17-walleye-mainline-light-images); try queued as walleye-try-mainline-light.
 
 About
 : walleye-first-fastboot-boot
@@ -1561,3 +1561,28 @@ Needs
 
 Proof
 : build/ffs-acm/ffs-acm.c and anything that only builds n3 from it removed (n3's recorded hashes stay as history; n3r is the image to try); .github/workflows/check.yml runs cargo fmt --check, cargo clippy --all-targets -- -D warnings and cargo test for build/ffs-acm-rs as lab-tools' CI does; the lab's checks pass; read back from main
+
+
+<a id="walleye-try-mainline-light"></a>
+### Phone: boot ml1, then ml2, each once from the first state; lsusb tells first light
+
+Status
+: open
+
+Note
+: Images ~/Projects/walleye-build/images-ml/boot-ml1.img sha256 41d8efc0c6e5c3ed3086e66f605c39ddc4a0bcb8a0e266a2cbbd010738cc636b, boot-ml2.img sha256 63b2977f1f21c5de40b2c8efcbb0f033860ad5fae2c3ee9eca052f77f5979add. Each from the first state: 150 s watch, lsusb -v by port every second (or LIGHT_WAIT=150 tests/host/mainline-light-up.sh), then the slot report and the bootreason after the return. Pass = a device with serial walleye-first-boot and product 'Pixel 2 walleye (mainline)' (read the 64 KiB log window with tests/host/massstorage-read.sh if the host may). The way back: panic=5 or the SoC watchdog (30-60 s after the init opens it); an early hang needs the author's power hold - say so in the outcome table. Watchdog node address is the downstream value, unmeasured.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: tests/host/mainline-light-up.sh
+
+Rank
+: 1
