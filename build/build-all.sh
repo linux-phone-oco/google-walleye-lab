@@ -3,7 +3,7 @@
 #
 #   build/build-all.sh [WORK_DIR]        WORK_DIR defaults to ~/Projects/walleye-build; the tree is WORK_DIR/linux-v7.3
 #
-# Leaves WORK_DIR/images/boot-a.img ... boot-h.img (see build/README.md for what they are).
+# Leaves WORK_DIR/images/boot-a.img ... boot-i.img (see build/README.md for what they are).
 set -eu
 HERE=$(cd "$(dirname "$0")" && pwd)
 W=${1:-$HOME/Projects/walleye-build}

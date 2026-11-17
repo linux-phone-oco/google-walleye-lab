@@ -5,9 +5,9 @@
 #   b  LineageOS's wahoo board config: ramdisk 0x2000000, tags 0x1e00000
 # (base 0, kernel offset 0x8000, second 0xf00000, page size 4096 in both.) No fastboot here: building only.
 #
-#   build-bootimg.sh IMAGE_GZ DTB RAMDISK_GZ OUT_DIR [DTB_F [RAMDISK_43]]   (DTB_F: the dtb with qcom,board-id, for f; RAMDISK_43: for g, h)
+#   build-bootimg.sh IMAGE_GZ DTB RAMDISK_GZ OUT_DIR [DTB_F [RAMDISK_43]]   (DTB_F: the dtb with qcom,board-id, for f; RAMDISK_43: for g, h, i)
 #
-# Writes OUT_DIR/boot-{a,b,c,d}.img (and e, f when DTB_F is given, g, h when RAMDISK_43 is too) and checks each with check-bootimg.sh.
+# Writes OUT_DIR/boot-{a,b,c,d}.img (and e, f when DTB_F is given, g, h, i when RAMDISK_43 is too) and checks each with check-bootimg.sh.
 set -eu
 KERNEL=${1:?usage: build-bootimg.sh IMAGE_GZ DTB RAMDISK_GZ OUT_DIR}
 DTB=${2:?}
@@ -49,15 +49,16 @@ if [ -n "$DTB_F" ]; then
   mke e "$DTB"
   mke f "$DTB_F" "8 0"
 fi
-# g and h: e and f with the initramfs answering on 172.16.43.1 (NET=43), nothing else changed - walleye and surya share one host
-# and surya's own gadget is 172.16.42.1. Only the ramdisk differs from e and f; check-bootimg.sh also counts the address in /init.
+# g, h and i: e, b and f with the initramfs answering on 172.16.43.1 (NET=43), nothing else changed - walleye and surya share one
+# host and surya's own gadget is 172.16.42.1. Only the ramdisk differs; check-bootimg.sh also counts the address in /init.
+#   g = e (the first try's image), h = b (LineageOS offsets, the second), i = f (e plus qcom,board-id)
 if [ -n "$DTB_F" ] && [ -n "$RAMDISK_43" ]; then
-  mkg() {  # mkg NAME DTB [BOARD_ID]
-    mkbootimg --header_version 0 --base 0x0 --kernel_offset 0x8000 --ramdisk_offset 0x1000000 --second_offset 0x0 \
-      --tags_offset 0x100 --pagesize 4096 --kernel "$OUT/kernel-dtb-$1" --ramdisk "$RAMDISK_43" --cmdline "$CMDLINE_E" \
-      -o "$OUT/boot-$2.img"
-    NET=43 BOARD_ID="${3:-}" "$HERE/check-bootimg.sh" "$OUT/boot-$2.img" 0x1000000 0x100
+  mkg() {  # mkg NAME KERNEL_DTB RAMDISK_OFFSET TAGS_OFFSET SECOND_OFFSET CMDLINE [BOARD_ID]
+    mkbootimg --header_version 0 --base 0x0 --kernel_offset 0x8000 --ramdisk_offset "$3" --second_offset "$5" \
+      --tags_offset "$4" --pagesize 4096 --kernel "$2" --ramdisk "$RAMDISK_43" --cmdline "$6" -o "$OUT/boot-$1.img"
+    NET=43 BOARD_ID="${7:-}" "$HERE/check-bootimg.sh" "$OUT/boot-$1.img" "$3" "$4"
   }
-  mkg e g
-  mkg f h "8 0"
+  mkg g "$OUT/kernel-dtb-e" 0x1000000 0x100 0x0 "$CMDLINE_E"
+  mkg h "$OUT/kernel-dtb" 0x2000000 0x1e00000 0xf00000 "$CMDLINE"
+  mkg i "$OUT/kernel-dtb-f" 0x1000000 0x100 0x0 "$CMDLINE_E" "8 0"
 fi
