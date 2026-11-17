@@ -49,3 +49,16 @@ Walleye and surya share one host, and surya's pmOS gadget answers on 172.16.42.1
 into `WORK_DIR/net43/`; at the default NET=42 the files are used as they are, so a-f stay byte for byte). Only the ramdisk differs
 from e, b and f. `check-bootimg.sh` now also counts `ifconfig usb0 172.16.NET.1` in /init and the lease in udhcpd.conf (`NET=43` for g, h, i).
 `NET=43 build/selftest-initramfs.sh WORK_DIR` is the QEMU proof at 172.16.43.1.
+
+## The bisect images s0, s0n, s1, s2, s3 (stock to ours, one swap each)
+
+e, b (and g, h, i) are accepted by the bootloader ("Booting OKAY") from the first state but never start; the stock control boots.
+`build/build-bisect.sh CONTROL_BOOT_IMG OUR_IMAGE OUR_DTB OUR_RAMDISK_43 OUT_DIR` unpacks the control and packs its own parts
+again with its own header fields and its AVB hash footer (avbtool, algorithm NONE, padded to 32 MiB, same properties), swapping
+one part: `s1` ramdisk = ours (172.16.43.1), `s2` kernel = our raw Image in an lz4 frame (as the stock one), `s3` dtb = ours.
+`s0` swaps nothing (differs from the control in the header id and the footer digest only: 53 bytes) and `s0n` is s0 without footer
+and padding (the shape of a-i). `build/check-bisect.sh` counts per image that exactly the swapped part differs and the footer verifies.
+What differs between stock and ours that the bootloader could read: no AVB footer and no 32 MiB padding (ours 16 MB); os version
+and patch level 0 (stock 15.0.0 / 2026-11); kernel gzip (stock lz4 frame); dtb of 51 KB with no /chosen bootargs (stock 376 KB,
+bootargs "rcupdate.rcu_expedited=1"); command line (stock has androidboot.* and androidboot.dtbo_idx=3); ramdisk gzip (stock xz).
+Equal: header v0, offsets, page size, one appended dtb, msm-id 0x124/0x20001, no board-id/pmic-id.
