@@ -505,10 +505,10 @@ Rank
 ### fastboot boot the repacked control from the first state; does the gadget answer?
 
 Status
-: in-progress
+: done
 
 Note
-: tried twice, Load Error; gadget-up fails
+: Superseded by the bisect of the bring-up (gadget4 idle init ran, gadget5a ok, 5b panics at the ncm step): see research 2026-11-17-walleye-vendor-gadget5-bisect and walleye-try-ncm-split.
 
 Blocked by
 : walleye-vendor-gadget-image,walleye-gadget-up-check
