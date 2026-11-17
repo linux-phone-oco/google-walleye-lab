@@ -1654,3 +1654,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-ml4-timing-channel"></a>
+### ml4: a timing channel from our mainline init - the reset delay says how far the kernel came, no UART, no USB, no pstore needed
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-ml3-pstore-empty): ml1/ml2/ml3 all dark: accepted, left fastboot at 12-15 s, no gadget, Android back at 69-72 s, bootreason reboot, pstore empty. We do not know whether our kernel reaches userspace at all; 70 s ~ 12 s + 30 s watchdog + ~25 s Android is consistent with init alive and opening the watchdog, but also with a hang reset by a bootloader watchdog. The timing channel (an init that resets itself at a delay chosen by what it found) is the cheapest feedback channel that needs no purchase, no host permission and no pstore: the phone's own reset time. Keep the watchdog safety. Redo the same bins in later images as parts are added. WHEN DONE queue walleye-try-ml4 (needs phone, rank 1): the keeper tries ml4 twice (to see the jitter), records the two times and reads the score from the bin table, plus adb root /sys/fs/pstore and /data/vendor_ce/0/ramoops (a reset by init, not by the watchdog, may leave a console).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: boot-ml4.img = ml3 with ONLY the ramdisk's /init changed (kernel, dtb and header bytes equal ml3's): /init mounts proc/sys/devtmpfs, opens /dev/watchdog (a safety net: the SoC resets by itself ~30 s later if the rest hangs), counts which of a fixed checklist holds - (1) init reached userspace [always 1], (2) /sys/class/udc has an entry, (3) a dwc3 platform device is bound to its driver, (4) /sys/bus/platform/devices has a ramoops device, (5) /proc/iomem lists the ramoops region, (6) the PSCI/reset path answers (/sys/firmware/devicetree/base/psci exists), (7) UFS host is not enabled (expected 0) - then sleeps 5*score seconds (bins of 5 s) and runs reboot -f (sysrq b fallback); the checklist and the bin table written in the item/log; checks as ml3's plus: the init script has no bashisms, runs under busybox ash -n; a QEMU-free host test reading the bin table. The keeper's try then reads the time Android is back (host timestamps at fastboot-boot, at adb) and subtracts the known base (the control's: boot+Android a ~ 25-36 s); 70 s = the safety watchdog fired: init never ran or hung before the sleep
