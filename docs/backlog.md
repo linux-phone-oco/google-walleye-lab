@@ -1796,10 +1796,10 @@ Proof
 ### Phone: boot pk1 twice, then pk2 twice from the first state; record the four return times
 
 Status
-: open
+: done
 
 Note
-: images ~/Projects/walleye-build/images-pk (SHA256SUMS), research walleye-pk1-pk2-built. Expected: init ran = Android back at ~36-45 s; no init = ~70-78 s (ml5a 75 s). No hands needed: every image reboots at once.
+: proven by four tries: pk1 75 s, 75 s; pk2 75 s, 75 s - no init ran
 
 About
 : walleye-first-fastboot-boot
