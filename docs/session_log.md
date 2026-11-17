@@ -373,3 +373,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-2155-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-17
+
+Done
+: n1 returned; n2 enumerated with our strings and no panic; host cdc_ncm bind failed (MAC string not served). Fastboot, unlocked, slot a active+successful, b unbootable retry 1; nothing flashed; lease to be released
+
+Considered
+: next: walleye-gadget-host-bind (ecm / rndis images, builder), then ffs-helper if those fail
+
+About
+: walleye-first-fastboot-boot

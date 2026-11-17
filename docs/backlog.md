@@ -1191,10 +1191,10 @@ Rank
 ### Try ncm-noattr n1 then n2 from the first state, stop at the first panic
 
 Status
-: open
+: done
 
 Note
-: Prediction from the source: 5b1 returns, 5b2 (attribute writes) panics, so walleye-try-ncm-split ends at b2 and need not try b3/b4. n1 returns at 120 s; n2 shows the host a device with our strings (lsusb). If n2 panics at bind, queue walleye-ffs-helper.
+: proven by n1/n2 tries: n1 returns, n2 binds without a panic and enumerates with our strings; host cdc_ncm fails on the MAC string (walleye-ncm-noattr-n1-n2). Next: a function the host binds without a MAC string (ecm, rndis) or FunctionFS helper
 
 About
 : walleye-first-fastboot-boot
@@ -1210,3 +1210,22 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-gadget-host-bind"></a>
+### Get the host to bind the gadget: variants whose host driver needs no MAC string (rndis, ecm) beside ncm
+
+Status
+: open
+
+Note
+: n2 enumerates but cdc_ncm fails: iMacAddress string not served. Build n3 = ecm.usb0, n4 = rndis.usb0 (no attribute writes, bind, ip link address, telnetd), try each from the first state; ffs-helper remains the fallback
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
