@@ -210,3 +210,25 @@ About
 
 Research
 : walleye-ncm-panic-why-how-it-stands
+
+
+<a id="2026-11-17-walleye-host-channel-order"></a>
+### 2026-11-17-walleye-host-channel-order
+
+Date
+: 2026-11-17
+
+Brief
+: n2 enumerates but the host cannot bind NCM: ECM/RNDIS are not in this kernel, so a mass-storage log window now and a FunctionFS ACM helper next
+
+Decision
+: Our gadget reached the host for the first time (n2: 1d6b:0104 with our strings after 18 s, no panic); cdc_ncm failed on 'failed to get mac address' because the NCM function cannot be given its addresses on this kernel (the attribute writes panic it, so it serves none). The vendor config has ECM, RNDIS, EEM, ACM and SERIAL NOT set, so ecm/rndis variants (walleye-gadget-host-bind as queued) are impossible and dropped. Order: (1) m1, a mass_storage gadget (in the kernel: MASS_STORAGE=y) exporting a fixed-size file in the ramdisk as a read-only LUN; the init rewrites it in place every 5 s with dmesg, cmdline, mounts, heartbeat; the host reads the raw device with O_DIRECT (a one-way, crude but real log window); (2) a FunctionFS helper (a tiny static aarch64 C program declaring CDC-ACM descriptors on ffs, bridging to a shell) so the host's cdc_acm gives /dev/ttyACM0: research item walleye-ffs-helper, run in parallel and now needed, not a fallback. NCM stays out.
+
+Why
+: The config facts (research walleye-vendor-kernel-facts-s1-panic) rule out ECM/RNDIS; mass_storage needs only in-kernel code and a file, so it gives diagnostics at once; FunctionFS with ACM descriptors gives an interactive console with host drivers that exist everywhere.
+
+Rejected
+: Chasing the NCM MAC string (the attribute writes panic the kernel; the function is unusable without them); building ecm/rndis images (not in the kernel); waiting for the UART cable (a purchase) when two in-kernel routes exist; adbd from the Android system (bionic userland, heavy).
+
+About
+: walleye-first-fastboot-boot
