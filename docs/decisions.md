@@ -329,3 +329,25 @@ About
 
 Research
 : walleye-ml1-ml2-no-light
+
+
+<a id="2026-11-17-walleye-android-is-a-stepping-stone"></a>
+### 2026-11-17-walleye-android-is-a-stepping-stone
+
+Date
+: 2026-11-17
+
+Brief
+: Android on walleye is a stepping stone to mainline: its settings are the lane's to set
+
+Decision
+: The Android on the Pixel 2 (LineageOS 15 on slot a, an older build on slot b) is kept only as the way back, the measured reference and the tool that reads our kernel's logs; the goal is mainline Linux on the phone, as on surya. The lane may set Android's settings for the work (screen lock off, USB debugging, developer options) without asking, recording what it set; the author's keep-or-restore question is closed for the lock. What can still lose the reference (a flash or erase of a slot's partitions) needs a recorded decision as before.
+
+Why
+: The author's words (via the top coordinator, 2026-11-17): the only reason Android is still on the phone is so mainline Linux can be put on it, the whole purpose of the project, like surya.
+
+Rejected
+: Treating each Android setting as the author's to restore (it only slows the lane); wiping Android now (it still reads our crash logs and is the way back).
+
+About
+: walleye-first-fastboot-boot
