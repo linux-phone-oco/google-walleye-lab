@@ -1159,34 +1159,6 @@ Rank
 : 1
 
 
-<a id="walleye-try-ncm-noattr"></a>
-### Try ncm-noattr n1 then n2 from the first state, stop at the first panic
-
-Status
-: open
-
-Note
-: Prediction from the source: 5b1 returns, 5b2 (attribute writes) panics, so walleye-try-ncm-split ends at b2 and need not try b3/b4. n1 returns at 120 s; n2 shows the host a device with our strings (lsusb). If n2 panics at bind, queue walleye-ffs-helper.
-
-Blocked by
-: walleye-ncm-noattr-images,walleye-try-ncm-split
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-17
-
-Needs
-: phone
-
-Proof
-: TEST
-
-Rank
-: 2
-
-
 <a id="walleye-ffs-helper"></a>
 ### Fallback channel: FunctionFS with a tiny static aarch64 helper
 
@@ -1213,3 +1185,28 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-try-ncm-noattr"></a>
+### Try ncm-noattr n1 then n2 from the first state, stop at the first panic
+
+Status
+: open
+
+Note
+: Prediction from the source: 5b1 returns, 5b2 (attribute writes) panics, so walleye-try-ncm-split ends at b2 and need not try b3/b4. n1 returns at 120 s; n2 shows the host a device with our strings (lsusb). If n2 panics at bind, queue walleye-ffs-helper.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 2
