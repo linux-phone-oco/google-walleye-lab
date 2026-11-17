@@ -1,0 +1,35 @@
+#!/bin/busybox sh
+# ml5b (backlog walleye-ml5-timing-below-the-watchdog): OUR kernel's init as a timing channel. No USB, no log window: it counts which of a fixed checklist holds, 
+# 3 s per point, then resets the phone, so the time Android is back says how far the kernel came. The SoC watchdog is opened first (the way back if this
+# hangs before the sleep); during the sleep only it is petted once a second so that a 30 s+ sleep is not cut short by it - the sleep is bounded, then reboot -f.
+# Checklist (score = points held, 0..7; delay = 3 s * score):
+#   1 init reached userspace (always)      5 /proc/iomem lists the ramoops region (a1100000 or "ramoops")
+#   2 /sys/class/udc has an entry          6 /sys/firmware/devicetree/base/psci exists (the PSCI/reset path is described)
+#   3 a dwc3 device is bound to its driver 7 a UFS host platform device exists (expected 0: the UFS node is not enabled in our dts)
+#   4 a ramoops platform device exists
+# Never exits; no `set -e`.
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+say() { echo "walleye-init: $*" > /dev/kmsg 2>/dev/null; echo "walleye-init: $*" > /dev/console 2>/dev/null; }
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+mount -t devtmpfs dev /dev 2>/dev/null
+if [ -e /dev/watchdog ]; then exec 3> /dev/watchdog; fi
+score=1
+c2=0; c3=0; c4=0; c5=0; c6=0; c7=0
+[ -n "$(ls /sys/class/udc 2>/dev/null)" ] && c2=1
+[ -n "$(find /sys/bus/platform/drivers/dwc3 -maxdepth 1 -type l 2>/dev/null)" ] && c3=1
+[ -n "$(ls -d /sys/bus/platform/devices/*ramoops* 2>/dev/null)" ] && c4=1
+grep -q -i -e a1100000 -e ramoops /proc/iomem 2>/dev/null && c5=1
+[ -e /sys/firmware/devicetree/base/psci ] && c6=1
+[ -n "$(ls -d /sys/bus/platform/devices/*ufshc* 2>/dev/null)" ] && c7=1
+score=$((score + c2 + c3 + c4 + c5 + c6 + c7))
+say "ml5b checklist 1=1 2=$c2 3=$c3 4=$c4 5=$c5 6=$c6 7=$c7 score=$score sleep=$((3 * score))s"
+n=0
+while [ $n -lt $((3 * score)) ]; do
+  [ -e /proc/self/fd/3 ] && echo . >&3
+  sleep 1
+  n=$((n + 1))
+done
+say "ml5b self-reboot now"; sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+while :; do sleep 3600; done

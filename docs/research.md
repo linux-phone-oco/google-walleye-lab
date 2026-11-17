@@ -820,3 +820,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ml5-built"></a>
+### walleye-ml5-built
+
+Date
+: 2026-11-17
+
+Brief
+: ml5a (reboot at once) and ml5b (3 s per point, max 21 s) built: ml3 with only /init changed, hashes in SHA256SUMS
+
+Question
+: Can timing bins finish before the ~33 s dead-kernel reset?
+
+Found
+: ml5a and ml5b built from ml3 with only the ramdisk /init changed (build/build-ml5.sh; kernel, dtb and header bytes equal ml3's; AVB footer verifies; 20 checks ok; rebuild byte-identical). ml5a: mount proc/sys, kmsg marker, reboot -f at once (sysrq b fallback), no watchdog. ml5b: ml4's checklist with 3 s per point (max 21 s, under the ~33 s dead-kernel reset), watchdog petting kept. Bin table in tests/host/ml5-bin-table.sh: ml5a returns at BASE (expected ~40 s if init ran, ~70 s if the kernel never reached it); ml5b returns at BASE + 3*score. Images in ~/Projects/walleye-build/images-ml5/. sha256: boot-ml5a.img b937e8fba212c08db3343ada25fcfa6045f7ce903e4a5e44ea3c095e782b461e; boot-ml5b.img a0fe6f0bb02484c08a7eb0f74f095e59f12c03aba6b071c62caac4d1ae3d8ed8; initramfs-ml5a.cpio.xz 56d1f4ce247f903f2f23984b25d743f6acaea2182bb0d495a0ae611938af1ee6; initramfs-ml5b.cpio.xz 3357b2b63cdbf91337573359ca9010d221fcba84f3ba1f4e1d352569e2886b89.
+
+About
+: walleye-first-fastboot-boot
