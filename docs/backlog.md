@@ -1044,10 +1044,10 @@ Proof
 ### Try vendor-gadget5a, 5b, 5c from the first state, in order; stop at the first panic
 
 Status
-: open
+: done
 
 Note
-: Images in ~/Projects/walleye-build/images: vendor-gadget5a.img, 5b, 5c (SHA256SUMS). Each from the first state, tries on slot b per the standing decision; STOP at the first bootreason kernel_panic (that step is the culprit). Pass = each try's bootreason and time read from the slot report (kernel_panic with Android on a in ~75 s, or reboot at ~120 s); if 5c does not panic, tests/host/gadget-up.sh (GADGET_WAIT=60) passes during its 120 s. No hands expected. Outcomes: log 2026-11-17-walleye-vendor-gadget5.
+: proven by tries: 5a ok (reboot, 156 s), 5b kernel_panic (75 s): culprit is the ncm function/config step; 5c not tried per stop rule. Record 2026-11-17-walleye-vendor-gadget5-bisect
 
 About
 : walleye-first-fastboot-boot
