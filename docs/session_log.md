@@ -466,3 +466,21 @@ Done
 
 Considered
 : next: walleye-try-massstorage again once the host has usb_storage (reboot into 7.3.4), or the FunctionFS ACM helper
+
+---
+
+
+<a id="2026-11-17-2210-walleye-how-the-phone-stands-4"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-17
+
+Done
+: n3 tried once: enumerates 1d6b:0104 with ACM class interface after 18 s, no panic; host lacks cdc_acm for running kernel 7.3.3 so ffs-acm-up fails; phone back on Android a by self-reboot, now in fastboot, slot a good, nothing flashed
+
+Considered
+: next: reboot the lab host into 7.3.4 (host owner), then retry n3 and the ACM test
+
+About
+: walleye-first-fastboot-boot
