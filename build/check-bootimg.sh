@@ -4,6 +4,8 @@
 # and no /chosen/bootargs, the command line present, and the ramdisk a gzip cpio holding /init.
 #
 #   check-bootimg.sh BOOT_IMG RAMDISK_OFFSET TAGS_OFFSET [OS_VERSION OS_PATCH_LEVEL]   (none given: the header holds none)
+# Environment: BOARD_ID (the qcom,board-id the dtb must carry, e.g. "8 0"; default none: the dtb must carry no
+# qcom,board-id and no qcom,pmic-id).
 # Prints one "ok"/"FAIL" line per check and a count; exits 1 on any failure.
 set -u
 IMG=${1:?usage: check-bootimg.sh BOOT_IMG RAMDISK_OFFSET TAGS_OFFSET}
@@ -26,6 +28,7 @@ ck "page size" "$(field 'page size')" 4096
 ck "kernel load address" "$(field 'kernel load address')" 0x00008000
 ck "ramdisk load address" "$(field 'ramdisk load address')" "$(printf '0x%08x' "$RDO")"
 ck "tags load address" "$(field 'kernel tags load address')" "$(printf '0x%08x' "$TGO")"
+ck "second load address (empty second: mkbootimg writes 0 whatever --second_offset says)" "$(field 'second bootloader load address')" 0x00000000
 ck cmdline-has-earlycon "$(field 'command line args' | grep -c 'earlycon=msm_serial_dm,0xc1b0000')" 1
 # the dtb: find the flattened device tree magic inside the kernel blob and read it back
 K=$T/u/kernel
@@ -36,6 +39,8 @@ ck "qcom,msm-id" "$(fdtget -t u "$T/appended.dtb" / qcom,msm-id 2>/dev/null)" "2
 ck "msm-id is 0x124/0x20001" "$(printf '0x%x 0x%x' 292 131073)" "0x124 0x20001"
 ck "compatible" "$(fdtget "$T/appended.dtb" / compatible 2>/dev/null | cut -d' ' -f1)" google,walleye
 ck "no bootargs in the dtb" "$(dtc -I dtb -O dts "$T/appended.dtb" 2>/dev/null | grep -c bootargs)" 0
+ck "qcom,board-id" "$(fdtget -t u "$T/appended.dtb" / qcom,board-id 2>/dev/null)" "${BOARD_ID:-}"
+ck "qcom,pmic-id count" "$(dtc -I dtb -O dts "$T/appended.dtb" 2>/dev/null | grep -c "qcom,pmic-id")" 0
 ck "kernel is a gzip" "$(head -c 2 "$K" | od -An -tx1 | tr -d ' ')" 1f8b
 ck "ramdisk has /init" "$(zcat "$T/u/ramdisk" 2>/dev/null | cpio -t 2>/dev/null | grep -cx init)" 1
 echo "$IMG: $pass ok, $fail failed"

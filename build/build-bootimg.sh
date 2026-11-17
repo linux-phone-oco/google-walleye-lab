@@ -5,14 +5,15 @@
 #   b  LineageOS's wahoo board config: ramdisk 0x2000000, tags 0x1e00000
 # (base 0, kernel offset 0x8000, second 0xf00000, page size 4096 in both.) No fastboot here: building only.
 #
-#   build-bootimg.sh IMAGE_GZ DTB RAMDISK_GZ OUT_DIR
+#   build-bootimg.sh IMAGE_GZ DTB RAMDISK_GZ OUT_DIR [DTB_F]   (DTB_F: the dtb with qcom,board-id, for f)
 #
-# Writes OUT_DIR/boot-{a,b,c,d}.img and checks each with check-bootimg.sh.
+# Writes OUT_DIR/boot-{a,b,c,d}.img (and e, f when DTB_F is given) and checks each with check-bootimg.sh.
 set -eu
 KERNEL=${1:?usage: build-bootimg.sh IMAGE_GZ DTB RAMDISK_GZ OUT_DIR}
 DTB=${2:?}
 RAMDISK=${3:?}
 OUT=${4:?}
+DTB_F=${5:-}
 HERE=$(cd "$(dirname "$0")" && pwd)
 # The device tree carries no bootargs (the bootloader appends this line to it): what the first try needs.
 CMDLINE="clk_ignore_unused ignore_loglevel panic=10 earlycon=msm_serial_dm,0xc1b0000 console=ttyGS0,115200 reboot=w"
@@ -31,3 +32,19 @@ mk b 0x2000000 0x1e00000
 # a bootloader's rollback check may read them. 8.1.0 is LineageOS 15.1's Android; 2020-01 is a pick, not read from the phone.
 mk c 0x1000000 0x100 8.1.0 2020-01
 mk d 0x2000000 0x1e00000 8.1.0 2020-01
+# e and f (after the stock boot.img of LineageOS 22.2 was read: ramdisk 0x1000000, tags 0x100, second 0 - a's offsets, the
+# blueline recipe). The os word stays 0: a was the only silent OKAY. One change each against a:
+#   e  second_offset 0 (a no-op: with no second image mkbootimg writes 0 either way, the header is a's) and a command line cut to earlycon + console
+#   f  e plus qcom,board-id <8 0> in the dtb (the stock dtb has none; see dt/msm8998-google-walleye-f.dts)
+if [ -n "$DTB_F" ]; then
+  CMDLINE_E="earlycon=msm_serial_dm,0xc1b0000 console=ttyGS0,115200"
+  mke() {  # mke NAME DTB [BOARD_ID]
+    cat "$KERNEL" "$2" > "$OUT/kernel-dtb-$1"
+    mkbootimg --header_version 0 --base 0x0 --kernel_offset 0x8000 --ramdisk_offset 0x1000000 --second_offset 0x0 \
+      --tags_offset 0x100 --pagesize 4096 --kernel "$OUT/kernel-dtb-$1" --ramdisk "$RAMDISK" --cmdline "$CMDLINE_E" \
+      -o "$OUT/boot-$1.img"
+    BOARD_ID="${3:-}" "$HERE/check-bootimg.sh" "$OUT/boot-$1.img" 0x1000000 0x100
+  }
+  mke e "$DTB"
+  mke f "$DTB_F" "8 0"
+fi
