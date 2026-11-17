@@ -1022,10 +1022,10 @@ Proof
 ### Split the gadget bring-up into three images, one step each: configfs+gadget dir, +NCM function and config, +UDC bind
 
 Status
-: open
+: done
 
 Note
-: Lab PR 25: gadget4 (idle init) boots, runs and returns by itself at ~120 s (bootreason=reboot), whereas gadget2/3 (full gadget) panic ~75 s after fastboot boot: the panic is in the gadget bring-up. One panic per image kills the log, so one step per image. Everything else byte-identical to gadget4 (control's kernel, dtb, cmdline, header, footer). WHEN DONE: queue the keeper's tries as walleye-try-gadget-bisect (needs phone, rank 1): g5a, then g5b, then g5c, each from the first state, STOP at the first panic (bootreason kernel_panic): that step is the culprit. If g5c does NOT panic, the gadget is up: gadget-up.sh passes (read-only telnet). Note in the item the outcome table (what each result means, hands or not: none expected; init reboots at 120 s, a panic falls back in ~75 s).
+: g5a, g5b, g5c built and checked (build/build-vendor-gadget5.sh, 14 checks each); hashes in SHA256SUMS and the log 2026-11-17-walleye-vendor-gadget5. Tries queued as walleye-try-gadget-bisect.
 
 About
 : walleye-first-fastboot-boot
@@ -1038,3 +1038,31 @@ Needs
 
 Proof
 : g5a, g5b, g5c = gadget4's init (kmsg marker, 30 s heartbeat, reboot -f at 120 s) plus steps: g5a mounts configfs and creates the gadget dir with idVendor/idProduct/strings (our serial walleye-first-boot, product 'Pixel 2 walleye (mainline)') but no function; g5b adds the ncm function and the config symlink, no UDC bind; g5c adds the UDC bind (a800000.dwc3) and the host-side network address/telnetd; checks ok as for gadget4; hashes in SHA256SUMS
+
+
+<a id="walleye-try-gadget-bisect"></a>
+### Try vendor-gadget5a, 5b, 5c from the first state, in order; stop at the first panic
+
+Status
+: open
+
+Note
+: Images in ~/Projects/walleye-build/images: vendor-gadget5a.img, 5b, 5c (SHA256SUMS). Each from the first state (Android booted on a, then bootloader), tries on slot b as the standing decision; STOP at the first bootreason kernel_panic. No hands expected: init returns at ~120 s, a panic falls back by itself. Outcomes: see log 2026-11-17-walleye-vendor-gadget5.
+
+Waits
+: walleye-gadget-bisect (done)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 1

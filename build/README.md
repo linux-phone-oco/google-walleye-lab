@@ -98,3 +98,12 @@ Only the ramdisk's `/init` changes (`build/initramfs-vendor4/init`): a kmsg mark
 at 120 s `reboot -f` then `echo b > /proc/sysrq-trigger`. No configfs, USB, network or telnetd. `build/build-vendor-gadget4.sh WORK_DIR CONTROL_BOOT_IMG
 OUT_DIR [VENDOR3_RAMDISK]` makes `initramfs-vendor4.cpio.xz` and `vendor-gadget4.img` and counts fourteen checks (header, kernel blob, size and AVB
 footer are the control's; the ramdisk differs from vendor-gadget3's only in `/init` and the unused `etc/udhcpd.conf`). Not run on the phone: the keeper's try.
+
+## vendor-gadget5a/b/c.img (the gadget bring-up bisect: which step panics?)
+
+gadget4's idle init returns by itself at 120 s, gadget2/3 (the full gadget) panic about 75 s in, so the panic is in the gadget bring-up. Three images, each
+gadget4's init plus one more step, everything else byte-identical (the control's kernel, dtb, command line, header, AVB footer; ramdisk differs from gadget4's only in `/init`):
+`5a` mounts sysfs and configfs and creates the gadget dir with idVendor/idProduct and strings (serial `walleye-first-boot`, product `Pixel 2 walleye (mainline)`), no function;
+`5b` adds the `ncm.usb0` function and the config symlink, no UDC bind; `5c` adds the UDC bind (first of `/sys/class/udc`), `usb0` at 172.16.43.1 and `telnetd`.
+Each init keeps gadget4's kmsg marker before any mount, alive markers every 30 s and the self-reboot at 120 s (`reboot -f`, then sysrq b). `build/build-vendor-gadget5.sh WORK_DIR
+CONTROL_BOOT_IMG OUT_DIR [VENDOR4_RAMDISK]` builds all three and counts fourteen checks each (as gadget4's, plus: the init holds exactly its step's parts). Not run on the phone: the keeper's tries.
