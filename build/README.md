@@ -62,3 +62,11 @@ What differs between stock and ours that the bootloader could read: no AVB foote
 and patch level 0 (stock 15.0.0 / 2026-11); kernel gzip (stock lz4 frame); dtb of 51 KB with no /chosen bootargs (stock 376 KB,
 bootargs "rcupdate.rcu_expedited=1"); command line (stock has androidboot.* and androidboot.dtbo_idx=3); ramdisk gzip (stock xz).
 Equal: header v0, offsets, page size, one appended dtb, msm-id 0x124/0x20001, no board-id/pmic-id.
+
+## vendor-gadget.img (the vendor-kernel-first try)
+
+`~/Projects/walleye-build/images/vendor-gadget.img` is the bisect image s1 (the control's boot.img with only the ramdisk swapped to
+our gadget initramfs, 172.16.43.1; kernel, dtb, command line, header, AVB footer as the control's). `build/check-bisect.sh` counts
+that. The proof that it worked on the phone is `tests/host/gadget-up.sh` (run on the lab host; `GADGET_WAIT=90` waits for the gadget):
+it passes only when a USB device with our gadget strings enumerates and 172.16.43.1 answers ping and telnet; with the phone in
+fastboot it fails.
