@@ -869,13 +869,13 @@ Rank
 
 
 <a id="walleye-kmsg-only-init"></a>
-### Build an image whose init only writes to /dev/kmsg (vendor-gadget3's ramdisk, no gadget)
+### vendor-gadget4: an idle init (no gadget): kmsg marker, sleep 120, reboot -f
 
 Status
 : open
 
 Note
-: Separates ramdisk unpack from gadget bring-up: if bootreason is still kernel_panic with a kmsg-only init, the ramdisk/kernel pair is the fault; if it survives, the gadget setup is.
+: Third try of vendor-gadget3 (lab): panic before any gadget of ours, ~74-107 s after fastboot boot, no 240 s reboot. An idle init splits 'our gadget code causes it' from 'the vendor kernel cannot live without Android userspace for ~60 s' (e.g. a subsystem restart level 'panic', a watchdog nobody pets). Same checks as gadget3; only /init differs from gadget3's ramdisk; keep everything else byte-identical.
 
 About
 : walleye-first-fastboot-boot
@@ -885,3 +885,28 @@ Opened
 
 Needs
 : build
+
+Proof
+: vendor-gadget4.img = the control with only the ramdisk swapped (like gadget3), the init only writes a marker to /dev/kmsg, sleeps 120 s and runs reboot -f (sysrq b as the fallback); checks ok; hashes in SHA256SUMS; the keeper's try shows whether the phone panics at ~75 s anyway (then the panic does not come from our gadget code: kernel/hardware without Android userspace), or returns by itself at ~120 s (then the gadget bring-up is what panics)
+
+
+<a id="walleye-panic-60s-why"></a>
+### Why the vendor 4.4.302 kernel panics about 60 s after fastboot boot with our ramdisk, and how to read the panic text
+
+Status
+: open
+
+Note
+: Facts in the lab base: research walleye-vendor-kernel-facts-s1-panic (config.gz facts, ramoops 0xa1100000 2 MiB, encryption), the tries of vendor-gadget (gzip, no /init), gadget2/3 (xz): kernel_panic ~74-107 s after fastboot boot, no gadget of ours seen; the stock-ramdisk control boots Android to the logo instead. Public sources, read-only. Name any write (UART enable, dtbo) only with its way back; a UART cable is a purchase for the author.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: research
+
+Proof
+: a research row with sources: the likely causes ranked (subsystem restart level panic after PIL/SSR timeouts, MSM watchdog bark/bite not petted, rcu/hung-task, an init exit, vendor ramoops handling), how each is told apart by one cheap try, and how the previous boot's ramoops/console text can be read (vendor init.ramoops.sh encrypts it into /data/vendor_ce/0/ramoops after user unlock: what exactly triggers it, whether an unlock by the author after the try is enough, other routes: /proc/last_kmsg, bootloader log, UART cable with its cost and the fastboot oem uart question)
