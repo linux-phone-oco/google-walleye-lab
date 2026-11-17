@@ -1342,3 +1342,53 @@ Needs
 
 Proof
 : a Rust crate in the lab (build/ffs-acm-rs or as the lab's layout has it) built with lab-tools health/build.sh's way (rustup in ~/.local/share/devlab-cross, aarch64-linux-gnu-gcc as the linker, cargo build --release --locked --target aarch64-unknown-linux-musl), the same descriptors/steps as the C helper (decision 2026-11-17-walleye-ffs-acm-single-interface), a new image n3r differing from n3 only in the helper binary; checks as for n3; hashes; cargo fmt/clippy clean; no arguments or environment, so no argenv; the keeper's try then repeats n3's proof (tests/host/ffs-acm-up.sh)
+
+
+<a id="walleye-retry-massstorage-after-reboot"></a>
+### Try m1 again now the host runs 7.3.4 (usb_storage loads): read the first text the phone writes
+
+Status
+: open
+
+Note
+: Image vendor-gadget-m1.img sha256 a3cf08d388ab72c5e1532e7ae60c87c48e54524fda6ca2d9be7bf4aeb81f360a (lab PR 42; its first try enumerated as 1d6b:0104 but the host had no usb_storage). The lab host now runs kernel 7.3.4 (modprobe finds usb_storage and cdc_acm). From the first state (Android a completed, a successful, adb reboot bootloader; devlab fastboot state; fix flags only by metadata-only set-active). Run massstorage-read.sh in its own background job started BEFORE the boot (LUN_WAIT/LUN_WATCH), read the log window for the 180 s the init lives, copy it into the lab's material, redact serials/IMEI. The window is the vendor kernel's dmesg with our init: look for what it reports about USB, the dwc3 peripheral, and anything that explains the earlier panic (none expected: m1 does not panic).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: massstorage-read.sh (tests/host) prints the init's window text from the phone: uname, cmdline, mounts, dmesg tail of the vendor kernel with our init running, the heartbeat counter growing; kept as material in the lab and recorded as research with what it shows
+
+Rank
+: 1
+
+
+<a id="walleye-retry-ffs-acm-after-reboot"></a>
+### Try n3 (FunctionFS ACM) again now the host runs 7.3.4 (cdc_acm loads): a console on /dev/ttyACM0
+
+Status
+: open
+
+Note
+: Image vendor-gadget-n3.img sha256 6672eb844fb5435ebb336e33a0b59db069bc2e62a6e01f98d760f5646b1d214c (lab PR 44; its first try enumerated a class-2 interface, no panic, but the host had no cdc_acm). Read-only exploration over the console only: uname, cmdline, /proc/config.gz facts, dmesg, mount, ls /sys/class/udc, /sys/firmware/devicetree/base (compatible, reserved-memory), /proc/iomem; nothing written to the phone; to keep the console up beyond the init's timer touch /tmp/hold, then reboot -f when done. Record what the shell shows as research (redact serials/IMEI).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: tests/host/ffs-acm-up.sh passes: /dev/ttyACM0 appears on the host, a shell answers on it (uname -a, cat /proc/cmdline read-only), the phone returns by itself (the init's reboot)
+
+Rank
+: 2
