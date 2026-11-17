@@ -319,3 +319,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-vendor-gadget-n"></a>
+### vendor-gadget-n1, n2 built
+
+Entry date
+: 2026-11-17
+
+Done
+: Two images, each the stock control with only the ramdisk swapped (xz), vendor-gadget5a's init plus the ncm step without any write to the function's settings (walleye-ncm-panic-why): n1 = 5b4 minus the dev_addr/host_addr writes (function, config with its string, symlink; no bind); n2 = n1 + UDC bind, ip link set usb0 address, telnetd on 172.16.43.1. build/build-vendor-gadget-n.sh, 17 checks each ok (header and kernel = control's, AVB verifies, 33554432 bytes, ramdisk differs from gadget4's only in /init, exact step parts, grep for dev_addr|host_addr|qmult|ifname finds none). All earlier images (a-i, gadget1-5c, 5b1-b4, s0-s3) byte for byte as before (sha256sum -c: 0 differ); rebuilt twice with the same hashes. Files in ~/Projects/walleye-build/images, in SHA256SUMS there. sha256: vendor-gadget-n1.img b2e96b420e566d35acc415e964690feed9ecf7d67d0fbcebc8dbe467c67793b2, vendor-gadget-n2.img b007d1e3b54c9da90ed8dc5cb44ee098c9c06776a3ffc39ea64d98a0e4282a31; ramdisks initramfs-vendor-n1.cpio.xz f64aa41a5bfcd792ebb6cf06d4b52257ede6c7e2b77c843d027102bbacdc128d, initramfs-vendor-n2.cpio.xz d10d20db747081618fc4d1e01c75524ed82405387a1620a1c48fdf2c170ccfa4.
+
+Considered
+: n2's bind is announced inside its if (not at a line start), so the check counts 4 announcements, not 5. The usb0 address is set by ip link (busybox has CONFIG_IP and FEATURE_IP_LINK); ifconfig hw ether is the fallback if ip is refused.
+
+About
+: walleye-first-fastboot-boot

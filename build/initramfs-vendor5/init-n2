@@ -1,0 +1,48 @@
+#!/bin/busybox sh
+# vendor-gadget-n2 (walleye-ncm-noattr-images): vendor-gadget5a's init (kmsg marker, 30 s alive markers, reboot -f at 120 s, sysrq b fallback) plus the ncm
+# step without ever touching the function's own settings: the cause of the 5b panic is writes to them while the function has no network device yet (made at the UDC bind).
+# n2 = n1 + the UDC bind, the usb0 address set with ip link (the function's own setting is not used) and telnetd on 172.16.43.1 (5c minus the settings writes).
+# Never exits (an init that ends is a kernel panic); no `set -e`; every step says what it is about to do BEFORE it does it. Steps run before the timer loop.
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+say() { echo "walleye-init: $*" > /dev/kmsg 2>/dev/null; echo "walleye-init: $*" > /dev/console 2>/dev/null; }
+say "vendor-gadget-n2 init start (before any mount)"
+mount -t proc proc /proc
+say "proc mounted, kernel $(uname -r); step n2"
+mount -t sysfs sys /sys
+mkdir -p /sys/kernel/config
+mount -t configfs none /sys/kernel/config
+say "configfs mounted"
+G=/sys/kernel/config/usb_gadget/g1
+mkdir -p $G
+echo 0x1d6b > $G/idVendor
+echo 0x0104 > $G/idProduct
+echo 0x0100 > $G/bcdDevice
+echo 0x0200 > $G/bcdUSB
+mkdir -p $G/strings/0x409
+echo "walleye-first-boot" > $G/strings/0x409/serialnumber
+echo "linux-phone-oco" > $G/strings/0x409/manufacturer
+echo "Pixel 2 walleye (mainline)" > $G/strings/0x409/product
+say "step n1: about to mkdir functions/ncm.usb0"
+mkdir -p $G/functions/ncm.usb0
+say "step n1: about to mkdir configs/c.1/strings/0x409"
+mkdir -p $G/configs/c.1/strings/0x409
+echo "NCM" > $G/configs/c.1/strings/0x409/configuration
+say "step n1: about to symlink the function into configs/c.1"
+ln -s $G/functions/ncm.usb0 $G/configs/c.1/
+say "step n1 done: ncm function and config, no setting written"
+UDC=$(ls /sys/class/udc 2>/dev/null | head -n1)
+if [ -z "$UDC" ]; then say "NO UDC"; else say "step n2: about to bind $UDC"; echo "$UDC" > $G/UDC && say "gadget bound to $UDC"; fi
+ifconfig lo up
+n=0
+while ! ifconfig usb0 >/dev/null 2>&1 && [ $n -lt 20 ]; do sleep 1; n=$((n+1)); done
+say "step n2: about to set the usb0 address"
+ip link set usb0 address 02:42:ac:10:2b:01
+ifconfig usb0 172.16.43.1 netmask 255.255.255.0 up && say "usb0 is 172.16.43.1"
+telnetd -l /bin/sh -b 172.16.43.1
+say "telnetd on 172.16.43.1:23"
+n=0
+while [ $n -lt 4 ]; do sleep 30; n=$((n+1)); say "alive $((n*30)) s"; done
+say "self-reboot now"; sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+while :; do sleep 3600; done
