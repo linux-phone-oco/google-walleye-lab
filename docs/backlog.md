@@ -1539,3 +1539,25 @@ Needs
 
 Proof
 : images ml1 (kernel as Image.gz) and ml2 (kernel as lz4 frame like the stock) built by script from the control's own parts with exactly: our kernel, our -@ dtb (with the overlay stubs), our ramdisk; the ramdisk is a mainline-capable gadget init (mainline has devtmpfs and configfs: mass_storage or NCM-with-attributes are fine there, but keep it as simple as the vendor-kernel m1: enumerate with serial walleye-first-boot, product 'Pixel 2 walleye (mainline)', a 2 MiB mass_storage LUN window; open /dev/watchdog and never pet it (the SoC watchdog then resets the phone ~30-60 s later; if the dts needs the apss watchdog node enabled, enable it); cmdline: the stock cmdline except what mainline must have (earlycon msm_serial_dm,0xc1b0000 clk_ignore_unused ignore_loglevel panic=5 plus the stock androidboot.* kept), check-bisect-like checks ok, hashes in SHA256SUMS; the keeper's try then tells by lsusb (needs no host permissions): a device with our strings = first mainline light
+
+
+<a id="walleye-code-hygiene-rust-ci"></a>
+### Two code signs: remove the C probe of the ffs helper once n3r is tried, and give ffs-acm-rs fmt, clippy and test in CI
+
+Status
+: open
+
+Note
+: From ideal-agent: roles (decision 2026-11-17-a-programmer-consulted-like-a-researcher): the C file is still in the tree after #52, and CI runs no cargo. Decided by the coordinator: do it AFTER the keeper's first try of n3r (walleye-ffs-rust-try) so the C probe stays buildable until the Rust helper is shown on the phone; low rank, any builder run may take it (a programmer subagent, ideal-agent:programmer, may review the branch).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: build/ffs-acm/ffs-acm.c and anything that only builds n3 from it removed (n3's recorded hashes stay as history; n3r is the image to try); .github/workflows/check.yml runs cargo fmt --check, cargo clippy --all-targets -- -D warnings and cargo test for build/ffs-acm-rs as lab-tools' CI does; the lab's checks pass; read back from main
