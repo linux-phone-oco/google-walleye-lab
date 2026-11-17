@@ -1660,10 +1660,10 @@ Rank
 ### ml4: a timing channel from our mainline init - the reset delay says how far the kernel came, no UART, no USB, no pstore needed
 
 Status
-: open
+: done
 
 Note
-: Fact (lab research walleye-ml3-pstore-empty): ml1/ml2/ml3 all dark: accepted, left fastboot at 12-15 s, no gadget, Android back at 69-72 s, bootreason reboot, pstore empty. We do not know whether our kernel reaches userspace at all; 70 s ~ 12 s + 30 s watchdog + ~25 s Android is consistent with init alive and opening the watchdog, but also with a hang reset by a bootloader watchdog. The timing channel (an init that resets itself at a delay chosen by what it found) is the cheapest feedback channel that needs no purchase, no host permission and no pstore: the phone's own reset time. Keep the watchdog safety. Redo the same bins in later images as parts are added. WHEN DONE queue walleye-try-ml4 (needs phone, rank 1): the keeper tries ml4 twice (to see the jitter), records the two times and reads the score from the bin table, plus adb root /sys/fs/pstore and /data/vendor_ce/0/ramoops (a reset by init, not by the watchdog, may leave a console).
+: Built: images-ml4/boot-ml4.img sha256 105364591ce1f46a2a828caf1f80c851399487ab4a59bd777210a9a72e13ea84; try queued as walleye-try-ml4
 
 About
 : walleye-first-fastboot-boot
@@ -1676,3 +1676,28 @@ Needs
 
 Proof
 : boot-ml4.img = ml3 with ONLY the ramdisk's /init changed (kernel, dtb and header bytes equal ml3's): /init mounts proc/sys/devtmpfs, opens /dev/watchdog (a safety net: the SoC resets by itself ~30 s later if the rest hangs), counts which of a fixed checklist holds - (1) init reached userspace [always 1], (2) /sys/class/udc has an entry, (3) a dwc3 platform device is bound to its driver, (4) /sys/bus/platform/devices has a ramoops device, (5) /proc/iomem lists the ramoops region, (6) the PSCI/reset path answers (/sys/firmware/devicetree/base/psci exists), (7) UFS host is not enabled (expected 0) - then sleeps 5*score seconds (bins of 5 s) and runs reboot -f (sysrq b fallback); the checklist and the bin table written in the item/log; checks as ml3's plus: the init script has no bashisms, runs under busybox ash -n; a QEMU-free host test reading the bin table. The keeper's try then reads the time Android is back (host timestamps at fastboot-boot, at adb) and subtracts the known base (the control's: boot+Android a ~ 25-36 s); 70 s = the safety watchdog fired: init never ran or hung before the sleep
+
+
+<a id="walleye-try-ml4"></a>
+### Phone: boot image ml4 twice from the first state; read the reset time as a score
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images-ml4/boot-ml4.img. boot-ml4.img sha256 105364591ce1f46a2a828caf1f80c851399487ab4a59bd777210a9a72e13ea84; initramfs-ml4.cpio.xz sha256 da11b5e005dbe541db83ba9c286e91bfbb44db1058df65bc6e920b12c61dfd19; in ~/Projects/walleye-build/images-ml4/ (SHA256SUMS there). Try it twice, recording host timestamps at fastboot boot and at adb; score by tests/host/ml4-bin-table.sh build/initramfs-mainline/init-ml4 SECONDS (base 30 s, 12 s bootloader start, 5 s per point; ~72 s with no score = the safety watchdog). Also read adb root /sys/fs/pstore and /data/vendor_ce/0/ramoops.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 1

@@ -712,3 +712,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-2330-walleye-ml4-build"></a>
+### ml4 built
+
+Entry date
+: 2026-11-17
+
+Done
+: build/build-ml4.sh, build/initramfs-mainline/init-ml4, tests/host/ml4-bin-table.sh; images-ml4 with checksums; walleye-try-ml4 queued for the phone
+
+Considered
+: reusing build-mainline-light.sh (its checks assert ml1's init, so a separate script)
+
+Rejected
+: not petting the watchdog in the sleep: scores 6-7 would be cut by the 30 s reset and bins would saturate
+
+About
+: walleye-first-fastboot-boot

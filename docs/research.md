@@ -760,3 +760,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ml4-built"></a>
+### walleye-ml4-built
+
+Date
+: 2026-11-17
+
+Brief
+: ml4 built: ml3 with only /init changed (timing channel); kernel, dtb, header bytes equal ml3's; AVB footer verifies; rebuild is byte-identical
+
+Question
+: Is ml4 built so only the ramdisk differs from ml3?
+
+Found
+: build/build-ml4.sh unpacks ml3, builds the ramdisk from build/initramfs-mainline/init-ml4, repacks with ml3's header fields and AVB footer; 10 checks ok; rebuilt twice with the same hashes. boot-ml4.img sha256 105364591ce1f46a2a828caf1f80c851399487ab4a59bd777210a9a72e13ea84; initramfs-ml4.cpio.xz sha256 da11b5e005dbe541db83ba9c286e91bfbb44db1058df65bc6e920b12c61dfd19; in ~/Projects/walleye-build/images-ml4/ (SHA256SUMS there). Decision of the build: the init pets the watchdog once a second during its bounded sleep (up to 35 s at score 7) so the SoC watchdog (~30 s) does not cut the delay; before the sleep it is open and unpetted, so a hang there still resets by itself. Bin table: tests/host/ml4-bin-table.sh.
+
+About
+: walleye-first-fastboot-boot
