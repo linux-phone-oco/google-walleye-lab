@@ -1608,10 +1608,10 @@ Rank
 ### Phone: boot image n3r (the Rust FunctionFS ACM helper) once; host sees ttyACM and a shell answers
 
 Status
-: open
+: done
 
 Note
-: tried once 2026-11-17 on slot b: ffs-acm-up.sh fails (device enumerates, cdc_acm probe -22 Zero length descriptor references). Next: n3r2 with CDC header+call-mgmt+ACM functional descriptors in the FunctionFS descriptors; needs the coordinator to amend decision walleye-ffs-acm-single-interface
+: Tried once (n3r on slot b): the gadget enumerates but the host's cdc_acm refuses it (Zero length descriptor references, -22); f_fs cannot carry the CDC functional descriptors it needs. Parked: decision 2026-11-17-walleye-ffs-console-parked.
 
 About
 : walleye-first-fastboot-boot
