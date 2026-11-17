@@ -681,3 +681,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-17/
+
+
+<a id="walleye-s4-overlay-symbols-try"></a>
+### walleye-s4-overlay-symbols-try
+
+Date
+: 2026-11-17
+
+Brief
+: s4 (stock kernel + our dtb with overlay symbols): left fastboot at 12 s, Android on a at 36 s, bootreason reboot: the overlay merge was the s3 cause, our dtb is now taken
+
+Question
+: Does the control image with only our dtb swapped (-@, __symbols__, 130 overlay stubs) get past the bootloader's overlay merge, unlike s3?
+
+Found
+: boot-s3o.img sha256 f61e5e8c... fastboot boot once. Before: slot a active/successful, b unbootable retry 1. Result: left fastboot after 12 s (s3 stayed in fastboot), Android a with adb after 36 s, uptime 0 min, bootreason reboot, current slot a. After: adb reboot bootloader, fastboot, flags identical (a successful, b unbootable retry 1), nothing written. So the bootloader now accepts and starts the image; the s3 hang was the overlay merge. Android on a at 36 s (vs 156 s for a panic return) suggests an early reset of the started kernel with our dtb, cause not yet read; next: bring our kernel with this dtb, or read the reset reason (pstore/last_kmsg after unlock).
+
+About
+: walleye-first-fastboot-boot

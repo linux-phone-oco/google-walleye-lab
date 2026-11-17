@@ -541,3 +541,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-2310-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-17
+
+Done
+: s4 tried once: overlay symbols fix the s3 hang (left fastboot, Android a at 36 s, reboot). Phone in fastboot, unlocked, slot a active+successful, b unbootable retry 1; nothing flashed; lease released
+
+Considered
+: next: our kernel with the symbols dtb (vendor-gadget with s3o dtb); read why the stock kernel resets with our dtb
+
+About
+: walleye-first-fastboot-boot
