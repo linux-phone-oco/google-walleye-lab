@@ -15,5 +15,5 @@
 - **A script that changes state needs explicit intent** (a verb such as `now`); lists are passed as
   arguments, never spliced into a shell string. Secrets stay on the lab machine, mode 600.
 - **Record as you go** in linux-phone-oco/docs, the project's one database, through tad's named records
-  (`tad r decision --project device-template ...`): decisions with what was rejected, the backlog, the log. The
+  (`tad r decision --project google-walleye-lab ...`): decisions with what was rejected, the backlog, the log. The
   record of the work itself is the commits and pull requests; land with `land` (or `landit`).

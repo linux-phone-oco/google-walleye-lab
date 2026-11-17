@@ -2,14 +2,14 @@
 schema = 1
 
 [project]
-id = "linux-phone-oco/device-template"
-name = "Device template: a new phone's lab is a new device.toml"
-title = "device template"
+id = "linux-phone-oco/google-walleye-lab"
+name = "The lab of the Google Pixel 2 (walleye)"
+title = "google walleye lab"
 kind = "device-lab"
 parent = "linux-phone-oco"
 
 # Its records - backlog, decisions, research, log, milestones and the rest - are kept in linux-phone-oco/docs,
-# the project's one database, each row naming this place (project = "linux-phone-oco/device-template"), and written there
-# through tad's named records (tad r NAME --project device-template ...). The record of its work is its commits and pull
+# the project's one database, each row naming this place (project = "linux-phone-oco/google-walleye-lab"), and written there
+# through tad's named records (tad r NAME --project google-walleye-lab ...). The record of its work is its commits and pull
 # requests. Decided 2026-11-17: docs' decision 2026-11-17-one-database.
 [exports]
