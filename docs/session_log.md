@@ -691,3 +691,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-2340-walleye-ml3-try"></a>
+### ml3 try: pstore empty
+
+Entry date
+: 2026-11-17
+
+Done
+: Took the lease; booted boot-ml3.img once from the first state (slot a, b unbootable by the first state, nothing flashed); no USB light; Android back on a after 72 s; adb root read /sys/fs/pstore (empty) and the ramoops parameters (0xa1100000, matches); wrote tests/host/ml3-ramoops-read.sh (fails); left the phone in fastboot on slot a, good, lease to release.
+
+Considered
+: Reading raw DDR at 0xa1100000 (no /dev/mem on this kernel); a ml4 with earlycon on the msm serial (blind without UART).
+
+Rejected
+: Re-trying ml3: the result is deterministic; ml1/ml2/ml3 all end alike.
+
+About
+: walleye-first-fastboot-boot

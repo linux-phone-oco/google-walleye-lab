@@ -1489,10 +1489,10 @@ Proof
 ### Phone: boot ml1, then ml2, each once from the first state; lsusb tells first light
 
 Status
-: open
+: done
 
 Note
-: Tried 2026-11-17: ml1 and ml2 both fail (no USB light, Android on a at ~70 s, bootreason reboot). Needs the panic read: ramoops after the author's one unlock, or UART; to the walleye coordinator.
+: Tried 2026-11-17: ml1, ml2 and (item walleye-try-ml3-ramoops) ml3 all fail: no USB light, Android on a at ~70 s. pstore read done, empty. Next: UART, the walleye coordinator's call.
 
 About
 : walleye-first-fastboot-boot
@@ -1635,10 +1635,10 @@ Rank
 ### Phone: boot ml3 once from the first state, then read our kernel's console from the stock Android's pstore
 
 Status
-: open
+: done
 
 Note
-: Image: ~/Projects/walleye-build/images-ml3/boot-ml3.img, sha256 5c2574706882f5c8f40b134bdf501e22c092093e494b5aad25efdabe4ba105c4 (SHA256SUMS beside it). Boot it once from the first state; then, with Android up and the screen lock set to None by the author (asked), adb root and read /data/vendor_ce/0/ramoops and /sys/fs/pstore: the console of OUR mainline boot (redact IDs); record it as research.
+: Tried 2026-11-17: ml3 no light, Android on a at 72 s, pstore empty (research walleye-ml3-pstore-empty). Proof test tests/host/ml3-ramoops-read.sh fails as the facts stand. The remaining read is UART (decision walleye-panic-read-order step 5) or an earlycon/earlyprintk-free route; to the walleye coordinator.
 
 About
 : walleye-first-fastboot-boot

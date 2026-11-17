@@ -741,3 +741,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-17/
+
+
+<a id="walleye-ml3-pstore-empty"></a>
+### walleye-ml3-pstore-empty
+
+Date
+: 2026-11-17
+
+Brief
+: ml3 tried once: Android back on a at 72 s, bootreason reboot, /sys/fs/pstore empty though ramoops sits at 0xa1100000 - no console of ours survived
+
+Question
+: Does the stock Android's pstore hold our mainline kernel's console after ml3 (ramoops at the phone's own region)?
+
+Found
+: boot-ml3.img (sha256 5c257470...) booted from the first state with fastboot boot: left fastboot after 15 s, USB light never (no walleye-first-boot device), Android on slot a after 72 s, androidboot.bootreason=reboot. adb root works (Lineage-like build). Android's ramoops is at mem_address 2702180352 = 0xa1100000, size 2 MiB, record 524288, console 131072, pmsg 0 - it matches our node. /sys/fs/pstore has 0 files, no 'no valid data' line; /data/vendor_ce/0/ramoops holds only pub/priv pem. So no console record of ours: either our kernel dies before the pstore console registers, or the reset clears DDR (a bootloader/PMIC reset, not a warm one - bootreason is plain reboot, not kernel_panic/watchdog). Together with ml1/ml2 the 7.3 image has never shown a sign of life.
+
+About
+: walleye-first-fastboot-boot
