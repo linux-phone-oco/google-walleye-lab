@@ -3,12 +3,14 @@
 # boot partition (getvar boot_a 0x2000000), a device tree inside the kernel blob with qcom,msm-id <0x124 0x20001>
 # and no /chosen/bootargs, the command line present, and the ramdisk a gzip cpio holding /init.
 #
-#   check-bootimg.sh BOOT_IMG RAMDISK_OFFSET TAGS_OFFSET
+#   check-bootimg.sh BOOT_IMG RAMDISK_OFFSET TAGS_OFFSET [OS_VERSION OS_PATCH_LEVEL]   (none given: the header holds none)
 # Prints one "ok"/"FAIL" line per check and a count; exits 1 on any failure.
 set -u
 IMG=${1:?usage: check-bootimg.sh BOOT_IMG RAMDISK_OFFSET TAGS_OFFSET}
 RDO=${2:?}
 TGO=${3:?}
+OSV=${4:-}
+OSP=${5:-}
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 pass=0; fail=0
 ck() { if [ "$2" = "$3" ]; then echo "ok   $1: $2"; pass=$((pass+1)); else echo "FAIL $1: got '$2', want '$3'"; fail=$((fail+1)); fi; }
@@ -18,6 +20,8 @@ ck "size fits 32 MiB ($SIZE bytes)" "$([ "$SIZE" -le 33554432 ] && echo yes || e
 INFO=$(unpack_bootimg --boot_img "$IMG" --out "$T/u" 2>&1)
 field() { echo "$INFO" | sed -n "s/^$1: *//p" | head -n1; }
 ck header_version "$(field 'boot image header version')" 0
+ck "os version" "$(field 'os version')" "${OSV:-None}"
+ck "os patch level" "$(field 'os patch level')" "${OSP:-None}"
 ck "page size" "$(field 'page size')" 4096
 ck "kernel load address" "$(field 'kernel load address')" 0x00008000
 ck "ramdisk load address" "$(field 'ramdisk load address')" "$(printf '0x%08x' "$RDO")"
