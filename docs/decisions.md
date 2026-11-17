@@ -160,3 +160,28 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-17-walleye-panic-read-order"></a>
+### 2026-11-17-walleye-panic-read-order
+
+Date
+: 2026-11-17
+
+Brief
+: Read the panic in this order: read-only cmdline and timing first, ramoops after one author unlock second, UART cable third; no write before them
+
+Decision
+: 1) Read the running Android's full /proc/cmdline and chosen/bootargs and the control header cmdline (read-only): is skip_initramfs there? 2) Measure the panic time with the 1 s watcher against a plain-reboot Android-boot time. 3) Run gadget4 (idle init) only if skip_initramfs is absent. 4) After a panic try, boot Android, ask the author to unlock once, read /data/vendor_ce/0/ramoops as root before any further reboot. 5) If still dark, the author buys the Android Debug Cable (USB-C passthrough + FT232) and the keeper runs fastboot oem uart enable (way back: oem uart disable).
+
+Why
+: A system-as-root phone ignores a swapped boot ramdisk when the cmdline has skip_initramfs, which would explain no gadget ever and costs only reads to check; the panic time decides between a kernel-side 60 s timeout and an early fault; ramoops survives the warm reset but the vendor service consumes it, so the unlock is the one hand needed; UART answers everything but is a purchase and a bootloader setting.
+
+Rejected
+: UART first: sure but a purchase and a persisted bootloader setting before the free reads. A dtbo or kernel-cmdline write to move the console: a write with no need yet. Rebuilding the init again (gadget5) before knowing the ramdisk runs: spends tries on a guess. /proc/last_kmsg: gone since Android 6 (console-ramoops instead).
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-panic-60s-how-it-stands
