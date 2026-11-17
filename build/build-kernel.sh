@@ -11,10 +11,13 @@ K=${1:?usage: build-kernel.sh KERNEL_TREE OUT_DIR}
 OUT=${2:?usage: build-kernel.sh KERNEL_TREE OUT_DIR}
 HERE=$(cd "$(dirname "$0")/.." && pwd)
 QCOM=$K/arch/arm64/boot/dts/qcom
-cp "$HERE/dt/msm8998-google-walleye.dts" "$QCOM/msm8998-google-walleye.dts"
+cp "$HERE/dt/msm8998-google-walleye.dts" "$HERE/dt/msm8998-google-walleye-f.dts" "$QCOM/"
 grep -q 'msm8998-google-walleye.dtb' "$QCOM/Makefile" ||
   sed -i 's/^dtb-\$(CONFIG_ARCH_QCOM)\t+= msm8998-asus-novago-tp370ql.dtb$/&\ndtb-$(CONFIG_ARCH_QCOM)\t+= msm8998-google-walleye.dtb/' "$QCOM/Makefile"
 grep -q 'msm8998-google-walleye.dtb' "$QCOM/Makefile" || { echo "build-kernel: Makefile line not added" >&2; exit 1; }
+grep -q 'msm8998-google-walleye-f.dtb' "$QCOM/Makefile" ||
+  sed -i 's/^dtb-\$(CONFIG_ARCH_QCOM)\t+= msm8998-google-walleye.dtb$/&\ndtb-$(CONFIG_ARCH_QCOM)\t+= msm8998-google-walleye-f.dtb/' "$QCOM/Makefile"
+grep -q 'msm8998-google-walleye-f.dtb' "$QCOM/Makefile" || { echo "build-kernel: f Makefile line not added" >&2; exit 1; }
 mkdir -p "$OUT/b"
 M="make -C $K ARCH=arm64 LLVM=1 O=$OUT/b"
 $M defconfig >/dev/null
@@ -24,6 +27,6 @@ $M olddefconfig >/dev/null
 for s in PHY_QCOM_QUSB2 USB_DWC3_QCOM USB_CONFIGFS USB_CONFIGFS_ACM USB_CONFIGFS_ECM USB_CONFIGFS_RNDIS PSTORE_RAM PINCTRL_MSM8998 MSM_GCC_8998 SERIAL_MSM; do
   grep -q "^CONFIG_$s=y" "$OUT/b/.config" || { echo "build-kernel: CONFIG_$s is not =y" >&2; exit 1; }
 done
-$M -j"$(nproc)" Image.gz qcom/msm8998-google-walleye.dtb
-cp "$OUT/b/arch/arm64/boot/Image.gz" "$OUT/b/arch/arm64/boot/dts/qcom/msm8998-google-walleye.dtb" "$OUT/b/.config" "$OUT/"
+$M -j"$(nproc)" Image.gz qcom/msm8998-google-walleye.dtb qcom/msm8998-google-walleye-f.dtb
+cp "$OUT/b/arch/arm64/boot/Image.gz" "$OUT/b/arch/arm64/boot/dts/qcom/msm8998-google-walleye.dtb" "$OUT/b/arch/arm64/boot/dts/qcom/msm8998-google-walleye-f.dtb" "$OUT/b/.config" "$OUT/"
 ls -l "$OUT/Image.gz" "$OUT/msm8998-google-walleye.dtb"

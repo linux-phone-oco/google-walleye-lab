@@ -30,3 +30,13 @@ and no bootargs). Once the keeper has read the stock header, the set that matche
 `boot-c.img` and `boot-d.img` are `a` and `b` with the header's os_version 8.1.0 and os_patch_level 2020-01 (the first two carry
 none); only those four header bytes differ, kernel, dtb, initramfs and command line are the same. Rebuild only the images with
 `KEEP_KERNEL=1 build/build-all.sh` (the old images stay byte for byte). `images/DIFFERENCES.txt` has the one-line table.
+
+## Variants e and f (after the stock boot.img was read)
+
+LineageOS 22.2's own walleye boot.img (20261113, sha256 48dbc55c...7468) has header v0, base 0, kernel 0x8000, ramdisk 0x1000000,
+tags 0x100, second 0, page 4096, one dtb appended to an lz4 kernel with `qcom,msm-id <0x124 0x20001>` and no `qcom,board-id`
+or `qcom,pmic-id` (those live in the dtbo table, id 0x1bc; the kernel is told `androidboot.dtbo_idx=3`). Image `a` already has
+those offsets. `boot-e.img` = a with the command line cut to earlycon + console (its `--second_offset 0` changes nothing:
+mkbootimg writes second address 0 for an empty second, a's header has it). `boot-f.img` = e with `dt/msm8998-google-walleye-f.dts`
+(`qcom,board-id <8 0>`, what the stock dtb's own `qcom,mtp` means; the stock dtb has no board-id at all). The os word stays 0.
+Pass the f dtb as the fifth argument of `build-bootimg.sh` (`build-all.sh` does).

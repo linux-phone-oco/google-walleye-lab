@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Variant f of the walleye board file: the same tree plus qcom,board-id, for the one try that asks whether the
+ * bootloader's dtb matcher wants it. The stock walleye kernel's own dtb (LineageOS 22.2 boot.img, 20261113) carries
+ * qcom,msm-id <0x124 0x20001> and neither qcom,board-id nor qcom,pmic-id; the ids live in the dtbo table
+ * (id 0x1bc), not in this dtb. So <8 0> is not walleye's: it is what the stock dtb's own compatible "qcom,mtp" means.
+ * No qcom,pmic-id: the stock dtb has none to copy.
+ */
+#include "msm8998-google-walleye.dts"
+
+/ {
+	qcom,board-id = <8 0>;
+};
