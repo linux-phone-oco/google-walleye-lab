@@ -496,3 +496,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-17-walleye-vendor-gadget5-bisect"></a>
+### 2026-11-17-walleye-vendor-gadget5-bisect
+
+Date
+: 2026-11-17
+
+Brief
+: vendor-gadget5a returns at 156 s (reboot); 5b panics at 75 s (kernel_panic): the ncm function or its config symlink panics, configfs and the gadget dir do not
+
+Question
+: Which step of the gadget bring-up panics the vendor kernel: configfs+gadget dir (5a), +ncm function and config (5b), +UDC bind/network (5c)?
+
+Found
+: From the first state (Android on a successful, b unbootable retry 1), fastboot boot of each image, nothing flashed. 5a: left fastboot 12 s, Android on a at 156 s, bootreason reboot, boot_completed 1 (init ran to its own reboot at ~120 s). 5b: left fastboot 12 s, Android on a at 75 s, bootreason kernel_panic. Stopped at the first panic, so 5c not tried. Culprit: the step 5b adds over 5a: creating the ncm function and/or the config with its symlink (f_ncm in the vendor 4.4 kernel, or configfs usb_gadget function handling). UDC bind is not the cause. Slot flags before and after each try identical: a current/successful, b unbootable retry 1; phone left in fastboot. gadget-up.sh not run: it is only for a 5c that does not panic. Next: split 5b (function dir only; ncm without config; other function type such as rndis/acm) - builder.
+
+About
+: walleye-first-fastboot-boot

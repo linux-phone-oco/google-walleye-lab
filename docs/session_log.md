@@ -280,3 +280,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-2125-walleye-gadget-bisect"></a>
+### Gadget bisect: 5b panics
+
+Entry date
+: 2026-11-17
+
+Done
+: Took the lease; tried vendor-gadget5a (no panic, back at 156 s) and 5b (kernel_panic, back at 75 s) from the first state on the active slot a as the earlier gadget tries did; stopped at the first panic. Phone left in fastboot, a active+successful, b unbootable retry 1 (unchanged), nothing flashed.
+
+Considered
+: next: builder splits 5b: mkdir ncm function only, then the config symlink; or acm/rndis instead of ncm
+
+About
+: walleye-first-fastboot-boot
