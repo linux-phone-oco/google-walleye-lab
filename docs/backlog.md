@@ -868,33 +868,11 @@ Rank
 : 1
 
 
-<a id="walleye-kmsg-only-init"></a>
-### vendor-gadget4: an idle init (no gadget): kmsg marker, sleep 120, reboot -f
-
-Status
-: done
-
-Note
-: vendor-gadget4.img built, 14 checks ok; try queued for the phone keeper
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-17
-
-Needs
-: phone
-
-Proof
-: the keeper's try of vendor-gadget4.img: the phone panics at ~75 s (not our gadget) or returns by itself at ~120 s (the gadget bring-up panics); slot report after
-
-
 <a id="walleye-panic-60s-why"></a>
 ### Why the vendor 4.4.302 kernel panics about 60 s after fastboot boot with our ramdisk, and how to read the panic text
 
 Status
-: open
+: done
 
 Note
 : Facts in the lab base: research walleye-vendor-kernel-facts-s1-panic (config.gz facts, ramoops 0xa1100000 2 MiB, encryption), the tries of vendor-gadget (gzip, no /init), gadget2/3 (xz): kernel_panic ~74-107 s after fastboot boot, no gadget of ours seen; the stock-ramdisk control boots Android to the logo instead. Public sources, read-only. Name any write (UART enable, dtbo) only with its way back; a UART cable is a purchase for the author.
@@ -935,3 +913,106 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-cmdline-read"></a>
+### Read the running Android's full cmdline (skip_initramfs? root=? dm=?) and the ramoops service files, read-only
+
+Status
+: open
+
+Note
+: Read-only: devlab phone sh. Also: cat /vendor/bin/init.ramoops.sh, ls /sys/fs/pstore, getprop ro.boot.bootreason. Host side: the control image's header cmdline from the file (no phone needed).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: test walleye-boot-cmdline-known: the full /proc/cmdline and chosen/bootargs and /vendor/etc/init/*ramoops* are recorded as a research row; says whether skip_initramfs is present
+
+Rank
+: 1
+
+
+<a id="walleye-panic-time-measure"></a>
+### Measure when the panic happens: T_android from a plain adb reboot against the gap of a panic try
+
+Status
+: open
+
+Note
+: A plain reboot is a change of the phone: keeper only. Reuse the watcher from gadget3. Needs no new image.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: test walleye-panic-time: the 1 s watcher log gives T_android (reboot) and the try's gap; panic time = gap - T_android, written as a research row
+
+Rank
+: 2
+
+
+<a id="walleye-ramoops-after-unlock"></a>
+### After one panic try: unlock by the author, then read /data/vendor_ce/0/ramoops as root
+
+Status
+: open
+
+Note
+: Ramoops region 0xa1100000 (2 MiB) survives the warm reset; the vendor init encrypts it after unlock. Try may be any existing image that panics (gadget3), no new build.
+
+Waits
+: the author's unlock after the try; Android on a must not be rebooted before the read
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: test walleye-panic-text: a research row quoting the first panic lines (Kernel panic - not syncing: ...) from the ramoops file, or recording that the file is absent for this kind of reboot
+
+Rank
+: 3
+
+
+<a id="walleye-kmsg-only-init"></a>
+### vendor-gadget4: an idle init (no gadget): kmsg marker, sleep 120, reboot -f
+
+Status
+: open
+
+Note
+: Waits for the cmdline read: if skip_initramfs is present the ramdisk never runs and this try says nothing; build only if absent.
+
+Waits
+: walleye-cmdline-read
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: vendor-gadget4.img = the control with only the ramdisk swapped; the keeper's try shows whether the phone panics at the same gap
