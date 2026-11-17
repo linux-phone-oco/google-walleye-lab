@@ -850,7 +850,7 @@ Status
 : in-progress
 
 Note
-: tried twice 2026-11-17: bootreason kernel_panic, back on a; gadget-up not shown (watcher lost); see session log 2026-11-17-2035
+: Tried twice from the first state (docs PR 350 then moved to the lab): left fastboot at 12 s, Android on a again after 107 s / 76 s, bootreason kernel_panic, the 240 s timer never fired (the panic came first). Gadget NOT shown: the keeper's watcher was killed by its own cleanup; the 18d1:d001 devices seen are surya's gadget or ours - unread. THIRD TRY, same image, from the first state: (1) start the watcher FIRST, in its own background job that nothing else kills: a 1 s loop over 120 s that logs, for every USB device, lsusb -v iSerial/iProduct/iManufacturer and the sysfs port, and runs GADGET_WAIT=120 tests/host/gadget-up.sh; (2) read at once the strings of any 18d1:d001 / new device: ours are serial walleye-first-boot, product 'Pixel 2 walleye (mainline)'; surya's is the postmarketOS gadget; (3) if the NCM interface of ours appears, put 172.16.43.2/24 on the host interface and ping/telnet 172.16.43.1; telnet read-only: dmesg | head, cat /proc/cmdline, touch /tmp/hold to keep it up, then reboot -f; (4) afterwards read ro.boot.bootreason and whether /sys/fs/pstore has anything. If the panic comes before any device strings of ours are seen, say so: the next build is an init that only writes to /dev/kmsg (it separates ramdisk unpack from gadget bring-up). No hands expected: a panic falls back to Android a in ~76-107 s.
 
 About
 : walleye-first-fastboot-boot
