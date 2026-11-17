@@ -1204,10 +1204,10 @@ Opened
 ### m1: a mass_storage gadget as a log window (device writes a file, the host reads the raw LUN)
 
 Status
-: open
+: done
 
 Note
-: Decision walleye-host-channel-order. Careful: only writes that the kernel's mass_storage configfs accepts without the NULL-net trap: look at the public wahoo source for the lun attributes. WHEN DONE queue the keeper's try walleye-try-massstorage (needs phone, rank 1, waits null): from the first state, then massstorage-read.sh on the host for 90 s; record what the log window shows (dmesg of the vendor kernel with our init running: the first readable text from the phone).
+: Built: vendor-gadget-m1.img a3cf08d3..., initramfs dd59bce1... in ~/Projects/walleye-build/images (SHA256SUMS), 18 checks ok (build/build-vendor-gadget-m.sh); host reader tests/host/massstorage-read.sh (not yet run against a real LUN). Next: walleye-try-massstorage (keeper).
 
 About
 : walleye-first-fastboot-boot
@@ -1242,3 +1242,28 @@ Needs
 
 Proof
 : a research row with the helper's design: the ffs descriptors and strings (CDC union/header/call-management/ACM functional descriptors, one interrupt-in and two bulk endpoints), the init steps (mount ffs, the order of writing descriptors before the UDC bind, as Android's own ffs.adb init composes it, read-only look at the public init.*usb*.rc), the bridge to a shell on a pty, how the host sees /dev/ttyACM0; the kernel's own GPL tools/usb/ffs-test.c as the base; which image tells, and its failure modes (panics, no enumerate)
+
+
+<a id="walleye-try-massstorage"></a>
+### Try m1 from the first state, then read the log window on the host for 90 s
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images/vendor-gadget-m1.img sha256 a3cf08d388ab72c5e1532e7ae60c87c48e54524fda6ca2d9be7bf4aeb81f360a (reboots itself at 180 s). From the first state: fastboot boot it, then LUN_WAIT=60 LUN_WATCH=90 tests/host/massstorage-read.sh in the lab repo (needs read access to the block device; skip says so). Record what the window shows: the first readable text from the phone (vendor kernel dmesg with our init running). Decision walleye-host-channel-order.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 1

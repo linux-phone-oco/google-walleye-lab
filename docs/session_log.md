@@ -391,3 +391,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-vendor-gadget-m1"></a>
+### vendor-gadget-m1 built: the mass-storage log window
+
+Entry date
+: 2026-11-17
+
+Done
+: Built vendor-gadget-m1.img (the stock control's boot.img, only the ramdisk swapped; init-m1): a mass_storage gadget (functions/mass_storage.0, lun.0 ro=1 removable=1 cdrom=0 nofua=0, file = a 2 MiB file in the ramdisk), no ncm and no network, every lun attribute written only if it exists and each configfs step announced in kmsg first; every 5 s the first 64 KiB of the file is rewritten in place (beat, uname, cmdline, mounts, udc, dmesg tail; NUL padded); reboot -f at 180 s then sysrq b. build/build-vendor-gadget-m.sh: 18 checks ok. tests/host/massstorage-read.sh finds the LUN by our USB strings (sysfs), reads 64 KiB with O_DIRECT, prints the text, one pass/fail/skip line. sha256 vendor-gadget-m1.img a3cf08d388ab72c5e1532e7ae60c87c48e54524fda6ca2d9be7bf4aeb81f360a, initramfs-vendor-m1.cpio.xz dd59bce15a988dac7488b079deb6558fba2da24b620aa543ea4801f5ecfbc29e, in ~/Projects/walleye-build/images and its SHA256SUMS. Not measured yet: the host reader against a real LUN (the phone was not touched), whether this kernel exposes every lun attribute.
+
+Considered
+: Writing the window by dd in place with NUL padding (no stale tail) against rewriting the file whole (the LUN would be reopened).
+
+Rejected
+: An inquiry_string attribute to name the LUN: not in the brief's attribute list, the host finds the LUN by the usb strings instead.
+
+About
+: walleye-first-fastboot-boot
