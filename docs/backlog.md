@@ -1503,9 +1503,6 @@ Status
 Note
 : Image ready: ~/Projects/walleye-build/images/boot-s3o.img sha256 f61e5e8ccfa51bf6c6bad6c9e5a660a80970798e4e1f57831dd4374b30c27818 (control boot.img with only our dtb swapped: -@, __symbols__, 130 overlay stubs; host overlay merge passes). One fastboot boot, slot b, own way back as every try. s3 (old dtb) was 'Booting OKAY' then stayed in fastboot; anything else (kernel start, A/B fallback to Android) shows the overlay merge was the cause. Record under the s3 row.
 
-Waits
-: none
-
 About
 : walleye-first-fastboot-boot
 
@@ -1517,3 +1514,6 @@ Needs
 
 Proof
 : TEST
+
+Rank
+: 1
