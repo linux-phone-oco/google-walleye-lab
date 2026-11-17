@@ -77,6 +77,21 @@
 	};
 };
 
+/*
+ * The apps-processor (SoC) watchdog: msm8998.dtsi has none. Address and bark interrupt (SPI 3) are the downstream
+ * MSM8998 values (wdog 0x17817000), NOT measured on this phone yet. The mainline-light init opens /dev/watchdog and
+ * never pets it, so the SoC resets the phone by itself (the try's way back without hands). Decision
+ * 2026-11-17-walleye-try-returns-without-hands.
+ */
+&soc {
+	watchdog@17817000 {
+		compatible = "qcom,kpss-wdt";
+		reg = <0x17817000 0x1000>;
+		clocks = <&sleep_clk>;
+		interrupts = <GIC_SPI 3 IRQ_TYPE_EDGE_RISING>;
+	};
+};
+
 /* The debug UART (the Pixel debug cable): earlycon=msm_serial_dm,0xc1b0000 */
 &blsp2_uart1 {
 	status = "okay";
