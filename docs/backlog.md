@@ -82,7 +82,7 @@ Status
 Note
 : ramoops at 0xa1810000/0x200000, qcom_wdt.arm_on_probe=1, watchdog.open_timeout=300, reboot=w (porthole); the Pixel debug cable is not in the lab.
 
-Waits
+Blocked by
 : walleye-first-fastboot-boot
 
 Opened
@@ -104,7 +104,7 @@ Status
 Note
 : Enable ufshc + ufsphy with the vcc/vccq rails from the wahoo dtsi; mount nothing, write nothing; this is also the way to read walleye's own boot.img header.
 
-Waits
+Blocked by
 : walleye-first-fastboot-boot
 
 Opened
@@ -148,7 +148,7 @@ Status
 Note
 : Mainline rmi_i2c driver; supplies pm8998 l6 and l28; xd boards add a pmi8998 power gpio - which board revision the lab phone is, is not known.
 
-Waits
+Blocked by
 : walleye-first-fastboot-boot
 
 Opened
@@ -413,7 +413,7 @@ Status
 Note
 : Only when the first-state try is refused. Power off fully (not fastboot reboot), start into the bootloader, record fastboot --version and that the phone is on a direct USB port; the control once; the phone back on its start slot.
 
-Waits
+Blocked by
 : walleye-load-error-first-state
 
 About
@@ -510,7 +510,7 @@ Status
 Note
 : tried twice, Load Error; gadget-up fails
 
-Waits
+Blocked by
 : walleye-vendor-gadget-image,walleye-gadget-up-check
 
 About
@@ -535,7 +535,7 @@ Status
 Note
 : read from the running vendor kernel; see research walleye-vendor-kernel-facts-s1-panic
 
-Waits
+Blocked by
 : walleye-vendor-gadget-try
 
 About
@@ -582,7 +582,7 @@ Status
 Note
 : Not needed: the vendor kernel ran with our ramdisk (research walleye-vendor-kernel-facts-s1-panic); mainline images g/h wait until the vendor-kernel gadget (walleye-try-vendor-gadget2) gives a shell and the facts. Closed by the coordinator 2026-11-17.
 
-Waits
+Blocked by
 : walleye-try-g-43
 
 About
@@ -1002,7 +1002,7 @@ Status
 Note
 : Waits for the cmdline read: if skip_initramfs is present the ramdisk never runs and this try says nothing; build only if absent.
 
-Waits
+Blocked by
 : walleye-cmdline-read
 
 About
