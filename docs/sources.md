@@ -204,3 +204,19 @@ By
 
 Takes
 : descriptor blob layout: header (magic V2, flags FS|HS|SS, counts), then fs, hs, ss descriptor lists; strings blob with FUNCTIONFS_STRINGS_MAGIC; ep0 event loop
+
+
+<a id="aosp-libufdt-overlay"></a>
+### libufdt ufdt_overlay.c (AOSP)
+
+Url
+: https://android.googlesource.com/platform/system/libufdt/+/1943dd8f54a872953f3d12c35247c7f6594ea5a6/ufdt_overlay.c
+
+Author
+: AOSP
+
+By
+: Google
+
+Takes
+: With any property in an overlay's __fixups__, a base dtb without a __symbols__ node is an error ('No node __symbols__ in main dtb'): the merge fails

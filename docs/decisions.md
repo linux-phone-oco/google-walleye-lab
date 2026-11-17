@@ -257,3 +257,28 @@ About
 
 Research
 : walleye-ffs-acm-helper-how-it-stands
+
+
+<a id="2026-11-17-walleye-dtb-carries-overlay-symbols"></a>
+### 2026-11-17-walleye-dtb-carries-overlay-symbols
+
+Date
+: 2026-11-17
+
+Brief
+: Our dtb is built with -@ and carries stub nodes for every label the vendor dtbo overlay names, so the bootloader's overlay merge can succeed
+
+Decision
+: Generate from the overlay's __fixups__ a compat dtsi (the 137 labels, paths as in the stock dtb's __symbols__), include it in msm8998-google-walleye.dts, build with -@, and gate on tests/host/dtbo-overlay-merges.sh passing on the host before any phone try; then one s3-like image (stock kernel, ours dtb).
+
+Why
+: fdtoverlay: overlay 3 merges into stock dtb, fails on ours for lack of __symbols__; libufdt treats that as an error; s3 is the only bisect variant with such a dtb and the only one stuck after Booting OKAY.
+
+Rejected
+: Stock dtb for first light: the kernel would run on the vendor tree, wrong for mainline drivers, and it hides the problem. Patching the stock dtb with our nodes: larger, same end. Writing dtbo to drop the overlays: a write with no way back (fastboot cannot read it), not proposed. Only -@: still ~123 of 137 labels missing. Only changing compatible: the merge never reads it.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-dtbo-overlay-merge-why-how-it-stands
