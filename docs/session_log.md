@@ -784,3 +784,24 @@ Done
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0010-walleye-ml5-try"></a>
+### ml5 try: kernel never reaches init
+
+Entry date
+: 2026-11-17
+
+Done
+: Took the lease; booted ml5a twice (Android back after 75 s, 75 s) and ml5b twice (75 s, 78 s) by fastboot boot from slot b (both slots good, nothing flashed). ml5a base 75 s is the ~70 s bin: the mainline kernel never reached init, as ml1-ml3; ml5b - ml5a = 0 and 3 s, so no init ran. Phone left in fastboot, slot b active and successful, a successful; lease released.
+
+Considered
+: UART/earlycon before init; a vendor-kernel-side check, for the coordinator.
+
+Rejected
+: Re-trying ml5: four tries agree, deterministic.
+
+About
+: walleye-first-fastboot-boot

@@ -1727,10 +1727,10 @@ Proof
 ### Phone: boot ml5a twice, then ml5b twice from the first state; record the four return times
 
 Status
-: open
+: done
 
 Note
-: images ~/Projects/walleye-build/images-ml5 (SHA256SUMS); table tests/host/ml5-bin-table.sh INIT_DIR [SECONDS] with BASE=ml5a time; ml5a ~40 s = init ran, ~70 s = kernel never reached init; ml5b = base + 3*score
+: proven by the phone: ml5a 75 s and 75 s, ml5b 75 s and 78 s (fastboot boot to adb, from slot b, nothing flashed); ml5a ~70 s+ = the kernel never reached init; ml5b equals ml5a within 3 s, so no init ran. Next: a way to see before init (earlycon/UART, or a vendor-kernel-side check), the coordinator's call.
 
 About
 : walleye-first-fastboot-boot
