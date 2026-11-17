@@ -17,3 +17,17 @@ jobs:
           git ls-files -z '*.sh' | xargs -0 -r -n1 sh -n
           git ls-files -z '*.sh' | xargs -0 -r shellcheck -S error -s sh
           echo "checked: $(git ls-files '*.sh' | wc -l) scripts"
+  rust:
+    name: ffs-acm-rs fmt, clippy, test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: build/ffs-acm-rs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test

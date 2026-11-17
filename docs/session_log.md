@@ -613,3 +613,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-builder-rust-ci"></a>
+### Builder: Rust CI for ffs-acm-rs
+
+Entry date
+: 2026-11-17
+
+Done
+: Added a rust job to check.yml (fmt --check, clippy --all-targets -D warnings, test in build/ffs-acm-rs); all three pass on the lab first. Split walleye-code-hygiene-rust-ci: CI part done; C probe removal left open, blocked by walleye-ffs-rust-try because the coordinator's note says remove it only after n3r is tried and that try has not happened. No image built, nothing queued for the phone, phone not touched.
+
+Considered
+: removing the C probe now: n3 retry and n3r try are still open
+
+Rejected
+: Removing the C probe now: it would break the order the coordinator set
+
+About
+: walleye-first-fastboot-boot
