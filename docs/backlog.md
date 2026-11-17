@@ -1300,12 +1300,6 @@ Status
 Note
 : Try ~/Projects/walleye-build/images/vendor-gadget-n3.img (sha256 6672eb84...d214c) once by fastboot boot; read the health report after; on no bind read host dmesg for cdc_acm and the helper's walleye-ffs-acm lines in kmsg
 
-Waits
-: none
-
-Blocked by
-: walleye-ffs-helper-build
-
 About
 : walleye-first-fastboot-boot
 
@@ -1317,3 +1311,6 @@ Needs
 
 Proof
 : tests/host/ffs-acm-up.sh
+
+Rank
+: 2
