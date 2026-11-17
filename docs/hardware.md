@@ -23,6 +23,9 @@ Serves
 About
 : walleye-first-fastboot-boot
 
+General
+: docs:uart-1v8-adapter
+
 Sources
 : src-pixel-uart-cable,xairy-pixel-kgdb
 
@@ -54,6 +57,9 @@ Serves
 About
 : walleye-first-fastboot-boot
 
+General
+: docs:usbc-sbu-breakout
+
 Sources
 : bacon-pixel-uart,src-pixel-uart-cable
 
@@ -81,6 +87,9 @@ Serves
 
 About
 : walleye-first-fastboot-boot
+
+General
+: docs:usb-cereal
 
 Price
 : EUR 39.95 at soldered.com
@@ -118,6 +127,9 @@ Serves
 
 About
 : walleye-first-fastboot-boot
+
+General
+: docs:uart-debug-setup
 
 Sources
 : bacon-pixel-uart,src-pixel-uart-cable,xairy-pixel-kgdb,google-usb-cereal
