@@ -1909,3 +1909,47 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-pk5-light"></a>
+### First light of OUR kernel: pk5 (our kernel + porthole's taimen dtb, no earlycon) with a gadget init: configfs ACM console (a shell on /dev/ttyGS0) and the mass_storage log window
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-try-bisect-pk): pk5 (OUR kernel + porthole's taimen dtb) returns at 42 s twice = init ran: our mainline kernel is fine; our dtb stops boot. The first mainline userspace on this phone is therefore within reach with porthole's dtb. WHEN DONE queue walleye-try-pk5l (needs phone, rank 1): pk5l twice; read the console and the window; stay up as long as the init allows (touch /tmp/hold keeps it); record the first mainline dmesg. A second item, walleye-our-dtb-bisect (build), follows: diff our dtb vs porthole's taimen dtb, bisect nodes.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: boot-pk5l.img = pk5's kernel, dtb, header, footer, cmdline (bytes equal), ramdisk = a mainline gadget init: mount proc/sys/devtmpfs/configfs, gadget with strings serial walleye-first-boot / product 'Pixel 2 walleye (mainline)', functions acm.GS0 (shell: busybox ash on /dev/ttyGS0 through a getty-less loop, respawning) and mass_storage.0 (2 MiB file window rewritten every 5 s with uname, cmdline, dmesg tail, /proc/iomem, /sys/class/udc, pstore), UDC bound to the first /sys/class/udc entry; /dev/watchdog opened and petted for a bounded 180 s, then reboot -f (sysrq b fallback); a host test tests/host/mainline-acm-up.sh (finds the device by our strings, waits for /dev/ttyACM*, sends 'uname -a; cat /proc/cmdline', expects the answer; and reads the LUN window via massstorage-read.sh); checks as before; the mainline kernel config must have USB_CONFIGFS_ACM, MASS_STORAGE, DWC3 peripheral and the QCOM glue (say if our config lacks any; porthole's dtb carries its dwc3 node: say what the kernel needs from it)
+
+
+<a id="walleye-our-dtb-bisect"></a>
+### Find the node(s) of OUR dtb that stop boot: diff it against porthole's taimen dtb (the one that reaches init with our kernel), bisect by moving nodes
+
+Status
+: open
+
+Note
+: Fact: our kernel boots with porthole's dtb (pk5, init at 42 s) and dies with ours (ml5a/ml6a, ~75 s); porthole's kernel with our dtb dies too (pk4): the dtb is the cause. Likeliest suspects: reserved-memory carve-outs that overlap firmware memory (our dts' regions from the wahoo file, ramoops 0xa1100000 added by us), the watchdog node at 0x17817000 the builder added from downstream values (a wrong address faults the bus), regulators, the usb nodes. Diff first (dtc -I dtb -O dts, both), then ask which differences matter; bisect with one image per group, ramdisk = ml5a's init (reboot at once), expected returns: init ran ~42-50 s, dead ~75 s. WHEN DONE queue walleye-try-dtb-bisect (needs phone, rank 2).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: a research row naming the node or property whose presence in our dts stops boot (reset at ~33 s), found by images each with our dtb minus a node group (reserved-memory carve-outs, ramoops, the watchdog node we added, regulators, the dwc3/usb nodes, tlmm...), or porthole's dtb plus a node group of ours; the fix as a patch to dt/msm8998-google-walleye.dts; hashes
