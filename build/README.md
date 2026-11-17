@@ -41,11 +41,11 @@ mkbootimg writes second address 0 for an empty second, a's header has it). `boot
 (`qcom,board-id <8 0>`, what the stock dtb's own `qcom,mtp` means; the stock dtb has no board-id at all). The os word stays 0.
 Pass the f dtb as the fifth argument of `build-bootimg.sh` (`build-all.sh` does).
 
-## Variants g and h (walleye's own address)
+## Variants g, h and i (walleye's own address)
 
 Walleye and surya share one host, and surya's pmOS gadget answers on 172.16.42.1, so devlab must tell the phones apart; the manifest
 `[connection] addresses` already says 172.16.43.1. `boot-g.img` = e and `boot-h.img` = f with the initramfs built `NET=43`
 (`build-initramfs.sh` rewrites 172.16.42 to 172.16.43 in the init, udhcpd.conf and the self-test, and the ECM MAC byte 2a to 2b,
 into `WORK_DIR/net43/`; at the default NET=42 the files are used as they are, so a-f stay byte for byte). Only the ramdisk differs
-from e and f. `check-bootimg.sh` now also counts `ifconfig usb0 172.16.NET.1` in /init and the lease in udhcpd.conf (`NET=43` for g, h).
+from e, b and f. `check-bootimg.sh` now also counts `ifconfig usb0 172.16.NET.1` in /init and the lease in udhcpd.conf (`NET=43` for g, h, i).
 `NET=43 build/selftest-initramfs.sh WORK_DIR` is the QEMU proof at 172.16.43.1.
