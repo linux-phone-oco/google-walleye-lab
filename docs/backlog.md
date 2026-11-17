@@ -1226,10 +1226,10 @@ Proof
 ### FunctionFS with CDC-ACM descriptors and a tiny static aarch64 helper: the interactive console channel
 
 Status
-: open
+: done
 
 Note
-: Now needed, not a fallback (decision walleye-host-channel-order): NCM cannot be given a MAC on this kernel; ECM/RNDIS/ACM/SERIAL are not in the config. FunctionFS is =y. The helper is written in C and built static aarch64 with the lab's clang; no Python; GPL/public sources only.
+: Answered: research walleye-ffs-acm-helper-how-it-stands, decision 2026-11-17-walleye-ffs-acm-single-interface; build item walleye-ffs-helper-build, phone item walleye-ffs-helper-try.
 
 About
 : walleye-first-fastboot-boot
@@ -1267,3 +1267,50 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-ffs-helper-build"></a>
+### Write the FunctionFS ACM helper (C, static aarch64, GPL base ffs-test.c) and the n3 ramdisk/image
+
+Status
+: open
+
+Note
+: Design in research walleye-ffs-acm-helper-how-it-stands and decision 2026-11-17-walleye-ffs-acm-single-interface; same stock-boot.img control and xz ramdisk as build-vendor-gadget-n.sh; no Python.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: builds static aarch64 helper and image n3 with check-bootimg counting ok; tests/host/ffs-acm-up.sh exists and fails without the phone
+
+
+<a id="walleye-ffs-helper-try"></a>
+### Phone: boot image n3 once; host sees ttyACM and a shell answers
+
+Status
+: open
+
+Note
+: One fastboot boot by the keeper; read the health report after; on no bind read host dmesg and the mass-storage window for the failure mode listed in the research.
+
+Blocked by
+: walleye-ffs-helper-build
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: tests/host/ffs-acm-up.sh

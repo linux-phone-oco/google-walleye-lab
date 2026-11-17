@@ -156,3 +156,51 @@ By
 
 Takes
 : dev_addr/host_addr/qmult/ifname store: -EBUSY if refcnt, else gether_set_*(opts->net) with no NULL check
+
+
+<a id="src-linux-f-fs-c"></a>
+### drivers/usb/gadget/function/f_fs.c (v4.4.302 and v7.3): descriptor parser
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/drivers/usb/gadget/function/f_fs.c?h=v4.4.302
+
+Author
+: Linux kernel (GPL-2.0)
+
+By
+: Linux kernel
+
+Takes
+: ffs_do_single_desc accepts only interface, endpoint, HID, OTG, interface-association and SS companion descriptors; class-specific (0x24 CS_INTERFACE) falls to default -EINVAL in both v4.4.302 and v7.3; interface numbers are remapped by usb_interface_id (single function in a config starts at 0); a configfs bind returns -ENODEV until the descriptors are written (desc_ready)
+
+
+<a id="src-linux-cdc-acm-c"></a>
+### drivers/usb/class/cdc-acm.c: acm_probe without functional descriptors
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/usb/class/cdc-acm.c?h=v7.3
+
+Author
+: Linux kernel (GPL-2.0)
+
+By
+: Linux kernel
+
+Takes
+: with no union descriptor and an interface of class 2 subclass 2 with exactly three endpoints, probe assumes a single combined interface and finds interrupt-in, bulk-in, bulk-out by usb_find_common_endpoints: no CDC functional descriptors needed
+
+
+<a id="src-linux-ffs-test-c"></a>
+### tools/usb/ffs-test.c and Documentation/usb/functionfs.rst
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/usb/ffs-test.c?h=v7.3
+
+Author
+: Samsung Electronics, Linux kernel (GPL-2.0-or-later)
+
+By
+: Linux kernel
+
+Takes
+: descriptor blob layout: header (magic V2, flags FS|HS|SS, counts), then fs, hs, ss descriptor lists; strings blob with FUNCTIONFS_STRINGS_MAGIC; ep0 event loop
