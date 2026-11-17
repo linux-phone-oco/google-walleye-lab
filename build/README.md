@@ -80,3 +80,14 @@ as the stock ramdisk; init and nodes from `build/initramfs-vendor/`: no mount ov
 172.16.43.1, telnetd, an init that never ends) and `vendor-gadget2.img` (the control with only that ramdisk swapped, AVB footer
 as the control's), and counts ten checks. Proof on the phone is again `tests/host/gadget-up.sh`. Not run on arm64 (no qemu-aarch64 on
 the lab machine; installing one is a change): checked by unpack, `file`, `sh -n`, and the applets present in busybox-arm64.
+
+## vendor-gadget3.img (vendor-gadget2 plus a way back without hands)
+
+Only the ramdisk's `/init` changes (`build/initramfs-vendor3/init`); `build/build-vendor-gadget3.sh WORK_DIR CONTROL_BOOT_IMG OUT_DIR
+[VENDOR2_RAMDISK]` makes `initramfs-vendor3.cpio.xz` and `vendor-gadget3.img` and counts fourteen checks, one of them that every other
+file in the ramdisk is vendor-gadget2's (given its xz). New in init: a marker written to `/dev/kmsg` before the first mount (the node is in
+the cpio), and a background timer started first: `sleep 240`, skipped if `/tmp/hold` exists (`touch /tmp/hold` from the telnet shell keeps
+the phone up), then `reboot -f`, and `echo b > /proc/sysrq-trigger` five seconds later if that returned. The stock kernel's config has
+`CONFIG_MAGIC_SYSRQ=y` with `MAGIC_SYSRQ_DEFAULT_ENABLE=0x1` (all functions), `PSTORE`, `PSTORE_RAM` and `PSTORE_CONSOLE`, so the sysrq
+reboot works and a later boot's init lists `/sys/fs/pstore` (it already did). Not run on the phone: that is the keeper's try, proof
+`tests/host/gadget-up.sh`, and the phone must return to fastboot/Android by itself after 240 s.

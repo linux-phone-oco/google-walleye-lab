@@ -1,0 +1,55 @@
+#!/bin/busybox sh
+# vendor-gadget3 = vendor-gadget2 + a self-reboot timer and an early kmsg marker. The walleye initramfs for the VENDOR 4.4.302 kernel (the stock control's kernel). What that kernel has (read from its
+# config_data): no gzip ramdisk (xz only), no devtmpfs, USB configfs with NCM only (no ACM/ECM/RNDIS), pstore. So: the /dev nodes
+# come from the cpio (never a mount over /dev), the gadget is one NCM function, and this init never exits (an init that ends
+# is a kernel panic). Nothing here is allowed to stop it: no `set -e`, every step reports and goes on.
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+say() { echo "walleye-init: $*" > /dev/kmsg 2>/dev/null; echo "walleye-init: $*" > /dev/console 2>/dev/null; }
+say "vendor-gadget3 init start (before any mount)"
+# self-reboot: after 240 s the phone reboots unless /tmp/hold exists; started first so a failed gadget still returns. reboot -f is the
+# reboot syscall; if it returns, sysrq b (CONFIG_MAGIC_SYSRQ=y, default enable 0x1 in the vendor config) is the fallback.
+( sleep 240; [ -e /tmp/hold ] && exit 0; say "self-reboot now"; sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger ) &
+
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+mkdir -p /dev/pts /sys/kernel/config /sys/kernel/debug /sys/fs/pstore /tmp /run
+mount -t devpts devpts /dev/pts
+mount -t configfs none /sys/kernel/config
+mount -t debugfs none /sys/kernel/debug
+mount -t pstore pstore /sys/fs/pstore
+say "vendor-init up, kernel $(uname -r)"
+for f in /sys/fs/pstore/*; do [ -f "$f" ] && say "pstore: $f"; done
+
+G=/sys/kernel/config/usb_gadget/g1
+mkdir -p $G
+echo 0x1d6b > $G/idVendor
+echo 0x0104 > $G/idProduct
+echo 0x0100 > $G/bcdDevice
+echo 0x0200 > $G/bcdUSB
+mkdir -p $G/strings/0x409
+echo "walleye-first-boot" > $G/strings/0x409/serialnumber
+echo "linux-phone-oco" > $G/strings/0x409/manufacturer
+echo "Pixel 2 walleye (mainline)" > $G/strings/0x409/product
+mkdir -p $G/functions/ncm.usb0
+echo "02:42:ac:10:2b:01" > $G/functions/ncm.usb0/dev_addr
+echo "02:42:ac:10:2b:02" > $G/functions/ncm.usb0/host_addr
+mkdir -p $G/configs/c.1/strings/0x409
+echo "NCM" > $G/configs/c.1/strings/0x409/configuration
+ln -s $G/functions/ncm.usb0 $G/configs/c.1/
+
+n=0
+while [ -z "$(ls /sys/class/udc 2>/dev/null)" ] && [ $n -lt 60 ]; do sleep 1; n=$((n+1)); done
+UDC=$(ls /sys/class/udc 2>/dev/null | head -n1)
+if [ -z "$UDC" ]; then say "NO UDC after 60 s"; else echo "$UDC" > $G/UDC && say "gadget bound to $UDC"; fi
+
+ifconfig lo up
+n=0
+while ! ifconfig usb0 >/dev/null 2>&1 && [ $n -lt 20 ]; do sleep 1; n=$((n+1)); done
+ifconfig usb0 172.16.43.1 netmask 255.255.255.0 up && say "usb0 is 172.16.43.1"
+udhcpd -S /etc/udhcpd.conf
+telnetd -l /bin/sh -b 172.16.43.1
+say "telnetd on 172.16.43.1:23"
+say "ready"
+while :; do sleep 3600; done
