@@ -1654,3 +1654,22 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-restore-screen-lock"></a>
+### The Pixel 2's screen lock is OFF for the bring-up (set by the author 2026-11-17): set it back when the log reads no longer need it
+
+Status
+: open
+
+Note
+: Phone condition, recorded 2026-11-17 on the author's word ('screen lock removed from walleye'): with no lock the user storage is unlocked at boot, so the vendor script saves our kernel's console from RAM into /data/vendor_ce/0/ramoops without hands. Android on slot a otherwise as measured (LineageOS 15 userdebug, slot a). The author restores the lock; nobody sets it for him.
+
+Waits
+: the end of the ramoops reads (walleye-try-ml3-ramoops and what follows): the author sets the lock again, or says to keep it off
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
