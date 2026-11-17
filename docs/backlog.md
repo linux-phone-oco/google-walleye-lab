@@ -1862,3 +1862,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-bisect-porthole-vs-ours"></a>
+### Bisect porthole's kernel (pk3: reaches further) against ours (ml6a: dead): swap one part at a time, all without earlycon
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-try-no-earlycon): after removing earlycon, pk3 (porthole's kernel + taimen dtb) returned at 63 s and 48 s, ml6a (ours) at 75 s and 75 s. Baselines: an init that reboots at once on the vendor kernel gives Android back at about 12 s (jump) + boot + ~36 s (the vendor chain: gadget4 reset at 120 s returned at 156 s), i.e. ~50 s: so pk3's 48 s fits 'init ran' and 63 s a slower run; 75 s is the dead-kernel pattern. So earlycon on the gated UART was a hang for porthole's kernel, and OUR kernel or dts still dies before init. WHEN DONE queue walleye-try-bisect-pk (needs phone, rank 1): pk3 once more for jitter, then pk4, pk5 and pk6, twice each; read pstore (/sys/fs/pstore and /data/vendor_ce/0/ramoops) after each (porthole's dts has its own ramoops at 0xa1810000: unread by Android; ours at 0xa1100000).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: three images, each from pk3/ml6a's own bytes with exactly one swap, ramdisk = ml5a's init (reboot at once), cmdline = pk3's (no earlycon): pk4 = porthole's kernel + OUR -@ dtb (with overlay stubs) ; pk5 = OUR kernel (the ml6a one) + porthole's taimen dtb (with symbols/msm-id as in pk1); pk6 = porthole's kernel + pk3's dtb + the timing init of ml5b (3 s per point score) to learn which hardware their kernel shows in userspace; checks as before; hashes; the item states the expected return times
