@@ -1,5 +1,7 @@
 # Notes for agents
 
+Principles of linux-phone-oco, cited and never restated ([`tad q principles`](https://github.com/linux-phone-oco/docs) in docs): [as-good-as-android](https://github.com/linux-phone-oco/docs/blob/main/docs/concepts.md#as-good-as-android), [measured-not-claimed](https://github.com/linux-phone-oco/docs/blob/main/docs/concepts.md#measured-not-claimed), [mainline-first](https://github.com/linux-phone-oco/docs/blob/main/docs/concepts.md#mainline-first), [no-manual-steps](https://github.com/linux-phone-oco/docs/blob/main/docs/concepts.md#no-manual-steps), [rust-with-argenv](https://github.com/linux-phone-oco/docs/blob/main/docs/concepts.md#rust-with-argenv).
+
 - **Everything about the phone is in `device.toml`.** No script in this repository names the phone; a
   tool that needs a fact about it reads the manifest. A fact that is missing goes into the manifest -
   and, if it is new for every phone, into devlab's manifest model (linux-phone-oco/lab-tools).
@@ -8,7 +10,7 @@
 - **Keep the phone known-working.** A test kernel is a second boot entry tried once by boot counting,
   falling back to stock by itself; never the initramfs debug shell on an unattended try. Every change
   ends with the phone's health report - read it.
-- **Show what nobody measured as unknown**, never as broken: a check that cannot measure says `skip`
+- **Measured, not claimed** ([principle](https://github.com/linux-phone-oco/docs/blob/main/docs/concepts.md#measured-not-claimed)): a check that cannot measure says `skip`
   and why; a part never working yet is a `gap` in `[health]`.
 - **Before a test a person must witness** (listening, looking), say what to expect and what to check,
   and wait for their go.
