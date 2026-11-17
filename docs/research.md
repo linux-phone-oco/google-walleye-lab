@@ -559,3 +559,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ncm-noattr-n1-n2"></a>
+### walleye-ncm-noattr-n1-n2
+
+Date
+: 2026-11-17
+
+Brief
+: ncm-noattr: n1 returns (156 s, reboot); n2 PANICS NOT: our gadget enumerates (1d6b:0104, our strings) after 18 s, but host cdc_ncm bind fails: no MAC string
+
+Question
+: Does the ncm gadget without any attribute write bind without a panic, and does the host get a network device?
+
+Found
+: From the first state (Android on a, adb reboot bootloader), 2026-11-17: n1 (mkdir function, config, symlink, no bind): left fastboot after 12 s, Android on a at 156 s, bootreason reboot - as predicted. n2 (+ UDC bind): left fastboot after 12 s, host saw USB 1d6b:0104 after 18 s with manufacturer linux-phone-oco, product 'Pixel 2 walleye (mainline)', serial walleye-first-boot - the FIRST time our own kernel strings reach the host; no panic at bind, Android back on a at ~2 min (bootreason reboot via the init's 120 s reboot -f). So the attribute writes were the panic cause (walleye-ncm-panic-why holds). But no network device on the host: dmesg 'cdc_ncm 3-2:1.0: failed to get mac address / bind() failure'; lsusb -v shows the CDC Ethernet descriptor iMacAddress 6 (??): string 6 is not served, so the host cannot read the MAC, usb0 on the phone is unreachable, telnetd 172.16.43.1 not reachable. In the wahoo 4.4 f_ncm.c the MAC string is the static ncm_string_defs[STRING_MAC_IDX].s set in ncm_alloc to the instance's ethaddr (filled at ncm_bind from the net device) - why it is not served is not known yet. After: back in fastboot, slot a active+successful, b unbootable retry 1, nothing flashed.
+
+Sources
+: src-wahoo-44-f-ncm
+
+About
+: walleye-first-fastboot-boot
