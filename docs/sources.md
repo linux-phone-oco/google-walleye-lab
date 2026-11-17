@@ -104,3 +104,55 @@ By
 
 Takes
 : walleye/taimen kernel is android-msm-wahoo-4.4 (device/google/wahoo-kernel); the vendor GPL source to read for panic strings
+
+
+<a id="src-wahoo-init-hardware-usb-rc"></a>
+### device/google/wahoo init.hardware.usb.rc (crDroid mirror, branch 15.0)
+
+Url
+: https://github.com/crdroidandroid/android_device_google_wahoo/blob/15.0/init.hardware.usb.rc
+
+By
+: Google
+
+Takes
+: Android on walleye creates mass_storage, accessory, audio_source, midi, ffs.adb/mtp/ptp, diag, cser, gsi.rmnet, gsi.rndis, qdss in g1; never ncm; controller a800000.dwc3
+
+
+<a id="src-kernel-gadget-configfs-doc"></a>
+### Linux USB gadget configured through configfs
+
+Url
+: https://docs.kernel.org/usb/gadget_configfs.html
+
+By
+: Linux kernel
+
+Takes
+: the order: function dir, config, symlink, UDC; ncm attributes exist (dev_addr, host_addr, qmult, ifname)
+
+
+<a id="src-wahoo-44-f-ncm"></a>
+### kernel/msm android-msm-wahoo-4.4-android11: drivers/usb/gadget/function/f_ncm.c
+
+Url
+: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-wahoo-4.4-android11/drivers/usb/gadget/function/f_ncm.c
+
+By
+: Google
+
+Takes
+: ncm_alloc_inst only kzallocs opts (opts->net stays NULL); the net_device is made in ncm_bind at UDC bind; ncm_alloc does refcnt++
+
+
+<a id="src-wahoo-44-u-ether-configfs"></a>
+### kernel/msm android-msm-wahoo-4.4-android11: u_ether_configfs.h
+
+Url
+: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-wahoo-4.4-android11/drivers/usb/gadget/function/u_ether_configfs.h
+
+By
+: Google
+
+Takes
+: dev_addr/host_addr/qmult/ifname store: -EBUSY if refcnt, else gether_set_*(opts->net) with no NULL check

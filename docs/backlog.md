@@ -1091,10 +1091,10 @@ Proof
 ### Why the ncm function (or its config symlink) panics the vendor msm-4.4.302 kernel, and which gadget function is safe and gives a channel
 
 Status
-: open
+: done
 
 Note
-: 5a ok, 5b panics (ncm function/config symlink). Config facts: USB_CONFIGFS_{F_FS,NCM,MTP,MASS_STORAGE,PTP,ACC,AUDIO_SRC,MIDI,HID,DIAG,GSI,CDEV,QDSS}=y; ACM, SERIAL, OBEX, ECM, RNDIS, EEM not set; UDC a800000.dwc3. The vendor init on Android a is readable read-only (init.*usb*.rc under /vendor/etc/init/ and /vendor/etc/init/hw/, adb root): only reads, no writes; clean room: read behaviour (which functions it composes, in which order), do not copy proprietary scripts into the records.
+: Answered: research walleye-ncm-panic-why-how-it-stands, decision 2026-11-17-walleye-ncm-without-attributes
 
 About
 : walleye-first-fastboot-boot
@@ -1116,7 +1116,7 @@ Status
 : open
 
 Note
-: Images in ~/Projects/walleye-build/images, SHA256SUMS. Each says 'about to ...' in kmsg before its step; 120 s alive then self-reboot. 5a returned, 5b panicked: the first of b1..b4 to panic (kernel_panic bootreason, ~75 s) names the step; if none panics, 5b's panic needs the whole sequence or was the timing.
+: Prediction (research walleye-ncm-panic-why-how-it-stands): b1 returns, b2 panics (attribute writes on a NULL net); stop at b2 - the stop-at-first-panic rule already does that. Then ncm-noattr.
 
 About
 : walleye-first-fastboot-boot
@@ -1132,3 +1132,84 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-ncm-noattr-images"></a>
+### Build ncm-noattr images n1, n2: the 5b4 steps and the bind, without the dev_addr/host_addr writes
+
+Status
+: open
+
+Note
+: From research walleye-ncm-panic-why-how-it-stands. n1 = 5b4 minus the two attribute echo lines (function, config, symlink, no bind); n2 = n1 + UDC bind, ip link set usb0 address, telnetd (5c minus the attribute lines). New files; a-c, gadget1-5c, 5b1-b4 stay byte-identical; same checks. Do not wait for walleye-try-ncm-split. WHEN DONE queue walleye-try-ncm-noattr for the keeper.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: check-bisect passes: grep for dev_addr|host_addr|qmult|ifname finds none in n1/n2 init, exactly the step's parts, hashes in SHA256SUMS
+
+Rank
+: 1
+
+
+<a id="walleye-try-ncm-noattr"></a>
+### Try ncm-noattr n1 then n2 from the first state, stop at the first panic
+
+Status
+: open
+
+Note
+: Prediction from the source: 5b1 returns, 5b2 (attribute writes) panics, so walleye-try-ncm-split ends at b2 and need not try b3/b4. n1 returns at 120 s; n2 shows the host a device with our strings (lsusb). If n2 panics at bind, queue walleye-ffs-helper.
+
+Blocked by
+: walleye-ncm-noattr-images,walleye-try-ncm-split
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 2
+
+
+<a id="walleye-ffs-helper"></a>
+### Fallback channel: FunctionFS with a tiny static aarch64 helper
+
+Status
+: open
+
+Note
+: Only if ncm-noattr n2 panics at UDC bind. Read Android's ffs.adb composition (init.hardware.usb.rc, public) for the order.
+
+Blocked by
+: walleye-try-ncm-noattr
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: research
+
+Proof
+: a research row with the helper's design and the one image that tells
+
+Rank
+: 5

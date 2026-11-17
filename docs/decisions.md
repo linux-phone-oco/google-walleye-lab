@@ -185,3 +185,28 @@ About
 
 Research
 : walleye-panic-60s-how-it-stands
+
+
+<a id="2026-11-17-walleye-ncm-without-attributes"></a>
+### 2026-11-17-walleye-ncm-without-attributes
+
+Date
+: 2026-11-17
+
+Brief
+: Keep ncm as the channel but never write or read its attributes; try one image without the dev_addr/host_addr writes, split into steps
+
+Decision
+: The gadget inits drop every write to functions/ncm.usb0 attributes (dev_addr, host_addr, qmult, ifname). Build ncm-noattr images in steps b1 (mkdir function), b3 (config + symlink), c (UDC bind, usb0 up, telnetd); the device-side MAC is set afterwards with ip link. Fall back to FunctionFS with a static helper only if bind panics.
+
+Why
+: In the wahoo 4.4 source the ncm net_device is made at UDC bind, so before it the attribute stores dereference NULL and after the symlink they return EBUSY; every image that panicked wrote those attributes, every one that returned did not have a function.
+
+Rejected
+: FunctionFS ffs helper first: needs new code and a userspace daemon, no gain if ncm works. gsi.rndis/rmnet: needs IPA and firmware at early init, risky. mass_storage read-only: no log stream, host-visible only. MTP/ACC: need a daemon. Patching the vendor kernel's f_ncm: we boot the unmodified control kernel on purpose.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-ncm-panic-why-how-it-stands

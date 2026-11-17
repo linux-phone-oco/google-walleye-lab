@@ -515,3 +515,28 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ncm-panic-why-how-it-stands"></a>
+### walleye-ncm-panic-why-how-it-stands
+
+Date
+: 2026-11-17
+
+Brief
+: ncm panic: our init writes dev_addr/host_addr on the ncm function while opts->net is still NULL (net is made at UDC bind); mkdir and symlink are not the cause
+
+Question
+: Why does the ncm function (or its config symlink) panic the vendor msm-4.4 kernel, and which function is safe and gives a channel?
+
+Found
+: Ranked causes. 1 (source-proven, not yet counted on the phone): the two `echo > functions/ncm.usb0/{dev_addr,host_addr}` lines in every gadget init (vendor, 3, 5b, 5c). In the wahoo 4.4 tree ncm_alloc_inst leaves opts->net NULL (the net_device is made in ncm_bind at UDC bind) and refcnt is 0 until the symlink, so the attribute store calls gether_set_dev_addr(NULL,...): NULL deref, oops, panic. After the symlink the store returns -EBUSY, so no write is ever valid here. Fits all facts: 5a (no function) and gadget4 return; 5b and gadget2/3 panic; mkdir and symlink alone do not touch net (ncm_alloc only refcnt++). 2: the UDC bind (ncm_bind -> gether_register_netdev, dwc3 endpoints) could panic in 5c; unknowable until 1 is removed (Android never uses ncm: its stack is gsi/ffs, so the vendor never exercised this path). 3: the symlink itself: no code path touches net; unlikely. Safe alternatives, with the image that tells: (a) ncm WITHOUT any attribute write (random MACs; set the device side later with ip link set usb0 address): image ncm-noattr = 5c minus the two echo lines; returns at 120 s with no panic and the host sees our strings = confirmed. (b) ffs with a tiny static aarch64 helper: more work, no gain if (a) works; the fallback. (c) gsi.rndis/rmnet: need IPA driver and firmware at early init, not a first channel. (d) mass_storage read-only image: host sees a disk, no log stream; crude fallback. (e) mtp/ptp/acc: need a userspace daemon; no. Caveat: the source is the public android11 branch of the wahoo 4.4 line; the phone runs 4.4.302, the exact build is not public, so the image is the proof.
+
+Sources
+: src-wahoo-44-f-ncm,src-wahoo-44-u-ether-configfs,src-wahoo-init-hardware-usb-rc,src-kernel-gadget-configfs-doc
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-17-ncm-panic/
