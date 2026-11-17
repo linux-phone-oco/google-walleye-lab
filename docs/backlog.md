@@ -1159,34 +1159,6 @@ Rank
 : 1
 
 
-<a id="walleye-ffs-helper"></a>
-### Fallback channel: FunctionFS with a tiny static aarch64 helper
-
-Status
-: open
-
-Note
-: Only if ncm-noattr n2 panics at UDC bind. Read Android's ffs.adb composition (init.hardware.usb.rc, public) for the order.
-
-Blocked by
-: walleye-try-ncm-noattr
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-17
-
-Needs
-: research
-
-Proof
-: a research row with the helper's design and the one image that tells
-
-Rank
-: 5
-
-
 <a id="walleye-try-ncm-noattr"></a>
 ### Try ncm-noattr n1 then n2 from the first state, stop at the first panic
 
@@ -1213,13 +1185,29 @@ Rank
 
 
 <a id="walleye-gadget-host-bind"></a>
-### Get the host to bind the gadget: variants whose host driver needs no MAC string (rndis, ecm) beside ncm
+### Get the host to bind the gadget (ecm/rndis variants)
+
+Status
+: done
+
+Note
+: Dropped: ECM and RNDIS are not in the vendor kernel config (decision walleye-host-channel-order). Replaced by walleye-massstorage-window and walleye-ffs-helper.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+
+<a id="walleye-massstorage-window"></a>
+### m1: a mass_storage gadget as a log window (device writes a file, the host reads the raw LUN)
 
 Status
 : open
 
 Note
-: n2 enumerates but cdc_ncm fails: iMacAddress string not served. Build n3 = ecm.usb0, n4 = rndis.usb0 (no attribute writes, bind, ip link address, telnetd), try each from the first state; ffs-helper remains the fallback
+: Decision walleye-host-channel-order. Careful: only writes that the kernel's mass_storage configfs accepts without the NULL-net trap: look at the public wahoo source for the lun attributes. WHEN DONE queue the keeper's try walleye-try-massstorage (needs phone, rank 1, waits null): from the first state, then massstorage-read.sh on the host for 90 s; record what the log window shows (dmesg of the vendor kernel with our init running: the first readable text from the phone).
 
 About
 : walleye-first-fastboot-boot
@@ -1229,3 +1217,28 @@ Opened
 
 Needs
 : build
+
+Proof
+: vendor-gadget-m1.img = the control with only the ramdisk swapped; init as n2's up to the UDC bind but with function mass_storage.0 (lun.0/file = a 2 MiB file in the ramdisk filesystem created by dd, ro=1, removable=1) instead of ncm, NO attribute writes beyond file/ro/removable/cdrom/nofua (check each exists in this kernel's mass_storage configfs, read the stock config facts); every 5 s the init rewrites the file in place (dd conv=notrunc) with: kmsg-marker, uname, cmdline, dmesg tail, mounts, heartbeat counter; reboot -f at 180 s; checks as for n2; hashes in SHA256SUMS; the host-side reader script tests/host/massstorage-read.sh (find the LUN by our strings via sysfs vendor/model, read with dd iflag=direct, print the text) in the lab repo
+
+
+<a id="walleye-ffs-helper"></a>
+### FunctionFS with CDC-ACM descriptors and a tiny static aarch64 helper: the interactive console channel
+
+Status
+: open
+
+Note
+: Now needed, not a fallback (decision walleye-host-channel-order): NCM cannot be given a MAC on this kernel; ECM/RNDIS/ACM/SERIAL are not in the config. FunctionFS is =y. The helper is written in C and built static aarch64 with the lab's clang; no Python; GPL/public sources only.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: research
+
+Proof
+: a research row with the helper's design: the ffs descriptors and strings (CDC union/header/call-management/ACM functional descriptors, one interrupt-in and two bulk endpoints), the init steps (mount ffs, the order of writing descriptors before the UDC bind, as Android's own ffs.adb init composes it, read-only look at the public init.*usb*.rc), the bridge to a shell on a pty, how the host sees /dev/ttyACM0; the kernel's own GPL tools/usb/ffs-test.c as the base; which image tells, and its failure modes (panics, no enumerate)
