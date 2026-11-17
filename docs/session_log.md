@@ -823,3 +823,42 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0030-walleye-pk-try"></a>
+### pk1/pk2 try: kernel never reaches init
+
+Entry date
+: 2026-11-17
+
+Done
+: Booted pk1 twice then pk2 twice by fastboot boot from slot b (both slots good, nothing flashed). Android back after 75, 75, 75, 75 s: the ~70-78 s no-init bin, same as ml5a (75 s). porthole's v7.2.2+262-patch kernel (taimen/walleye dtb) does not reach init either; pk1 = pk2 so the dtb makes no difference. Returned to fastboot by adb reboot bootloader after each.
+
+Considered
+: Four tries agree, deterministic. Next for the coordinator: the failure is before init for every mainline kernel and both dtbs, so UART/earlycon or ramoops read (decision walleye-panic-read-order).
+
+Rejected
+: Re-trying pk1/pk2: four identical times
+
+About
+: walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0035-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-17
+
+Done
+: Phone in fastboot, unlocked, slot b current, a and b both successful, retry 0; nothing flashed; lease released
+
+Considered
+: next: coordinator decides the no-init vector (ramoops read / UART) for the mainline kernels
+
+About
+: walleye-first-fastboot-boot
