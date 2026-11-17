@@ -919,10 +919,10 @@ Rank
 ### Read the running Android's full cmdline (skip_initramfs? root=? dm=?) and the ramoops service files, read-only
 
 Status
-: open
+: done
 
 Note
-: Read-only: devlab phone sh. Also: cat /vendor/bin/init.ramoops.sh, ls /sys/fs/pstore, getprop ro.boot.bootreason. Host side: the control image's header cmdline from the file (no phone needed).
+: Answered by the vendor-gadget4 try (lab PR 25): our idle init RAN (bootreason=reboot at ~120 s, not kernel_panic), so skip_initramfs is not in effect and the ramdisk is used. The cmdline itself was already read earlier (walleye-vendor-kernel-facts-s1-panic).
 
 About
 : walleye-first-fastboot-boot
@@ -944,10 +944,10 @@ Rank
 ### Measure when the panic happens: T_android from a plain adb reboot against the gap of a panic try
 
 Status
-: open
+: done
 
 Note
-: A plain reboot is a change of the phone: keeper only. Reuse the watcher from gadget3. Needs no new image.
+: Not needed now: the panic belongs to the gadget bring-up (gadget4 idle init does not panic); the bisect of the bring-up (walleye-gadget-bisect) is the next measure.
 
 About
 : walleye-first-fastboot-boot
@@ -1016,3 +1016,25 @@ Needs
 
 Proof
 : vendor-gadget4.img = the control with only the ramdisk swapped; the keeper's try shows whether the phone panics at the same gap
+
+
+<a id="walleye-gadget-bisect"></a>
+### Split the gadget bring-up into three images, one step each: configfs+gadget dir, +NCM function and config, +UDC bind
+
+Status
+: open
+
+Note
+: Lab PR 25: gadget4 (idle init) boots, runs and returns by itself at ~120 s (bootreason=reboot), whereas gadget2/3 (full gadget) panic ~75 s after fastboot boot: the panic is in the gadget bring-up. One panic per image kills the log, so one step per image. Everything else byte-identical to gadget4 (control's kernel, dtb, cmdline, header, footer). WHEN DONE: queue the keeper's tries as walleye-try-gadget-bisect (needs phone, rank 1): g5a, then g5b, then g5c, each from the first state, STOP at the first panic (bootreason kernel_panic): that step is the culprit. If g5c does NOT panic, the gadget is up: gadget-up.sh passes (read-only telnet). Note in the item the outcome table (what each result means, hands or not: none expected; init reboots at 120 s, a panic falls back in ~75 s).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: g5a, g5b, g5c = gadget4's init (kmsg marker, 30 s heartbeat, reboot -f at 120 s) plus steps: g5a mounts configfs and creates the gadget dir with idVendor/idProduct/strings (our serial walleye-first-boot, product 'Pixel 2 walleye (mainline)') but no function; g5b adds the ncm function and the config symlink, no UDC bind; g5c adds the UDC bind (a800000.dwc3) and the host-side network address/telnetd; checks ok as for gadget4; hashes in SHA256SUMS
