@@ -632,3 +632,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-m1-retry-enumerates-unreadable"></a>
+### walleye-m1-retry-enumerates-unreadable
+
+Date
+: 2026-11-17
+
+Brief
+: m1 on host 7.3.4: enumerates 1d6b:0104, usb_storage binds /dev/sda (2 MiB LUN), but root:disk 0660 and the lab user has no disk group or sudo, so the window is unread
+
+Question
+: With the host on 7.3.4, does m1's mass-storage LUN show up and can its first text be read?
+
+Found
+: Fastboot boot of vendor-gadget-m1 (sha a3cf08d3...) from slot a good/b unbootable: left fastboot 12 s, enumerated 1d6b:0104 at 18 s, usb-storage bound without modprobe, /dev/sda size 4096 sectors. massstorage-read.sh gave skip: /dev/sda is root:disk rw-rw----, user mll in wheel only, sudo needs a password. The phone fell back by itself to Android on slot a (adb up, boot completed); adb reboot bootloader returned it to fastboot, flags unchanged (a ok/successful, b unbootable retry 1). m1 is the first walleye image of ours proven to run and reach the host; only the host read is missing.
+
+About
+: walleye-first-fastboot-boot

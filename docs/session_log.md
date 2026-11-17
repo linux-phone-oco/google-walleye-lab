@@ -505,3 +505,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-2230-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-17
+
+Done
+: m1 tried once from the first state: runs, enumerates, usb-storage binds /dev/sda; host read refused (no disk group). Phone back in fastboot, unlocked, slot a active+successful, b unbootable retry 1; nothing flashed
+
+Considered
+: next: host read access then retry m1; rejected: changing host groups or using sudo myself (system setting, the author's)

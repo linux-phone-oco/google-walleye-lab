@@ -6,8 +6,8 @@
 - [Decisions](decisions.md): 11
 - [Devices](devices.md): 0
 - [Parts](parts.md): 21
-- [Research](research.md): 29
-- [Session Log](session_log.md): 28
+- [Research](research.md): 30
+- [Session Log](session_log.md): 29
 - [Sources](sources.md): 15
 - [Summaries](summaries.md): 0
 - [Test Results](test_results.md): 0
