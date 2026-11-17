@@ -1,0 +1,39 @@
+# This phone's manifest - the only file a new phone's lab needs to say. Every tool reads it:
+# devlab (linux-phone-oco/lab-tools) finds it like cargo finds Cargo.toml, or by --device.
+# Secrets and what is learned at run time stay outside the repository:
+#   ~/.config/devlab/CODENAME/   the phone user's password (mode 600), Wi-Fi name and password
+#   ~/.local/state/devlab/CODENAME/   the Wi-Fi address once learned, results kept by the lab
+# Replace every value marked CHANGE; delete what does not apply. Unknown fields are refused.
+
+[device]
+codename = "vendor-codename"       # CHANGE: the postmarketOS codename, as in pmaports' device-vendor-codename
+
+[connection]
+user = "user"                      # the phone's user
+addresses = ["172.16.42.1"]        # USB networking first (postmarketOS' default); the Wi-Fi address is learned
+
+[provision]
+packages = "provision/packages.txt"   # installed on a freshly flashed phone: devlab provision now
+
+[flash]
+# How an image goes onto this phone (devlab flash now IMAGE BOOTLOADER). The defaults suit an A-only
+# phone flashed over fastboot with the image on userdata; say what differs.
+sector_size = 4096                 # CHANGE: the storage's sector size (UFS: 4096, eMMC: 512)
+dtb = ""                           # CHANGE: where the device tree lives in the image, e.g. "esp:dtbs/qcom/SOC-VENDOR-CODENAME.dtb"
+mask = []                          # services masked in the image - each with its reason beside it
+enable = ["sshd.service"]          # the image disables sshd by preset; the lab must reach the phone
+
+# What the phone's own health suite expects of it (devlab suite put now). The phone checks itself 120 s
+# after every boot; every change devlab makes ends with that report. Say only facts about the hardware.
+[health]
+sound_cards = []                   # names as /proc/asound/cards shows them, e.g. ["POCO X3"]
+checks = "tests/health"            # this phone's own checks, beside the generic ones
+absent = []                        # parts this phone does not have: wifi, modem, bluetooth, nfc, fingerprint,
+                                   #   camera, jack, display, touchscreen, haptics, sensors, usb-otg
+gaps = []                          # components never working yet (docs component ids): measured, not ill health
+known_failed_units = []            # units known to fail here, each with its reason beside it
+known_warnings = []                # boot warnings (file:line) known here, each with its reason
+
+[health.remoteprocs]               # signal processors that must run, and the component resting on each
+# adsp = "audio-speaker"
+# modem = "modem-data"

@@ -1,0 +1,2 @@
+# Installed on a freshly flashed phone by devlab provision now - one package per line.
+i2c-tools
