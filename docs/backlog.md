@@ -1348,10 +1348,13 @@ Proof
 ### Try m1 again now the host runs 7.3.4 (usb_storage loads): read the first text the phone writes
 
 Status
-: open
+: in-progress
 
 Note
-: Image vendor-gadget-m1.img sha256 a3cf08d388ab72c5e1532e7ae60c87c48e54524fda6ca2d9be7bf4aeb81f360a (lab PR 42; its first try enumerated as 1d6b:0104 but the host had no usb_storage). The lab host now runs kernel 7.3.4 (modprobe finds usb_storage and cdc_acm). From the first state (Android a completed, a successful, adb reboot bootloader; devlab fastboot state; fix flags only by metadata-only set-active). Run massstorage-read.sh in its own background job started BEFORE the boot (LUN_WAIT/LUN_WATCH), read the log window for the 180 s the init lives, copy it into the lab's material, redact serials/IMEI. The window is the vendor kernel's dmesg with our init: look for what it reports about USB, the dwc3 peripheral, and anything that explains the earlier panic (none expected: m1 does not panic).
+: Tried 2026-11-17: gadget up and /dev/sda present, read refused (root:disk, no disk group/sudo for the lab user). Next: the author adds the lab user to disk (or a udev uaccess rule for serial walleye-first-boot), then retry the same image; no new image needed
+
+Waits
+: host: read access to the m1 block device (disk group or udev uaccess rule)
 
 About
 : walleye-first-fastboot-boot
