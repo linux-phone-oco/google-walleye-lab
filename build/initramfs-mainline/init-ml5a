@@ -1,0 +1,10 @@
+#!/bin/busybox sh
+# ml5a (backlog walleye-ml5-timing-below-the-watchdog): the baseline. Reach userspace, leave one kmsg marker, reset at once - no sleep, no watchdog.
+# The time Android is back after this image is the base of ml5b's bins; ~40 s means init ran, ~70 s means the kernel never reached it. Never exits; no `set -e`.
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+echo "walleye-init: ml5a reached userspace, reboot now" > /dev/kmsg 2>/dev/null
+reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+while :; do sleep 3600; done

@@ -769,3 +769,18 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-ml5-build"></a>
+### ml5 built
+
+Entry date
+: 2026-11-17
+
+Done
+: build-ml5.sh, init-ml5a, init-ml5b, ml5-bin-table.sh; images in walleye-build/images-ml5 with SHA256SUMS; try walleye-try-ml5 queued
+
+About
+: walleye-first-fastboot-boot
