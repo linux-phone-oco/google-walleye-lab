@@ -241,3 +241,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-2105-walleye-how-the-phone-stands-3"></a>
+### gadget4 try: the panic is the gadget bring-up
+
+Entry date
+: 2026-11-17
+
+Done
+: Took the lease; from the first state fastboot boot of vendor-gadget4.img: left fastboot 15 s, back on Android a at 156 s, bootreason reboot, boot_completed 1. Left in fastboot, slot a active and successful, b unbootable retry 1 (unchanged); nothing flashed.
+
+Considered
+: next: split the gadget bring-up of gadget3 into steps (configfs, functions, UDC bind), a try for each
+
+About
+: walleye-first-fastboot-boot

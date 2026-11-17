@@ -894,10 +894,10 @@ Proof
 ### Try vendor-gadget4.img (idle init, no gadget) by fastboot boot from the first state
 
 Status
-: open
+: done
 
 Note
-: ~/Projects/walleye-build/images/vendor-gadget4.img sha256 db23f804a975d4077568cba458814a8af834846a59b2f8d90662ec21e6abbf1b (SHA256SUMS; lab PR 19). From the first state (Android a completed, a successful, adb reboot bootloader; devlab fastboot state first; fix flags only by metadata-only set-active per the recorded decisions). devlab fastboot boot now IMAGE; do not rely on gadget-up (no gadget): watch by serial/port when the phone leaves fastboot (12 s), when it returns on Android a and its adb up, the time since the boot, then getprop ro.boot.bootreason and sys.boot_completed, and the slot report. Without hands: a panic falls back in ~75 s, our init's own reboot at 120 s. If the phone stays silent beyond 5 min, tell the coordinator (hands: hold Power 10-30 s). Record, land (lab), release the lease; report under 150 words.
+: proven by the try: back on Android a at 156 s, bootreason reboot (not kernel_panic): our idle init ran; the gadget bring-up of gadget2/3 is what panics. Next: bisect the gadget bring-up - the coordinator's call.
 
 About
 : walleye-first-fastboot-boot
