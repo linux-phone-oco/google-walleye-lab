@@ -1138,10 +1138,10 @@ Rank
 ### Build ncm-noattr images n1, n2: the 5b4 steps and the bind, without the dev_addr/host_addr writes
 
 Status
-: open
+: done
 
 Note
-: From research walleye-ncm-panic-why-how-it-stands. n1 = 5b4 minus the two attribute echo lines (function, config, symlink, no bind); n2 = n1 + UDC bind, ip link set usb0 address, telnetd (5c minus the attribute lines). New files; a-c, gadget1-5c, 5b1-b4 stay byte-identical; same checks. Do not wait for walleye-try-ncm-split. WHEN DONE queue walleye-try-ncm-noattr for the keeper.
+: Built: vendor-gadget-n1.img b2e96b42..., vendor-gadget-n2.img b007d1e3... in ~/Projects/walleye-build/images, 17 checks each ok, hashes in SHA256SUMS there and in session log 2026-11-17-walleye-vendor-gadget-n. Next: walleye-try-ncm-noattr (keeper).
 
 About
 : walleye-first-fastboot-boot
