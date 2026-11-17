@@ -1326,10 +1326,10 @@ Rank
 ### Rewrite the FunctionFS ACM helper in Rust (static aarch64-unknown-linux-musl), the C one stays a probe
 
 Status
-: open
+: done
 
 Note
-: The top coordinator's correction: the builder believed the lab has no aarch64 Rust target; it has (lpoco-health is built that way: lab-tools health/build.sh). The C helper of n3 is recorded as a PROBE only (session log corrected). Practice: no new C for logic where Rust is possible. Do not block the n3 try on this: queue it AFTER the n3 try's result is in (rank after the n3 try); only a helper that works is worth rewriting.
+: Built: build/ffs-acm-rs (Rust, libc, musl aarch64, fmt/clippy clean, descriptors byte for byte the C probe's by a test), build/build-vendor-gadget-n3r.sh (21 checks ok, reproducible). sha256 ffs-acm-rs 5de3fff0e4aa6bdfa56e71ea8ac7bec6b588022d695aff818dee7150f070743f; initramfs-vendor-n3r.cpio.xz 43205c57b0849f3ee9363746832d5aa26d8228b6e5b20847d49026c79a896e7b; vendor-gadget-n3r.img 7eb5a98ae354959150aff3a4cb8deb4d8cd6399240863e5bdb654389dc79a7c0. Try queued: walleye-ffs-rust-try.
 
 About
 : walleye-first-fastboot-boot
@@ -1392,3 +1392,31 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-ffs-rust-try"></a>
+### Phone: boot image n3r (the Rust FunctionFS ACM helper) once; host sees ttyACM and a shell answers
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images/vendor-gadget-n3r.img sha256 7eb5a98ae354959150aff3a4cb8deb4d8cd6399240863e5bdb654389dc79a7c0; same as n3 but the helper. Try only after n3's retry (walleye-retry-ffs-acm-after-reboot) shows the console works with the C probe; then n3r must give the same.
+
+Blocked by
+: walleye-retry-ffs-acm-after-reboot
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: tests/host/ffs-acm-up.sh
+
+Rank
+: 3
