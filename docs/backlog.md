@@ -1619,8 +1619,8 @@ Status
 Note
 : CI half split off as walleye-rust-ci-ffs-acm-rs (done). This half waits by the coordinator's order until the keeper has tried n3r (walleye-ffs-rust-try), so the C probe stays buildable until the Rust helper is shown on the phone.
 
-Blocked by
-: walleye-ffs-rust-try
+Waits
+: walleye-ffs-rust-try (the keeper's first try of n3r)
 
 About
 : walleye-first-fastboot-boot
@@ -1633,6 +1633,3 @@ Needs
 
 Proof
 : build/ffs-acm/ffs-acm.c and anything that only builds n3 from it removed (n3's recorded hashes stay as history; n3r is the image to try); the lab's checks pass; read back from main
-
-Rank
-: 4
