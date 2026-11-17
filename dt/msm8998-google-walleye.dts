@@ -1,0 +1,190 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Google Pixel 2 (walleye) - the first mainline board file: only what a boot without a display needs.
+ *
+ * It brings up the SoC, its reserved memory, the RPM regulators the USB 2.0 PHY stands on, the USB
+ * controller as a high-speed peripheral (the gadget is the first sign of life), pstore/ramoops and the
+ * debug UART. UFS, display, touch, GPU, Wi-Fi, remote processors and the PMICs' SPMI children stay off
+ * until a part is brought up on purpose.
+ *
+ * No /chosen/bootargs and no stdout-path: the bootloader appends the boot image's command line to the
+ * device tree, and a bootargs already there would hide it (decision 2026-11-17-walleye-first-kernel).
+ *
+ * Derived, with their licences and authors kept, from the GPL wahoo board files of
+ *   Copyright (c) 2020 Caleb Connolly <caleb@connolly.tech>   (kcxt/linux-wahoo, wahoo/5.17)
+ * and, for the regulator and USB nodes, from mainline's OnePlus 5(T) common file
+ *   Copyright (c) 2021, Jami Kettunen <jamipkettunen@gmail.com>
+ *   Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ * The reserved-memory carve-outs and the regulator limits are the values of that GPL wahoo file
+ * (the downstream sources are kerneltoast/android_kernel_google_wahoo, arch/arm64/boot/dts/htc).
+ * Nothing here comes from a proprietary source (decision walleye-input-wall).
+ */
+
+/dts-v1/;
+
+#include "msm8998.dtsi"
+
+/delete-node/ &mpss_mem;
+/delete-node/ &venus_mem;
+/delete-node/ &mba_mem;
+/delete-node/ &slpi_mem;
+
+/ {
+	model = "Google Pixel 2";
+	compatible = "google,walleye", "google,wahoo", "qcom,msm8998";
+
+	/* Required for the bootloader to select this device tree: 8998 v2.1 (taimen has the same) */
+	qcom,msm-id = <0x124 0x20001>;
+
+	reserved-memory {
+		/* Where Google's kernel puts the modem, video, MBA and sensor-hub regions (all unused here) */
+		mpss_mem: memory@8cc00000 {
+			reg = <0x0 0x8cc00000 0x0 0x7800000>;
+			no-map;
+		};
+
+		venus_mem: memory@94400000 {
+			reg = <0x0 0x94400000 0x0 0x500000>;
+			no-map;
+		};
+
+		mba_mem: memory@94900000 {
+			reg = <0x0 0x94900000 0x0 0x200000>;
+			no-map;
+		};
+
+		slpi_mem: memory@94b00000 {
+			reg = <0x0 0x94b00000 0x0 0x700000>;
+			no-map;
+		};
+
+		/* The address the stock system keeps its crash log at: read it back after a warm reset */
+		ramoops@a1810000 {
+			compatible = "ramoops";
+			reg = <0x0 0xa1810000 0x0 0x200000>;
+			record-size = <0x20000>;
+			console-size = <0x100000>;
+			pmsg-size = <0x80000>;
+		};
+	};
+
+	vph_pwr: vph-pwr-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "vph_pwr";
+		regulator-always-on;
+		regulator-boot-on;
+	};
+};
+
+/* The debug UART (the Pixel debug cable): earlycon=msm_serial_dm,0xc1b0000 */
+&blsp2_uart1 {
+	status = "okay";
+};
+
+&qusb2phy {
+	status = "okay";
+
+	vdd-supply = <&vreg_l1a_0p875>;
+	vdda-pll-supply = <&vreg_l12a_1p8>;
+	vdda-phy-dpdm-supply = <&vreg_l24a_3p075>;
+};
+
+/* The rails the USB 2.0 PHY stands on, and the rails those hang from */
+&rpm_requests {
+	regulators-0 {
+		compatible = "qcom,rpm-pm8998-regulators";
+
+		vdd_s3-supply = <&vph_pwr>;
+		vdd_s4-supply = <&vph_pwr>;
+		vdd_s5-supply = <&vph_pwr>;
+		vdd_s7-supply = <&vph_pwr>;
+		vdd_l1_l27-supply = <&vreg_s7a_1p025>;
+		vdd_l2_l8_l17-supply = <&vreg_s3a_1p35>;
+		vdd_l7_l12_l14_l15-supply = <&vreg_s5a_2p04>;
+		vdd_l20_l24-supply = <&vreg_bob>;
+		vdd_lvs1_lvs2-supply = <&vreg_s4a_1p8>;
+
+		vreg_s3a_1p35: s3 {
+			regulator-min-microvolt = <1352000>;
+			regulator-max-microvolt = <1352000>;
+		};
+
+		vreg_s4a_1p8: s4 {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			regulator-allow-set-load;
+		};
+
+		vreg_s5a_2p04: s5 {
+			regulator-min-microvolt = <1904000>;
+			regulator-max-microvolt = <2040000>;
+		};
+
+		vreg_s7a_1p025: s7 {
+			regulator-min-microvolt = <900000>;
+			regulator-max-microvolt = <1028000>;
+		};
+
+		vreg_l1a_0p875: l1 {
+			regulator-min-microvolt = <880000>;
+			regulator-max-microvolt = <880000>;
+		};
+
+		/* msm8998.dtsi names these rails for the display PHY and the sensor hub, both off here */
+		vreg_l2a_1p2: l2 {
+			regulator-min-microvolt = <1200000>;
+			regulator-max-microvolt = <1200000>;
+		};
+
+		vreg_lvs2a_1p8: lvs2 {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+		};
+
+		vreg_l12a_1p8: l12 {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+		};
+
+		vreg_l24a_3p075: l24 {
+			regulator-min-microvolt = <3088000>;
+			regulator-max-microvolt = <3088000>;
+		};
+	};
+
+	regulators-1 {
+		compatible = "qcom,rpm-pmi8998-regulators";
+
+		vdd_bob-supply = <&vph_pwr>;
+
+		vreg_bob: bob {
+			regulator-min-microvolt = <3312000>;
+			regulator-max-microvolt = <3600000>;
+		};
+	};
+};
+
+/*
+ * The type-C port is USB 3 capable, but the SuperSpeed PHY is dropped: Google's wahoo boards (kcxt,
+ * porthole) only got the gadget up at USB 2.0 speed.
+ */
+&usb3 {
+	status = "okay";
+
+	/* Operate "GCC_USB30_MASTER_CLK" in HS mode (>= 60 MHz) */
+	assigned-clock-rates = <19200000>, <60000000>;
+
+	/* Disable the USB3 pipe_clk requirement */
+	qcom,select-utmi-as-pipe-clk;
+};
+
+&usb3_dwc3 {
+	/* Drop the USB 3 PHY */
+	phys = <&qusb2phy>;
+	phy-names = "usb2-phy";
+
+	maximum-speed = "high-speed";
+
+	/* Peripheral until the type-C port is hooked up */
+	dr_mode = "peripheral";
+};
