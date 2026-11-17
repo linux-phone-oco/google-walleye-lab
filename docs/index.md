@@ -2,13 +2,13 @@
 
 # Index
 
-- [Backlog](backlog.md): 58
-- [Decisions](decisions.md): 10
+- [Backlog](backlog.md): 60
+- [Decisions](decisions.md): 11
 - [Devices](devices.md): 0
 - [Parts](parts.md): 21
-- [Research](research.md): 27
+- [Research](research.md): 28
 - [Session Log](session_log.md): 23
-- [Sources](sources.md): 12
+- [Sources](sources.md): 15
 - [Summaries](summaries.md): 0
 - [Test Results](test_results.md): 0
 - [Test Runs](test_runs.md): 0

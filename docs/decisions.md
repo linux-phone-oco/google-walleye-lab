@@ -232,3 +232,28 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-17-walleye-ffs-acm-single-interface"></a>
+### 2026-11-17-walleye-ffs-acm-single-interface
+
+Date
+: 2026-11-17
+
+Brief
+: FunctionFS console: one class-2 interface with three endpoints (no CDC functional descriptors), descriptors written to ep0 before the UDC bind, pty shell bridge in a static C helper
+
+Decision
+: Build the helper as in the research: one interface (class 2/2/1), interrupt-in + bulk-out + bulk-in, descriptors for FS/HS/SS and strings written to ep0 before the UDC bind, no function attribute written, ep0 class requests answered, a pty shell bridged to the bulk endpoints. Two items: build the helper and image (needs build), then one phone try proven by tests/host/ffs-acm-up.sh (fails today, written with this decision).
+
+Why
+: f_fs rejects CDC functional descriptors in 4.4.302 and 7.3 (read in source); cdc_acm's probe accepts a single combined interface of three endpoints (read in source); this needs no kernel option the vendor kernel lacks. Not yet run on the phone.
+
+Rejected
+: Full CDC-ACM descriptor set (header/call-mgmt/ACM/union) over FunctionFS: ep0 write fails -EINVAL. configfs acm/serial/ecm/rndis functions: not in the vendor kernel. Android adbd as the channel: bionic userland, already rejected. A libusb-style custom vendor-class interface: needs a host program instead of the stock cdc_acm driver. Writing function attributes: the 5b panic path.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-ffs-acm-helper-how-it-stands

@@ -581,3 +581,35 @@ Sources
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ffs-acm-helper-how-it-stands"></a>
+### walleye-ffs-acm-helper-how-it-stands
+
+Date
+: 2026-11-17
+
+Brief
+: FunctionFS cannot carry CDC functional descriptors, but cdc_acm binds one class-2 interface with 3 endpoints: the helper declares that, writes ep0 before the UDC bind, bridges to a pty shell
+
+Question
+: How can FunctionFS give the host a /dev/ttyACM0 with a shell, on the vendor 4.4.302 kernel (ACM/SERIAL/ECM/RNDIS off, F_FS on, no devtmpfs), from a tiny static aarch64 C helper?
+
+Found
+: What is: the running kernel is the stock 4.4.302 with our ramdisk (research walleye-vendor-kernel-facts-s1-panic): USB_CONFIGFS and F_FS =y, ACM/SERIAL/ECM/RNDIS not set, no devtmpfs, UDC a800000.dwc3. Android itself uses ffs.adb in configfs group g1 on this phone (src-wahoo-init-hardware-usb-rc), so F_FS is exercised by the stock stack.
+
+Finding 1 (the trap): f_fs's descriptor parser (v4.4.302 and v7.3 alike) rejects any descriptor type outside interface, endpoint, HID, OTG, interface-association and SS-companion; CS_INTERFACE (0x24, the CDC header/call-management/ACM/union descriptors) falls to default -> -EINVAL. The queued idea of declaring the full CDC functional descriptors would make the write to ep0 fail.
+
+Finding 2 (the way): cdc_acm's probe, with no union descriptor and a class 2 / subclass 2 / protocol 1 interface with exactly three endpoints, assumes a single combined interface and picks interrupt-in, bulk-in, bulk-out with usb_find_common_endpoints. So ONE interface (class 0x02, sub 0x02, proto 0x01) with interrupt-in (10 bytes, interval 9), bulk-out and bulk-in (512 HS/SS, 64 FS) plus SS companion descriptors is enough; the host gives /dev/ttyACM0. Line coding / control-line-state are best-effort for the host.
+
+Design: (1) init: mount configfs; gadget with ids and strings as n2; functions/ffs.acm, configs/c.1 symlink; mkdir /dev/ffs; mount -t functionfs acm /dev/ffs (no devtmpfs: nodes by cpio; ep0 appears in the ffs mount, ep1..3 after the descriptors are written; /dev/ptmx a cpio node, mount devpts). (2) helper (C, static aarch64, clang, GPL base ffs-test.c, libc only): open /dev/ffs/ep0; write the V2 descriptors blob (flags FS|HS|SS), then the strings blob (lang 0x0409); only then write the UDC name (before that the configfs bind returns -ENODEV: f_fs desc_ready). (3) ep0 loop: on ENABLE open ep1..ep3 (names follow descriptor order) and fork a pty shell (posix_openpt, /bin/sh as session leader); on DISABLE/UNBIND close and kill; answer class SETUP events (SET_LINE_CODING 0x20, GET_LINE_CODING 0x21, SET_CONTROL_LINE_STATE 0x22) with a zero-length ack or canned 115200 8N1 so cdc_acm sees no stall; any other setup gets a stall. (4) bridge: poll pty master and ep2 (bulk-out) -> ep3 (bulk-in); ep1 opened and idle. A bulk-in write blocks until the host reads, so use a thread or timeout so a missing host never hangs the shell; log to /dev/kmsg only on state changes. (5) the mass-storage log window stays the second channel.
+
+Failure modes and how each looks: UDC write ENODEV (descriptors not written first, or parse -EINVAL: helper reports errno on /dev/kmsg and the mass-storage window); enumerates but no ttyACM (host cdc_acm rejected: host dmesg); enumerates then drops (ep0 events unanswered: host reset); panic (as 5b, an unwritten function attribute: this design writes no function attribute, only ep0 data) - the bootloader falls back to slot a as before.
+
+Not measured yet: whether the vendor's f_fs (Android common 4.4 plus patches) behaves like stock 4.4.302 here (read, not run); the host side of the ACM bind.
+
+Sources
+: src-linux-f-fs-c,src-linux-cdc-acm-c,src-linux-ffs-test-c,src-wahoo-init-hardware-usb-rc
+
+About
+: walleye-first-fastboot-boot
