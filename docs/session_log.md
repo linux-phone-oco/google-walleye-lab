@@ -805,3 +805,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-pk-build"></a>
+### pk1 and pk2 built
+
+Entry date
+: 2026-11-17
+
+Done
+: build/pk-kernel.sh, build/build-pk.sh; images in walleye-build/images-pk with SHA256SUMS (research/walleye-first-fastboot-boot/2026-11-18-pk); try walleye-try-pk queued
+
+Considered
+: porthole's own cmdline and stub dtbo: not taken, to keep ml5a's image the only other difference
+
+About
+: walleye-first-fastboot-boot

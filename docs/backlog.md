@@ -1774,10 +1774,10 @@ Needs
 ### A known-good mainline kernel on this phone: porthole's 7.2.2 Pixel 2 XL kernel (their config, patches, dts) with our ml5a-style immediate-reboot init, to see whether ANY mainline kernel reaches init here
 
 Status
-: open
+: done
 
 Note
-: Fact (lab research walleye-ml5-two-tries / walleye-ml4-two-tries): ml1-ml5 (our v7.3 kernel + minimal dts) never reach init: the phone is reset at ~33 s by something outside the kernel. The 'known-good' step of the bring-up method (ideal-agent bring-up-a-part 'A device from nothing'): run a kernel somebody else got to a shell on this SoC/phone family. porthole (pmaports) has a working Pixel 2 XL mainline kernel (research walleye-mainline-prior-art; kcxt/linux-wahoo too). If pk1 (taimen dts, this phone is walleye, so panel/touch differ but early boot is the same family) returns at ~40 s (init ran): the SoC path works and the difference is in OUR dts/config; if it also returns at ~70 s: the cause is the phone, the bootloader path or the image, not our kernel. Clean room: GPL sources, licences kept. WHEN DONE queue walleye-try-pk (needs phone, rank 1): pk1 twice then pk2 twice, return times as the ml5 bins (ml5a baseline ~75 s was with the dead kernel; the init-ran baseline is the vendor kernel's 36 s s4-like return plus the init: say the expected numbers in the item).
+: built: pk1/pk2 in walleye-build/images-pk, checks ok, hashes in research/walleye-first-fastboot-boot/2026-11-18-pk; try queued as walleye-try-pk
 
 About
 : walleye-first-fastboot-boot
@@ -1790,3 +1790,28 @@ Needs
 
 Proof
 : pk1/pk2 images: the control's header/footer, porthole's kernel built from its public pmaports package (kernel version, config and patch series as they publish; taimen dts for pk1, their walleye dts for pk2), their appended dtb with the overlay symbols if their dtb lacks __symbols__ (check with tests/host/dtbo-overlay-merges.sh and say), our ml5a init (reboot at once) as the ramdisk; checks as ml5's; build recipe reproducible from the lab; sources and licences kept; hashes
+
+
+<a id="walleye-try-pk"></a>
+### Phone: boot pk1 twice, then pk2 twice from the first state; record the four return times
+
+Status
+: open
+
+Note
+: images ~/Projects/walleye-build/images-pk (SHA256SUMS), research walleye-pk1-pk2-built. Expected: init ran = Android back at ~36-45 s; no init = ~70-78 s (ml5a 75 s). No hands needed: every image reboots at once.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 1
