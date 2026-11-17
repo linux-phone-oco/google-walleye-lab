@@ -1372,31 +1372,6 @@ Rank
 : 1
 
 
-<a id="walleye-retry-ffs-acm-after-reboot"></a>
-### Try n3 (FunctionFS ACM) again now the host runs 7.3.4 (cdc_acm loads): a console on /dev/ttyACM0
-
-Status
-: open
-
-Note
-: Image vendor-gadget-n3.img sha256 6672eb844fb5435ebb336e33a0b59db069bc2e62a6e01f98d760f5646b1d214c (lab PR 44; its first try enumerated a class-2 interface, no panic, but the host had no cdc_acm). Read-only exploration over the console only: uname, cmdline, /proc/config.gz facts, dmesg, mount, ls /sys/class/udc, /sys/firmware/devicetree/base (compatible, reserved-memory), /proc/iomem; nothing written to the phone; to keep the console up beyond the init's timer touch /tmp/hold, then reboot -f when done. Record what the shell shows as research (redact serials/IMEI).
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-17
-
-Needs
-: phone
-
-Proof
-: tests/host/ffs-acm-up.sh passes: /dev/ttyACM0 appears on the host, a shell answers on it (uname -a, cat /proc/cmdline read-only), the phone returns by itself (the init's reboot)
-
-Rank
-: 2
-
-
 <a id="walleye-ffs-rust-try"></a>
 ### Phone: boot image n3r (the Rust FunctionFS ACM helper) once; host sees ttyACM and a shell answers
 
@@ -1442,3 +1417,53 @@ About
 
 Opened
 : 2026-11-17
+
+
+<a id="walleye-retry-ffs-acm-after-reboot"></a>
+### Try n3 (FunctionFS ACM) again now the host runs 7.3.4 (cdc_acm loads): a console on /dev/ttyACM0
+
+Status
+: open
+
+Note
+: Image vendor-gadget-n3.img sha256 6672eb844fb5435ebb336e33a0b59db069bc2e62a6e01f98d760f5646b1d214c (lab PR 44; its first try enumerated a class-2 interface, no panic, but the host had no cdc_acm). Read-only exploration over the console only: uname, cmdline, /proc/config.gz facts, dmesg, mount, ls /sys/class/udc, /sys/firmware/devicetree/base (compatible, reserved-memory), /proc/iomem; nothing written to the phone; to keep the console up beyond the init's timer touch /tmp/hold, then reboot -f when done. Record what the shell shows as research (redact serials/IMEI).
+
+Waits
+: the lpoco lab-prepare tool (host access to /dev/ttyACM*); the author waits for the tool
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: tests/host/ffs-acm-up.sh passes: /dev/ttyACM0 appears on the host, a shell answers on it (uname -a, cat /proc/cmdline read-only), the phone returns by itself (the init's reboot)
+
+Rank
+: 2
+
+
+<a id="walleye-dtbo-overlay-merge-why"></a>
+### Our mainline dtb is never started (stock kernel + our dtb stays in fastboot): does the bootloader's dtbo overlay merge need __symbols__ and the nodes the overlays patch?
+
+Status
+: open
+
+Note
+: The host-independent work while the lab-prepare tool is awaited. Facts in the lab base: stock dtb has qcom,msm-id <0x124 0x20001>, compatible qcom,msm8998-mtp qcom,mtp, no board-id/pmic-id, 376 KB with bootargs; ours 51 KB, compatible google,walleye, no __symbols__ unless built with -@ (check the builder's script); research row walleye-boot-refused-why-how-it-stands ranked the dtbo merge as the first cause. dtbo.img is data, read with dtc only; clean room: structure and node names, no proprietary code. A write to dtbo is not proposed.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: research
+
+Proof
+: a research row: the structure of the LineageOS walleye dtbo.img (13 entries, id 0x1bc ...; androidboot.dtbo_idx=3 picks one) read with dtc/fdtdump from the public build already downloaded (~/Projects/walleye-build/control/dtbo.img, sha256 fb09009b...b8f6, official), which base-dtb paths/labels/__symbols__ the overlay fragments target, whether our dtb (compiled how: -@?) lacks them, how ABL selects and merges (public Qualcomm ABL source: dtbo idx, msm-id/board-id match, merge failure behaviour), the exact dtb properties to add or to compile, and one cheap image that tells (e.g. s3 rebuilt with our dtb + -@ symbols + the target nodes, or the stock dtb with only the compatible changed); say which of the bisect facts support it (s0n/s0 start; s3 'Booting OKAY' then stays in fastboot; s2 falls back)
