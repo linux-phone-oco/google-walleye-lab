@@ -408,10 +408,10 @@ Rank
 ### If refused: cold restart, then the same try on the same slot, with host checks
 
 Status
-: open
+: done
 
 Note
-: Only when the first-state try is refused. Power off fully (not fastboot reboot), start into the bootloader, record fastboot --version and that the phone is on a direct USB port; the control once; the phone back on its start slot.
+: Not needed: the Load Error was the slot state after repeated refusals (set-active metadata fixes it); the host restart for the host's own modules was the lab reboot into 7.3.4, done by the author.
 
 Blocked by
 : walleye-load-error-first-state
