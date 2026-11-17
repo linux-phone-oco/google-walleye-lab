@@ -1517,3 +1517,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-mainline-first-light"></a>
+### First light of OUR mainline v7.3 kernel: the control's header/footer, our kernel (gzip and lz4 variants) + the overlay-symbols dtb + a gadget init that shows itself in lsusb
+
+Status
+: open
+
+Note
+: Facts: s4/s3o (stock kernel + our -@ dtb) left fastboot at 12 s: the bootloader's overlay merge accepts our dtb now (lab PR 60); the stock kernel with our dtb returns to Android after ~36 s (it cannot run on a mainline dtb: expected). Earlier a/b/e/f (our kernel Image.gz + non-symbols dtb) were accepted but never started; s2 (our kernel lz4 + stock dtb) fell back: the kernel's compression or format may matter too, hence ml1/ml2. The returns without hands: a panic (panic=5) and the watchdog; an early hang still needs the author's hold - say it in the item's outcome table. WHEN DONE queue walleye-try-mainline-light (needs phone, rank 1, no waits): ml1, then ml2, each from the first state, 150 s watch with lsusb -v by port every second, plus the slot report and the bootreason after the return.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: images ml1 (kernel as Image.gz) and ml2 (kernel as lz4 frame like the stock) built by script from the control's own parts with exactly: our kernel, our -@ dtb (with the overlay stubs), our ramdisk; the ramdisk is a mainline-capable gadget init (mainline has devtmpfs and configfs: mass_storage or NCM-with-attributes are fine there, but keep it as simple as the vendor-kernel m1: enumerate with serial walleye-first-boot, product 'Pixel 2 walleye (mainline)', a 2 MiB mass_storage LUN window; open /dev/watchdog and never pet it (the SoC watchdog then resets the phone ~30-60 s later; if the dts needs the apss watchdog node enabled, enable it); cmdline: the stock cmdline except what mainline must have (earlycon msm_serial_dm,0xc1b0000 clk_ignore_unused ignore_loglevel panic=5 plus the stock androidboot.* kept), check-bisect-like checks ok, hashes in SHA256SUMS; the keeper's try then tells by lsusb (needs no host permissions): a device with our strings = first mainline light
