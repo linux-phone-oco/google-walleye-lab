@@ -1570,7 +1570,7 @@ Status
 : open
 
 Note
-: Images ~/Projects/walleye-build/images-ml/boot-ml1.img sha256 41d8efc0c6e5c3ed3086e66f605c39ddc4a0bcb8a0e266a2cbbd010738cc636b, boot-ml2.img sha256 63b2977f1f21c5de40b2c8efcbb0f033860ad5fae2c3ee9eca052f77f5979add. Each from the first state: 150 s watch, lsusb -v by port every second (or LIGHT_WAIT=150 tests/host/mainline-light-up.sh), then the slot report and the bootreason after the return. Pass = a device with serial walleye-first-boot and product 'Pixel 2 walleye (mainline)' (read the 64 KiB log window with tests/host/massstorage-read.sh if the host may). The way back: panic=5 or the SoC watchdog (30-60 s after the init opens it); an early hang needs the author's power hold - say so in the outcome table. Watchdog node address is the downstream value, unmeasured.
+: Tried 2026-11-17: ml1 and ml2 both fail (no USB light, Android on a at ~70 s, bootreason reboot). Needs the panic read: ramoops after the author's one unlock, or UART; to the walleye coordinator.
 
 About
 : walleye-first-fastboot-boot
