@@ -883,3 +883,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-nocon/
+
+
+<a id="walleye-nocon-four-returns"></a>
+### walleye-nocon-four-returns
+
+Date
+: 2026-11-17
+
+Brief
+: pk3 back as Android at 63 s and 48 s, ml6a at 75 s and 75 s; slot flags unchanged; pk3 is not the no-init 75 s pattern
+
+Question
+: Without earlycon, does init run: pk3 twice, ml6a twice from the first state, return times?
+
+Found
+: Images images-nocon on slot b via devlab fastboot boot. pk3: left fastboot 12 s, Android adb back after 63 s then 48 s. ml6a: left after 15 s, Android back after 75 s and 75 s (the no-init watchdog pattern of ml5a, pk1, pk2). Flags after each: a and b successful, unbootable no, retry 0. Reading: ml6a still shows no init; pk3 returns faster than 75 s but slower and more varied than stock 36-45 s, so it is unproven that init ran - needs a log channel (ramoops/UART) to settle. No hands used; one pk3 try was lost to adb not ready (rerun).
+
+About
+: walleye-first-fastboot-boot

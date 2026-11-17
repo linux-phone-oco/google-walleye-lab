@@ -1843,10 +1843,10 @@ Proof
 ### Phone: boot pk3 twice, then ml6a twice from the first state; record the four return times
 
 Status
-: open
+: done
 
 Note
-: images ~/Projects/walleye-build/images-nocon (SHA256SUMS), research walleye-pk3-ml6a-built. Expected: init ran (earlycon was the hang) = Android back at ~36-45 s; no init = ~70-78 s (ml5a, pk1, pk2 all 75 s). No hands needed: every image reboots at once.
+: proven by four returns: pk3 63/48 s, ml6a 75/75 s; ml6a no init, pk3 undecided; next: coordinator picks the log channel (ramoops read / UART)
 
 About
 : walleye-first-fastboot-boot
