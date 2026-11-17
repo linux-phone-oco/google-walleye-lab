@@ -1063,3 +1063,47 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-ncm-split"></a>
+### Split the NCM step of the gadget bring-up: function dir only, then its attributes, then the config symlink
+
+Status
+: open
+
+Note
+: Lab research 2026-11-17-walleye-vendor-gadget5-bisect (keeper): 5a (configfs, gadget dir, strings, no function) does not panic; 5b (adds the ncm function and config symlink) panics ~75 s after fastboot boot; UDC bind not reached. The panic is in mkdir of the ncm function or the symlink (or, in the vendor msm kernel, an ncm function that expects gsi/ipa). Split into one step per image; WHEN DONE queue walleye-try-ncm-split for the keeper (needs phone, rank 1, waits null): 5b1, then 5b2, then 5b3, stop at the first panic. Keep a-c, gadget1-5c byte-identical.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: images 5b1 (mkdir functions/ncm.usb0 only), 5b2 (5b1 + writing the function's attributes it has, e.g. host_addr/dev_addr/qmult, if the init wrote any), 5b3 (5b2 + the symlink into configs/b.1), all on gadget5a's init (configfs + gadget dir + strings + the usual 120 s reboot, heartbeat, kmsg markers BEFORE each step), checks as for 5a-c; hashes in SHA256SUMS
+
+
+<a id="walleye-ncm-panic-why"></a>
+### Why the ncm function (or its config symlink) panics the vendor msm-4.4.302 kernel, and which gadget function is safe and gives a channel
+
+Status
+: open
+
+Note
+: 5a ok, 5b panics (ncm function/config symlink). Config facts: USB_CONFIGFS_{F_FS,NCM,MTP,MASS_STORAGE,PTP,ACC,AUDIO_SRC,MIDI,HID,DIAG,GSI,CDEV,QDSS}=y; ACM, SERIAL, OBEX, ECM, RNDIS, EEM not set; UDC a800000.dwc3. The vendor init on Android a is readable read-only (init.*usb*.rc under /vendor/etc/init/ and /vendor/etc/init/hw/, adb root): only reads, no writes; clean room: read behaviour (which functions it composes, in which order), do not copy proprietary scripts into the records.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: research
+
+Proof
+: a research row with sources (the GPL wahoo kernel's f_ncm.c, configfs.c, the gsi/ipa gadget functions, how Android's USB HAL on Pixel 2 composes its gadgets: ffs.adb, mtp, rndis.gsi/ncm?, what the vendor's init.usb scripts write, public sources only): the likely cause ranked, the safe alternatives for a host-visible channel on this kernel (FunctionFS with a tiny static aarch64 helper, gsi functions, mass_storage with a read-only image as a crude log window, MTP, ACC), each with how one cheap image tells it, and a recommendation
