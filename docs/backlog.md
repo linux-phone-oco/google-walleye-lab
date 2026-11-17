@@ -1113,10 +1113,10 @@ Proof
 ### Try vendor-gadget5b1, then 5b2, 5b3, 5b4 by fastboot boot from the first state; stop at the first that panics
 
 Status
-: open
+: done
 
 Note
-: Prediction (research walleye-ncm-panic-why-how-it-stands): b1 returns, b2 panics (attribute writes on a NULL net); stop at b2 - the stop-at-first-panic rule already does that. Then ncm-noattr.
+: proven by b1 returns, b2 panics at 75 s (research 2026-11-17-walleye-ncm-split-b2-panics); next: the noattr try (n1, n2)
 
 About
 : walleye-first-fastboot-boot
