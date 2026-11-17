@@ -355,3 +355,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-2240-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-17
+
+Done
+: Fastboot, unlocked, slot a active and successful, b unbootable retry 1; nothing flashed; ncm split done (b2 panics), lease released
+
+Considered
+: next: walleye-try-ncm-noattr (n1 then n2, from the first state: Android on a, then adb reboot bootloader)
+
+About
+: walleye-first-fastboot-boot
