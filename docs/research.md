@@ -433,3 +433,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-gadget3-third-try"></a>
+### walleye-gadget3-third-try
+
+Date
+: 2026-11-17
+
+Brief
+: vendor-gadget3, third try with the watcher alive 130 s: no USB device with our strings ever; kernel_panic, Android on a after 74 s
+
+Question
+: Does vendor-gadget3 enumerate our gadget (serial walleye-first-boot) when the watcher is kept alive for the whole window?
+
+Found
+: From the first state (a active+successful, b unbootable), fastboot boot of vendor-gadget3.img: left fastboot after 12 s, Android on a after 74 s (Pixel 2 strings at t=68 s). A 1 s watcher over 130 s (its own setsid job) listed every USB device each second: port 3-2 showed only fastboot, then Android; no device with serial walleye-first-boot or product 'Pixel 2 walleye (mainline)'. The 18d1:d001 devices seen all sit on port 3-1 with serial postmarketOS = surya, not ours. ro.boot.bootreason=kernel_panic; no pstore readable without root. So the panic comes before any gadget strings, and the 240 s timer never runs. Next: an init that only writes to /dev/kmsg, to separate ramdisk unpack from gadget bring-up.
+
+About
+: walleye-first-fastboot-boot
