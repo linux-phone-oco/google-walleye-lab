@@ -1815,3 +1815,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-no-earlycon"></a>
+### Every mainline image carries earlycon msm_serial_dm,0xc1b0000: on a phone whose debug UART is not enabled that is a likely first-printk hang. Build the same images WITHOUT earlycon/console on the UART
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-try-pk): porthole's own known-good 7.2.2 kernel (pk1, pk2) returns at 75 s like every image of ours: no init ran, so our dts is not the cause; what all mainline images share besides the kernel generation is the cmdline we gave (earlycon msm_serial_dm,0xc1b0000, from porthole's debug set), and the vendor-kernel images that work use the control's stock cmdline only. This phone's debug UART is off unless 'fastboot oem uart enable' was run (research: Peter-Easton android-debug-cable-howto): an earlycon write to an unclocked/gated BLSP UART faults the bus and the SoC watchdog resets ~30 s later - which is exactly the ~33 s dead-kernel reset we see. WHEN DONE queue walleye-try-no-earlycon (needs phone, rank 1): pk3 twice, ml6a twice; expected: return at ~40 s (init ran, immediate reboot) means earlycon was the hang; ~75 s means it was not.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: pk3 = pk1 and ml6a = ml5a with ONLY the kernel command line changed: earlycon=... and any console=ttyMSM*/ttyHS* removed (say what the cmdline was and what remains; keep clk_ignore_unused ignore_loglevel panic=5 and the stock androidboot.* pieces); kernel/dtb/ramdisk/header/footer bytes equal to pk1's and ml5a's; checks as before; hashes
