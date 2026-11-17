@@ -2,11 +2,12 @@
 # The bisect from the stock control to our image (decision walleye-bisect-from-the-control): images that are the control's own
 # boot.img parts, with exactly one part swapped each. Host only; nothing here touches the phone.
 #
-#   build-bisect.sh CONTROL_BOOT_IMG OUR_IMAGE OUR_DTB OUR_RAMDISK_43 OUT_DIR
+#   build-bisect.sh CONTROL_BOOT_IMG OUR_IMAGE OUR_DTB OUR_RAMDISK_43 OUT_DIR [OUR_DTB_OVERLAY]
 #     CONTROL_BOOT_IMG  the stock boot.img the bootloader accepts and starts (LineageOS 22.2 walleye)
 #     OUR_IMAGE         our kernel, the raw arm64 Image (build-kernel.sh's out/b/arch/arm64/boot/Image)
 #     OUR_DTB           our dtb (out/msm8998-google-walleye.dtb)
 #     OUR_RAMDISK_43    our initramfs built NET=43 (172.16.43.1)
+#     OUR_DTB_OVERLAY   optional: our dtb built with -@ and the overlay stubs (decision walleye-dtb-carries-overlay-symbols): adds s3o
 #
 # Every image takes the control's header fields (offsets, page size, os version and patch level, command line) as unpack_bootimg
 # reads them, its kernel blob = lz4 frame of an Image + one appended dtb, its ramdisk, and its AVB hash footer (avbtool,
@@ -16,6 +17,7 @@
 #   s1   ramdisk = ours (172.16.43.1); the stock 4.4 kernel, stock dtb, stock command line
 #   s2   kernel  = ours, packed as an lz4 frame like the stock one (stock dtb, ramdisk, command line)
 #   s3   dtb     = ours (stock kernel, ramdisk, command line)
+#   s3o  dtb     = ours with __symbols__ and the 130 overlay stubs (stock kernel, ramdisk, command line); the dtbo overlay merges into it
 # Writes OUT_DIR/boot-s*.img, OUT_DIR/parts/*, OUT_DIR/BISECT.txt and checks each image with check-bisect.sh.
 set -eu
 CTRL=${1:?usage: build-bisect.sh CONTROL_BOOT_IMG OUR_IMAGE OUR_DTB OUR_RAMDISK_43 OUT_DIR}
@@ -23,6 +25,7 @@ OURK=${2:?}
 OURDTB=${3:?}
 OURRD=${4:?}
 OUT=${5:?}
+OURDTBO=${6:-}
 HERE=$(cd "$(dirname "$0")" && pwd)
 P=$OUT/parts
 rm -rf "$P"; mkdir -p "$P"
@@ -71,6 +74,7 @@ mk s0n "$P/blob-stock" "$P/control/ramdisk" no
 mk s1  "$P/blob-stock" "$OURRD"             yes
 mk s2  "$P/blob-s2"    "$P/control/ramdisk" yes
 mk s3  "$P/blob-s3"    "$P/control/ramdisk" yes
+if [ -n "$OURDTBO" ]; then cat "$P/stock-kernel.lz4" "$OURDTBO" > "$P/blob-s3o"; mk s3o "$P/blob-s3o" "$P/control/ramdisk" yes; cp "$OURDTBO" "$P/our-overlay.dtb"; fi
 cp "$P/control/ramdisk" "$P/stock-ramdisk"
 cp "$OURRD" "$P/our-ramdisk"; cp "$OURDTB" "$P/our.dtb"
 cat > "$OUT/BISECT.txt" <<EOF
@@ -82,6 +86,7 @@ s0n  s0 without footer and padding (the shape of images a-i)
 s1   ramdisk = ours (172.16.43.1, gzip)           stock kernel (lz4 frame, 4.4), stock dtb
 s2   kernel  = ours (raw Image in an lz4 frame)   stock dtb, ramdisk
 s3   dtb     = ours (msm8998-google-walleye.dtb)  stock kernel, ramdisk
+$( [ -n "$OURDTBO" ] && echo "s3o  dtb     = ours with -@ and overlay stubs (msm8998-google-walleye.dtb, new)  stock kernel, ramdisk" )
 EOF
 "$HERE/check-bisect.sh" "$CTRL" "$OUT"
 sha256sum "$OUT"/boot-s*.img

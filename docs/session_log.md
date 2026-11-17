@@ -520,3 +520,24 @@ Done
 
 Considered
 : next: host read access then retry m1; rejected: changing host groups or using sudo myself (system setting, the author's)
+
+---
+
+
+<a id="2026-11-17-2245-walleye-overlay-stubs-build"></a>
+### Overlay stubs build: s3o image
+
+Entry date
+: 2026-11-17
+
+Done
+: Generated the 130-stub compat dtsi from the dtbo entry 3 fixups, built our dtb with -@, host overlay-merge test passes, built image s3o (control + our new dtb) with checksums, queued the phone try.
+
+Considered
+: Stubs at the stock paths (would need a /soc node beside our soc@0); flat stubs under one parent node chosen: fdtoverlay and libufdt need only the symbol and a node.
+
+Rejected
+: Replacing s3 with the new dtb: s3's result stays reproducible, so the new image is s3o beside it.
+
+About
+: walleye-first-fastboot-boot
