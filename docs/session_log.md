@@ -451,3 +451,18 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-2200-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-17
+
+Done
+: Phone in fastboot, unlocked; slot a active and successful, b unbootable retry 1 (unchanged); stock Android on a; nothing flashed. m1 enumerates as our mass-storage gadget with no panic; its log window is unread because the lab host has no usb_storage module for kernel 7.3.3.
+
+Considered
+: next: walleye-try-massstorage again once the host has usb_storage (reboot into 7.3.4), or the FunctionFS ACM helper
