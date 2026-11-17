@@ -24,3 +24,9 @@ Two boot images, because walleye's own stock boot.img header is not read yet: `b
 0x1000000, tags 0x100), `boot-b.img` LineageOS's (ramdisk 0x2000000, tags 0x1e00000); base 0, kernel 0x8000, page 4096 in both.
 `build/check-bootimg.sh` counts what each must be (magic, size within 32 MiB, offsets, dtb with `qcom,msm-id` 0x124/0x20001
 and no bootargs). Once the keeper has read the stock header, the set that matches it is the one to try.
+
+## Variants c and d (after the first two tries)
+
+`boot-c.img` and `boot-d.img` are `a` and `b` with the header's os_version 8.1.0 and os_patch_level 2020-01 (the first two carry
+none); only those four header bytes differ, kernel, dtb, initramfs and command line are the same. Rebuild only the images with
+`KEEP_KERNEL=1 build/build-all.sh` (the old images stay byte for byte). `images/DIFFERENCES.txt` has the one-line table.
