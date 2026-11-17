@@ -259,3 +259,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-vendor-gadget5"></a>
+### vendor-gadget5a/b/c built
+
+Entry date
+: 2026-11-17
+
+Done
+: Three images for the gadget bring-up bisect, each the control with only the ramdisk swapped, gadget4's init (kmsg marker, 30 s alive markers, reboot -f at 120 s, sysrq b) plus one step: 5a configfs + gadget dir (ids, strings); 5b + ncm function and config symlink; 5c + UDC bind, usb0 172.16.43.1, telnetd. build/build-vendor-gadget5.sh: 14 checks each, all ok, AVB verifies, size 33554432, ramdisk differs from gadget4's only in /init. Files in ~/Projects/walleye-build/images, SHA256SUMS. sha256: vendor-gadget5a.img a89fc3d027fe50c7990d6ba6de13bd7976000d63a5d6dd7a6be92db60fd92a87; vendor-gadget5b.img 2e19c15c8ce00f0f24b2477f5a4617948b4e27a6e079832c49772548bffdc26e; vendor-gadget5c.img d09280cce8860a45c8c76701f319686b40948fa2d264341145255d6f31746662; initramfs-vendor5a.cpio.xz eeb644653738c001611363c6b7c8f542a96dbe4537b18cccbdea0880a101a81c; 5b 163c6ef6940e25b13e8dc89bee745459ec59588de6560866b0628f40b9734ad8; 5c 5a9f77fb0ff759b8e4e2218c9fc0d46506de5f15ad1e4d6b8d1f8fc003217073. Outcome table (tries from the first state, each in order a, b, c, stop at the first panic): panic = bootreason kernel_panic, back on Android a in ~75 s; no panic = phone returns by itself at ~120 s with bootreason reboot. First panic at 5a: configfs mount or gadget dir creation; at 5b: the ncm function or config; at 5c: the UDC bind (the dwc3 controller) or the network/telnetd part. 5c without a panic: the gadget is up and gadget-up.sh (read-only ping/telnet to 172.16.43.1) can pass during the 120 s. No hands expected in any outcome: the init returns by itself, a panic falls back by itself.
+
+Considered
+: one script for all three (a loop), one init file per step so each image's source is readable alone
+
+Rejected
+: a single image with a step chosen at run time (no way to pass it: the kernel command line is the control's and must stay)
+
+About
+: walleye-first-fastboot-boot
