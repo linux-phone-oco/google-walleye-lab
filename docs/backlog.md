@@ -872,10 +872,10 @@ Rank
 ### vendor-gadget4: an idle init (no gadget): kmsg marker, sleep 120, reboot -f
 
 Status
-: open
+: done
 
 Note
-: Third try of vendor-gadget3 (lab): panic before any gadget of ours, ~74-107 s after fastboot boot, no 240 s reboot. An idle init splits 'our gadget code causes it' from 'the vendor kernel cannot live without Android userspace for ~60 s' (e.g. a subsystem restart level 'panic', a watchdog nobody pets). Same checks as gadget3; only /init differs from gadget3's ramdisk; keep everything else byte-identical.
+: vendor-gadget4.img built, 14 checks ok; try queued for the phone keeper
 
 About
 : walleye-first-fastboot-boot
@@ -884,10 +884,10 @@ Opened
 : 2026-11-17
 
 Needs
-: build
+: phone
 
 Proof
-: vendor-gadget4.img = the control with only the ramdisk swapped (like gadget3), the init only writes a marker to /dev/kmsg, sleeps 120 s and runs reboot -f (sysrq b as the fallback); checks ok; hashes in SHA256SUMS; the keeper's try shows whether the phone panics at ~75 s anyway (then the panic does not come from our gadget code: kernel/hardware without Android userspace), or returns by itself at ~120 s (then the gadget bring-up is what panics)
+: the keeper's try of vendor-gadget4.img: the phone panics at ~75 s (not our gadget) or returns by itself at ~120 s (the gadget bring-up panics); slot report after
 
 
 <a id="walleye-panic-60s-why"></a>
