@@ -91,3 +91,10 @@ the phone up), then `reboot -f`, and `echo b > /proc/sysrq-trigger` five seconds
 `CONFIG_MAGIC_SYSRQ=y` with `MAGIC_SYSRQ_DEFAULT_ENABLE=0x1` (all functions), `PSTORE`, `PSTORE_RAM` and `PSTORE_CONSOLE`, so the sysrq
 reboot works and a later boot's init lists `/sys/fs/pstore` (it already did). Not run on the phone: that is the keeper's try, proof
 `tests/host/gadget-up.sh`, and the phone must return to fastboot/Android by itself after 240 s.
+
+## vendor-gadget4.img (an idle init: does the vendor kernel panic without our gadget?)
+
+Only the ramdisk's `/init` changes (`build/initramfs-vendor4/init`): a kmsg marker before any mount, `mount proc`, an "alive N s" marker every 30 s,
+at 120 s `reboot -f` then `echo b > /proc/sysrq-trigger`. No configfs, USB, network or telnetd. `build/build-vendor-gadget4.sh WORK_DIR CONTROL_BOOT_IMG
+OUT_DIR [VENDOR3_RAMDISK]` makes `initramfs-vendor4.cpio.xz` and `vendor-gadget4.img` and counts fourteen checks (header, kernel blob, size and AVB
+footer are the control's; the ramdisk differs from vendor-gadget3's only in `/init` and the unused `etc/udhcpd.conf`). Not run on the phone: the keeper's try.

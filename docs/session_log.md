@@ -220,3 +220,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-vendor-gadget4"></a>
+### vendor-gadget4 built
+
+Entry date
+: 2026-11-17
+
+Done
+: vendor-gadget4.img: the control with only the ramdisk swapped, an idle init (kmsg marker, proc, alive markers, reboot -f at 120 s, sysrq b fallback; no gadget). 14 checks ok, AVB verifies, size 33554432. sha256 vendor-gadget4.img db23f804a975d4077568cba458814a8af834846a59b2f8d90662ec21e6abbf1b; initramfs-vendor4.cpio.xz 0900a9db50731a4b0fb9e0a9428e3f91e4d8b993a69178d4605b480f9d09bcd4 (in ~/Projects/walleye-build/images, SHA256SUMS). Expected: a panic at ~75 s means not our gadget; a return at ~120 s means the gadget bring-up panics.
+
+Considered
+: alive markers every 30 s (pstore/console trail if it panics)
+
+Rejected
+: mounting configfs/pstore in the idle init: it would blur the split
+
+About
+: walleye-first-fastboot-boot
