@@ -910,3 +910,28 @@ Needs
 
 Proof
 : a research row with sources: the likely causes ranked (subsystem restart level panic after PIL/SSR timeouts, MSM watchdog bark/bite not petted, rcu/hung-task, an init exit, vendor ramoops handling), how each is told apart by one cheap try, and how the previous boot's ramoops/console text can be read (vendor init.ramoops.sh encrypts it into /data/vendor_ce/0/ramoops after user unlock: what exactly triggers it, whether an unlock by the author after the try is enough, other routes: /proc/last_kmsg, bootloader log, UART cable with its cost and the fastboot oem uart question)
+
+
+<a id="walleye-try-vendor-gadget4"></a>
+### Try vendor-gadget4.img (idle init, no gadget) by fastboot boot from the first state
+
+Status
+: open
+
+Note
+: ~/Projects/walleye-build/images/vendor-gadget4.img sha256 db23f804a975d4077568cba458814a8af834846a59b2f8d90662ec21e6abbf1b (SHA256SUMS; lab PR 19). From the first state (Android a completed, a successful, adb reboot bootloader; devlab fastboot state first; fix flags only by metadata-only set-active per the recorded decisions). devlab fastboot boot now IMAGE; do not rely on gadget-up (no gadget): watch by serial/port when the phone leaves fastboot (12 s), when it returns on Android a and its adb up, the time since the boot, then getprop ro.boot.bootreason and sys.boot_completed, and the slot report. Without hands: a panic falls back in ~75 s, our init's own reboot at 120 s. If the phone stays silent beyond 5 min, tell the coordinator (hands: hold Power 10-30 s). Record, land (lab), release the lease; report under 150 words.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: the bootreason and the time the phone is back on Android a after fastboot boot: panic at ~75 s = the panic is independent of our gadget code; a return at ~120 s with bootreason not kernel_panic = our init ran and the gadget bring-up of gadget2/3 is what panics; the init's /dev/kmsg marker is not readable from Android (record that)
+
+Rank
+: 1
