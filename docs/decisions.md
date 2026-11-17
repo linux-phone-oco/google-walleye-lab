@@ -304,3 +304,28 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-17-walleye-ramoops-at-the-phones-region"></a>
+### 2026-11-17-walleye-ramoops-at-the-phones-region
+
+Date
+: 2026-11-17
+
+Brief
+: Our dts puts ramoops at the phone's own region 0xa1100000/2 MiB (record 0x80000, console 0x20000, no pmsg), so stock Android can read our kernel's log
+
+Decision
+: dt/msm8998-google-walleye.dts: ramoops@a1100000, reg 0xa1100000 size 0x200000, record-size 0x80000, console-size 0x20000, no pmsg or ftrace; PSTORE_CONSOLE and PSTORE_RAM stay =y. No other carve-out in our dtb reaches 0xa1100000 (the highest ends at 0x95800000).
+
+Why
+: Lab research walleye-vendor-kernel-facts-s1-panic: the phone's ramoops is 0xa1100000, 2 MiB, record 524288, console 131072; a log written at 0xa1810000 is not read by Android. Checked on the built dtb by fdtget/fdtdump in build/build-ml3.sh.
+
+Rejected
+: Keeping 0xa1810000 (taimen/porthole value): Android would not parse it. Keeping pmsg-size 0x80000: the vendor values have none, and it shrinks the console zone. Reading /sys/module/ramoops/parameters on the phone: a builder never touches the phone; the facts research already holds them.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-ml1-ml2-no-light

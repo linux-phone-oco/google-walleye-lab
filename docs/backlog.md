@@ -1514,10 +1514,10 @@ Rank
 ### ml3: ml1 with the ramoops node at the phone's own region (0xa1100000, 2 MiB, vendor record/console sizes), so the stock Android can read our kernel's log after the reset
 
 Status
-: open
+: done
 
 Note
-: Fact (lab research walleye-vendor-kernel-facts-s1-panic): the phone's ramoops is at 0xa1100000 size 2 MiB (record 524288, console 131072); our dts has it at 0xa1810000 (from the taimen/porthole files) with other sizes, so a crash log of ours lands elsewhere and Android cannot parse it. The try ml1/ml2 (lab PR 64): accepted, left fastboot at 12-15 s, no gadget, Android back at 69-72 s, bootreason reboot: the kernel is probably running (a watchdog bite ~35-45 s after the jump would fit) but its USB does not show; the log is what we need. WHEN DONE queue walleye-try-ml3-ramoops (needs phone, rank 1): ml3 from the first state, then, with Android up and the screen lock set to None by the author (asked), adb root and read /data/vendor_ce/0/ramoops and /sys/fs/pstore: the console of OUR mainline boot (redact IDs) - record it as research.
+: Built 2026-11-17: boot-ml3.img sha256 5c2574706882f5c8f40b134bdf501e22c092093e494b5aad25efdabe4ba105c4 in ~/Projects/walleye-build/images-ml3; ramoops@a1100000 checked with fdtget, no carve-out overlaps it, PSTORE_CONSOLE/RAM =y. Try queued: walleye-try-ml3-ramoops.
 
 About
 : walleye-first-fastboot-boot
@@ -1631,3 +1631,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-try-ml3-ramoops"></a>
+### Phone: boot ml3 once from the first state, then read our kernel's console from the stock Android's pstore
+
+Status
+: open
+
+Note
+: Image: ~/Projects/walleye-build/images-ml3/boot-ml3.img, sha256 5c2574706882f5c8f40b134bdf501e22c092093e494b5aad25efdabe4ba105c4 (SHA256SUMS beside it). Boot it once from the first state; then, with Android up and the screen lock set to None by the author (asked), adb root and read /data/vendor_ce/0/ramoops and /sys/fs/pstore: the console of OUR mainline boot (redact IDs); record it as research.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: tests/host/ml3-ramoops-read.sh (to write: pstore console of our boot read back)
+
+Rank
+: 1

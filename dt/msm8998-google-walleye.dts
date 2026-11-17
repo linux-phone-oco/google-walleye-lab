@@ -59,13 +59,12 @@
 			no-map;
 		};
 
-		/* The address the stock system keeps its crash log at: read it back after a warm reset */
-		ramoops@a1810000 {
+		/* The phone's own ramoops region (stock: 0xa1100000, 2 MiB, record 0x80000, console 0x20000, no pmsg): the stock system reads our kernel's log back after a warm reset */
+		ramoops@a1100000 {
 			compatible = "ramoops";
-			reg = <0x0 0xa1810000 0x0 0x200000>;
-			record-size = <0x20000>;
-			console-size = <0x100000>;
-			pmsg-size = <0x80000>;
+			reg = <0x0 0xa1100000 0x0 0x200000>;
+			record-size = <0x80000>;
+			console-size = <0x20000>;
 		};
 	};
 

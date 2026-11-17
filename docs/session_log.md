@@ -634,3 +634,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-builder-ml3"></a>
+### Builder: ml3, ramoops at the phone's own region
+
+Entry date
+: 2026-11-17
+
+Done
+: Moved the dts ramoops node to 0xa1100000 (2 MiB, record 0x80000, console 0x20000, no pmsg); rebuilt the dtb (build-kernel.sh, out-ml); build/build-ml3.sh made ~/Projects/walleye-build/images-ml3/boot-ml3.img with 10 checks ok: node by fdtget, old node gone, no carve-out overlap, PSTORE_CONSOLE and PSTORE_RAM =y, ramdisk and kernel bytes equal ml1's, only the dtb part differs. sha256 boot-ml3.img 5c2574706882f5c8f40b134bdf501e22c092093e494b5aad25efdabe4ba105c4; initramfs 9feb844211c3e5b636b2481eb920d36cdf698eaf4441090574edd943a69b7e01 (same as ml1); ml1 41d8efc0..., ml2 63b2977f... unchanged. Queued walleye-try-ml3-ramoops.
+
+Considered
+: A new kernel build dir: not needed, the kernel is unchanged and only the dtb is rebuilt.
+
+Rejected
+: Reading ramoops parameters from the phone: builders never touch it.
+
+About
+: walleye-first-fastboot-boot
