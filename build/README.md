@@ -140,3 +140,15 @@ props are the source's (11 checks per image). Rationale and expected return time
 (our kernel + our dtb): `pk4` = porthole's Image.gz + OUR dtb; `pk5` = OUR Image.gz + porthole's taimen dtb; `pk6` = pk3 with only the ramdisk of ml5b (3 s per
 score point). Header, command line (no earlycon) and AVB footer are pk3's; pk4 and pk5 carry ml5a's reboot-at-once init. 31 checks, rebuild byte-identical.
 Not run on the phone: the keeper's try `walleye-try-bisect-pk`.
+
+## d1..d6: which node of our dtb stops boot (pk4 with one node group removed)
+
+`build/build-dtb-bisect.sh PK4_BOOT_IMG PK5_BOOT_IMG DTBO_IMG OUT_DIR` takes pk4 (porthole's kernel + our dtb, dead) and removes one group of nodes from our dtb with `fdtput -r`:
+`d1` watchdog, `d2` ramoops, `d3` slpi carve-out, `d4` RPM regulators, `d5` usb@a8f8800 + qusb2 phy, `d6` = d1+d2+d3. Everything else is pk4's; the stock dtbo overlay still merges
+(spmi is not a group: the overlay needs it). 90 checks, rebuild byte-identical. Not run on the phone: the keeper's try `walleye-try-dtb-bisect`.
+
+## pk5l: first mainline userspace (ACM console + log window)
+
+`build/build-pk5l.sh WORK_DIR PK5_BOOT_IMG OUT_DIR` repacks pk5 (our kernel + porthole's taimen dtb) with **only the ramdisk changed**: `initramfs-mainline/init-pk5l` binds one configfs gadget
+with `acm.GS0` (a respawned `busybox ash` on /dev/ttyGS0) and `mass_storage.0` (a 2 MiB window rewritten every 5 s), pets the SoC watchdog for 180 s (longer while `/tmp/hold` exists) and reboots.
+39 checks incl. the kernel config's gadget options. Host test: `tests/host/mainline-acm-up.sh`. Not run on the phone: the keeper's try `walleye-try-pk5l`.
