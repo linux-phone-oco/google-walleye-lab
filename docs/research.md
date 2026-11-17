@@ -839,3 +839,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-pk1-pk2-built"></a>
+### walleye-pk1-pk2-built
+
+Date
+: 2026-11-17
+
+Brief
+: pk1/pk2 built: porthole's v7.2.2 + 262 patches kernel (taimen / walleye dtb) in ml5a's image, only the kernel blob differs; 21 checks ok, rebuild identical
+
+Question
+: Can porthole's known-good mainline kernel be put in our ml5a image (immediate-reboot init) for the phone?
+
+Found
+: Built from kernel.org v7.2.2 (sha512 checked) + the 262 numbered patches + config of porthole-dev/pmaports taimen-bringup @ 0d62af2 (every patch and the config checked against the APKBUILD sums; the series has no 0236). clang build of Image.gz (9.9 MB) and the taimen and walleye dtbs with -@. pk1 = taimen dtb; pk2 = walleye dtb (their patch 0029) plus qcom,msm-id <0x124 0x20001> added by us (their walleye file has none). Both dtbs carry the stub nodes for the vendor overlay's labels, and the stock dtbo entry 3 merges into each (fdtoverlay). Images = ml5a with only the kernel blob changed: header, command line (earlycon clk_ignore_unused ignore_loglevel panic=5 androidboot.*), ramdisk (init-ml5a) and AVB footer equal ml5a's, 32 MiB, footer verifies. The porthole cmdline words (qcom_wdt.arm_on_probe, watchdog.open_timeout, reboot=w) are NOT used, so that only kernel and dtb differ from ml5a. Hashes: Image.gz 852f82dc, pk1.dtb b6996001, pk2.dtb fe6bf56b, boot-pk1.img b35aab07, boot-pk2.img 9fab400f (full in SHA256SUMS). Expected: init ran = Android back at ~36-45 s; kernel never reached init = ~70-78 s (ml5a 75/75 s). pk1 back at ~40 s while ml5 was ~75 s would put the cause in our dts/config; pk1 and pk2 both ~75 s would put it in the phone, bootloader path or image.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-pk/

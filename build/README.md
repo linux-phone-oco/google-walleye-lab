@@ -116,3 +116,14 @@ builds in the SoC watchdog (`QCOM_WDT`; the dts has a `watchdog@17817000` node, 
 `build/initramfs-mainline/init-ml` (mass_storage window, serial walleye-first-boot, product "Pixel 2 walleye (mainline)"; opens /dev/watchdog and never pets it).
 `boot-ml1.img` has the kernel as Image.gz, `boot-ml2.img` as an lz4 frame like the stock one. Command line: `earlycon=msm_serial_dm,0xc1b0000 clk_ignore_unused
 ignore_loglevel panic=5` plus the stock `androidboot.*` words. `tests/host/mainline-light-up.sh` is the host proof: a USB device with our strings.
+
+## pk1 and pk2: porthole's kernel on this phone (known-good step)
+
+`build/pk-kernel.sh WORK_DIR 0d62af2af5e72333a4d0e635f8bf338f191d4cc3` fetches porthole-dev/pmaports (branch taimen-bringup, that commit) and kernel.org
+v7.2.2, checks the tarball, the 262 numbered patches and the config against the APKBUILD's sha512sums, applies the series and builds
+`Image.gz` and the taimen and walleye dtbs (`-@`) with clang. `build/build-pk.sh KERNEL_TREE KERNEL_OUT ML5A_BOOT_IMG DTBO_IMG OUT_DIR` then packs
+them into ml5a's image: **only the kernel blob differs** (header, command line, ramdisk with init-ml5a, AVB footer are ml5a's). `pk1` = porthole's
+taimen dtb, `pk2` = their walleye dtb (patch 0029) plus `qcom,msm-id <0x124 0x20001>` (their walleye file has none; the control dtb's id). Both carry
+the empty stub nodes for the vendor overlay's labels (as ours, `gen-overlay-stubs.sh`), so the bootloader's dtbo entry 3 merges (checked with
+`fdtoverlay`). Not taken from porthole: their command line (ml5a's is kept, so only kernel and dtb differ), their stub dtbo (never written).
+Licences: GPL-2.0-only kernel and patches, kept as published; nothing of them is copied into this repository.
