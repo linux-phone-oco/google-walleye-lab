@@ -7,7 +7,7 @@
 - [Devices](devices.md): 0
 - [Parts](parts.md): 21
 - [Research](research.md): 31
-- [Session Log](session_log.md): 29
+- [Session Log](session_log.md): 30
 - [Sources](sources.md): 16
 - [Summaries](summaries.md): 0
 - [Test Results](test_results.md): 0

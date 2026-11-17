@@ -26,17 +26,19 @@ split() {  # split KERNEL_BLOB PREFIX: the lz4 frame and the dtb that ends it
   head -c "${o:-0}" "$1" > "$2.lz4"; tail -c +$((${o:-0}+1)) "$1" > "$2.dtb"
 }
 split "$T/c/kernel" "$T/c/k"
-for i in s0 s0n s1 s2 s3; do
+IMGS="s0 s0n s1 s2 s3"; [ -f "$OUT/boot-s3o.img" ] && IMGS="$IMGS s3o"
+for i in $IMGS; do
   IMG=$OUT/boot-$i.img
   echo "-- $i"
   UI=$(unpack_bootimg --boot_img "$IMG" --out "$T/$i" 2>&1)
   ck "$i header equals the control's (offsets, page size, os word, command line)" "$(hdr "$UI" | grep -v -e 'kernel_size' -e 'ramdisk size')" "$(hdr "$CI" | grep -v -e 'kernel_size' -e 'ramdisk size')"
   split "$T/$i/kernel" "$T/$i/k"
   want_rd=c; want_k=c; want_d=c
-  case $i in s1) want_rd=our ;; s2) want_k=our ;; s3) want_d=our ;; esac
+  case $i in s1) want_rd=our ;; s2) want_k=our ;; s3) want_d=our ;; s3o) want_d=ouro ;; esac
   if [ $want_rd = c ]; then ck "$i ramdisk is the control's" "$(h "$T/$i/ramdisk")" "$(h "$T/c/ramdisk")"; else ck "$i ramdisk is ours, not the control's" "$(h "$T/$i/ramdisk")" "$(h "$P/our-ramdisk")"; fi
   if [ $want_k = c ]; then ck "$i kernel lz4 frame is the control's" "$(h "$T/$i/k.lz4")" "$(h "$T/c/k.lz4")"; else ck "$i kernel lz4 frame is ours" "$(h "$T/$i/k.lz4")" "$(h "$P/our-kernel.lz4")"; fi
-  if [ $want_d = c ]; then ck "$i dtb is the control's" "$(h "$T/$i/k.dtb")" "$(h "$T/c/k.dtb")"; else ck "$i dtb is ours" "$(h "$T/$i/k.dtb")" "$(h "$P/our.dtb")"; fi
+  if [ $want_d = c ]; then ck "$i dtb is the control's" "$(h "$T/$i/k.dtb")" "$(h "$T/c/k.dtb")"; elif [ $want_d = our ]; then ck "$i dtb is ours" "$(h "$T/$i/k.dtb")" "$(h "$P/our.dtb")"; fi
+  if [ $want_d = ouro ]; then ck "$i dtb is ours with the overlay stubs" "$(h "$T/$i/k.dtb")" "$(h "$P/our-overlay.dtb")"; ck "$i dtb differs from s3" "$([ "$(h "$T/$i/k.dtb")" != "$(h "$P/our.dtb")" ] && echo yes)" yes; fi
   ck "$i kernel frame decompresses" "$(lz4 -dc "$T/$i/k.lz4" 2>/dev/null | head -c 2)" "MZ"
   ck "$i dtb reads" "$(fdtdump "$T/$i/k.dtb" >/dev/null 2>&1 && echo yes || echo no)" yes
   if [ $i = s0n ]; then

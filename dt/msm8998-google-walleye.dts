@@ -23,6 +23,7 @@
 /dts-v1/;
 
 #include "msm8998.dtsi"
+#include "msm8998-google-walleye-overlay-stubs.dtsi"
 
 /delete-node/ &mpss_mem;
 /delete-node/ &venus_mem;
