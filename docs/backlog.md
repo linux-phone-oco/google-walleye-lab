@@ -1746,3 +1746,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-get-uart-setup"></a>
+### Get the UART debug setup for the Pixel 2 (breakout + 1.8 V adapter, or USB-Cereal) and confirm it
+
+Status
+: open
+
+Note
+: The parts and wiring are in the hardware table (uart-debug-setup). Once owned: try it, record the log, and mark the fit confirmed with its evidence.
+
+Waits
+: the author: choosing and buying the parts (tad q hardware)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
