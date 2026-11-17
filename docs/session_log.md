@@ -484,3 +484,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-builder-n3r"></a>
+### Builder: vendor-gadget-n3r (Rust FunctionFS ACM helper)
+
+Entry date
+: 2026-11-17
+
+Done
+: Rewrote the helper in Rust (build/ffs-acm-rs, libc crate, panic=abort, static musl, linked by aarch64-linux-gnu-gcc as lab-tools health/build.sh does): same steps as the C probe, descriptors and strings checked byte for byte against the probe's by a unit test (tests/c-probe-blobs.bin). build-vendor-gadget-n3r.sh makes vendor-gadget-n3r.img: n3 with only /bin/ffs-acm swapped (init byte for byte, checked against initramfs-vendor-n3); 21 checks ok; second build gave identical hashes. Hashes in images/SHA256SUMS. No arguments or environment read, so no argenv. Phone not touched.
+
+Considered
+: nix crate instead of libc: more code for the same fork/ioctl calls
+
+Rejected
+: Replacing n3's C helper: it stays as the probe; n3r is a separate image so the try can compare
+
+About
+: walleye-first-fastboot-boot
