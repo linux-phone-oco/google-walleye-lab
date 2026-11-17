@@ -3,7 +3,7 @@
 #
 #   build/build-all.sh [WORK_DIR]        WORK_DIR defaults to ~/Projects/walleye-build; the tree is WORK_DIR/linux-v7.3
 #
-# Leaves WORK_DIR/images/boot-a.img and boot-b.img (see build/README.md for what the two are).
+# Leaves WORK_DIR/images/boot-a.img ... boot-h.img (see build/README.md for what they are).
 set -eu
 HERE=$(cd "$(dirname "$0")" && pwd)
 W=${1:-$HOME/Projects/walleye-build}
@@ -15,6 +15,7 @@ if grep -n 'msm8998-google-walleye' "$W/out/dtb-w1.log" | grep -i 'warning'; the
 echo "dtc W=1: no warning from msm8998-google-walleye.dts"
 [ -x "$W/busybox-arm64" ] || "$HERE/build-busybox.sh" arm64 "$W"
 "$HERE/build-initramfs.sh" phone "$W" "$W/initramfs-phone.cpio.gz"
-"$HERE/build-bootimg.sh" "$W/out/Image.gz" "$W/out/msm8998-google-walleye.dtb" "$W/initramfs-phone.cpio.gz" "$W/images" "$W/out/msm8998-google-walleye-f.dtb"
+NET=43 "$HERE/build-initramfs.sh" phone "$W" "$W/initramfs-phone-43.cpio.gz"
+"$HERE/build-bootimg.sh" "$W/out/Image.gz" "$W/out/msm8998-google-walleye.dtb" "$W/initramfs-phone.cpio.gz" "$W/images" "$W/out/msm8998-google-walleye-f.dtb" "$W/initramfs-phone-43.cpio.gz"
 ls -l "$W/images"/boot-*.img
 sha256sum "$W/images"/boot-*.img

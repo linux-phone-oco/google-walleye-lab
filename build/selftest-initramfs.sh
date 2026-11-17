@@ -5,6 +5,7 @@
 # and its scripts are the same files. Needs qemu-system-x86_64; /dev/kvm makes it fast, without it it is slow.
 #
 #   selftest-initramfs.sh WORK_DIR
+# NET=43: the same proof with the initramfs at 172.16.43.1 (default 42).
 # Prints the SELFTEST lines; exits 0 only if the last is "SELFTEST PASS".
 set -eu
 W=${1:?usage: selftest-initramfs.sh WORK_DIR}
@@ -12,7 +13,8 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 KVER=$(ls /usr/lib/modules | grep -v lts | sort -V | tail -n1)
 KERNEL=/usr/lib/modules/$KVER/vmlinuz
 [ -f "$KERNEL" ] || { echo "no host kernel $KERNEL" >&2; exit 1; }
-SELFTEST_KVER=$KVER "$HERE/build-initramfs.sh" selftest "$W" "$W/initramfs-selftest.cpio.gz" >/dev/null
+NET=${NET:-42}
+SELFTEST_KVER=$KVER NET=$NET "$HERE/build-initramfs.sh" selftest "$W" "$W/initramfs-selftest.cpio.gz" >/dev/null
 ACCEL=tcg; [ -w /dev/kvm ] && ACCEL=kvm
 timeout 240 qemu-system-x86_64 -machine accel=$ACCEL -cpu max -m 1024 -nographic -no-reboot \
   -kernel "$KERNEL" -initrd "$W/initramfs-selftest.cpio.gz" \

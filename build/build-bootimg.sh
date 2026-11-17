@@ -5,15 +5,16 @@
 #   b  LineageOS's wahoo board config: ramdisk 0x2000000, tags 0x1e00000
 # (base 0, kernel offset 0x8000, second 0xf00000, page size 4096 in both.) No fastboot here: building only.
 #
-#   build-bootimg.sh IMAGE_GZ DTB RAMDISK_GZ OUT_DIR [DTB_F]   (DTB_F: the dtb with qcom,board-id, for f)
+#   build-bootimg.sh IMAGE_GZ DTB RAMDISK_GZ OUT_DIR [DTB_F [RAMDISK_43]]   (DTB_F: the dtb with qcom,board-id, for f; RAMDISK_43: for g, h)
 #
-# Writes OUT_DIR/boot-{a,b,c,d}.img (and e, f when DTB_F is given) and checks each with check-bootimg.sh.
+# Writes OUT_DIR/boot-{a,b,c,d}.img (and e, f when DTB_F is given, g, h when RAMDISK_43 is too) and checks each with check-bootimg.sh.
 set -eu
 KERNEL=${1:?usage: build-bootimg.sh IMAGE_GZ DTB RAMDISK_GZ OUT_DIR}
 DTB=${2:?}
 RAMDISK=${3:?}
 OUT=${4:?}
 DTB_F=${5:-}
+RAMDISK_43=${6:-}   # the initramfs built with NET=43, for g and h
 HERE=$(cd "$(dirname "$0")" && pwd)
 # The device tree carries no bootargs (the bootloader appends this line to it): what the first try needs.
 CMDLINE="clk_ignore_unused ignore_loglevel panic=10 earlycon=msm_serial_dm,0xc1b0000 console=ttyGS0,115200 reboot=w"
@@ -47,4 +48,16 @@ if [ -n "$DTB_F" ]; then
   }
   mke e "$DTB"
   mke f "$DTB_F" "8 0"
+fi
+# g and h: e and f with the initramfs answering on 172.16.43.1 (NET=43), nothing else changed - walleye and surya share one host
+# and surya's own gadget is 172.16.42.1. Only the ramdisk differs from e and f; check-bootimg.sh also counts the address in /init.
+if [ -n "$DTB_F" ] && [ -n "$RAMDISK_43" ]; then
+  mkg() {  # mkg NAME DTB [BOARD_ID]
+    mkbootimg --header_version 0 --base 0x0 --kernel_offset 0x8000 --ramdisk_offset 0x1000000 --second_offset 0x0 \
+      --tags_offset 0x100 --pagesize 4096 --kernel "$OUT/kernel-dtb-$1" --ramdisk "$RAMDISK_43" --cmdline "$CMDLINE_E" \
+      -o "$OUT/boot-$2.img"
+    NET=43 BOARD_ID="${3:-}" "$HERE/check-bootimg.sh" "$OUT/boot-$2.img" 0x1000000 0x100
+  }
+  mkg e g
+  mkg f h "8 0"
 fi

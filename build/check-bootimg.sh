@@ -43,5 +43,8 @@ ck "qcom,board-id" "$(fdtget -t u "$T/appended.dtb" / qcom,board-id 2>/dev/null)
 ck "qcom,pmic-id count" "$(dtc -I dtb -O dts "$T/appended.dtb" 2>/dev/null | grep -c "qcom,pmic-id")" 0
 ck "kernel is a gzip" "$(head -c 2 "$K" | od -An -tx1 | tr -d ' ')" 1f8b
 ck "ramdisk has /init" "$(zcat "$T/u/ramdisk" 2>/dev/null | cpio -t 2>/dev/null | grep -cx init)" 1
+NET=${NET:-42}
+ck "init answers on 172.16.$NET.1" "$(zcat "$T/u/ramdisk" 2>/dev/null | cpio -i --to-stdout init 2>/dev/null | grep -c "ifconfig usb0 172.16.$NET.1 ")" 1
+ck "udhcpd leases 172.16.$NET.2" "$(zcat "$T/u/ramdisk" 2>/dev/null | cpio -i --to-stdout etc/udhcpd.conf 2>/dev/null | grep -c "^start 172.16.$NET.2")" 1
 echo "$IMG: $pass ok, $fail failed"
 [ $fail -eq 0 ]
