@@ -937,3 +937,45 @@ Done
 
 Considered
 : next: diff our dtb vs porthole's taimen dtb and bisect nodes; pstore unreadable without root
+
+---
+
+
+<a id="2026-11-18-walleye-dtb-bisect-build"></a>
+### d1..d6 built (our dtb bisect)
+
+Entry date
+: 2026-11-18
+
+Done
+: build/build-dtb-bisect.sh: six images, each pk4 with a node group removed from our dtb by fdtput; 90 checks ok, rebuild identical; hashes in research/walleye-first-fastboot-boot/2026-11-18-dtb-bisect; try walleye-try-dtb-bisect queued for the keeper
+
+Considered
+: Diffing the decompiled dtbs by path and property first, so each group is a node we have and porthole lacks or places differently
+
+Rejected
+: Removing spmi@800f000 as a group: the vendor dtbo overlay needs it, so that image would fail at the bootloader's merge and test nothing; adding our nodes to porthole's dtb (pk5 + group) in this round: removal from the dead dtb needs no kernel or dts rebuild and the reverse direction waits for a null result
+
+About
+: walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-pk5l-build"></a>
+### pk5l built (first mainline userspace image)
+
+Entry date
+: 2026-11-18
+
+Done
+: build/build-pk5l.sh, init-pk5l, tests/host/mainline-acm-up.sh; 39 checks ok, rebuild identical; hashes in research/walleye-first-fastboot-boot/2026-11-18-pk5l; try walleye-try-pk5l queued rank 1
+
+Considered
+: One gadget config with both functions so a single bind gives console and window; petting the watchdog with a held-open fd 3 and a hold file to stay up
+
+Rejected
+: Two images (ACM only, window only): a failure of one function would then hide the other; a getty/login: a respawned ash on the tty is the least that answers
+
+About
+: walleye-first-fastboot-boot

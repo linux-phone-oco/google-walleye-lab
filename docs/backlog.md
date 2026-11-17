@@ -1915,10 +1915,10 @@ Rank
 ### First light of OUR kernel: pk5 (our kernel + porthole's taimen dtb, no earlycon) with a gadget init: configfs ACM console (a shell on /dev/ttyGS0) and the mass_storage log window
 
 Status
-: open
+: done
 
 Note
-: Fact (lab research walleye-try-bisect-pk): pk5 (OUR kernel + porthole's taimen dtb) returns at 42 s twice = init ran: our mainline kernel is fine; our dtb stops boot. The first mainline userspace on this phone is therefore within reach with porthole's dtb. WHEN DONE queue walleye-try-pk5l (needs phone, rank 1): pk5l twice; read the console and the window; stay up as long as the init allows (touch /tmp/hold keeps it); record the first mainline dmesg. A second item, walleye-our-dtb-bisect (build), follows: diff our dtb vs porthole's taimen dtb, bisect nodes.
+: built: boot-pk5l.img in walleye-build/images-pk5l, 39 checks ok, hashes in research/walleye-first-fastboot-boot/2026-11-18-pk5l; try queued as walleye-try-pk5l
 
 About
 : walleye-first-fastboot-boot
@@ -1937,10 +1937,10 @@ Proof
 ### Find the node(s) of OUR dtb that stop boot: diff it against porthole's taimen dtb (the one that reaches init with our kernel), bisect by moving nodes
 
 Status
-: open
+: done
 
 Note
-: Fact: our kernel boots with porthole's dtb (pk5, init at 42 s) and dies with ours (ml5a/ml6a, ~75 s); porthole's kernel with our dtb dies too (pk4): the dtb is the cause. Likeliest suspects: reserved-memory carve-outs that overlap firmware memory (our dts' regions from the wahoo file, ramoops 0xa1100000 added by us), the watchdog node at 0x17817000 the builder added from downstream values (a wrong address faults the bus), regulators, the usb nodes. Diff first (dtc -I dtb -O dts, both), then ask which differences matter; bisect with one image per group, ramdisk = ml5a's init (reboot at once), expected returns: init ran ~42-50 s, dead ~75 s. WHEN DONE queue walleye-try-dtb-bisect (needs phone, rank 2).
+: built: d1..d6 in walleye-build/images-dtb, 90 checks ok, hashes in research/walleye-first-fastboot-boot/2026-11-18-dtb-bisect; try queued as walleye-try-dtb-bisect
 
 About
 : walleye-first-fastboot-boot
@@ -1953,3 +1953,53 @@ Needs
 
 Proof
 : a research row naming the node or property whose presence in our dts stops boot (reset at ~33 s), found by images each with our dtb minus a node group (reserved-memory carve-outs, ramoops, the watchdog node we added, regulators, the dwc3/usb nodes, tlmm...), or porthole's dtb plus a node group of ours; the fix as a patch to dt/msm8998-google-walleye.dts; hashes
+
+
+<a id="walleye-try-dtb-bisect"></a>
+### Phone: boot pk4 once more, then d1..d6 twice each from the first state; record the thirteen return times and read pstore
+
+Status
+: open
+
+Note
+: images ~/Projects/walleye-build/images-dtb (boot-d1..d6.img, pk4 in images-pk456), SHA256SUMS, research walleye-dtb-bisect-built. Expected: init ran = Android back at ~40-65 s; no init = ~75 s. The first to come back early names its group (d1 watchdog, d2 ramoops, d3 slpi carve-out, d4 RPM regulators, d5 usb+qusb2 phy, d6 = d1+d2+d3). No hands needed: every image reboots at once.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 2
+
+
+<a id="walleye-try-pk5l"></a>
+### Phone: boot pk5l twice from the first state; read the ACM console and the window, record the first mainline dmesg
+
+Status
+: open
+
+Note
+: image ~/Projects/walleye-build/images-pk5l/boot-pk5l.img, SHA256SUMS, research walleye-pk5l-built; host test tests/host/mainline-acm-up.sh (ACM_WAIT=60), window by tests/host/massstorage-read.sh (needs disk group or sudo: backlog walleye-host-access-via-lab-prepare). The init stays up 180 s, longer while /tmp/hold exists (touch it from the shell on /dev/ttyACM*); then reboots by itself: no hands. Run before walleye-try-dtb-bisect.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 1
