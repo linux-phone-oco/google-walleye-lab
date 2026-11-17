@@ -337,3 +337,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-2230-walleye-ncm-split"></a>
+### ncm split: b2 panics
+
+Entry date
+: 2026-11-17
+
+Done
+: Took the lease; tried vendor-gadget5b1 (returns, reboot) and 5b2 (kernel_panic at 75 s) by fastboot boot from the first state; phone left in fastboot, a active, nothing flashed
+
+Considered
+: b3, b4 not tried (stop at the first panic); next: the noattr try with vendor-gadget-n1, n2
+
+About
+: walleye-first-fastboot-boot
