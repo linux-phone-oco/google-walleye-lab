@@ -1586,3 +1586,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-ml3-vendor-ramoops"></a>
+### ml3: ml1 with the ramoops node at the phone's own region (0xa1100000, 2 MiB, vendor record/console sizes), so the stock Android can read our kernel's log after the reset
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-vendor-kernel-facts-s1-panic): the phone's ramoops is at 0xa1100000 size 2 MiB (record 524288, console 131072); our dts has it at 0xa1810000 (from the taimen/porthole files) with other sizes, so a crash log of ours lands elsewhere and Android cannot parse it. The try ml1/ml2 (lab PR 64): accepted, left fastboot at 12-15 s, no gadget, Android back at 69-72 s, bootreason reboot: the kernel is probably running (a watchdog bite ~35-45 s after the jump would fit) but its USB does not show; the log is what we need. WHEN DONE queue walleye-try-ml3-ramoops (needs phone, rank 1): ml3 from the first state, then, with Android up and the screen lock set to None by the author (asked), adb root and read /data/vendor_ce/0/ramoops and /sys/fs/pstore: the console of OUR mainline boot (redact IDs) - record it as research.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: boot-ml3.img = boot-ml1.img with only the dts ramoops node changed: reg <0x0 0xa1100000 0x0 0x200000>, record-size 0x80000, console-size 0x20000, no pmsg and no ftrace region unless the vendor values say so (read /sys/module/ramoops/parameters on Android a, and the vendor dts' reserved-memory node names in the public GPL dts, for pmsg/ftrace sizes and for whether 0xa1100000 collides with another carve-out in our dts: say it), checks as for ml1/ml2, hashes; also read-back: the new dtb's ramoops node printed with fdtget in the check; the kernel's console is saved into it by pstore/console (check CONFIG_PSTORE_CONSOLE and PSTORE_RAM are y in our config)
