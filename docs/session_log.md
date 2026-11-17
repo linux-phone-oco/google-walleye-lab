@@ -883,3 +883,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1200-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-17
+
+Done
+: Ran the no-earlycon tries; phone in fastboot, unlocked, slot b current, a and b successful, retry 0; nothing flashed; lease to be released
+
+Considered
+: next: coordinator decides the log channel (ramoops read / UART) for pk3 vs ml6a
+
+About
+: walleye-first-fastboot-boot
