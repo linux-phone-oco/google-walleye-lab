@@ -700,3 +700,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ml1-ml2-no-light"></a>
+### walleye-ml1-ml2-no-light
+
+Date
+: 2026-11-17
+
+Brief
+: ml1 and ml2 from the first state: accepted, left fastboot at 12-15 s, no USB device with our strings in 150 s, Android on a at 69-72 s, bootreason reboot
+
+Question
+: Does our mainline kernel start (first light: serial walleye-first-boot, product 'Pixel 2 walleye (mainline)') from boot-ml1.img (Image.gz) and boot-ml2.img (lz4)?
+
+Found
+: Both images (sha256 41d8efc0..., 63b2977f...) booted once each from the first state (a current+successful, b unbootable, fastboot). ml1: left fastboot after 15 s, Android adb back after 72 s. ml2: left after 12 s, back after 69 s. mainline-light-up.sh watched 150 s per try: fail both, no device with our strings. Return at ~70 s with bootreason reboot (not kernel_panic), the same time as the vendor-kernel panic fallback: either the panic=5/watchdog path or the bootloader fallback; which is not told by what we can read. Slot flags unchanged after both (a current, successful=yes, b unbootable, retry 1); phone left in fastboot on a. Nothing flashed. Reading it needs ramoops (author unlock) or the UART cable, per decision walleye-panic-read-order; the watchdog node address is still the unmeasured downstream value.
+
+About
+: walleye-first-fastboot-boot

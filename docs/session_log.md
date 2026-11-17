@@ -577,3 +577,39 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-keeper-ml-light"></a>
+### ml1 and ml2 first-light tries
+
+Entry date
+: 2026-11-17
+
+Done
+: ml1 then ml2, each once from the first state; both fail the light test; phone back in fastboot, slot a current and successful, nothing written
+
+Considered
+: next: read ramoops (author unlock) or UART; watchdog node address check
+
+About
+: walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-how-the-phone-stands-ml"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-17
+
+Done
+: Phone in fastboot (FA81N1A00790), slot a current+successful, b unbootable retry 1; stock Android on a is what runs; no kernel kept
+
+Considered
+: next: panic read by ramoops or UART, decided by the walleye coordinator
+
+About
+: walleye-first-fastboot-boot
