@@ -412,3 +412,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-builder-vendor-gadget-n3-image"></a>
+### Builder: vendor-gadget-n3 image (FunctionFS ACM console)
+
+Entry date
+: 2026-11-17
+
+Done
+: Built the static aarch64 helper build/ffs-acm/ffs-acm.c (descriptors V2 FS/HS/SS then strings to ep0, only then the UDC bind; one class 2/2/1 interface with 3 endpoints; pty shell bridged to ep2/ep3 by two forked pumps; setup requests for line coding answered, others stalled; no function attribute written), init build/initramfs-vendor5/init-n3 (functions/ffs.acm, devpts, functionfs mount, helper in the background, self-reboot at 180 s) and build/build-vendor-gadget-n3.sh (21 checks, all ok). Images in ~/Projects/walleye-build/images, added to SHA256SUMS: ffs-acm fea51dd8fc5057ced8ac358607210676612c68209edb4a86a61c64086fef1f04; initramfs-vendor-n3.cpio.xz 0be5a7f05f878a8be608a333d410a5619fc10940bd85cbe1635444a196337a9e; vendor-gadget-n3.img 6672eb844fb5435ebb336e33a0b59db069bc2e62a6e01f98d760f5646b1d214c. tests/host/ffs-acm-up.sh fails without the phone, as it must. Not run on the phone.
+
+Considered
+: Rust helper: no aarch64 Rust target on the lab, so the C helper of the decision was built with aarch64-linux-gnu-gcc -static; the helper takes no arguments and reads no environment, every path is a constant, so there is nothing for argenv to declare. Threads: rejected for two fork pumps.
+
+Rejected
+: Mass-storage window in n3: n3 changes one thing (the channel) from n2. Not tested under qemu: FunctionFS needs a UDC.
+
+About
+: walleye-first-fastboot-boot

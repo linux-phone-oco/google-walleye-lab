@@ -1273,10 +1273,10 @@ Rank
 ### Write the FunctionFS ACM helper (C, static aarch64, GPL base ffs-test.c) and the n3 ramdisk/image
 
 Status
-: open
+: done
 
 Note
-: Design in research walleye-ffs-acm-helper-how-it-stands and decision 2026-11-17-walleye-ffs-acm-single-interface; same stock-boot.img control and xz ramdisk as build-vendor-gadget-n.sh; no Python.
+: Built: images/vendor-gadget-n3.img sha256 6672eb844fb5435ebb336e33a0b59db069bc2e62a6e01f98d760f5646b1d214c (helper, ramdisk sums in the session log 2026-11-17-builder-vendor-gadget-n3-image); 21 checks ok
 
 About
 : walleye-first-fastboot-boot
@@ -1298,7 +1298,10 @@ Status
 : open
 
 Note
-: One fastboot boot by the keeper; read the health report after; on no bind read host dmesg and the mass-storage window for the failure mode listed in the research.
+: Try ~/Projects/walleye-build/images/vendor-gadget-n3.img (sha256 6672eb84...d214c) once by fastboot boot; read the health report after; on no bind read host dmesg for cdc_acm and the helper's walleye-ffs-acm lines in kmsg
+
+Waits
+: none
 
 Blocked by
 : walleye-ffs-helper-build
