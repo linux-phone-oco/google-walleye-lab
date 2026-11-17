@@ -901,3 +901,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-pk456-build"></a>
+### pk4, pk5, pk6 built
+
+Entry date
+: 2026-11-17
+
+Done
+: build/build-pk456.sh: one swap each between pk3 and ml6a, no earlycon; 31 checks ok, rebuild identical; hashes in research/walleye-first-fastboot-boot/2026-11-18-pk456; try walleye-try-bisect-pk queued for the keeper
+
+Considered
+: Splitting each kernel blob at the dtb that ends it (as check-bisect.sh) and repacking with pk3's header and AVB props
+
+Rejected
+: Rebuilding the kernels or dtbs: the swap uses the recorded images' own bytes, so nothing else can differ
+
+About
+: walleye-first-fastboot-boot

@@ -902,3 +902,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-pk456-built"></a>
+### walleye-pk456-built
+
+Date
+: 2026-11-17
+
+Brief
+: pk4/pk5/pk6 built: one swap each between porthole's kernel+dtb (pk3) and ours (ml6a), no earlycon; 31 checks ok, rebuild identical
+
+Question
+: Can porthole's kernel and ours be bisected one part at a time, all without earlycon, everything else byte-equal?
+
+Found
+: build/build-pk456.sh unpacks pk3, ml6a and ml5b and repacks with pk3's header, earlycon-free command line and AVB footer props/salt. pk4 = pk3's Image.gz + ml6a's dtb (ours, -@ with overlay stubs, init-ml5a). pk5 = ml6a's Image.gz + pk3's taimen dtb (init-ml5a). pk6 = pk3 with ml5b's ramdisk (timing init). Checks: header words, no earlycon/console=, 32 MiB size, AVB footer verifies, dtb reads and has __symbols__, each part equals the named source's and differs from the other's, three images differ. sha256: boot-pk4.img 71f199ce9bfa2bf25107a0b1991e11aeb885ac3b5674e34f6fb30d42307a656b; boot-pk5.img 6ad5ff369d0c0bc57be1dd01d2db5b675964934845def22ce1154fc95ee31327; boot-pk6.img 0c1b341e47e9624dcd0aae22bce60a94a79f9dc778e7c336e095ec30248f2c13. Images in ~/Projects/walleye-build/images-pk456. Expected: init ran (reboot at once) = Android back at about 40-65 s, no init = about 75 s; pk6 = pk3's time + 3 s per score if init ran.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-pk456/
