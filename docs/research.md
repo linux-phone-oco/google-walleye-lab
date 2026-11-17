@@ -613,3 +613,22 @@ Sources
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-n3-try-gadget-up-host-lacks-cdc-acm"></a>
+### walleye-n3-try-gadget-up-host-lacks-cdc-acm
+
+Date
+: 2026-11-17
+
+Brief
+: n3 (FunctionFS ACM helper) enumerates as 1d6b:0104 after 18 s with a class-2 interface, but the host has no cdc_acm module for its running kernel 7.3.3
+
+Question
+: Does image n3 give a ttyACM and a shell answer on the host (ffs-acm-up.sh)?
+
+Found
+: devlab fastboot boot now n3 (sha 6672eb84...): left fastboot 12 s, came back as 1d6b:0104 on 3-2 after 18 s; lsusb shows iProduct 'Pixel 2 walleye (mainline)', iSerial walleye-first-boot, bInterfaceClass 2; no panic. ffs-acm-up.sh (ACM_WAIT=30) fails: interface 3-2:1.0 has no driver. The host runs 7.3.3-1-cachyos but /lib/modules holds only 7.3.4 and 6.18 lts, so modinfo cdc_acm finds nothing; cdc_acm cannot load until the host reboots into 7.3.4 (same wait as try-massstorage's usb_storage). The init's self-reboot returned the phone to Android on a after ~4 min; adb reboot bootloader; fastboot state: a current, successful, not unbootable; b unbootable, retry 1, as before the try. Nothing flashed.
+
+About
+: walleye-first-fastboot-boot

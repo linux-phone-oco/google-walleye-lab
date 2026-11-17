@@ -1298,10 +1298,13 @@ Proof
 ### Phone: boot image n3 once; host sees ttyACM and a shell answers
 
 Status
-: open
+: in-progress
 
 Note
-: Try ~/Projects/walleye-build/images/vendor-gadget-n3.img (sha256 6672eb84...d214c) once by fastboot boot; read the health report after; on no bind read host dmesg for cdc_acm and the helper's walleye-ffs-acm lines in kmsg
+: n3 tried once: gadget enumerates with the ACM interface, host cannot bind (no cdc_acm module for 7.3.3). Next: after the host reboot, boot n3 again and run tests/host/ffs-acm-up.sh with ACM_WAIT=60; the phone is in fastboot on a, flags unchanged
+
+Waits
+: host: cdc_acm for the running kernel (reboot the lab host into 7.3.4)
 
 About
 : walleye-first-fastboot-boot
