@@ -733,3 +733,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-2345-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-17
+
+Done
+: n3r tried once on slot b: gadget enumerates (1d6b:0104, walleye-first-boot) but cdc_acm refuses it: Zero length descriptor references (-22); ffs-acm-up fails. Phone fell back to Android by itself, rebooted to fastboot: unlocked, slot b active+successful, a good; nothing flashed; lease released
+
+Considered
+: next: n3r2 with CDC functional descriptors (header, call-mgmt, ACM) in the helper; amends walleye-ffs-acm-single-interface - asked of the coordinator
+
+About
+: walleye-first-fastboot-boot

@@ -779,3 +779,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-17-walleye-cdc-acm-needs-functional-descriptors"></a>
+### 2026-11-17-walleye-cdc-acm-needs-functional-descriptors
+
+Date
+: 2026-11-17
+
+Brief
+: n3r enumerates, cdc_acm refuses it: 'Zero length descriptor references' (-22); cdc_acm needs at least one class-specific descriptor on the interface
+
+Question
+: Why does the host not bind cdc_acm to the FunctionFS single-interface console of n3r?
+
+Found
+: n3r tried once on slot b (set-active b, fastboot boot): the gadget came up as 1d6b:0104 'Pixel 2 walleye (mainline)' serial walleye-first-boot, one class-2 interface. Host dmesg: 'cdc_acm 3-2:1.0: Zero length descriptor references; probe failed with error -22'. In acm_probe the interface extra bytes (and the first endpoint's extra) are empty, so it returns -EINVAL before the union-descriptor fallback ('castrated device') is reached; that fallback only works when some extra descriptor exists. Fix to try: write a CDC header functional descriptor (plus call-management and ACM, no union required) after the interface descriptor in the FunctionFS descriptors. Contradicts the wording of decision walleye-ffs-acm-single-interface (no CDC functional descriptors), so it goes to the coordinator.
+
+Sources
+: src-linux-cdc-acm-c
+
+About
+: walleye-first-fastboot-boot

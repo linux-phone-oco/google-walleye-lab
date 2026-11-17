@@ -1611,9 +1611,7 @@ Status
 : open
 
 Note
-: Image ~/Projects/walleye-build/images/vendor-gadget-n3r.img sha256 7eb5a98ae354959150aff3a4cb8deb4d8cd6399240863e5bdb654389dc79a7c0; same as n3 but the helper. Try only after n3's retry (walleye-retry-ffs-acm-after-reboot) shows the console works with the C probe; then n3r must give the same.
-
-UPDATE 2026-11-17: use vendor-gadget-n3r.img (the Rust helper, sha256 7eb5a98a...79a7c0); the C n3 retry is superseded by this item. The host now has access (lab-prepare ran): ffs-acm-up.sh should read /dev/ttyACM0 as the lab user. Acceptance test of lpoco-host: record pass or fail.
+: tried once 2026-11-17 on slot b: ffs-acm-up.sh fails (device enumerates, cdc_acm probe -22 Zero length descriptor references). Next: n3r2 with CDC header+call-mgmt+ACM functional descriptors in the FunctionFS descriptors; needs the coordinator to amend decision walleye-ffs-acm-single-interface
 
 About
 : walleye-first-fastboot-boot
