@@ -298,3 +298,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-vendor-gadget5b-split"></a>
+### vendor-gadget5b1..b4 built
+
+Entry date
+: 2026-11-17
+
+Done
+: Four images, each the control with only the ramdisk swapped, gadget5a's init plus one ncm step: b1 mkdir functions/ncm.usb0; b2 + dev_addr, host_addr; b3 + configs/c.1 and its string; b4 + symlink (= 5b). build/build-vendor-gadget5b.sh, 15 checks each ok (header = control's, kernel = control's, xz ramdisk, AVB verifies, 33554432 bytes, ramdisk differs from gadget4's only in /init, exact step parts). sha256: 5b1 a50624ada0e1c1a2 5b2 2d1bacd3056d28ba 5b3 95f5a5ec86925374 5b4 b923eeb243d3cb50 (full in images/SHA256SUMS). Closed walleye-kmsg-only-init: gadget4 was already built and tried.
+
+Considered
+: three images as the backlog said
+
+Rejected
+: Three images b1..b3 with config dir and symlink together: a panic in b3 would not say which of the two.
+
+About
+: walleye-first-fastboot-boot

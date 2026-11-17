@@ -997,10 +997,10 @@ Rank
 ### vendor-gadget4: an idle init (no gadget): kmsg marker, sleep 120, reboot -f
 
 Status
-: open
+: done
 
 Note
-: Waits for the cmdline read: if skip_initramfs is present the ramdisk never runs and this try says nothing; build only if absent.
+: Already built and tried as vendor-gadget4 (log 2026-11-17-walleye-vendor-gadget4; research 2026-11-17-walleye-gadget4-idle-init-returns: returns at 156 s, the ramdisk runs, skip_initramfs absent). Closed by the builder.
 
 Blocked by
 : walleye-cmdline-read
@@ -1069,10 +1069,10 @@ Rank
 ### Split the NCM step of the gadget bring-up: function dir only, then its attributes, then the config symlink
 
 Status
-: open
+: done
 
 Note
-: Lab research 2026-11-17-walleye-vendor-gadget5-bisect (keeper): 5a (configfs, gadget dir, strings, no function) does not panic; 5b (adds the ncm function and config symlink) panics ~75 s after fastboot boot; UDC bind not reached. The panic is in mkdir of the ncm function or the symlink (or, in the vendor msm kernel, an ncm function that expects gsi/ipa). Split into one step per image; WHEN DONE queue walleye-try-ncm-split for the keeper (needs phone, rank 1, waits null): 5b1, then 5b2, then 5b3, stop at the first panic. Keep a-c, gadget1-5c byte-identical.
+: Built: vendor-gadget5b1 (mkdir functions/ncm.usb0), 5b2 (+dev_addr, host_addr), 5b3 (+configs/c.1 and its string), 5b4 (+symlink = 5b); four steps not three, so the config dir is told apart from the symlink. 15 checks each ok, a-c, gadget1-5c byte-identical (SHA256SUMS -c). Try queued: walleye-try-ncm-split.
 
 About
 : walleye-first-fastboot-boot
@@ -1107,3 +1107,28 @@ Needs
 
 Proof
 : a research row with sources (the GPL wahoo kernel's f_ncm.c, configfs.c, the gsi/ipa gadget functions, how Android's USB HAL on Pixel 2 composes its gadgets: ffs.adb, mtp, rndis.gsi/ncm?, what the vendor's init.usb scripts write, public sources only): the likely cause ranked, the safe alternatives for a host-visible channel on this kernel (FunctionFS with a tiny static aarch64 helper, gsi functions, mass_storage with a read-only image as a crude log window, MTP, ACC), each with how one cheap image tells it, and a recommendation
+
+
+<a id="walleye-try-ncm-split"></a>
+### Try vendor-gadget5b1, then 5b2, 5b3, 5b4 by fastboot boot from the first state; stop at the first that panics
+
+Status
+: open
+
+Note
+: Images in ~/Projects/walleye-build/images, SHA256SUMS. Each says 'about to ...' in kmsg before its step; 120 s alive then self-reboot. 5a returned, 5b panicked: the first of b1..b4 to panic (kernel_panic bootreason, ~75 s) names the step; if none panics, 5b's panic needs the whole sequence or was the timing.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 1
