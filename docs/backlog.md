@@ -1680,10 +1680,10 @@ Proof
 ### Phone: boot image ml4 twice from the first state; read the reset time as a score
 
 Status
-: open
+: done
 
 Note
-: Image ~/Projects/walleye-build/images-ml4/boot-ml4.img. boot-ml4.img sha256 105364591ce1f46a2a828caf1f80c851399487ab4a59bd777210a9a72e13ea84; initramfs-ml4.cpio.xz sha256 da11b5e005dbe541db83ba9c286e91bfbb44db1058df65bc6e920b12c61dfd19; in ~/Projects/walleye-build/images-ml4/ (SHA256SUMS there). Try it twice, recording host timestamps at fastboot boot and at adb; score by tests/host/ml4-bin-table.sh build/initramfs-mainline/init-ml4 SECONDS (base 30 s, 12 s bootloader start, 5 s per point; ~72 s with no score = the safety watchdog). Also read adb root /sys/fs/pstore and /data/vendor_ce/0/ramoops.
+: proven by two tries (75 s, 76 s, slot b, nothing flashed, pstore empty): bin table reads score 7 but is not told apart from the safety watchdog (ml1-ml3 back at 69-72 s); see research 2026-11-17-walleye-ml4-two-tries; the next image is the coordinator's call
 
 About
 : walleye-first-fastboot-boot

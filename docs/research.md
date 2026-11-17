@@ -801,3 +801,22 @@ Sources
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-17-walleye-ml4-two-tries"></a>
+### 2026-11-17-walleye-ml4-two-tries
+
+Date
+: 2026-11-17
+
+Brief
+: ml4 twice: Android back at 75 s and 76 s; the bin table reads score 7, but the watchdog's own 69-75 s return cannot be told apart; pstore empty
+
+Question
+: Does boot-ml4.img's init run its checklist and reset itself at a score-dependent time?
+
+Found
+: boot-ml4.img (sha256 105364591ce1...ea84) fastboot-booted twice on slot b, nothing flashed: fastboot left after 15 s, adb back after 75 s (t0 23:42:58) and 76 s (t0 23:44:40). ml4-bin-table.sh reads 75 s and 76 s as delay 33/34 s = score 7 (all six checks held, including the UFS host device the dts was expected not to give). BUT the safety-watchdog return is not clearly separate: ml1/ml2/ml3 (no timing init) came back at 69-72 s, ml4 only 3-4 s later, inside one 5 s bin; so 75/76 s may equally be the watchdog firing (init not run or hung) - the two readings are not told apart. Android bootreason 'reboot'; /sys/fs/pstore empty and /data/vendor_ce/0/ramoops absent after both, no kernel log of ours survived. Slots after both: current b, a and b successful, not unbootable. Next to tell them apart: an ml5 whose init sleeps a score-independent long time (e.g. a fixed 20 s, and a score 0 variant), so a return near 72 s plus the sleep cannot be the watchdog; not decided here.
+
+About
+: walleye-first-fastboot-boot

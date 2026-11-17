@@ -751,3 +751,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-2350-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-17
+
+Done
+: ml4 tried twice from the first state (slot b, nothing flashed): back as Android at 75 s and 76 s, pstore empty. Phone in fastboot, unlocked, current slot b, a and b successful, lease walleye-keeper released at landing.
+
+Considered
+: next: tell score 7 from the watchdog (ml5 with a long score-independent sleep) - for the walleye coordinator
+
+About
+: walleye-first-fastboot-boot
