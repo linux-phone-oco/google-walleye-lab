@@ -1451,7 +1451,7 @@ Rank
 ### Our mainline dtb is never started (stock kernel + our dtb stays in fastboot): does the bootloader's dtbo overlay merge need __symbols__ and the nodes the overlays patch?
 
 Status
-: open
+: done
 
 Note
 : The host-independent work while the lab-prepare tool is awaited. Facts in the lab base: stock dtb has qcom,msm-id <0x124 0x20001>, compatible qcom,msm8998-mtp qcom,mtp, no board-id/pmic-id, 376 KB with bootargs; ours 51 KB, compatible google,walleye, no __symbols__ unless built with -@ (check the builder's script); research row walleye-boot-refused-why-how-it-stands ranked the dtbo merge as the first cause. dtbo.img is data, read with dtc only; clean room: structure and node names, no proprietary code. A write to dtbo is not proposed.
@@ -1467,3 +1467,53 @@ Needs
 
 Proof
 : a research row: the structure of the LineageOS walleye dtbo.img (13 entries, id 0x1bc ...; androidboot.dtbo_idx=3 picks one) read with dtc/fdtdump from the public build already downloaded (~/Projects/walleye-build/control/dtbo.img, sha256 fb09009b...b8f6, official), which base-dtb paths/labels/__symbols__ the overlay fragments target, whether our dtb (compiled how: -@?) lacks them, how ABL selects and merges (public Qualcomm ABL source: dtbo idx, msm-id/board-id match, merge failure behaviour), the exact dtb properties to add or to compile, and one cheap image that tells (e.g. s3 rebuilt with our dtb + -@ symbols + the target nodes, or the stock dtb with only the compatible changed); say which of the bisect facts support it (s0n/s0 start; s3 'Booting OKAY' then stays in fastboot; s2 falls back)
+
+
+<a id="walleye-dtb-overlay-symbols-build"></a>
+### Build our dtb with -@ and the 137 overlay labels; host test passes
+
+Status
+: open
+
+Note
+: tests/host/dtbo-overlay-merges.sh fails on our dtb today, passes on stock. Generate the compat dtsi from entry 3's __fixups__ (fdtget -p dtbo-entry /__fixups__) and stock __symbols__; change dt/ and the builder's dtc flags; host test must pass.
+
+Blocked by
+: walleye-dtbo-overlay-merge-why
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: walleye-dtbo-overlay-merges
+
+
+<a id="walleye-s4-overlay-symbols-try"></a>
+### Phone: one image, stock kernel + our dtb with overlay symbols (s3 redone); read the result
+
+Status
+: open
+
+Note
+: After the host test passes. One fastboot boot; expect a different result than s3's 'Booting OKAY' then fastboot: anything else (kernel start, A/B fallback) shows the overlay merge was the cause. Record under the s3 row.
+
+Blocked by
+: walleye-dtb-overlay-symbols-build
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: TEST

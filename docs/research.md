@@ -651,3 +651,33 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-dtbo-overlay-merge-why-how-it-stands"></a>
+### walleye-dtbo-overlay-merge-why-how-it-stands
+
+Date
+: 2026-11-17
+
+Brief
+: Our dtb has no __symbols__; the dtbo overlay (idx 3) needs 137 labels, so it cannot merge: fdtoverlay fails on ours, passes on stock. Fits s3 'Booting OKAY' then fastboot.
+
+Question
+: Does the bootloader's dtbo overlay merge need __symbols__ and the nodes the overlays patch, and is that why our dtb is never started?
+
+Found
+: What is: androidboot.dtbo_idx=3 (set by the bootloader) = dtbo.img entry 3 (id 0x1bc rev 3), 147 fragments, label-targeted, __fixups__ naming 137 labels of the base dtb (cci, tlmm, soc, mdss_mdp, pm8998_gpios...). No msm-id/board-id in the overlays; the entry is picked by id/rev, then merged into the dtb of the boot image.
+Measured on the host (material: dtbo-measurements.md): fdtoverlay merges entry 3 into the stock dtb (986 symbols, all 137 present) and FAILS on ours: no /__symbols__ node. AOSP's libufdt, the reference for Android's overlay merge, treats that as an error (aosp-libufdt-overlay). Even compiled with -@, our dtb would carry about 14 of the 137 labels (mainline names), and its soc is soc@0, so the fixups would still not resolve.
+Fits the bisect: s0n/s0 (stock dtb) start; s2 (our kernel, stock dtb) starts the kernel and falls back; s3 (our dtb, stock kernel) alone reaches 'Booting OKAY' then stays in fastboot - the only variant whose dtb cannot take the overlay. So the dtbo merge is the likeliest cause of s3, and one that outlives every later fix: the vendor ABL will overlay any dtb we hand it. Not known yet: what Google's ABL does on a failed merge (its source is not public; libufdt returns an error, ABL may refuse or continue) - the one cheap image tells.
+Does not explain the Load Error of the control (stock dtb merges fine): that stays on research walleye-boot-refused-why-how-it-stands.
+Ways: (a) give our dtb the symbols: a compatibility dtsi with stub nodes for the ~123 missing labels, built with -@ - host-testable by fdtoverlay, but adds vendor stubs the mainline kernel ignores; (b) boot the stock dtb for first light and move to ours later - the kernel then runs on the vendor dtb, wrong for mainline drivers; (c) patch the stock dtb: replace its nodes with ours - same merge-safety, much larger; (d) remove the overlay from the path: only by writing dtbo (a write, not proposed); (e) ask the bootloader to skip it: no known way (androidboot.dtbo_idx is its output, not input).
+Chosen: (a), narrowed: generate the stub label set from the overlay's own __fixups__ (the 137 names, each with the path it has in the stock dtb's __symbols__), build with -@, prove with tests/host/dtbo-overlay-merges.sh on the host first, then one image on the phone.
+
+Sources
+: aosp-libufdt-overlay,aosp-dto-compile,kcxt-dtbo-wahoo
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-17/
