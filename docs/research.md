@@ -477,3 +477,22 @@ About
 
 Supersedes
 : walleye-vendor-kernel-facts-s1-panic
+
+
+<a id="2026-11-17-walleye-gadget4-idle-init-returns"></a>
+### 2026-11-17-walleye-gadget4-idle-init-returns
+
+Date
+: 2026-11-17
+
+Brief
+: vendor-gadget4 (idle init, no gadget): back on Android a at 156 s, bootreason reboot, not kernel_panic - the panic is in the gadget bring-up
+
+Question
+: Does the panic of gadget2/3 happen without our gadget code (idle init only)?
+
+Found
+: From the first state, fastboot boot of vendor-gadget4.img: left fastboot after 15 s, back on Android a (adb) after 156 s; ro.boot.bootreason=reboot (gadget3 gave kernel_panic at ~75 s), sys.boot_completed=1, slot a active/successful, b unbootable retry 1 as before (flags unchanged). So the vendor kernel boots and our init runs to its own reboot at ~120 s; the gadget bring-up of gadget2/3 is what panics. Our init's /dev/kmsg marker is not readable from Android.
+
+About
+: walleye-first-fastboot-boot
