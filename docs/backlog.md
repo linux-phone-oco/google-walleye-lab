@@ -1344,62 +1344,6 @@ Proof
 : a Rust crate in the lab (build/ffs-acm-rs or as the lab's layout has it) built with lab-tools health/build.sh's way (rustup in ~/.local/share/devlab-cross, aarch64-linux-gnu-gcc as the linker, cargo build --release --locked --target aarch64-unknown-linux-musl), the same descriptors/steps as the C helper (decision 2026-11-17-walleye-ffs-acm-single-interface), a new image n3r differing from n3 only in the helper binary; checks as for n3; hashes; cargo fmt/clippy clean; no arguments or environment, so no argenv; the keeper's try then repeats n3's proof (tests/host/ffs-acm-up.sh)
 
 
-<a id="walleye-retry-massstorage-after-reboot"></a>
-### Try m1 again now the host runs 7.3.4 (usb_storage loads): read the first text the phone writes
-
-Status
-: in-progress
-
-Note
-: Tried 2026-11-17: gadget up and /dev/sda present, read refused (root:disk, no disk group/sudo for the lab user). Next: the author adds the lab user to disk (or a udev uaccess rule for serial walleye-first-boot), then retry the same image; no new image needed
-
-Waits
-: host: read access to the m1 block device (disk group or udev uaccess rule)
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-17
-
-Needs
-: phone
-
-Proof
-: massstorage-read.sh (tests/host) prints the init's window text from the phone: uname, cmdline, mounts, dmesg tail of the vendor kernel with our init running, the heartbeat counter growing; kept as material in the lab and recorded as research with what it shows
-
-Rank
-: 1
-
-
-<a id="walleye-ffs-rust-try"></a>
-### Phone: boot image n3r (the Rust FunctionFS ACM helper) once; host sees ttyACM and a shell answers
-
-Status
-: open
-
-Note
-: Image ~/Projects/walleye-build/images/vendor-gadget-n3r.img sha256 7eb5a98ae354959150aff3a4cb8deb4d8cd6399240863e5bdb654389dc79a7c0; same as n3 but the helper. Try only after n3's retry (walleye-retry-ffs-acm-after-reboot) shows the console works with the C probe; then n3r must give the same.
-
-Blocked by
-: walleye-retry-ffs-acm-after-reboot
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-17
-
-Needs
-: phone
-
-Proof
-: tests/host/ffs-acm-up.sh
-
-Rank
-: 3
-
-
 <a id="walleye-host-access-via-lab-prepare"></a>
 ### Give the lab user access to our gadget's /dev/sdX and /dev/ttyACM* through the lab-prepare tool, then read m1 and n3
 
@@ -1423,10 +1367,10 @@ Opened
 ### Try n3 (FunctionFS ACM) again now the host runs 7.3.4 (cdc_acm loads): a console on /dev/ttyACM0
 
 Status
-: open
+: done
 
 Note
-: Image vendor-gadget-n3.img sha256 6672eb844fb5435ebb336e33a0b59db069bc2e62a6e01f98d760f5646b1d214c (lab PR 44; its first try enumerated a class-2 interface, no panic, but the host had no cdc_acm). Read-only exploration over the console only: uname, cmdline, /proc/config.gz facts, dmesg, mount, ls /sys/class/udc, /sys/firmware/devicetree/base (compatible, reserved-memory), /proc/iomem; nothing written to the phone; to keep the console up beyond the init's timer touch /tmp/hold, then reboot -f when done. Record what the shell shows as research (redact serials/IMEI).
+: Superseded by walleye-ffs-rust-try: the console try uses the Rust helper image n3r (the C n3 is a probe).
 
 Waits
 : the lpoco lab-prepare tool (host access to /dev/ttyACM*); the author waits for the tool
@@ -1633,3 +1577,57 @@ Needs
 
 Proof
 : build/ffs-acm/ffs-acm.c and anything that only builds n3 from it removed (n3's recorded hashes stay as history; n3r is the image to try); the lab's checks pass; read back from main
+
+
+<a id="walleye-retry-massstorage-after-reboot"></a>
+### Try m1 again now the host runs 7.3.4 (usb_storage loads): read the first text the phone writes
+
+Status
+: open
+
+Note
+: Tried 2026-11-17: gadget up and /dev/sda present, read refused (root:disk, no disk group/sudo for the lab user). Next: the author adds the lab user to disk (or a udev uaccess rule for serial walleye-first-boot), then retry the same image; no new image needed
+
+UPDATE 2026-11-17: the lab-prepare tool ran ('lpoco host prepare now'): /etc/udev/rules.d/70-lpoco-google-walleye.rules gives uaccess on serial walleye-first-boot (block and tty) and usb_storage/cdc_acm are loaded: /dev/sda and /dev/ttyACM0 are readable as the lab user. This try is lpoco-host's acceptance test: record pass or fail for it.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: massstorage-read.sh (tests/host) prints the init's window text from the phone: uname, cmdline, mounts, dmesg tail of the vendor kernel with our init running, the heartbeat counter growing; kept as material in the lab and recorded as research with what it shows
+
+Rank
+: 1
+
+
+<a id="walleye-ffs-rust-try"></a>
+### Phone: boot image n3r (the Rust FunctionFS ACM helper) once; host sees ttyACM and a shell answers
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images/vendor-gadget-n3r.img sha256 7eb5a98ae354959150aff3a4cb8deb4d8cd6399240863e5bdb654389dc79a7c0; same as n3 but the helper. Try only after n3's retry (walleye-retry-ffs-acm-after-reboot) shows the console works with the C probe; then n3r must give the same.
+
+UPDATE 2026-11-17: use vendor-gadget-n3r.img (the Rust helper, sha256 7eb5a98a...79a7c0); the C n3 retry is superseded by this item. The host now has access (lab-prepare ran): ffs-acm-up.sh should read /dev/ttyACM0 as the lab user. Acceptance test of lpoco-host: record pass or fail.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: tests/host/ffs-acm-up.sh
+
+Rank
+: 2
