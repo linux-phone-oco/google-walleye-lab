@@ -1699,3 +1699,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-ml5-timing-below-the-watchdog"></a>
+### ml5: timing bins that finish BEFORE the dead-kernel reset (~33 s): a baseline image that reboots at once, and a score image with 3 s per point
+
+Status
+: open
+
+Note
+: Lab research walleye-ml4-two-tries: ml4 returned at 75-76 s (score 7 = 35 s sleep) but ml1-ml3 (no timing init) returned at 69-72 s: a dead or hung kernel is reset by something at ~33 s after the jump (a bootloader/PMIC watchdog), which looks the same as score 7. So any decoding delay must stay under ~25 s. ml5a answers the first bit alone: if Android is back at ~40 s the init ran (userspace reached) and reset at once; at ~70 s the kernel never got to init. WHEN DONE queue walleye-try-ml5 (needs phone, rank 1): ml5a twice, then ml5b twice; the keeper records the four times and reads the score.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: boot-ml5a.img = ml4 with /init changed to: mount proc/sys, kmsg marker, then reboot -f at once (sysrq b fallback), no watchdog games; boot-ml5b.img = ml4 with the sleep scaled to 3 s per score point (max 7 points = 21 s; the watchdog petting kept) and the bin table in tests/host/ml5-bin-table.sh; both with kernel/dtb/header bytes equal to ml3's; checks as ml4's; hashes in SHA256SUMS; the table states the expected return times: base = the time ml5a returns (fastboot boot to adb), ml5b = base + 3*score
