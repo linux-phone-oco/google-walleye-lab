@@ -48,3 +48,13 @@ known_warnings = []                # boot warnings (file:line) known here, each 
 # walleye is a fastboot-first phone (decision 2026-11-17-walleye-fastboot-first): while no Linux runs on it, devlab reaches it
 # only over fastboot (`fastboot boot` of a kernel held in memory, nothing written); both A/B slots stay as they are
 # until a recorded decision says otherwise. Its lease is its own, never surya's.
+
+# What the lab host needs to read this phone's gadget (declared 2026-11-17 for the lab-prepare tool, whose first use is
+# its acceptance test): our gadget's USB serial, the kinds of device nodes the lab user must be able to open, and the
+# host modules the gadget functions need. Nothing here is read by devlab itself; the shape is the tool's to settle.
+[host]
+modules = ["usb_storage", "cdc_acm"]
+
+[[host.gadget]]
+serial = "walleye-first-boot"
+access = ["block", "tty"]          # /dev/sdX (mass_storage window m1) and /dev/ttyACM* (FunctionFS console n3)

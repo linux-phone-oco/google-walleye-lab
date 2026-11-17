@@ -1423,3 +1423,22 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-host-access-via-lab-prepare"></a>
+### Give the lab user access to our gadget's /dev/sdX and /dev/ttyACM* through the lab-prepare tool, then read m1 and n3
+
+Status
+: open
+
+Note
+: device.toml now declares [host] modules usb_storage, cdc_acm and gadget serial walleye-first-boot with access block and tty (devlab accepts the table: keeper status and fastboot state run on it). Phone-side images m1 (lab PR 42), n3 (PR 44), n3r (PR 52) are built and enumerate with no panic; their reads wait on the tool. The retry items walleye-retry-massstorage-after-reboot and walleye-retry-ffs-acm-after-reboot wait on it too.
+
+Waits
+: the lpoco lab-prepare tool (orchestration); the author will not add the udev rule by hand: its first use here is its acceptance test
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
