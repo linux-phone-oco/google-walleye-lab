@@ -70,3 +70,13 @@ our gadget initramfs, 172.16.43.1; kernel, dtb, command line, header, AVB footer
 that. The proof that it worked on the phone is `tests/host/gadget-up.sh` (run on the lab host; `GADGET_WAIT=90` waits for the gadget):
 it passes only when a USB device with our gadget strings enumerates and 172.16.43.1 answers ping and telnet; with the phone in
 fastboot it fails.
+
+## vendor-gadget2.img (why vendor-gadget.img panicked, and the fix)
+
+The stock kernel's own config (read from its IKCFG data in the control's Image) has `CONFIG_RD_GZIP` **not set**, `RD_XZ=y`,
+`DEVTMPFS` not set, `USB_CONFIGFS_NCM=y` and no ACM/ECM/RNDIS. v1's ramdisk was gzip, so the kernel could not unpack it and had
+no `/init`: the panic. `build/build-vendor-gadget.sh WORK_DIR CONTROL_BOOT_IMG OUT_DIR` makes `initramfs-vendor.cpio.xz` (xz, CRC32,
+as the stock ramdisk; init and nodes from `build/initramfs-vendor/`: no mount over /dev, /dev nodes from the cpio, one NCM function,
+172.16.43.1, telnetd, an init that never ends) and `vendor-gadget2.img` (the control with only that ramdisk swapped, AVB footer
+as the control's), and counts ten checks. Proof on the phone is again `tests/host/gadget-up.sh`. Not run on arm64 (no qemu-aarch64 on
+the lab machine; installing one is a change): checked by unpack, `file`, `sh -n`, and the applets present in busybox-arm64.
