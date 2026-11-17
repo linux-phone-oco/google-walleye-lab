@@ -861,3 +861,25 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-pk/
+
+
+<a id="walleye-pk3-ml6a-built"></a>
+### walleye-pk3-ml6a-built
+
+Date
+: 2026-11-18
+
+Brief
+: pk3/ml6a built: pk1 and ml5a with only earlycon removed from the command line; 22 checks ok, rebuild identical
+
+Question
+: Can pk1 and ml5a be built without earlycon on the (possibly gated) debug UART, everything else byte-equal?
+
+Found
+: build/build-nocon.sh unpacks pk1 and ml5a, drops earlycon=msm_serial_dm,0xc1b0000 (the only earlycon/console= word; androidboot.console=ttyMSM0 is stock and stays), repacks with mkbootimg and the source's AVB footer props and salt. Checks per image: kernel blob (Image.gz+dtb), ramdisk and every header word but the command line equal the source's; the cmdline differs, has no earlycon or console=, keeps clk_ignore_unused ignore_loglevel panic=5 and all androidboot.* words; size 32 MiB as the source; AVB footer verifies. Rebuild byte-identical. Now: clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3. sha256: boot-pk3.img 7f92abee656bbf3ed3637df8c7b08a7b047db21caa70c341675bf8e631f4f523; boot-ml6a.img aceb7e7a47abcf0713f2708a8f1b6a4dfa2828acb78e7ef618922437022aa02f. Images in ~/Projects/walleye-build/images-nocon. Expected: init ran = Android back at ~36-45 s; ~70-78 s = earlycon was not the hang.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-nocon/

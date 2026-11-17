@@ -1207,7 +1207,7 @@ Status
 : done
 
 Note
-: Built: vendor-gadget-m1.img a3cf08d3..., initramfs dd59bce1... in ~/Projects/walleye-build/images (SHA256SUMS), 18 checks ok (build/build-vendor-gadget-m.sh); host reader tests/host/massstorage-read.sh (not yet run against a real LUN). Next: walleye-try-massstorage (keeper).
+: Built: vendor-gadget-m1.img a3cf08d3..., initramfs dd59bce1... in ~/Projects/walleye-build/images (SHA256SUMS), 22 checks ok (build/build-vendor-gadget-m.sh); host reader tests/host/massstorage-read.sh (not yet run against a real LUN). Next: walleye-try-massstorage (keeper).
 
 About
 : walleye-first-fastboot-boot
@@ -1821,10 +1821,10 @@ Rank
 ### Every mainline image carries earlycon msm_serial_dm,0xc1b0000: on a phone whose debug UART is not enabled that is a likely first-printk hang. Build the same images WITHOUT earlycon/console on the UART
 
 Status
-: open
+: done
 
 Note
-: Fact (lab research walleye-try-pk): porthole's own known-good 7.2.2 kernel (pk1, pk2) returns at 75 s like every image of ours: no init ran, so our dts is not the cause; what all mainline images share besides the kernel generation is the cmdline we gave (earlycon msm_serial_dm,0xc1b0000, from porthole's debug set), and the vendor-kernel images that work use the control's stock cmdline only. This phone's debug UART is off unless 'fastboot oem uart enable' was run (research: Peter-Easton android-debug-cable-howto): an earlycon write to an unclocked/gated BLSP UART faults the bus and the SoC watchdog resets ~30 s later - which is exactly the ~33 s dead-kernel reset we see. WHEN DONE queue walleye-try-no-earlycon (needs phone, rank 1): pk3 twice, ml6a twice; expected: return at ~40 s (init ran, immediate reboot) means earlycon was the hang; ~75 s means it was not.
+: built: pk3/ml6a in walleye-build/images-nocon, 22 checks ok, hashes in research/walleye-first-fastboot-boot/2026-11-18-nocon; try queued as walleye-try-no-earlycon
 
 About
 : walleye-first-fastboot-boot
@@ -1837,3 +1837,28 @@ Needs
 
 Proof
 : pk3 = pk1 and ml6a = ml5a with ONLY the kernel command line changed: earlycon=... and any console=ttyMSM*/ttyHS* removed (say what the cmdline was and what remains; keep clk_ignore_unused ignore_loglevel panic=5 and the stock androidboot.* pieces); kernel/dtb/ramdisk/header/footer bytes equal to pk1's and ml5a's; checks as before; hashes
+
+
+<a id="walleye-try-no-earlycon"></a>
+### Phone: boot pk3 twice, then ml6a twice from the first state; record the four return times
+
+Status
+: open
+
+Note
+: images ~/Projects/walleye-build/images-nocon (SHA256SUMS), research walleye-pk3-ml6a-built. Expected: init ran (earlycon was the hang) = Android back at ~36-45 s; no init = ~70-78 s (ml5a, pk1, pk2 all 75 s). No hands needed: every image reboots at once.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 1

@@ -127,3 +127,9 @@ taimen dtb, `pk2` = their walleye dtb (patch 0029) plus `qcom,msm-id <0x124 0x20
 the empty stub nodes for the vendor overlay's labels (as ours, `gen-overlay-stubs.sh`), so the bootloader's dtbo entry 3 merges (checked with
 `fdtoverlay`). Not taken from porthole: their command line (ml5a's is kept, so only kernel and dtb differ), their stub dtbo (never written).
 Licences: GPL-2.0-only kernel and patches, kept as published; nothing of them is copied into this repository.
+
+## pk3 and ml6a: pk1 and ml5a without earlycon (is the gated debug UART the hang?)
+
+`build/build-nocon.sh PK1_BOOT_IMG ML5A_BOOT_IMG OUT_DIR` repacks pk1 and ml5a with **only the kernel command line changed**: `earlycon=msm_serial_dm,0xc1b0000`
+removed (no `console=` word was there; `androidboot.console=ttyMSM0` is a stock androidboot word and stays). Kernel blob, ramdisk, header words and AVB footer
+props are the source's (11 checks per image). Rationale and expected return times: research `walleye-pk3-ml6a-built`. Not run on the phone: the keeper's try.
