@@ -515,3 +515,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-17-walleye-ncm-split-b2-panics"></a>
+### 2026-11-17-walleye-ncm-split-b2-panics
+
+Date
+: 2026-11-17
+
+Brief
+: ncm split: b1 (mkdir ncm.usb0 only) returns at 156 s, reboot; b2 (+ dev_addr, host_addr writes) panics at 75 s: the address writes panic
+
+Question
+: Which step of the ncm function bring-up panics the vendor msm-4.4.302 kernel (b1..b4 from the first state, stop at the first panic)?
+
+Found
+: From the first state (Android booted on a, slot a active+successful, b unbootable retry 1) by devlab fastboot boot now: vendor-gadget5b1 left fastboot after 12 s, Android back at 156 s, ro.boot.bootreason=reboot (no panic). vendor-gadget5b2 left fastboot after 12 s, back at 75 s, bootreason kernel_panic. b2 differs from b1 only by two writes: dev_addr (02:42:ac:10:2b:01) then host_addr (02:42:ac:10:2b:02) into functions/ncm.usb0. So creating the ncm function does not panic; writing dev_addr or host_addr does (or its kmsg 'about to' marker was the last line - not read, no ramoops). b3, b4 not tried: the stop rule holds. Slot flags unchanged after (a active successful, b unbootable retry 1); phone left in fastboot on a, nothing flashed.
+
+About
+: walleye-first-fastboot-boot

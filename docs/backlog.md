@@ -1113,10 +1113,10 @@ Proof
 ### Try vendor-gadget5b1, then 5b2, 5b3, 5b4 by fastboot boot from the first state; stop at the first that panics
 
 Status
-: open
+: done
 
 Note
-: Images in ~/Projects/walleye-build/images, SHA256SUMS. Each says 'about to ...' in kmsg before its step; 120 s alive then self-reboot. 5a returned, 5b panicked: the first of b1..b4 to panic (kernel_panic bootreason, ~75 s) names the step; if none panics, 5b's panic needs the whole sequence or was the timing.
+: proven by b1 returns, b2 panics at 75 s (research 2026-11-17-walleye-ncm-split-b2-panics): the dev_addr/host_addr write panics; next: walleye-ncm-addr-split
 
 About
 : walleye-first-fastboot-boot
@@ -1132,3 +1132,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-ncm-addr-split"></a>
+### Split b2: try dev_addr alone, then host_addr alone (and no addr write: link by default MAC), from the first state
+
+Status
+: open
+
+Note
+: b2 panics; b1 does not. Builder: two images (dev_addr only; host_addr only) from vendor-gadget5b1's init; then try each, stop at the first panic. Also ask the ncm-panic-why research whether a default address (no write) gives a working channel.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: phone
+
+Proof
+: TEST
