@@ -351,3 +351,25 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-17-walleye-ffs-console-parked"></a>
+### 2026-11-17-walleye-ffs-console-parked
+
+Date
+: 2026-11-17
+
+Brief
+: The FunctionFS console on the vendor kernel is parked: cdc_acm cannot bind it; the mainline kernel's own ACM is the console
+
+Decision
+: The FunctionFS ACM console on the vendor 4.4.302 kernel is parked, not pursued. Two findings contradict each other and close the route: the research (walleye-ffs-acm-helper-how-it-stands) found that f_fs rejects CDC class-specific (0x24) descriptors in this kernel, and the keeper's try of n3r (walleye-cdc-acm-needs-functional-descriptors) found that the host's cdc_acm refuses the interface without them ('Zero length descriptor references', -22). So cdc_acm cannot bind a FunctionFS gadget here. The vendor-kernel facts we need come one-way through the mass_storage log window (m1, proven by lpoco-host's acceptance test). The interactive console is for OUR mainline kernel, where configfs ACM (CONFIG_USB_CONFIGFS_ACM) is native and gives /dev/ttyACM0 without FunctionFS. The C probe's removal (walleye-code-hygiene-rust-ci) is unblocked; the Rust helper stays in the tree as a built, tested artifact until the removal PR decides.
+
+Why
+: Two independent facts make the route a dead end on this kernel; every further variant would cost tries for a console we do not need now; the one-way window already gives the vendor kernel's facts, and the mainline kernel's own ACM function is the console that matters.
+
+Rejected
+: n3r2 with CDC header/call-management/ACM functional descriptors in FunctionFS (f_fs rejects them); a vendor-class interface bound by usbserial generic new_id (needs host root writes through lab-prepare for a console we do not need yet); more FunctionFS tries.
+
+About
+: walleye-first-fastboot-boot
