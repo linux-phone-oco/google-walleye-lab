@@ -912,7 +912,7 @@ Proof
 : the bootreason and the time the phone is back on Android a after fastboot boot: panic at ~75 s = the panic is independent of our gadget code; a return at ~120 s with bootreason not kernel_panic = our init ran and the gadget bring-up of gadget2/3 is what panics; the init's /dev/kmsg marker is not readable from Android (record that)
 
 Rank
-: 1
+: 4
 
 
 <a id="walleye-cmdline-read"></a>
