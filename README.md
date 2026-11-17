@@ -16,6 +16,17 @@ this way, not the mould.
    what has never worked yet. Unknown fields are refused, so a typo cannot pass silently.
 3. Put the phone user's password in `~/.config/devlab/CODENAME/password` (mode 600) on the lab machine.
 
+## The base
+
+A device made from this template has its own open base (tad, `data/`): its queue, tries, measurements, decisions,
+research and parts. `make setup` installs tad and `ikb`; `ikb --help` lists what can be recorded, `ikb help RECORD`
+how. The standing tables follow [grenudi/ideal-knowledge-base](https://github.com/grenudi/ideal-knowledge-base)
+(`idealkb.toml`); the device's own are in `tables.toml`. Fill the device (`ikb device ...`) and declare what is
+claimed of each part (`ikb part`: status, evidence, date) - [linux-phone-oco/docs](https://github.com/linux-phone-oco/docs)
+pulls `parts` (contract in `devicebase.toml`) and derives the device's support status from them; it types nothing of
+its own. The phone's queue is `tad q phone-queue`, its keeper's next item `tad q phone-next`; `devlab gather` files runs
+with the `test-run` record.
+
 ## The conveyor
 
     devlab flash now IMAGE BOOTLOADER      an image onto the phone, the manifest's fixes baked in
