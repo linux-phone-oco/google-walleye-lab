@@ -133,3 +133,10 @@ Licences: GPL-2.0-only kernel and patches, kept as published; nothing of them is
 `build/build-nocon.sh PK1_BOOT_IMG ML5A_BOOT_IMG OUT_DIR` repacks pk1 and ml5a with **only the kernel command line changed**: `earlycon=msm_serial_dm,0xc1b0000`
 removed (no `console=` word was there; `androidboot.console=ttyMSM0` is a stock androidboot word and stays). Kernel blob, ramdisk, header words and AVB footer
 props are the source's (11 checks per image). Rationale and expected return times: research `walleye-pk3-ml6a-built`. Not run on the phone: the keeper's try.
+
+## pk4, pk5, pk6: bisect porthole's kernel against ours (one swap each, no earlycon)
+
+`build/build-pk456.sh PK3_BOOT_IMG ML6A_BOOT_IMG ML5B_BOOT_IMG OUT_DIR` swaps one part at a time between pk3 (porthole's kernel + taimen dtb) and ml6a
+(our kernel + our dtb): `pk4` = porthole's Image.gz + OUR dtb; `pk5` = OUR Image.gz + porthole's taimen dtb; `pk6` = pk3 with only the ramdisk of ml5b (3 s per
+score point). Header, command line (no earlycon) and AVB footer are pk3's; pk4 and pk5 carry ml5a's reboot-at-once init. 31 checks, rebuild byte-identical.
+Not run on the phone: the keeper's try `walleye-try-bisect-pk`.
