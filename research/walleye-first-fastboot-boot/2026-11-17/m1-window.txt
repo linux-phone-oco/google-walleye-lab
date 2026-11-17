@@ -1,0 +1,172 @@
+WALLEYE-LOG m1 beat=0 up=1.30s
+WALLEYE-LOG m1 beat=1 up=6.31s
+WALLEYE-LOG m1 beat=2 up=11.32s
+WALLEYE-LOG m1 beat=3 up=16.33s
+WALLEYE-LOG m1 beat=4 up=21.34s
+=== the last window, whole ===
+WALLEYE-LOG m1 beat=4 up=21.34s
+--- uname
+Linux (none) 4.4.302-gddfd598aee10 #1 SMP PREEMPT Fri Nov 13 11:55:30 UTC 2026 aarch64 GNU/Linux
+--- cmdline
+rcupdate.rcu_expedited=1 androidboot.hardware=walleye androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 service_locator.enable=1 swiotlb=2048 firmware_class.path=/vendor/firmware loop.max_part=7 raid=noautodetect usbcore.autosuspend=7 androidboot.dtbo_idx=3 androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=00000016-0000-0000-0000-000000000000 androidboot.bootdevice=1da4000.ufshc androidboot.serialno=FA81N1A00790 androidboot.wificountrycode=00 androidboot.boottime=1BLL:221,1BLE:734,2BLL:871,2BLE:372420,SW:10017,KL:0,KD:1369,ODT:143,AVB:37 androidboot.baseband=msm mdss_mdp.panel=1:dsi:0:htc,mdss_dsi_samsung_s6e3fa5_1080p_cmd:1:none:cfg:single_dsi androidboot.fpsensor=fpc1075 androidboot.fpmodule=ofilm androidboot.usbradioflag=0 androidboot.temp_protect_ignore=0 androidboot.hardware.ufs=64GB,Hynix androidboot.mid=G011A androidboot.hardware.sku=G011A androidboot.revision=MP1 androidboot.ddrsize=4GB androidboot.ddrinfo=000000FF androidboot.hardware.ddr=4096MB,Micron,LPDDR4 androidboot.bootloader=mw8998-003.0085.00 androidboot.bootreason=reboot androidboot.cid=00000000 androidboot.hardware.color=VEN00 androidboot.theme=1 androidboot.sf=1 androidboot.msm.hw_ver_id=2005E0E1 androidboot.qf.st=2 androidboot.pk=g-pxl-p androidboot.slot_suffix=_a want_initramfs rootwait ro init=/init androidboot.force_normal_boot=1
+--- mounts
+rootfs / rootfs rw 0 0
+proc /proc proc rw,relatime 0 0
+sys /sys sysfs rw,relatime 0 0
+none /sys/kernel/config configfs rw,relatime 0 0
+--- udc
+a800000.dwc3
+a800000.dwc3
+--- dmesg tail
+[    1.205111] c0    342    IO 0x1b030000..0x1b04ffff -> 0x1b030000
+[    1.205124] c0    342   MEM 0x1b100000..0x1bffffff -> 0x1b100000
+[    1.205262] c0    342 pci-msm 1c00000.qcom,pcie: PCI host bridge to bus 0000:00
+[    1.205271] c0    342 pci_bus 0000:00: root bus resource [bus 00-ff]
+[    1.205278] c0    342 pci_bus 0000:00: root bus resource [io  0x0000-0x1ffff] (bus address [0x1b030000-0x1b04ffff])
+[    1.205285] c0    342 pci_bus 0000:00: root bus resource [mem 0x00000000-0x00efffff]
+[    1.205418] c0    342 pci 0000:00:00.0: [17cb:0105] type 01 class 0x060400
+[    1.205626] c0    342 pci 0000:00:00.0: reg 0x10: [mem 0x00000000-0x00000fff 64bit]
+[    1.205956] c0    342 pci 0000:00:00.0: PME# supported from D0 D3hot D3cold
+[    1.206169] c0    342 iommu: Adding device 0000:00:00.0 to group 33
+[    1.206318] c0    342 pci 0000:00:00.0: bridge configuration invalid ([bus 00-00]), reconfiguring
+[    1.206758] c4    342 pci 0000:01:00.0: [8086:3140] type 00 class 0x000000
+[    1.206926] c4    342 pci 0000:01:00.0: reg 0x10: [mem 0x00000000-0x00000fff 64bit pref]
+[    1.206994] c4    342 pci 0000:01:00.0: reg 0x18: [mem 0x00000000-0x007fffff 64bit]
+[    1.207063] c4    342 pci 0000:01:00.0: reg 0x20: [mem 0x00000000-0x003fffff 64bit pref]
+[    1.207126] c4    342 pci 0000:01:00.0: setting pcie class
+[    1.207312] c4    342 pci 0000:01:00.0: supports D1 D2
+[    1.207315] c4    342 pci 0000:01:00.0: PME# supported from D0 D1 D3hot D3cold
+[    1.207432] c4    342 iommu: Adding device 0000:01:00.0 to group 34
+[    1.207445] c4    342 pci_bus 0000:01: busn_res: [bus 00-fe] end is updated to 01
+[    1.207510] c4    342 pci 0000:00:00.0: BAR 8: assigned [mem 0x00000000-0x007fffff]
+[    1.207516] c4    342 pci 0000:00:00.0: BAR 9: assigned [mem 0x00000000-0x005fffff 64bit pref]
+[    1.207521] c4    342 pci 0000:00:00.0: BAR 0: assigned [mem 0x00000000-0x00000fff 64bit]
+[    1.207561] c4    342 pci 0000:01:00.0: BAR 2: assigned [mem 0x00000000-0x007fffff 64bit]
+[    1.207620] c4    342 pci 0000:01:00.0: BAR 4: assigned [mem 0x00000000-0x003fffff 64bit pref]
+[    1.207679] c4    342 pci 0000:01:00.0: BAR 0: assigned [mem 0x00000000-0x00000fff 64bit pref]
+[    1.207737] c4    342 pci 0000:00:00.0: PCI bridge to [bus 00]
+[    1.207758] c4    342 pci 0000:00:00.0:   bridge window [mem 0x00000000-0x007fffff]
+[    1.207774] c4    342 pci 0000:00:00.0:   bridge window [mem 0x00000000-0x005fffff 64bit pref]
+[    1.207929] c4    342 pci 0000:00:00.0: enabling device (0000 -> 0002)
+[    1.207958] c4    342 mnh_pci 0000:01:00.0: enabling device (0000 -> 0002)
+[    1.208692] c4    342 mnh_pci 0000:01:00.0: vector :10 , msi_num:10, irq:751
+[    1.208759] c4    342 mnh_pci 0000:01:00.0: request irq:752
+[    1.208916] c4    342 mnh_pci 0000:01:00.0: request irq:753
+[    1.208966] c4    342 mnh_pci 0000:01:00.0: request irq:754
+[    1.209010] c4    342 mnh_pci 0000:01:00.0: request irq:755
+[    1.209159] c1    342 mnh_pci 0000:01:00.0: request irq:756
+[    1.209305] c1    342 mnh_pci 0000:01:00.0: request irq:759
+[    1.209393] c1    342 mnh_pci 0000:01:00.0: request irq:760
+[    1.211463] c1    342 mnh_pci 0000:01:00.0: attached to IOMMU
+[    1.218165] c7     97 msm8998-asoc-snd 1711a000.sound-tavil: ASoC: platform (null) not registered
+[    1.233601] c1    342 msm_pcie_disable: PCIe: Assert the reset of endpoint of RC0.
+[    1.233625] c0    535 misc mnh_sm: mnh_sm_ready_irq_handler: mnh device is ready to suspend
+[    1.235435] c1    342 misc mnh_sm: MNH SM initialized successfully
+[    1.236624] c4      1 [KEY] gpio_keys_setup_key, error=-524, debounce(20, 20)
+[    1.236643] c4      1 [KEY] keycode = 115, gpio = 126, irq = 326
+[    1.236649] c4      1 [KEY] gpio_keys_setup_key, error=-524, debounce(20, 20)
+[    1.236664] c4      1 [KEY] keycode = 116, gpio = 40, irq = 240
+[    1.236669] c4      1 [KEY] gpio_keys_setup_key, error=-524, debounce(20, 20)
+[    1.236695] c4      1 [KEY] keycode = 114, gpio = 121, irq = 321
+[    1.236745] c4      1 input: gpio-keys as /devices/soc/soc:gpio_keys/input/input2
+[    1.238936] c4      1 qcom,qpnp-rtc 800f000.qcom,spmi:qcom,pm8998@0:qcom,pm8998_rtc: setting system clock to 1970-07-21 09:03:55 UTC (17399035)
+[    1.242624] c7     97 msm8998-asoc-snd 1711a000.sound-tavil: ASoC: platform (null) not registered
+[    1.249936] c7     97 msm8998-asoc-snd 1711a000.sound-tavil: ASoC: platform (null) not registered
+[    1.250040] c4      1 lmh_lite:lmh_parse_sensor Registering sensor:[GLM_soc]
+[    1.250215] c4      1 lmh_lite:lmh_parse_sensor Registering sensor:[LLM_cp1-]
+[    1.256887] c7     97 msm8998-asoc-snd 1711a000.sound-tavil: ASoC: platform (null) not registered
+[    1.256941] c4      1 lmh_lite:lmh_parse_sensor Registering sensor:[LLM_cp0-]
+[    1.257111] c4      1 soc:qcom,lmh supply vdd-apss not found, using dummy regulator
+[    1.257130] c4      1 lmh_lite:lmh_get_sensor_devicetree Error getting ODCM thresh. err:-22
+[    1.258772] c4      1 parse_cpu_levels: idx 1 503
+[    1.258776] c4      1 parse_cpu_levels: idx 2 1744
+[    1.258780] c4      1 parse_cpu_levels: idx 2 2222
+[    1.258842] c4      1 parse_cpu_levels: idx 1 1301
+[    1.258846] c4      1 parse_cpu_levels: idx 2 1820
+[    1.258849] c4      1 parse_cpu_levels: idx 2 1999
+[    1.258853] c4      1 calculate_residency: residency < 0 for LPM
+[    1.266752] c5     97 msm8998-asoc-snd 1711a000.sound-tavil: ASoC: platform (null) not registered
+[    1.274189] c5     97 msm8998-asoc-snd 1711a000.sound-tavil: ASoC: platform (null) not registered
+[    1.274250] c6      1 rmnet_ipa3 started initialization
+[    1.275692] c6      1 qcom,cc-debug-8998 162000.qcom,debugcc: Registered debug mux
+[    1.281640] c6      1 gfx_mem_acc_corner: disabling
+[    1.281643] c5     97 msm8998-asoc-snd 1711a000.sound-tavil: ASoC: platform (null) not registered
+[    1.281672] c6      1 apc0_pwrcl_corner: disabling
+[    1.281676] c6      1 apc1_perfcl_corner: disabling
+[    1.281714] c6      1 regulator_proxy_consumer_remove_all: removing regulator proxy consumer requests
+[    1.281863] c6      1 clock_late_init: Removing enables held for handed-off clocks
+[    1.284566] c4      1 ALSA device list:
+[    1.284571] c4      1   No soundcards found.
+[    1.284620] c4      1 Warning: unable to open an initial console.
+[    1.287269] c4      1 Freeing unused kernel memory: 9024K
+[    1.288626] c5     97 msm8998-asoc-snd 1711a000.sound-tavil: ASoC: platform (null) not registered
+[    1.290313] c4      1 walleye-init: vendor-gadget-m1 init start (before any mount)
+[    1.291922] c4      1 walleye-init: proc mounted, kernel 4.4.302-gddfd598aee10; step m1
+[    1.293981] c4      1 walleye-init: configfs mounted
+[    1.294022] c4      1 walleye-init: step m1: about to create the 2 MiB log file
+[    1.301760] c4      1 walleye-init: step m1: about to mkdir functions/mass_storage.0
+[    1.302101] c4    562 Mass Storage Function, version: 2009/09/11
+[    1.302108] c4    562 LUN: removable file: (no medium)
+[    1.303231] c5      1 walleye-init: m1 lun.0 has: cdrom file nofua removable ro 
+[    1.303303] c5      1 walleye-init: step m1: about to write lun.0/ro
+[    1.303378] c5      1 walleye-init: step m1: about to write lun.0/removable
+[    1.303452] c5      1 walleye-init: step m1: about to write lun.0/cdrom
+[    1.303507] c5      1 walleye-init: step m1: about to write lun.0/nofua
+[    1.303550] c5      1 walleye-init: step m1: about to set lun.0/file
+[    1.304229] c5      1 walleye-init: m1 lun.0/file now: /tmp/walleye-log.img
+[    1.304266] c5      1 walleye-init: step m1: about to mkdir configs/c.1/strings/0x409
+[    1.304750] c5      1 walleye-init: step m1: about to symlink the function into configs/c.1
+[    1.306045] c4      1 walleye-init: step m1: about to bind a800000.dwc3
+[    1.306185] c4      1 walleye-init: gadget bound to a800000.dwc3
+[    1.613681] c5    470 of_batterydata_read_batt_id_kohm: qcom,walleye-unknown-batterydata: No battery id resistor found
+[    1.613690] c5    470 of_batterydata_get_best_profile: walleye 1 found
+[    1.616034] c0    401 [BATT] update_ibat_setting: thermal=2,temp=300,fcc=2700,is_vol_limited(>4200mV)=1,is_screen_on=1,idx=3,ibat_ma=2700.
+[    1.616045] c0    401 [BATT] at 1616034013 (1970-07-21 09:03:55.877144985 UTC)
+[    1.616049] c0    401 [BATT] :set ibat(2700000)
+[    1.616054] c0    401 [BATT] at 1616043180 (1970-07-21 09:03:55.877154985 UTC)
+[    1.616060] c0    401 [BATT] :set_batt_psy_property value(2700000) prop(32)
+[    1.616114] c0    401 [BATT] at 1616103441 (1970-07-21 09:03:55.877215141 UTC)
+[    1.616120] c0    401 [BATT] :set pwrsrc_enable(1) when plug-in
+[    1.616124] c0    401 [BATT] at 1616113805 (1970-07-21 09:03:55.877225610 UTC)
+[    1.616129] c0    401 [BATT] :set_batt_psy_property value(0) prop(72)
+[    1.616137] c0    401 [BATT] at 1616125888 (1970-07-21 09:03:55.877237693 UTC)
+[    1.616227] c0    401 [BATT] :set charging_enable(1)
+[    1.616231] c0    401 [BATT] at 1616220472 (1970-07-21 09:03:55.877332225 UTC)
+[    1.616237] c0    401 [BATT] :set_batt_psy_property value(0) prop(138)
+[    1.616243] c0    401 [BATT] at 1616232086 (1970-07-21 09:03:55.877343891 UTC)
+[    1.616286] c0    401 [BATT] :ID=255, level=100, vol=4375mV, temp=300, current(mA)=-9
+[    1.616292] c0    401 [BATT]  chg_name=NONE, chg_src=0, chg_en=0, health=1
+[    1.616304] c0    401 [BATT]  vbus(mV)=4960, MAX_IUSB(mA)=0, MAX_PD_IUSB(mA)=0
+[    1.616526] c0    401 [BATT]  MAX_IBAT(mA)=2700, iusb_now(mA)=262, AICL=550
+[    1.616532] c0    401 [BATT]  batt_id(Kohms)=22, status=1, pwrsrc_dis_reason=0
+[    1.616570] c0    401 [BATT]  chg_dis_reason=0, batt_state=0, charger_temp=-1
+[    1.620597] c0    401 [BATT]  CC_uAh=2677191, otg=0
+[    1.620667] c0    401 [BATT]  v_elvdd_dis_en=0
+[    2.224340] c0    585 nxp,ptn36241g soc:ptn36241g: psy_changed_handler - state := active, orientation := cc2
+[    2.967426] c1    480 msm-dwc3 a800000.ssusb: dwc3_msm_resume: exiting lpm
+[    2.972594] c1    480 msm-dwc3 a800000.ssusb: DWC3 exited from low power mode
+[    3.178356] c0    586 msm-dwc3 a800000.ssusb: Avail curr from USB = 100
+[    3.222811] c1    401 [BATT] update_ibat_setting: thermal=2,temp=300,fcc=2700,is_vol_limited(>4200mV)=1,is_screen_on=1,idx=3,ibat_ma=2700.
+[    3.222819] c1    401 [BATT] at 3222807924 (1970-07-21 09:03:57.483918947 UTC)
+[    3.222823] c1    401 [BATT] :set ibat(2700000)
+[    3.222828] c1    401 [BATT] at 3222817194 (1970-07-21 09:03:57.483928999 UTC)
+[    3.222833] c1    401 [BATT] :set_batt_psy_property value(2700000) prop(32)
+[    3.222850] c1    401 [BATT] at 3222838965 (1970-07-21 09:03:57.483950666 UTC)
+[    3.222856] c1    401 [BATT] :ID=255, level=100, vol=4384mV, temp=300, current(mA)=-61
+[    3.222861] c1    401 [BATT]  chg_name=USB, chg_src=1, chg_en=1, health=1
+[    3.222867] c1    401 [BATT]  vbus(mV)=4960, MAX_IUSB(mA)=3000, MAX_PD_IUSB(mA)=3000
+[    3.222929] c1    401 [BATT]  MAX_IBAT(mA)=2700, iusb_now(mA)=244, AICL=550
+[    3.222935] c1    401 [BATT]  batt_id(Kohms)=22, status=1, pwrsrc_dis_reason=0
+[    3.222985] c1    401 [BATT]  chg_dis_reason=0, batt_state=0, charger_temp=373
+[    3.223300] c1    401 [BATT]  CC_uAh=2677217, otg=0
+[    3.223338] c1    401 [BATT]  v_elvdd_dis_en=1
+[    3.291518] c0    587 android_work: sent uevent USB_STATE=CONNECTED
+[    3.295051] c0    587 android_work: sent uevent USB_STATE=DISCONNECTED
+[    3.415296] c0    587 android_work: sent uevent USB_STATE=CONNECTED
+[    3.419269] c0    355 configfs-gadget gadget: high-speed config #1: c
+[    3.419390] c0    587 msm-dwc3 a800000.ssusb: Avail curr from USB = 500
+[    3.419560] c0    587 android_work: sent uevent USB_STATE=CONFIGURED
+[    3.767059] c5    470 IPC_RTR: msm_ipc_router_smd_driver_register Already driver registered IPCRTR
+[    3.767066] c5    470 IPC_RTR: msm_ipc_router_smd_driver_register Already driver registered IPCRTR
+--- end beat=4
+pass walleye-massstorage-read kernel gadget 3-2 /dev/sda: WALLEYE-LOG m1 beat=4 up=21.34s

@@ -1583,12 +1583,10 @@ Proof
 ### Try m1 again now the host runs 7.3.4 (usb_storage loads): read the first text the phone writes
 
 Status
-: open
+: done
 
 Note
-: Tried 2026-11-17: gadget up and /dev/sda present, read refused (root:disk, no disk group/sudo for the lab user). Next: the author adds the lab user to disk (or a udev uaccess rule for serial walleye-first-boot), then retry the same image; no new image needed
-
-UPDATE 2026-11-17: the lab-prepare tool ran ('lpoco host prepare now'): /etc/udev/rules.d/70-lpoco-google-walleye.rules gives uaccess on serial walleye-first-boot (block and tty) and usb_storage/cdc_acm are loaded: /dev/sda and /dev/ttyACM0 are readable as the lab user. This try is lpoco-host's acceptance test: record pass or fail for it.
+: proven by tests/host/massstorage-read.sh pass: gadget 3-2 /dev/sda WALLEYE-LOG m1 beat=4 up=21.34s; research 2026-11-17-walleye-m1-window-read. lpoco-host acceptance: PASS. Next: walleye-ffs-rust-try (n3r) - ttyACM now readable too.
 
 About
 : walleye-first-fastboot-boot

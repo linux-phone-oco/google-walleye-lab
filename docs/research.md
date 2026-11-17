@@ -719,3 +719,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-17-walleye-m1-window-read"></a>
+### 2026-11-17-walleye-m1-window-read
+
+Date
+: 2026-11-17
+
+Brief
+: m1 on host 7.3.4: the window is read: vendor kernel 4.4.302 runs our init, mass_storage bound, heartbeat grows every 5 s; lpoco-host acceptance passes
+
+Question
+: With usb_storage and the uaccess rule in place, what does the phone's first written text show?
+
+Found
+: Fastboot booted vendor-gadget-m1 (sha a3cf08d3...) from slot a (a active+successful, b unbootable retry 1): left fastboot 12 s, enumerated 1d6b:0104 after 18 s. tests/host/massstorage-read.sh (LUN_WAIT=60 LUN_WATCH=20) PASSED as the lab user, no sudo: /dev/sda read O_DIRECT, 'WALLEYE-LOG m1 beat=0..4 up=1.3..21.3s', the heartbeat grows every 5 s. Window: uname Linux 4.4.302-gddfd598aee10 (the vendor kernel, our init as pid 1); cmdline is the control's (androidboot.*, verifiedbootstate=orange, dtbo_idx=3, root=PARTUUID, lpm_levels.sleep_disabled=1); mounts rootfs/proc/sys/configfs; udc a800000.dwc3; dmesg tail shows our init steps through 'gadget bound to a800000.dwc3' and configfs-gadget high-speed config #1 CONFIGURED at 3.4 s. No panic in the mass_storage path. Phone returned by itself to Android on a, then adb reboot bootloader: fastboot, flags as before (a active+successful, b unbootable retry 1); nothing flashed. lpoco-host acceptance: pass (70-lpoco-google-walleye.rules uaccess, usb_storage loaded). Full window in the material folder.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-17/

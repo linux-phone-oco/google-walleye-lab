@@ -655,3 +655,39 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-keeper-m1-window"></a>
+### m1 window read: lpoco-host acceptance passes
+
+Entry date
+: 2026-11-17
+
+Done
+: Took the lease; one m1 try from slot a; read the window on host 7.3.4 as the lab user (pass). Phone back in fastboot via adb reboot bootloader: a active+successful, b unbootable retry 1; nothing flashed.
+
+Considered
+: next: walleye-ffs-rust-try (n3r, ttyACM readable now); then ffs-helper-try n3 may close
+
+About
+: walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-walleye-how-the-phone-stands-m1"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-17
+
+Done
+: Phone in fastboot (FA81N1A00790), unlocked, slot a active+successful, b unbootable retry 1; stock Android on a; no kernel kept; nothing flashed. m1 window readable by the lab user; the vendor kernel runs our init.
+
+Considered
+: next: walleye-ffs-rust-try (n3r), then the vendor kernel's reserved-memory/ramoops facts for mainline
+
+About
+: walleye-first-fastboot-boot
