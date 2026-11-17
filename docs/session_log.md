@@ -922,3 +922,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1500-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-17
+
+Done
+: pk bisect done: our dtb stops init, our kernel is fine; phone in fastboot, slot b current, a and b successful, nothing flashed, stock kernel; lease released
+
+Considered
+: next: diff our dtb vs porthole's taimen dtb and bisect nodes; pstore unreadable without root

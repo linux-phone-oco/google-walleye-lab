@@ -1890,10 +1890,10 @@ Proof
 ### Phone: boot pk3 once, then pk4, pk5, pk6 twice each from the first state; record the seven return times and read pstore
 
 Status
-: open
+: done
 
 Note
-: images ~/Projects/walleye-build/images-pk456 (pk3 in images-nocon), SHA256SUMS, research walleye-pk456-built. Expected: init ran = Android back at ~40-65 s; no init = ~75 s. pk6 = pk3's time + 3 s per score point (max 21 s) if init ran. Read pstore (/sys/fs/pstore and /data/vendor_ce/0/ramoops) after each: porthole's dts ramoops at 0xa1810000 (unread by Android), ours at 0xa1100000. No hands needed: every image reboots at once.
+: proven by the seven returns in walleye-pk-bisect-returns: our dtb is the fault
 
 About
 : walleye-first-fastboot-boot

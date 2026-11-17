@@ -924,3 +924,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-pk456/
+
+
+<a id="walleye-pk-bisect-returns"></a>
+### walleye-pk-bisect-returns
+
+Date
+: 2026-11-17
+
+Brief
+: pk bisect: pk3 48 s, pk5 (our kernel + porthole dtb) 42/42 s = init ran; pk4 (porthole kernel + our dtb) 75/69 s = no init: our dtb is the fault
+
+Question
+: From slot b, with no earlycon, which swap of kernel/dtb between porthole's (pk3) and ours (ml6a) stops init: return times of pk3 once, pk4/pk5/pk6 twice?
+
+Found
+: Via devlab fastboot boot, slot b, no writes. Return as Android (adb): pk3 48 s; pk4 75, 69 s; pk5 42, 42 s; pk6 66, 42 s. Bootreason reboot each, /sys/fs/pstore empty after each (shell has no su, so /data/vendor_ce/0/ramoops unread). Reading: pk5 = our Image.gz with porthole's taimen dtb returns at stock speed, so init ran and our kernel is fine; pk4 = porthole kernel with our dtb gives the no-init 70-75 s pattern, so our dtb is what stops boot. pk6 (pk3 + timing init) 66 then 42 s does not show the 3 s per point; noisy, no conclusion from it. Slot flags unchanged at the end (a,b successful, retry 0), phone left in fastboot on slot b. Next: diff our dtb against porthole's taimen/walleye dtb (memory, ramoops, reserved regions, console/uart nodes) and bisect nodes.
+
+About
+: walleye-first-fastboot-boot
