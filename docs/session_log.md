@@ -433,3 +433,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-17-2155-walleye-m1-try"></a>
+### m1 try: gadget enumerates as mass storage, the host cannot read it
+
+Entry date
+: 2026-11-17
+
+Done
+: Took the lease; fastboot booted vendor-gadget-m1 (sha a3cf08d3...) from the first state: left fastboot at 12 s, enumerated 1d6b:0104 with our strings at 18 s, no panic, class 08 interface up, phone returned by itself to Android on a. Read of the log window failed: no usb_storage module on the host for kernel 7.3.3 (modules dir has 7.3.4 and 6.18.60-lts). Phone put back in fastboot (adb reboot bootloader): a active+successful, b unbootable retry 1, unchanged; nothing flashed.
+
+Considered
+: next: the host loads usb_storage (reboot into 7.3.4 - a host change, not mine), then repeat the m1 try and read the window; or the FunctionFS ACM helper, which needs no host storage driver
+
+About
+: walleye-first-fastboot-boot
