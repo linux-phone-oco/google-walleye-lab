@@ -202,3 +202,21 @@ Done
 
 Considered
 : Moving lab-tools' items with device google-walleye too: they are the conveyor's, helping every device.
+
+---
+
+
+<a id="2026-11-17-2055-walleye-gadget3-third-try"></a>
+### vendor-gadget3 third try: panic before the gadget
+
+Entry date
+: 2026-11-17
+
+Done
+: Took the lease, watcher first (own job, 130 s), fastboot boot of vendor-gadget3 from the first state; read the result; phone back on Android a, fastboot reachable, slot a good.
+
+Considered
+: next: a builder makes a kmsg-only init image (separates ramdisk unpack from gadget bring-up)
+
+About
+: walleye-first-fastboot-boot
