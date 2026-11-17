@@ -1248,10 +1248,13 @@ Proof
 ### Try m1 from the first state, then read the log window on the host for 90 s
 
 Status
-: open
+: in-progress
 
 Note
-: Image ~/Projects/walleye-build/images/vendor-gadget-m1.img sha256 a3cf08d388ab72c5e1532e7ae60c87c48e54524fda6ca2d9be7bf4aeb81f360a (reboots itself at 180 s). From the first state: fastboot boot it, then LUN_WAIT=60 LUN_WATCH=90 tests/host/massstorage-read.sh in the lab repo (needs read access to the block device; skip says so). Record what the window shows: the first readable text from the phone (vendor kernel dmesg with our init running). Decision walleye-host-channel-order.
+: m1 tried once from the first state: left fastboot 12 s, enumerated 1d6b:0104 with our strings at 18 s, interface class 08 (mass storage) present, no panic, back to Android on a. Log window NOT read: the lab host has no usb_storage module for the running kernel 7.3.3 (/lib/modules holds 7.3.4 and 6.18.60-lts only), so no block device. Next: host reboots into 7.3.4 (or loads usb_storage), then the same try again
+
+Waits
+: host: usb_storage for the running kernel (reboot into 7.3.4)
 
 About
 : walleye-first-fastboot-boot
