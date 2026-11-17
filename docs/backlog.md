@@ -1314,3 +1314,25 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-ffs-helper-rust"></a>
+### Rewrite the FunctionFS ACM helper in Rust (static aarch64-unknown-linux-musl), the C one stays a probe
+
+Status
+: open
+
+Note
+: The top coordinator's correction: the builder believed the lab has no aarch64 Rust target; it has (lpoco-health is built that way: lab-tools health/build.sh). The C helper of n3 is recorded as a PROBE only (session log corrected). Practice: no new C for logic where Rust is possible. Do not block the n3 try on this: queue it AFTER the n3 try's result is in (rank after the n3 try); only a helper that works is worth rewriting.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-17
+
+Needs
+: build
+
+Proof
+: a Rust crate in the lab (build/ffs-acm-rs or as the lab's layout has it) built with lab-tools health/build.sh's way (rustup in ~/.local/share/devlab-cross, aarch64-linux-gnu-gcc as the linker, cargo build --release --locked --target aarch64-unknown-linux-musl), the same descriptors/steps as the C helper (decision 2026-11-17-walleye-ffs-acm-single-interface), a new image n3r differing from n3 only in the helper binary; checks as for n3; hashes; cargo fmt/clippy clean; no arguments or environment, so no argenv; the keeper's try then repeats n3's proof (tests/host/ffs-acm-up.sh)
