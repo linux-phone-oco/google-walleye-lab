@@ -10,7 +10,7 @@ codename = "google-walleye"        # the Pixel 2; fastboot serial FA81N1A00790; 
 
 [connection]
 user = "user"                      # the phone's user
-addresses = ["172.16.42.1"]        # USB networking first (postmarketOS' default); the Wi-Fi address is learned
+addresses = ["172.16.43.1"]   # walleye's own USB-networking address: surya answers on 172.16.42.1 on the same host
 
 [provision]
 packages = "provision/packages.txt"   # installed on a freshly flashed phone: devlab provision now
@@ -20,6 +20,7 @@ packages = "provision/packages.txt"   # installed on a freshly flashed phone: de
 # (decision walleye-fastboot-first): devlab fastboot boot now BOOT.IMG boots from memory without writing.
 serial = "FA81N1A00790"
 writes = false
+slot_switch = true                 # set-active only, metadata: decision walleye-slot-flags-tries-on-b
 
 [flash]
 # How an image goes onto this phone (devlab flash now IMAGE BOOTLOADER). The defaults suit an A-only
