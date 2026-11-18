@@ -1381,3 +1381,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-vf1-built"></a>
+### walleye-vf1-built
+
+Date
+: 2026-11-18
+
+Brief
+: vf1 built: the control's kernel with an init that dumps the running hardware's facts into an 8 MiB read-only window; 23 checks ok, rebuild identical, reader selftest 9 ok
+
+Question
+: Can the vendor kernel be made to hand the running hardware's facts to the host through the m1 window?
+
+Found
+: boot-vf1.img (sha256 af1ca884...fffe in images-vf1/SHA256SUMS-vf1): header, kernel, footer as m1's; ramdisk init-vf1 mounts proc/sys/configfs/debugfs, binds m1's mass_storage gadget with an 8 MiB LUN, and every 10 s for 90 s rebuilds a gzipped tar (device tree per property, clk/regulator/pinctrl/gpio/usb/dwc3 debugfs, interrupts, iomem, ioports, udc, dmesg) written as 64-byte header then body, then reboot -f. Redaction in the init (no mac-address/bdaddr/serial-number/imei properties, no raw fdt, no /sys/class/net, serialno/IMEI/MAC blanked) and again in the host reader, which deletes a dump that fails. Programmer review found 1 build-failing check, the raw fdt leak, a 64-byte O_DIRECT read, a leftover raw copy and an over-broad name filter; all fixed. Not yet run on the phone.
+
+About
+: walleye-first-fastboot-boot

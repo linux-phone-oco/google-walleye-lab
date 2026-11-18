@@ -1315,3 +1315,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-vf1-build"></a>
+### vf1 built
+
+Entry date
+: 2026-11-18
+
+Done
+: Built vf1 (init-vf1, build-vendor-facts.sh, vendor-facts-read.sh, selftest), reviewed by the programmer subagent, fixed, queued walleye-try-vf1 for the keeper.
+
+Considered
+: Copying the raw /sys/firmware/fdt for dtc: rejected, it carries the properties we drop by name; the per-property copy is enough.
+
+Rejected
+: A tar of live /proc and debugfs paths (sizes read as 0).
+
+About
+: walleye-first-fastboot-boot
