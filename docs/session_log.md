@@ -1615,3 +1615,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0830-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Reader fixed (echo-matching marker, ANSI strip) and run on y2: first mainline dmesg read. Phone in fastboot, slot b current, a/b successful, stock kernel, nothing flashed.
+
+Considered
+: next: PMIC spmi reg nodes (pm8998/pmi8998), smmu timeout, then charger/display
+
+About
+: walleye-first-fastboot-boot

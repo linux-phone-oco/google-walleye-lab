@@ -2761,10 +2761,10 @@ Rank
 ### The first shell of our own mainline kernel: read y2 over /dev/ttyACM0 - the whole dmesg first, then the facts
 
 Status
-: open
+: done
 
 Note
-: First light: y2 (lab PR 152): our kernel + our dtb with gpio-reserved-ranges reaches USB: 1d6b:0104 at 18 s, /dev/ttyACM0 on the host. The init stays up 180 s petting the watchdog; touch /tmp/hold keeps it. Battery first; the phone left in Android on a good slot; redact IDs (cmdline serial, MACs) before anything leaves the machine. A hang still returns by itself through the watchdog. The keeper writes the reader script in this item if no builder has (it is a host script, not a phone change).
+: proven by reader pass: 13 answers, dmesg 336 lines; fixed reader's end marker matching the phone's echo
 
 About
 : walleye-first-fastboot-boot

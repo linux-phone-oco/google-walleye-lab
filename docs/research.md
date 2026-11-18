@@ -1694,3 +1694,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-walleye-first-mainline-shell-map"></a>
+### 2026-11-18-walleye-first-mainline-shell-map
+
+Date
+: 2026-11-18
+
+Brief
+: First mainline shell read: Linux 7.3.0 boots to init; USB udc, regulators, input, SPMI nodes present; no drm, no power_supply, arm-smmu 5040000 probe timeout
+
+Question
+: What does the dmesg of our own mainline kernel (y2) show works and what fails?
+
+Found
+: y2 booted from fastboot on slot b (nothing flashed), tty read by tests/host/mainline-shell-read.sh: dmesg 336 lines, kernel 7.3.0-dirty. Present: a800000.usb (udc), 3400000.pinctrl, 800f000.spmi, rpm regulators/clocks, ramoops, watchdog, qfprom, remoteproc nodes, event0 input, ~12 regulators. Absent: /sys/class/drm, power_supply (no charger/fuel gauge), debugfs devices_deferred (debugfs not mounted). Faults: psci PC mode -3 (firmware bug msg); spmi pm8998@0 and pmi8998@3 'does not have reg property' (-22), so PMIC children (charger, gpio, rtc) probably not bound; arm-smmu 5040000 deferred probe timeout -110; c16f000.serial waits on supplier /vendor-overlay-stubs/clock_gcc; OF: i2c@c179000 phandle not found. Next parts: PMIC reg/spmi nodes, then charger, display, UFS. Raw material in ~/lab-material/walleye/mainline-shell-20261118-082300 (redacted, not in git). Phone back via reboot -f, left in fastboot, slot b current, a and b successful.
+
+About
+: walleye-first-fastboot-boot
