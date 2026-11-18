@@ -129,28 +129,6 @@ Rank
 : 4
 
 
-<a id="walleye-touch-rmi4"></a>
-### Touch: Synaptics RMI4 on blsp1_i2c5 (0x20, irq gpio125, reset gpio89)
-
-Status
-: open
-
-Note
-: Mainline rmi_i2c driver; supplies pm8998 l6 and l28; xd boards add a pmi8998 power gpio - which board revision the lab phone is, is not known.
-
-Blocked by
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-17
-
-Needs
-: build
-
-Proof
-: evtest shows touch events from the RMI4 device when the panel is touched (test: walleye-touch-events)
-
-
 <a id="walleye-bootimage"></a>
 ### Boot image: header v0, base 0, kernel 0x8000, ramdisk 0x1000000, tags 0x100, page 4096, dtb appended
 
@@ -2822,28 +2800,6 @@ Rank
 : 3
 
 
-<a id="walleye-usb-net"></a>
-### USB networking: ncm/ecm gadget with ssh on 172.16.43.1 instead of the ACM console
-
-Status
-: open
-
-Note
-: The ACM shell already works (y2). Host side: the lab-prepare rules; function ncm with attributes written the mainline way, ecm or rndis as fallback. Does not need the PMIC.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: walleye-gadget-up: ssh to 172.16.43.1 answers within 60 s of the boot
-
-
 <a id="walleye-wifi-wcn3990"></a>
 ### Wi-Fi and Bluetooth: WCN3990 through ath10k snoc, firmware read from the phone's own vendor partition
 
@@ -3327,28 +3283,6 @@ Needs
 
 Proof
 : build/ffs-acm/ffs-acm.c and anything that only builds n3 from it removed (n3's recorded hashes stay as history; n3r is the image to try); the lab's checks pass; read back from main
-
-
-<a id="walleye-display-s6e3fa5"></a>
-### Display: Samsung S6E3FA5 command-mode panel through DPU/DSI
-
-Status
-: open
-
-Note
-: No mainline driver; start from the out-of-tree S6E3FA5 driver (OnePlus 5) and porthole's sw43402 cmd-mode work for the DPU side; init sequence from the GPL downstream dtsi; reset gpio94, TE gpio10 (walleye) - the panel and its rails are walleye's own.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: the DRM connector is connected and a test pattern is seen by a person (test: walleye-display-pattern)
 
 
 <a id="walleye-fuel-gauge"></a>
@@ -4469,3 +4403,78 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-usb-net"></a>
+### USB networking: ncm/ecm gadget with ssh on 172.16.43.1 instead of the ACM console
+
+Status
+: open
+
+Note
+: The ACM shell already works (y2). Host side: the lab-prepare rules; function ncm with attributes written the mainline way, ecm or rndis as fallback. Does not need the PMIC.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: walleye-gadget-up: ssh to 172.16.43.1 answers within 60 s of the boot
+
+Rank
+: 1
+
+
+<a id="walleye-touch-rmi4"></a>
+### Touch: Synaptics RMI4 on blsp1_i2c5 (0x20, irq gpio125, reset gpio89)
+
+Status
+: open
+
+Note
+: Mainline rmi_i2c driver; supplies pm8998 l6 and l28; xd boards add a pmi8998 power gpio - which board revision the lab phone is, is not known.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: evtest shows touch events from the RMI4 device when the panel is touched (test: walleye-touch-events)
+
+Rank
+: 2
+
+
+<a id="walleye-display-s6e3fa5"></a>
+### Display: Samsung S6E3FA5 command-mode panel through DPU/DSI
+
+Status
+: open
+
+Note
+: No mainline driver; start from the out-of-tree S6E3FA5 driver (OnePlus 5) and porthole's sw43402 cmd-mode work for the DPU side; init sequence from the GPL downstream dtsi; reset gpio94, TE gpio10 (walleye) - the panel and its rails are walleye's own.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: the DRM connector is connected and a test pattern is seen by a person (test: walleye-display-pattern)
+
+Rank
+: 3
