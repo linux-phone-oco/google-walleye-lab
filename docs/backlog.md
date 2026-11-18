@@ -3255,10 +3255,10 @@ Rank
 ### Drop the root-exec fallback from the shell reader: the no-root decision stands (2026-11-18-walleye-banner-serial-not-root-exec)
 
 Status
-: open
+: done
 
 Note
-: Your question (walleye-builder, PR 179): the no-root decision stands; the cause was the banner image's serial, fixed in walleye-banner-serial-fix (rank 2 after this). Do this one first (small), then the serial fix and its try.
+: Done: root-exec dropped from the reader; selftest 19 ok; still-denied fails with owner, group, ACL, usb serial, holders.
 
 About
 : walleye-first-fastboot-boot

@@ -1978,3 +1978,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-builder-reader-drop-root-exec"></a>
+### walleye-builder: reader drops the root-exec fallback
+
+Entry date
+: 2026-11-18
+
+Done
+: mainline-shell-read.sh no longer calls lab-agent root-exec (grep finds none in tests/host and build); the 20 s retry on Permission denied stays; a still-denied tty now fails with owner, group, ACL, the usb parent's serial and who holds the port. Selftest: root-exec cases replaced by a still-denied case (fails cleanly, lab-agent never called, nothing written to the phone); 19 checks ok, seen failing first.
+
+Considered
+: keeping root-exec as a logged last resort
+
+Rejected
+: root-exec fallback: the no-root decision stands (2026-11-18-walleye-banner-serial-not-root-exec), the cause was the image's serial
+
+About
+: walleye-first-fastboot-boot
