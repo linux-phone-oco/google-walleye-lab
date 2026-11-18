@@ -1,0 +1,6 @@
+node after 19s
+pass: the banner shows the command loop open, start count steady ([started=yes starts=1 cmds=1 last=[WALLEYE-BANNER  loop=?] rc=127 err=[none]]) (pass: 10 banner lines in 1770 bytes, beats increasing; last: WALLEYE-BANNER beat=10 up=21.87s steps=8 last=[step 8 gadget bound to a800000.usb] loop=[started=yes starts=1 cmds=1 last=[WALLEYE-BANNER  loop=?] rc=127 err=[none]])
+last banner: WALLEYE-BANNER beat=10 up=21.87s steps=8 last=[step 8 gadget bound to a800000.usb] loop=[started=yes starts=1 cmds=1 last=[WALLEYE-BANNER  loop=?] rc=127 err=[none]]
+walleye-mainline-shell-read: path used: plain
+pass walleye-mainline-shell-read host path plain; 15 answers saved under /home/mll/Projects/linux-phone-oco/wt-walleye-keeper-1795006070/research/walleye-first-fastboot-boot/2026-11-19-z6-try1/read; dmesg 590 lines
+reader exit 0
