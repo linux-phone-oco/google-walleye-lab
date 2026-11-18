@@ -3462,3 +3462,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-command-loop"></a>
+### z6: replace the silent interactive ash by a plain read/exec command loop on ttyGS0 (the banner stays)
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-z5b-tried-raw-tty, PR 210): with the host tty raw/no-echo the '> ' and 'Permission denied' noise is gone (0 in 30 s) but the shell still returns no command output, only banner beats: the interactive `busybox ash -i` on ttyGS0 never answers although it is alive. Do not debug ash; replace it with a plain read/exec loop (the init's own shell, one line at a time), which has no job control, no prompts, no tty needs. WHEN DONE queue walleye-try-z6 (needs phone, rank 1): z6 once from slot b: the host stty loop + banner capture 20 s + the reader (one fd) as plain background processes (decision 2026-11-19-walleye-reader-plain-background-process); if commands answer: dmesg in full, the facts, the PMIC check; battery first; phone left in Android.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: boot-z6.img = z5 (banner2 + shell state in the banner) with the console block REPLACED by a command loop that needs no interactive ash, no job control and no controlling terminal: after stty -F /dev/ttyGS0 raw -echo -hupcl, `while :; do IFS= read -r line < /dev/ttyGS0 || { sleep 0.2; continue; }; [ -n "$line" ] || continue; sh -c "$line" > /tmp/out 2>&1; cat /tmp/out > /dev/ttyGS0; printf '\n__END_%s__\n' "$n" > /dev/ttyGS0; done` (the end marker carries the command counter, which the reader matches) - read the existing reader's marker convention in tests/host/mainline-shell-read.sh and use exactly that marker, so the reader works unchanged; the banner keeps running (its lines are tagged WALLEYE-BANNER so the reader can ignore them) and also reports the loop's state (commands run, last command, last rc); banner lines never carry the end marker; check script, selftest with a fake phone running the same loop in a pty (the loop is tested on the host with a pty pair so the claim 'a line in gets an answer out' is measured); programmer review; hashes
+
+Rank
+: 1
