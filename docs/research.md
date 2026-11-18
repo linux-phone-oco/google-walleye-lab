@@ -2873,3 +2873,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z15-part1-tried"></a>
+### walleye-z15-part1-tried
+
+Date
+: 2026-11-18
+
+Brief
+: z15 once from slot b: gadget/telnet up at 18 s, but no RMI4 touch device: i2c@c179000 has compatible qcom,i2c-msm-v2 (downstream), so no mainline driver binds
+
+Question
+: Does the RMI4 controller probe on z15 (part 1, no touch)?
+
+Found
+: z15 booted once from slot b via lpoco lab fastboot boot; walleye-gadget-up passes (ping+telnet). Absent: no rmi4/synaptics dmesg line, /sys/class/input has only pm8941_pwrkey and gpio_keys, /sys/bus/i2c/devices empty, no touch irq. rmi4_i2c driver is registered (RMI4_CORE/I2C/F12 =y, I2C_QUP=y). Cause: platform device c179000.i2c has no driver; its of_node compatible is qcom,i2c-msm-v2 (the downstream name), which mainline i2c_qup does not match, so blsp1_i2c5 never probes. Suppliers (gcc, tlmm, rpm) report available; gcc sync_state stays pending due to c179000.i2c. Next: z16 with the i2c node compatible set to mainline's qcom,i2c-qup-v2.2.1 (check the controller version) and the clocks/properties it needs. Phone returned to Android on slot b, nothing flashed. Material: ~/lab-material/walleye/z15-part1 (outside the repo).
+
+Sources
+: none
+
+About
+: walleye-first-fastboot-boot

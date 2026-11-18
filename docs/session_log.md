@@ -2668,3 +2668,21 @@ Done
 
 Considered
 : next: walleye-bootchain-readback (read only, needs a test written first)
+
+---
+
+
+<a id="2026-11-19-1600-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: walleye-try-z15 part 1: z15 once from slot b over the network shell; touch probe absent because i2c@c179000 keeps the downstream compatible qcom,i2c-msm-v2. Phone back as Android on slot b, stock kernel, nothing flashed, fastboot reachable, slots a and b successful.
+
+Considered
+: next: walleye-build-z16-i2c-compatible (builder); z15 part 2 waits for the author; then walleye-ufs-android-live / walleye-bootchain-readback (read only)
+
+About
+: walleye-first-fastboot-boot
