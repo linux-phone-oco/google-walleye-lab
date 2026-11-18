@@ -2116,3 +2116,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-0900-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: z6 tried once from slot b (research walleye-z6-tried): FIRST working mainline shell - commands answer, dmesg 590 lines (Linux 7.3.0), SPMI pm8998/pmi8998 devices 0-00..0-03 present, pmic-dmesg-check passes; no drm, no power_supply class. Phone is Android on slot b, stock kernel, nothing flashed, flags a and b successful, fastboot reachable via adb reboot bootloader, battery 4381 mV.
+
+Considered
+: next: read the 14 deferred/fail lines of the z6 dmesg (research/.../2026-11-19-z6-try1/read/dmesg.txt) and the PMIC children (charger, fuel gauge); the shell makes dmesg-driven bring-up possible: next item by the bring-up order (PMIC, clean probes, charger, UFS read-only). The earlier x1 gpio-reserved-ranges item is answered by y/y2 (in our dtb). Procedure that worked: stty loop + banner capture + one-fd reader as plain background processes started before fastboot boot now IMAGE.
+
+About
+: walleye-first-fastboot-boot

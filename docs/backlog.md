@@ -3540,10 +3540,10 @@ Proof
 ### Try z6 once from slot b: do commands answer on the plain read/exec loop?
 
 Status
-: open
+: done
 
 Note
-: built 2026-11-18 (research walleye-z6-built); try once
+: proven: commands answered on the loop, dmesg 590 lines with Linux version (research walleye-z6-tried)
 
 About
 : walleye-first-fastboot-boot

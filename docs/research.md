@@ -2142,3 +2142,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z6-tried"></a>
+### walleye-z6-tried
+
+Date
+: 2026-11-18
+
+Brief
+: z6 once from slot b: the command loop answers - dmesg in full (590 lines, Linux 7.3.0), 15 answers; banner says loop started=yes; SPMI 0-00..0-03 present
+
+Question
+: Do commands answer on z6's plain read/exec loop, and what does the first full dmesg say (PMIC)?
+
+Found
+: z6 (boot-z6.img sha256 7f8af938...) from slot b, host stty loop raw -echo -hupcl, plain background reader (decision 2026-11-19-walleye-reader-plain-background-process): gadget 1d6b:0104 at 18 s, node after 19 s; banner capture 20 s passes banner-loop-check (loop=[started=yes starts=1 cmds=1 rc=127], start count steady); the reader passed: 15 answers, dmesg 590 lines starting Linux version 7.3.0-dirty. FIRST working mainline shell on walleye. Facts: /sys/bus/spmi/devices 0-00 0-01 0-02 0-03 (pm8998, pmi8998) present; pmic-dmesg-check passes (only the overlay's 2 reg-less nodes noted); no drm, no power_supply class, no devices_deferred (no debugfs); regulators 0-11 and input0 present; udc a800000.usb; arm-smmu 5040000.iommu line in the platform list; 14 dmesg lines match deferred/fail/unknown-symbol patterns (to read next); psci Firmware Bug 'failed to set PC mode: -3'. Battery 4376 mV before, 4381 mV after. Phone back as Android on slot b by itself after the hold (adb up), then adb reboot bootloader showed flags a and b successful, none unbootable, current-slot b; left via fastboot reboot to Android. Nothing flashed.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-19-z6-try1/
