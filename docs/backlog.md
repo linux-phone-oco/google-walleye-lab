@@ -3437,3 +3437,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-try-z5b"></a>
+### z5 again with the host tty raw/no-echo the moment it appears: is the shell drowned by the host's echo of the banner?
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-z5-tried, PR 204): z5's banner reports the shell started and alive (probe 0, no error), but the tty carries '> ' prompts and 'ash: /: Permission denied' lines: the shell is reading input that the host never sent. The host's cdc_acm tty opens in cooked mode with ECHO on, so received phone output is echoed back to the phone, where the shell parses it as commands.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: z5 once from slot b with the HOST tty put in raw, no-echo mode the moment the node appears, before anything is read: `stty -F /dev/ttyACM0 raw -echo -hupcl` in a tight loop started before the boot (poll for the node every 0.1 s, run stty at once, once per appearance; note how many bytes had already arrived), THEN the banner capture for 30 s (cat), THEN tests/host/mainline-shell-read.sh (one fd, raw) once, after the banner shows 'shell alive'. Record: (a) did the '> ' prompts and 'ash: /: Permission denied' lines disappear with the host tty raw? (b) do the reader's commands now get answers (dmesg, uname)? (c) if not, the banner line's shell fields at the time. Expected if the hypothesis holds: the host tty has ECHO on by default, so every banner line the phone writes is echoed back into the phone's tty, the shell reads the banner text as commands ('> ' = an unfinished quote, 'ash: /: Permission denied' = a line parsed as running /), which also swallows the real commands. Then z4 and y2 were never silent for lack of a shell, only drowned: the reader must set the host tty raw/-echo BEFORE the first byte can arrive (stty in a loop on appearance), and the init should ignore input lines for a few seconds after start (or the shell start should wait for the first line from the host). Record the decision text for the reader in the record. Battery first; phone left in Android.
+
+Rank
+: 1
