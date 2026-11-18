@@ -168,10 +168,10 @@ Proof
 ### Boot image: header v0, base 0, kernel 0x8000, ramdisk 0x1000000, tags 0x100, page 4096, dtb appended
 
 Status
-: in-progress
+: done
 
 Note
-: Four images, 17 checks each, 0 failed: a,b as before; c,d = a,b with os_version 8.1.0 / patch level 2020-01 (4 header bytes differ). sha256 in ~/Projects/walleye-build/images/SHA256SUMS. Header v0 fits walleye per public sources (walleye-bootimage-header-public); stock header still unread. Untried: the dtbo overlay id (walleye-dtbo-overlay-id) and an AVB footer.
+: Done: the v0 boot image with the control's header offsets is what every working image uses; the stock header was read from LineageOS's official boot.img (lab research walleye-stock-ids-recorded) and our images boot from fastboot boot (first light, PR 152).
 
 Waits
 : walleye's stock boot.img header (android-reference-walleye) to confirm the offsets
@@ -282,10 +282,10 @@ Proof
 ### dtbo_b stub with overlay id for walleye - only if the control boots and e,f still end in Load Error
 
 Status
-: open
+: done
 
 Note
-: A write to the phone: needs the author's word and the way back first (stock dtbo from the LineageOS zip read in walleye-loaderror-stock-ids, flashed back with fastboot flash dtbo_b). Overlay id for walleye is not known: read from the stock dtbo table, not guessed (kcxt's 2704 is for taimen).
+: Not needed: no dtbo write was ever required; the bootloader accepts our images (first light).
 
 Waits
 : the author's word (a write to the phone)
@@ -304,10 +304,10 @@ Proof
 ### First fastboot boot of the walleye kernel: the phone leaves fastboot and its gadget answers
 
 Status
-: in-progress
+: done
 
 Note
-: Six images and the official LineageOS control all refused with Load Error: the cause is the phone's state or what fastboot boot needs, not our image (walleye-control-e-f-tries). A dtbo/vbmeta write stays the author's.
+: Done: first light (lab PR 152): our own kernel and device tree boot to USB (1d6b:0104, /dev/ttyACM0) from fastboot boot, nothing written. Remaining questions live in their own items.
 
 Waits
 : walleye-boot-refused-why (research), walleye-control-on-slot-a
@@ -436,10 +436,10 @@ Proof
 ### Read the bootloader's own reason for Load Error over the Android Debug Cable (UART)
 
 Status
-: open
+: done
 
 Note
-: The bootloader logs the reason to the serial console; the Nura wiki names the Pixel 2 Android Debug Cable. Hands needed; the phone itself is not changed.
+: Superseded: the Load Error was the slot state after refusals (set-active metadata), not a reason for UART; the UART cable stays under walleye-get-uart-setup.
 
 Waits
 : the author's debug cable
@@ -1351,10 +1351,10 @@ Proof
 ### Give the lab user access to our gadget's /dev/sdX and /dev/ttyACM* through the lab-prepare tool, then read m1 and n3
 
 Status
-: open
+: done
 
 Note
-: device.toml now declares [host] modules usb_storage, cdc_acm and gadget serial walleye-first-boot with access block and tty (devlab accepts the table: keeper status and fastboot state run on it). Phone-side images m1 (lab PR 42), n3 (PR 44), n3r (PR 52) are built and enumerate with no panic; their reads wait on the tool. The retry items walleye-retry-massstorage-after-reboot and walleye-retry-ffs-acm-after-reboot wait on it too.
+: Done: lpoco host prepare passed its acceptance test (lab PR 70, m1 read as the lab user); the banner serial finding closed the last tty question (decision 2026-11-18-walleye-banner-serial-not-root-exec).
 
 Waits
 : the lpoco lab-prepare tool (orchestration); the author will not add the udev rule by hand: its first use here is its acceptance test
