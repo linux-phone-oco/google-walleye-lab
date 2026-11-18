@@ -592,3 +592,28 @@ About
 
 Research
 : walleye-z1-built
+
+
+<a id="2026-11-18-walleye-gpucc-built-in"></a>
+### 2026-11-18-walleye-gpucc-built-in
+
+Date
+: 2026-11-18
+
+Brief
+: Build CONFIG_MSM_GPUCC_8998 into the walleye kernel (=y); z2 is z1 with only that change
+
+Decision
+: build/walleye.config sets MSM_GPUCC_8998=y and build-kernel.sh refuses a kernel without it; image z2 = y2's image with z1's dtb and the new Image.gz, nothing else changed.
+
+Why
+: The initramfs carries no modules and the smmu's power domain is gpucc's GDSC (research walleye-smmu-timeout-gpucc-module). One change per image keeps a try readable.
+
+Rejected
+: Disabling the adreno_smmu node (status disabled): hides the fault and the GPU would need it later. Loading gpucc as a module from the initramfs: a second moving part for one driver. Fixing the serial supplier and phandles in the same image: two causes in one try cannot be told apart.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-smmu-timeout-gpucc-module
