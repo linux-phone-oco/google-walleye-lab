@@ -1362,3 +1362,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-t3/
+
+
+<a id="walleye-t3-tried"></a>
+### walleye-t3-tried
+
+Date
+: 2026-11-18
+
+Brief
+: T3 (pk5 + ramoops 0xa1100000 + unpetted kpss-wdt, bite at ~10 s) tried once: back as Android at 42 s (alive class), pstore holds no T3 marker
+
+Question
+: Does a hardware watchdog bite leave our console in ramoops?
+
+Found
+: boot-t3.img (sha 9ccc6e27...) from fastboot on slot b; left fastboot 15 s, adb back at 42 s, same as other alive-class images; pstore-t3-read: fail, 0 console-ramoops in /sys/fs/pstore and vendor_ce, bootreason reboot. Dtb carries watchdog@17817000 and QCOM_WDT=y. Not separated: bite never happened vs bite without surviving ramoops vs init never ran; no UART/serial console.
+
+About
+: walleye-first-fastboot-boot

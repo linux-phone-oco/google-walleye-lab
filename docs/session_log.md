@@ -1297,3 +1297,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-2359-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: T3 tried once: pstore empty, back as Android on b at 42 s, nothing flashed, stock kernel, fastboot reachable (slots a,b successful)
+
+Considered
+: next: turning point for the coordinator - empty pstore after an alive kernel with an unpetted watchdog does not tell no-bite from lost region; needs UART or another witness of init before more tries
+
+About
+: walleye-first-fastboot-boot
