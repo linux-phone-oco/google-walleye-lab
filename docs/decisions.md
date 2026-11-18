@@ -880,3 +880,34 @@ Scope
 
 Tracked by
 : walleye-dtbo-minimal-try
+
+
+<a id="2026-11-18-walleye-pmic-bite-read-then-warm"></a>
+### 2026-11-18-walleye-pmic-bite-read-then-warm
+
+Date
+: 2026-11-18
+
+Brief
+: Read the PON S2 registers first (no bite), then bite only with the type read back as warm; hard after warm restarts
+
+Decision
+: Settle the power-off by reading 0x54-0x57, 0x5a, 0x5b, 0xc5 on z9 (no bite), make the S2 type a dt property written with the downstream sequence and read back, choose warm (0x01) for the first bite, hard (0x07) only once warm restarted the phone. The series' fixed hard default is raised to the upstreams lane as a question once measured.
+
+Why
+: qcom-pon is ruled out as the overwriter; the vendor never writes the WD type, so no source tells the walleye value; off-the-bus does not prove power-off. A read costs no bite. Warm resets the MSM without cycling PMIC rails, the same class as the reboots that always came back.
+
+Rejected
+: Another bite with hard to look (breaks the no-bite decision); switching to shutdown (never restarts); patching qcom-pon to own the type (it writes none of it, and the type belongs to the watchdog); guessing the vendor fdt value (the vendor never sets it).
+
+About
+: deep-sleep
+
+Research
+: walleye-pmic-bite-reset-type-how-it-stands
+
+Scope
+: walleye keeper, builder, upstreams lane
+
+Tracked by
+: walleye-pmic-wdt-bite-try-warm

@@ -2396,3 +2396,32 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-pmic-bite-reset-type-how-it-stands"></a>
+### walleye-pmic-bite-reset-type-how-it-stands
+
+Date
+: 2026-11-18
+
+Brief
+: PMIC bite power-off: qcom-pon is not the cause; vendor never sets the WD S2 type; only a register read settles which of three causes
+
+Question
+: What reset type does the PM8998 watchdog bite perform and why did z9's bite power the phone off?
+
+Found
+: Question: what reset type does the PM8998 S2 stage (the watchdog's bite) perform, and why did z9's bite power the phone off?
+Read from sources (no phone touched):
+1. Hypothesis (b) of the coordinator, "qcom-pon overwrote the type", is ruled out: mainline qcom-pon.c v7.3 writes only 0x8f (soft reboot spare) and populates children; it never writes 0x56, 0x5a, 0x5b or 0x57.
+2. The series writes S2_CTL (0x56) = 0x07 (HARD) at probe, plain write. The vendor kernel (walleye's own GPL driver) never writes 0x56 at all: it toggles only the WD enable bit in S2_CTL2 (0x57). The vendor's reset type for PS_HOLD goes through 0x5A (type) / 0x5B (enable, on gen2) with enable cleared first and a 500 us wait, no SEC_ACCESS unlock. So the vendor leaves the WD S2 type to the PMIC default / the bootloader (PBS/SBL): what it is on walleye is not in any source, only in the register.
+3. Type encodings agree: WARM 0x01, SHUTDOWN 0x04, HARD 0x07 (vendor header), same as the series' constants. HARD "resets the MSM and all PMIC peripherals", WARM "the MSM but not all PMIC peripherals". Whether a HARD reset ends in a restart on PM8998 depends on a power-on trigger after the rail cycle; the sources do not say, so a HARD type that powers the phone off with nothing to turn it back on is plausible (a hard reset is a power-off followed by a re-trigger; the 'z9 off the bus' fits a PMIC that cycled and did not re-trigger, but also fits one that restarted into a boot that never enumerated USB).
+4. 'Off the USB bus' is not 'powered off': the record has no current, LED or screen evidence. The second boot the phone made (if any) would show as an slot change or a POFF reason; only a register read settles which.
+So: three causes stay open (write did not take or read back wrong; HARD does not self-restart on this PMIC; it restarted into a boot with no USB). One cheap, safe phone read separates them and no bite is needed: read 0x56,0x57,0x5a,0x5b,0xc5 (and 0x54,0x55) before arming (the spmi regmap debugfs, if z9 has it, else a readback in the ramdisk's command loop). The reading also shows what the bootloader set before the series wrote 0x07 (read before the driver probes is impossible from Linux; read the value in an image without the series' write, i.e. z8's dtb with the wdt node disabled, or note that the probe write comes first).
+Not proven by the bite: the series bites (it does: pmic-wdt-bites, 20 s); its reset type is a board/PMIC setting the series sets to HARD as its own default for pm8916 - the 'power off' is not the series' fault, but the series' hard-coded HARD is a board choice that should become a property (qcom,s2-reset-type style) or stay for pm8916 only: an upstream question once measured.
+
+Sources
+: lineage-wahoo-qpnp-power-on,lineage-wahoo-qpnp-power-on-h,pmic-wdt-series-pm8916-wdt,mainline-qcom-pon-v7-3
+
+About
+: deep-sleep

@@ -3778,6 +3778,9 @@ Note
 Waits
 : NO BITE until walleye-pmic-bite-reset-type says a bite restarts the phone (decision 2026-11-18-walleye-no-pmic-bite-until-reset-type)
 
+Blocked by
+: walleye-pmic-wdt-bite-try-warm
+
 About
 : deep-sleep
 
@@ -3795,14 +3798,10 @@ Proof
 ### Why the PMIC bite powered the phone off (z9) and how to make a bite a restart
 
 Status
-: open
+: done
 
 Note
-: Fact (keeper, lab PR 236/237): z9 = z8 + qcom-pon=y; the PM8998 watchdog bit 20 s after arming (the series works); the phone then stayed off the USB bus, not Android, not fastboot: it needs a power-cycle by hand (walleye-needs-power-cycle-after-pmic-bite). Decision 2026-11-18-walleye-no-pmic-bite-until-reset-type.
-
-FACTS FROM THE UPSTREAMS COORDINATOR (series grenudi/linux topic/pmic-wdt-wake-in-suspend, drivers/watchdog/pm8916_wdt.c probe): the driver writes S2_CTL (PON +0x56) = RESET_TYPE_HARD 0x07 ONCE at probe, with no unlock and no read-back, and writes nothing there at start time. Downstream qpnp-power-on configures a reset by: clearing S2_CTL2 EN, waiting a few slow-clock cycles, writing the type, then re-enabling. So the power-off points at (a) the write not taking, (b) being overwritten later by qcom-pon (z9 added qcom-pon=y) or the bootloader, or (c) a different type encoding on PM8998's gen2 PON. Reading +0x56 (and S2_CTL2) back through the shell BEFORE the next bite settles which: the reading is a safe phone item (no bite): it needs the phone, which is parked until the author's hands; queue it behind walleye-needs-power-cycle-after-pmic-bite. Any fix goes into the series as its own patch (the upstreams lane carries it).
-
-CORRECTION (keeper walleye-348f6c2b, 2026-11-18): the phone was not dead after the z9 bite: it reappeared in fastboot (18d1:4ee0) a few minutes after the keeper's report, current slot b, successful, not unbootable. Time to reappear: more than 10 minutes, not ~75 s. The author also held Power ~15 s in that window (coordinator's relay at 14:08-14:11Z, which then showed Android 18d1:4ee7 with adb), so 'recovered by itself after >10 min' and 'recovered by the hold' are NOT told apart by the record. What is known: a bite does not restart the phone in the ~75 s a try allows; it ends with the phone off the bus for minutes (a power-off, then the bootloader or a later boot). The research should explain the delay too (a PMIC shutdown then a charger/PON auto-power-on? a different S2 stage reset type with a long hold?), and any next bite try waits for it.
+: Answered: research walleye-pmic-bite-reset-type-how-it-stands; decision 2026-11-18-walleye-pmic-bite-read-then-warm; items walleye-pmic-wdt-read-s2-regs, -readback-image, -bite-try-warm
 
 About
 : deep-sleep
@@ -3871,3 +3870,75 @@ Needs
 
 Rank
 : 1
+
+
+<a id="walleye-pmic-wdt-read-s2-regs"></a>
+### Read the PMIC PON watchdog registers (0x54-0x57, 0x5a, 0x5b, 0xc5) on z9 without arming
+
+Status
+: open
+
+Note
+: Safe: no bite. Read through the spmi regmap debugfs if z9 has it (else build item walleye-pmic-wdt-readback-image). Record values with the POFF reason (0xc5) and the boot slot. Settles: write took (0x56=7)? what the bootloader had set? did the bite log PMIC_WD?
+
+Blocked by
+: walleye-needs-power-cycle-after-pmic-bite
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: pmic-wdt-s2-regs-read
+
+
+<a id="walleye-pmic-wdt-readback-image"></a>
+### Build z10: z9 plus a read-back of the PON S2 type after probe, and an S2 type chosen by property (warm first)
+
+Status
+: open
+
+Note
+: Only if debugfs regmap is absent on z9. Change: pm8916_wdt probe writes the type from a dt property (qcom,s2-reset-type: default hard for pm8916, warm 0x01 for walleye first), with the downstream sequence (clear 0x57 EN, ~500 us, write 0x56, read back, warn on mismatch), and walleye dts sets warm. No bite in this item.
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: pmic-wdt-s2-type-readback (checks: type read back equals the one set, before arming; Image holds the property)
+
+
+<a id="walleye-pmic-wdt-bite-try-warm"></a>
+### One PMIC bite with the type read back as warm (0x01) first; hard (0x07) only after warm restarts
+
+Status
+: open
+
+Note
+: Way back with no hands: arm only when the type reads back as 0x01 (hard 0x07 only if warm restarted); the command loop never arms the watchdog on boot (a restart lands in a quiet loop); battery rule first. If the phone does not come back it waits for hands as before - so the read item and the warm choice come first. Expect after the bite: same slot, uptime reset, watchdog bootstatus CARDRESET.
+
+Blocked by
+: walleye-pmic-wdt-read-s2-regs,walleye-pmic-wdt-readback-image
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: pmic-wdt-bites,pmic-wdt-restarts
