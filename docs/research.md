@@ -1552,3 +1552,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-vfx-built"></a>
+### walleye-vfx-built
+
+Date
+: 2026-11-18
+
+Brief
+: vfa..vfd built: m1's structure (alive) plus ONE source each put in its 2 MiB window before the bind; 23 checks each ok, rebuild identical, selftest 18 ok, reviewed
+
+Question
+: Which hardware source, read alone on m1's proven structure, works and which kills the vendor kernel (vf3/vf4's progressive dump died)?
+
+Found
+: build/initramfs-vendor5/init-vfx is m1's init line for line from the first command to the gadget bind (checked by the build), plus one block before the bind: the payload named by /etc/walleye-vf. vfa = /sys/firmware/fdt (binary, merged running tree) + /proc/iomem + /proc/interrupts + /proc/cmdline (redacted); vfb = debugfs clk_summary; vfc = debugfs regulator_summary; vfd = debugfs usb/ and the dwc3 directories. Each source is read by timeout 5 cat into the ramdisk, then put in the window file m1 makes (2 MiB): bytes 0-511 a plain header 'WALLEYE-VFx LEN= PARTS= TRUNC=' and a PART line per source (name, length, rc), the plain bytes from 512 (no tar, no gzip), a payload over the room cut with TRUNC=1; a first header with no part is written before the first read, so a kernel killed in a read shows as a header with PARTS=0. After the bind no payload write: only a 4 KiB beat block at the window's end every 5 s (m1 wrote 64 KiB every 5 s), 180 s then reboot -f. The four ramdisks differ in /etc/walleye-vf alone; header, kernel, busybox, file list and AVB footer equal m1's. Reader tests/host/window-payload-read.sh: one dd of the LUN by the header's length, parts cut out (fdt as fdt.dtb and fdt.dts through dtc), refuses an identifying string; selftest tests/host/window-payload-selftest.sh 18 ok (all four letters, truncation, missing source, killed first read, foreign window, redaction). sha256 (first 16) boot-vfa 2bb9f7214f2eef89, vfb fd90dd4d57665103, vfc dabf900a7f3bd962, vfd e8d4badc52e47908; full in ~/Projects/walleye-build/images-vfx/SHA256SUMS-vfx on the lab. Programmer review (no defect that stops a build or a good read) led to: a 200 s reboot watchdog started before anything is read (a hang before the bind used to end in no reboot), the usb dump to three levels and 64 KiB per file, the reader no longer lets one redacted MAC hide a leftover serial, a bounded LEN, stale files ignored, the fdt.dts (the serial sits in /chosen/bootargs) kept in the lab material directory and not judged. Not measured yet: the phone.
+
+About
+: walleye-first-fastboot-boot
