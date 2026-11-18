@@ -4692,10 +4692,10 @@ Rank
 ### Try z16 once from slot b (probe only, nobody touching): does the RMI4 controller probe on the qup i2c bus?
 
 Status
-: open
+: done
 
 Note
-: TRIED once 2026-11-18, proof not met (probe -5, see research walleye-z16-part1-tried); waits for z17; not to be tried again as is.
+: Tried once, proof not met (probe -5, research walleye-z16-part1-tried); superseded by walleye-try-z17-part1 - not to be tried again.
 
 Blocked by
 : walleye-build-z17-touch-power
@@ -4720,10 +4720,10 @@ Rank
 ### Build z17: z16 with the touch controller's power and reset right, so rmi4_i2c's first read answers
 
 Status
-: open
+: done
 
 Note
-: From research walleye-z16-part1-tried: probe -5 at set_page, chip silent. Check vdd/vio supplies, reset gpio89 and delay in the dtb against the vendor tree; queue its try as walleye-try-z17-part1.
+: Built: research walleye-z17-built (boot-z17.img sha256 9c272493); the try is walleye-try-z17-part1.
 
 About
 : walleye-first-fastboot-boot
@@ -4817,3 +4817,28 @@ Proof
 
 Rank
 : 40
+
+
+<a id="walleye-try-z17-part1"></a>
+### Try z17 once from slot b (probe only, nobody touching): does the RMI4 controller answer now that its pmi8998 power gpio is driven?
+
+Status
+: open
+
+Note
+: Built (research walleye-z17-built): ~/Projects/walleye-build/images-z17/boot-z17.img sha256 9c272493...; a person's touch (part 2) waits for the author. If still silent: the pin's power-source, the overlay's switch-gpio (tlmm gpio 75), a reset pulse.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-touch-probe: images-z17/boot-z17.img (sha256 9c272493) once; dmesg has rmi4_i2c at 0-0020 bound with no 'set page failed' and an input device from the touch controller (tests/host/touch-check.sh answers skip without events, not fail)
+
+Rank
+: 1
