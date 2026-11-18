@@ -1757,3 +1757,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z1-tried-reader-denied"></a>
+### walleye-z1-tried-reader-denied
+
+Date
+: 2026-11-18
+
+Brief
+: z1 once from slot b: gadget 1d6b:0104 and ttyACM0 up at 18 s, but the reader got Permission denied on /dev/ttyACM0; no dmesg read, PMIC result unknown
+
+Question
+: Does z1 (our dtb with mainline pm8998/pmi8998 SPMI nodes) show the PMIC devices and no failed probe?
+
+Found
+: Battery 4376 mV (pass). devlab fastboot boot z1: left fastboot at 15 s, 1d6b:0104 'Pixel 2 walleye (mainline)' at 18 s, cdc_acm bound ttyACM0 (host log 08:36:39), gadget gone 08:39:35, phone back in Android (adb up), slot b, nothing flashed. mainline-shell-read.sh: Permission denied on /dev/ttyACM0; every answer empty (outputs under ~/lab-material/walleye/z1-20261118-083622, not in git); pmic-dmesg-check.sh says skip: no dmesg. So the kernel with z1's dtb is alive, but the PMIC question is unanswered. The cause (tty access from this unattended session; the uaccess tag of 70-lpoco-google-walleye.rules reaches only a seat user) must be fixed before the next z1 try.
+
+About
+: walleye-first-fastboot-boot
