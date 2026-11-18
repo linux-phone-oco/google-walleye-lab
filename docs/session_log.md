@@ -1034,21 +1034,6 @@ Considered
 ---
 
 
-<a id="2026-11-18-1900-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-18
-
-Done
-: pk5l2 twice from fastboot, both back as Android; no mainline text in pstore; phone in fastboot, slot b current, a and b successful, nothing flashed, stock kernel
-
-Considered
-: next: a variant proving mainline reaches ramoops at all, or the dtb diff vs porthole's; note devlab phone needs ~/.config/devlab/google-walleye/password (missing), plain adb root used
-
----
-
-
 <a id="2026-11-18-walleye-taimen-walleye-build"></a>
 ### Overlay analysed, taimen-to-walleye images built
 
@@ -1609,6 +1594,24 @@ Done
 
 Considered
 : next: read the ACM shell on y2 (dmesg, the facts the vendor dump was after); give mainline USB its nodes properly; consider restart@10ac000 and the apps watchdog from the fdt compare; upstream the gpio-reserved-ranges commit
+
+About
+: walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1900-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: walleye-keeper wrote tests/host/mainline-shell-read.sh (reads y2's ttyACM: dmesg first, facts, device lists, touch /tmp/hold, redacted, saved outside git) and mainline-shell-selftest.sh (fake phone on a socat pty; 8 ok); host only, phone untouched: Android on slot b, stock kernel, nothing flashed, fastboot reachable via adb reboot bootloader. Item walleye-first-mainline-shell stays open: the real read needs a y2 try
+
+Considered
+: next: try y2 (our dtb + gpio-reserved-ranges) twice from slot b with WAIT=60 mainline-shell-read.sh running, then write the research row of what the dmesg shows
 
 About
 : walleye-first-fastboot-boot
