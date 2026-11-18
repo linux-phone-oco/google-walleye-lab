@@ -2640,3 +2640,25 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-ufs-hazard/
+
+
+<a id="walleye-z12-built"></a>
+### walleye-z12-built
+
+Date
+: 2026-11-18
+
+Brief
+: z12 built: z11 with only the kernel changed (Hynix UFS quirks); sha256 f959c448; not tried; review found the purge guard misses ufs_bsg
+
+Question
+: Can our 7.3 kernel carry Sony's Hynix UFS quirks, in a z11-identical image?
+
+Found
+: Kernel topic/ufs-hynix-quirks 12dca401a on e123d3bff: NO_PURGE, EXTEND_SYNC_LENGTH (G1-3 = 0x48), ONE_TX_LANE on SKHYNIX ANY_MODEL in ufs_qcom_dev_fixups. z12 = z11 with only Image.gz changed (build-z12.sh, checks ok); images-z12/boot-z12.img sha256 f959c44868200c9a4056e5f6ffa56679e42b24a98f64f8337c87b8f791c74f41; never run. Programmer review: (1) the purge guard sits in ufshcd_query_flag, but nothing in the tree sends fPurgeEnable except raw UPIU from userspace via ufs_bsg, which bypasses it - the guard protects nothing yet; (2) blanket for every Hynix on every ufs-qcom SoC; (3) one lane cuts TX only, link ends asymmetric, Sony's behaviour unverified; (4) PA_AVAILTXDATALANES is read-only per spec, likely a no-op, return values dropped; (5) header comment states the mechanism as fact; (6) build script greps the working tree, no check tying the Image to the commit. Lane and sync-length order is right (apply_dev_quirks runs before the power-mode change; lane_tx override takes effect).
+
+Sources
+: src-sony-ufs-quirks-forward-port
+
+About
+: walleye-first-fastboot-boot

@@ -4269,7 +4269,7 @@ Status
 : open
 
 Note
-: Queued by walleye-builder; the image is built and checked.
+: Use z12 instead (walleye-try-z12): z11 has no Hynix quirks, so it is not to be tried.
 
 Waits
 : the author's word (the UFS risk) after walleye-ufs-hynix-quirks and walleye-ufs-card-identity
@@ -4322,10 +4322,10 @@ Rank
 ### Backport Sony's Hynix UFS quirks (extended sync length, no purge, avail tx lanes) to our 7.3 ufs-qcom fixups; build z12; built only
 
 Status
-: open
+: done
 
 Note
-: From walleye-ufs-hazard-verdict; patch is ours (a fork carries it), also an upstream item for linux-arm-msm if the mechanism is found
+: z12 built (images-z12/boot-z12.img f959c448...), kernel 12dca401a on topic/ufs-hynix-quirks; no phone run. The UFS try (z11 or z12) waits for the author's word.
 
 About
 : walleye-first-fastboot-boot
@@ -4366,3 +4366,56 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-try-z12"></a>
+### Try z12 once from slot b: the UFS read-only try with the Hynix quirks (replaces walleye-try-z11's image)
+
+Status
+: open
+
+Note
+: Superseded by a z13 once walleye-hynix-quirks-review-fixes is done: z12's purge guard misses the ufs_bsg path. Never run without the author's word.
+
+Waits
+: walleye-hynix-quirks-review-fixes; the author's word; walleye-ufs-card-identity
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: z12 once from slot b (images-z12/boot-z12.img sha256 f959c44868200c9a4056e5f6ffa56679e42b24a98f64f8337c87b8f791c74f41), the z11 recipe; then tests/host/ufs-lsblk-check.sh must say pass (walleye-ufs-lsblk)
+
+Rank
+: 2
+
+
+<a id="walleye-hynix-quirks-review-fixes"></a>
+### Fix the review findings of the Hynix UFS quirks and build z13 (built only)
+
+Status
+: open
+
+Note
+: From research walleye-z12-built (review): see its findings 1-6. walleye-try-z12 waits for this.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: purge refused in the raw-UPIU path (ufs_bsg / ufshcd_exec_raw_upiu_cmd) for fPurgeEnable set/clear/toggle; quirk write results checked; comment says 'reported'; build script ties the Image to the kernel commit; z13 sha256 recorded; programmer review
+
+Rank
+: 1

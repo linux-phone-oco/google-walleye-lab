@@ -1082,3 +1082,31 @@ Scope
 
 Tracked by
 : walleye-ufs-hynix-quirks
+
+
+<a id="2026-11-18-walleye-hynix-quirks-in-the-fixups-table"></a>
+### 2026-11-18-walleye-hynix-quirks-in-the-fixups-table
+
+Date
+: 2026-11-18
+
+Brief
+: Carry Sony's three Hynix UFS quirks in ufs-qcom's fixups table for every Hynix card; one lane applies after the device is read
+
+Decision
+: Backport as quirks keyed on SKHYNIX ANY_MODEL in our fork topic/ufs-hynix-quirks; z12 changes only the kernel
+
+Why
+: Sony: a probe without them erased the bootloader; purge refusal in core covers every path through ufshcd_query_flag
+
+Rejected
+: A Kconfig switch for one lane before link startup (Sony's way): restricts every UFS device of the kernel; model/revision-specific no-purge: the card's model is unreadable without root
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-z12-built
+
+Tracked by
+: walleye-ufs-hynix-quirks

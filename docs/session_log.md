@@ -2518,3 +2518,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-z12"></a>
+### walleye-builder: z12, Hynix UFS quirks
+
+Entry date
+: 2026-11-18
+
+Done
+: Took walleye-ufs-hynix-quirks. Kernel topic/ufs-hynix-quirks 12dca401a; build-z12.sh (15 checks); z12 sha256 f959c448 built, not run.
+
+Considered
+: Sony's pre-link-startup lane limit via Kconfig
+
+Rejected
+: Model-specific tables: the card's model is unknown
+
+About
+: walleye-first-fastboot-boot
