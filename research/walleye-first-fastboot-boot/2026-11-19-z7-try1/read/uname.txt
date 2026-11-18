@@ -1,0 +1,1 @@
+Linux (none) 7.3.0-dirty #1 SMP PREEMPT Wed Nov 18 08:50:34 CET 2026 aarch64 GNU/Linux

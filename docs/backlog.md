@@ -3627,10 +3627,10 @@ Rank
 ### Try z7 once from slot b: is the dmesg free of the gpu_gx WARN and the smmu deferral?
 
 Status
-: open
+: done
 
 Note
-: built 2026-11-18 (research walleye-z7-built); try once
+: proven by dmesg-clean-check pass on z7 (research walleye-z7-tried)
 
 About
 : walleye-first-fastboot-boot

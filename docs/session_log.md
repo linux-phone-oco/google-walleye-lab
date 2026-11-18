@@ -2176,3 +2176,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-1000-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: z7 tried once from slot b: dmesg clean of the gpu_gx WARN and smmu deferral (323 lines). Phone is Android on slot b, stock kernel, nothing flashed, flags a and b successful, fastboot reachable via adb reboot bootloader, battery 4385 mV.
+
+Considered
+: next: per decision 2026-11-18-walleye-z6-dmesg-fix-order - c1 on the z7 init with debugfs and facts, then UFS read-only, USB net, touch, display; the psci PC-mode and misaligned-image Firmware Bug lines remain (vendor-overlay noise left)
+
+About
+: walleye-first-fastboot-boot
