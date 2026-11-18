@@ -1084,3 +1084,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-2100-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: w1..w5, wr x2 each tried (42-63 s, all alive); phone in fastboot, slot b current, a and b successful, nothing flashed, stock kernel; lease released
+
+Considered
+: next: bisect properties between taimen dtb and pk2's dtb (not nodes)
+
+About
+: walleye-first-fastboot-boot
