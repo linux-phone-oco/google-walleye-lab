@@ -2213,3 +2213,25 @@ Sources
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z7-tried"></a>
+### walleye-z7-tried
+
+Date
+: 2026-11-18
+
+Brief
+: z7 once from slot b: dmesg-clean-check passes - no gpu_gx WARN, no smmu deferral, no phandle line; dmesg 323 lines (z6: 590)
+
+Question
+: Is the z7 dmesg (adreno_smmu disabled) free of the gpu_gx WARN and the 5040000 smmu deferral?
+
+Found
+: z7 (boot-z7.img sha256 2dc6ff0e...) once from slot b, z6 recipe (host stty loop, banner capture 20 s, plain background reader): gadget 1d6b:0104 at 18 s; banner-loop-check passes (loop started=yes starts=1); reader 15 answers, dmesg 323 lines; dmesg-clean-check pass (devices_deferred only known overlay nodes, no gpu_gx WARN, no -110, no phandle line); pmic-dmesg-check pass (spmi 0-00..0-03). Still: psci 'failed to set PC mode: -3', misaligned image Firmware Bug; no drm, no power_supply class (no debugfs, so devices_deferred was the reader's can't-open fallback). Battery 4376 mV before, 4385 mV after. Phone back as Android on slot b by itself; adb reboot bootloader showed flags a and b successful, none unbootable; left via fastboot reboot. Nothing flashed.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-19-z7-try1/

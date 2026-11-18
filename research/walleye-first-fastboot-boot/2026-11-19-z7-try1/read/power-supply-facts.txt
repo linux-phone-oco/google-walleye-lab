@@ -1,0 +1,8 @@
+== *
+type=cat: can't open '/sys/class/power_supply/*/type': No such file or directory
+online=cat: can't open '/sys/class/power_supply/*/online': No such file or directory
+status=cat: can't open '/sys/class/power_supply/*/status': No such file or directory
+health=cat: can't open '/sys/class/power_supply/*/health': No such file or directory
+usb_type=cat: can't open '/sys/class/power_supply/*/usb_type': No such file or directory
+voltage_now=cat: can't open '/sys/class/power_supply/*/voltage_now': No such file or directory
+current_now=cat: can't open '/sys/class/power_supply/*/current_now': No such file or directory
