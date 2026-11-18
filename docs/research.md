@@ -2473,3 +2473,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-c3-hang/
+
+
+<a id="walleye-c3-hang-unproven"></a>
+### walleye-c3-hang-unproven
+
+Date
+: 2026-11-18
+
+Brief
+: The c3 'hang' is unproven: one witness (lsusb) kept a stale gadget while Android may have been up
+
+Question
+: Did the Pixel 2 hang in c3 for 44 minutes, or did the host keep a stale enumeration of our gadget?
+
+Found
+: Correction of lab research walleye-c3-hang-why (PR 250) and of the keeper's 'hung' call (PR 246). Facts from the host journal and sysfs: the c3 gadget (dev 65, serial walleye-first-boot) enumerated at 15:13:50 (local) and stayed on the bus until 15:57:09; Android (18d1:4ee7, dev 66, adb 'device product:lineage_walleye') enumerated at 15:57:12, 3 s later; the author says he did not reboot it and saw LineageOS on the screen throughout. Three seconds is far too short for a boot into Android, so either the phone had been in Android for some time with the host keeping a stale enumeration of our gadget (a USB host only drops a device when it sees the disconnect; a device that stops answering without releasing its pull-up stays listed), or the phone restarted much earlier and Android sat in a state the host did not list until something (a touch, a mode change of the USB configuration) made it re-enumerate. The record 'c3 never left the bus for 28+ min, so the SoC never reset' is therefore NOT PROVEN: it rests on lsusb alone, one witness. What the lane knows: the gadget stayed listed 44 minutes; adb never listed the phone in that time; the author saw Android on the screen (a command-mode panel also keeps its last frame, so the screen alone proves nothing either); the phone is in Android now. What the lane does not know: when the phone left c3 and whether the reset worked at 180 s as c2's did. The restart gate (decision 2026-11-18-walleye-restart-gate-before-charger-try) stays as a cheap check but its premise 'c3 hangs the phone' is withdrawn until the gate itself (restart-check.sh reading adb, fastboot and the tty beat, not lsusb alone) measures it. Also: 18d1:d001 'Nexus 4 (fastboot)' on bus 3 port 3-1 is NOT unknown: sysfs says product 'Qualcomm SM7150 Device', serial postmarketOS - it is surya's gadget (the other lab phone, on its own lease), listed under the generic vendor id's name.
+
+About
+: walleye-first-fastboot-boot

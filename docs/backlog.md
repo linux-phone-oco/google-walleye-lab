@@ -3849,10 +3849,10 @@ Rank
 ### Walleye is hung in c3 (mainline, silent): wait, then power cycle (hold 15 s), then check fastboot
 
 Status
-: open
+: done
 
 Note
-: Still hung at 14:50Z by USB (gadget 1d6b:0104 on 3-2 since 15:13:50 local, no disconnect, no adb). The author sees LineageOS on the screen and says he did not reboot it: a command-mode panel (S6E3FA5) keeps showing its last frame while the SoC is stuck, and mainline drives no display, so a lit screen with LineageOS is NOT evidence of Android running (lesson: judge a recovery only by USB, never by the screen). Needs the author's Power hold (~15 s) once he is at the phone.
+: Closed: the phone is in Android (adb device, 18d1:4ee7) since 14:57Z; the 'hang' is unproven (research walleye-c3-hang-unproven); no hands were needed.
 
 Waits
 : the author's hands, only if it has not come back by itself
@@ -4124,3 +4124,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-phone-state-witnesses"></a>
+### One phone-state check that reads adb, fastboot, the USB bus and the tty's answer, and says 'not known' when they disagree (never 'hung' from lsusb alone)
+
+Status
+: open
+
+Note
+: The author's sign (via the top coordinator, 2026-11-18): the lane concluded 'hung' from lsusb alone; the phone was in LineageOS and the host kept a stale enumeration of our gadget (lab research walleye-c3-hang-unproven). The class: a check that reads only one witness (lsusb) cannot tell a stale listing from a live device. Three lines for the record: (1) what happened: a gadget stayed listed 44 min, adb silent, and the lane called it a hang; (2) why it fits the class: a USB host drops a device only on a disconnect event, a screen shows the panel's last frame, and a reader's silence is not the phone's silence - every one of these is a single witness read as a fact; (3) the answer: a state is a verdict over several witnesses, and where they disagree or one is missing the verdict is 'not known', never a failure.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: tests/host/phone-state.sh (new, selftested with fake adb/fastboot/lsusb/sysfs): reads SEVERAL witnesses and classifies, never from lsusb alone: (1) adb (adb devices with a timeout: device/unauthorized/offline), (2) fastboot (devlab/lpoco-lab fastboot state by the manifest serial, read-only), (3) the USB bus by sysfs (a device with our serial walleye-first-boot or the Pixel's own serial: vendor:product, product string), and for a gadget of ours (4) the tty's answer: the banner beat or a command answer within 5 s through the reader, and (5) the age of the last witness; output: one word per witness and one verdict: android (adb says device), fastboot, mainline-answering (tty beat/answers), mainline-silent (our gadget listed, tty silent: verdict 'NOT KNOWN: the host may hold a stale enumeration'), gone (no witness); it NEVER prints 'hung': a gadget whose tty does not answer is 'not known'; an optional re-enumeration probe (a USB reset of that one port through sysfs authorized 0/1 only if the lane's decision allows it: leave it out of the first version) ; every keeper and builder recipe that waits for the phone's return (restart-check.sh, the try items' 'watch lsusb by port') calls it; selftest cases: adb device with a stale gadget listed -> android; gadget listed and tty beat -> mainline-answering; gadget listed and tty silent -> not known; nothing -> gone; programmer review
+
+Rank
+: 1
