@@ -2984,3 +2984,22 @@ Next: a way to read 0x1da7000.. read-only (a kernel with devmem, or lab-built re
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z17-built"></a>
+### walleye-z17-built
+
+Date
+: 2026-11-18
+
+Brief
+: z17 built: z16 with the touch controller's pmi8998 gpio 2 power switch modelled as a fixed regulator (from l28, 20 ms) that the touch vdd-supply takes; sha256 9c272493; 29 checks ok, rebuild identical
+
+Question
+: What keeps the RMI4 controller silent on z16 (probe -5 at set_page), and does a z17 that drives its power right build?
+
+Found
+: Read from the phone's own dtbo overlay (control/dtbo.img entry 3, fragments 143 and 145): the touch node has synaptics,power-gpio = pmi8998 gpio 2, power-on-state 1 (active high), reset gpio89 active low (1 ms, then 20 ms), irq gpio125, and a switch-gpio (tlmm gpio 75) whose job is not known yet. z16 powered only the rails l28 and l6; the pmi8998 gpio 2 was never driven, so the chip had no supply and answered -EIO at set_page (research walleye-z16-part1-tried). Mainline's rmi_i2c has no power or reset gpio, so the gpio becomes a regulator-fixed (pmi8998 gpio 2 active high, vin l28, startup-delay-us 20000) that the touch node's vdd-supply takes; reset stays pulled up. z17 = z16 plus that node, its symbol and one vdd-supply line; kernel, ramdisk, header, command line, AVB footer are z16's byte for byte. build/build-z17.sh: checks ok, rebuild identical; tests/host/touch-power-after-merge.sh fails on z16's dtb, passes on z17's after the overlay merge; programmer review done, findings fixed. dts source carries the same node (not compiled against a current kernel tree here). Next look if still silent: the pin's power-source/strength (spmi-gpio leaves the bootloader default), switch-gpio 75, a reset pulse.
+
+About
+: walleye-first-fastboot-boot

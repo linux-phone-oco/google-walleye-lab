@@ -2758,3 +2758,24 @@ Done
 
 Considered
 : next: walleye-bootchain-readback (read only, rank 4); a reader for 0x1da7000 PHY; walleye-build-z17 touch power (builder)
+
+---
+
+
+<a id="2026-11-18-walleye-builder-z17"></a>
+### walleye-builder: z17 built
+
+Entry date
+: 2026-11-18
+
+Done
+: Read z16's probe -5 and the phone's own dtbo overlay: the touch power switch is pmi8998 gpio 2, never driven by z16. Wrote tests/host/touch-power-after-merge.sh (fails on z16, passes on z17) and build/build-z17.sh (rebuild identical), the same regulator in the dts; programmer review fixed; research walleye-z17-built, try walleye-try-z17-part1 queued.
+
+Considered
+: Rebuilding the dtb from the dts: the kernel tree clone is stale; z16 was a dtb edit too, so z17 edits z16's dtb with fdtput. Driving gpio 75: its job is not known yet.
+
+Rejected
+: A gpio hog instead of a regulator: the supply belongs to the touch node's vdd so the driver's own order and delay apply.
+
+About
+: walleye-first-fastboot-boot
