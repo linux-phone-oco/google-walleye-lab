@@ -1,2 +1,2 @@
-# Installed on a freshly flashed phone by devlab provision now - one package per line.
+# Installed on a freshly flashed phone by lpoco lab provision now - one package per line.
 i2c-tools

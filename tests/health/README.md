@@ -1,6 +1,6 @@
 # This phone's own health checks
 
-The generic checks come with devlab (linux-phone-oco/lab-tools, `health/suite/checks/`): storage, kernel,
+The generic checks come with lpoco lab (linux-phone-oco/lab-tools, `health/suite/checks/`): storage, kernel,
 signal processors, sound cards, Wi-Fi, modem, Bluetooth, display and input, the other parts, the shell's
 sound. Put here only what is this phone's own - its amplifier, its quirk - as small POSIX shell files:
 
@@ -16,4 +16,4 @@ Each check sources the suite's words and prints a line per test, `pass|fail|skip
 check amp-present audio-speaker "$(i2cget -f -y 9 0x4c 0x00 >/dev/null 2>&1 && echo true)" "amplifier at 9-004c"
 ```
 
-`devlab suite put now --runner FILE` carries them to the phone; `devlab suite run` runs everything now.
+`lpoco lab suite put now --runner FILE` carries them to the phone; `lpoco lab suite run` runs everything now.
