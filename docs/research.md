@@ -1126,3 +1126,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-w1-w5-wr-tried"></a>
+### walleye-w1-w5-wr-tried
+
+Date
+: 2026-11-18
+
+Brief
+: w1..w5 and wr twice each: all 12 returned at 42-63 s, ALIVE by the 66 s rule; no group of walleye dtb differences kills init
+
+Question
+: Which walleye dtb difference group, put into the alive taimen dtb, stops init?
+
+Found
+: Return times (s): w1 48,63; w2 42,63; w3 42,42; w4 63,42; w5 42,42; wr 42,42. Slot b, nothing flashed, flags unchanged. Rule from the coordinator: up to ~66 s alive, 69+ dead (all earlier dead images 69-78). With wa (42,63,63) also alive, every taimen-based image is alive, though pk2 (same nodes/statuses, porthole's walleye dtb) is dead: the cause is a property, not a node or group.
+
+About
+: walleye-first-fastboot-boot

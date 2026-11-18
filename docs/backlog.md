@@ -2078,10 +2078,10 @@ Proof
 ### Phone: boot wa twice from the first state, then w1..w5 and wr twice each; record the return times (~42 s init ran, ~75 s dead)
 
 Status
-: in-progress
+: done
 
 Note
-: wa done x3: 42, 63, 63 s (research walleye-wa-tried); w1..w5 and wr twice each remain
+: proven by 12 tries, all alive (research walleye-w1-w5-wr-tried): cause is a property; next a property-level bisect
 
 About
 : walleye-first-fastboot-boot
