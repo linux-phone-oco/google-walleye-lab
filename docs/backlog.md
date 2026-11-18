@@ -27,6 +27,15 @@ Note
 Opened
 : 2026-11-17
 
+Needs
+: research
+
+Proof
+: A research row says whether the bootloader needs the dtbo overlay to boot a mainline dtb, and so whether the vendor-overlay nodes in the dmesg can be dropped
+
+Rank
+: 8
+
 
 <a id="walleye-usb-uart-cable"></a>
 ### USB-C debug UART cable for walleye (no display): decide on 'fastboot oem uart enable' first
@@ -102,10 +111,10 @@ Status
 : open
 
 Note
-: Enable ufshc + ufsphy with the vcc/vccq rails from the wahoo dtsi; mount nothing, write nothing; this is also the way to read walleye's own boot.img header.
+: Add to dts: ufshc + ufsphy (QMP UFS) with the vcc/vccq rails from the wahoo dtsi (RPM regulators, not PMIC-gated); add CONFIG_SCSI_UFS_QCOM and the QMP UFS phy to walleye.config (none in z6); mount nothing, write nothing; also the way to read walleye's own boot.img header.
 
 Blocked by
-: walleye-first-fastboot-boot
+: walleye-dmesg-clean
 
 Opened
 : 2026-11-17
@@ -3042,7 +3051,7 @@ Status
 : open
 
 Note
-: Image ~/Projects/walleye-build/images-c1/boot-c1.img sha256 ddae19b523f2a68d902755f0e57d53c3b98c74b9b146d372bc40ea307aaee0c0. c1 = z3 + SMB2 charger and rradc built in + charger/battery in the dtb. Run battery-ok first; read with mainline-shell-read.sh (saves power-supply-facts.txt); the cable is in during the read, so online must be 1; give DIR to charger-check.sh (a second DIR with the cable out, from any later read, proves it follows). Risks (review): float voltage is set from 4.4 V (4402.5 mV in the register); the charger init rewrites Type-C/USB-input limits and may drop the ttyACM link: a missing tty on c1 is a finding, z3 is the fallback; keep the try short and watch warmth. If the shell is silent (y2, z1 were), nothing is learned: wait for walleye-build-banner-init. Battery voltage rising is read in Android afterwards (capacity stays not known yet).
+: Rebuild c1 on the z6 init (z6's dtb is z3's: no charger node); keeper recipe: battery-ok first, z6 plain background reader, saves power-supply-facts.txt and dmesg automatically; then charger-check.sh. Risks as before: float voltage 4.4 V, Type-C reset may drop the ACM link (a missing tty is a finding; z3/z6 is the fallback).
 
 Blocked by
 : walleye-shell-reliable
@@ -3058,6 +3067,9 @@ Needs
 
 Proof
 : walleye-charger-smb2: sh tests/host/charger-check.sh DIR passes on the reader's output of c1 (images-c1/boot-c1.img sha256 ddae19b523f2a68d902755f0e57d53c3b98c74b9b146d372bc40ea307aaee0c0)
+
+Rank
+: 3
 
 
 <a id="walleye-try-banner"></a>
@@ -3274,16 +3286,13 @@ Opened
 
 
 <a id="walleye-dmesg-clean"></a>
-### Clean probes in the dmesg: arm-smmu 5040000 timeout, the serial supplier from the overlay stubs, i2c@c179000 phandle
+### Clean the z6 dmesg: dts disables adreno_smmu (gpu_gx GDSC stuck, smmu deferred for ever); reader mounts debugfs
 
 Status
 : open
 
 Note
-: Open and blocked: the dmesg of a try is read only when the shell answers (walleye-banner-shell first).
-
-Blocked by
-: walleye-banner-shell
+: From research walleye-z6-dmesg-mapped. Edit dt/msm8998-google-walleye.dts: &adreno_smmu { status = "disabled"; }; build z7 = z6 init + this dtb; the plain background reader mounts debugfs (mount -t debugfs none /sys/kernel/debug) and saves devices_deferred. Vendor-overlay noise (serial@c16f000, c179000.i2c, bt_wcn3990, mnh-sm), psci -3 and misaligned image stay as known.
 
 About
 : walleye-first-fastboot-boot
@@ -3295,7 +3304,10 @@ Needs
 : build
 
 Proof
-: walleye-dmesg-clean: with debugfs mounted devices_deferred is empty; the dmesg has no -110 probe timeout and no 'phandle not found'
+: walleye-dmesg-clean: no 'gpu_gx status stuck' WARN, no 5040000.iommu deferred line, devices_deferred readable and listing only the known overlay nodes
+
+Rank
+: 2
 
 
 <a id="walleye-code-hygiene-rust-ci"></a>
@@ -3565,10 +3577,10 @@ Rank
 ### Read the first full dmesg of our own kernel (z6: 590 lines): every warning, deferral and failure with its cause, and queue the fixes in order
 
 Status
-: open
+: done
 
 Note
-: Fact (lab research walleye-z6-tried, PR 216): z6's command loop answers: dmesg 590 lines (Linux 7.3.0), SPMI 0-00..0-03 present (pmic-dmesg-check passes), no drm, no power_supply, 14 deferred/fail lines. The channel works: from here every try is read automatically.
+: Mapped in research walleye-z6-dmesg-mapped; decision 2026-11-18-walleye-z6-dmesg-fix-order; items queued: dmesg-clean (2), try-c1 (3), ufs-readonly (4)
 
 About
 : walleye-first-fastboot-boot
@@ -3584,3 +3596,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-boot-image-align"></a>
+### Kernel image misaligned at boot: check the boot image kernel offset against a 2 MiB boundary
+
+Status
+: open
+
+Note
+: Low rank, harmless; from research walleye-z6-dmesg-mapped (G4).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: walleye-dmesg-clean: no '[Firmware Bug]: Kernel image misaligned' line, or recorded as the bootloader's
+
+Rank
+: 9

@@ -397,3 +397,16 @@ By
 
 Takes
 : Where to check upstream status of Qualcomm platforms before a part is called new
+
+
+<a id="linux-gpucc-msm8998-gx"></a>
+### gpucc-msm8998.c and msm8998.dtsi adreno_smmu (linux-topics, v7.3)
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/clk/qcom/gpucc-msm8998.c
+
+By
+: walleye-research
+
+Takes
+: gpu_gx_gdsc has parent gpu_cx and no supply; adreno_smmu's power-domains is GPU_GX_GDSC
