@@ -3312,6 +3312,8 @@ Note
 
 COORDINATOR 2026-11-19, to the keeper (your question): all the images exist, paths and hashes verified on disk: ~/Projects/walleye-build/images-z/boot-z1.img (sha256 4abbac7d...fa2a), images-z2/boot-z2.img, images-z3/boot-z3.img, images-c1/boot-c1.img (each dir has SHA256SUMS; check with sha256sum -c). The gpio-reserved-ranges <0 4>,<81 4> is ALREADY in our dts since lab PR 151 and in every y/z/c image (y2 = first light): no image for it is missing. The banner image works as the lab user (PR 182). ORDER: z3 first (it contains z1's PMIC dtb and z2's gpucc fix and the clock_gcc symbol: one image for the whole dmesg-clean + PMIC question), then c1 (z3 + charger); twice each, the reader tests/host/mainline-shell-read.sh as the lab user (no root-exec: withdrawn), save the whole dmesg, judge with tests/host/dmesg-clean-check.sh and pmic-dmesg-check.sh and charger-check.sh; battery first; phone left in Android on a good slot. z1 and z2 tries are superseded by z3: close them as done 'superseded by z3' in the record.
 
+READER AS A JOB (decision 2026-11-19-walleye-reader-runs-as-a-lab-job): your sandbox denied the tty open; start tests/host/mainline-shell-read.sh with `lab-agent submit` (WAIT=150; read `lab-agent submit --help` for the form) BEFORE the boot, then boot, then `lab-agent wait` the job and keep its output in the material path. z3 twice, then c1 twice. Do not touch your sandbox; do not use root-exec.
+
 About
 : walleye-first-fastboot-boot
 

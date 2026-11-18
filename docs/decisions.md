@@ -686,3 +686,25 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-19-walleye-reader-runs-as-a-lab-job"></a>
+### 2026-11-19-walleye-reader-runs-as-a-lab-job
+
+Date
+: 2026-11-18
+
+Brief
+: The tty reader runs as a lab-agent job: the keeper's sandbox denies the tty open
+
+Decision
+: The reader of the gadget's tty runs as a lab job, not inside the keeper session's sandbox: the keeper's Bash is sandboxed and denies the open of /dev/ttyACM0 although the ACL allows the lab user (z3 try, lab PR 184: getfacl shows user:mll:rw-, yet 'Permission denied' inside the sandbox; the banner2 try earlier read it). Practice 6 of the ecosystem is the right route anyway: tests and device work run on the lab machine through lab-agent. So: the keeper starts the reader FIRST as `lab-agent submit` of a small script (the reader invocation, WAIT=120, OUT=its material path, then `lab-agent wait`/`logs` for the output after the try), then runs `devlab fastboot boot now IMAGE` as before, then reads the job's output; the saved dmesg and facts land in the same material directory. The keeper does not disable its sandbox, does not use root-exec, and changes no permission; the job runs with the lab agent's own rights.
+
+Why
+: It is the lab's sanctioned way to run host-side checks unsandboxed (lab-agent submit), it needs no change of any permission, and the reader script and its self-test stay as they are.
+
+Rejected
+: Asking the keeper to disable its sandbox (a permission of the session, not the lane's to grant); running the reader through the author's terminal tab (a workaround of the same sandbox); root-exec (withdrawn).
+
+About
+: walleye-first-fastboot-boot
