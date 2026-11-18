@@ -4271,6 +4271,9 @@ Status
 Note
 : Queued by walleye-builder; the image is built and checked.
 
+Waits
+: the author's word (the UFS risk) after walleye-ufs-hynix-quirks and walleye-ufs-card-identity
+
 Blocked by
 : walleye-ufs-hazard-research
 
@@ -4294,10 +4297,10 @@ Rank
 ### Can probing the Pixel 2's UFS damage the bootloader (the Sony yoshino failure)? Research before the z11 try
 
 Status
-: open
+: done
 
 Note
-: Raised by the builder with z11 (lab PR 274). Decision 2026-11-18-walleye-ufs-research-before-the-try.
+: Answered by research walleye-ufs-hazard-verdict and decision 2026-11-18-walleye-ufs-try-needs-quirks-and-the-authors-word
 
 About
 : walleye-first-fastboot-boot
@@ -4313,3 +4316,53 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-ufs-hynix-quirks"></a>
+### Backport Sony's Hynix UFS quirks (extended sync length, no purge, avail tx lanes) to our 7.3 ufs-qcom fixups; build z12; built only
+
+Status
+: open
+
+Note
+: From walleye-ufs-hazard-verdict; patch is ours (a fork carries it), also an upstream item for linux-arm-msm if the mechanism is found
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: the built tree's fixups table names SKHYNIX with the three quirks (grep in a check), z12 boot image built and its sha256 recorded; no phone run
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-card-identity"></a>
+### Learn the card's model and firmware without probing it from our kernel
+
+Status
+: open
+
+Note
+: Android shell cannot read scsi_device attrs; only ro.boot.hardware.ufs=64GB,Hynix is known
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: a research row naming the model and firmware revision, or 'not obtainable without root' with the routes tried (fastboot getvar/fetch, Google factory image, vendor dmesg)
+
+Rank
+: 2

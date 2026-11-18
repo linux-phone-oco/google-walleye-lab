@@ -2615,3 +2615,28 @@ Sources
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ufs-hazard-verdict"></a>
+### walleye-ufs-hazard-verdict
+
+Date
+: 2026-11-18
+
+Brief
+: Pixel 2 UFS is Hynix 64GB, the maker Sony's quirks single out; mechanism of the yoshino erase unpublished; no way back if the bootloader goes; z11 needs the author's word
+
+Question
+: Can probing the Pixel 2's UFS damage the bootloader (the Sony yoshino failure)?
+
+Found
+: Android says 64GB Hynix (model/fw unreadable without root). Sony yoshino: probe without quirks erased the bootloader; the downstream fix is NO_PURGE (two Hynix models, one Samsung), EXTEND_SYNC_LENGTH (all Hynix), AVAILTXDATALANES=1; nobody published why. Our 7.3 tree applies only HOST_PA_SAVECONFIGTIME and DELAY_BEFORE_LPM for Hynix; nothing in the driver sends purge by itself (only ufs_bsg), the probe sends reset, link startup, NOP, fDeviceInit, descriptor reads, power-mode change, SCSI scan. OnePlus 5 proves MSM8998 UFS on mainline for its card. Failure mode: bootloader gone, EDL not known reachable; a Google bootloader.img helps only while fastboot lives. Chance: not zero, unknown; not measured.
+
+Sources
+: src-sony-ufs-quirks-forward-port,src-yoshino-dtsi-ufs-disabled,src-sony-bugtracker-799,src-oneplus5-ufs-mainline,src-kumano-ufs-quirks-thread
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-ufs-hazard/
