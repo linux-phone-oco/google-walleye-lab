@@ -3011,10 +3011,10 @@ Proof
 ### Try z1 once from slot b with the shell reader waiting; read the PMIC result
 
 Status
-: in-progress
+: open
 
 Note
-: z1 tried once 2026-11-18: kernel alive, gadget+ttyACM0 up 18 s, but reader Permission denied on /dev/ttyACM0 -> no dmesg. Next: make the tty readable by the keeper session (ACL/uaccess: check 'getfacl /dev/ttyACM0' during a try, or run reader in a seat-active terminal), then try z1 again with the reader, battery-ok first.
+: z1 tried twice 2026-11-18: gadget+ttyACM0 up at 18 s, ACL fine, but the shell answers nothing (0 bytes in all answers). Not an ACL problem. Next: find why ttyACM0 is silent (does y2 ever answer? try y2 once with the reader; compare; the shell may need ttyGS0 login or the acm function enumerates before the init's getty), then repeat z1; or read PMIC facts via the massstorage window instead.
 
 About
 : walleye-first-fastboot-boot

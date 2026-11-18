@@ -1798,3 +1798,22 @@ Sources
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z1-tried-silent-tty"></a>
+### walleye-z1-tried-silent-tty
+
+Date
+: 2026-11-18
+
+Brief
+: z1 twice from slot b: gadget 1d6b:0104 + ttyACM0 up at 18 s, tty readable (ACL held 100 s), but the shell never answered; phone fell back at ~3 min
+
+Question
+: Does z1 (our dtb + mainline PMIC nodes) show the SPMI PMICs registered?
+
+Found
+: Try 1 (reader started first): gadget at 18 s, 7 of 16 answers empty-file, dmesg empty; reader's last write got Permission denied after the phone dropped the tty. Try 2 (ACL watcher, then reader at ~110 s): getfacl showed user:mll:rw- on /dev/ttyACM0 from first appearance to 100 s, open succeeded each 2 s; reader had the tty writable yet all 16 answers were empty; tty vanished ~09:25:39, Android back on slot b by ~09:27 (a,b successful). So the earlier EACCES was the tty vanishing, not a missing ACL; the real problem is no shell answering on ttyACM0 (the ACM function opens but the init's shell is not reading it, or the kernel dies about 3 min in). PMIC result still unknown. The uaccess rule and the retry are fine; do not chase ACLs again.
+
+About
+: walleye-first-fastboot-boot
