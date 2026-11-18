@@ -2458,3 +2458,24 @@ Considered
 
 About
 : deep-sleep
+
+---
+
+
+<a id="2026-11-18-walleye-builder-z10"></a>
+### walleye-builder: z10
+
+Entry date
+: 2026-11-18
+
+Done
+: Built z10 from z9 (build/build-z10.sh, 27 checks), init-z10 with /bin/pon-regs, the selftest and the phone test pmic-wdt-pon-regs-banner; programmer review applied; queued the keeper's try.
+
+Considered
+: A kernel change (S2 type by dt property with read-back) as the backlog first said: needs a kernel build and a push of the series, and the registers must be read before any type is chosen.
+
+Rejected
+: Kernel route now: the coordinator's order was the registers in the banner, reads only; the property comes after the values are known.
+
+About
+: deep-sleep
