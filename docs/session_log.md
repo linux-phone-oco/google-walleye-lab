@@ -1924,3 +1924,21 @@ Done
 
 Considered
 : next: run the z3 reader with the sandbox off (needs the author's or coordinator's ok), or from a terminal tab of the user; walleye-try-z3 stays open. Not done: no third try, no root-exec (withdrawn)
+
+---
+
+
+<a id="2026-11-18-1135-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: z3 try 1 booted once from b (gadget at 18 s); reader job never picked up by lab-agent, so no dmesg; phone Android on b, stock kernel, nothing flashed, fastboot reachable via adb reboot bootloader
+
+Considered
+: next: the coordinator fixes why submitted jobs are not picked up (agent running, jobs not seen), then z3 twice, c1 twice; z3-try stays open
+
+About
+: walleye-first-fastboot-boot
