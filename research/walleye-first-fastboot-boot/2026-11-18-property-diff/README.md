@@ -1,0 +1,4 @@
+Property diff wa -> pk2 and the hashes of wp1..wp5, wpa.
+
+`wa-to-pk2.diff`: `diff wa.norm pk2.norm`, both made with `dtc -I dtb -O dts -s`, `gawk -f build/dts-norm.awk X.dts X.dts | LC_ALL=C sort`, symbols left out (phandles resolved to node paths; `<` is wa's, `>` pk2's). Five groups are real (root compatible+model, battery capacity, panel compatible, protection-domain on seven apr services, leftovers in disabled nodes); three lines (ipa iommus, mmcc clocks, pcie iommu-map) are the same targets under other phandle numbers that the normalizer leaves raw. Nothing differs in /memory, /reserved-memory, /chosen, /cpus, timer, psci, idle-states.
+Images on the lab machine: ~/Projects/walleye-build/images-wp/ (`SHA256SUMS` here is that file). Built by `build/build-property-bisect.sh WA_BOOT_IMG PK2_DTB OUT_DIR` (68 checks, rebuild byte-identical).

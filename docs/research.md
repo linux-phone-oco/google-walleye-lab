@@ -1145,3 +1145,47 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-property-diff"></a>
+### walleye-property-diff
+
+Date
+: 2026-11-18
+
+Brief
+: wa and pk2 differ in only five property groups; memory, reserved-memory, chosen, cpus, timer and psci are identical
+
+Question
+: Which properties differ between wa (alive taimen-based dtb with the walleye node set and statuses) and pk2 (porthole's walleye dtb, dead)?
+
+Found
+: Decompiled both (dtc -I dtb -O dts -s), phandles resolved to node paths (build/dts-norm.awk): 31 changed property lines (12 in wa only, 13 in pk2 only, 6 raw renumbered). Groups: root compatible+model; battery capacity (0x35b600 vs 0x2932e0, two properties); panel@0 has no compatible in pk2 (wa lg,sw43402); qcom,protection-domain avs/audio + msm/adsp/audio_pd on seven apr services only in pk2; leftovers in nodes disabled in both (camss supplies, pcie reg/ranges/supply, resin linux,code). Nothing in /memory, reserved-memory, chosen, cpus, timer, psci. Not property-level: phandle numbering, node order, dtb size (wa 132369 B, pk2 128809 B) - if the all-groups image wpa lives, the cause is there, not in a property.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-property-diff/
+
+
+<a id="walleye-property-bisect-built"></a>
+### walleye-property-bisect-built
+
+Date
+: 2026-11-18
+
+Brief
+: wp1..wp5 and wpa built: wa with one group of pk2's property differences each; 68 checks ok, rebuild identical
+
+Question
+: Images for the property-level bisect between wa (alive) and pk2 (dead)
+
+Found
+: build/build-property-bisect.sh: six boot images, all of wa's header, command line, ramdisk, Image.gz and AVB footer, only the dtb changed by fdtput; each image changes exactly its group's property lines (checked on the normalized diff); wpa equals pk2's properties; the stock dtbo overlay merges in all; hashes in the material folder. Plan for the phone: wpa twice first (alive <=66 s means the cause is not a property: stop, look at phandle order/size); dead: wp1..wp5 twice each, the dead ones hold it, halve inside. Expected: wp4 and wp3 likeliest.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-property-diff/

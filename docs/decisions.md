@@ -398,3 +398,28 @@ About
 
 Research
 : walleye-overlay-enables-what-result
+
+
+<a id="2026-11-18-walleye-property-bisect-plan"></a>
+### 2026-11-18-walleye-property-bisect-plan
+
+Date
+: 2026-11-18
+
+Brief
+: Property bisect: one image per group plus the all-groups control wpa, not binary halves
+
+Decision
+: Build wp1..wp5 (one group each) and wpa (all five), tried wpa first
+
+Why
+: Only five groups: one try per group costs 12 boots, the same as two halving rounds, and shows interactions through wpa; wpa also tests the premise that the cause is a property at all
+
+Rejected
+: Binary-halving images (g1+g2 / g3+g4+g5): five groups do not need them. The mirror images o1.. from our dtb: only if wpa/wp1..wp5 leave the cause in a group ours alone; our dtb's diff to wa is not yet measured
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-property-diff
