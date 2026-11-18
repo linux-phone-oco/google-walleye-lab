@@ -1776,3 +1776,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-smmu-timeout-gpucc-module"></a>
+### walleye-smmu-timeout-gpucc-module
+
+Date
+: 2026-11-18
+
+Brief
+: arm-smmu 5040000 times out because gpucc is =m in a kernel whose initramfs has no modules
+
+Question
+: Why does arm-smmu 5040000 fail with -110 on our mainline kernel?
+
+Found
+: Mainline msm8998.dtsi gives adreno_smmu (iommu@5040000) power-domains = gpucc GPU_GX_GDSC; gpucc is node clock-controller@5065000. The kernel's .config has CONFIG_MSM_GPUCC_8998=m (Kconfig: default m), our initramfs carries no modules, so no driver ever binds gpucc, the GDSC never registers, and the smmu defers until the 11 s deferred-probe timeout (-110). The gcc line 'sync_state() pending due to 5040000.iommu and 5065000.clock-controller' in the first dmesg says the same. Not yet measured on the phone: image z2 (gpucc =y) is built to test it. The two other faults (serial@c16f000 waiting on the overlay stub clock_gcc, the overlay's four phandle lines) belong to nodes the stock dtbo overlay adds, not to our dts; they are the next images.
+
+Sources
+: research 2026-11-18-walleye-first-mainline-shell-map; linux v7.3 arch/arm64/boot/dts/qcom/msm8998.dtsi and drivers/clk/qcom/Kconfig (MSM_GPUCC_8998)
+
+About
+: walleye-first-fastboot-boot

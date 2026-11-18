@@ -177,3 +177,13 @@ four pinctrl states the overlay needs become empty stubs, as in pk2), `wa` all o
 `g1` configfs gadget dir + strings (serial walleye-first-boot, product "Pixel 2 walleye (mainline)") and nothing else; `g2` = g1 + `mass_storage.0` (2 MiB file LUN, ro) linked into config c.1, no UDC bind; `g3` = g2 + UDC bind to the first `/sys/class/udc` entry
 (the host should see 1d6b:0104 within ~25 s of the jump: the first mainline light, plain `lsusb`). Every init pets /dev/watchdog each second, holds 60 s, then `reboot -f` (sysrq b behind it); no ACM, no shell loop.
 Expected returns: alive (init ran) ~108 s, dead ~75 s, early panic ~45-60 s. 58 checks, rebuild byte-identical; hashes in `research/walleye-first-fastboot-boot/2026-11-18-pk5g/`. Not run on the phone: the keeper's try `walleye-try-pk5-stages`.
+
+## z2: z1 with the GPU clock controller built in (walleye-dmesg-clean)
+
+The first mainline dmesg ended with `arm-smmu 5040000.iommu: probe with driver arm-smmu failed with error -110`: that SMMU's power domain is gpucc's `GPU_GX_GDSC`, and
+arm64 defconfig has `CONFIG_MSM_GPUCC_8998=m` while the initramfs carries no modules, so the domain never appeared. `build/walleye.config` now says `=y` (and `build-kernel.sh`
+refuses a kernel without it). `build/build-z2.sh WORK_DIR Y2_BOOT_IMG KERNEL_OUT_DIR OUT_DIR` makes `boot-z2.img` = y2's image with the dtb of `dt/` now (z1's) and the new
+Image.gz, ramdisk, header, command line and AVB footer y2's; 19 checks, among them that the new `.config` differs from y2's kernel's in the gpucc line only.
+`tests/host/dmesg-clean-check.sh DIR` reads the shell reader's output and passes only when `devices_deferred` is empty and the dmesg has no `-110` probe timeout and no
+`could not find phandle`; `dmesg-clean-selftest.sh` proves it on made-up files. z2 does not touch the other two faults (the overlay's `serial@c16f000` waiting on the
+`clock_gcc` stub, the overlay's phandles): one change per image, those come next.

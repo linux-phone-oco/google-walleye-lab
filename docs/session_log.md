@@ -1693,3 +1693,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-builder-dmesg-clean-z2"></a>
+### walleye-builder: dmesg-clean, z2 built
+
+Entry date
+: 2026-11-18
+
+Done
+: Found the smmu -110 cause (gpucc =m, no modules), set it =y, rebuilt the kernel, built boot-z2.img with 19 checks, wrote dmesg-clean-check.sh and its selftest (seen failing on the first map), queued walleye-try-z2 for the keeper.
+
+Considered
+: Pointing the overlay's clock_gcc label at the real gcc by fdtput for the serial fault.
+
+Rejected
+: Putting all three fixes in one image: one change per image.
+
+About
+: walleye-first-fastboot-boot

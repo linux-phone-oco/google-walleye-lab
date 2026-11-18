@@ -2836,10 +2836,10 @@ Proof
 ### Clean probes in the dmesg: arm-smmu 5040000 timeout, the serial supplier from the overlay stubs, i2c@c179000 phandle
 
 Status
-: open
+: in-progress
 
 Note
-: Research 2026-11-18 walleye-bringup-order-plan-made. Faults are in the first mainline map (y2). Likely causes: smmu needs its clock/power-domain nodes enabled in our dts; the c16f000 serial waits on a stub supplier (clock_gcc) that our overlay-stubs dtsi names - give it the real gcc phandle; the i2c phandle needs the blsp node enabled. One change per image; then queue the phone try.
+: z2 built 2026-11-18 (build/build-z2.sh, 19 checks): gpucc =y fixes the smmu -110 cause (research walleye-smmu-timeout-gpucc-module); try queued as walleye-try-z2. Still open: serial@c16f000 waits on stub clock_gcc and four overlay phandle lines (nodes of the stock dtbo overlay: next image, e.g. __symbols__/clock_gcc pointed at the real gcc by fdtput, or the overlay's nodes disabled). Check: tests/host/dmesg-clean-check.sh.
 
 About
 : walleye-first-fastboot-boot
@@ -3052,3 +3052,28 @@ Needs
 
 Proof
 : tests/host/mainline-shell-read.sh (and massstorage-read.sh / window-payload-read.sh if they open a device node the same way) retries opening the device node while it answers 'Permission denied', for up to 20 s with 0.5 s steps, before it gives up with a fail that says what it saw (the node's owner, group and ACL via ls -l and getfacl, and the udev rule file present or not); selftest with a fake that is denied for the first 3 s and then allowed; no change of the rule, no chmod, no sudo (the lab-prepare rules stay the author's tool); programmer review
+
+
+<a id="walleye-try-z2"></a>
+### Try z2 once from slot b with the shell reader: is the dmesg clean of the smmu -110?
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images-z2/boot-z2.img sha256 af52312be50e64a6c681ec00e836be738c596c37700d076290546e55bb2050be. Run battery-ok first; read with mainline-shell-read.sh (debugfs mounted); expect gadget up at ~18 s as z1. After walleye-try-z (z1 with the reader).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-dmesg-clean: sh tests/host/dmesg-clean-check.sh DIR passes (smmu part: no -110 line; the serial and phandle parts are still expected to fail)
+
+Rank
+: 2
