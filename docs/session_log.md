@@ -1714,3 +1714,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0930-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: z1 tried twice from slot b with the reader: gadget and ttyACM0 up at 18 s, ACL held, shell silent; phone back as Android on slot b, stock kernel, nothing flashed, fastboot reachable via adb reboot bootloader; walleye-try-z back to open
+
+Considered
+: next: does y2's ttyACM0 answer at all (y2 once with the reader)? else read facts through the mass_storage window; walleye-try-z2 after
+
+About
+: walleye-first-fastboot-boot
