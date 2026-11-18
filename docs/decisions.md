@@ -827,3 +827,25 @@ About
 
 Tracked by
 : walleye-kernel-pmic-wdt
+
+
+<a id="2026-11-18-walleye-no-pmic-bite-until-reset-type"></a>
+### 2026-11-18-walleye-no-pmic-bite-until-reset-type
+
+Date
+: 2026-11-18
+
+Brief
+: No more PMIC bites until its reset type is a restart with a way back
+
+Decision
+: No further PMIC watchdog bite on walleye until the bite's reset type is known to be a restart with a recorded way back. The first bite (z9, lab PR 236) proved the watchdog bites 20 s after arming, but the phone then stayed off the USB bus (neither Android nor fastboot) and needs the author's hands (hold power ~15 s): the PMIC's bite ended in a power-off, not a reset. Until the research below answers it, phone work that needs the phone to come back by itself is limited to the tries that return through the SoC (the kernel's own reboot, panic=5, the SoC watchdog), which have always come back; the PMIC bite is not one of them.
+
+Why
+: The author is away and nothing may need his hands (his word); an experiment whose normal outcome is a dead phone is not one that returns by itself; the reset type of the PMIC's S2 stage is a PMIC setting (PON), readable and settable by the kernel, so the fix is a change of that setting, not a retry.
+
+Rejected
+: Repeating the bite to look for a different outcome; asking the author for a power-cycle after every bite; disabling the PMIC watchdog series (it is the upstreams lane's proof row and the series itself is fine).
+
+About
+: deep-sleep
