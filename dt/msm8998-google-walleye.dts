@@ -217,3 +217,25 @@
 	 */
 	gpio-reserved-ranges = <0 4>, <81 4>;
 };
+
+/*
+ * The charger (item walleye-charger-smb2): pmi8998's SMB2 charger (qcom_smbx), its USB-input current and voltage read by
+ * the PMIC's own round-robin ADC (pmi8998.dtsi has both nodes; the charger is disabled there). The driver sets the float
+ * voltage from voltage-max-design and refuses to probe without a monitored battery. Cell facts are the vendor GPL tree's
+ * (kerneltoast/android_kernel_google_wahoo): 2700 mAh, 4.4 V max, 3.4 V cutoff, 50 mA termination. The charge level
+ * stays not known yet: there is no fuel gauge node yet.
+ */
+&pmi8998_charger {
+	monitored-battery = <&battery>;
+	status = "okay";
+};
+
+/ {
+	battery: battery {
+		compatible = "simple-battery";
+		voltage-min-design-microvolt = <3400000>;
+		voltage-max-design-microvolt = <4400000>;
+		charge-full-design-microamp-hours = <2700000>;
+		charge-term-current-microamp = <50000>;
+	};
+};
