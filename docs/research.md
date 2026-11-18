@@ -2511,3 +2511,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-c5-tried"></a>
+### walleye-c5-tried
+
+Date
+: 2026-11-18
+
+Brief
+: c5 once from slot b (module not loaded): gadget 1d6b:0104 up at 18 s, left the bus at exactly 180 s, Android back; restart-check passes
+
+Question
+: Does c4's dtb alone restart the phone (c5: charger module not loaded)?
+
+Found
+: boot-c5.img booted from memory from slot b, battery 4376 mV. Enumerated 1d6b:0104 (walleye-first-boot) 18 s after the boot; the init's 180 s self-reboot took the phone off the bus at 16:04:32+180 s and it returned as Android (slot b, a and b successful, nothing flashed, 4378 mV). tests/host/restart-check.sh on the host journal: pass, 180 s. So the c4 dtb (tps61099 modelled as a fixed regulator) restarts: the restart gate is met for the no-charger-probe image; c3's hang came from the charger probe. Next: c6 (module loaded 40 s after enumeration) is the step that isolates the probe.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18/

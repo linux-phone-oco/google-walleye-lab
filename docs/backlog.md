@@ -4043,10 +4043,10 @@ Rank
 ### Try c5 once from slot b (module NOT loaded): the restart gate must pass - c4's dtb alone restarts
 
 Status
-: open
+: done
 
 Note
-: Battery rule first (battery-ok.sh). No hands expected: the control.
+: proven by tests/host/restart-check.sh: pass, gadget left the bus 180 s after enumerating (research walleye-c5-tried)
 
 Blocked by
 : walleye-build-c5
