@@ -4450,10 +4450,10 @@ Rank
 ### Read the Pixel 2's UFS model and firmware as root over adb (read-only)
 
 Status
-: open
+: done
 
 Note
-: The author allowed root (decision 2026-11-18-walleye-android-disposable-no-bricking). The first identity try (lab PR 279) used the stock shell and fastboot only and found none.
+: proven by research walleye-ufs-card-identity-root: model, firmware, controller read as root, read-only
 
 About
 : walleye-first-fastboot-boot

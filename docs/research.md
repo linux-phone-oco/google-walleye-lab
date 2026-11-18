@@ -2728,3 +2728,25 @@ About
 
 Supersedes
 : walleye-z12-built
+
+
+<a id="walleye-ufs-card-identity-root"></a>
+### walleye-ufs-card-identity-root
+
+Date
+: 2026-11-18
+
+Brief
+: Pixel 2 UFS card is SK hynix H28U74301AMR fw D003, 64 GB, spec 0x1002, HS-G3 2 lanes; health descriptor reads zeros
+
+Question
+: Which UFS card and firmware does the Pixel 2 carry, read-only with adb root?
+
+Found
+: sysfs: vendor SKhynix, model H28U74301AMR, rev D003; 6 LUNs (LUN0 124674048 sectors, about 64 GB; bBootEnable=1) plus 3 well-known LUNs. Device descriptor (debugfs ufshcd0/dump_device_desc): wSpecVersion 0x1002, wManufactureID 0xad01 (SK hynix), wManufactureDate 0x170a, bNumberLU 6, bNumberWLU 4. Host: ufshcd-qcom 1da4000.ufshc, QC ICE 3.0.65; vendor kernel links PWM G1 1 lane then FAST G3 2 lanes rate B; host_regs VER 0x210 (UFSHCI 2.1). Health descriptor dump read zeros (not exposed), so wear is unknown. Boot arg androidboot.hardware.ufs=64GB,Hynix. Nothing written; serial omitted. Fits decision 2026-11-18-walleye-hynix-quirks-in-the-fixups-table. The UFS-probe decision is not made here: it goes to the top coordinator via the walleye coordinator.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-19/

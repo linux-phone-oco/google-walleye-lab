@@ -2578,3 +2578,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-1300-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Phone is Android (LineageOS userdebug) on slot b, stock kernel, nothing flashed or written; adb root was enabled (adbd restarted as root, disposable per decision 2026-11-18-walleye-android-disposable-no-bricking). Item walleye-ufs-card-identity-root done: UFS is SK hynix H28U74301AMR fw D003 64 GB (research walleye-ufs-card-identity-root).
+
+Considered
+: next: coordinator takes the UFS identity to the top coordinator for the UFS-probe decision; then walleye-pmic-wdt-read-s2-regs (read only); walleye-charger-wait-tps61099 dts choice; walleye-pmic-wdt-z10 stays parked
+
+About
+: walleye-first-fastboot-boot
