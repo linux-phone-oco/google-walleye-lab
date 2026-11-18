@@ -2533,3 +2533,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18/
+
+
+<a id="2026-11-18-walleye-phone-state-three-real-outputs"></a>
+### 2026-11-18-walleye-phone-state-three-real-outputs
+
+Date
+: 2026-11-18
+
+Brief
+: phone-state.sh on the real phone: android (adb device, usb 18d1:4ee7), fastboot (listed, 18d1:4ee0), mainline-answering (banner2 gadget 1d6b:0104, tty banner)
+
+Question
+: What does phone-state.sh print on the real walleye in Android, fastboot and our gadget?
+
+Found
+: Android: witness adb device, fastboot none, usb pixel:18d1:4ee7, tty n/a -> verdict android. Fastboot (after adb reboot bootloader): adb none, fastboot listed, usb pixel:18d1:4ee0 -> verdict fastboot; slots a,b both successful, unbootable no, retry 0, current b, unlocked. Mainline (fastboot boot now of images-banner2/boot-banner2.img from slot b, nothing written): left fastboot after 15 s, back as USB 1d6b:0104 after 18 s; usb gadget, tty banner -> verdict mainline-answering. Read only on the phone.
+
+About
+: walleye-first-fastboot-boot
