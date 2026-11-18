@@ -1,0 +1,128 @@
+#!/bin/busybox sh
+# vendor-facts-vfx (backlog walleye-vfa-one-source-per-image): m1's init - the stable window (alive, read by the lab user) - plus ONE payload put into the window file BEFORE the gadget bind.
+# Which payload is the one word in /etc/walleye-vf (a, b, c or d), so the four images differ in that file alone:
+#   a: /sys/firmware/fdt (the merged running device tree, binary) + /proc/iomem + /proc/interrupts + /proc/cmdline    b: debugfs clk/clk_summary
+#   c: debugfs regulator/regulator_summary                                                                            d: debugfs usb/ and the dwc3 directories (the USB state)
+# The window is m1's: a 2 MiB file in the ramdisk, the LUN read-only for the host, the gadget order byte for byte m1's (the diff against init-m1 is the block between the '>>> vf' and '<<< vf' marks and the hold loop at the end).
+# Layout: bytes 0-511 a plain header "WALLEYE-VFx LEN=<10 digits> PARTS=<n> TRUNC=<0|1>" and one "PART name LEN=<n> RC=<rc>" line per source; from byte 512 the parts' plain bytes one after the other (no tar, no gzip);
+# the last 4096 bytes are a beat block rewritten every 5 s (m1's own kind of write, 4 KiB where m1 wrote 64 KiB) so the host can tell an init that runs from one that hung. Nothing else is written after the bind: no poller, no progressive dump.
+# A source is read with `timeout 5 cat` into the ramdisk, then put in the window; a payload over the room (2 MiB - 4 KiB - 512) is cut and says TRUNC=1. Redaction: text parts lose serialno=, MAC-shaped and 15-digit strings; the binary
+# device tree is kept as the phone gave it (it stays in the lab's material directory, never in git). Never exits; reboots itself at 180 s (reboot -f, then sysrq b). No write to the phone's storage.
+# Never exits (an init that ends is a kernel panic); no `set -e`; every step says what it is about to do BEFORE it does it. Reboots itself at 180 s (reboot -f, then sysrq b).
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+say() { echo "walleye-init: $*" > /dev/kmsg 2>/dev/null; echo "walleye-init: $*" > /dev/console 2>/dev/null; }
+say "vendor-gadget-m1 init start (before any mount)"
+mount -t proc proc /proc
+say "proc mounted, kernel $(uname -r); step m1"
+mount -t sysfs sys /sys
+mkdir -p /sys/kernel/config /tmp
+mount -t configfs none /sys/kernel/config
+say "configfs mounted"
+LOGF=/tmp/walleye-log.img
+say "step m1: about to create the 2 MiB log file"
+dd if=/dev/zero of=$LOGF bs=1024 count=2048 2>/dev/null
+# >>> vf: the only addition before the bind - one payload into the window file (the debugfs mount is part of it)
+( sleep 200; sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger ) &   # a hang before the bind still ends in a reboot (the normal path reboots at 180 s)
+VF=$(cat /etc/walleye-vf 2>/dev/null)
+say "step vf: image $VF, about to fill the window"
+# >>> fill (run alone by tests/host/window-payload-selftest.sh with the VF_* sources set to test files)
+VT=${VT:-/tmp}
+VFROOM=$((2097152 - 4096 - 512))
+redact_text() {
+  sed -e 's/serialno[= :][^ ]*/serialno=REDACTED/g' -e 's/[0-9]\{15\}/IMEI-SHAPED/g' -e 's/\([0-9a-fA-F][0-9a-fA-F]-\)\{5\}[0-9a-fA-F][0-9a-fA-F]/XX-XX-XX-XX-XX-XX/g' \
+      -e 's/\([0-9a-fA-F][0-9a-fA-F]:\)\{5\}[0-9a-fA-F][0-9a-fA-F]/XX:XX:XX:XX:XX:XX/g'
+}
+# dump_usb: every file of debugfs usb/ and of the dwc3 / usb directories there, each named by a "== path" line, each read with timeout 5
+dump_usb() {
+  DBG=${VF_DBG:-/sys/kernel/debug}
+  for d in $DBG/usb $DBG/*dwc3* $DBG/*.usb; do
+    [ -d "$d" ] || continue
+    for f in "$d"/* "$d"/*/* "$d"/*/*/*; do
+      [ -f "$f" ] || continue
+      echo "== ${f#$DBG/}"; timeout 5 cat "$f" | head -c 65536; echo
+    done
+  done
+  return 0
+}
+# part NAME KIND SOURCE...: read one source into $VT/vf-part (rc of the read kept), redact when KIND is text, append to the payload, remember "PART name LEN= RC="
+part() {
+  PN=$1; PK=$2; shift 2
+  if [ "$PK" = text ]; then timeout 5 cat "$@" > $VT/vf-raw 2> $VT/vf-err; PRC=$?; tr -d '\000' < $VT/vf-raw | redact_text > $VT/vf-part
+  elif [ "$PK" = usb ]; then dump_usb > $VT/vf-part 2> $VT/vf-err; PRC=$?
+  else timeout 5 cat "$@" > $VT/vf-part 2> $VT/vf-err; PRC=$?; fi
+  PL=$(stat -c %s $VT/vf-part)
+  cat $VT/vf-part >> $VT/vf-payload
+  echo "PART $PN LEN=$PL RC=$PRC" >> $VT/vf-parts
+  PARTN=$((PARTN + 1))
+}
+# header TOTAL TRUNC: the plain header, padded with NULs to 512 bytes, into the window's first block
+header() {
+  { printf 'WALLEYE-VF%s LEN=%010d PARTS=%d TRUNC=%d\n' "$VF" "$1" "$PARTN" "$2"; cat $VT/vf-parts; } | head -c 512 > $VT/vf-head
+  dd if=$VT/vf-head of=$LOGF bs=512 count=1 conv=sync,notrunc 2>/dev/null
+}
+fill_window() {
+  : > $VT/vf-payload; : > $VT/vf-parts; PARTN=0
+  header 0 0
+  case "$VF" in
+    a) part fdt bin "${VF_FDT:-/sys/firmware/fdt}"
+       part iomem text "${VF_IOMEM:-/proc/iomem}"
+       part interrupts text "${VF_IRQ:-/proc/interrupts}"
+       part cmdline text "${VF_CMDLINE:-/proc/cmdline}" ;;
+    b) part clk_summary text "${VF_CLK:-/sys/kernel/debug/clk/clk_summary}" ;;
+    c) part regulator_summary text "${VF_REG:-/sys/kernel/debug/regulator/regulator_summary}" ;;
+    d) part usb usb ;;
+    *) echo "WALLEYE-VF? no image letter in /etc/walleye-vf" > $VT/vf-parts ;;
+  esac
+  TOTAL=$(stat -c %s $VT/vf-payload); TR=0
+  if [ "$TOTAL" -gt "$VFROOM" ]; then TR=1; head -c "$VFROOM" $VT/vf-payload > $VT/vf-payload2; mv $VT/vf-payload2 $VT/vf-payload; TOTAL=$VFROOM; fi
+  dd if=$VT/vf-payload of=$LOGF bs=512 seek=1 conv=sync,notrunc 2>/dev/null
+  header "$TOTAL" "$TR"
+}
+# <<< fill
+if [ "$VF" != a ]; then
+  mkdir -p /sys/kernel/debug
+  mount -t debugfs none /sys/kernel/debug
+  say "vf: debugfs mounted rc=$?"
+fi
+fill_window
+say "step vf: window filled ($(head -c 60 $LOGF | head -n1))"
+# <<< vf
+G=/sys/kernel/config/usb_gadget/g1
+mkdir -p $G
+echo 0x1d6b > $G/idVendor
+echo 0x0104 > $G/idProduct
+echo 0x0100 > $G/bcdDevice
+echo 0x0200 > $G/bcdUSB
+mkdir -p $G/strings/0x409
+echo "walleye-first-boot" > $G/strings/0x409/serialnumber
+echo "linux-phone-oco" > $G/strings/0x409/manufacturer
+echo "Pixel 2 walleye (mainline)" > $G/strings/0x409/product
+say "step m1: about to mkdir functions/mass_storage.0"
+mkdir -p $G/functions/mass_storage.0
+L=$G/functions/mass_storage.0/lun.0
+say "m1 lun.0 has: $(ls $L 2>&1 | tr '\n' ' ')"
+for a in ro removable; do if [ -e $L/$a ]; then say "step m1: about to write lun.0/$a"; echo 1 > $L/$a; else say "m1: no lun.0/$a"; fi; done
+for a in cdrom nofua; do if [ -e $L/$a ]; then say "step m1: about to write lun.0/$a"; echo 0 > $L/$a; else say "m1: no lun.0/$a"; fi; done
+say "step m1: about to set lun.0/file"
+echo $LOGF > $L/file
+say "m1 lun.0/file now: $(cat $L/file 2>&1)"
+say "step m1: about to mkdir configs/c.1/strings/0x409"
+mkdir -p $G/configs/c.1/strings/0x409
+echo "MSC" > $G/configs/c.1/strings/0x409/configuration
+say "step m1: about to symlink the function into configs/c.1"
+ln -s $G/functions/mass_storage.0 $G/configs/c.1/
+UDC=$(ls /sys/class/udc 2>/dev/null | head -n1)
+if [ -z "$UDC" ]; then say "NO UDC"; else say "step m1: about to bind $UDC"; echo "$UDC" > $G/UDC && say "gadget bound to $UDC"; fi
+
+# the hold: no payload write here. Every 5 s only the 4 KiB beat block at the end of the window is rewritten in place; 36 rounds = 180 s, then reboot
+n=0
+while [ $n -lt 36 ]; do
+  printf 'WALLEYE-VF%s BEAT=%s UP=%s\n' "$VF" "$n" "$(cut -d' ' -f1 /proc/uptime)" > /tmp/walleye-beat
+  dd if=/tmp/walleye-beat of=$LOGF bs=4096 seek=511 count=1 conv=sync,notrunc 2>/dev/null
+  n=$((n+1))
+  sleep 5
+done
+say "self-reboot now"; sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+while :; do sleep 3600; done

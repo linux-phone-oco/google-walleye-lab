@@ -1477,3 +1477,24 @@ Done
 
 Considered
 : next: turning point for the coordinator - vf4 dies without the poller, so its progressive dump after the bind is the suspect; bisect the dump (vf4 with a vf2-like tail) or write a first-round marker at once
+
+---
+
+
+<a id="2026-11-18-walleye-vfx-build"></a>
+### vfa..vfd built (one hardware source per image)
+
+Entry date
+: 2026-11-18
+
+Done
+: init-vfx (m1 plus one payload before the bind, chosen by /etc/walleye-vf), build-vendor-facts-vfx.sh (4 images, 23 checks each, rebuild identical), window-payload-read.sh and its selftest (18 ok); try queued as walleye-try-vfa
+
+Considered
+: Four init files: one init and a one-word file instead, so the four images differ in that file alone and the diff against m1 is one block. The beat in the window's last 4 KiB so a running init is told from a hung one without touching the payload. Header written first with no part, so a read that kills the kernel is told from a never-started init.
+
+Rejected
+: Keeping m1's 64 KiB text rewrite every 5 s: it would overwrite the payload. A tar or gzip of the payload, progressive appends and a poller: the dump after the bind is the suspect (vf3, vf4 dead).
+
+About
+: walleye-first-fastboot-boot
