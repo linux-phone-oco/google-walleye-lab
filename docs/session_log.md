@@ -1354,3 +1354,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-vf2-build"></a>
+### vf2 built
+
+Entry date
+: 2026-11-18
+
+Done
+: init-vf2, build-vendor-facts-vf2.sh, reader and selftest extended; programmer review's five findings fixed; try queued
+
+Considered
+: a second 2 MiB window for the text (rejected: the LUN size cannot change after bind; one 8 MiB window with a 64 KiB text region)
+
+About
+: walleye-first-fastboot-boot

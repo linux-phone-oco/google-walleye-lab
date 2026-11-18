@@ -1,0 +1,165 @@
+#!/bin/busybox sh
+# vendor-facts-vf2 (walleye-vf2-marker-first): vf1's dump, with the proof of life first. vf1 enumerated and its LUN was readable, but the window never carried its header: the init's first write failed or
+# died before it, and nothing told which. vf2 changes only the init:
+#  (1) the window's first 64 KiB is a TEXT region in m1's proven way (dd bs=65536 conv=sync,notrunc, rewritten whole every 2 s): line 1 "WALLEYE-VF2 BEAT=<n> UP=<s>" is written
+#      BEFORE the gadget exists (so the first bind already shows it) and every 2 s after by a background beat; then one "step N name rc=X detail" line per step; never moved, never shrunk;
+#  (2) every step runs through stp(), which appends its line AFTER the step with the real exit code and the first words of its stderr, and BEFORE it a "start N name" line, so a hung step
+#      shows as a start with no end; nothing is sent to /dev/null on a step, no `set -e`;
+#  (3) the blob is at a fixed offset 65536: a 64-byte header "WALLEYE-VF2-BLOB LEN=<10 digits> ROUND=<2 digits>" (newline at byte 63), then LEN bytes of a gzipped tar (body first, header after).
+# Window: 8 MiB LUN (read-only for the host), same gadget order as m1. The tools used (tar gzip cat dd mount timeout find sed grep stat head tail tr cut wc sync dmesg printf sleep) are listed in the text
+# region at start as "applet NAME ok|MISSING" so a missing one is read, not guessed.
+# Redaction as vf1: nothing identifying leaves the phone. Never exits; reboots itself at about 90 s of rounds (reboot -f, then sysrq b). No write to the phone's storage.
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+say() { echo "walleye-init: $*" > /dev/kmsg 2>/dev/null; echo "walleye-init: $*" > /dev/console 2>/dev/null; }
+LOGF=/tmp/walleye-log.img
+TXT=/tmp/walleye-text
+STAT=/tmp/walleye-steps
+STEPN=0
+# paint [TMP]: rewrite the whole 64 KiB text region (m1's way): line 1 the beat, then the step lines (capped at 60000 bytes), NUL-padded. Snapshot and write are one critical section (flock on fd 9), so the foreground
+# and the 2 s beat never leave an older snapshot over a newer line; the foreground paints with /tmp/walleye-text, the beat with /tmp/walleye-text-b.
+paint() {
+  T=${1:-$TXT}
+  ( flock 9
+    { printf 'WALLEYE-VF2 BEAT=%s UP=%s\n' "$(cat /tmp/walleye-beat 2>/dev/null)" "$(cut -d' ' -f1 /proc/uptime 2>/dev/null)"; tail -c 60000 $STAT 2>/dev/null; } > $T 2>/dev/null
+    dd if=$T of=$LOGF bs=65536 count=1 conv=sync,notrunc 2>/dev/null ) 9> /tmp/walleye-lock
+}
+# note TEXT: append a line to the step log and repaint at once
+note() { echo "$*" >> $STAT; paint; }
+# stp NAME CMD ARGS...: "start N name" BEFORE (and before anything that could block on the console), "step N name rc=X: first words of stderr" after. The real rc, never hidden; a step whose rc is 0 but
+# in which some grab failed ends with rc=<number of failed grabs> and names the first ones (grab logs a failure to /tmp/walleye-gf).
+stp() {
+  STEPN=$((STEPN+1)); N=$STEPN; NAME=$1; shift
+  note "start $N $NAME"
+  say "step $N $NAME: about to run"
+  : > /tmp/walleye-gf
+  "$@" 2> /tmp/walleye-err; RC=$?
+  E=$(head -c 120 /tmp/walleye-err 2>/dev/null | tr '\n' ' ')
+  GF=$(wc -l < /tmp/walleye-gf)
+  if [ "$RC" -eq 0 ] && [ "$GF" -gt 0 ]; then RC=$GF; E="$GF grab(s) failed: $(head -n3 /tmp/walleye-gf | tr '\n' ' ')"; fi
+  note "step $N $NAME rc=$RC${E:+: $E}"
+  return $RC
+}
+
+mkdir -p /tmp /run
+# 1: the 8 MiB window file and the first header, BEFORE the gadget, so the marker is there when the host first reads
+dd if=/dev/zero of=$LOGF bs=1024 count=8192 2>/dev/null
+: > $STAT; echo 0 > /tmp/walleye-beat
+
+paint
+say "vendor-facts-vf2 init start: window file made, marker written"
+mount -t proc proc /proc
+note "step 0 mount-proc rc=$?"
+note "start 0 init (kernel $(uname -r))"
+for ap in tar gzip cat dd mount timeout find sed grep stat head tail tr cut wc sync dmesg printf sleep flock; do
+  if /bin/busybox --list | grep -qx "$ap"; then note "applet $ap ok"; else note "applet $ap MISSING"; fi
+done
+# the beat: every 2 s, forever, in the background: bumps /tmp/walleye-beat and repaints the whole text region (own temp file), so line 1 moves even while a foreground step hangs
+( b=0; while :; do b=$((b+1)); echo $b > /tmp/walleye-beat; paint /tmp/walleye-text-b; sleep 2; done ) &
+stp mount-sysfs mount -t sysfs sys /sys
+mkdir -p /sys/kernel/config /sys/kernel/debug
+stp mount-configfs mount -t configfs none /sys/kernel/config
+stp mount-debugfs mount -t debugfs none /sys/kernel/debug
+G=/sys/kernel/config/usb_gadget/g1
+L=$G/functions/mass_storage.0/lun.0
+UDC=
+put() { echo "$1" > "$2"; }
+gadget() {
+  stp g-mkdir mkdir -p $G
+  stp g-idVendor put 0x1d6b $G/idVendor; stp g-idProduct put 0x0104 $G/idProduct; stp g-bcdDevice put 0x0100 $G/bcdDevice; stp g-bcdUSB put 0x0200 $G/bcdUSB
+  stp g-strings mkdir -p $G/strings/0x409
+  stp g-serial put walleye-first-boot $G/strings/0x409/serialnumber
+  stp g-manufacturer put linux-phone-oco $G/strings/0x409/manufacturer
+  stp g-product put "Pixel 2 walleye (mainline)" $G/strings/0x409/product
+  stp g-function mkdir -p $G/functions/mass_storage.0
+  for a in ro removable; do if [ -e $L/$a ]; then stp g-lun-$a put 1 $L/$a; else note "no lun.0/$a"; fi; done
+  for a in cdrom nofua; do if [ -e $L/$a ]; then stp g-lun-$a put 0 $L/$a; else note "no lun.0/$a"; fi; done
+  stp g-lun-file put $LOGF $L/file
+  note "lun.0 has: $(ls $L 2>&1 | tr "\n" " "); file now: $(cat $L/file 2>&1)"
+  stp g-config mkdir -p $G/configs/c.1/strings/0x409
+  stp g-config-name put MSC $G/configs/c.1/strings/0x409/configuration
+  stp g-symlink ln -s $G/functions/mass_storage.0 $G/configs/c.1/
+  UDC=$(ls /sys/class/udc 2>/dev/null | head -n1)
+  if [ -z "$UDC" ]; then note "step g-udc NO UDC"; else stp g-bind put "$UDC" $G/UDC; fi
+}
+gadget
+
+V=/tmp/vf
+# grab SRC DEST: one file read with a 3 s limit (a debugfs file may block); a missing file leaves nothing and returns 0; a failing read returns its rc
+grab() { [ -e "$1" ] || return 0; mkdir -p "$(dirname "$2")" && timeout 3 cat "$1" > "$2" || { echo "$1" >> /tmp/walleye-gf; return 1; }; }
+grabdir() { [ -d "$1" ] || return 0; for f in "$1"/* "$1"/*/*; do [ -f "$f" ] && grab "$f" "$2/${f#$1/}"; done; return 0; }
+redact() {
+  [ -f $V/dt/chosen/bootargs ] && sed -i -e "s/serialno[= :][^ ]*/serialno=REDACTED/g" $V/dt/chosen/bootargs
+  for f in $(find $V -type f ! -path "$V/dt/*" ! -name '*.dtb'); do
+    sed -i -e 's/serialno[= :][^ ]*/serialno=REDACTED/g' -e 's/[0-9]\{15\}/IMEI-SHAPED/g' -e 's/\([0-9a-fA-F][0-9a-fA-F]-\)\{5\}[0-9a-fA-F][0-9a-fA-F]/XX-XX-XX-XX-XX-XX/g' \
+      -e 's/\([0-9a-fA-F][0-9a-fA-F]:\)\{5\}[0-9a-fA-F][0-9a-fA-F]/XX:XX:XX:XX:XX:XX/g' "$f"
+  done
+}
+dt_copy() {
+  mkdir -p $V/dt
+  (cd /proc/device-tree && find . -type f) | while IFS= read -r p; do
+    case "${p##*/}" in *mac-address*|*bdaddr*|*bd-addr*|*bd_addr*|*serial-number*|*serialno*|*imei*|*IMEI*|*macaddr*) continue;; esac
+    grab "/proc/device-tree/$p" "$V/dt/$p"
+  done
+  return 0
+}
+static_facts() {
+  stp s-devicetree dt_copy
+  stp s-cmdline grab /proc/cmdline $V/cmdline
+  stp s-iomem grab /proc/iomem $V/iomem
+  stp s-ioports grab /proc/ioports $V/ioports
+  stp s-version grab /proc/version $V/version
+  stp s-devices grab /proc/devices $V/devices
+  stp s-mounts grab /proc/mounts $V/mounts
+  stp s-cpuinfo sh -c "grep -v -i '^serial' /proc/cpuinfo > $V/cpuinfo"
+  stp s-pinctrl-maps grab /sys/kernel/debug/pinctrl/pinctrl-maps $V/debugfs/pinctrl/pinctrl-maps
+  stp s-pinctrl-devices grab /sys/kernel/debug/pinctrl/pinctrl-devices $V/debugfs/pinctrl/pinctrl-devices
+}
+dyn_pinctrl() { for d in /sys/kernel/debug/pinctrl/*; do [ -d "$d" ] && grabdir "$d" "$V/debugfs/pinctrl/${d##*/}"; done; return 0; }
+dyn_usb() { grabdir /sys/kernel/debug/usb $V/debugfs/usb; for d in /sys/kernel/debug/*dwc3* /sys/kernel/debug/*.usb /sys/kernel/debug/*usb*; do [ -d "$d" ] && grabdir "$d" "$V/debugfs/${d##*/}"; done; return 0; }
+dyn_udc() {
+  mkdir -p $V/sys
+  ls -l /sys/class/udc > $V/sys/udc-list 2>&1
+  for u in /sys/class/udc/*; do [ -d "$u" ] && for at in state speed current_speed is_a_peripheral maximum_speed; do grab "$u/$at" "$V/sys/udc/${u##*/}/$at"; done; done
+  grab /sys/kernel/config/usb_gadget/g1/UDC $V/sys/gadget-UDC
+  ls /sys/class/power_supply > $V/sys/power_supply-list 2>&1
+  ls /sys/bus/platform/devices > $V/sys/platform-devices 2>&1
+  ls /sys/bus/platform/drivers > $V/sys/platform-drivers 2>&1
+  return 0
+}
+dyn_dmesg() { dmesg > $V/dmesg; }
+dyn_tar() { (cd $V && tar cf - . | gzip -c > /tmp/vf.tgz); }
+dyn_tar_noclk() { rm -f $V/debugfs/clk_dump; dyn_tar; }
+# put_blob: body first at 65536+64, then the 64-byte header at 65536; a reader that sees an old header sees a prefix of the new stream, fails to gunzip it and retries
+put_blob() {
+  SZ=$(stat -c %s /tmp/vf.tgz) || return 1
+  [ "$SZ" -le 8322000 ] || { echo "blob $SZ bytes does not fit the window" >&2; return 2; }
+  dd if=/tmp/vf.tgz of=$LOGF bs=64 seek=1025 conv=notrunc 2>/dev/null || return 3
+  printf '%-63s\n' "$(printf 'WALLEYE-VF2-BLOB LEN=%010d ROUND=%02d' "$SZ" "$n")" | dd of=$LOGF bs=64 seek=1024 count=1 conv=notrunc 2>/dev/null || return 4
+  return 0
+}
+n=0
+rm -rf $V; mkdir -p $V
+while [ $n -lt 9 ]; do
+  note "round $n"
+  [ $n -eq 0 ] && static_facts
+  stp d-interrupts grab /proc/interrupts $V/interrupts
+  stp d-clk-summary grab /sys/kernel/debug/clk/clk_summary $V/debugfs/clk_summary
+  stp d-regulator grab /sys/kernel/debug/regulator/regulator_summary $V/debugfs/regulator_summary
+  stp d-gpio grab /sys/kernel/debug/gpio $V/debugfs/gpio
+  [ -z "$NOCLK" ] && stp d-clk-dump grab /sys/kernel/debug/clk/clk_dump $V/debugfs/clk_dump
+  stp d-pinctrl-handles grab /sys/kernel/debug/pinctrl/pinctrl-handles $V/debugfs/pinctrl/pinctrl-handles
+  stp d-pinctrl-dirs dyn_pinctrl
+  stp d-usb dyn_usb
+  stp d-udc dyn_udc
+  stp d-dmesg dyn_dmesg
+  stp redact redact
+  stp tar dyn_tar
+  if [ "$(stat -c %s /tmp/vf.tgz 2>/dev/null || echo 0)" -gt 8322000 ]; then NOCLK=1; stp tar-noclk dyn_tar_noclk; fi
+  stp blob put_blob
+  n=$((n+1))
+  sleep 10
+done
+note "self-reboot now"; sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+while :; do sleep 3600; done
