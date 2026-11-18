@@ -4973,10 +4973,10 @@ Rank
 ### z-next read-only: which gpio/pinctrl defer leaf the touch power hits
 
 Status
-: open
+: done
 
 Note
-: Read only over the network shell: cat /sys/kernel/debug/pinctrl/*/gpio-ranges and pinctrl-devices; readlink /sys/bus/gpio/devices/gpiochip*/of_node; cat /sys/kernel/debug/devices_deferred with dmesg timestamps. Name leaf (a) no gpio device matched or (b) no pinctrl range.
+: superseded by z20: the leaf is the shared-gpio proxy, read from dmesg without debugfs
 
 About
 : walleye-first-fastboot-boot
@@ -5023,10 +5023,10 @@ Rank
 ### Try z20 once from slot b (probe only): the diagnostic kernel; read the gpiolib/pinctrl lines that name the leaf and errno for regulator-touch-power
 
 Status
-: open
+: done
 
 Note
-: Built by walleye-build-gpio-diag-kernel: images-z20/boot-z20.img sha256 fe9e0cce. Expected: z19's behaviour (gadget up, touch deferred) plus dmesg lines from gpiolib-of ('parsed ... status (-517)'), pinctrl core and devicetree; keep the dmesg as a file and record the leaf and errno as research. If the pinctrl leaf prints nothing, the debugfs read (walleye-touch-gpio-leaf-read) is the fallback. No write to the phone beyond the fastboot boot.
+: proven by z20 dmesg: gpiolib line 'cannot find GPIO chip gpiolib_shared.proxy.0, deferring' for regulator-touch-power (research walleye-z20-tried-touch-gpio-leaf)
 
 About
 : walleye-first-fastboot-boot
@@ -5039,6 +5039,31 @@ Needs
 
 Proof
 : the diagnostic boot's dmesg shows the gpiolib line naming the leaf and errno for regulator-touch-power
+
+Rank
+: 1
+
+
+<a id="walleye-touch-gpio-shared-proxy"></a>
+### Find who else claims pmi8998 gpio 2 and why gpiolib_shared.proxy.0 never registers; fix so regulator-touch-power probes
+
+Status
+: open
+
+Note
+: From research walleye-z20-tried-touch-gpio-leaf: list every node referencing pmi8998 gpio 2 (dts and dtbo entry 3 overlay), and read why the proxy aux device (gpio-shared-proxy) does not bind; remove the second claimant or fix the proxy case. Try then is a z21 once from slot b.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: a z21 try whose dmesg has no 'cannot find GPIO chip gpiolib_shared.proxy' for regulator-touch-power and rmi4 0-0020 probes
 
 Rank
 : 1

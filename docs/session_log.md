@@ -2911,3 +2911,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-2100-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Android on slot b, stock kernel, nothing flashed; z20 tried once and done (touch gpio leaf = shared-gpio proxy, research walleye-z20-tried-touch-gpio-leaf); a and b successful, none unbootable
+
+Considered
+: next: walleye-touch-gpio-shared-proxy (build), then walleye-try-z19 and walleye-bootchain-readback; UFS HW_VERSION/PHY still need a reader (coordinator)

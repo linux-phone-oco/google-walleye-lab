@@ -3148,3 +3148,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z20-tried-touch-gpio-leaf"></a>
+### walleye-z20-tried-touch-gpio-leaf
+
+Date
+: 2026-11-18
+
+Brief
+: z20 once from slot b: touch power defers because its pmi8998 gpio 2 is a shared GPIO served by gpiolib_shared.proxy.0, which never registers as a chip (-EPROBE_DEFER)
+
+Question
+: On the diagnostic kernel, which leaf does regulator-touch-power's gpio hit, and with what errno?
+
+Found
+: z20 booted once via lpoco lab fastboot boot now; gadget 1d6b:0104 at 18 s; dmesg 803 lines read (material ~/lab-material/walleye/z20-try1). gpiolib-of: parsed 'gpios' of /regulator-touch-power status (0), so the specifier is valid and pmic gpio exists. Then 'gpiolib_shared: Adding machine lookup entry for a shared GPIO for consumer regulator-touch-power, with key gpiolib_shared.proxy.0' and 'cannot find GPIO chip gpiolib_shared.proxy.0, deferring' repeated at every retry (1.04 s to 1.63 s+). The proxy was created at 0.670 for 800f000.spmi:pmic@2:gpio@c000 ('GPIO 2 owned by ... is shared by multiple consumers', after 'GPIO 2 at gpio@c000 is shared by multiple firmware nodes' at 0.0967): the leaf is neither no-gpio-device nor no-pinctrl-range, but a third: pmi8998 gpio 2 is claimed by more than one firmware node, so gpiolib_shared routes the consumer to an auxiliary proxy chip that never registers. Next: find the other consumer(s) of pmi8998 gpio 2 in the dts/dtbo overlay and the proxy driver's probe (gpio-shared-proxy), then remove the second claimant or make it a real shared case. Phone returned to Android slot b by the init's own 180 s fall-back; fastboot state: current b, a and b successful, none unbootable; fastboot reboot to active slot; nothing flashed.
+
+About
+: walleye-first-fastboot-boot
