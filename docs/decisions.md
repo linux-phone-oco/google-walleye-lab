@@ -448,3 +448,25 @@ About
 
 Research
 : walleye-pstore-warm-reset-how-it-stands
+
+
+<a id="2026-11-18-walleye-t1-gate-met"></a>
+### 2026-11-18-walleye-t1-gate-met
+
+Date
+: 2026-11-18
+
+Brief
+: The pstore T1 try may run: our mainline kernel with the taimen dtb has shown life (init held 60 s)
+
+Decision
+: The gate of the pstore tries ("run only after a kernel has shown life") is met: the g1 and g2 tries of pk5-stages (lab PRs 114 and 116) returned at ~108 s and 138 s, i.e. our init held its 60 s, so our mainline kernel with porthole's Pixel 2 XL device tree runs and executes our init; only its USB gadget does not enumerate. The pstore T1 try (deliberate panic after 20 s, ramoops at the phone's own region) may run now; its result separates 'the console of a living kernel survives a panic reset' from 'it does not'.
+
+Why
+: The timing bins alone are not an observation of the kernel, but a return at 108 s or later cannot be a dead-kernel reset (those return at 69-78 s): an init that holds 60 s ran.
+
+Rejected
+: Waiting for a USB light first (the gadget does not enumerate, so the gate would never open); lifting the gate silently without a record.
+
+About
+: walleye-first-fastboot-boot
