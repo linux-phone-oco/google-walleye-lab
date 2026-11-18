@@ -2526,10 +2526,10 @@ Proof
 ### Phone: start tests/host/vendor-facts-poll.sh FIRST in its own background job with VF_MARK=WALLEYE-VF2 VF_HEAD=16 VF_BLOCKS=1040 VF_OUT=$HOME/Projects/walleye-build/material/vf/2026-11-18-vf4 (never killed by the keeper's cleanup), then boot boot-vf4.img twice from the first state; battery first; phone left in Android afterwards; say how many blocks the poller fetched, whether DONE came, the beat log, steps.txt's last lines (where it stopped), and when the phone left USB
 
 Status
-: open
+: done
 
 Note
-: Image: ~/Projects/walleye-build/images-vf4/boot-vf4.img (sha256 in SHA256SUMS-vf4 there; research walleye-vf4-built). Expect the gadget at ~43 s as vf2; if vf4 is alive past 60 s the progressive stream names what vf2's blob never gave. Start the poller with POLL_MAX=400.
+: proven by two tries: 0 blocks fetched, no gadget, back as Android at 78 s both; turning point for the coordinator: vf4 behaves like vf3 (dead), not vf2 - what differs between vf2 and vf4 before the bind
 
 About
 : walleye-first-fastboot-boot

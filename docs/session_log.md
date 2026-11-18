@@ -1444,3 +1444,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0535-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: vf4 tried twice (poller first): no gadget, 0 blocks, empty beat log, back as Android at 78 s both; phone in Android on b, stock kernel, nothing flashed, fastboot reachable earlier (a and b successful)
+
+Considered
+: next: turning point for the coordinator - vf4 (vf2's first 86 lines + progressive dump) died like vf3 though vf2 lived: diff vf2 init vs vf4 init before the bind, or retry vf2 to see whether its 43 s gadget repeats; other queue items wait on the author (unlock, UART)
+
+About
+: walleye-first-fastboot-boot

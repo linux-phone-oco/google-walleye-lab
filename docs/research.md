@@ -1514,3 +1514,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-vf4-tried-twice"></a>
+### walleye-vf4-tried-twice
+
+Date
+: 2026-11-18
+
+Brief
+: vf4 twice from the first state (slot b), poller started first: no gadget ever seen, 0 blocks fetched, empty beat log; phone back as Android at 78 s both times
+
+Question
+: Does vf4 (vf2's init to the gadget bind, then the progressive dump) show the gadget, and what facts stream?
+
+Found
+: Both tries: battery 4377 mV, poller (POLL_MAX=400) started first, boot-vf4.img by devlab fastboot boot; left fastboot after 12 s, back as Android (adb) after 78 s. Poller fetched 0 blocks, no DONE, beat.log empty (0 bytes), no win copies, no steps.txt: no walleye-first-boot / Pixel 2 walleye (mainline) device ever on the host. Same as vf3 (78 s, no gadget), unlike vf2 (gadget at ~43 s). Flags not re-read after (phone left in Android on b; fastboot state was a/b successful before both). The 78 s return is the dead-kernel class. vf4 differs from vf2 only after the bind, yet no gadget: vf2's gadget may have depended on something other than the init (timing, or a first-boot-after-flash state) - not shown by these tries.
+
+About
+: walleye-first-fastboot-boot
