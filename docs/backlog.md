@@ -4851,7 +4851,7 @@ Status
 : open
 
 Note
-: From research walleye-z17-part1-tried: dmesg 'qcom,pmi8998@3 err (-22) does not have reg property'. Then try z18 once (touch power, part 1).
+: Premise falsified (research walleye-z18-premise-falsified, decision 2026-11-18-walleye-z18-not-built-pmi8998-reg-no-effect): the reg-less pmi8998@3 is the overlay's and the spmi core skips it; no build from this item. Next: walleye-overlay-collisions first; then z17's image with an init that reads spmi devices, devices_deferred and gpiochips (or a higher loglevel), tried once; the dtb change follows the read fact.
 
 About
 : walleye-first-fastboot-boot
