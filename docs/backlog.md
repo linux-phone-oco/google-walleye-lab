@@ -4193,3 +4193,28 @@ Needs
 
 Proof
 : three phone-state.sh outputs recorded as research (android, fastboot, mainline-answering or silent)
+
+
+<a id="walleye-follows-template"></a>
+### google-walleye-lab follows device-template #26: devicebase.toml pin, device:begin/end markers in tables.toml, a [why] line per own file
+
+Status
+: open
+
+Note
+: From orchestration (device layer from docs, decision 2026-11-18-device-layer-from-docs; the docs row of the same name is the request). Lab PR 208 is already closed (superseded). Once landed, idealkb's hourly job keeps google-walleye-lab current.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: google-walleye-lab does what device-template #26 did (decision 2026-11-18-device-layer-from-docs, docs v0.17.0 serves the device layer from device-layer/): (1) devicebase.toml gets `source`, `version` and `own`, pinning linux-phone-oco/docs at 0.17.0 (read device-template's devicebase.toml and #26 first and copy the shape; `own` lists the files this lab owns); (2) the device tables in tables.toml sit between `# device:begin` and `# device:end` markers, our own tables (tests, research, whatever is walleye-specific) outside them; (3) every own file carries a `[why]` line as idealkb v0.19.0 asks; checks: tad check/canon passes with the new shape, the lab's checks pass, ikb help still lists walleye's records, no row of data/ is changed by the move (git diff --stat shows only the config files and tables.toml), idealkb's hourly job can read the pin (say how it was checked); programmer review; then the lab's AGENTS.md line on the base is updated
+
+Rank
+: 3
