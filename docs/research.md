@@ -1189,3 +1189,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-property-diff/
+
+
+<a id="walleye-wpa-tried"></a>
+### walleye-wpa-tried
+
+Date
+: 2026-11-18
+
+Brief
+: wpa (taimen dtb + all property groups) booted twice from fastboot: back as Android at 60 s and 60 s, the alive class
+
+Question
+: Does adding all walleye property groups to the taimen dtb (wpa) make the boot die (>=69 s) or stay alive (<=66 s)?
+
+Found
+: wpa returned at 60 s both times (alive class, <=66 s). So no property group causes the dead boot; wp1..wp5 were not tried, being unneeded. Remaining suspects: phandle order or dtb size. Nothing flashed; slot b current, a and b successful, phone in fastboot.
+
+About
+: walleye-first-fastboot-boot

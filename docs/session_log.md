@@ -1123,3 +1123,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-2200-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: wpa x2 tried (60 s each, alive); phone in fastboot, slot b current, a and b successful, nothing flashed, stock kernel; lease released
+
+Considered
+: next: bisect phandle order and dtb size between taimen dtb and pk2's dtb (not properties)
+
+About
+: walleye-first-fastboot-boot
