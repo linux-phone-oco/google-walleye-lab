@@ -4067,37 +4067,6 @@ Rank
 : 1
 
 
-<a id="walleye-try-c6"></a>
-### Try c6 once from slot b (module loaded 40 s after enumeration): does the charger probe reproduce the hang, with the restart gate as the verdict
-
-Status
-: open
-
-Note
-: Ask the author to be at the phone before this try. The author's hold is the only exit if it hangs again.
-
-Waits
-: the author's hands (hold Power ~15 s) if the gate fails
-
-Blocked by
-: walleye-try-c5
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: charger-check.sh passes AND restart-check.sh passes; a gate fail with c5 passed makes the probe the cause (research walleye-c3-hang-how-it-stands, A or C)
-
-Rank
-: 2
-
-
 <a id="walleye-charger-init-bisect"></a>
 ### If c6 hangs: bisect smb_init_seq by group (Type-C role, OTG, charge enable, ICL/AICL), module option per group, each image gated
 
@@ -4174,3 +4143,31 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-try-c6"></a>
+### Try c6 once from slot b (module loaded 40 s after enumeration): does the charger probe reproduce the hang, with the restart gate as the verdict
+
+Status
+: open
+
+Note
+: Ask the author to be at the phone before this try. The author's hold is the only exit if it hangs again.
+
+Waits
+: the author at the phone (decision 2026-11-18-walleye-c6-waits-for-the-author): a risky try, batched with the other risky ones
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: charger-check.sh passes AND restart-check.sh passes; a gate fail with c5 passed makes the probe the cause (research walleye-c3-hang-how-it-stands, A or C)
+
+Rank
+: 20

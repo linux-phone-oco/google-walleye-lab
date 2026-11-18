@@ -973,3 +973,25 @@ Scope
 
 Tracked by
 : walleye-try-c6
+
+
+<a id="2026-11-18-walleye-c6-waits-for-the-author"></a>
+### 2026-11-18-walleye-c6-waits-for-the-author
+
+Date
+: 2026-11-18
+
+Brief
+: c6 (the charger loaded late) waits for the author's presence; the safe tries and the builds go first
+
+Decision
+: c6 (the charger driver loaded 40 s into the try) is the one try of the lane whose realistic bad outcome is a phone that does not restart by itself (c3's reading, unproven). With the author away it waits for a moment when he can be at the phone, and runs then in ONE batch with the other risky tries (a PMIC bite read-back, the dtbo write), so a single power-hold covers them. Until then the phone queue works on tries that return by themselves: the build items go first (UFS read-only, USB networking, the phone-state wiring). No PMIC-side deadman is invented for the try: the PMIC watchdog's reset type is itself unproven (decision 2026-11-18-walleye-pmic-bite-read-then-warm).
+
+Why
+: The author's word: nothing may need his hands while he is away; one hold for several tries is cheaper for him than one per hang; the build and research queue is long enough to use the time.
+
+Rejected
+: Running c6 now and parking the phone on a hang (it would block UFS, networking and every other phone item until he is back); a deadman through the PMIC bite (its reset type is not known to restart).
+
+About
+: walleye-first-fastboot-boot
