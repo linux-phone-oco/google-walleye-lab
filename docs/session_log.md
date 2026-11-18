@@ -2056,3 +2056,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-0800-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: z5 tried once from slot b (research walleye-z5-tried): shell alive, tty full of prompts and errors; phone back as Android on b, stock kernel, nothing flashed, fastboot reachable via adb reboot bootloader, battery 4376 mV
+
+Considered
+: next: z6 = z5 with the tty set raw/no-echo before the shell starts (hypothesis: the banner echoes into the shell); the earlier x1 gpio-reserved-ranges item stays open
+
+About
+: walleye-first-fastboot-boot

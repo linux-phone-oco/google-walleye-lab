@@ -1,0 +1,1349 @@
+
+
+WALLEYE-BANNER beat=0 up=1.12s steps=6 last=[step 6 about to symlink acm.GS0 into configs/c.1] shell=[started=no n=0 pid=- alive=no rc=- probe=- err=[console block not run yet]]
+
+ash: can't access tty; job control turned off
+~ # 
+WALLEYE-BANNER beat=1 up=3.55s steps=8 last=[step 8 gadget bound to a800000.usb] shell=[started=yes n=1 pid=153 alive=yes rc=- probe=0 err=[none]]
+
+~ # 
+~ # 
+~ # 
+~ # WALLEYE-BANNER becm.GS0
+ash: WALLEYE-BANNER: not found
+~ # 
+~ # 
+~ # 
+~ # ash: can't accep ~ # 
+> 
+> ~ # 
+> 
+> ~ # 
+> 
+> ~ # WALLEYE-BANNER becm.GS0
+> 
+> ash: WALLEYE-BANNER: 
+> 
+> ~ # 
+> 
+> ~ # 
+> 
+> ~ # 
+> 
+> ~ # ash: can't accep ~ # 
+ash: ash:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # WALLEYE-BANNER becm.GS0
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: WALLEYE-BANNER: 
+ash: WALLEYE-BANNER:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ash: can't accep ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # ash: ash:: not found
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax erro
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ~ # 
+ash: /: Permission denied
+~ # 
+~ # ash: can't create /:
+> 
+> ~ # 
+> 
+> ~ # > 
+> 
+> ash: syntax error: 
+> 
+> ~ # 
+> 
+> ~ # > ~ # 
+> 
+> ash: can't create /:
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax erro
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ~ # WALLEYE-BANNER becm.GS0
+ash: /: Permission denied
+~ # 
+~ # ash: can't create /:
+> 
+> ~ # 
+> 
+> ~ # > 
+> 
+> ash: syntax error: u
+> 
+> ~ # 
+> 
+> ~ # > ash: WALLEYE-BANNER: 
+> 
+> ash: WALLEYE-BANNER:
+> 
+> ~ # 
+> 
+> ~ # > 
+> 
+> ash: syntax erro
+> 
+> ~ # 
+> 
+> ~ # > ~ # 
+> 
+> ash: can't create /
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax erro
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ~ # 
+ash: /: Permission denied
+~ # 
+~ # ash: can't creat
+> 
+> ~ # 
+> 
+> ~ # > 
+> 
+> ash: syntax error: un
+> 
+> ~ # 
+> 
+> ~ # > ~ # 
+> 
+> ash: can't create /:~ # 
+ash: ash:: not found
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax erro
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ~ # ash: can't accep ~ # 
+ash: /: Permission denied
+~ # 
+~ # ash: can't create /:
+> 
+> ~ # 
+> 
+> ~ # ash: ash:: not found
+> 
+> ash: ash:: not found
+> 
+> ~ # 
+> 
+> ~ # ~ # 
+> 
+> ash: /: Permission de~ # 
+> 
+> ~ # ~ # > 
+> 
+> ash: /: Permission d
+> 
+> ~ # 
+> 
+> ~ # ash: syntax erro
+> 
+> ash: ash:: not found
+> 
+> ~ # 
+> 
+> ~ # ~ # 
+> 
+> ash: /: Permission d
+> 
+> ~ # 
+> 
+> ~ # ~ # > ~ # 
+> 
+> ash: /: Permission denie~ # 
+> 
+> ~ # ash: can't create /:
+ash: ash:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # > 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: syntax error: 
+ash: syntax: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: can't create /:
+> 
+> ash: ash:: not found
+> 
+> ~ # 
+> 
+> ~ # ~ # 
+> 
+> ash: /: Permission d
+> 
+> ~ # 
+> 
+> ~ # ~ # > 
+> 
+> ash: /: Permission d
+> 
+> ~ # 
+> 
+> ~ # ash: syntax erro
+> 
+> ash: ash:: not found
+> 
+> ~ # 
+> 
+> ~ # ~ # 
+> 
+> ash: /: Permission d
+> 
+> ~ # 
+> 
+> ~ # ~ # > ~ # WALLEYE-BANNER becm.GS0
+> 
+> ash: /: Permission d~ # 
+> 
+> ~ # ash: can't create /:
+ash: cant create /:
+
+ash: ash:: not found
+
+~ # 
+
+~ # ~ # 
+
+ash: /: Permission d
+
+~ # 
+
+~ # ~ # > 
+
+ash: /: Permission d
+
+~ # 
+
+~ # ash: syntax erro
+
+ash: ash:: not found
+
+~ # 
+
+~ # ~ # 
+
+ash: /: Permission d
+
+~ # 
+
+~ # ~ # > ~ # WALLEYE-BANNER becm.GS0
+
+ash: /: Permission d~ # 
+
+~ # ash: cant: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # > 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: syntax error: u
+ash: syntax: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # > ash: WALLEYE-BANNER: 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: WALLEYE-BANNER:
+ash: WALLEYE-BANNER:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # > 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: syntax erro
+ash: syntax: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: can't create /
+> 
+> ash: ash:: not found~ # 
+> 
+> ~ # ~ # 
+> 
+> ash: /: Permission d
+> 
+> ~ # 
+> 
+> ~ # ~ # > 
+> 
+> ash: /: Permission de
+> 
+> ~ # 
+> 
+> ~ # ash: syntax erro
+> 
+> ash: ash:: not found
+> 
+> ~ # 
+> 
+> ~ # ~ # 
+> 
+> ash: /: Permission d~ # 
+> 
+> ~ # ~ # > ~ # 
+> 
+> ash: /: Permission d
+> 
+> ~ # 
+> 
+> ~ # ash: can't creat
+ash: cant create /
+
+ash: ash:: not found~ # 
+
+~ # ~ # 
+
+ash: /: Permission d
+
+~ # 
+
+~ # ~ # > 
+
+ash: /: Permission de
+
+~ # 
+
+~ # ash: syntax erro
+
+ash: ash:: not found
+
+~ # 
+
+~ # ~ # 
+
+ash: /: Permission d~ # 
+
+~ # ~ # > ~ # 
+
+ash: /: Permission d
+
+~ # 
+
+~ # ash: cant: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # > 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: syntax error: un
+ash: syntax: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: can't create /:~ # 
+> 
+> ash: ash:: not found
+> 
+> ~ # 
+> 
+> ~ # ~ # > 
+> 
+> ash: /: Permission d
+> 
+> ~ # 
+> 
+> ~ # ash: syntax erro
+> 
+> ash: ash:: not found
+> 
+> ~ # 
+> 
+> ~ # ~ # 
+> 
+> ash: /: Permission d~ # 
+> 
+> ~ # ~ # > ~ # ash: can't accep ~ # 
+ash: cant create /:~ # 
+
+ash: ash:: not found
+
+~ # 
+
+~ # ~ # > 
+
+ash: /: Permission d
+
+~ # 
+
+~ # ash: syntax erro
+
+ash: ash:: not found
+
+~ # 
+
+~ # ~ # 
+
+ash: /: Permission d~ # 
+
+~ # ~ # > ~ # ash: cant: not found
+~ # 
+~ # ash: /: Permission de
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # ash: can't create /:
+ash: /: Permission denied
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ash: ash:: not found
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: ash:: not found
+ash: ash::: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission de~ # 
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # > 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission d
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ash: syntax erro
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: ash:: not found
+ash: ash::: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission d
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission denie~ # 
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ash: can't create /:
+ash: can't create /: Is a directory
+~ # 
+~ # ash: ash:: not found
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax error: u
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ~ # 
+ash: /: Permission denied
+~ # 
+~ # ash: can't create /:
+> 
+> ~ # 
+> 
+> ~ # > 
+> 
+> ash: syntax error: u
+> 
+> ~ # 
+> 
+> ~ # > ~ # > 
+> 
+> ash: can't create /:
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax erro
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ash: syntax error: 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax: not fou
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax erro
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ~ # 
+ash: /: Permission denied
+~ # 
+~ # ash: can't create /:
+> 
+> ~ # 
+> 
+> ~ # > 
+> 
+> ash: syntax erro
+> 
+> ~ # 
+> 
+> ~ # > ~ # > ~ # 
+> 
+> ash: can't create /:
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax erro~ # 
+ash: ash:: not found
+~ # 
+~ # ~ # > ash: can't create /:
+ash: /: Permission denied
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: ash:: not found
+ash: ash::: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission d
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # > 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission d
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ash: syntax erro
+ash: can't create /: Is a directory
+~ # 
+
+WALLEYE-BANNER beat=2 up=5.58s steps=8 last=[step 8 gadget bound to a800000.usb] shell=[started=yes n=1 pid=153 alive=yes rc=- probe=0 err=[none]]
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: ash:: not found
+ash: ash::: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission d
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # > ~ # WALLEYE-BANNER becm.GS0
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission d~ # 
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ash: can't create /:
+ash: can't create /: Is a directory
+~ # 
+~ # ash: cant create /:
+ash: ash:: not found
+~ # 
+~ # e shh: syntax erro
+ash: e: not found
+~ # 
+~ # 
+~ # 
+~ # # 
+~ # 
+~ # 
+~ # 
+~ # 
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax erro
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ~ # 
+ash: /: Permission denied
+~ # 
+~ # ash: can't create /:
+> 
+> ~ # 
+> 
+> ~ # > 
+> 
+> ash: syntax erro
+> 
+> ~ # 
+> 
+> ~ # > ~ # > 
+> 
+> ash: can't create /:
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax error: u
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ash: syntax error: u
+ash: /: Permission denied
+~ # 
+~ # ash: syntax: not fou
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax error: 
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ~ # 
+ash: /: Permission denied
+~ # 
+~ # ash: can't creat
+> 
+> ~ # 
+> 
+> ~ # > 
+> 
+> ash: syntax error: u
+> 
+> ~ # 
+> 
+> ~ # > ~ # > ash: WALLEYE-BANNER: 
+> 
+> ash: can't create /:
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax erro~ # 
+ash: ash:: not found
+~ # 
+~ # ~ # > ash: WALLEYE-BANNER:
+ash: /: Permission denied
+~ # 
+~ # ash: WALLEYE-BANNER:
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax error: u
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ~ # 
+ash: /: Permission denied
+~ # 
+~ # ash: can't create /
+> 
+> ~ # 
+> 
+> ~ # > 
+> 
+> ash: syntax error: u
+> 
+> ~ # 
+> 
+> ~ # > ~ # > 
+> 
+> ash: can't create /:
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax erro
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ash: syntax erro
+ash: /: Permission denied
+~ # 
+~ # ash: syntax: not fou
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax erro
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ~ # 
+ash: /: Permission denied
+~ # 
+~ # ash: can't create /:
+> 
+> ~ # 
+> 
+> ~ # > 
+> 
+> ash: syntax erro
+> 
+> ~ # 
+> 
+> ~ # > ~ # > ~ # 
+> 
+> ash: can't creat
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax error: u
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ash: can't create /
+ash: /: Permission denied
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: ash:: not found~ # 
+ash: ash::: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission d
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # > 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission de
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ash: syntax erro
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: ash:: not found
+ash: ash::: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission d~ # 
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission d
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ash: can't creat
+ash: can't create /: Is a directory
+~ # 
+~ # ash: cant create /
+ash: ash:: not found
+~ # 
+~ # 
+~ # 
+~ # a Pe syntax erro
+ash: a: not found
+~ # 
+~ # 
+~ # 
+~ # asnd
+ash: asnd: not found
+~ # 
+~ # ~ 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax error: u~ # 
+ash: ash:: not found
+~ # 
+~ # ~ # > ~ # 
+ash: /: Permission denied
+~ # 
+~ # ash: can't create /: 
+> 
+> ~ # 
+> 
+> ~ # > 
+> 
+> ash: syntax erro
+> 
+> ~ # 
+> 
+> ~ # > ~ # > 
+> 
+> ash: can't create /:
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax erro
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ash: syntax error: un
+ash: /: Permission denied
+~ # 
+~ # ash: syntax: not fou
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax erro
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ~ # 
+ash: /: Permission denied
+~ # 
+~ # ash: can't create /
+> 
+> ~ # 
+> 
+> ~ # > 
+> 
+> ash: syntax error: u
+> 
+> ~ # 
+> 
+> ~ # > ~ # > ~ # 
+> 
+> ash: can't create /~ # 
+ash: ash:: not found
+~ # 
+~ # ~ # > 
+ash: /: Permission denied
+~ # 
+~ # ash: syntax error: u
+ash: ash:: not found
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # ~ # > ash: can't create /:~ # 
+ash: /: Permission denied
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: ash:: not found
+ash: ash::: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # > 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission d
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ash: syntax erro
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: ash:: not found
+ash: ash::: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ash: /: Permission d~ # 
+ash: /:: not found
+~ # 
+~ # > 
+ash: syntax error: unexpected newline
+~ # 
+~ # > ~ # ~ # > ~ # ash: can't accep ~ # 
+ash: can't create /: Is a directory
+~ # 
+~ # ash: cant create /:~ dshnd
+ash: ash:: not found
+~ # 
+~ # 
+~ # 
+~ # ~ # 
+ash: /: Permission denied
+~ # 
+~ # 
+~ # 
+~ # ~ # ~ 
+ash: /: Permission denied
+~ # 
+~ # ~ # ash: /: Permission de
+ash: /: Permission denied
+~ # 
+~ # ash: ash::

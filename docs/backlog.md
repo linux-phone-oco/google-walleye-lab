@@ -3418,7 +3418,10 @@ Rank
 ### Try z5 once from slot b: a plain cat of the banner for 60-90 s says why the shell is silent
 
 Status
-: open
+: done
+
+Note
+: proven by banner-shell-check: pass, live shell, start count steady (research walleye-z5-tried)
 
 About
 : walleye-first-fastboot-boot

@@ -2060,3 +2060,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z5-tried"></a>
+### walleye-z5-tried
+
+Date
+: 2026-11-18
+
+Brief
+: z5 once from slot b: banner says shell started, alive, probe=0, no error; the tty is full of '> ' prompts and 'ash: /: Permission denied' lines
+
+Question
+: Why is the z5 shell silent: what does a plain 60 s cat of the banner say?
+
+Found
+: boot-z5.img (sha fee768d6...) via lpoco lab fastboot boot now from slot b, battery 4376 mV: gadget 1d6b:0104 at 18 s, ttyACM0 readable by the lab user; banner-shell-check passes, last line beat=31 up=64.48s steps=8 shell=[started=yes n=1 pid=153 alive=yes rc=- probe=0 err=[none]]. The 60 s capture is 1.38 MB, 192k lines; besides banner lines: '> ' continuation prompts (79k), '~ # ' (11k), 'ash: /: Permission denied' (6k), 'ash: ash:: not found' (3.8k). Measured: the shell runs and writes prompts and errors to the tty. Hypothesis, not measured: the tty echoes the banner into the shell, which runs its own lines as commands. Head of the capture: z5-capture-head.txt in the material folder. Phone back as Android on slot b, stock kernel, nothing flashed.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18/
