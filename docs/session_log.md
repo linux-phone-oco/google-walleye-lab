@@ -2251,3 +2251,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-c3-built"></a>
+### c3 built
+
+Entry date
+: 2026-11-18
+
+Done
+: build/build-c3.sh (failed first on a missing input), built through lpoco-lab job start, log read; try queued as walleye-try-c3; walleye-charger-supplier stays open for c4.
+
+Considered
+: lpoco-bringup image swap --cmdline (would work; c2's own script pattern kept for its AVB salt/props checks)
+
+About
+: walleye-first-fastboot-boot

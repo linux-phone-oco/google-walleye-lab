@@ -3742,3 +3742,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-try-c3"></a>
+### Try c3 (c2 + fw_devlink=permissive) once from slot b with the command loop: does the charger probe now, with a power_supply class?
+
+Status
+: open
+
+Note
+: c3 built from c2 by build/build-c3.sh; images-c3/boot-c3.img sha256 d8d975650bc570833f21989b584feda4eac5bca387972c456fb52e541011a401. Keeper reads /sys/class/power_supply and the charger lines of the dmesg with charger-check.sh. If the charger works, walleye-charger-supplier builds c4 (tps61099 as a fixed regulator).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-charger-smb2: sh tests/host/charger-check.sh DIR passes on the reader's output of c3 (images-c3/boot-c3.img sha256 d8d975650bc570833f21989b584feda4eac5bca387972c456fb52e541011a401)
+
+Rank
+: 1

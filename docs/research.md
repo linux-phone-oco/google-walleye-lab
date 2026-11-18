@@ -2276,3 +2276,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-19-c2-try1/
+
+
+<a id="walleye-c3-built"></a>
+### walleye-c3-built
+
+Date
+: 2026-11-18
+
+Brief
+: c3 built: c2 with only the command line changed (fw_devlink=permissive added); 8 checks ok, rebuild identical
+
+Question
+: Can c3 be made from c2 changing nothing but the command line?
+
+Found
+: build/build-c3.sh unpacks c2, repacks with the same kernel blob, ramdisk, header fields and size, cmdline = c2's + ' fw_devlink=permissive', and the AVB footer with c2's salt and props. Checks count: kernel and ramdisk equal c2's byte for byte, header equal but the cmdline, AVB info equal but digest and sizes, footer verifies. Built through lpoco-lab job start, log read. boot-c3.img sha256 d8d975650bc570833f21989b584feda4eac5bca387972c456fb52e541011a401; rebuilt byte for byte.
+
+About
+: walleye-first-fastboot-boot
