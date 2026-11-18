@@ -1251,7 +1251,7 @@ Status
 : in-progress
 
 Note
-: m1 tried once from the first state: left fastboot 12 s, enumerated 1d6b:0104 with our strings at 18 s, interface class 08 (mass storage) present, no panic, back to Android on a. Log window NOT read: the lab host has no usb_storage module for the running kernel 7.3.3 (/lib/modules holds 7.3.4 and 6.18.60-lts only), so no block device. Next: host reboots into 7.3.4 (or loads usb_storage), then the same try again
+: host is now on 7.3.4 with usb_storage (no longer waiting on that); m1's window read superseded by vf1 tries
 
 Waits
 : host: usb_storage for the running kernel (reboot into 7.3.4)
@@ -2379,10 +2379,13 @@ Proof
 ### Phone: boot vf1 twice from the first state; the keeper reads the window with tests/host/vendor-facts-read.sh (battery first, phone left in Android afterwards); first run may be partial: say what was missing
 
 Status
-: open
+: in-progress
 
 Note
-: image images-vf1/boot-vf1.img af1ca884...fffe; the dump is hardware facts of our phone: redacted twice, kept under the lab material path, never published
+: tried twice 2026-11-18 from the first state: gadget up at 18 s, LUN readable, header empty both times (see walleye-vf1-tried-twice); phone back as Android on b. Turning point for the coordinator: marker-first round in the init, or read the dump step
+
+Waits
+: coordinator: how to make the window show life first
 
 Blocked by
 : walleye-vendor-facts-dump
