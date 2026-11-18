@@ -2895,3 +2895,22 @@ Sources
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z16-built"></a>
+### walleye-z16-built
+
+Date
+: 2026-11-18
+
+Brief
+: z16 built: z15 with the QUP i2c node renamed qup@c179000 so the vendor overlay no longer overwrites its compatible; sha256 05849ba7; 26 checks ok, rebuild identical
+
+Question
+: How does z16 get the mainline i2c-qup driver onto the touch controller's bus?
+
+Found
+: z15's dtb already had compatible qcom,i2c-qup-v2.2.1 at 0xc179000; the bootloader's overlay (dtbo entry 3, fragment@142) merges its own i2c@c179000 by name into it and overwrites compatible (qcom,i2c-msm-v2), clocks, clock-names, interrupts, dmas and pinctrl (fdtoverlay on z15: merged compatible qcom,i2c-msm-v2). So changing the compatible in our dtb, as the backlog item said, would have changed nothing on the phone. z16 = z15 with the node name i2c -> qup (same length; node plus the two /__symbols__ paths blsp1_i2c5 and rmi4_f12; 9 bytes differ); the overlay then adds its own driverless i2c@c179000 beside ours, and fragment@143 lands on the vendor stub i2c_5, so touchscreen@20 stays under ours. Proof: tests/host/i2c-qup-after-merge.sh fails on z15's dtb, passes on z16's (after fdtoverlay with dtbo entry 3); build/build-z16.sh 26 checks ok, rebuild identical; boot-z16.img sha256 05849ba71282898c3fc5c77c7fa4b34ffdf64504ea1014edfd809f020c358aaa, dtb fed46c5b12110838e88c7499613d12b4f622d3cab8172955407abd4c75dc6f8f; not tried on the phone.
+
+About
+: walleye-first-fastboot-boot
