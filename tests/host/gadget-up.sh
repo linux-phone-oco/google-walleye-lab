@@ -24,7 +24,7 @@ while :; do
   [ -n "$DEV" ] || [ "$n" -ge "$WAIT" ] && break
   sleep 1; n=$((n+1))
 done
-[ -n "$DEV" ] || say fail "no USB device with our gadget strings (the phone is in fastboot, off, or hung): $(lsusb 2>/dev/null | grep -ci google) google device(s) on the bus"
+[ -n "$DEV" ] || say fail "no USB device with our gadget strings; phone-state: $(sh "$(dirname "$0")/phone-state.sh" 2>&1 | grep "^verdict" | head -n1 | grep . || echo unavailable)"
 ping -c 2 -W 3 "$ADDR" >/dev/null 2>&1 || say fail "gadget $DEV enumerated but $ADDR does not answer ping"
 R=$( (echo "echo gadget-up-\$((6*7))"; sleep 2; echo exit) | nc -w 5 "$ADDR" 23 2>/dev/null | tr -d '\000-\010\013-\037\377' | grep -o 'gadget-up-42' | tail -1)
 [ -n "$R" ] || say fail "gadget $DEV, $ADDR pings but telnet on 23 gives no answer"

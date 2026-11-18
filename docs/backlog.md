@@ -4124,10 +4124,10 @@ Rank
 ### Wire phone-state.sh into restart-check.sh and the try recipes; no script says 'hung' from lsusb alone
 
 Status
-: open
+: done
 
 Note
-: Follow-up of walleye-phone-state-witnesses (lab PR 255), which exists but is not called yet.
+: Built: restart-check.sh asks phone-state.sh (needs NOW) when no disconnect; the five gadget readers print its verdict; restart-selftest 11 ok; programmer review applied. Left to the keeper: walleye-phone-state-real-states.
 
 About
 : walleye-first-fastboot-boot
@@ -4171,3 +4171,25 @@ Proof
 
 Rank
 : 20
+
+
+<a id="walleye-phone-state-real-states"></a>
+### Run phone-state.sh once on the real phone in Android, fastboot and our gadget; record the three outputs as research
+
+Status
+: open
+
+Note
+: Remaining half of walleye-wire-phone-state; read-only on the phone.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: three phone-state.sh outputs recorded as research (android, fastboot, mainline-answering or silent)
