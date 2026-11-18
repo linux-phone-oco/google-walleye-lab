@@ -1,0 +1,4 @@
+before: current-slot=b slot-unbootable:a=no slot-successful:a=yes slot-retry-count:a=0 slot-unbootable:b=no slot-successful:b=yes slot-retry-count:b=0
+left fastboot after 15 s
+came back as a USB device 1d6b:0104 (on its USB port 3-2) after 18 s
+the slots' flags are not known yet: the phone is not in fastboot to say them (lpoco-lab fastboot state once it is back)

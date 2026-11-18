@@ -2215,3 +2215,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-1100-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: c2 tried once from slot b: command loop ok, charger deferred on tps61099 supplier (no driver), no power_supply class. Phone is Android on slot b, stock kernel, nothing flashed, flags a and b successful, fastboot reachable via adb reboot bootloader, battery 4376 mV.
+
+Considered
+: next: item walleye-charger-wait-tps61099 (dts choice: drop the supply link, stub tps61099, or fw_devlink=permissive) to the walleye coordinator; then c3; else the z7 order (UFS read-only, USB net, touch, display)
+
+About
+: walleye-first-fastboot-boot

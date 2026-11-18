@@ -2254,3 +2254,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-c2-tried"></a>
+### walleye-c2-tried
+
+Date
+: 2026-11-18
+
+Brief
+: c2 once from slot b: command loop up, dmesg 324 lines; charger@1000 deferred - supplier tps61099 has no driver; no power_supply class; charger-check fails
+
+Question
+: Does pmi8998's charger probe on c2, and is online 1 with the cable in?
+
+Found
+: c2 (boot-c2.img sha256 262d6a2c...) once from slot b via fastboot boot, z7 recipe (host stty loop, 20 s banner capture, plain background reader): gadget 1d6b:0104 at 18 s, banner-loop-check passes (starts=1), reader 15 answers. charger-check.sh FAILS: no power_supply class at all. dmesg: 'platform 800f000.spmi:pmic@2:charger@1000: deferred probe pending: platform: wait for supplier /soc@0/tps61099/ti,tps61099' - the dtb's supply link to the TPS61099 boost node (added by the stock overlay) has no driver, so the SMB2 driver never probes; rradc not checked separately. Battery 4376 mV before and after (Android). Phone back as Android on slot b by itself (adb up); fastboot showed flags a and b successful, none unbootable, current-slot b; left via fastboot reboot. Nothing flashed. Next: charger's dts must not wait on tps61099 (drop or stub the supply link / fw_devlink) - a dts choice for the coordinator, then c3.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-19-c2-try1/

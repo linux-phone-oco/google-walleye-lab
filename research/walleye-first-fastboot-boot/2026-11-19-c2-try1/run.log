@@ -1,0 +1,5 @@
+pass: the banner shows the command loop open, start count steady ([started=yes starts=1 cmds=0 last=[-] rc=- err=[none]]) (pass: 14 banner lines in 2230 bytes, beats increasing; last: WALLEYE-BANNER beat=14 up=30.02s steps=8 last=[step 8 gadget bound to a800000.usb] loop=[started=yes starts=1 cmds=0 last=[-] rc=- err=[none]])
+last banner: WALLEYE-BANNER beat=14 up=30.02s steps=8 last=[step 8 gadget bound to a800000.usb] loop=[started=yes starts=1 cmds=0 last=[-] rc=- err=[none]]
+walleye-mainline-shell-read: path used: plain
+pass walleye-mainline-shell-read host path plain; 15 answers saved under /home/mll/Projects/linux-phone-oco/wt-walleye-keeper-1795007852/research/walleye-first-fastboot-boot/2026-11-19-c2-try1/read; dmesg 324 lines
+reader exit 0

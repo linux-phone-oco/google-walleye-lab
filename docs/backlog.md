@@ -3679,10 +3679,10 @@ Rank
 ### Try c2 once from slot b with the command loop: does pmi8998's charger probe, and is online 1 with the cable in?
 
 Status
-: open
+: done
 
 Note
-: c2 once from slot b with the host stty loop + reader as plain background processes; read the dmesg, /sys/class/power_supply, charger-check.sh; battery first (the phone may be charging on USB: that is the test); phone left in Android. Risk: float voltage 4.4 V; a Type-C reset may drop the ACM link (a missing tty is a finding; z7 is the fallback).
+: tried once: charger deferred on tps61099 supplier, charger-check fails (research walleye-c2-tried); the fix is item walleye-charger-wait-tps61099
 
 About
 : walleye-first-fastboot-boot
@@ -3698,3 +3698,22 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-charger-wait-tps61099"></a>
+### c2's charger defers on supplier tps61099 (no driver): decide how the dts lets pmi8998's charger probe, then build c3
+
+Status
+: open
+
+Note
+: from research walleye-c2-tried: charger@1000 'wait for supplier /soc@0/tps61099/ti,tps61099'. Ways: remove the supply property from our charger node; give the tps61099 node a fixed-regulator driver; fw_devlink=permissive on the cmdline. Way back of each: tries run from memory on slot b, nothing flashed.
+
+About
+: walleye-charger-smb2
+
+Opened
+: 2026-11-18
+
+Needs
+: research

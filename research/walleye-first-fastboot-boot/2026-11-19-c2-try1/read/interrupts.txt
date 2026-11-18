@@ -1,0 +1,29 @@
+            CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7       
+  11:        537        629        472        278        347        740        551        777  GICv3      19 Level     arch_timer
+  14:        129          0          0          0          0          0          0          0  GICv3     200 Edge      glink-rpm
+  15:          0          0          0          0          0          0          0          0  GICv3     190 Edge      smp2p-lpass
+  16:          0          0          0          0          0          0          0          0  GICv3     483 Edge      smp2p-mpss
+  17:          0          0          0          0          0          0          0          0  GICv3     210 Edge      smp2p-slpi
+  35:          0          0          0          0          0          0          0          0  GICv3     490 Level     10ab000.thermal
+  36:          0          0          0          0          0          0          0          0  GICv3     477 Level     10ab000.thermal
+  37:          0          0          0          0          0          0          0          0  GICv3     216 Level     10ae000.thermal
+  38:          0          0          0          0          0          0          0          0  GICv3     462 Level     10ae000.thermal
+  39:          0          0          0          0          0          0          0          0  GICv3      35 Edge      wdt_bark
+  41:         62         27         20         15         20         40         22         29  GICv3      39 Level     arch_mem_timer
+  42:          0          0          0          0          0          0          0          0  GICv3     270 Level     bam_dma
+  43:          0          0          0          0          0          0          0          0  GICv3     271 Level     bam_dma
+  65:          0          0          0          0          0          0          0          0  GICv3     275 Level     ss_phy_irq
+  66:          0          0          0          0          0          0          0          0  GICv3     379 Level     qusb2_phy
+  67:        123          0          0          0          0          0          0          0  GICv3     163 Level     dwc3
+  68:          0          0          0          0          0          0          0          0  msmgpio   126 Edge      volume_up
+  69:          0          0          0          0          0          0          0          0  msmgpio    40 Edge      power_key
+  70:          0          0          0          0          0          0          0          0  msmgpio   121 Edge      volume_down
+IPI0:         45         45         62         38         19         52         41         68  Rescheduling interrupts
+IPI1:        289        245        162         60        153        212        264        227  Function call interrupts
+IPI2:          0          0          0          0          0          0          0          0  CPU stop interrupts
+IPI3:          0          0          0          0          0          0          0          0  CPU stop NMIs
+IPI4:          1         13         22          8         15         31         22         27  Timer broadcast interrupts
+IPI5:          1          2          0          0          4          0          1          1  IRQ work interrupts
+IPI6:          0          0          0          0          0          0          0          0  CPU backtrace interrupts
+IPI7:          0          0          0          0          0          0          0          0  KGDB roundup interrupts
+ Err:          0
