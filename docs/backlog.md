@@ -4653,10 +4653,10 @@ Rank
 ### How Android brings up this exact UFS card, from Google's GPL kernel and the live phone, diffed against our z13 path
 
 Status
-: open
+: done
 
 Note
-: The author's research request (2026-11-18): is there a precise solution, can the intricacies be understood from Android's own (GPL) code and behaviour? Companion of walleye-edl-way-back.
+: Research row walleye-ufs-android-way-compared: z13 does not match Android; matching needs a card reset, the vendor quirk set and PHY table; probe still not safe enough for the author (abl hand-over unread). Next: walleye-ufs-android-regs, then walleye-ufs-match-android-z.
 
 About
 : walleye-first-fastboot-boot
@@ -4721,3 +4721,53 @@ Opened
 
 Needs
 : build
+
+
+<a id="walleye-ufs-android-regs"></a>
+### Read the UFS host and PHY registers of live Android (UFS_HW_VERSION, host regs 0x00-0x2500, PHY after init, ufs_reset pad state), read-only as root
+
+Status
+: open
+
+Note
+: From research walleye-ufs-android-way-compared. Read-only devmem/debugfs on the running Lineage userdebug; the phone ends in Android. Settles which vendor PHY table Android ran.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: research row naming the HW version (3.0.0 or 3.1.0), the PHY registers read against the vendor and our tables, the pad state; no write, no reset, no fstrim
+
+Rank
+: 2
+
+
+<a id="walleye-ufs-match-android-z"></a>
+### Build a z image whose UFS path matches Android's for this card: SAVECONFIGTIME only, the PHY table of the version read, ICE and rail loads, a card RST_n pulse (built and reviewed, NOT tried)
+
+Status
+: open
+
+Note
+: From research walleye-ufs-android-way-compared. The RST_n pulse needs a kernel change (tlmm ngpios or pinctrl states): decide which first. Drop ONE_TX_LANE, EXTEND_SYNC_LENGTH, DELAY_BEFORE_LPM for this card; keep the NO_PURGE guard.
+
+Blocked by
+: walleye-ufs-android-regs
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: a built image whose quirks for H28U74301AMR equal the vendor's, with the programmer review; try waits for the author's word
