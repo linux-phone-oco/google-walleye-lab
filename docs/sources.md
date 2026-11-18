@@ -420,3 +420,55 @@ Url
 
 Takes
 : taimen's bootloader refuses a kernel unless dtbo holds an overlay with id 2704; recipe for a minimal dtbo
+
+
+<a id="lineage-wahoo-qpnp-power-on"></a>
+### qpnp-power-on.c, LineageOS android_kernel_google_wahoo (the vendor GPL kernel of walleye)
+
+Url
+: https://github.com/LineageOS/android_kernel_google_wahoo/blob/lineage-20/drivers/input/misc/qpnp-power-on.c
+
+By
+: Qualcomm / Google (GPL)
+
+Takes
+: The vendor driver writes only the WD enable bit (S2_CTL2 0x57); no S2_CTL (0x56) type write; PS_HOLD type goes through 0x5A with enable 0x5B on gen2 after clearing enable and a 500 us wait; type values WARM 1, SHUTDOWN 4, HARD 7; qcom,s3-debounce uses SEC_ACCESS
+
+
+<a id="lineage-wahoo-qpnp-power-on-h"></a>
+### include/linux/input/qpnp-power-on.h, android_kernel_google_wahoo
+
+Url
+: https://github.com/LineageOS/android_kernel_google_wahoo/blob/lineage-20/include/linux/input/qpnp-power-on.h
+
+By
+: Qualcomm / Google (GPL)
+
+Takes
+: enum pon_power_off_type: WARM_RESET 0x01 (reset the MSM, not all PMIC peripherals), SHUTDOWN 0x04, HARD_RESET 0x07 (reset the MSM and all PMIC peripherals)
+
+
+<a id="pmic-wdt-series-pm8916-wdt"></a>
+### pm8916_wdt.c with the series topic/pmic-wdt-wake-in-suspend (e123d3bff), as built into z9
+
+Url
+: https://github.com/grenudi/linux/tree/topic/pmic-wdt-wake-in-suspend
+
+By
+: upstreams lane
+
+Takes
+: probe writes S2_CTL 0x56 = 0x07 once, no unlock, no read-back; timers at 0x54/0x55, enable 0x57; poweroff reason at 0xc5 on gen2
+
+
+<a id="mainline-qcom-pon-v7-3"></a>
+### drivers/power/reset/qcom-pon.c, Linux v7.3
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/power/reset/qcom-pon.c?h=v7.3
+
+By
+: mainline
+
+Takes
+: qcom-pon writes only PON_SOFT_RB_SPARE (0x8f) and populates children; it never writes S2_CTL, PS_HOLD_RST_CTL or any reset type
