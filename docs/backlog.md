@@ -3443,12 +3443,10 @@ Rank
 ### z5 again with the host tty raw/no-echo the moment it appears: is the shell drowned by the host's echo of the banner?
 
 Status
-: open
+: done
 
 Note
-: tried once 2026-11-18 13:2x: no result, lab-agent GitHub token 401 so the reader job never ran (research walleye-z5b-try-no-reader); waits on the author renewing the token (lab-agent connect); job script at ~/lab-material/walleye/z5b-try1/job.sh
-
-SECOND ROUND (coordinator): the job route is withdrawn (decision 2026-11-19-walleye-reader-plain-background-process): start the host-side stty loop and the reader as plain background processes (nohup, own process group) BEFORE the boot, as in the z4/z5 tries; a prepared job.sh from the first round (~/lab-material/walleye/z5b-try1/job.sh) is the script to run directly with sh. No lab-agent, no root-exec.
+: tried once 2026-11-18 (second round, plain background reader, research walleye-z5b-tried-raw-tty): raw -echo removes the '> ' and 'Permission denied' noise (0 of each in a 30 s capture) but the shell still returns no command output, only banner beats; next item: z6 = z5 with the banner stopped (or sent to /dev/kmsg only) once the shell is up, so the shell's answers are alone on ttyGS0
 
 About
 : walleye-first-fastboot-boot
