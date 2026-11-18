@@ -3978,6 +3978,9 @@ Proof
 Rank
 : 20
 
+Witness
+: person
+
 
 <a id="walleye-phone-state-real-states"></a>
 ### Run phone-state.sh once on the real phone in Android, fastboot and our gadget; record the three outputs as research
@@ -4054,6 +4057,9 @@ Proof
 
 Rank
 : 90
+
+Witness
+: person
 
 
 <a id="walleye-charger-init-bisect"></a>
@@ -4445,6 +4451,9 @@ Proof
 Rank
 : 96
 
+Witness
+: person
+
 
 <a id="walleye-try-z11"></a>
 ### Try z11 once from slot b: do the UFS LUNs and partitions show, and does boot_a's header read ANDROID!?
@@ -4472,6 +4481,9 @@ Proof
 
 Rank
 : 97
+
+Witness
+: person
 
 
 <a id="walleye-edl-way-back"></a>
