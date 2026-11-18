@@ -1594,3 +1594,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0800-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Tried y1 twice (alive, Android back 36 s) and y2 twice (gadget 1d6b:0104 at 18 s, ttyACM0): our dtb with gpio-reserved-ranges boots mainline to USB. Phone is Android on slot b, stock kernel, nothing flashed, fastboot reachable via adb reboot bootloader.
+
+Considered
+: next: read the ACM shell on y2 (dmesg, the facts the vendor dump was after); give mainline USB its nodes properly; consider restart@10ac000 and the apps watchdog from the fdt compare; upstream the gpio-reserved-ranges commit
+
+About
+: walleye-first-fastboot-boot

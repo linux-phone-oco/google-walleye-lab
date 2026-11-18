@@ -2736,10 +2736,10 @@ Proof
 ### Phone: boot y1 twice, then y2 twice from the first state; battery first; read return times and the host's lsusb; leave Android on a good slot
 
 Status
-: open
+: done
 
 Note
-: Images: ~/Projects/walleye-build/images-y/ (hashes in research walleye-y-built). Expected: y1 alive (back as Android <= 66 s); y2 shows 1d6b:0104 (walleye-first-boot) on the host within ~25 s of the jump. Record the returns as research walleye-y-tried; if y1 is dead, the property alone is not enough: compare with x1's fix.
+: proven by y1 alive x2 (36 s) and y2 gadget 1d6b:0104 at 18 s x2, research walleye-y-tried
 
 About
 : walleye-first-fastboot-boot
