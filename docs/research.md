@@ -1817,3 +1817,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-y2-z1-control-both-silent"></a>
+### walleye-y2-z1-control-both-silent
+
+Date
+: 2026-11-18
+
+Brief
+: Control: y2 and z1 from slot b, same reader, same day: both enumerate at 18 s, ttyACM0 appears, reader gets 0 bytes from either; z1's silence is not the new dtb
+
+Question
+: Is z1's silent ttyACM0 the new dtb (PMIC nodes) or the reader?
+
+Found
+: y2 once (09:29) and z1 once (09:33), battery 100%, slot b, reader mainline-shell-read.sh started before each boot. Both: left fastboot at 15 s, 1d6b:0104 at 18 s (CDC ACM, CDC data, mass storage; product 'Pixel 2 walleye (mainline)'), ttyACM0 created, every command unanswered (dmesg/uname/cmdline files empty), then Permission denied on the tty near the end as the phone left. Both phones back as Android on slot b, flags a/b successful, nothing flashed. So the PMIC dtb does not silence the shell; the reader or the init's tty does. Not measured: raw bytes (the reader does not log them), host dmesg lines. Files on the lab host: ~/lab-material/walleye/y2ctl-092945 and z1ctl-093341.
+
+About
+: walleye-first-fastboot-boot

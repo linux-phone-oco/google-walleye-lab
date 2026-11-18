@@ -1732,3 +1732,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0945-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: y2 once then z1 once with the same reader: both silent (gadget 18 s, ttyACM0, no bytes); phone back as Android on slot b, stock kernel, nothing flashed, adb up, fastboot via adb reboot bootloader
+
+Considered
+: next: builder makes a banner init (ttyGS0 every 2 s, kmsg marker per step) on y2 first then z1; keeper reads with plain cat before any reader; control item walleye-try-y2-control done
+
+About
+: walleye-first-fastboot-boot
