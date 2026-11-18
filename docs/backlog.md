@@ -2097,3 +2097,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-property-bisect"></a>
+### Property-level bisect between wa (alive) and pk2 (dead): same node set and statuses, so a PROPERTY of pk2's dtb (or ours) stops boot
+
+Status
+: open
+
+Note
+: Facts (lab research walleye-wa-tried, walleye-w-bisect-tried): wa (taimen dtb with every node set and status of the walleye dtb) is alive (42/63/63 s); w1-w5 and wr alive; pk2 (porthole's walleye dtb), pk4/d1-d6 and our dtb are dead (69-78 s): the cause is in the properties of the walleye dtbs, not in nodes or statuses. Likeliest groups: /memory reg, reserved-memory carve-outs that overlap where the bootloader loads kernel/initrd (base 0, kernel 0x8000, ramdisk 0x1000000) or firmware, cpu/timer, chosen (a pre-existing bootargs hides the cmdline: the ABL appends the cmdline: check ours and pk2's chosen!), psci. WHEN DONE queue walleye-try-property-bisect (needs phone, rank 1): the planned images twice each; the bisect continues until one property group is named; classification rule: <=66 s alive, >=69 s dead (decision 2026-11-18-walleye-bisect-from-the-alive-dtb).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: (1) a research row: wa and pk2 decompiled (dtc -I dtb -O dts -s) and diffed property by property: every differing property listed by node (compatible, model, msm-id/board-id, memory reg, reserved-memory regions and their no-map/reusable, cpu capacities/idle-state, timer frequency, psci, chosen, pinctrl/regulator limits, clock rates, interrupts...), grouped (top-level, memory+reserved-memory, cpus, soc nodes...); (2) images wp1..wpn = wa with ONE group of pk2's property values copied in (binary-halving plan: first half/second half of the groups, then narrower), same kernel/ramdisk/cmdline as wa; checks, hashes; each states its expected return (alive <=66 s, dead >=69 s). Also build the mirror from OUR dtb: o1.. = our dtb with one group of wa's values copied in, if the first plan leaves the culprit in a group that is ours alone
