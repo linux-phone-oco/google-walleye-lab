@@ -1344,3 +1344,25 @@ About
 
 Research
 : walleye-touch-gpio-defer-leaves
+
+
+<a id="2026-11-19-walleye-compare-with-android-for-every-part"></a>
+### 2026-11-19-walleye-compare-with-android-for-every-part
+
+Date
+: 2026-11-18
+
+Brief
+: Every part starts with a captured comparison against live Android, before theory
+
+Decision
+: The author's question (2026-11-19, via the top coordinator, verbatim): "why cant we use comparison with what android does for everything like we did for storage ? is it too prici on time and effort ? cant be automated with small makeshift tools for analysis ?". The answer, and the method from now on: yes, for every part. Android runs the same hardware correctly every boot, and the live phone is readable as root (disposable Android: decision 2026-11-18-walleye-android-disposable-no-bricking). So the first step of every part, BEFORE theory about why our kernel does not bring it up, is a comparison tool run: capture the part's state on live Android over adb root (gpio, pinctrl, regulators, clocks, the part's device-tree nodes from /proc/device-tree, its driver's sysfs/debugfs, its dmesg lines), capture the same files from our kernel over the network shell, and diff them normalised: which pins are driven at what level and direction, which regulators are on at what voltage, which clocks run at what rate, which properties the running fdt carries that ours does not. It is cheap (one read-only phone visit of minutes and a small script of shell/awk/dtc; no Python), it replaces rounds of theory (the touch lane has used six phone tries on guesses), and it can be automated: the capture and diff script is kept in the lab (tests/host/part-compare.sh PART with a per-part file list), and orchestration may lift it into lpoco-bringup as a general helper. Order for each part: (1) the comparison run, (2) read what differs, (3) change the dts or config for exactly that, (4) the try.
+
+Why
+: Cost: small; benefit: it answers 'what does Android do that we do not' by measurement, which the theory rounds (z17, z18) could not; it is how storage was understood.
+
+Rejected
+: Reasoning from kernel source about why a part fails before looking at what the working Android sets (the pattern of the touch lane); building a diagnostic kernel for every part first.
+
+About
+: walleye-first-fastboot-boot

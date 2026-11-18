@@ -5067,3 +5067,56 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-part-compare-tool"></a>
+### The part comparison tool: capture a part's state on live Android and on our kernel, diff them normalised
+
+Status
+: open
+
+Note
+: The author's question (decision 2026-11-19-walleye-compare-with-android-for-every-part). Orchestration may lift it into lpoco-bringup as a general helper.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: tests/host/part-compare.sh PART (new, selftested with two fake captures): (1) capture mode on LIVE ANDROID over adb root: for the part's file list (a small per-part manifest in tests/host/part-compare.d/PART.list: for touch: /sys/kernel/debug/gpio, /sys/kernel/debug/pinctrl/*, /sys/kernel/debug/regulator/regulator_summary (or the debugfs path this kernel has), /sys/class/regulator/*/{name,state,microvolts}, /sys/kernel/debug/clk/clk_summary lines for the part, the part's nodes from /proc/device-tree (the i2c bus node, touchscreen@20 and every supply/gpio phandle it names, dumped as property key-values: use the running fdt in material if /proc/device-tree is awkward), the part's driver sysfs and the dmesg lines for it) into a dated capture directory under the lab-material path, redacted of ids; the same capture mode over OUR network shell (telnet 172.16.43.1) with the same list and the same normalisation; (2) diff mode: normalise both (sorted key=value lines, regulators as name:state:microvolts, gpios as chip/pin: direction, level, owner label, pinctrl groups: function/bias/drive) and print what differs in three groups: 'Android has, we lack', 'we have, Android lacks', 'same pin or regulator, different value'; exit 0 always (it informs); the per-part list for touch included, a README line on how to add a part; no Python (sh, awk, sed, dtc); programmer review
+
+Rank
+: 1
+
+
+<a id="walleye-touch-android-compare"></a>
+### Touch: compare Android's live state with ours (gpio, pinctrl, regulators, device-tree node) before any more theory
+
+Status
+: open
+
+Note
+: The top coordinator, for the author (2026-11-19): do this now, before more theory (the touch lane has spent z15-z17 on guesses). The z20 diagnostic try runs first; this follows with the comparison tool.
+
+Blocked by
+: walleye-part-compare-tool
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: With the tool part-compare.sh landed: (1) capture the touch state on live Android over adb root (the phone is in Android now), (2) capture the same list over z20's network shell (or z19/z17 if z20's try is not this try: any image with the network shell and the touch node), (3) run the diff, save the three groups and RECORD what Android sets that we do not (a shared-gpio owner, the reset line, the supply order, a pin's pinctrl function/bias, a regulator Android enables first): as a research row; read-only on the phone; then the dts change that follows from it is a build item the research queues (rank 1) with its proof
+
+Rank
+: 2
