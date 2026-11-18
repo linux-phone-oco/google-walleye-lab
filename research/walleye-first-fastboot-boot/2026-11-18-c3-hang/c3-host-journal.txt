@@ -1,0 +1,14 @@
+Nov 18 15:13:21 grig kernel: usb 3-2: USB disconnect, device number 63
+Nov 18 15:13:27 grig kernel: usb 3-2: new high-speed USB device number 64 using xhci_hcd
+Nov 18 15:13:27 grig kernel: usb 3-2: New USB device found, idVendor=18d1, idProduct=4ee0, bcdDevice= 1.00
+Nov 18 15:13:27 grig kernel: usb 3-2: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+Nov 18 15:13:27 grig kernel: usb 3-2: Product: Android
+Nov 18 15:13:27 grig kernel: usb 3-2: Manufacturer: Google
+Nov 18 15:13:27 grig kernel: usb 3-2: SerialNumber: FA81N1A00790
+Nov 18 15:13:49 grig kernel: usb 3-2: USB disconnect, device number 64
+Nov 18 15:13:50 grig kernel: usb 3-2: new high-speed USB device number 65 using xhci_hcd
+Nov 18 15:13:50 grig kernel: usb 3-2: New USB device found, idVendor=1d6b, idProduct=0104, bcdDevice= 1.00
+Nov 18 15:13:50 grig kernel: usb 3-2: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+Nov 18 15:13:50 grig kernel: usb 3-2: Product: Pixel 2 walleye (mainline banner shell)
+Nov 18 15:13:50 grig kernel: usb 3-2: Manufacturer: linux-phone-oco
+Nov 18 15:13:50 grig kernel: usb 3-2: SerialNumber: walleye-first-boot

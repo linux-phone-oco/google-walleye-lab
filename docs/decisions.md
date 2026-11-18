@@ -942,3 +942,34 @@ Amends
 
 Tracked by
 : walleye-try-c4
+
+
+<a id="2026-11-18-walleye-restart-gate-before-charger-try"></a>
+### 2026-11-18-walleye-restart-gate-before-charger-try
+
+Date
+: 2026-11-18
+
+Brief
+: No image that probes the charger is tried until a restart gate passes on its control; c4 waits behind c5 (module unloaded) and c6 (module loaded late)
+
+Decision
+: Every image that probes the charger is tried in two steps from one build: c5 (driver module not loaded) must pass tests/host/restart-check.sh first; then c6 loads it 40 s after enumeration. The gate reads the host journal: the gadget leaves the bus within 200 s of enumerating. No long try (more than the 180 s self-reboot) of a charger-probing image until the gate has passed with it; the deadman for such a try is the PMIC watchdog with a proven restart S2 type, never the apps watchdog or the init's reboot alone.
+
+Why
+: c3 left the bus never again for 28+ min (host journal) while the identical init restarted c2 at exactly 180 s: the reset request itself did not take effect, so no in-image reboot is a way back; the only visible difference is the charger probe. One build with the load decided by the command line keeps c5 and c6 byte-equal but for the cmdline (the c3 method), so a gate fail isolates the probe.
+
+Rejected
+: Trying c4 next (it probes the charger from boot: it would very likely hang again and cost the author's hands without telling which register); making the init stop the charger before reboot (the driver has no stop path and the cause is unproven); waiting for the apps watchdog (never shown to restart this phone; T3 left no marker); reading pstore after the hold (a PMIC hard reset loses DDR); a bisect of fw_devlink alone (the dmesg shows the charger the only new probe).
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-c3-hang-how-it-stands
+
+Scope
+: walleye keeper, builder; walleye-try-c4, walleye-try-c5, walleye-try-c6
+
+Tracked by
+: walleye-try-c6
