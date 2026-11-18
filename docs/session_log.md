@@ -2362,3 +2362,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1610-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Took walleye-try-c5: tried once from slot b, restart gate passed (180 s). Phone is Android on slot b, stock kernel, nothing flashed, flags a and b successful, fastboot reachable by adb reboot bootloader, battery 4378 mV.
+
+Considered
+: next: walleye-try-c6 (charger module loaded 40 s after enumeration) - the gate passed, so it may run; it needs a PMIC-side deadman decision first if its try is longer than 180 s (decision restart-gate-before-charger-try); else walleye-dtbo-minimal-try
+
+About
+: walleye-first-fastboot-boot
