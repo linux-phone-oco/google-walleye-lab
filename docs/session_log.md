@@ -1462,3 +1462,18 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0610-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: vf control done: vf2 twice alive (gadget up, empty header), vf4 twice dead unwatched; phone back as Android on b, stock kernel, flags a and b successful, nothing flashed, fastboot reachable
+
+Considered
+: next: turning point for the coordinator - vf4 dies without the poller, so its progressive dump after the bind is the suspect; bisect the dump (vf4 with a vf2-like tail) or write a first-round marker at once
