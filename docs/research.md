@@ -2794,3 +2794,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-edl-way-back/
+
+
+<a id="walleye-z9-recovery-unproven"></a>
+### walleye-z9-recovery-unproven
+
+Date
+: 2026-11-18
+
+Brief
+: z9's recovery after the PMIC bite is unproven as 'by itself' (the author's hold is a confound)
+
+Question
+: Did the phone come back by itself after the z9 PMIC bite?
+
+Found
+: Two rows of the lab say different things about the phone after the z9 PMIC bite: the z9 row says it did not come back by itself; the c3 try row (walleye-c3-tried) says z9 came back after about 10 minutes. The facts: after the z9 bite (14:54 local) the phone was off the USB bus; the keeper (session 348f6c2b) reported later that fastboot (18d1:4ee0, slot b current, successful) appeared 'a few minutes' after its last message, '>10 min', while the author held Power about 15 s in that same window (the coordinator's relay, 14:08-14:11Z, then Android 18d1:4ee7 with adb). The record does not tell which of the two recovered the phone. So the right wording for both rows: the recovery after a PMIC bite is UNPROVEN as 'by itself'; it is known only that the phone reappeared within about 15 minutes with the author's hold in the window. This research row corrects the c3 wording: wherever a row says 'z9 recovered by itself after 10 minutes', read: not proven (the hold is a confound).
+
+About
+: walleye-first-fastboot-boot
