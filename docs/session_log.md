@@ -2653,3 +2653,18 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-2330-how-the-phone-stands-ufs-readback"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: walleye-ufs-android-live done: read-only adb root readback of Android's UFS bring-up recorded. Phone: Android on slot b, stock kernel, nothing flashed, fastboot reachable.
+
+Considered
+: next: walleye-bootchain-readback (read only, needs a test written first)

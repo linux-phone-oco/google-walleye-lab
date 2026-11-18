@@ -1,0 +1,14 @@
+grep: /sys/kernel/debug/clk/clk_summary: No such file or directory
+    1da4000.ufshc                                                1800mV  1800mV
+    1da7000.ufsphy                                                880mV   880mV
+    1da7000.ufsphy                                               1200mV  1200mV
+    1da4000.ufshc                                                2960mV  2960mV
+    1da7000.ufsphy                                               1200mV  1200mV
+    1da4000.ufshc                                                1200mV  1200mV
+ gdsc_ufs                         0    3      0     0mV     0mA     0mV     0mV 
+    1db0000.ufsice                                                  0mV     0mV
+    1da4000.ufshc                                                   0mV     0mV
+aggre1_noc_a_clk
+aggre1_noc_clk
+aggre2_noc_a_clk
+cat: /sys/kernel/debug/clk/*ufs*/clk_rate: No such file or directory
