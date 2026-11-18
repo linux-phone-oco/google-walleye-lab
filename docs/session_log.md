@@ -1136,24 +1136,6 @@ About
 ---
 
 
-<a id="2026-11-18-2300-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-18
-
-Done
-: phone is gone from USB (no fastboot, no adb; devlab fastboot state: off or needs hands); pk5g stages g1..g3 (backlog walleye-try-pk5-stages) not started; nothing flashed, stock kernel, last known slot b current, a and b successful
-
-Considered
-: next: a hand power-cycle (or cable reseat) brings it back to Android/fastboot; then take walleye-try-pk5-stages
-
-About
-: walleye-first-fastboot-boot
-
----
-
-
 <a id="2026-11-18-walleye-battery-watch-built"></a>
 ### walleye battery watch built
 
@@ -2539,3 +2521,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-2300-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up. Item walleye-ufs-card-identity closed on the getvar-none branch (one fastboot visit, reboot back).
+
+Considered
+: next: coordinator to say whether the exact UFS model needs a recovery root shell, since z11/z12 wait on it; walleye-pmic-wdt-z10-read-pon-regs is parked

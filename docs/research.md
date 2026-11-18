@@ -2684,3 +2684,22 @@ About
 
 Material
 : research/walleye-ufs-card-identity/2026-11-18/
+
+
+<a id="walleye-ufs-card-identity-not-readable-stock"></a>
+### walleye-ufs-card-identity-not-readable-stock
+
+Date
+: 2026-11-18
+
+Brief
+: UFS card model/firmware is not readable from stock Android shell or fastboot getvar all; only ro.boot.hardware.ufs=64GB,Hynix; needs recovery root
+
+Question
+: Can the UFS card's model and firmware be read without our kernel probing it?
+
+Found
+: Android shell (uid shell, no su): /sys/block/sda/device/{model,rev,vendor} permission denied, /proc/scsi/scsi denied, ufshc sysfs path absent; props give only ro.boot.hardware.ufs=64GB,Hynix and bootdevice 1da4000.ufshc. Fastboot (bootloader mw8998-003.0085.00) getvar all lists partitions, slots, battery, avb - no UFS model, vendor or firmware variable. Phone returned to Android slot b, nothing flashed. Remaining way: a root shell in recovery, which needs a recovery image we do not have; ask coordinator.
+
+About
+: walleye-first-fastboot-boot
