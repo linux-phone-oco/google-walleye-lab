@@ -2813,3 +2813,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z14-tried"></a>
+### walleye-z14-tried
+
+Date
+: 2026-11-18
+
+Brief
+: z14 once from slot b: gadget up at 18 s, ECM usb0 172.16.43.1 pings, telnet answers; walleye-gadget-up passes
+
+Question
+: Does z14 bring up USB networking (ECM+telnet) beside the ACM console?
+
+Found
+: boot-z14.img sha256 c2e616f8 booted from fastboot (left fastboot 15 s, gadget 1d6b:0104 at 18 s). Host got enp10s0f3u2i2 172.16.43.2; 172.16.43.1 pings; telnet 23 gives a root shell: uname 7.3.0-dirty, usb0 up, udc a800000.usb, dmesg 329 lines, no power_supply. Banner on ttyACM0 shows step 11 telnetd. First gadget-up.sh run failed only because the lab host has no nc; the script now falls back to telnet and passes. Nothing flashed; phone returned to Android.
+
+About
+: walleye-first-fastboot-boot
