@@ -1590,3 +1590,47 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-fdt-compare"></a>
+### walleye-fdt-compare
+
+Date
+: 2026-11-18
+
+Brief
+: Ours lacks, against both alive trees: restart@10ac000 (pshold), the apps watchdog, gpio-reserved-ranges; ramoops in the rtel region; the okay hardware
+
+Question
+: What does the phone's running fdt add to or need from a tree, and what do the alive taimen dtb and the running fdt have that our dtb lacks?
+
+Found
+: Three trees compared (ours 581 nodes, alive 953, running vendor tree 2284). The bootloader adds chosen bootargs/initrd, fills /memory, and rewrites reserved-memory (pil regions at other addresses than their names, bootloader log 0xa1300000, rtel 0xa1800000+32 MiB, ramoops 0xa1100000). Ours lacks restart@10ac000 qcom,pshold and the apps watchdog (in both alive trees and the running fdt), gpio-reserved-ranges <0 4>,<81 4> (both alive trees), has ramoops inside the bootloader's rtel region, and leaves display, gpu, ufshc, remoteprocs, serial and wifi disabled. 288 nodes only wpa has, 22 only ours, 45 differing and 126 only-wpa properties. The USB nodes of the running fdt equal what ours already carries; no new node is proposed.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-fdt-compare/
+
+
+<a id="walleye-fdt-bisect-x-built"></a>
+### walleye-fdt-bisect-x-built
+
+Date
+: 2026-11-18
+
+Brief
+: x1..x7 and xa built: wpa (alive) with one disjoint group of the differences to our dtb made equal to ours; 114 checks ok, rebuild identical
+
+Question
+: Which group of the differences between the alive dtb and ours makes init die?
+
+Found
+: build/build-fdt-bisect.sh builds boot-x1..x7 and boot-xa from boot-wpa.img and our dtb: x1 gpio-reserved-ranges, x2 chosen+reserved-memory, x3 cpu scaling, x4 restart+watchdog+imem+pmu, x5 interconnects, x6 statuses, x7 what x1..x6 leave, xa all. Only the dtb differs from wpa's image; the stock dtbo overlay still merges in each (overlay targets are emptied, not removed); the groups change disjoint lines (checked pairwise); xa differs from ours in exactly 82 pinned lines (ours-only regulators, stubs, phandle renumbering). Reviewed by the programmer subagent; its findings (x7 overlap, a hiding skip list, stale output on abort, phandle constants) fixed. Expected returns alive <= 66 s, dead >= 69 s; try order x4 x1 x2 x6 x5 x3 x7 xa, twice each.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-fdt-compare/

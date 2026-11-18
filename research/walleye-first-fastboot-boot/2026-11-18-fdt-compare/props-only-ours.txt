@@ -1,0 +1,14 @@
+/soc@0/phy@c012000|vdd-supply
+/soc@0/pinctrl@3400000/blsp1-i2c1-sleep-state-state|bias-disable
+/soc@0/pinctrl@3400000/blsp1-i2c2-sleep-state-state|bias-disable
+/soc@0/pinctrl@3400000/blsp1-i2c3-sleep-state|bias-disable
+/soc@0/pinctrl@3400000/blsp1-i2c4-sleep-state|bias-disable
+/soc@0/pinctrl@3400000/blsp1-i2c5-sleep-state|bias-disable
+/soc@0/pinctrl@3400000/blsp1-i2c6-sleep-state|bias-disable
+/soc@0/pinctrl@3400000/blsp2-i2c1-sleep-state|bias-disable
+/soc@0/pinctrl@3400000/blsp2-i2c2-sleep-state|bias-disable
+/soc@0/pinctrl@3400000/blsp2-i2c3-sleep-state|bias-disable
+/soc@0/pinctrl@3400000/blsp2-i2c4-sleep-state|bias-disable
+/soc@0/pinctrl@3400000/blsp2-i2c5-sleep-state|bias-disable
+/soc@0/pinctrl@3400000/blsp2-i2c6-sleep-state|bias-disable
+/soc@0/spmi@800f000|interrupts

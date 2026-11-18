@@ -2623,10 +2623,10 @@ Rank
 ### Compare OUR dtb, the alive taimen dtb (pk5) and the phone's RUNNING fdt (vfa): what the bootloader adds or needs, and what our tree lacks; then build the images that test it
 
 Status
-: open
+: done
 
 Note
-: Facts: pk5 (our kernel + taimen dtb) alive; wa/wpa (taimen dtb + all walleye nodes/statuses/properties) alive; our dtb, pk2 (porthole's walleye dtb), pk4 dead; all removal-bisects dead (d1-d6). The real running fdt (vfa, 466 KB) is the first true description of this phone. Clean room: GPL kernel hardware facts, observed behaviour; licences/authors noted. WHEN DONE queue walleye-try-fdt-bisect (needs phone, rank 1) for the keeper (after the vfb-vfd tries end); phone-side tries return by themselves.
+: Compared in walleye-fdt-compare; images x1..x7, xa built (walleye-fdt-bisect-x-built); queued walleye-try-fdt-bisect for the keeper; USB nodes: none to add, see the compare row
 
 About
 : walleye-first-fastboot-boot
@@ -2683,3 +2683,28 @@ Needs
 
 Proof
 : walleye's series file(s) declare the swaps of the bisects done so far (pk4/pk5/pk6, d1-d6, w*/wa/wpa, wp*, the fdt compare when it exists) against the control image; `lpoco-bringup image bisect` reproduces at least pk5, wa and one d-image byte for byte (sha256 equal to the recorded ones, or the difference explained); the old scripts removed in the same change; checks and hashes; programmer review
+
+
+<a id="walleye-try-fdt-bisect"></a>
+### Phone: boot x4, x1, x2, x6, x5, x3, x7, xa twice each from the first state; record the sixteen return times
+
+Status
+: open
+
+Note
+: Images ~/Projects/walleye-build/images-x (SHA256SUMS in research/walleye-first-fastboot-boot/2026-11-18-fdt-compare/). Alive <= 66 s, dead >= 69 s. Order by suspicion in walleye-fdt-compare. One dead single image names the cause; only xa dead: groups interact; xa alive: the cause is in the pinned leftover lines.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 1
