@@ -4444,3 +4444,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-ufs-card-identity-root"></a>
+### Read the Pixel 2's UFS model and firmware as root over adb (read-only)
+
+Status
+: open
+
+Note
+: The author allowed root (decision 2026-11-18-walleye-android-disposable-no-bricking). The first identity try (lab PR 279) used the stock shell and fastboot only and found none.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: With adb root (LineageOS userdebug; decision 2026-11-18-walleye-android-disposable-no-bricking), read-only: the card's vendor, model and firmware revision from /sys/block/sda/device/{vendor,model,rev} and /sys/class/scsi_device/*/device/*, the UFS device and health descriptors where the vendor driver exposes them (sysfs under the ufshc: /sys/devices/platform/soc*/*ufshc*/ attributes, debugfs if mounted), the host controller's version and gear from the vendor kernel's dmesg lines; saved as material and recorded as research (serials redacted: the card's own serial number is an identifier, leave it out). NO write to any block device, no fastboot flash, no setting of a ufs attribute. If adb root is refused, say so exactly and propose the way (a Magisk-patched boot on the inactive slot is a recorded plan first with the backup of that slot's boot partition read back with sha256 and the way back); do not do it unrecorded. The result goes to the top coordinator via the coordinator for the UFS-probe decision.
+
+Rank
+: 1
