@@ -2341,3 +2341,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-phone-state-check-over-several-witnesses"></a>
+### Phone-state check over several witnesses
+
+Entry date
+: 2026-11-18
+
+Done
+: Built tests/host/phone-state.sh: verdict android|fastboot|mainline-answering|mainline-silent|not-known|gone over adb, fastboot, sysfs usb, the gadget's own tty; never 'hung'. Selftest with fakes, programmer review fixed (tty echo/hupcl, tty node bound to the gadget, adb recovery states, age dropped). AGENTS.md rule added.
+
+Considered
+: Age of the listing from sysfs mtime
+
+Rejected
+: Age witness: sysfs mtimes are lazy and say nothing of enumeration time, so it is shown as not known yet; usb reset probe left out of the first version as the item says
+
+About
+: walleye-first-fastboot-boot

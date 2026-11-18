@@ -20,6 +20,7 @@ Principles of linux-phone-oco, cited and never restated ([`tad q principles`](ht
   in fastboot between tries (fastboot draws power and charges little). End every session with the phone booted into Android on a
   good slot (`fastboot reboot`, then adb) and record `sh tests/host/idle-android.sh`'s line as the end state. `sh tests/host/battery-selftest.sh`
   proves both scripts against fake fastboot and adb, never touching the phone.
+- **Where is the phone? Ask `sh tests/host/phone-state.sh`** (item walleye-phone-state-witnesses): a verdict over adb, fastboot, the USB bus by sysfs and the tty's answer - `android`, `fastboot`, `mainline-answering`, `mainline-silent` ("NOT KNOWN"), `not-known`, `gone`; it never says hung. A recipe that waits for the phone's return calls it; lsusb alone is one witness and proves nothing (research walleye-c3-hang-unproven). `sh tests/host/phone-state-selftest.sh` proves it against fakes.
 - **Before a test a person must witness** (listening, looking), say what to expect and what to check,
   and wait for their go.
 - **A script that changes state needs explicit intent** (a verb such as `now`); lists are passed as
