@@ -3061,10 +3061,10 @@ Rank
 ### y2 with PR 155's exact reader: is the silence the reader change or the host
 
 Status
-: open
+: done
 
 Note
-: Lead from the top coordinator: between y2's working read (lab PR 155, ~07:30 UTC) and the 0-byte reads the reader changed (commit 17ab08e touched tests/host/mainline-shell-read.sh), the host went to lpoco 0.4.1 (~07:45) and 0.6.0 (~08:16: gadget rule GROUP users MODE 0660, re-trigger); ModemManager is off per orchestration. Result of the controlled try (lab PR 165): y2 and z1 both 0 bytes with the current reader. This item separates the reader from the host.
+: proven by research walleye-y2-old-reader-tried: old reader also silent, only the tty echo arrived; reader change not the cause, host not deaf; next: walleye-build-banner-init
 
 About
 : walleye-first-fastboot-boot
