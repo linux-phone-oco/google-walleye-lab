@@ -2125,10 +2125,10 @@ Proof
 ### Phone: boot wpa twice from the first state, then (if dead) wp1..wp5 twice each; record the return times (<=66 s alive, >=69 s dead)
 
 Status
-: open
+: done
 
 Note
-: Images ~/Projects/walleye-build/images-wp/boot-wpa.img, boot-wp1..wp5.img (SHA256SUMS there and in research/walleye-first-fastboot-boot/2026-11-18-property-diff/). wpa first: alive means the cause is not a property (then phandle order or dtb size); dead: wp1..wp5, the dead ones hold it; wp3 and wp4 likeliest. Decision 2026-11-18-walleye-property-bisect-plan.
+: proven by wpa x2: 60 s, 60 s (alive); cause is not a property; next: phandle order / dtb size
 
 About
 : walleye-first-fastboot-boot
