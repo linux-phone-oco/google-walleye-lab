@@ -3501,28 +3501,6 @@ Rank
 : 1
 
 
-<a id="walleye-kernel-pmic-wdt"></a>
-### walleye's v7.3 kernel with the PMIC watchdog series (linux-phone-oco/linux topic/pmic-wdt-wake-in-suspend) and &pm8998_wdt enabled, wakeup-source
-
-Status
-: open
-
-Note
-: docs decision 2026-11-18-upstream-forks. The branch is on v7.3 (local worktree ~/Projects/linux-phone-oco/linux-topics until the upstreams lane pushes it): merge it into walleye's test branch, CONFIG_PM8916_WATCHDOG=y, board: &pm8998_wdt { status = "okay"; wakeup-source; }.
-
-About
-: deep-sleep
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: pmic-wdt-bites
-
-
 <a id="walleye-pmic-wdt-proof"></a>
 ### Prove the PMIC watchdog way back on walleye (pm8998): it bites unpetted, and its bark wakes a suspend
 
@@ -3671,3 +3649,30 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-kernel-pmic-wdt"></a>
+### walleye's v7.3 kernel with the PMIC watchdog series (linux-phone-oco/linux topic/pmic-wdt-wake-in-suspend) and &pm8998_wdt enabled, wakeup-source
+
+Status
+: open
+
+Note
+: docs decision 2026-11-18-upstream-forks. The branch is on v7.3 (local worktree ~/Projects/linux-phone-oco/linux-topics until the upstreams lane pushes it): merge it into walleye's test branch, CONFIG_PM8916_WATCHDOG=y, board: &pm8998_wdt { status = "okay"; wakeup-source; }.
+
+UPDATE 2026-11-18 (upstreams coordinator): the series is pushed: https://github.com/grenudi/linux branch topic/pmic-wdt-wake-in-suspend, commit e123d3bff, on v7.3 (replaces the local worktree path). Order: after walleye-charger-on-z7; the image is z8 on the z7 base. WHEN DONE queue the phone row walleye-pmic-wdt-proof as written (it is already blocked_by this item) and tell the coordinator the build result.
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: pmic-wdt-bites
+
+Rank
+: 2
