@@ -1999,3 +1999,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-z4-the-acm-shell-that-answers"></a>
+### z4: the ACM shell that answers
+
+Entry date
+: 2026-11-18
+
+Done
+: init-z4, build-z4.sh, one-fd reader, hang-up fake in the selftest, README; programmer review fixed three bugs; boot-z4.img 4115db3e2c678919cb3d3bd725d5065bbbbac1e6026732989c1eca3590043b20; try queued
+
+Considered
+: cttyhack, setsid -c
+
+Rejected
+: cttyhack (review)
+
+About
+: walleye-first-fastboot-boot

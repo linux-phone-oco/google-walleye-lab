@@ -1,6 +1,6 @@
 #!/bin/sh
 # walleye-mainline-shell-read, run on the lab host: read the first shell of OUR mainline kernel over the phone's ttyACM (the init holds 180 s, touch /tmp/hold keeps it).
-# Waits for the tty (TTY, default /dev/ttyACM0), then sends commands ONE AT A TIME, each followed by an end marker, with a read timeout per command, and saves each answer under OUT
+# Waits for the tty (TTY, default /dev/ttyACM0), opens it ONCE (fd 3, kept to the end: closing the port hangs up the phone's shell, backlog walleye-shell-reliable), then sends commands ONE AT A TIME, each followed by an end marker, with a read timeout per command, and saves each answer under OUT
 # (default $HOME/lab-material/walleye/mainline-shell-DATE, never inside git): dmesg in full first, then uname -a, /proc/{cmdline,cpuinfo,iomem,interrupts,version}, the device lists
 # (/sys/bus/platform/devices, power_supply-facts (type, online, voltage per supply), /sys/bus/spmi/devices, devices_deferred if debugfs, /sys/class/{udc,power_supply,drm,input,regulator}); `touch /tmp/hold` runs right after the tty is up, `reboot -f` at the end
 # unless NOREBOOT=1. Nothing is written to the phone beyond /tmp. IDs (serial in the cmdline, MAC-shaped words) are redacted before saving.
@@ -9,19 +9,23 @@
 # Prints `pass|fail walleye-mainline-shell-read host DETAIL`; exit 0 only on pass (dmesg non-empty and contains "Linux version").
 TTY=${TTY:-/dev/ttyACM0}; WAIT=${WAIT:-60}; CT=${CMD_TIMEOUT:-15}
 OUT=${OUT:-$HOME/lab-material/walleye/mainline-shell-$(date +%Y%m%d-%H%M%S)}
+trap "" HUP   # the phone dropping off USB at reboot -f must not kill the reader holding the port
 say() { echo "$1 walleye-mainline-shell-read host $2"; [ "$1" = pass ]; exit $?; }
 n=0; while [ ! -c "$TTY" ] && [ ! -p "$TTY" ]; do
   [ "$n" -ge "$WAIT" ] && say fail "$TTY did not appear in ${WAIT}s"; sleep 1; n=$((n+1)); done
 AW=${ACCESS_WAIT:-20}; PATHUSED=plain; STTY="raw -echo -hupcl 115200"
-OPENERR=; can_open() { OPENERR=$(timeout 3 sh -c 'exec 3<>"$1"' sh "$TTY" 2>&1); }
+# can_open only asks the kernel for access (test -r/-w): a probe that opened and closed the node would hang the phone's shell up.
+OPENERR=; can_open() { [ -r "$TTY" ] && [ -w "$TTY" ]; }
 n=0; while ! can_open; do   # the node appears root:uucp first, logind adds the uaccess ACL a moment later: retry, 0.5 s steps
   [ "$n" -ge $((AW*2)) ] && break; sleep 0.5; n=$((n+1)); done
 mkdir -p "$OUT" || say fail "cannot make $OUT"; chmod 700 "$OUT"
-if can_open; then
-  timeout 5 stty -F "$TTY" $STTY 2>/dev/null || true
+# the one open of the port, kept as fd 3 until the end (nothing below reopens or closes it before then); `command exec` so a failed open does not end the shell
+if can_open && command exec 3<>"$TTY"; then
+  timeout 5 stty $STTY <&3 2>/dev/null || true
   [ "$n" -gt 0 ] && echo "walleye-mainline-shell-read: node opened after $((n/2)).$((n%2*5)) s of Permission denied"
 else
-  case $OPENERR in *"Permission denied"*) ;; *) say fail "$TTY cannot be opened and it is not a permission problem: $OPENERR";; esac
+  OPENERR=$(timeout 3 sh -c 'exec 3<>"$1"' sh "$TTY" 2>&1)
+  case $OPENERR in *"Permission denied"*) ;; *) say fail "$TTY cannot be opened and it is not a permission problem: ${OPENERR:-no error text}";; esac
   d=$(readlink -f "$TTY" 2>/dev/null || echo "$TTY"); tn=${d##*/}
   own=$(ls -l "$d" 2>&1 | tr '\n' ' '); owner=$(stat -c '%U' "$d" 2>/dev/null || echo '?'); group=$(stat -c '%G' "$d" 2>/dev/null || echo '?')
   acl=$(getfacl -p "$d" 2>&1 | tr '\n' ' ')
@@ -34,13 +38,14 @@ redact() { sed -E -e 's/\x1b\[[0-9;]*[A-Za-z]//g' -e 's/(androidboot\.serialno=)
 M=wmsr-$$; i=0; got=0
 ask() { # ask NAME TIMEOUT COMMAND: send, read to the marker, save redacted
   i=$((i+1)); f="$OUT/$1.txt"
-  S="exec 3<>\"\$2\"; printf '%s\n' \"\$1; echo $M-$i-E''ND\" >&3; while IFS= read -r l <&3; do l=\${l%\$(printf '\r')}; case \$l in *$M-$i-END) break;; esac; printf '%s\n' \"\$l\"; done"
-  timeout "$2" sh -c "$S" sh "$3" "$TTY" 2>/dev/null | grep -v -e "$M-$i" | redact > "$f.tmp"
-  r=$?
+  timeout 0.3 cat <&3 >/dev/null 2>&1 || true   # whatever a slow earlier answer left in the pipe is not this answer
+  printf '%s\n' "$3; echo $M-$i-E''ND" >&3      # fd 3 is the one open of the port: written to and read from, never reopened
+  S="while IFS= read -r l <&3; do l=\${l%\$(printf '\r')}; case \$l in *$M-$i-END) break;; esac; printf '%s\n' \"\$l\"; done"
+  timeout "$2" sh -c "$S" 2>/dev/null | grep -v -e "$M-$i" | redact > "$f.tmp"
   # the echoed command line is dropped by grep; an empty answer is kept as an empty file
   mv "$f.tmp" "$f"; [ -s "$f" ] && got=$((got+1))
 }
-twrite() { printf '%s\n' "$1" > "$TTY" 2>/dev/null; }
+twrite() { printf '%s\n' "$1" >&3 2>/dev/null; }
 twrite ''
 ask hold 5 'touch /tmp/hold'
 ask dmesg $((CT*3)) 'dmesg'

@@ -708,3 +708,25 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-walleye-z4-shell-keeps-port-open"></a>
+### 2026-11-18-walleye-z4-shell-keeps-port-open
+
+Date
+: 2026-11-18
+
+Brief
+: z4: the init holds ttyGS0 open raw/-hupcl and the reader keeps one fd; no cttyhack
+
+Decision
+: z4 = z3 with only the init's console block changed (fd 4 held, stty raw -echo -hupcl, setsid busybox ash -i, retry on failed open, respawn at once, kmsg counter); the reader opens the tty once and never reopens
+
+Why
+: Echo with no answer means no process read ttyGS0: ash -i < ttyGS0 ends on host close and the old reader reopened per command. Review of busybox 1.36 source: cttyhack ignores stdin and may move the shell off ttyGS0.
+
+Rejected
+: setsid cttyhack (moves or no-ops, review); setsid -c (CONFIG_FEATURE_SETSID_CTTY not in our busybox); keeping the per-command reopen with a longer wait (the hang-up is the fault)
+
+About
+: walleye-first-fastboot-boot
