@@ -2329,13 +2329,10 @@ Proof
 ### Try T1: fastboot boot boot-t1.img, wait 90 s, read console-ramoops for the marker
 
 Status
-: open
+: done
 
 Note
-: Image ~/Projects/walleye-build/images-t1/boot-t1.img (SHA256SUMS in research/.../2026-11-18-t1); run only after a kernel has shown life; expected: marker absent (cause B)
-
-
-GATE LIFTED 2026-11-18 by the coordinator (decision 2026-11-18-walleye-t1-gate-met): the g1 and g2 tries of pk5-stages (back at ~108 s and 138 s: the init held 60 s) show our mainline kernel with porthole's taimen dtb ALIVE and running our init (the USB gadget just does not enumerate yet). The gate "a kernel has shown life" is met; run this item now. Check the battery first and leave the phone in Android afterwards.
+: ran 03:52 slot b: boot-t1.img back as Android after 159 s; battery 4384 mV 100% before; /sys/fs/pstore empty, no ramoops dir; marker absent = cause B
 
 About
 : walleye-first-fastboot-boot

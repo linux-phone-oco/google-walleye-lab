@@ -1258,3 +1258,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0400-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: T1 tried on b (fastboot boot only, nothing flashed): back in Android after 159 s; battery 4384 mV/100% before. /sys/fs/pstore empty, no ramoops dir: our marker and panic text did not survive (cause B). Phone in Android on b, stock kernel, adb root, slots a and b good; lease released
+
+Considered
+: next: coordinator decides what follows cause B (pstore not retained across the sysrq c reset; another way to see the kernel's output)
+
+About
+: walleye-first-fastboot-boot
