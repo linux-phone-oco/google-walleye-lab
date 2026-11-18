@@ -3054,7 +3054,7 @@ Note
 : Rebuild c1 on the z6 init (z6's dtb is z3's: no charger node); keeper recipe: battery-ok first, z6 plain background reader, saves power-supply-facts.txt and dmesg automatically; then charger-check.sh. Risks as before: float voltage 4.4 V, Type-C reset may drop the ACM link (a missing tty is a finding; z3/z6 is the fallback).
 
 Blocked by
-: walleye-shell-reliable
+: walleye-charger-on-z7
 
 About
 : walleye-charger-smb2
@@ -3643,6 +3643,31 @@ Needs
 
 Proof
 : z7 once from slot b (images-z7/boot-z7.img sha256 2dc6ff0e13dc042086ee2f46be91afc35944ae87c4a242e36cda28934d107b30), the z6 recipe (walleye-try-z6: host stty loop, banner capture, banner-loop-check, the reader mainline-shell-read.sh as plain background processes); then tests/host/dmesg-clean-check.sh on the reader's directory must say pass (no gpu_gx status stuck WARN, no 5040000.iommu deferral, devices_deferred listing only the known overlay nodes); phone left in Android. Record the result as research.
+
+Rank
+: 1
+
+
+<a id="walleye-charger-on-z7"></a>
+### c2: the charger (c1's work) on the z7 base, so its try is read through the working command loop
+
+Status
+: open
+
+Note
+: c1 was built on z3's silent-ash init (lab PR 173); z6/z7 answer commands. WHEN DONE queue walleye-try-c2 (needs phone, rank 1) and close walleye-try-c1 as superseded (done, 'superseded by c2'): c2 once from slot b with the host stty loop + reader as plain background processes; read the dmesg, /sys/class/power_supply, charger-check.sh; battery first (the phone may be charging on USB: that is the test); phone left in Android.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: boot-c2.img = z7 (our kernel, the z7 dtb with adreno_smmu off, the z6 command-loop init with the banner, the reader recipe) + the charger work of c1 (SMB2 charger/rradc built into the kernel; the charger and the 2700 mAh / 4.4 V battery nodes in the dtb): only the kernel config and the dtb differ from z7; the c1 diff re-applied on z7's sources by script; checks as z7's and c1's; tests/host/charger-check.sh (it exists from the c1 item) reads, through the reader, /sys/class/power_supply (the charger's online, status, voltage_now, current_now, health, type) and the dmesg lines of the charger driver; programmer review; hashes
 
 Rank
 : 1
