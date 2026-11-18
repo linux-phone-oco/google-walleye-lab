@@ -4917,3 +4917,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-touch-gpio-get-fails"></a>
+### Why gpiod_get fails for the touch power on an existing pmi8998 gpio chip (z17)
+
+Status
+: open
+
+Note
+: From the keeper (lab PR 316): the pmi8998 gpiochip exists (gpiochip2, 14 GPIOs), the regulator's gpios phandle 0x60 points at it, yet devices_deferred says 'regulator-touch-power: can't get GPIO'. The z18 renaming premise was falsified (lab PR 314).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: A research row that finds, from the kernel source in the build tree (v7.3: drivers/gpio/gpiolib*.c, gpiolib-of.c, pinctrl/qcom/pinctrl-spmi-gpio.c, drivers/regulator/fixed.c, the regulator-fixed 'gpios' parsing) and the z17 facts (research walleye-z17-spmi-gpio-facts-read; material path), exactly why gpiod_get of the touch power regulator fails although the pmi8998 gpiochip (gpiochip2, 14 GPIOs) exists: the gpio specifier of regulator-touch-power in OUR dts (<&pmi8998_gpios 2 GPIO_ACTIVE_HIGH>: is the phandle the right label, is the number 1-based in the spmi-gpio binding (gpio 2 = hardware pin 2, valid_mask / ngpios 10 vs 14), does 'gpio-ranges' / pinctrl need the pin configured first (pinctrl-0 with 'function = normal' on the pmi8998 gpio, a pin config node: the regulator-fixed needs the gpio line free and the pin muxed), is the failure -EPROBE_DEFER (the chip not ready at that moment: ordering with the spmi bus 'pmic@2' probe) or -EINVAL/-ENOENT (a bad specifier): the exact error code from dmesg ('can't get GPIO' with the errno if printed: read the z17 dmesg material), and the overlay's own touch-power node (the overlay names 'switch-gpio 75' and a pmi8998 gpio 2: what each is); the verdict plus the smallest dts change that should fix it, queued as a build item with its host proof (a dtc check that the specifier resolves to a valid line of the chip: tests/host/*.sh) and the phone try (z-next, read-only of the dmesg and the rmi4 probe)
+
+Rank
+: 1
