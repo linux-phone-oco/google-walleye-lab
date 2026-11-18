@@ -3077,3 +3077,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-try-y2-control"></a>
+### Control: y2 once with the reader, then z1 once: is the silent ttyACM0 of z1 the new dtb or the reader
+
+Status
+: open
+
+Note
+: Fact (lab PR 163): z1 (y2 + the PMIC dtb): gadget and ttyACM0 up at 18 s, ACL fine under the new rule, the shell answers nothing; the earlier EACCES was the tty vanishing, not the ACL; PMIC result unknown.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: Two tries in this order, from slot b, battery first, the same reader (tests/host/mainline-shell-read.sh) started the same way before the boot: (1) y2 (the image that gave the first dmesg, lab PR 155) once: does the shell answer? (2) z1 once. For each: the time the gadget and /dev/ttyACM0 appear, whether the reader's first command gets an answer and after how long, the raw bytes the tty returns in the first 10 s (even if the reader finds no end marker), the host's dmesg lines for the gadget (cdc_acm bound? ttyACM0 created? disconnects?) and the lsusb -v of the device; and when the phone is back. The finding: is z1's silence in the new kernel/dtb (PMIC nodes: a hang or panic in userspace start, a changed probe order) or in the reader/timing (then y2 is silent too today)? If y2 answers and z1 does not, the next step is a z1 variant: the same init with the shell loop writing a banner to /dev/ttyGS0 every 2 s from the start (so the tty shows life even before it reads), and a kmsg marker per init step; to be built by a builder (queue it).
+
+Rank
+: 1
