@@ -3468,10 +3468,10 @@ Rank
 ### z6: replace the silent interactive ash by a plain read/exec command loop on ttyGS0 (the banner stays)
 
 Status
-: open
+: done
 
 Note
-: Fact (lab research walleye-z5b-tried-raw-tty, PR 210): with the host tty raw/no-echo the '> ' and 'Permission denied' noise is gone (0 in 30 s) but the shell still returns no command output, only banner beats: the interactive `busybox ash -i` on ttyGS0 never answers although it is alive. Do not debug ash; replace it with a plain read/exec loop (the init's own shell, one line at a time), which has no job control, no prompts, no tty needs. WHEN DONE queue walleye-try-z6 (needs phone, rank 1): z6 once from slot b: the host stty loop + banner capture 20 s + the reader (one fd) as plain background processes (decision 2026-11-19-walleye-reader-plain-background-process); if commands answer: dmesg in full, the facts, the PMIC check; battery first; phone left in Android.
+: built: images-z6 (research walleye-z6-built); try queued as walleye-try-z6
 
 About
 : walleye-first-fastboot-boot
@@ -3534,3 +3534,28 @@ Needs
 
 Proof
 : pmic-wdt-bites,pmic-wdt-wakes-in-suspend
+
+
+<a id="walleye-try-z6"></a>
+### Try z6 once from slot b: do commands answer on the plain read/exec loop?
+
+Status
+: open
+
+Note
+: built 2026-11-18 (research walleye-z6-built); try once
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: z6 once from slot b (images-z6/boot-z6.img sha256 7f8af938a4a5c07197f81d306e4f7122f358a6fd657db6b53898bd8bbe94a97a): the host stty loop (stty -F /dev/ttyACM0 raw -echo -hupcl at each appearance) + banner capture 20 s + tests/host/banner-loop-check.sh on it + the reader tests/host/mainline-shell-read.sh (one fd) as plain background processes (decision 2026-11-19-walleye-reader-plain-background-process); if commands answer: dmesg in full, the facts, the PMIC check; battery first; phone left in Android. Record whether the banner says loop=[started=yes ...] and whether the reader got dmesg ('Linux version').
+
+Rank
+: 1

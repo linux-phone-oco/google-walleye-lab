@@ -41,7 +41,7 @@ ask() { # ask NAME TIMEOUT COMMAND: send, read to the marker, save redacted
   timeout 0.3 cat <&3 >/dev/null 2>&1 || true   # whatever a slow earlier answer left in the pipe is not this answer
   printf '%s\n' "$3; echo $M-$i-E''ND" >&3      # fd 3 is the one open of the port: written to and read from, never reopened
   S="while IFS= read -r l <&3; do l=\${l%\$(printf '\r')}; case \$l in *$M-$i-END) break;; esac; printf '%s\n' \"\$l\"; done"
-  timeout "$2" sh -c "$S" 2>/dev/null | grep -v -e "$M-$i" | redact > "$f.tmp"
+  timeout "$2" sh -c "$S" 2>/dev/null | grep -v -e "$M-$i" -e WALLEYE-BANNER | redact > "$f.tmp"
   # the echoed command line is dropped by grep; an empty answer is kept as an empty file
   mv "$f.tmp" "$f"; [ -s "$f" ] && got=$((got+1))
 }
