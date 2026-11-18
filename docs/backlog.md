@@ -3719,31 +3719,6 @@ Rank
 : 1
 
 
-<a id="walleye-pmic-wdt-proof"></a>
-### Prove the PMIC watchdog way back on walleye (pm8998): it bites unpetted, and its bark wakes a suspend
-
-Status
-: in-progress
-
-Note
-: pmic-wdt-bites proven on z9 (pass, 20 s). pmic-wdt-wakes-in-suspend waits for walleye to suspend at all. Phone left off after the bite: see walleye-needs-power-cycle-after-pmic-bite.
-
-About
-: deep-sleep
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: pmic-wdt-bites,pmic-wdt-wakes-in-suspend
-
-Rank
-: 1
-
-
 <a id="walleye-try-c3"></a>
 ### Try c3 (c2 + fw_devlink=permissive) once from slot b with the command loop: does the charger probe now, with a power_supply class?
 
@@ -3816,3 +3791,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-pmic-wdt-proof"></a>
+### Prove the PMIC watchdog way back on walleye (pm8998): it bites unpetted, and its bark wakes a suspend
+
+Status
+: open
+
+Note
+: pmic-wdt-bites proven on z9 (pass, 20 s). pmic-wdt-wakes-in-suspend waits for walleye to suspend at all. Phone left off after the bite: see walleye-needs-power-cycle-after-pmic-bite.
+
+Waits
+: NO BITE until walleye-pmic-bite-reset-type says a bite restarts the phone (decision 2026-11-18-walleye-no-pmic-bite-until-reset-type)
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: pmic-wdt-bites,pmic-wdt-wakes-in-suspend
