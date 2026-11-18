@@ -1924,3 +1924,22 @@ Sources
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-walleye-banner-seen-needs-root-on-ttyacm"></a>
+### 2026-11-18-walleye-banner-seen-needs-root-on-ttyacm
+
+Date
+: 2026-11-18
+
+Brief
+: Banner image tried once from b: banner bytes ARE on the host; plain-user cat of /dev/ttyACM0 is denied (root:uucp 0660, mll not in uucp)
+
+Question
+: Banner once from slot b, plain cat of ttyACM0: are the banner bytes on the host?
+
+Found
+: boot-banner.img (sha 3d9320f0...) booted from fastboot at 10:06:35; gadget 1d6b:0104 at 18 s; ModemManager inactive; /dev/ttyACM0 crw-rw---- root:uucp, user mll groups lack uucp, so stty and cat as mll fail Permission denied (zero bytes). Read as root via lab-agent root-exec for 15 s: 7 WALLEYE-BANNER lines, beats 11..17 at up 53.9..66s, steps=8 last=[step 8 gadget bound to a800000.usb]; banner-check.sh pass. Phone reset itself ~180 s, back as Android on slot b, adb up. So the earlier empty reads were most likely the host permission (not the phone silent); kernel and gadget run 65 s+. Nothing flashed, host unchanged.
+
+About
+: walleye-first-fastboot-boot

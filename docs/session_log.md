@@ -1831,3 +1831,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1012-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: banner try once from b: banner seen (root read); phone back as Android on b, stock kernel, nothing flashed, fastboot reachable via adb reboot bootloader
+
+Considered
+: next: re-read the earlier empty tries as a permission problem; redo the dtb gpio-reserved-ranges try with a reader that can open ttyACM0 (root-exec, or mll into uucp / a udev rule, the author's host change)
+
+About
+: walleye-first-fastboot-boot
