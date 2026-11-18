@@ -3371,7 +3371,7 @@ Status
 : open
 
 Note
-: z4 = z3 + init-z4 only (build/build-z4.sh, rebuild identical). The keeper starts mainline-shell-read.sh FIRST as a plain background process (no job, no root); it keeps one fd open. Judge with dmesg-clean-check.sh and pmic-dmesg-check.sh. Not measured yet: init-z4's console block on the phone (setsid, -hupcl on ttyGS0); expect kmsg lines 'walleye-init: shell on /dev/ttyGS0, start N'. If the shell is still silent, read the kmsg counter first. Supersedes walleye-try-z3. Then c2 = c1 with init-z4.
+: tried once 2026-11-18 11:50Z: shell still silent, dmesg empty; see research walleye-z4-tried-once. Needs a decision on the next vector (coordinator)
 
 About
 : walleye-first-fastboot-boot

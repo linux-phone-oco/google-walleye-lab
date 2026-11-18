@@ -2020,3 +2020,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1155-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Android on slot b, stock kernel, nothing flashed, fastboot reachable via adb reboot bootloader, slots a/b successful; z4 tried once: gadget up at 18 s but the ACM shell stayed silent (dmesg empty)
+
+Considered
+: next: z4's console block not seen on the phone; read the kmsg counter / pstore as root-less route, or decide vector with coordinator; item walleye-try-z4 left open

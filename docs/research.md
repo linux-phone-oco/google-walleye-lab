@@ -2022,3 +2022,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z4-tried-once"></a>
+### walleye-z4-tried-once
+
+Date
+: 2026-11-18
+
+Brief
+: z4 once from slot b: gadget 1d6b:0104 at 18 s, one-fd reader held the port, but no shell answer (dmesg empty, 16 of 17 answers empty); phone back as Android
+
+Question
+: Does z4's ACM shell answer, with the port held open on one fd, and is the dmesg clean?
+
+Found
+: 2026-11-18 11:50Z: battery 4377 mV pass, boot-z4.img sha256 4115db3e verified, reader started first as a plain background process, slots a/b successful before; fastboot boot now left fastboot at 15 s, 1d6b:0104 at 18 s; ttyACM0 opened by the reader (path plain) but every ask returned empty (only devices-deferred kept its own command echo, 169 bytes); dmesg.txt 0 bytes, no 'Linux version'; later writes failed with Input/output error (the port went away as the phone returned). Phone back as Android (adb) on slot b by 11:53:33Z, nothing flashed. Not shown: whether init-z4's console block ran (no kmsg line read; pstore not readable by the shell user). z4 does not fix the silent shell. Proof walleye-dmesg-clean NOT passed; item stays open. Raw output: ~/lab-material/walleye/z4-try1 (not in git).
+
+About
+: walleye-first-fastboot-boot
