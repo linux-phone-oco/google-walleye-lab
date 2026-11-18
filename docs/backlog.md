@@ -2293,8 +2293,11 @@ About
 Opened
 : 2026-11-18
 
+Needs
+: phone
+
 Proof
-: tests/host/pstore-t3-read.sh: pstore holds the T3 marker after the bite return (expected present)
+: tests/host/pstore-t3-read.sh: pstore holds the T3 marker, last tick under 15, no no-bite line (expected present)
 
 Rank
 : 1
