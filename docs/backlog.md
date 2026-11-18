@@ -4748,7 +4748,7 @@ Status
 : open
 
 Note
-: From research walleye-ufs-android-way-compared. Read-only devmem/debugfs on the running Lineage userdebug; the phone ends in Android. Settles which vendor PHY table Android ran.
+: keeper 2026-11-19: partly read (host regs, power mode); HW_VERSION and PHY need a reader: no /dev/mem on this Android (research walleye-ufs-android-regs-read)
 
 About
 : walleye-first-fastboot-boot

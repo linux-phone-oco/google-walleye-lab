@@ -2962,3 +2962,25 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-ufs-android-way/
+
+
+<a id="walleye-ufs-android-regs-read"></a>
+### walleye-ufs-android-regs-read
+
+Date
+: 2026-11-18
+
+Brief
+: Live Android UFS read (read-only): UFSHCI 2.1, HS G3 2-lane rate B, Hynix 64GB; HW_VERSION and PHY regs NOT readable (no /dev/mem)
+
+Question
+: Which UFS HW version and PHY table did Android run on the Pixel 2, and what is the reset pad state?
+
+Found
+: Read as adb root on Lineage userdebug 4.4.302, phone left in Android, nothing written, no reset, no fstrim.
+Read: debugfs ufshcd0/host_regs 0x00-0x9f: CAP 0x1587001f, VER(0x08) 0x00000210 (UFSHCI 2.1), HCS 0x01000000/0x00010217 region, UTRLBA 0xf5c6d000, UTMRLBA 0xf5c7a000, UTRLRDY/UTMRLRDY set. show_hba: nutrs 32, nutmrs 8, ufs_version 0x210, no errors. power_mode: gear 3/3, lanes 2/2, FAST MODE both, rate B. dmesg: init at gear 1 SLOWAUTO, then gear 3 x2 FAST rate 2 (B) at 2.3 s. Card 64GB Hynix (androidboot.hardware.ufs), bNumberLU 6, wSpecVersion 0x1002 (UFS 2.1), wManufactureID 0xad01. ICE 3.0.65. Pin 153 UFS_RESET is MUX/GPIO UNCLAIMED in pinctrl (so the pad is left to the UFS block, not driven as a gpio).
+NOT answered: UFS_HW_VERSION (3.0.0 vs 3.1.0) and the PHY registers (phy_mem 1da7000-1da7da7): this Android kernel has no /dev/mem, /dev/kmem or /proc/kcore, and its debugfs does not export them; qcom/debug-regs is a driver debug dump, left unread. The proof of walleye-ufs-android-regs is not met; item stays open.
+Next: a way to read 0x1da7000.. read-only (a kernel with devmem, or lab-built reader module) - needs a decision, not tried.
+
+About
+: walleye-first-fastboot-boot
