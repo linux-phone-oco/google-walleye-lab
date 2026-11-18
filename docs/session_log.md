@@ -2743,3 +2743,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-1800-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Android on slot b, stock kernel, nothing flashed, fastboot reachable; read UFS host regs read-only on live Android (research walleye-ufs-android-regs-read); HW_VERSION and PHY unreadable, no /dev/mem
+
+Considered
+: next: walleye-bootchain-readback (read only, rank 4); a reader for 0x1da7000 PHY; walleye-build-z17 touch power (builder)
