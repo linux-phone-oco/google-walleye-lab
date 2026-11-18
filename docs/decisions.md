@@ -995,3 +995,34 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-19-walleye-ufs-listed-by-sysfs-and-one-dd"></a>
+### 2026-11-19-walleye-ufs-listed-by-sysfs-and-one-dd
+
+Date
+: 2026-11-18
+
+Brief
+: List the UFS from sysfs and read the boot header with one read-only dd, in the init; no lsblk, no mount, no by-name links
+
+Decision
+: The z11 init lists the UFS itself: /bin/ufs-lsblk reads the SCSI disks and partitions (GPT names from the uevent PARTNAME) from sysfs, /bin/ufs-hdr reads 48 bytes of the partition boot_a with one dd. The proof test walleye-ufs-lsblk (tests/host/ufs-lsblk-check.sh) passes on a LUN, a partition named boot_a, the banner equal to the command's answer, and a header with magic ANDROID!.
+
+Why
+: Busybox 1.36 has no lsblk and the initramfs has no udev, so no /dev/disk/by-name exists; the kernel's own sysfs names every partition and needs no write. One dd of one sector is the least that reads a header.
+
+Rejected
+: A static lsblk or util-linux in the ramdisk (a second build for a listing sysfs gives); a udev or mdev rule for by-name links (more running code near the disk); mounting a partition read-only (a mount can replay a journal or write); reading the whole boot partition (nothing needs more than the header page).
+
+About
+: walleye-ufs-readonly
+
+Research
+: walleye-z11-built
+
+Scope
+: walleye
+
+Tracked by
+: walleye-try-z11

@@ -2497,3 +2497,24 @@ Considered
 
 About
 : deep-sleep
+
+---
+
+
+<a id="2026-11-19-walleye-builder-z11"></a>
+### walleye-builder: z11, UFS read-only
+
+Entry date
+: 2026-11-18
+
+Done
+: Took walleye-ufs-readonly (first ready row). dts: l20/l26 rails, ufshc and ufsphy okay; config: UFS host and QMP UFS phy =y; init-z11 (z10 + ufs-lsblk, ufs-hdr, WALLEYE-BANNER-UFS); build-z11.sh with its checks; ufs-lsblk-selftest.sh and ufs-lsblk-check.sh (test walleye-ufs-lsblk). Built images-z11/boot-z11.img b4399ea3...; queued walleye-try-z11 for the keeper.
+
+Considered
+: Bringing the dtb change as a z9-style dtb-only image (rejected: the UFS host is =m in z9's kernel, so the kernel must change too).
+
+Rejected
+: Anything that writes or mounts: not in this image.
+
+About
+: walleye-first-fastboot-boot

@@ -2593,3 +2593,25 @@ Found
 
 About
 : deep-sleep
+
+
+<a id="walleye-z11-built"></a>
+### walleye-z11-built
+
+Date
+: 2026-11-18
+
+Brief
+: z11 built: z10 with UFS host and QMP phy built in, ufshc/ufsphy okay (l20/l26/s4 rails), init-z11 lists the LUNs and reads the boot header; reads only
+
+Question
+: Can the init list the UFS LUNs and partitions of the Pixel 2 and read its own boot.img header without a write, from one image?
+
+Found
+: Built, not tried. images-z11/boot-z11.img sha256 1d84e4675cc7e3b86b7683561c37b2a987cc98de32988838ffa439401e8aba7d (initramfs-z11.cpio.xz ead154de..., dtb 76403f05...). Kernel: v7.3 + pmic-wdt series (tree wt-k-z8), config + SCSI_UFS_QCOM=y, PHY_QCOM_QMP=y, PHY_QCOM_QMP_UFS=y (defconfig has them =m, the initramfs has no modules). Dts: rails l20 2.96 V (vcc), l26 1.2 V (vccq, hba, phy pll l2), s4 1.8 V (vccq2), phy l1 - values of mainline's OnePlus 5 file, same SoC and RPM regulators. Ramdisk init-z11 = init-z10 + /bin/ufs-lsblk (hosts, LUN vendor/model/rev, partition GPT names and sizes from sysfs) and /bin/ufs-hdr NAME (one dd of 48 bytes, the Android header fields), both banner (WALLEYE-BANNER-UFS) and commands. The init also sets every disk read-only in the kernel (blockdev --setro) and keeps refreshing the list until it is stable. Header, command line, AVB footer, size 32 MiB are z10's; ramdisk packing proved equal to z10's. 60+ build checks ok, host selftest ufs-lsblk-selftest ok. Not known yet: which UFS card the phone holds; Sony's yoshino keeps UFS off for a card that needs quirks before probe (bootloader erased after probe) - for the Pixel 2 only the wahoo GPL tree (kcxt, 5.17) is known to have used UFS; that is inference, not measured here.
+
+Sources
+: linux-msm-mainline-status
+
+About
+: walleye-first-fastboot-boot

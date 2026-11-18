@@ -108,10 +108,10 @@ Proof
 ### UFS probes and the partitions are listed, read-only
 
 Status
-: open
+: done
 
 Note
-: Add to dts: ufshc + ufsphy (QMP UFS) with the vcc/vccq rails from the wahoo dtsi (RPM regulators, not PMIC-gated); add CONFIG_SCSI_UFS_QCOM and the QMP UFS phy to walleye.config (none in z6); mount nothing, write nothing; also the way to read walleye's own boot.img header.
+: built: images-z11 (research walleye-z11-built); try queued as walleye-try-z11; the item's proof (walleye-ufs-lsblk) is measured by that try
 
 Blocked by
 : walleye-dmesg-clean
@@ -4260,3 +4260,31 @@ Proof
 
 Rank
 : 62
+
+
+<a id="walleye-try-z11"></a>
+### Try z11 once from slot b: do the UFS LUNs and partitions show, and does boot_a's header read ANDROID!?
+
+Status
+: open
+
+Note
+: Queued by walleye-builder; the image is built and checked.
+
+Blocked by
+: walleye-ufs-readonly
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: z11 once from slot b (images-z11/boot-z11.img sha256 1d84e4675cc7e3b86b7683561c37b2a987cc98de32988838ffa439401e8aba7d), the z10 recipe (host stty loop, banner capture, reader as a plain background process); then tests/host/ufs-lsblk-check.sh must say pass (walleye-ufs-lsblk): luns>=1, a partition boot_a, banner equal to the command, ufs-hdr boot_a magic ANDROID!. Nothing is mounted or written (the init sets every disk read-only). The Pixel 2's UFS card is not known yet (Sony yoshino keeps UFS off for a card needing quirks, bootloader erased after probe): read dmesg for the ufshcd card/quirk lines and stop at the first probe error. Keeper's battery rule applies. Record the result (disk vendor/model, the partition names, the header fields, boot_b too) as research; phone left in Android.
+
+Rank
+: 4
