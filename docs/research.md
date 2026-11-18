@@ -1271,3 +1271,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-t1-built"></a>
+### walleye-t1-built
+
+Date
+: 2026-11-18
+
+Brief
+: T1 built: pk5 with ramoops at 0xa1100000 and an init that marks /dev/kmsg, waits 20 s, sysrq c (panic=5); checks ok, rebuild identical
+
+Question
+: Can the sysrq-c try be one image that differs from pk5 only in the ramoops node and the ramdisk?
+
+Found
+: boot-t1.img sha256 435ec18473e74a95cfcb64ef6e9990400e1b073500373e60ca7bfe684d0f078d (initramfs-t1.cpio.xz f75c8c02...7720): pk5's Image.gz, header and size; only the ramoops node differs in the dtb (reg 0xa1100000/2 MiB, console 0x20000, same size, no overlap); command line has panic=5, no earlycon/console=; config has MAGIC_SYSRQ, PSTORE_CONSOLE, PSTORE_RAM, QCOM_WDT; AVB footer verifies; checks ok, rebuild identical; the init and reader share one marker (checked). Reader tests/host/pstore-t1-read.sh exits 2 (not measured) without a rooted adb, so an unrooted read is not taken for cause B. Reviewed by the programmer subagent (5 findings fixed). Not run on the phone.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-t1/
