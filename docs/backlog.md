@@ -4375,10 +4375,10 @@ Status
 : open
 
 Note
-: Built by walleye-ufs-hynix-quirks; same init as z11, only the kernel differs. Never run without the author's word.
+: Superseded by a z13 once walleye-hynix-quirks-review-fixes is done: z12's purge guard misses the ufs_bsg path. Never run without the author's word.
 
 Waits
-: the author's word (the UFS risk); walleye-ufs-card-identity
+: walleye-hynix-quirks-review-fixes; the author's word; walleye-ufs-card-identity
 
 About
 : walleye-first-fastboot-boot
@@ -4394,3 +4394,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-hynix-quirks-review-fixes"></a>
+### Fix the review findings of the Hynix UFS quirks and build z13 (built only)
+
+Status
+: open
+
+Note
+: From research walleye-z12-built (review): see its findings 1-6. walleye-try-z12 waits for this.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: purge refused in the raw-UPIU path (ufs_bsg / ufshcd_exec_raw_upiu_cmd) for fPurgeEnable set/clear/toggle; quirk write results checked; comment says 'reported'; build script ties the Image to the kernel commit; z13 sha256 recorded; programmer review
+
+Rank
+: 1

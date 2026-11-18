@@ -38,9 +38,10 @@ ck "the purge guard is in ufshcd_query_flag" "$(grep -c 'hba->dev_quirks & UFS_D
 ck "the kernel config still builds UFS in" "$(grep -c '^CONFIG_SCSI_UFS_QCOM=y$' "$KO/.config")" 1
 ck "the new Image.gz is not z11's (the kernel change)" "$(cmp -s "$KO/Image.gz" "$CO/Image.gz" && echo same || echo differs)" differs
 ck "the built dtb is z11's source dtb (same build inputs)" "$(cmp -s "$KO/msm8998-google-walleye.dtb" "$CO/msm8998-google-walleye.dtb" && echo same || echo differs)" same
+ck "z11's kernel out dir is the Image.gz inside the z11 image" "$(cmp -s "$CO/Image.gz" "$T/k.gz" && echo same || echo differs)" same
 cat "$KO/Image.gz" "$T/k.dtb" > "$T/blob"
 set --
-while IFS= read -r pr; do [ -n "$pr" ] && set -- "$@" --prop "$pr"; done <<EOP
+while IFS= read -r pr; do if [ -n "$pr" ]; then set -- "$@" --prop "$pr"; fi; done <<EOP
 $(printf '%s\n' "$AV" | sed -n "s/^ *Prop: \([^ ]*\) -> '\(.*\)'$/\1:\2/p")
 EOP
 IMG=$T/boot-z12.img

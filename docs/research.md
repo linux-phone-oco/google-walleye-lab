@@ -2649,13 +2649,13 @@ Date
 : 2026-11-18
 
 Brief
-: z12 built: z11 with only the kernel changed - Hynix UFS quirks (no purge, sync length 0x48, one TX lane); sha256 f959c448; not tried
+: z12 built: z11 with only the kernel changed (Hynix UFS quirks); sha256 f959c448; not tried; review found the purge guard misses ufs_bsg
 
 Question
 : Can our 7.3 kernel carry Sony's Hynix UFS quirks, in a z11-identical image?
 
 Found
-: Kernel branch linux-phone-oco/linux topic/ufs-hynix-quirks (12dca401a, on e123d3bff): UFS_DEVICE_QUIRK_NO_PURGE (core: ufshcd_query_flag refuses set/clear/toggle of fPurgeEnable), EXTEND_SYNC_LENGTH (PA_TXHSG1/2/3SYNCLENGTH=0x48) and ONE_TX_LANE (PA_AVAILTXDATALANES=1 in apply_dev_quirks, lane_tx=1 in pwr_change PRE_CHANGE), all on SKHYNIX ANY_MODEL in ufs_qcom_dev_fixups. Sony sets one lane before link startup from a Kconfig; ours applies once the vendor is read, so link startup still runs two lanes - not equal to Sony; the card is not known earlier. Sony limits no-purge to two Hynix models and spec <2.1; ours is every Hynix (safer for a probe). build-z12.sh: z12 = z11 with only Image.gz changed (dtb, ramdisk, header, AVB equal), 15 checks ok. images-z12/boot-z12.img sha256 f959c44868200c9a4056e5f6ffa56679e42b24a98f64f8337c87b8f791c74f41. Not run on a phone.
+: Kernel topic/ufs-hynix-quirks 12dca401a on e123d3bff: NO_PURGE, EXTEND_SYNC_LENGTH (G1-3 = 0x48), ONE_TX_LANE on SKHYNIX ANY_MODEL in ufs_qcom_dev_fixups. z12 = z11 with only Image.gz changed (build-z12.sh, checks ok); images-z12/boot-z12.img sha256 f959c44868200c9a4056e5f6ffa56679e42b24a98f64f8337c87b8f791c74f41; never run. Programmer review: (1) the purge guard sits in ufshcd_query_flag, but nothing in the tree sends fPurgeEnable except raw UPIU from userspace via ufs_bsg, which bypasses it - the guard protects nothing yet; (2) blanket for every Hynix on every ufs-qcom SoC; (3) one lane cuts TX only, link ends asymmetric, Sony's behaviour unverified; (4) PA_AVAILTXDATALANES is read-only per spec, likely a no-op, return values dropped; (5) header comment states the mechanism as fact; (6) build script greps the working tree, no check tying the Image to the commit. Lane and sync-length order is right (apply_dev_quirks runs before the power-mode change; lane_tx override takes effect).
 
 Sources
 : src-sony-ufs-quirks-forward-port
