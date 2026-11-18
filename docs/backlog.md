@@ -2404,3 +2404,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-vf2-marker-first"></a>
+### vf2: the vf1 dump with a marker written at once and a status line per step, so an empty header can be told from a dead init
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-vf1-tried-twice): vf1 enumerates (1d6b:0104 at 18 s), the LUN is readable, but the window never carries the WALLEYE-VF1 header: either the init's first write failed or died before it (a missing busybox applet, debugfs mount, tar/gzip) - indistinguishable. m1 (beats 0-4 growing) is the model: its window format worked. WHEN DONE queue walleye-try-vf2 (needs phone, rank 1): twice; read with the reader; battery first; phone left in Android.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: boot-vf2.img = vf1 with only the init changed: (1) write a plain-text header block WALLEYE-VF2 + a beat counter into the window within the first seconds, in m1's proven way (the same file/LUN setup as m1, which the lab user reads); (2) every dump step (mount debugfs, each file/dir copy, tar, gzip, length prefix) appends a status line 'step N name rc=X' into a text region of the window that never moves, before the blob region; (3) the blob is written after the text region at a fixed offset with its own magic and length; busybox applets used are checked present in the control's initramfs build (tar, gzip, cat, dd, mount), and failures are written, not hidden (no set -e swallowing, no >/dev/null on the steps); tests/host/vendor-facts-read.sh prints the status lines first, then extracts the blob if complete; selftest as vf1's; hashes; a programmer review
