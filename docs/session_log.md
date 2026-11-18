@@ -1633,3 +1633,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-research-bringup-order"></a>
+### walleye-research: the bring-up order plan
+
+Entry date
+: 2026-11-18
+
+Done
+: Read the first mainline map, the vendor hardware inventory and the mainline path; checked public sources for the charger, fuel gauge, haptics, amps and panel; wrote the plan material, one research row, one decision and eleven queued items with proofs.
+
+Considered
+: UFS gated by the PMIC (the brief's guess) - the vendor tree puts its rails on the RPM, so no. Display first.
+
+Rejected
+: Queuing a phone try: the phone is off USB (walleye-phone-needs-hands); the first tries come from the builds.
+
+About
+: walleye-first-fastboot-boot

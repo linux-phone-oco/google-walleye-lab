@@ -349,3 +349,51 @@ By
 
 Takes
 : plain statement of the rule on a Qualcomm SoC (ipq806x): pstore survives warm, not cold reset
+
+
+<a id="lwn-pmi8998-fg-rfc"></a>
+### Qualcomm 3rd gen fuel gauge support (PATCH RFC 0/8)
+
+Url
+: https://lwn.net/Articles/1048226/
+
+Author
+: David Heidelberg
+
+Year
+: 2025
+
+By
+: Joel Selvaraj, Casey Connolly, Richard Acayan and others
+
+Takes
+: A PMI8998 fuel gauge driver is an RFC, not merged (2025-11-24); the dts patches name sdm845/sdm660/sdm670 boards, not walleye
+
+
+<a id="kernel-qcom-smbx-charger"></a>
+### drivers/power/supply/qcom_smbx.c (Qualcomm SMB2 charger)
+
+Url
+: https://github.com/torvalds/linux/blob/63fdb511c27afcebce797e3db580b3534ddfa639/drivers/power/supply/qcom_smbx.c
+
+Author
+: Casey Connolly
+
+By
+: Linux mainline
+
+Takes
+: qcom,pmi8998-charger is a mainline compatible, so the Pixel 2 charger needs a dts node, not a driver
+
+
+<a id="linux-msm-mainline-status"></a>
+### Qualcomm mainline status
+
+Url
+: https://linux-msm.github.io/mainline-status/
+
+By
+: linux-msm
+
+Takes
+: Where to check upstream status of Qualcomm platforms before a part is called new

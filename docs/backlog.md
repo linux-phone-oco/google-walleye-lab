@@ -111,10 +111,13 @@ Opened
 : 2026-11-17
 
 Needs
-: phone
+: build
 
 Proof
 : lsblk in the initramfs lists the UFS LUNs and by-name partitions without a write (test: walleye-ufs-lsblk)
+
+Rank
+: 4
 
 
 <a id="walleye-display-s6e3fa5"></a>
@@ -133,7 +136,7 @@ Opened
 : 2026-11-17
 
 Needs
-: phone
+: build
 
 Proof
 : the DRM connector is connected and a test pattern is seen by a person (test: walleye-display-pattern)
@@ -155,7 +158,7 @@ Opened
 : 2026-11-17
 
 Needs
-: phone
+: build
 
 Proof
 : evtest shows touch events from the RMI4 device when the panel is touched (test: walleye-touch-events)
@@ -2801,17 +2804,20 @@ Needs
 : build
 
 Proof
-: dt/msm8998-google-walleye.dts gets the PMIC nodes right so that the kernel's SPMI bus binds pm8998 and pmi8998 with their children (pon, rtc, gpio, charger/fuel-gauge candidates, regulators if the vendor tree lists them): the fault of the first mainline dmesg is 'spmi pm8998@0 and pmi8998@3 does not have reg property (-22)'; read how mainline's own msm8998 boards (the OnePlus 5/5T, Sony Yoshino, Xiaomi Mi 6 dts in the kernel tree used by the build) include pm8998.dtsi and pmi8998.dtsi (spmi_bus children with reg = <0x0 SPMI_USID>, <0x1 SPMI_GSID>) and what the running fdt of the phone shows for the same bus (sid values, the nodes it enables); the change as small commits, each with the reason; image z1 = y2 (our gadget init, ACM console) with the new dts; the host test (the shell reader from lab PR 154) greps the new dmesg: zero 'does not have reg property' lines, pm8998/pmi8998 child devices present under /sys/bus/spmi/devices, and the rest of the dmesg not worse than the first map (research 2026-11-18-walleye-first-mainline-shell-map); programmer review; hashes
+: walleye-pmic-bound: dmesg has no 'does not have reg property'; /sys/bus/spmi/devices lists the PMIC USIDs; rtc0 and the pon reboot reason are readable
+
+Rank
+: 1
 
 
 <a id="walleye-bringup-order-plan"></a>
 ### Plan the real bring-up order from the first mainline map and queue the items
 
 Status
-: open
+: done
 
 Note
-: Now that our own kernel and device tree boot to a shell (first light, lab PR 152) and the first dmesg is read (map), the lane needs a dependency-ordered plan of the real parts, queued as items, so builders and the keeper never wait for a coordinator. Public sources, the lab research rows and the vendor facts; clean room as before. Include the ideal of the project: a phone as good as Android: which parts of the 20 (docs components) walleye's list covers and how each is proven.
+: Done 2026-11-18: research walleye-bringup-order-plan-made, decision 2026-11-18-walleye-bringup-order; items queued: pmic-spmi(1), dmesg-clean(2), charger-smb2(3), ufs-readonly(4), usb-net, fuel-gauge, touch-rmi4, display-s6e3fa5, wifi-wcn3990, audio-haptics, radios-research
 
 About
 : walleye-first-fastboot-boot
@@ -2824,3 +2830,178 @@ Needs
 
 Proof
 : A research row that orders the bring-up from the first mainline map and the vendor facts (the running fdt, the dmesg of y2, the vendor kernel's regulator_summary): the dependencies between the parts (PMIC and its regulators -> UFS (rootfs) and storage; PMIC/charger -> battery and safe charging while testing; arm-smmu -> UFS DMA, display, USB; clocks (gcc/rpmcc) -> everything; USB networking (a function the host can bind with the lab-prepare rules: ncm with its attributes written the mainline way, ecm or rndis, as the mainline kernel supports them natively) for ssh instead of a serial console; display (S6E3FA5 command-mode through DSI/DPU) and touch (Synaptics RMI4 i2c); audio, modem and Wi-Fi/BT later), the order with what each unlocks and its proof test (the kernel dmesg, a sysfs file, the shell), and for each part the backlog item (build and phone) queued by the research session itself in this base with --needs, proof and note; the first three items after the PMIC get ranks; the research names the parts mainline has for the Pixel 2's chips (panel driver for the S6E3FA5?, touchscreen RMI4, charger smb2 (pmi8998), fuel gauge, haptics DRV2624, audio WCD934x/TAS2557) and which would need new drivers (upstream candidates)
+
+
+<a id="walleye-dmesg-clean"></a>
+### Clean probes in the dmesg: arm-smmu 5040000 timeout, the serial supplier from the overlay stubs, i2c@c179000 phandle
+
+Status
+: open
+
+Note
+: Research 2026-11-18 walleye-bringup-order-plan-made. Faults are in the first mainline map (y2). Likely causes: smmu needs its clock/power-domain nodes enabled in our dts; the c16f000 serial waits on a stub supplier (clock_gcc) that our overlay-stubs dtsi names - give it the real gcc phandle; the i2c phandle needs the blsp node enabled. One change per image; then queue the phone try.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: walleye-dmesg-clean: with debugfs mounted devices_deferred is empty; the dmesg has no -110 probe timeout and no 'phandle not found'
+
+Rank
+: 2
+
+
+<a id="walleye-charger-smb2"></a>
+### Charger and battery: enable pmi8998's smb2 charger (qcom_smbx) with a monitored battery of 2700 mAh / 4.4 V
+
+Status
+: open
+
+Note
+: No new driver: qcom,pmi8998-charger is in mainline (research walleye-bringup-order-plan-made). Needs the pmi8998 charger node, rradc, a simple-battery node (cell facts of the vendor GPL tree: 2700 mAh, 4.4 V max, 3.4 V cutoff, 50 mA termination). Capacity stays not known yet until the fuel gauge. Keep the vendor's JEITA bounds; the keeper's battery rule stays.
+
+Blocked by
+: walleye-pmic-spmi
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: walleye-charger-online: a power_supply of type USB appears, its online flag follows the cable, and the battery voltage rises while connected
+
+Rank
+: 3
+
+
+<a id="walleye-usb-net"></a>
+### USB networking: ncm/ecm gadget with ssh on 172.16.43.1 instead of the ACM console
+
+Status
+: open
+
+Note
+: The ACM shell already works (y2). Host side: the lab-prepare rules; function ncm with attributes written the mainline way, ecm or rndis as fallback. Does not need the PMIC.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: walleye-gadget-up: ssh to 172.16.43.1 answers within 60 s of the boot
+
+
+<a id="walleye-fuel-gauge"></a>
+### Fuel gauge: test the PMI8998 FG gen3 driver (RFC series of 2025-11-24) on walleye; an upstream candidate
+
+Status
+: open
+
+Note
+: Not in mainline: lwn.net/Articles/1048226 (driver by Joel Selvaraj, carried by sdm845-next). Take the series as a patch file, test, report upstream (ikb upstream-item). The walleye battery profile is the vendor tree's, read in our own words.
+
+Blocked by
+: walleye-charger-smb2
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: walleye-battery-capacity: capacity and voltage_now within 100 mV of the fastboot battery reading; the reading sent upstream as a Tested-by
+
+
+<a id="walleye-wifi-wcn3990"></a>
+### Wi-Fi and Bluetooth: WCN3990 through ath10k snoc, firmware read from the phone's own vendor partition
+
+Status
+: open
+
+Note
+: ath10k is in mainline. The firmware is the phone's own, read from its partition at boot, never put in a repository.
+
+Blocked by
+: walleye-ufs-readonly,walleye-dmesg-clean
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: walleye-wlan-scan: wlan0 scans and finds a network; hci0 is up
+
+
+<a id="walleye-audio-haptics"></a>
+### Haptics (DRV2624) and speaker amps (TAS2557) with the WCD934x codec: drivers to write or port
+
+Status
+: open
+
+Note
+: Mainline has drv260x/drv2665/drv2667 (not DRV2624) and tas2552/2562/2764/2770/2780 (not TAS2557); porthole's patches 0018 and the audio ones are GPL starting points. The codec and the DSP firmware are the long part.
+
+Blocked by
+: walleye-ufs-readonly
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: research row naming the driver path of each; then walleye-haptics-felt and walleye-tone-heard (a person)
+
+
+<a id="walleye-radios-research"></a>
+### Research items for modem, sensors (SLPI), camera, NFC, fingerprint and deep sleep: one question each
+
+Status
+: open
+
+Note
+: Components of docs with no mainline path yet. The lane's later lead takes them one by one after UFS read-only.
+
+Blocked by
+: walleye-ufs-readonly
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: a research row per component with the chosen way and its failing test, as research-a-feature says
