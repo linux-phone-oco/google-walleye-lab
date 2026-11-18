@@ -1959,10 +1959,10 @@ Proof
 ### Phone: boot pk4 once more, then d1..d6 twice each from the first state; record the thirteen return times and read pstore
 
 Status
-: open
+: done
 
 Note
-: images ~/Projects/walleye-build/images-dtb (boot-d1..d6.img, pk4 in images-pk456), SHA256SUMS, research walleye-dtb-bisect-built. Expected: init ran = Android back at ~40-65 s; no init = ~75 s. The first to come back early names its group (d1 watchdog, d2 ramoops, d3 slpi carve-out, d4 RPM regulators, d5 usb+qusb2 phy, d6 = d1+d2+d3). No hands needed: every image reboots at once.
+: 13 tries, all 75 s (no init); no group of d1..d6 is the cause; recorded walleye-dtb-bisect-tried
 
 About
 : walleye-first-fastboot-boot
