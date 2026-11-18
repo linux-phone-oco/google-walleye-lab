@@ -1849,3 +1849,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-builder-reader-eacces"></a>
+### walleye-builder: reader retries denied tty, root-exec fallback
+
+Entry date
+: 2026-11-18
+
+Done
+: mainline-shell-read.sh retries the tty open while Permission denied (ACCESS_WAIT 20 s, 0.5 s steps); on lasting EACCES only, falls back to lab-agent root-exec for that one resolved /dev/ttyACM* node (stty, one-command writes, reads), prints the path used, logs each root use in OUT/root-exec.log. Selftest 21 ok (9 fail on old reader). Programmer review applied: positional node arg, EACCES-only, resolved-node check, timeouts, same stty on both paths, uid-0 guard.
+
+Considered
+: root cat in background as reader (tighter, not done)
+
+Rejected
+: chmod/chown/usermod, rule change: lab-prepare stays the author's; block readers unchanged: they skip on -r, not the same open
+
+About
+: walleye-first-fastboot-boot
