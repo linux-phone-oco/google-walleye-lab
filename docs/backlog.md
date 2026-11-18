@@ -3044,6 +3044,9 @@ Status
 Note
 : Image ~/Projects/walleye-build/images-c1/boot-c1.img sha256 ddae19b523f2a68d902755f0e57d53c3b98c74b9b146d372bc40ea307aaee0c0. c1 = z3 + SMB2 charger and rradc built in + charger/battery in the dtb. Run battery-ok first; read with mainline-shell-read.sh (saves power-supply-facts.txt); the cable is in during the read, so online must be 1; give DIR to charger-check.sh (a second DIR with the cable out, from any later read, proves it follows). Risks (review): float voltage is set from 4.4 V (4402.5 mV in the register); the charger init rewrites Type-C/USB-input limits and may drop the ttyACM link: a missing tty on c1 is a finding, z3 is the fallback; keep the try short and watch warmth. If the shell is silent (y2, z1 were), nothing is learned: wait for walleye-build-banner-init. Battery voltage rising is read in Android afterwards (capacity stays not known yet).
 
+Blocked by
+: walleye-shell-reliable
+
 About
 : walleye-charger-smb2
 
@@ -3213,6 +3216,9 @@ Status
 Note
 : KEEPER 2026-11-18 10:47Z try 3 of z3 (slot b, nothing flashed): NOT PROVEN, and not a permission problem - see research walleye-z3-ttyacm-not-a-permission-problem: ttyACM0 was rw for mll the whole time (uaccess ACL), the reader opened it, 3 min of silence, empty dmesg. NEXT: find out what z3's init puts on the ACM (read the ramdisk init of images-z3; a banner? a shell on ttyGS0?) before another try; a plain 'cat' of the node during a try would show whether anything is sent. Not retried.
 
+Blocked by
+: walleye-shell-reliable
+
 About
 : walleye-first-fastboot-boot
 
@@ -3278,6 +3284,9 @@ Status
 
 Note
 : z2 built (gpucc =y, smmu -110); z3 built 2026-11-18 (build/build-z3.sh, 15 checks, rebuild identical): /__symbols__/clock_gcc on the real gcc fixes the serial supplier wait and the four phandle lines (research walleye-clock-gcc-stub-no-cells). Try queued as walleye-try-z3 (supersedes walleye-try-z2). Done when the try's dmesg passes tests/host/dmesg-clean-check.sh.
+
+Blocked by
+: walleye-shell-reliable
 
 About
 : walleye-first-fastboot-boot
