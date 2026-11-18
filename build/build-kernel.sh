@@ -25,7 +25,7 @@ $M defconfig >/dev/null
 "$K/scripts/kconfig/merge_config.sh" -m -O "$OUT/b" "$OUT/b/.config" "$HERE/build/walleye.config" >/dev/null
 $M olddefconfig >/dev/null
 # the initramfs carries no modules: what the gadget, the charger and the watchdog stand on must be built in
-for s in QCOM_WDT USB_CONFIGFS_MASS_STORAGE RD_XZ PHY_QCOM_QUSB2 USB_DWC3_QCOM USB_CONFIGFS USB_CONFIGFS_ACM USB_CONFIGFS_ECM USB_CONFIGFS_RNDIS PSTORE_RAM PINCTRL_MSM8998 MSM_GCC_8998 MSM_GPUCC_8998 SERIAL_MSM QCOM_SPMI_RRADC CHARGER_QCOM_SMB2 PM8916_WATCHDOG POWER_RESET_QCOM_PON; do
+for s in QCOM_WDT USB_CONFIGFS_MASS_STORAGE RD_XZ PHY_QCOM_QUSB2 USB_DWC3_QCOM USB_CONFIGFS USB_CONFIGFS_ACM USB_CONFIGFS_ECM USB_CONFIGFS_RNDIS PSTORE_RAM PINCTRL_MSM8998 MSM_GCC_8998 MSM_GPUCC_8998 SERIAL_MSM QCOM_SPMI_RRADC CHARGER_QCOM_SMB2 PM8916_WATCHDOG POWER_RESET_QCOM_PON SCSI_UFSHCD_PLATFORM SCSI_UFS_QCOM PHY_QCOM_QMP_UFS BLK_DEV_SD EFI_PARTITION; do
   grep -q "^CONFIG_$s=y" "$OUT/b/.config" || { echo "build-kernel: CONFIG_$s is not =y" >&2; exit 1; }
 done
 # -@: our dtb carries /__symbols__ and the stub nodes, so the bootloader's dtbo overlay merge can succeed (build/gen-overlay-stubs.sh)
