@@ -1419,3 +1419,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-vf2-built"></a>
+### walleye-vf2-built
+
+Date
+: 2026-11-18
+
+Brief
+: vf2 built: vf1's dump with the marker at once, a 2 s beat, and a status line per step in a 64 KiB text region; 29 checks ok, rebuild identical, selftest 25 ok, reviewed
+
+Question
+: How can the window tell an empty header from a dead init?
+
+Found
+: boot-vf2.img = the control's kernel with init-vf2: the window file and the WALLEYE-VF2 BEAT marker are written before any mount and before the gadget; a beat repaints every 2 s under flock; every step goes through stp (start line before, rc=X and stderr after; a step with failed grabs gets a non-zero rc); applet list written at start; blob at offset 65536 with its own magic. The reader prints the step lines first, retries while the beat lives, and says ALIVE or DEAD/hung. sha256 boot-vf2.img 75723a23acf85e18... (full in images-vf2/SHA256SUMS-vf2 on the lab). Programmer review found 5 issues (stale overwrite between painters, marker order, rc=0 on failed grabs, reader retries, selftest beat); all fixed. Not tried on the phone.
+
+About
+: walleye-first-fastboot-boot

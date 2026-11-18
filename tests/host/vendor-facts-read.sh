@@ -1,6 +1,6 @@
 #!/bin/sh
-# walleye-vendor-facts-read, run on the lab host: read the vf1 window (the phone's 8 MiB mass_storage LUN: 64-byte header "WALLEYE-VF1 LEN=<10 digits> ROUND=<2 digits>", then LEN bytes of a gzipped tar),
-# check the length prefix, gunzip the tar into the output directory, write INDEX.txt (every file with its size), say which of the expected facts are missing, and refuse if a MAC or a serial is in it.
+# walleye-vendor-facts-read, run on the lab host: read the vf1 or vf2 window (the phone's 8 MiB mass_storage LUN). vf2: a 64 KiB text region first (line 1 WALLEYE-VF2 BEAT=, then a line per init step), printed before anything else, then at byte 65536 a 64-byte header "WALLEYE-VF2-BLOB LEN=<10 digits> ROUND=<2 digits>" and LEN bytes of a gzipped tar; vf1: that header at byte 0.
+# Checks the length prefix, gunzips the tar into the output directory, writes INDEX.txt (every file with its size), says which of the expected facts are missing, and refuses if a MAC or a serial is in it. A window with the marker but no blob fails WITH the step lines and a one-line summary, so an empty header can be told from a dead init.
 # Finds the LUN by the strings the init sets (serial walleye-first-boot, product "Pixel 2 walleye (mainline)"), never by VID:PID; reads it with O_DIRECT. Reads the host's USB tree and the block device only.
 # One line at the end: `pass|fail|skip walleye-vendor-facts-read kernel DETAIL`; exit 0 only on pass (pass = the blob gunzips, the device tree and dmesg are in it, nothing identifying is). A partial dump is still a pass,
 # with the missing facts named in the detail.
@@ -34,22 +34,46 @@ else
   [ -r "$BLK" ] || say skip "gadget ${USB##*/} is $BLK but it is not readable by $(id -un) (disk group or sudo needed)"
 fi
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
+# the window: vf2 = a 64 KiB text region (line 1 "WALLEYE-VF2 BEAT=n UP=s", then a "start N name" / "step N name rc=X" line per step), the blob header at 65536; vf1 = the blob header at byte 0
+MODE=vf1; SKIP=0; MAG=WALLEYE-VF1; LIMIT=8388000; SUM=; BEAT0=
+RETRY=${RETRY_WAIT:-5}
+dd if="$BLK" bs=65536 count=1 $DIRECT 2>/dev/null | tr -d '\000' > "$T/text"
+head -n1 "$T/text" | grep -q -e '^WALLEYE-VF2 BEAT=' -e '^WALLEYE-VF1 LEN=' || say fail "gadget ${USB##*/} $BLK read, but there is no marker: the window starts with '$(head -n1 "$T/text" | cut -c1-60)' (the init wrote nothing, or it is not ours)"
+beat_of() { head -n1 "$1" | sed -n 's/^WALLEYE-VF2 BEAT=\([0-9]*\).*/\1/p'; }
+summary() {
+  SUM="marker $(head -n1 "$T/text" | cut -d' ' -f1-3); $(grep -c '^step ' "$T/text") steps ended, $(grep -c '^step .* rc=[1-9]' "$T/text") with a non-zero rc, $(grep -c 'MISSING' "$T/text") applets missing; last line: $(tail -n1 "$T/text" | cut -c1-100)"
+  B1=$(beat_of "$T/text")
+  if [ -n "$BEAT0" ] && [ -n "$B1" ]; then
+    if [ "$B1" -gt "$BEAT0" ]; then SUM="$SUM; ALIVE (beat $BEAT0 -> $B1 across the reads)"; else SUM="$SUM; DEAD or hung (beat frozen at $B1 across the reads)"; fi
+  fi
+}
+if head -n1 "$T/text" | grep -q '^WALLEYE-VF2 BEAT='; then
+  MODE=vf2; SKIP=16; MAG=WALLEYE-VF2-BLOB; LIMIT=8322000; BEAT0=$(beat_of "$T/text")
+fi
 try=0; LEN=; ROUND=
 while [ "$try" -lt "$TRIES" ]; do
   try=$((try+1))
-  dd if="$BLK" bs=512 count=1 $DIRECT 2>/dev/null | head -c 64 | tr -d '\000' > "$T/head"
-  grep -q '^WALLEYE-VF1 LEN=' "$T/head" || say fail "gadget ${USB##*/} $BLK read, but the header is not WALLEYE-VF1 (first line: $(head -n1 "$T/head" | cut -c1-60))"
-  LEN=$(sed -n 's/^WALLEYE-VF1 LEN=\([0-9]*\) .*/\1/p' "$T/head" | sed 's/^0*\(.\)/\1/'); ROUND=$(sed -n 's/.*ROUND=\([0-9]*\).*/\1/p' "$T/head")
-  [ "${LEN:-0}" -gt 0 ] || { sleep 5; continue; }
-  [ "$LEN" -le 8388544 ] || say fail "header says LEN=$LEN, more than the 8 MiB window holds"
+  dd if="$BLK" bs=4096 skip=$SKIP count=1 $DIRECT 2>/dev/null | head -c 64 | tr -d '\000' > "$T/head"
+  if ! grep -q "^$MAG LEN=" "$T/head"; then
+    # vf2: the init writes the first blob header only after its first round; look again while the beat is alive
+    if [ "$MODE" = vf2 ] && [ "$try" -lt "$TRIES" ]; then sleep "$RETRY"; dd if="$BLK" bs=65536 count=1 $DIRECT 2>/dev/null | tr -d '\000' > "$T/text"; continue; fi
+    [ "$MODE" = vf2 ] && { echo "--- the step lines at the last read"; tail -n +2 "$T/text"; echo "--- end of the step lines"; summary; }
+    say fail "gadget ${USB##*/} $BLK read, but the blob header is not $MAG (${SUM:-first line: $(head -n1 "$T/text" | cut -c1-60)}; blob header line: $(head -n1 "$T/head" | cut -c1-40))"
+  fi
+  LEN=$(sed -n "s/^$MAG LEN=\([0-9]*\) .*/\1/p" "$T/head" | sed 's/^0*\(.\)/\1/'); ROUND=$(sed -n 's/.*ROUND=\([0-9]*\).*/\1/p' "$T/head")
+  [ "${LEN:-0}" -gt 0 ] || { sleep "$RETRY"; continue; }
+  [ "$LEN" -le "$LIMIT" ] || say fail "header says LEN=$LEN, more than the window holds"
   N=$(( (LEN + 64 + 4095) / 4096 ))
-  dd if="$BLK" bs=4096 count="$N" $DIRECT 2>/dev/null | tail -c +65 | head -c "$LEN" > "$T/vf.tgz"
+  dd if="$BLK" bs=4096 skip=$SKIP count="$N" $DIRECT 2>/dev/null | tail -c +65 | head -c "$LEN" > "$T/vf.tgz"
   [ "$(stat -c %s "$T/vf.tgz")" -eq "$LEN" ] || { sleep 2; continue; }
   gzip -t "$T/vf.tgz" 2>/dev/null && break
   sleep 2
 done
-[ "${LEN:-0}" -gt 0 ] || say fail "gadget ${USB##*/} $BLK: the header says LEN=0 (the init has not written a blob yet: $try reads)"
-gzip -t "$T/vf.tgz" 2>/dev/null || say fail "gadget ${USB##*/} $BLK: LEN=$LEN round $ROUND but the stream does not gunzip after $try reads"
+if [ "$MODE" = vf2 ]; then
+  echo "--- the phone's own step lines (vf2 text region, last read; marker $(head -n1 "$T/text"))"; tail -n +2 "$T/text"; echo "--- end of the step lines"; summary
+fi
+[ "${LEN:-0}" -gt 0 ] || say fail "gadget ${USB##*/} $BLK: the blob header says LEN=0 (no blob written yet: $try reads; $SUM)"
+gzip -t "$T/vf.tgz" 2>/dev/null || say fail "gadget ${USB##*/} $BLK: LEN=$LEN round $ROUND but the stream does not gunzip after $try reads ($SUM)"
 rm -rf "$OUT"; mkdir -p "$OUT"
 tar xzf "$T/vf.tgz" -C "$OUT" 2>/dev/null || { rm -rf "$OUT"; say fail "the stream gunzips but the tar does not extract into $OUT (removed)"; }
 FILES=$(find "$OUT" -type f | wc -l)
@@ -70,6 +94,6 @@ missing=
 for want in dmesg iomem interrupts cmdline debugfs/clk_summary debugfs/regulator_summary debugfs/gpio debugfs/pinctrl/pinctrl-maps sys/udc-list; do [ -s "$OUT/$want" ] || missing="$missing $want"; done
 [ "$(find "$OUT/dt" -type f 2>/dev/null | wc -l)" -gt 0 ] || missing="$missing dt/"
 [ -n "$(ls "$OUT/debugfs" 2>/dev/null | grep -i -e dwc3 -e usb)" ] || missing="$missing debugfs/usb-or-dwc3"
-{ echo "# vf1 dump, round $ROUND, $LEN bytes gzipped, $FILES files; missing: ${missing:-nothing}"; cat "$OUT/INDEX.txt"; } > "$OUT/INDEX.tmp" && mv "$OUT/INDEX.tmp" "$OUT/INDEX.txt"
+{ echo "# $MODE dump, round $ROUND, $LEN bytes gzipped, $FILES files; missing: ${missing:-nothing}"; cat "$OUT/INDEX.txt"; } > "$OUT/INDEX.tmp" && mv "$OUT/INDEX.tmp" "$OUT/INDEX.txt"
 case "$missing" in *dt/*|*dmesg*) say fail "round $ROUND blob read ($FILES files) but missing$missing in $OUT" ;; esac
 say pass "gadget ${USB##*/} $BLK: round $ROUND, $LEN bytes, $FILES files in $OUT, missing:${missing:- nothing}"
