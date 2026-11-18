@@ -2191,3 +2191,25 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-z6-dmesg-map/
+
+
+<a id="walleye-z7-built"></a>
+### walleye-z7-built
+
+Date
+: 2026-11-18
+
+Brief
+: z7 built: z6 with only the dtb changed, adreno_smmu disabled; 13 checks ok, rebuild identical, proof test seen failing on z6's dtb first
+
+Question
+: Can the GPU smmu's gpu_gx GDSC fault (G1 of the z6 dmesg map) be removed by one dtb change, shown before the phone?
+
+Found
+: images-z7/boot-z7.img (sha256 2dc6ff0e13dc042086ee2f46be91afc35944ae87c4a242e36cda28934d107b30) = z6 with only /soc@0/iommu@5040000 given status disabled (fdtput on z6's dtb, which is z3's, so a dtb of an older dts); Image.gz, ramdisk (init-z6), header, command line and AVB footer are z6's byte for byte; the dtbo overlay still merges. dt/msm8998-google-walleye.dts carries the same line (&adreno_smmu disabled) for later builds. tests/host/adreno-smmu-disabled.sh fails on z6's dtb and passes on z7's; dmesg-clean-check.sh now also counts gpu_gx stuck WARNs and tolerates only the known overlay deferrals. Not measured on the phone yet.
+
+Sources
+: linux-gpucc-msm8998-gx
+
+About
+: walleye-first-fastboot-boot

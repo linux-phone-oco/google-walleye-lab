@@ -2155,3 +2155,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-z7-dmesg-clean-built"></a>
+### z7: the GPU smmu off
+
+Entry date
+: 2026-11-18
+
+Done
+: Built z7 (build-z7.sh), the dts line, adreno-smmu-disabled check and selftest, dmesg-clean-check's gpu_gx count and known-overlay tolerance. Queued walleye-try-z7.
+
+Considered
+: Building z7 from the dts (would also bring the charger node, a second change).
+
+Rejected
+: A second change in the same image; one change per image keeps a try readable.
+
+About
+: walleye-first-fastboot-boot
