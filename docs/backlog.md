@@ -4503,10 +4503,10 @@ Rank
 ### Try z14 once from slot b: USB networking (ECM + telnet on 172.16.43.1) beside the ACM console
 
 Status
-: open
+: done
 
 Note
-: Safe: z7's kernel and dtb, nothing probes UFS or the charger; only the init's gadget gains an ECM function. The lab host needs the interface to take the DHCP lease (172.16.43.2) or a static one; MAC 02:42:ac:10:2b:02. Research walleye-z14-built.
+: proven by tests/host/gadget-up.sh pass (ping + telnet 172.16.43.1); research walleye-z14-tried
 
 About
 : walleye-first-fastboot-boot

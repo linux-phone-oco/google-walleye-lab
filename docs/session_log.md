@@ -2635,3 +2635,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-1400-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: walleye-try-z14 done: z14 once from slot b, USB networking works (172.16.43.1 ping + telnet root shell); gadget-up.sh falls back to telnet when host lacks nc. Phone back as Android on slot b, stock kernel, nothing flashed, fastboot reachable.
+
+Considered
+: next: walleye-ufs-android-live / walleye-bootchain-readback (read only); z14 gives a network shell for probe reading
+
+About
+: walleye-first-fastboot-boot
