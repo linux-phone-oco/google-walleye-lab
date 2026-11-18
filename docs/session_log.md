@@ -2299,3 +2299,24 @@ Done
 
 Considered
 : next: item walleye-c3-hung-wait-then-power-cycle first; then c4 (tps61099 fixed regulator, walleye-charger-supplier). PMIC bite proof stays barred by decision 2026-11-18-walleye-no-pmic-bite-until-reset-type
+
+---
+
+
+<a id="2026-11-18-1535-c4-built"></a>
+### c4 built
+
+Entry date
+: 2026-11-18
+
+Done
+: walleye-builder: read c3's try (charger probes with fw_devlink=permissive), read the tps61099 facts from the vfa fdt and the dtbo, modelled it in our dts, built boot-c4.img through lpoco-lab job start (log read from the journal; 26 checks ok, rebuilt identical), programmer review, queued walleye-try-c4.
+
+Considered
+: A regulator-fixed at the overlay's node; the build in the v7.3+wdt tree (it would add z8's watchdog to the dtb).
+
+Rejected
+: Both - see decision 2026-11-18-walleye-tps61099-fixed-regulator-supplier-disabled.
+
+About
+: walleye-first-fastboot-boot

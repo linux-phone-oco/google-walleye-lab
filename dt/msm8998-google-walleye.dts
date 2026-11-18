@@ -258,3 +258,29 @@
 	wakeup-source;
 	status = "okay";
 };
+
+/*
+ * The charger's boost supply (item walleye-charger-supplier, decision 2026-11-18-walleye-charger-supplier-permissive-then-modelled).
+ * Read from the phone's running fdt (vfa try): the TI TPS61099 boost converter is switched by one PMIC pin, pm8998 gpio 5
+ * (active high), and makes the rail "tps61099-vbus"; the vendor dtbo overlay adds /soc@0/tps61099 (compatible ti,tps61099,
+ * no mainline driver) and points the charger's external-vbus-supply at its child. That unbound device was the supplier c2's
+ * charger waited on. The board's part is modelled here as what it is for the kernel: a fixed regulator on that pin, off until
+ * something asks for it (nothing does yet).
+ * The overlay's merge overwrites a compatible set on its own node, so the regulator cannot sit at /soc@0/tps61099: it is a node
+ * of ours, and the overlay's driverless copy is marked disabled (the overlay sets no status), which fw_devlink does not wait on
+ * (of_link_to_phandle: a supplier whose node is unavailable gets no link).
+ */
+/ {
+	tps61099_vbus_regulator: regulator-tps61099-vbus {
+		compatible = "regulator-fixed";
+		regulator-name = "tps61099-vbus";
+		gpios = <&pm8998_gpios 5 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};
+
+&soc {
+	tps61099 {
+		status = "disabled";
+	};
+};
