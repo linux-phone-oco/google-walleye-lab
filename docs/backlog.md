@@ -2031,10 +2031,10 @@ Proof
 ### Phone: boot pk5l2 twice from the first state; after each read /sys/fs/pstore/* and /data/vendor_ce/0/ramoops/*, record the first mainline panic or console text
 
 Status
-: open
+: done
 
 Note
-: image ~/Projects/walleye-build/images-pk5l2/boot-pk5l2.img, hashes in research/walleye-first-fastboot-boot/2026-11-18-pk5l2; adb root, screen lock is off; record the panic lines as research (redact IDs)
+: tried twice: no mainline panic text found (research walleye-pk5l2-tried); next: prove the mainline kernel reaches ramoops at all, or return to the dtb diff
 
 About
 : walleye-first-fastboot-boot

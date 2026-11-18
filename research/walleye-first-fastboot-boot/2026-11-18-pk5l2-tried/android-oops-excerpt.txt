@@ -1,0 +1,11 @@
+1526-<6>[   17.881469] c2   2943 binder: 2943:2943 ioctl 40046210 7fe05b5134 returned -22
+1527-<14>[   17.941832] c5      1 init: processing action (vendor.ramoops.decrypted=true) from (/vendor/etc/init/init-ramoops.rc:6)
+1528:<1>[   17.945783] c0      1 Unable to handle kernel paging request at virtual address ffffff8009c60000
+1529-<1>[   17.945800] c0      1 pgd = 0000000000000000
+1530-<1>[   17.945808] c0      1 [ffffff8009c60000] *pgd=0000000000000000, *pud=0000000000000000
+1531-<0>[   17.945822] c0      1 Internal error: Oops: 96000007 [#1] PREEMPT SMP
+1532-<4>[   17.945831] c0      1 Modules linked in:
+1533-<4>[   17.945843] c0      1 CPU: 0 PID: 1 Comm: init Not tainted 4.4.302-g113bd1cfa6f5 #1
+1534-<4>[   17.945850] c0      1 Hardware name: Qualcomm Technologies, Inc. MSM8998 v2.1 (DT)
+1535-<4>[   17.945858] c0      1 task: 0000000000000000 task.stack: 0000000000000000
+1536-<4>[   17.945873] c0      1 PC is at __memcpy_fromio+0x124/0x16c
