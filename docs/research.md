@@ -1160,7 +1160,7 @@ Question
 : Which properties differ between wa (alive taimen-based dtb with the walleye node set and statuses) and pk2 (porthole's walleye dtb, dead)?
 
 Found
-: Decompiled both (dtc -I dtb -O dts -s), phandles resolved to node paths (build/dts-norm.awk): 59 diff lines. Groups: root compatible+model; battery capacity (0x35b600 vs 0x2932e0, two properties); panel@0 has no compatible in pk2 (wa lg,sw43402); qcom,protection-domain avs/audio + msm/adsp/audio_pd on seven apr services only in pk2; leftovers in nodes disabled in both (camss supplies, pcie reg/ranges/supply, resin linux,code). Nothing in /memory, reserved-memory, chosen, cpus, timer, psci. Not property-level: phandle numbering, node order, dtb size (wa 132369 B, pk2 128809 B) - if the all-groups image wpa lives, the cause is there, not in a property.
+: Decompiled both (dtc -I dtb -O dts -s), phandles resolved to node paths (build/dts-norm.awk): 31 changed property lines (12 in wa only, 13 in pk2 only, 6 raw renumbered). Groups: root compatible+model; battery capacity (0x35b600 vs 0x2932e0, two properties); panel@0 has no compatible in pk2 (wa lg,sw43402); qcom,protection-domain avs/audio + msm/adsp/audio_pd on seven apr services only in pk2; leftovers in nodes disabled in both (camss supplies, pcie reg/ranges/supply, resin linux,code). Nothing in /memory, reserved-memory, chosen, cpus, timer, psci. Not property-level: phandle numbering, node order, dtb size (wa 132369 B, pk2 128809 B) - if the all-groups image wpa lives, the cause is there, not in a property.
 
 About
 : walleye-first-fastboot-boot

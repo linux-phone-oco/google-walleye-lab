@@ -88,7 +88,7 @@ for W in wp1 wp2 wp3 wp4 wp5 wpa; do
   ck "$W dtb differs from wa's" "$([ "$(h "$T/u$W/k.dtb")" != "$(h "$T/k.dtb")" ] && echo yes || echo no)" yes
   ck "$W dtb is the one written" "$(h "$T/u$W/k.dtb")" "$(h "$T/$W.dtb")"
   ck "$W size is wa's ($PSIZE)" "$(stat -c %s "$IMG")" "$PSIZE"
-  ck "$W command line has no earlycon and no console=" "$(echo "$CMD" | tr ' ' '\n' | grep -c -e '^earlycon' -e '^console=')" 0
+  ck "$W command line has no earlycon and no console=" "$(echo "$(unpack_bootimg --boot_img "$IMG" --out "$T/c$W" | sed -n "s/^command line args: *//p")" | tr ' ' '\n' | grep -c -e '^earlycon' -e '^console=')" 0
   mkdir "$T/v$W" && cp "$IMG" "$T/v$W/boot.img"
   ck "$W AVB footer verifies" "$(avbtool verify_image --image "$T/v$W/boot.img" >/dev/null 2>&1 && echo yes || echo no)" yes
   ck "$W dtb reads" "$(fdtdump "$T/$W.dtb" >/dev/null 2>&1 && echo yes || echo no)" yes
@@ -99,7 +99,7 @@ for W in wp1 wp2 wp3 wp4 wp5 wpa; do
   ck "$W changes exactly its group: property lines removed/added against wa" "$(echo "$d" | grep -c '^<') $(echo "$d" | grep -c '^>')" "$want"
 done
 # wpa: every property line equals pk2's, but three raw lists whose phandles are only renumbered (ipa iommus, mmcc clocks, pcie iommu-map)
-skip='soc@0/ipa: ipa@1e40000 iommus|soc@0/mmcc: clock-controller@c8c0000 clocks|soc@0/pcie0: pcie@1c00000 iommu-map'
+skip='soc@0/ipa: ipa@1e40000 iommus =|soc@0/mmcc: clock-controller@c8c0000 clocks =|soc@0/pcie0: pcie@1c00000 iommu-map ='
 grep -Ev "$skip" "$T/wpa.norm" > "$T/wpa.cmp"; grep -Ev "$skip" "$T/pk2.norm" > "$T/pk2.cmp"
 # the nodes and statuses wa already made equal to pk2's: the node set is not part of this comparison, only properties; lines of nodes absent from either side are the node diff and must not exist
 ck "wpa property lines equal pk2's" "$(diff "$T/wpa.cmp" "$T/pk2.cmp" | wc -l)" 0

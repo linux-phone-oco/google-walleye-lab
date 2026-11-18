@@ -34,7 +34,7 @@ BEGIN{FS="\n"}
 FNR==1{pass++; d=0}
 {
   line=$0
-  if(line ~ /\{$/ && line !~ /=/){ s=line; sub(/^[ \t]+/,"",s); sub(/ *\{$/,"",s); if(s=="/")s=""; st[++d]=s; if(pass==2&&0)print; next }
+  if(line ~ /\{$/ && line !~ /=/){ s=line; sub(/^[ \t]+/,"",s); sub(/ *\{$/,"",s); if(s=="/")s=""; st[++d]=s; next }
   if(line ~ /^[ \t]*\};$/){d--;next}
   if(line !~ /;$/ ) next
   p=pathnow(); s=line; sub(/^[ \t]+/,"",s); sub(/;$/,"",s)
@@ -44,7 +44,7 @@ FNR==1{pass++; d=0}
     if(name ~ /^#.*-cells$/){v=val;gsub(/[<>]/,"",v); cells[p SUBSEP name]=h2n(v)}
     next
   }
-  if(p ~ /^\/(__symbols__|__fixups__|__local_fixups__|__overrides__)/) next
+  if(p ~ /^\/\/(__symbols__|__fixups__|__local_fixups__|__overrides__)/) next
   if(name=="phandle") next
   out=val
   if(val ~ /^<.*>$/){
