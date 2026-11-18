@@ -2351,3 +2351,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-vendor-facts-dump"></a>
+### vf1: the vendor kernel with our init dumps the running hardware's facts into a bigger log window (device tree as merged, clocks, regulators, pinctrl/gpio, interrupts, iomem, dwc3/phy state, dmesg)
+
+Status
+: open
+
+Note
+: Decision 2026-11-18-walleye-vendor-kernel-as-instrument. WHEN DONE queue walleye-try-vf1 (needs phone, rank 1): twice (first run may be a partial dump: say what was missing); the keeper reads the window (battery first, phone left in Android afterwards). The tar is hardware facts from our own phone; do not publish IMEI/serial/MAC bytes: redact those files (e.g. /proc/cpuinfo serial, /sys/class/net, wlan MAC) before anything leaves the machine. A programmer-subagent review before landing.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: boot-vf1.img = the control's kernel/dtb/cmdline/header/footer (bytes equal, as m1) with a ramdisk whose init mounts proc/sys/debugfs, creates a tar of the chosen files (proc/device-tree as a dtc-readable copy via cat of the files or a single fdt if /sys/firmware/fdt exists, debugfs clk/clk_summary, regulator/regulator_summary, pinctrl/*, gpio, /proc/interrupts, iomem, ioports, /sys/class/udc, dwc3 debugfs, /sys/kernel/debug/usb, dmesg), gzips it, writes it as a length-prefixed blob into an 8 MiB file exported as a read-only mass_storage LUN (m1's gadget order: dir, mass_storage, bind), rewrites it in place every 10 s while it grows, holds 90 s then reboot -f; tests/host/vendor-facts-read.sh reads the LUN (uaccess rule exists), checks the length prefix and gunzips the tar into research/google-walleye-lab/2026-11-18-vf/ (not in git if large: put it under the lab's material path and keep the index); checks as m1's; no write to the phone

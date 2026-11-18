@@ -470,3 +470,25 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-walleye-vendor-kernel-as-instrument"></a>
+### 2026-11-18-walleye-vendor-kernel-as-instrument
+
+Date
+: 2026-11-18
+
+Brief
+: Pause the pstore chase; dump the running hardware's facts through the vendor kernel and the log window, then give mainline USB its nodes
+
+Decision
+: The pstore chase (T1, T3, ml*, pk*) is paused: after many images, no witness of our mainline init exists without a UART, and every further pstore try is read through the same doubt (T3: back at 42 s, no marker: no bite, a lost ramoops region or no init cannot be told apart). Instead the working vendor kernel is used as the INSTRUMENT: our init on the vendor 4.4.302 kernel (proven: m1 enumerates and its window is read by the lab user) mounts debugfs and dumps what the mainline device tree needs into a larger log window: the running device tree (/proc/device-tree, merged with the overlay: the walleye hardware as the phone itself describes it), clk_summary, regulator_summary, pinctrl/gpio state, interrupts, iomem/ioports, the USB controller and PHY state in peripheral mode (dwc3 debugfs, the phy registers' bound clocks and regulators), the reserved-memory map, the PMIC/SPMI devices, the dmesg of that boot. These are facts from the running hardware (GPL kernel, observed behaviour), the clean-room wall holds (no blobs read). They give the dwc3/phy/regulator/clock nodes that mainline USB needs, so the mainline gadget can enumerate: the first real light. The UART cable stays the proper channel and is the author's purchase.
+
+Why
+: Each pstore try is a one-bit answer through a channel we cannot verify (the same empty pstore means no bite, no region or no init); the vendor kernel is alive, verified and readable through the lab-prepare window; the facts it holds are exactly what mainline USB lacks.
+
+Rejected
+: More pstore images without a witness (T4 pon notifier, further watchdog variants); waiting idle for the UART cable.
+
+About
+: walleye-first-fastboot-boot
