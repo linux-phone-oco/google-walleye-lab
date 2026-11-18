@@ -1180,3 +1180,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-battery-watch-built"></a>
+### walleye battery watch built
+
+Entry date
+: 2026-11-18
+
+Done
+: tests/host/battery-ok.sh (fastboot getvar battery-voltage or adb dumpsys battery; exit 1 below 3700 mV, skip when unread), tests/host/idle-android.sh (end state: Android booted, not in fastboot), tests/host/battery-selftest.sh (fake fastboot/adb, seen failing first, then pass); keeper rule added to AGENTS.md. Phone not touched.
+
+Considered
+: reading the phone for real in this run
+
+Rejected
+: reading the live phone now: builders never touch a phone; the selftest uses fake fastboot and adb
+
+About
+: walleye-first-fastboot-boot

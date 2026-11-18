@@ -2216,10 +2216,10 @@ Opened
 ### The keeper reads the battery before every try and leaves the phone charging (in Android, not in fastboot) between tries
 
 Status
-: open
+: done
 
 Note
-: Lesson of 2026-11-18: the phone sat in fastboot for hours and went dark; fastboot mode draws power and charges little. Do not park the phone in fastboot between tries; and every try records the battery. Small item; any builder run may take it (shell + the keeper note).
+: Built: battery-ok.sh, idle-android.sh, battery-selftest.sh (pass) and the keeper rule in AGENTS.md. Next: the keeper runs battery-ok.sh before each try and idle-android.sh at session end; first live reading is theirs.
 
 About
 : walleye-first-fastboot-boot
