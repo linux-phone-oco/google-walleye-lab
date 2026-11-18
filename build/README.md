@@ -195,6 +195,16 @@ the stock overlay's `clocks = <&clock_gcc ID ...>` land on our empty `clock_gcc`
 makes `boot-z3.img` = z2 with only `/__symbols__/clock_gcc` set (fdtput) to `/soc@0/clock-controller@100000`; the overlay merge then writes gcc's phandle into those clock users.
 15 checks, rebuild byte-identical; `tests/host/overlay-clock-gcc.sh` (all four clock users) fails on z2's dtb and passes on z3's. The try is `walleye-try-z3` (it supersedes z2's).
 
+## z4: z3 with an ACM shell that survives the host (walleye-shell-reliable)
+
+z3's try saw a live phone and an empty reader: the init ran `ash -i < /dev/ttyGS0`, which ends when the host closes the port, and the reader opened the node again for every command, so
+each command hit a dead or just-respawned shell. Two changes. `build/initramfs-mainline/init-z4` (pk5l's init with only the console block changed) opens the port once (fd 4), sets it
+`raw -echo -hupcl`, runs `ash -i` in its own session (`setsid`; no controlling terminal), retries a failed open, respawns at once and says every start in the kmsg (`shell on /dev/ttyGS0, start N`).
+`tests/host/mainline-shell-read.sh` opens the tty once (fd 3) and never closes it before the end (no probe open, no per-command open; stty and drain go through the fd).
+`build/build-z4.sh WORK_DIR Z3_BOOT_IMG OUT_DIR` makes `boot-z4.img` = z3 with only the ramdisk's init changed (packing init-pk5l first reproduces z3's ramdisk byte for byte; rebuild identical).
+`tests/host/mainline-shell-selftest.sh` has a phone that hangs up when its port is closed (socat `pty-wait-slave` + a respawn loop): the one-fd reader passes it, the old reader
+(`tests/host/fixture-shell-read-per-command.sh`) fails it. Not measured yet: the init's console block on the phone itself (`setsid` and `-hupcl` on ttyGS0 are read from busybox, not run); the try is `walleye-try-z4`.
+
 ## banner: y2 with a banner init (walleye-build-banner-init)
 
 y2 and z1 were both silent to the reader. `build/build-banner.sh WORK_DIR Y2_BOOT_IMG OUT_DIR` makes `boot-banner.img` = y2's image (our kernel, our dtb, header, command line, AVB footer) with

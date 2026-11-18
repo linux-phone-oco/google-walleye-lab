@@ -3211,10 +3211,10 @@ Rank
 ### Try z3 once from slot b with the shell reader: is the dmesg fully clean?
 
 Status
-: open
+: done
 
 Note
-: KEEPER 2026-11-18 10:47Z try 3 of z3 (slot b, nothing flashed): NOT PROVEN, and not a permission problem - see research walleye-z3-ttyacm-not-a-permission-problem: ttyACM0 was rw for mll the whole time (uaccess ACL), the reader opened it, 3 min of silence, empty dmesg. NEXT: find out what z3's init puts on the ACM (read the ramdisk init of images-z3; a banner? a shell on ttyGS0?) before another try; a plain 'cat' of the node during a try would show whether anything is sent. Not retried.
+: Superseded by walleye-try-z4 (z4 = z3 + the init change that makes the shell answer).
 
 Blocked by
 : walleye-shell-reliable
@@ -3224,9 +3224,6 @@ About
 
 Opened
 : 2026-11-18
-
-Needs
-: phone
 
 Proof
 : walleye-dmesg-clean: sh tests/host/dmesg-clean-check.sh DIR passes on the reader's output of z3 (images-z3/boot-z3.img sha256 9bc4ec19939b411531ed3dbbb8a931018ddebdcc66b903bd2757ac05d5031f98)
@@ -3239,10 +3236,10 @@ Rank
 ### Make the ACM shell answer reliably: the phone's tty must not hang up between commands, and the reader must keep one fd open (z4)
 
 Status
-: open
+: done
 
 Note
-: Fact (lab research walleye-z3-ttyacm-not-a-permission-problem, PR 190): the node is root:users 0660 with ACL user:mll:rw- and opens fine; the reader's 16 of 17 answers were empty although the phone's side is alive (the banner init writes lines the host reads); the y2 old-reader try saw only the tty's own echo of one command. That pattern (echo with no answer) means NO process was reading ttyGS0 at that moment: the init's shell reads `ash -i < /dev/ttyGS0` and ends when the port is closed by the host (hang up), and the reader reopens the node for every command. WHEN DONE queue walleye-try-z4 (needs phone, rank 1): z4 once from slot b; the keeper starts the new reader itself FIRST as a plain background process (no job, no root); judge with dmesg-clean-check.sh, pmic-dmesg-check.sh; then c1 the same way (rebuild c1 with the same init change: c2).
+: Built 2026-11-18: build/build-z4.sh (z3 + init-z4 only, rebuild identical, boot-z4.img sha256 4115db3e2c678919cb3d3bd725d5065bbbbac1e6026732989c1eca3590043b20), reader keeps one fd, selftest 26 ok with a hang-up-on-close fake that fails the old reader; programmer review fixed (no cttyhack, retry failed open, HUP). Try queued as walleye-try-z4.
 
 About
 : walleye-first-fastboot-boot
@@ -3280,13 +3277,13 @@ Opened
 ### Clean probes in the dmesg: arm-smmu 5040000 timeout, the serial supplier from the overlay stubs, i2c@c179000 phandle
 
 Status
-: open
+: in-progress
 
 Note
-: Back to open (blocked by walleye-shell-reliable): z2/z3 built; the dmesg of a try is read only when the shell answers.
+: z3 built (gpucc, clock_gcc); its try could not be read (shell silent). z4 = z3 + working shell; try queued as walleye-try-z4. Done when the try's dmesg passes tests/host/dmesg-clean-check.sh.
 
 Blocked by
-: walleye-shell-reliable
+: walleye-try-z4
 
 About
 : walleye-first-fastboot-boot
@@ -3365,3 +3362,28 @@ Needs
 
 Proof
 : walleye-battery-capacity: capacity and voltage_now within 100 mV of the fastboot battery reading; the reading sent upstream as a Tested-by
+
+
+<a id="walleye-try-z4"></a>
+### Try z4 once from slot b with the one-fd shell reader: does the ACM shell answer, and is the dmesg fully clean?
+
+Status
+: open
+
+Note
+: z4 = z3 + init-z4 only (build/build-z4.sh, rebuild identical). The keeper starts mainline-shell-read.sh FIRST as a plain background process (no job, no root); it keeps one fd open. Judge with dmesg-clean-check.sh and pmic-dmesg-check.sh. Not measured yet: init-z4's console block on the phone (setsid, -hupcl on ttyGS0); expect kmsg lines 'walleye-init: shell on /dev/ttyGS0, start N'. If the shell is still silent, read the kmsg counter first. Supersedes walleye-try-z3. Then c2 = c1 with init-z4.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-dmesg-clean: sh tests/host/mainline-shell-read.sh answers all 21 files on z4 (images-z4/boot-z4.img sha256 4115db3e2c678919cb3d3bd725d5065bbbbac1e6026732989c1eca3590043b20) and sh tests/host/dmesg-clean-check.sh DIR passes on its dmesg
+
+Rank
+: 1

@@ -1,6 +1,6 @@
 #!/bin/sh
 # walleye-mainline-shell-selftest, host only: a fake phone (a shell on a pty made by socat, with touch and reboot faked) answers mainline-shell-read.sh.
-# Checks: a pass with the files saved; the serial and a MAC redacted; touch /tmp/hold and reboot -f reached the fake (not run on the host); a dead tty fails.
+# Checks: a phone that hangs up when the port is closed (the real init's ash) answers a reader that keeps ONE open fd and kills the old per-command reader (fixture-shell-read-per-command.sh); a pass with the files saved; the serial and a MAC redacted; touch /tmp/hold and reboot -f reached the fake (not run on the host); a dead tty fails.
 HERE=$(cd "$(dirname "$0")" && pwd)
 [ "$(id -u)" != 0 ] || { echo "skip walleye-mainline-shell-selftest host (root: chmod 000 would not deny)"; exit 0; }
 T=$(mktemp -d); fail=0; pass=0
@@ -53,4 +53,23 @@ ck "denied: says who holds the port" "$(grep -c 'held-by=' $T/r4)" 1
 ck "denied: lab-agent never called" "$(wc -l < $T/la.calls)" 0
 ck "denied: nothing written to the phone" "$(grep -c 'reboot' $FAKELOG)" 0
 ck "denied: no root-exec log" "$([ -e $T/out4/root-exec.log ] && echo yes || echo no)" no
+# The phone's shell hangs up when the host closes the port (walleye-shell-reliable): the fake is socat with pty-wait-slave, which ends when the last holder of the node closes it;
+# a loop respawns it after 1 s (the init's respawn gap), during which the node is gone. Each end is a line in hang.log. A reader that closes the port between commands gets a dead phone.
+hang_phone() { rm -f $T/htty; : > $T/hang.log
+  ( while :; do socat PTY,link=$T/htty,raw,echo=0,pty-wait-slave EXEC:"sh $T/phone.sh",pty,raw,echo=0 2>/dev/null; echo hangup >> $T/hang.log; sleep 1; done ) & HP=$!
+  n=0; while [ ! -e $T/htty ] && [ $n -lt 50 ]; do sleep 0.1; n=$((n+1)); done; }
+hang_stop() { kill $HP 2>/dev/null; pkill -f "link=$T/htty" 2>/dev/null; sleep 0.3; }
+kill $SP 2>/dev/null; sleep 0.3; : > $FAKELOG; hang_phone
+TTY=$T/htty OUT=$T/outh WAIT=2 CMD_TIMEOUT=3 sh "$HERE/mainline-shell-read.sh" > $T/rh 2>&1; r=$?
+ck "hang-up phone: the one-fd reader passes" "$r" 0
+ck "hang-up phone: dmesg saved" "$(grep -c 'Linux version' $T/outh/dmesg.txt)" 1
+ck "hang-up phone: the last answer (power-supply-facts) is there too" "$([ -s $T/outh/power-supply-facts.txt ] && echo yes || echo no)" yes
+sleep 0.5; ck "hang-up phone: the port was closed once only, at the end" "$(wc -l < $T/hang.log | tr -d ' ')" 1
+ck "hang-up phone: reboot -f reached it" "$(grep -c 'reboot -f' $FAKELOG)" 1
+hang_stop; sleep 1.2; : > $FAKELOG; hang_phone
+TTY=$T/htty OUT=$T/outo WAIT=2 CMD_TIMEOUT=1 sh "$HERE/fixture-shell-read-per-command.sh" > $T/ro 2>&1; r=$?
+sleep 0.5
+ck "hang-up phone: the old per-command reader fails (the test tells the readers apart)" "$r" 1
+ck "hang-up phone: the old reader hung the phone up before it was done" "$([ "$(wc -l < $T/hang.log | tr -d ' ')" -ge 1 ] && echo yes || echo no)" yes
+hang_stop
 echo "$([ $fail = 0 ] && echo pass || echo fail) walleye-mainline-shell-selftest host $pass ok, $fail failed"; [ $fail = 0 ]
