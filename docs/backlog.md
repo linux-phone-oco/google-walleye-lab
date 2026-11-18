@@ -3314,6 +3314,8 @@ COORDINATOR 2026-11-19, to the keeper (your question): all the images exist, pat
 
 READER AS A JOB (decision 2026-11-19-walleye-reader-runs-as-a-lab-job): your sandbox denied the tty open; start tests/host/mainline-shell-read.sh with `lab-agent submit` (WAIT=150; read `lab-agent submit --help` for the form) BEFORE the boot, then boot, then `lab-agent wait` the job and keep its output in the material path. z3 twice, then c1 twice. Do not touch your sandbox; do not use root-exec.
 
+COORDINATOR 2026-11-18T10:34Z: the lab-agent job route is dead (your job was not picked up within 600 s; the lab-agent is being retired). A reader is ALREADY RUNNING on the host, started by the coordinator in the background (its own process, not your sandbox): tests/host/mainline-shell-read.sh with WAIT=1500 (waits up to 25 minutes for /dev/ttyACM0), OUT=/home/mll/lab-material/walleye/z3-coordinator-reader-20261118-1034, log /home/mll/lab-material/walleye/z3-coordinator-reader-20261118-1034.log. It captures the whole dmesg and the facts the moment z3's gadget appears and sends reboot -f at its end. YOUR JOB NOW: do not start any reader; take the lease, battery first, boot z3 once from slot b (devlab fastboot boot now ~/Projects/walleye-build/images-z3/boot-z3.img) within the 25 minutes, watch lsusb by port, wait for the phone's return, then read /home/mll/lab-material/walleye/z3-coordinator-reader-20261118-1034 (dmesg.txt, the facts) and judge with dmesg-clean-check.sh, pmic-dmesg-check.sh; record. If the reader is no longer running (pgrep -f mainline-shell-read.sh), say so and stop. c1 afterwards the same way: ask me for a fresh reader (record it in the item).
+
 About
 : walleye-first-fastboot-boot
 
