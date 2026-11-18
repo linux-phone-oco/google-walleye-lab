@@ -3205,10 +3205,10 @@ Rank
 ### The gadget's tty rule does not apply: ttyACM0 stays root:uucp 0660 for the lab user
 
 Status
-: open
+: done
 
 Note
-: Seen by the banner try (lab PR 175). Interim: the decision 2026-11-18-walleye-tty-read-through-root-exec.
+: Closed: not a host fault. The banner image's serial was walleye-banner, not walleye-first-boot, so the rule rightly did not apply (orchestration, host kernel log 10:06:55). Fix: walleye-banner-serial-fix.
 
 Waits
 : orchestration (lpoco host prepare): the rule does not reach the ttyACM node
@@ -3242,9 +3242,32 @@ Needs
 : build
 
 Proof
-: tests/host/mainline-shell-read.sh (and massstorage-read.sh / window-payload-read.sh if they open a device node the same way) retries opening the device node while it answers 'Permission denied', for up to 20 s with 0.5 s steps, before it gives up with a fail that says what it saw (the node's owner, group and ACL via ls -l and getfacl, and the udev rule file present or not); selftest with a fake that is denied for the first 3 s and then allowed; no change of the rule, no chmod, no sudo (the lab-prepare rules stay the author's tool); programmer review
+: tests/host/mainline-shell-read.sh (and the other readers that open a device node the same way) retry opening the node while it answers 'Permission denied', for up to 20 s in 0.5 s steps, set raw mode themselves (stty -F NODE raw -echo -hupcl), and give up with a fail line that says what they saw (the node's owner, group and ACL, the serial of the usb parent, who holds the port, whether the udev rule file is present); selftest with a fake denied for the first 3 s; NO root-exec, no chmod, no sudo (decision 2026-11-18-walleye-banner-serial-not-root-exec); programmer review
 
-AND (decision 2026-11-18-walleye-tty-read-through-root-exec): when the plain open of the tty node stays denied after the retry, the reader falls back to `lab-agent root-exec -- ...` for exactly that one node: setting raw mode (stty -F NODE raw -echo -hupcl), reading it (cat or dd), writing one command at a time (a root-exec sh -c with a printf to the node); the reader prints which path it used; the selftest covers both paths with a fake root-exec in PATH; no other root use, no chmod/chown/usermod; every use is a line in the saved record.
+Rank
+: 2
+
+
+<a id="walleye-banner-serial-fix"></a>
+### init-banner writes the wrong USB serial (walleye-banner): the host rule did not apply; fix it and check every init
+
+Status
+: open
+
+Note
+: Found by orchestration from the host kernel log (lab PR 175's try). WHEN DONE queue walleye-try-banner2 (needs phone, rank 1): plain cat of /dev/ttyACM0 as the lab user (no root-exec): the banner bytes must reach it; then the z3 and c1 tries with the reader.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: build/initramfs-mainline/init-banner writes the USB serial walleye-first-boot (the product string may stay 'Pixel 2 walleye (mainline banner)'); build-banner*.sh gets the same serial check build-mainline-light.sh has for init-ml (it fails when an init writes another serial); a rebuilt boot-banner2.img (everything else equal to boot-banner.img), 40+ checks, programmer review, hashes; every other init of ours is checked for the serial too (grep over build/initramfs-*/init*: one answer, walleye-first-boot, anything else fails the checks)
 
 Rank
 : 1
