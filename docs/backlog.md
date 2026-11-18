@@ -3446,7 +3446,7 @@ Status
 : open
 
 Note
-: Fact (lab research walleye-z5-tried, PR 204): z5's banner reports the shell started and alive (probe 0, no error), but the tty carries '> ' prompts and 'ash: /: Permission denied' lines: the shell is reading input that the host never sent. The host's cdc_acm tty opens in cooked mode with ECHO on, so received phone output is echoed back to the phone, where the shell parses it as commands.
+: tried once 2026-11-18 13:2x: no result, lab-agent GitHub token 401 so the reader job never ran (research walleye-z5b-try-no-reader); waits on the author renewing the token (lab-agent connect); job script at ~/lab-material/walleye/z5b-try1/job.sh
 
 About
 : walleye-first-fastboot-boot
