@@ -1962,3 +1962,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-banner2-tried"></a>
+### walleye-banner2-tried
+
+Date
+: 2026-11-18
+
+Brief
+: banner2 once from slot b: lab-user cat of ttyACM0 got 29 banner lines, beats increasing, init alive to beat 31 (64 s); banner-check passes
+
+Question
+: Do banner bytes reach a plain lab-user cat of /dev/ttyACM0 with banner2?
+
+Found
+: Yes. fastboot boot of banner2 from slot b: left fastboot 15 s, 1d6b:0104 at 18 s, ttyACM0 root:users 0660 (uaccess ACL), cat as lab user read 2805 bytes, 29 WALLEYE-BANNER lines, beat=31 up=63.88s step 8 gadget bound to a800000.usb. Serial walleye-first-boot fixes the permission. Phone fell back to Android (adb up) by ~4 min; nothing flashed. The reader channel now works, so the z3 and c1 tries can use it.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18/
