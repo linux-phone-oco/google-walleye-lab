@@ -15,11 +15,11 @@ n=0; while [ ! -w "$TTY" ]; do
   [ "$n" -ge 5 ] && say fail "$TTY not writable by this user"; sleep 1; n=$((n+1)); done
 stty -F "$TTY" raw -echo 115200 2>/dev/null || true   # a fake tty (pty) may refuse nothing; a pipe does
 mkdir -p "$OUT" || say fail "cannot make $OUT"; chmod 700 "$OUT"
-redact() { sed -E -e 's/(androidboot\.serialno=)[^ ]*/\1REDACTED/g' -e 's/([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}/XX:XX:XX:XX:XX:XX/g' -e 's/(serial(no|number)?[ =:]+)[0-9A-Za-z]{6,}/\1REDACTED/Ig'; }
+redact() { sed -E -e 's/\x1b\[[0-9;]*[A-Za-z]//g' -e 's/(androidboot\.serialno=)[^ ]*/\1REDACTED/g' -e 's/([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}/XX:XX:XX:XX:XX:XX/g' -e 's/(serial(no|number)?[ =:]+)[0-9A-Za-z]{6,}/\1REDACTED/Ig'; }
 M=wmsr-$$; i=0; got=0
 ask() { # ask NAME TIMEOUT COMMAND: send, read to the marker, save redacted
   i=$((i+1)); f="$OUT/$1.txt"
-  timeout "$2" sh -c "exec 3<>'$TTY'; printf '%s\n' \"\$1; echo $M-$i-END\" >&3; while IFS= read -r l <&3; do l=\${l%\$(printf '\r')}; case \$l in *$M-$i-END) break;; esac; printf '%s\n' \"\$l\"; done" sh "$3" 2>/dev/null | grep -v -e "$M-$i" | redact > "$f.tmp"
+  timeout "$2" sh -c "exec 3<>'$TTY'; printf '%s\n' \"\$1; echo $M-$i-E''ND\" >&3; while IFS= read -r l <&3; do l=\${l%\$(printf '\r')}; case \$l in *$M-$i-END) break;; esac; printf '%s\n' \"\$l\"; done" sh "$3" 2>/dev/null | grep -v -e "$M-$i" | redact > "$f.tmp"
   r=$?
   # the echoed command line is dropped by grep; an empty answer is kept as an empty file
   mv "$f.tmp" "$f"; [ -s "$f" ] && got=$((got+1))
