@@ -32,6 +32,7 @@ split "$T/z7/kernel" "$T/k"
 PSIZE=$(stat -c %s "$Z7")
 AV=$(avbtool info_image --image "$Z7")
 # the kernel carries what the gadget needs
+ck "z7 kernel has devpts" "$(zcat "$T/k.gz" | grep -ac devpts)" 5
 ck "z7's kernel holds the CDC Ethernet Control Model (ECM) function" "$(zcat "$T/k.gz" | grep -ac 'Control Model (ECM)')" 1
 # the busybox has the applets the network block runs
 for a in IFCONFIG UDHCPD TELNETD; do
@@ -39,14 +40,15 @@ for a in IFCONFIG UDHCPD TELNETD; do
 done
 # the init
 ck "init-z14 (busybox ash -n) has no syntax error" "$("$W/busybox-x86_64" ash -n "$I" 2>&1 || echo syntax-error)" ""
-ck "init-z14 differs from init-z6 only by the header, the step name, the ECM function and its link, and the network block" "$(diff "$OLD" "$I" | grep '^<' | cut -c1-14 | tr '\n' '|')" '< say "z6 init|< mkdir -p $G/|< echo "ACM" >|'
+ck "init-z14 differs from init-z6 only by the header, the step name, the ECM function and its link, and the network block" "$(diff "$OLD" "$I" | grep '^<' | cut -c1-14 | tr '\n' '|')" '< say "z6 init|< mkdir -p $G/|< echo "ACM" >|< if [ -z "$UD|'
 ck "init-z14 binds the ECM function in the one configuration with ACM" "$(grep -v '^[[:space:]]*#' "$I" | grep -c -e 'ln -s \$G/functions/ecm.usb0 \$G/configs/c.1/' -e 'ln -s \$G/functions/acm.GS0 \$G/configs/c.1/')" 2
 ck "init-z14 puts usb0 on the manifest's address 172.16.43.1 and nothing on 172.16.42" "$(grep -v '^[[:space:]]*#' "$I" | grep -c '172\.16\.43\.1')/$(grep -v '^[[:space:]]*#' "$I" | grep -c '172\.16\.42')" 3/0
 ck "init-z14 starts telnetd only on 172.16.43.1 (never all addresses)" "$(grep -c '^    telnetd -l /bin/sh -b 172.16.43.1 ' "$I")" 1
 ck "the manifest's address is 172.16.43.1" "$(sed -n 's/^addresses *= *\["\([^"]*\)".*/\1/p' "$HERE/device.toml")" 172.16.43.1
 ck "udhcpd.conf leases exactly 172.16.43.2 on usb0" "$(grep -c -e '^start 172.16.43.2$' -e '^end 172.16.43.2$' -e '^interface usb0$' "$CONF")" 3
+ck "init-z14 mounts devpts (telnetd needs a pty) and says when the bind fails" "$(grep -v "^[[:space:]]*#" "$I" | grep -c -e "mount -t devpts" -e "FAILED")" 2
 ck "init-z14 keeps the watchdog petter, the self-reboot after 90 beats and the serial walleye-first-boot" "$(grep -c -e 'while \[ \$n -lt 90 \]' -e 'self-reboot now' -e 'walleye-first-boot' "$I")" 3
-ck "init-z14 mounts no disk and writes to none" "$(grep -v '^[[:space:]]*#' "$I" | grep -c -e 'mount[^|]* /dev/sd' -e '> */dev/sd' -e 'dd [^|]*of=/dev' -e 'mkfs' -e 'blkdiscard')" 0
+ck "init-z14 mounts no disk and writes to none" "$(grep -v '^[[:space:]]*#' "$I" | grep -c -e 'mount[^|]* /dev/\(sd\|block\|mmcblk\|nvme\)' -e '> */dev/sd' -e 'dd [^|]*of=/dev' -e 'mkfs' -e 'blkdiscard')" 0
 ck "every init of ours writes the serial walleye-first-boot (check-init-serials.sh)" "$(sh "$HERE/build/check-init-serials.sh" "$HERE/build" >/dev/null 2>&1 && echo yes || echo no)" yes
 # the ramdisk
 pack() { # INIT OUT_XZ [WITH_CONF]

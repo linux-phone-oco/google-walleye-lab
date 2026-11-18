@@ -2596,3 +2596,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-builder-z14"></a>
+### walleye builder: z14 USB networking built
+
+Entry date
+: 2026-11-18
+
+Done
+: Built z14 (z7 + ECM/usb0/udhcpd/telnetd in the init), 26 checks, rebuild identical; queued walleye-try-z14 for the keeper; walleye-usb-net in progress until the try
+
+Considered
+: Dropbear static for ssh (no key on the lab host, no sshd in earlier images); NCM (panicked on the vendor kernel; ECM is in this kernel and is what the first images used)
+
+Rejected
+: ssh in the initramfs now: needs a key and a second build; telnet on the private cable is what gadget-up.sh proves
+
+About
+: walleye-first-fastboot-boot

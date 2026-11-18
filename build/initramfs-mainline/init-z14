@@ -17,6 +17,7 @@ say() { STEP=$((STEP+1)); echo "walleye-banner: step $STEP: $*" > /dev/kmsg 2>/d
 mount -t proc proc /proc
 mount -t sysfs sys /sys
 mount -t devtmpfs dev /dev 2>/dev/null
+mkdir -p /dev/pts; mount -t devpts devpts /dev/pts 2>/dev/null   # telnetd needs a pty
 mkdir -p /sys/kernel/config /tmp
 true > $BANNERLOG 2>/dev/null
 say "z14 init start, kernel $(uname -r)"
@@ -83,7 +84,7 @@ ln -s $G/functions/ecm.usb0 $G/configs/c.1/
 n=0
 while [ -z "$(ls /sys/class/udc 2>/dev/null)" ] && [ $n -lt 30 ]; do sleep 1; n=$((n+1)); done
 UDC=$(ls /sys/class/udc 2>/dev/null | head -n1)
-if [ -z "$UDC" ]; then say "NO UDC after ${n}s"; else say "about to bind $UDC (waited ${n}s)"; echo "$UDC" > $G/UDC && say "gadget bound to $UDC"; fi
+if [ -z "$UDC" ]; then say "NO UDC after ${n}s"; else say "about to bind $UDC (waited ${n}s)"; echo "$UDC" > $G/UDC && say "gadget bound to $UDC" || say "bind of $UDC FAILED"; fi
 # z14: the network, in its own subshell so the console below never waits for it: usb0 appears when the gadget is bound; it gets 172.16.43.1, one DHCP lease (172.16.43.2) for the lab host, telnetd with no password (the phone sits on a cable in the lab; the way the first images did)
 (
   n=0
