@@ -271,3 +271,81 @@ By
 
 Takes
 : SBU1 = TX, SBU2 = RX, DIP 1.8/3.3 V (a wrong setting can damage the target), orientation-specific, archived 2023-01-10, not an official Google product
+
+
+<a id="src-wahoo-msm-poweroff"></a>
+### msm-poweroff.c, kernel/msm android-msm-wahoo-4.4-android11 (vendor restart path)
+
+Url
+: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-wahoo-4.4-android11/drivers/power/reset/msm-poweroff.c
+
+By
+: Google/Qualcomm
+
+Takes
+: msm_restart_prepare: PMIC reset type is WARM only if download mode is on (panic sets it) or the reboot command is non-empty; a plain reboot is a PMIC HARD reset, 'unless memory contents must be maintained'; panic path can bite the watchdog; PS_HOLD de-asserted through TZ
+
+
+<a id="src-linux-psci-sys-reset"></a>
+### drivers/firmware/psci/psci.c psci_sys_reset (mainline)
+
+Url
+: https://github.com/torvalds/linux/blob/63fdb511c27afcebce797e3db580b3534ddfa639/drivers/firmware/psci/psci.c
+
+By
+: Linux kernel
+
+Takes
+: reboot=warm/soft uses SYSTEM_RESET2 only if psci_system_reset2_supported (PSCI 1.1); otherwise plain SYSTEM_RESET; notifier priority 129
+
+
+<a id="src-linux-qcom-pon"></a>
+### drivers/power/reset/qcom-pon.c (mainline)
+
+Url
+: https://github.com/torvalds/linux/blob/63fdb511c27afcebce797e3db580b3534ddfa639/drivers/power/reset/qcom-pon.c
+
+By
+: Linux kernel
+
+Takes
+: mainline pm8998-pon driver only registers reboot-mode (writes the soft spare reason); it never programs the PS_HOLD reset type (warm/hard), unlike the vendor qpnp_pon_system_pwr_off
+
+
+<a id="src-qcom-pon-reset-status"></a>
+### Qualcomm docs: PMIC PON reset status
+
+Url
+: https://docs.qualcomm.com/doc/80-88500-4/topic/74_PMIC_PON_reset_status.html
+
+By
+: Qualcomm
+
+Takes
+: PON_WARM_RESET_REASON / PON_ON_REASON 0x40 = warm-reset sequence; SDI runs PS_HOLD warm resets before a RAM dump: the PMIC records which kind of reset happened, readable after boot
+
+
+<a id="src-linux-qcom-wdt"></a>
+### drivers/watchdog/qcom-wdt.c (mainline)
+
+Url
+: https://github.com/torvalds/linux/blob/63fdb511c27afcebce797e3db580b3534ddfa639/drivers/watchdog/qcom-wdt.c
+
+By
+: Linux kernel
+
+Takes
+: qcom,kpss-wdt: restart handler (priority 128, below PSCI's 129) and a bite on an unpetted watchdog; the lab dts already has the node at 0x17817000
+
+
+<a id="src-openwrt-ramoops-warm"></a>
+### openwrt#5045: ramoops files survive a warm reboot, not a cold one
+
+Url
+: https://github.com/openwrt/openwrt/issues/5045
+
+By
+: walleye-research
+
+Takes
+: plain statement of the rule on a Qualcomm SoC (ipq806x): pstore survives warm, not cold reset
