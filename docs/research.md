@@ -3167,3 +3167,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-touch-android-compare-result"></a>
+### walleye-touch-android-compare-result
+
+Date
+: 2026-11-18
+
+Brief
+: Touch, Android vs z20: Android's synaptics node (i2c, power-gpio pmi8998 gpio 2, reset tlmm 89, irq 125) is absent in ours; pmi gpio 2 is out-high on Android, in-low on ours
+
+Question
+: What does live Android set for touch that our kernel does not?
+
+Found
+: Captured with part-compare.sh (touch list) on live Android (adb root) and on z20 (fe9e0cce, network shell, one try from slot b, fell back to Android b by itself at 180 s; nothing flashed). Material ~/lab-material/walleye/compare-touch-{android-20261119-004949,ours-20261119-005129,diff.txt}, never in git. Findings: (1) Android's i2c bus carries a synaptics_dsx@20 child (irq-gpio tlmm 125, reset-gpio tlmm 89, switch-gpio tlmm 75, power-gpio pmi8998 gpio 2 with power-on-state 1, reset delay 20 ms, two pinctrl states active/suspend); input device synaptics_dsxv26 is up. Ours has no such child and no touch input device (only pwrkey, gpio-keys). (2) Pad state of the power line: Android, the pmi8998 gpio claimed by the touch driver reads out/high; ours pmi8998 gpio2 reads in/low, pull-down (no owner). (3) i2c bus pinctrl differs only in phandle numbers; its gpios (87/88) agree. (4) Regulator and clk diffs are the whole-SoC list, not touch specific; no touch regulator is enabled first on Android (tps61099-vbus disabled on both). Reading: the missing pieces are the node itself and the shared pmi8998 gpio 2 owner (z20's proxy never registers), consistent with research walleye-z20-tried-touch-gpio-leaf. Next: build item walleye-touch-gpio-shared-proxy, then add the synaptics node with these gpios. Phone left on Android slot b; fastboot flags a and b successful.
+
+About
+: walleye-first-fastboot-boot

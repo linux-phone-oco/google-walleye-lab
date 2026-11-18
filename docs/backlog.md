@@ -5098,10 +5098,10 @@ Rank
 ### Touch: compare Android's live state with ours (gpio, pinctrl, regulators, device-tree node) before any more theory
 
 Status
-: open
+: done
 
 Note
-: Tool landed (part-compare.sh capture touch android / ours, then diff). Needs a phone visit: Android now over adb root, then our kernel's network shell (z20 or z17/z19). Pin real gpio/pinconf output as selftest fixtures from the first capture.
+: proven by research walleye-touch-android-compare-result: three groups saved, what Android sets recorded
 
 Blocked by
 : walleye-part-compare-tool
