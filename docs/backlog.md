@@ -3728,6 +3728,8 @@ Status
 Note
 : Fact (lab research walleye-c2-tried, PR 227): the command loop works on c2; the charger defers on its supplier /soc@0/tps61099 (no driver): no power_supply class, charger-check fails. Decision 2026-11-18-walleye-charger-supplier-permissive-then-modelled. WHEN c3 is built queue walleye-try-c3 (needs phone, rank 1); the keeper reads /sys/class/power_supply and the charger lines of the dmesg with charger-check.sh.
 
+BUILD ROUTE (orchestration, lab 0.12.2): the build for this item goes through `lpoco-lab job start` (also status, log, stop, list): each job is a systemd-run --user unit that holds an idle inhibitor while it runs; read the job log with `lpoco-lab job log` and say in your report if output is missing (a known glitch: a pipeline output from a job unit may not reach the journal). Say plainly in the report: "built through lpoco-lab job start, log read" - the coordinator tells the top coordinator so lab-agent can be stopped.
+
 About
 : walleye-first-fastboot-boot
 
