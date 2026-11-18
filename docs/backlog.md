@@ -2664,3 +2664,25 @@ Needs
 
 Proof
 : walleye's series file(s) declare the swaps of the bisects done so far (pk4/pk5/pk6, d1-d6, w*/wa/wpa, wp*, the fdt compare when it exists) against the control image; `lpoco-bringup image bisect` reproduces at least pk5, wa and one d-image byte for byte (sha256 equal to the recorded ones, or the difference explained); the old scripts removed in the same change; checks and hashes; programmer review
+
+
+<a id="walleye-battery-ok-timeout"></a>
+### tests/host/battery-ok.sh must not hang when the phone runs Android: bound every fastboot call by a timeout and fall back to adb
+
+Status
+: open
+
+Note
+: Found by the keeper (lab 2026-11-18-0650): battery-ok.sh hangs while the phone runs Android because fastboot getvar waits for a device. Small; any builder run.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: the script reads the battery from adb (dumpsys battery) when adb shows the phone, from fastboot getvar battery-voltage when fastboot does (each call under timeout 10), prints "not measured" and exits 2 when neither answers within 15 s; run with the phone in Android it ends in under 15 s; selftest with fake adb/fastboot in PATH; programmer review
