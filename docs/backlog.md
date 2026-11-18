@@ -3224,3 +3224,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-host-tty-rule"></a>
+### The gadget's tty rule does not apply: ttyACM0 stays root:uucp 0660 for the lab user
+
+Status
+: open
+
+Note
+: Seen by the banner try (lab PR 175). Interim: the decision 2026-11-18-walleye-tty-read-through-root-exec.
+
+Waits
+: orchestration (lpoco host prepare): the rule does not reach the ttyACM node
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Proof
+: Find why /etc/udev/rules.d/70-lpoco-google-walleye.rules (GROUP users, MODE 0660, TAG uaccess; SUBSYSTEM tty, ATTRS serial walleye-first-boot) leaves /dev/ttyACM0 as root:uucp 0660 for the lab user: with the gadget up (a keeper holds the phone: ask the coordinator for a window or look at the next keeper try's record) run udevadm info -a -n /dev/ttyACM0 (does ATTRS serial walleye-first-boot match on a parent?), udevadm test of the node (rule order against 60-serial.rules and 50-udev-default.rules, which rule sets GROUP last), ls -l and getfacl at the moment of the try. Fix in the lpoco host prepare manifest (device.toml [host]) not by hand. Then the root-exec use of decision 2026-11-18-walleye-tty-read-through-root-exec ends.
