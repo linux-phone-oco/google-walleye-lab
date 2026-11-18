@@ -12,6 +12,11 @@ Principles of linux-phone-oco, cited and never restated ([`tad q principles`](ht
   ends with the phone's health report - read it.
 - **Measured, not claimed** ([principle](https://github.com/linux-phone-oco/docs/blob/main/docs/concepts.md#measured-not-claimed)): a check that cannot measure says `skip`
   and why; a part never working yet is a `gap` in `[health]`.
+- **Keeper's battery rule** (item walleye-battery-watch): before every try run `sh tests/host/battery-ok.sh`; it prints the voltage
+  and exits 1 below 3700 mV - then do not try: stop, record the value, and leave the phone charging in Android. Never park the phone
+  in fastboot between tries (fastboot draws power and charges little). End every session with the phone booted into Android on a
+  good slot (`fastboot reboot`, then adb) and record `sh tests/host/idle-android.sh`'s line as the end state. `sh tests/host/battery-selftest.sh`
+  proves both scripts against fake fastboot and adb, never touching the phone.
 - **Before a test a person must witness** (listening, looking), say what to expect and what to check,
   and wait for their go.
 - **A script that changes state needs explicit intent** (a verb such as `now`); lists are passed as
