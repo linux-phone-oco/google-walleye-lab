@@ -4177,10 +4177,10 @@ Rank
 ### Run phone-state.sh once on the real phone in Android, fastboot and our gadget; record the three outputs as research
 
 Status
-: open
+: done
 
 Note
-: Remaining half of walleye-wire-phone-state; read-only on the phone.
+: proven by three phone-state.sh outputs recorded as research 2026-11-18-walleye-phone-state-three-real-outputs
 
 About
 : walleye-first-fastboot-boot
