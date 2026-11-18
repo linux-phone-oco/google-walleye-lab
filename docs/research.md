@@ -2832,3 +2832,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ufs-android-live-readback"></a>
+### walleye-ufs-android-live-readback
+
+Date
+: 2026-11-18
+
+Brief
+: Android's own UFS bring-up on walleye read-only: gear 1 slow-auto at 1.82s, then HS G3 2-lane rate B at 2.05s; Hynix H28U74301AMR D003
+
+Question
+: How does Android's vendor 4.4.302 kernel bring this UFS card up (dmesg, debugfs, sysfs, DT, config, regulators)?
+
+Found
+: Host 1da4000.ufshc/phy 1da7000/ice 1db0000. dmesg: ufs_qcom_parse_reg_info warns vddp-ref-clk absent (assumed enabled); scsi host0 at 1.786; first link gear1 SLOWAUTO, then gear3 2 lanes FAST rate B at 2.051; LUNs 0-5 plus 3 well-known, SKhynix H28U74301AMR D003. rpm_lvl 3 (SLEEP/HIBERN8). Regulators: ufshc 1800/2960/1200 mV, phy 880/1200 mV, gdsc_ufs on. Vendor config UFSHCD_QCOM+ICE built in. Health desc dump reads zeros; no quirks printed by the driver. Raw files in the material folder, serial redacted.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18/

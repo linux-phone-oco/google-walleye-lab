@@ -4553,10 +4553,10 @@ Rank
 ### Watch Android's own UFS bring-up read-only with adb root: dmesg, debugfs, sysfs, the live host and phy state
 
 Status
-: open
+: done
 
 Note
-: The author's research request (2026-11-18, via the top coordinator): Android runs this exact card safely every boot; read how, and compare to our z13 path. The phone half; the sources half is walleye-ufs-android-way (research).
+: proven by research walleye-ufs-android-live-readback: all seven reads saved (host-register dumps debugfs; DT as hex; clk_summary absent on this kernel, noted)
 
 About
 : walleye-first-fastboot-boot

@@ -1,0 +1,403 @@
+== /sys/kernel/debug/ufshcd0/qcom/pm_qos
+enabled: 1
+CPU Group #0(mask=0xf): active_reqs=0, state=0, latency=70
+CPU Group #1(mask=0xf0): active_reqs=0, state=0, latency=70
+== /sys/kernel/debug/ufshcd0/qcom/debug-regs
+UFS_UFS_DBG_RD_REG_OCSC  [0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [10]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [20]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [30]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [40]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [50]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [60]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [70]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [80]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [90]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [a0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [10]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [20]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [30]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [40]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [50]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [60]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [70]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [10]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [20]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [30]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [40]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [50]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [60]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [70]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [80]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [90]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [a0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [b0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [c0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [d0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [e0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [f0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [100]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [110]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [120]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [130]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [140]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [150]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [160]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [170]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [180]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [190]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [1a0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [1b0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [1c0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [1d0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [1e0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [1f0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [10]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [20]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [30]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [40]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [50]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [60]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [70]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [80]: 0000== /sys/kernel/debug/ufshcd0/qcom/testbus/TEST_BUS
+0
+== /sys/kernel/debug/ufshcd0/qcom/testbus/configuration
+Current configuration: major=11, minor=37
+
+To change the test-bus configuration, write 'MAJ,MIN' where:
+MAJ - major select
+MIN - minor select
+
+== /sys/kernel/debug/ufshcd0/qcom/testbus/enable
+1
+== /sys/kernel/debug/ufshcd0/qcom/dbg_print_en
+5
+== /sys/kernel/debug/ufshcd0/err_state
+0
+== /sys/kernel/debug/ufshcd0/reset_controller
+echo 1 > /sys/kernel/debug/.../reset_controller
+resets the UFS controller and restores its operational state
+
+== /sys/kernel/debug/ufshcd0/dbg_print_en
+127
+== /sys/kernel/debug/ufshcd0/dme_peer_read
+0
+== /sys/kernel/debug/ufshcd0/dme_local_read
+0
+== /sys/kernel/debug/ufshcd0/power_mode
+UFS current power mode [RX, TX]:gear=[3,3], lane=[2,2], pwr=[FAST MODE,FAST MODE], rate = B
+
+To change power mode write 'GGLLMM' where:
+G - selected gear
+L - number of lanes
+M - power mode:
+	1 = fast mode
+	2 = slow mode
+	4 = fast-auto mode
+	5 = slow-auto mode
+first letter is for RX, second letter is for TX.
+
+== /sys/kernel/debug/ufshcd0/dump_device_desc
+Device Descriptor[Byte offset 0x0]: bLength = 0x40
+Device Descriptor[Byte offset 0x1]: bDescriptorType = 0x0
+Device Descriptor[Byte offset 0x2]: bDevice = 0x0
+Device Descriptor[Byte offset 0x3]: bDeviceClass = 0x0
+Device Descriptor[Byte offset 0x4]: bDeviceSubClass = 0x0
+Device Descriptor[Byte offset 0x5]: bProtocol = 0x0
+Device Descriptor[Byte offset 0x6]: bNumberLU = 0x6
+Device Descriptor[Byte offset 0x7]: bNumberWLU = 0x4
+Device Descriptor[Byte offset 0x8]: bBootEnable = 0x1
+Device Descriptor[Byte offset 0x9]: bDescrAccessEn = 0x0
+Device Descriptor[Byte offset 0xa]: bInitPowerMode = 0x1
+Device Descriptor[Byte offset 0xb]: bHighPriorityLUN = 0x7f
+Device Descriptor[Byte offset 0xc]: bSecureRemovalType = 0x0
+Device Descriptor[Byte offset 0xd]: bSecurityLU = 0x1
+Device Descriptor[Byte offset 0xe]: Reserved = 0xff
+Device Descriptor[Byte offset 0xf]: bInitActiveICCLevel = 0x0
+Device Descriptor[Byte offset 0x10]: wSpecVersion = 0x1002
+Device Descriptor[Byte offset 0x12]: wManufactureDate = 0x170a
+Device Descriptor[Byte offset 0x14]: iManufactureName = 0x1
+Device Descriptor[Byte offset 0x15]: iProductName = 0x2
+Device Descriptor[Byte offset 0x16]: iSerialNumber = 0x3
+Device Descriptor[Byte offset 0x17]: iOemID = 0x4
+Device Descriptor[Byte offset 0x18]: wManufactureID = 0xad01
+Device Descriptor[Byte offset 0x1a]: bUD0BaseOffset = 0x10
+Device Descriptor[Byte offset 0x1b]: bUDConfigPLength = 0x10
+Device Descriptor[Byte offset 0x1c]: bDeviceRTTCap = 0x2
+Device Descriptor[Byte offset 0x1d]: wPeriodicRTCUpdate = 0x0
+== /sys/kernel/debug/ufshcd0/dump_health_desc
+Health Descriptor[Byte offset 0x0]: bLength = 0x0
+Health Descriptor[Byte offset 0x1]: bDescriptorType = 0x0
+Health Descriptor[Byte offset 0x2]: bPreEOLInfo = 0x0
+Health Descriptor[Byte offset 0x3]: bDeviceLifeTimeEstA = 0x0
+Health Descriptor[Byte offset 0x4]: bDeviceLifeTimeEstB = 0x0
+== /sys/kernel/debug/ufshcd0/show_hba
+hba->outstanding_tasks = 0x0
+hba->outstanding_reqs = 0x0
+hba->capabilities = 0x1507001f
+hba->auto_hibern8 support = 0
+hba->nutrs = 32
+hba->nutmrs = 8
+hba->ufs_version = 0x210
+hba->irq = 0x35
+hba->auto_bkops_enabled = 0
+hba->ufshcd_state = 0x2
+hba->clk_gating.state = 0x0
+hba->eh_flags = 0x0
+hba->intr_mask = 0x71fff
+hba->ee_ctrl_mask = 0x4
+hba->errors = 0x0
+hba->uic_error = 0x0
+hba->saved_err = 0x0
+hba->saved_uic_err = 0x0
+== /sys/kernel/debug/ufshcd0/host_regs
+host regs [0]: 1587001f 00000000 00000210 00000000
+host regs [10]: 01000000 00010217 00000000 00000000
+host regs [20]: 00000000 00030e75 00000000 00000000
+host regs [30]: 0000010f 00000003 00000000 00000000
+host regs [40]: 00000000 00000000 00000000 00000000
+host regs [50]: f5c6d000 00000000 00000000 00000000
+host regs [60]: 00000001 00000000 00000000 00000000
+host regs [70]: f5c7a000 00000000 00000000 00000000
+host regs [80]: 00000001 00000000 00000000 00000000
+host regs [90]: 00000018 00000000 00000000 00000000
+== /sys/kernel/debug/ufshcd0/stats/io_stats
+		ReadCnt    ReadBytes  WriteCnt   WriteBytes RWCnt      RWBytes   
+Started: 	37379      2595385344 3580       90546176   40959      2685931520
+Completed: 	37379      2595385344 3580       90546176   40959      2685931520
+MaxDiff: 	32         15515648   30         4759552    32         15515648  
+== /sys/kernel/debug/ufshcd0/stats/req_stats
+	All        Write      Read       Read(urg)  Write(urg) Flush      Discard   
+Min:	17         68         23         0          0          38         7812       
+Max:	57680      57680      50731      0          0          56049      7812       
+Avg.:	889        896        778        0          0          1227       7812       
+Count:	42609      37379      3580       0          0          1261       1          
+== /sys/kernel/debug/ufshcd0/stats/err_stats
+
+==UFS errors that caused controller reset==
+so far, no errors that caused controller reset
+
+
+
+==UFS other errors==
+so far, no other UFS related errors
+
+== /sys/kernel/debug/ufshcd0/stats/query_stats
+
+The following table shows how many TIMES each IDN was sent to device for each QUERY OPCODE:
+
+QUERY_OPCODE_NOP:             
+QUERY_OPCODE_READ_DESC:       IDN 0x00: 11,	IDN 0x02: 8,	IDN 0x05: 10,	IDN 0x07: 1,	IDN 0x08: 1,	IDN 0x09: 9,	
+QUERY_OPCODE_WRITE_DESC:      
+QUERY_OPCODE_READ_ATTR:       IDN 0x05: 46,	
+QUERY_OPCODE_WRITE_ATTR:      IDN 0x03: 1,	IDN 0x0D: 1,	
+QUERY_OPCODE_READ_FLAG:       IDN 0x01: 1,	IDN 0x03: 1,	
+QUERY_OPCODE_SET_FLAG:        IDN 0x01: 1,	
+QUERY_OPCODE_CLEAR_FLAG:      IDN 0x04: 1,	
+QUERY_OPCODE_TOGGLE_FLAG:     
+== /sys/kernel/debug/ufshcd0/stats/tag_stats
+ufs statistics are disabled== /sys/kernel/debug/ufshcd0/qcom/pm_qos
+enabled: 1
+CPU Group #0(mask=0xf): active_reqs=0, state=0, latency=70
+CPU Group #1(mask=0xf0): active_reqs=0, state=0, latency=70
+== /sys/kernel/debug/ufshcd0/qcom/debug-regs
+UFS_UFS_DBG_RD_REG_OCSC  [0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [10]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [20]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [30]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [40]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [50]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [60]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [70]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [80]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [90]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_REG_OCSC  [a0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [10]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [20]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [30]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [40]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [50]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [60]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_EDTL_RAM  [70]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [10]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [20]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [30]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [40]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [50]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [60]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [70]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [80]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [90]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [a0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [b0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [c0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [d0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [e0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [f0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [100]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [110]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [120]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [130]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [140]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [150]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [160]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [170]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [180]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [190]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [1a0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [1b0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [1c0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [1d0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [1e0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_DESC_RAM  [1f0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [0]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [10]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [20]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [30]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [40]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [50]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [60]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [70]: 00000000 00000000 00000000 00000000
+UFS_UFS_DBG_RD_PRDT_RAM  [80]: 0000== /sys/kernel/debug/ufshcd0/qcom/testbus/TEST_BUS
+0
+== /sys/kernel/debug/ufshcd0/qcom/testbus/configuration
+Current configuration: major=11, minor=37
+
+To change the test-bus configuration, write 'MAJ,MIN' where:
+MAJ - major select
+MIN - minor select
+
+== /sys/kernel/debug/ufshcd0/qcom/testbus/enable
+1
+== /sys/kernel/debug/ufshcd0/qcom/dbg_print_en
+5
+== /sys/kernel/debug/ufshcd0/err_state
+0
+== /sys/kernel/debug/ufshcd0/reset_controller
+echo 1 > /sys/kernel/debug/.../reset_controller
+resets the UFS controller and restores its operational state
+
+== /sys/kernel/debug/ufshcd0/dbg_print_en
+127
+== /sys/kernel/debug/ufshcd0/dme_peer_read
+0
+== /sys/kernel/debug/ufshcd0/dme_local_read
+0
+== /sys/kernel/debug/ufshcd0/power_mode
+UFS current power mode [RX, TX]:gear=[3,3], lane=[2,2], pwr=[FAST MODE,FAST MODE], rate = B
+
+To change power mode write 'GGLLMM' where:
+G - selected gear
+L - number of lanes
+M - power mode:
+	1 = fast mode
+	2 = slow mode
+	4 = fast-auto mode
+	5 = slow-auto mode
+first letter is for RX, second letter is for TX.
+
+== /sys/kernel/debug/ufshcd0/dump_device_desc
+Device Descriptor[Byte offset 0x0]: bLength = 0x40
+Device Descriptor[Byte offset 0x1]: bDescriptorType = 0x0
+Device Descriptor[Byte offset 0x2]: bDevice = 0x0
+Device Descriptor[Byte offset 0x3]: bDeviceClass = 0x0
+Device Descriptor[Byte offset 0x4]: bDeviceSubClass = 0x0
+Device Descriptor[Byte offset 0x5]: bProtocol = 0x0
+Device Descriptor[Byte offset 0x6]: bNumberLU = 0x6
+Device Descriptor[Byte offset 0x7]: bNumberWLU = 0x4
+Device Descriptor[Byte offset 0x8]: bBootEnable = 0x1
+Device Descriptor[Byte offset 0x9]: bDescrAccessEn = 0x0
+Device Descriptor[Byte offset 0xa]: bInitPowerMode = 0x1
+Device Descriptor[Byte offset 0xb]: bHighPriorityLUN = 0x7f
+Device Descriptor[Byte offset 0xc]: bSecureRemovalType = 0x0
+Device Descriptor[Byte offset 0xd]: bSecurityLU = 0x1
+Device Descriptor[Byte offset 0xe]: Reserved = 0xff
+Device Descriptor[Byte offset 0xf]: bInitActiveICCLevel = 0x0
+Device Descriptor[Byte offset 0x10]: wSpecVersion = 0x1002
+Device Descriptor[Byte offset 0x12]: wManufactureDate = 0x170a
+Device Descriptor[Byte offset 0x14]: iManufactureName = 0x1
+Device Descriptor[Byte offset 0x15]: iProductName = 0x2
+Device Descriptor[Byte offset 0x16]: iSerialNumber = 0x3
+Device Descriptor[Byte offset 0x17]: iOemID = 0x4
+Device Descriptor[Byte offset 0x18]: wManufactureID = 0xad01
+Device Descriptor[Byte offset 0x1a]: bUD0BaseOffset = 0x10
+Device Descriptor[Byte offset 0x1b]: bUDConfigPLength = 0x10
+Device Descriptor[Byte offset 0x1c]: bDeviceRTTCap = 0x2
+Device Descriptor[Byte offset 0x1d]: wPeriodicRTCUpdate = 0x0
+== /sys/kernel/debug/ufshcd0/dump_health_desc
+Health Descriptor[Byte offset 0x0]: bLength = 0x0
+Health Descriptor[Byte offset 0x1]: bDescriptorType = 0x0
+Health Descriptor[Byte offset 0x2]: bPreEOLInfo = 0x0
+Health Descriptor[Byte offset 0x3]: bDeviceLifeTimeEstA = 0x0
+Health Descriptor[Byte offset 0x4]: bDeviceLifeTimeEstB = 0x0
+== /sys/kernel/debug/ufshcd0/show_hba
+hba->outstanding_tasks = 0x0
+hba->outstanding_reqs = 0x0
+hba->capabilities = 0x1507001f
+hba->auto_hibern8 support = 0
+hba->nutrs = 32
+hba->nutmrs = 8
+hba->ufs_version = 0x210
+hba->irq = 0x35
+hba->auto_bkops_enabled = 0
+hba->ufshcd_state = 0x2
+hba->clk_gating.state = 0x0
+hba->eh_flags = 0x0
+hba->intr_mask = 0x71fff
+hba->ee_ctrl_mask = 0x4
+hba->errors = 0x0
+hba->uic_error = 0x0
+hba->saved_err = 0x0
+hba->saved_uic_err = 0x0
+== /sys/kernel/debug/ufshcd0/host_regs
+host regs [0]: 1587001f 00000000 00000210 00000000
+host regs [10]: 01000000 00010217 00000000 00000000
+host regs [20]: 00000000 00030e75 00000000 00000000
+host regs [30]: 0000010f 00000003 00000000 00000000
+host regs [40]: 00000000 00000000 00000000 00000000
+host regs [50]: f5c6d000 00000000 00000000 00000000
+host regs [60]: 00000001 00000000 00000000 00000000
+host regs [70]: f5c7a000 00000000 00000000 00000000
+host regs [80]: 00000001 00000000 00000000 00000000
+host regs [90]: 00000018 00000000 00000000 00000000
+== /sys/kernel/debug/ufshcd0/stats/io_stats
+		ReadCnt    ReadBytes  WriteCnt   WriteBytes RWCnt      RWBytes   
+Started: 	37379      2595385344 3580       90546176   40959      2685931520
+Completed: 	37379      2595385344 3580       90546176   40959      2685931520
+MaxDiff: 	32         15515648   30         4759552    32         15515648  
+== /sys/kernel/debug/ufshcd0/stats/req_stats
+	All        Write      Read       Read(urg)  Write(urg) Flush      Discard   
+Min:	17         68         23         0          0          38         7812       
+Max:	57680      57680      50731      0          0          56049      7812       
+Avg.:	889        896        778        0          0          1227       7812       
+Count:	42609      37379      3580       0          0          1261       1          
+== /sys/kernel/debug/ufshcd0/stats/err_stats
+
+==UFS errors that caused controller reset==
+so far, no errors that caused controller reset
+
+
+
+==UFS other errors==
+so far, no other UFS related errors
+
+== /sys/kernel/debug/ufshcd0/stats/query_stats
+
+The following table shows how many TIMES each IDN was sent to device for each QUERY OPCODE:
+
+QUERY_OPCODE_NOP:             
+QUERY_OPCODE_READ_DESC:       IDN 0x00: 12,	IDN 0x02: 8,	IDN 0x05: 10,	IDN 0x07: 1,	IDN 0x08: 1,	IDN 0x09: 9,	
+QUERY_OPCODE_WRITE_DESC:      
+QUERY_OPCODE_READ_ATTR:       IDN 0x05: 46,	
+QUERY_OPCODE_WRITE_ATTR:      IDN 0x03: 1,	IDN 0x0D: 1,	
+QUERY_OPCODE_READ_FLAG:       IDN 0x01: 1,	IDN 0x03: 1,	
+QUERY_OPCODE_SET_FLAG:        IDN 0x01: 1,	
+QUERY_OPCODE_CLEAR_FLAG:      IDN 0x04: 1,	
+QUERY_OPCODE_TOGGLE_FLAG:     
+== /sys/kernel/debug/ufshcd0/stats/tag_stats
+ufs statistics are disabled

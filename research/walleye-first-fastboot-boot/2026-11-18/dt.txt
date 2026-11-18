@@ -1,0 +1,52 @@
+### ufshc@1da4000
+-- ufshc@1da4000/clock-names:  63 6f 72 65 5f 63 6c 6b 00 62 75 73 5f 61 67 67 72 5f 63 6c 6b 00 69 66 61 63 65 5f 63 6c 6b 00 63 6f 72 65 5f 63 6c 6b 5f 75 6e 69 70 72 6f 00 63 6f 72 65 5f 63 6c 6b 5f 69 63 65 00 72 65 66 5f 63 6c 6b 00 74 78 5f 6c 61 6e 65 30 5f 73 79 6e 63 5f 63 6c 6b 00 72 78 5f 6c 61 6e 65 30 5f 73 79 6e 63 5f 63 6c 6b 00 72 78 5f 6c 61 6e 65 31 5f 73 79 6e 63 5f 63 6c 6b 00  | core_clk bus_aggr_clk iface_clk core_clk_unipro core_clk_ice ref_clk tx_lane0_sync_clk rx_lane0_sync_clk rx_lane1_sync_clk 
+-- ufshc@1da4000/clocks:  00 00 00 3e 69 38 5b 45 00 00 00 3e 87 34 59 d8 00 00 00 3e 19 14 bb 84 00 00 00 3e 4a 4e 0f 3d 00 00 00 3e 84 e1 5a 5b 00 00 00 3e b8 67 b1 47 00 00 00 3e 6a 9f 74 7a 00 00 00 3e 7f 43 25 1c 00 00 00 3e 03 18 2f de  | >i8[E 
+-- ufshc@1da4000/compatible:  71 63 6f 6d 2c 75 66 73 68 63 00  | qcom,ufshc 
+-- ufshc@1da4000/freq-table-hz:  02 fa f0 80 0b eb c2 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 02 3c 34 60 08 f0 d1 80 04 78 68 c0 11 e1 a3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  | 
+-- ufshc@1da4000/interrupts:  00 00 00 00 00 00 01 09 00 00 00 00  | 
+-- ufshc@1da4000/lanes-per-direction:  00 00 00 02  | 
+-- ufshc@1da4000/name:  75 66 73 68 63 00  | ufshc 
+-- ufshc@1da4000/phandle:  00 00 02 9d  | 
+-- ufshc@1da4000/phy-names:  75 66 73 70 68 79 00  | ufsphy 
+-- ufshc@1da4000/phys:  00 00 00 74  | 
+-- ufshc@1da4000/pinctrl-0:  00 00 00 76  | 
+-- ufshc@1da4000/pinctrl-1:  00 00 00 77  | 
+-- ufshc@1da4000/pinctrl-names:  64 65 76 2d 72 65 73 65 74 2d 61 73 73 65 72 74 00 64 65 76 2d 72 65 73 65 74 2d 64 65 61 73 73 65 72 74 00  | dev-reset-assert dev-reset-deassert 
+-- ufshc@1da4000/qcom,bus-vector-names:  4d 49 4e 00 50 57 4d 5f 47 31 5f 4c 31 00 50 57 4d 5f 47 32 5f 4c 31 00 50 57 4d 5f 47 33 5f 4c 31 00 50 57 4d 5f 47 34 5f 4c 31 00 50 57 4d 5f 47 31 5f 4c 32 00 50 57 4d 5f 47 32 5f 4c 32 00 50 57 4d 5f 47 33 5f 4c 32 00 50 57 4d 5f 47 34 5f 4c 32 00 48 53 5f 52 41 5f 47 31 5f 4c 31 00 48 53 5f 52 41 5f 47 32 5f 4c 31 00 48 53 5f 52 41 5f 47 33 5f 4c 31 00 48 53 5f 52 41 5f 47 31 5f 4c 32 00 48 53 5f 52 41 5f 47 32 5f 4c 32 00 48 53 5f 52 41 5f 47 33 5f 4c 32 00 48 53 5f 52 42 5f 47 31 5f 4c 31 00 48 53 5f 52 42 5f 47 32 5f 4c 31 00 48 53 5f 52 42 5f 47 33 5f 4c 31 00 48 53 5f 52 42 5f 47 31 5f 4c 32 00 48 53 5f 52 42 5f 47 32 5f 4c 32 00 48 53 5f 52 42 5f 47 33 5f 4c 32 00 4d 41 58 00  | PWM_G1_L1 PWM_G2_L1 PWM_G3_L1 PWM_G4_L1 PWM_G1_L2 PWM_G2_L2 PWM_G3_L2 PWM_G4_L2 HS_RA_G1_L1 HS_RA_G2_L1 HS_RA_G3_L1 HS_RA_G1_L2 HS_RA_G2_L2 HS_RA_G3_L2 HS_RB_G1_L1 HS_RB_G2_L1 HS_RB_G3_L1 HS_RB_G1_L2 
+-- ufshc@1da4000/qcom,msm-bus,name:  75 66 73 31 00  | ufs1 
+-- ufshc@1da4000/qcom,msm-bus,num-cases:  00 00 00 16  | 
+-- ufshc@1da4000/qcom,msm-bus,num-paths:  00 00 00 02  | 
+-- ufshc@1da4000/qcom,msm-bus,vectors-KBps:  00 00 00 5f 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 02 8a 00 00 00 00 00 00 00 00 00 00 00 5f 00 00 02 00 00 00 03 9a 00 00 00 00 00 00 00 01 00 00 02 8a 00 00 03 e8 00 00 00 00 00 00 00 5f 00 00 02 00 00 00 07 34 00 00 00 00 00 00 00 01 00 00 02 8a 00 00 03 e8 00 00 00 00 00 00 00 5f 00 00 02 00 00 00 0e 68 00 00 00 00 00 00 00 01 00 00 02 8a 00 00 03 e8 00 00 00 00 00 00 00 5f 00 00 02 00 00 00 1c d0 00 00 00 00 00 00 00 01 00 00 02 8a 00 00 03 e8 00 00 00 00 00 00 00 5f 00 00 02 00 00 00 07 34 00 00 00 00 00 00 00 01 00 00 02 8a 00 00 03 e8 00 00 00 00 00 00 00 5f 00 00 02 00 00 00 0e 68 00 00 00 00 00 00 00 01 00 00 02 8a 00 00 03 e8 00 00 00 00 00 00 00 5f 00 00 02 00 00 00 1c d0 00 00 00 00 00 00 00 01 00 00 02 8a 00 00 03 e8 00 00 00 00 00 00 00 5f 00 00 02 00 00 00 3  | 
+-- ufshc@1da4000/qcom,pm-qos-cpu-group-latency-us:  00 00 00 46 00 00 00 46  | 
+-- ufshc@1da4000/qcom,pm-qos-cpu-groups:  00 00 00 0f 00 00 00 f0  | 
+-- ufshc@1da4000/qcom,pm-qos-default-cpu:  00 00 00 00  | 
+-- ufshc@1da4000/reg:  01 da 40 00 00 00 25 00  | 
+-- ufshc@1da4000/reset-names:  63 6f 72 65 5f 72 65 73 65 74 00  | core_reset 
+-- ufshc@1da4000/resets:  00 00 00 3e 00 00 00 06  | 
+-- ufshc@1da4000/status:  6f 6b 00  | 
+-- ufshc@1da4000/ufs-qcom-crypto:  00 00 00 75  | 
+-- ufshc@1da4000/vcc-max-microamp:  00 0b 71 b0  | 
+-- ufshc@1da4000/vcc-supply:  00 00 02 8e  | 
+-- ufshc@1da4000/vccq-max-microamp:  00 08 8b 80  | 
+-- ufshc@1da4000/vccq-supply:  00 00 02 93  | 
+-- ufshc@1da4000/vccq2-max-microamp:  00 0b 71 b0  | 
+-- ufshc@1da4000/vccq2-supply:  00 00 00 42  | 
+-- ufshc@1da4000/vdd-hba-fixed-regulator:   | 
+-- ufshc@1da4000/vdd-hba-supply:  00 00 00 73  | 
+### ufsphy@1da7000
+-- ufsphy@1da7000/#phy-cells:  00 00 00 00  | 
+-- ufsphy@1da7000/clock-names:  72 65 66 5f 63 6c 6b 5f 73 72 63 00 72 65 66 5f 63 6c 6b 00 72 65 66 5f 61 75 78 5f 63 6c 6b 00  | ref_clk_src ref_clk ref_aux_clk 
+-- ufsphy@1da7000/clocks:  00 00 00 3e b8 67 b1 47 00 00 00 3e 92 aa 12 6f 00 00 00 3e 7d bd b2 e2  | 
+-- ufsphy@1da7000/compatible:  71 63 6f 6d 2c 75 66 73 2d 70 68 79 2d 71 6d 70 2d 76 33 00  | qcom,ufs-phy-qmp-v3 
+-- ufsphy@1da7000/name:  75 66 73 70 68 79 00  | ufsphy 
+-- ufsphy@1da7000/phandle:  00 00 00 74  | 
+-- ufsphy@1da7000/reg:  01 da 70 00 00 00 0d a8  | 
+-- ufsphy@1da7000/reg-names:  70 68 79 5f 6d 65 6d 00  | phy_mem 
+-- ufsphy@1da7000/status:  6f 6b 00  | 
+-- ufsphy@1da7000/vdda-phy-max-microamp:  00 00 c8 c8  | 
+-- ufsphy@1da7000/vdda-phy-supply:  00 00 00 67  | 
+-- ufsphy@1da7000/vdda-pll-max-microamp:  00 00 39 08  | 
+-- ufsphy@1da7000/vdda-pll-supply:  00 00 00 68  | 
+-- ufsphy@1da7000/vddp-ref-clk-always-on:   | 
+-- ufsphy@1da7000/vddp-ref-clk-max-microamp:  00 00 00 64  | 
+-- ufsphy@1da7000/vddp-ref-clk-supply:  00 00 02 93  | 

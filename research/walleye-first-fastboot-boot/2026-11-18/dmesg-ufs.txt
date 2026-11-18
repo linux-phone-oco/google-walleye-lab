@@ -1,0 +1,47 @@
+[    0.000000] Booting Linux on physical CPU 0x0
+[    0.000000] Kernel command line: rcupdate.rcu_expedited=1 androidboot.hardware=walleye androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 service_locator.enable=1 swiotlb=2048 firmware_class.path=/vendor/firmware loop.max_part=7 raid=noautodetect usbcore.autosuspend=7 androidboot.dtbo_idx=3 androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=0000002b-0000-0000-0000-000000000000 androidboot.bootdevice=1da4000.ufshc androidboot.serialno=REDACTED androidboot.wificountrycode=00 androidboot.boottime=1BLL:221,1BLE:776,2BLL:872,2BLE:270,SW:10023,KL:0,KD:94,ODT:143,AVB:165 androidboot.baseband=msm mdss_mdp.panel=1:dsi:0:htc,mdss_dsi_samsung_s6e3fa5_1080p_cmd:1:none:cfg:single_dsi androidboot.fpsensor=fpc1075 androidboot.fpmodule=ofilm androidboot.usbradioflag=0 androidboot.temp_protect_ignore=0 androidboot.hardware.ufs=64GB,Hynix androidboot.mid=G011A androidboot.hardware.sku=G011A androidboot.revision=MP1 android
+[    0.537987] SCSI subsystem initialized
+[    0.538357] soc:usb_nop_phy supply vcc not found, using dummy regulator
+[    1.691052] msm_dss_get_res_byname: 'vbif_nrt_phys' resource not found
+[    1.691063] mdss_mdp_probe+0x27c/0x888->msm_dss_ioremap_byname: 'vbif_nrt_phys' msm_dss_get_res_byname failed
+[    1.698078] msm_dss_get_res_byname: 'dsi_phy_regulator' resource not found
+[    1.698094] mdss_dsi_retrieve_ctrl_resources+0x194/0x25c->msm_dss_ioremap_byname: 'dsi_phy_regulator' msm_dss_get_res_byname failed
+[    1.698102] mdss_dsi_retrieve_ctrl_resources: ctrl_base=0000000000000000 ctrl_size=400 phy_base=0000000000000000 phy_size=7c0
+[    1.709241] mdss_dsi_ctrl_probe: Dsi Ctrl->0 initialized, DSI rev:0x20000000, PHY rev:0x3
+[    1.785089] ufshcd-qcom 1da4000.ufshc: ufs_qcom_parse_reg_info: Unable to find qcom,vddp-ref-clk-supply regulator, assuming enabled
+[    1.786142] scsi host0: ufshcd
+[    1.790759] qcom_ice 1db0000.ufsice: QC ICE 3.0.65 device found @0x0000000000000000
+[    1.817287] qpnp-pdphy 800f000.qcom,spmi:qcom,pmi8998@2:qcom,usb-pdphy@1700: usbpd_create failed: -517
+[    1.822531] ufshcd-qcom 1da4000.ufshc: ufshcd_print_pwr_info:[RX, TX]: gear=[1, 1], lane[1, 1], pwr[SLOWAUTO_MODE, SLOWAUTO_MODE], rate = 0
+[    1.898862] CAM-SOC msm_camera_get_reg_base:864 err: mem resource csiphy_clk_mux not found
+[    1.898871] csiphy_probe: no mem resource?
+[    1.899210] CAM-SOC msm_camera_get_reg_base:864 err: mem resource csiphy_clk_mux not found
+[    1.899216] csiphy_probe: no mem resource?
+[    1.899508] CAM-SOC msm_camera_get_reg_base:864 err: mem resource csiphy_clk_mux not found
+[    1.899514] csiphy_probe: no mem resource?
+[    2.051131] ufshcd-qcom 1da4000.ufshc: ufshcd_print_pwr_info:[RX, TX]: gear=[3, 3], lane[2, 2], pwr[FAST MODE, FAST MODE], rate = 2
+[    2.052766] scsi 0:0:0:49488: Well-known LUN    SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    2.056999] scsi 0:0:0:49456: Well-known LUN    SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    2.061233] scsi 0:0:0:49476: Well-known LUN    SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    2.062305] scsi 0:0:0:0: Direct-Access     SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    2.063162] scsi 0:0:0:1: Direct-Access     SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    2.063851] scsi 0:0:0:2: Direct-Access     SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    2.064461] scsi 0:0:0:3: Direct-Access     SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    2.065215] scsi 0:0:0:4: Direct-Access     SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    2.065964] scsi 0:0:0:5: Direct-Access     SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    2.157517] msm_pcie_enable: PCIe RC0 PHY is ready!
+[    3.186394] init: Command 'write /sys/devices/soc/${ro.boot.bootdevice}/clkscale_enable 0' action=init (/vendor/etc/init/hw/init.walleye.rc:50) took 0ms and failed: Unable to write to file '/sys/devices/soc/1da4000.ufshc/clkscale_enable': open() failed: Permission denied
+[    3.188043] init: wait for '/dev/block/platform/soc/1da4000.ufshc' took 0ms
+[    3.301747] init: [libfs_mgr] superblock s_max_mnt_count:65535,/dev/block/platform/soc/1da4000.ufshc/by-name/metadata
+[    3.303570] init: [libfs_mgr] __mount(source=/dev/block/platform/soc/1da4000.ufshc/by-name/metadata,target=/metadata,type=ext4)=0: Success
+[    3.305695] init: [libfs_mgr] __mount(source=/dev/block/platform/soc/1da4000.ufshc/by-name/modem_b,target=/firmware,type=vfat)=0: Success
+[    3.403540] init: Calling: /system/bin/vdc checkpoint restoreCheckpoint /dev/block/platform/soc/1da4000.ufshc/by-name/userdata
+[    3.416962] vdc: Command: checkpoint restoreCheckpoint /dev/block/platform/soc/1da4000.ufshc/by-name/userdata Failed: Status(-8, EX_SERVICE_SPECIFIC): '22: No magic'
+[    3.440756] init: [libfs_mgr] superblock s_max_mnt_count:65535,/dev/block/platform/soc/1da4000.ufshc/by-name/userdata
+[    3.448998] init: [libfs_mgr] check_fs(): mount(/dev/block/platform/soc/1da4000.ufshc/by-name/userdata,/data,ext4)=0: Success
+[    3.519380] e2fsck: /dev/block/platform/soc/1da4000.ufshc/by-name/userdata: clean, 41879/3486384 files, 8781574/13933563 blocks
+[    3.542824] init: [libfs_mgr] superblock s_max_mnt_count:65535,/dev/block/platform/soc/1da4000.ufshc/by-name/userdata
+[    3.559462] init: [libfs_mgr] __mount(source=/dev/block/platform/soc/1da4000.ufshc/by-name/userdata,target=/data,type=ext4)=0: Success
+[    5.725032] type=1400 audit(1795032788.460:10): avc:  denied  { write } for  comm="init" name="discard_max_bytes" dev="sysfs" ino=48111 scontext=u:r:init:s0 tcontext=u:object_r:sysfs_scsi_devices_0000:s0 tclass=file permissive=0
+[   12.007521] R0: [cds_mc_thread][475407926] [20:13:14.745729]  wlan: [2163:I :HDD] hdd_update_wiphy_vhtcap: 1087: Updated wiphy vhtcap:0x3817bfa, CSNAntSupp:3, NumSoundDim:1
+[   17.782842] init: Command 'write /sys/devices/soc/${ro.boot.bootdevice}/clkscale_enable 1' action=sys.boot_completed=1 (/vendor/etc/init/hw/init.walleye.rc:499) took 0ms and failed: Unable to write to file '/sys/devices/soc/1da4000.ufshc/clkscale_enable': open() failed: Permission denied

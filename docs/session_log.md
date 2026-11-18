@@ -1136,24 +1136,6 @@ About
 ---
 
 
-<a id="2026-11-18-2300-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-18
-
-Done
-: phone is gone from USB (no fastboot, no adb; devlab fastboot state: off or needs hands); pk5g stages g1..g3 (backlog walleye-try-pk5-stages) not started; nothing flashed, stock kernel, last known slot b current, a and b successful
-
-Considered
-: next: a hand power-cycle (or cable reseat) brings it back to Android/fastboot; then take walleye-try-pk5-stages
-
-About
-: walleye-first-fastboot-boot
-
----
-
-
 <a id="2026-11-18-walleye-battery-watch-built"></a>
 ### walleye battery watch built
 
@@ -2653,3 +2635,18 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-2300-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: walleye-ufs-android-live done: read-only adb root readback of Android's UFS bring-up recorded. Phone: Android on slot b, stock kernel, nothing flashed, fastboot reachable.
+
+Considered
+: next: walleye-bootchain-readback (read only, needs a test written first)
