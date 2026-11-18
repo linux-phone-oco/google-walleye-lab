@@ -4603,10 +4603,10 @@ Rank
 ### Try z15 once from slot b with a person touching the panel: does the RMI4 controller probe and make events?
 
 Status
-: open
+: done
 
 Note
-: PART 1 done 2026-11-18: probe absent - overlay overwrote the qup compatible. z16 built (walleye-z16-built); try it as walleye-try-z16-part1. PART 2 (person touches panel) still waits for the author; its steps go to the top coordinator when they are back.
+: Part 1 done (lab PR 300): the probe found the vendor overlay's i2c node; superseded by z16/z17: the touch part 2 (a person touches the glass) is queued again once the RMI4 probe succeeds (walleye-try-z16-part1 then its part 2).
 
 About
 : walleye-first-fastboot-boot
@@ -4722,6 +4722,12 @@ Opened
 Needs
 : build
 
+Proof
+: null
+
+Rank
+: 1
+
 
 <a id="walleye-ufs-android-regs"></a>
 ### Read the UFS host and PHY registers of live Android (UFS_HW_VERSION, host regs 0x00-0x2500, PHY after init, ufs_reset pad state), read-only as root
@@ -4745,7 +4751,7 @@ Proof
 : research row naming the HW version (3.0.0 or 3.1.0), the PHY registers read against the vendor and our tables, the pad state; no write, no reset, no fstrim
 
 Rank
-: 2
+: 1
 
 
 <a id="walleye-ufs-match-android-z"></a>
@@ -4771,3 +4777,6 @@ Needs
 
 Proof
 : a built image whose quirks for H28U74301AMR equal the vendor's, with the programmer review; try waits for the author's word
+
+Rank
+: 3
