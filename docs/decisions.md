@@ -911,3 +911,34 @@ Scope
 
 Tracked by
 : walleye-pmic-wdt-bite-try-warm
+
+
+<a id="2026-11-18-walleye-tps61099-fixed-regulator-supplier-disabled"></a>
+### 2026-11-18-walleye-tps61099-fixed-regulator-supplier-disabled
+
+Date
+: 2026-11-18
+
+Brief
+: Model the TPS61099 as our own fixed regulator and disable the overlay's driverless /soc@0/tps61099, not a regulator-fixed at that node
+
+Decision
+: Step 2 of the charger-supplier decision is done this way: a regulator-fixed node of ours (pm8998 gpio 5, active high, no boot-on) carries the board's boost rail, and our dts sets status disabled on /soc@0/tps61099 so the overlay's copy of that node (compatible ti,tps61099, no driver) makes no device and fw_devlink DROPS the charger's wait (it is not met: external-vbus-supply still names the overlay's child, and qcom_smbx asks for no regulator, so the regulator has no consumer yet). c4 = c2 with that dtb only, default fw_devlink.
+
+Why
+: The bootloader merges the vendor overlay over our dtb and replaces a compatible we give /soc@0/tps61099, so the regulator-fixed the first decision named cannot live at that node (checked with fdtoverlay on the real dtbo entry 3). The regulator is what the board does for the rail; the disabled node is the one unmodelled thing, kept narrow and commented.
+
+Rejected
+: regulator-fixed at /soc@0/tps61099 (the overlay overwrites its compatible); a child-node regulator under the overlay's node (no device is made for a child of a non-bus node); leaving fw_devlink=permissive (hides every missing supplier); a tps61099 driver (none exists, a kernel change for one gpio); dropping the supplier from the dts alone (hides the part).
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-c4-built
+
+Amends
+: 2026-11-18-walleye-charger-supplier-permissive-then-modelled
+
+Tracked by
+: walleye-try-c4

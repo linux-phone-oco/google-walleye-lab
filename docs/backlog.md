@@ -3696,12 +3696,10 @@ Needs
 ### c3 (fw_devlink=permissive) then c4 (tps61099 as a fixed regulator): the charger's deferral
 
 Status
-: open
+: done
 
 Note
-: Fact (lab research walleye-c2-tried, PR 227): the command loop works on c2; the charger defers on its supplier /soc@0/tps61099 (no driver): no power_supply class, charger-check fails. Decision 2026-11-18-walleye-charger-supplier-permissive-then-modelled. WHEN c3 is built queue walleye-try-c3 (needs phone, rank 1); the keeper reads /sys/class/power_supply and the charger lines of the dmesg with charger-check.sh.
-
-BUILD ROUTE (orchestration, lab 0.12.2): the build for this item goes through `lpoco-lab job start` (also status, log, stop, list): each job is a systemd-run --user unit that holds an idle inhibitor while it runs; read the job log with `lpoco-lab job log` and say in your report if output is missing (a known glitch: a pipeline output from a job unit may not reach the journal). Say plainly in the report: "built through lpoco-lab job start, log read" - the coordinator tells the top coordinator so lab-agent can be stopped.
+: c3 built and tried (charger probes with permissive); c4 built 2026-11-18, boot-c4.img 773fa74d..., research walleye-c4-built, decision 2026-11-18-walleye-tps61099-fixed-regulator-supplier-disabled; the try is walleye-try-c4
 
 About
 : walleye-first-fastboot-boot
@@ -3942,3 +3940,28 @@ Needs
 
 Proof
 : pmic-wdt-bites,pmic-wdt-restarts
+
+
+<a id="walleye-try-c4"></a>
+### Try c4 (c2 + tps61099 modelled, default fw_devlink) once from slot b with the command loop: does the charger probe without permissive?
+
+Status
+: open
+
+Note
+: Built 2026-11-18 (research walleye-c4-built). Same command loop as c2/c3. c3's try ended hung after the reader's reboot -f (work walleye-c3-hung-wait-then-power-cycle): the phone must be back first.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-charger-smb2: sh tests/host/charger-check.sh DIR passes on the reader's output of c4 (images-c4/boot-c4.img sha256 773fa74d4a6acd8f5c3f4518b44e254ad01f926f43877cdc141dd3d614429692); the dmesg names no tps61099 supplier wait
+
+Rank
+: 1

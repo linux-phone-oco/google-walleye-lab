@@ -2425,3 +2425,22 @@ Sources
 
 About
 : deep-sleep
+
+
+<a id="walleye-c4-built"></a>
+### walleye-c4-built
+
+Date
+: 2026-11-18
+
+Brief
+: c4 built: c2 with only the dtb changed - the TPS61099 boost as a fixed regulator on pm8998 gpio 5, the overlay's driverless /soc@0/tps61099 disabled; default fw_devlink; 26 checks ok, rebuilt same
+
+Question
+: Can the charger's supplier link be met in our dts, without fw_devlink=permissive, from the facts of the phone's running fdt?
+
+Found
+: Facts (vfa try fdt + the dtbo entry 3, read with dtc): the vendor overlay (fragment 111) adds /soc@0/tps61099 {compatible ti,tps61099; enable-gpios = pm8998_gpios 5 0; child ti,tps61099 regulator-name tps61099-vbus} and fragment 112 points the charger's external-vbus-supply at that child. The overlay merge overwrites a compatible we set on that node, so the regulator cannot sit at /soc@0/tps61099. Our dts therefore has a regulator-fixed of its own at /regulator-tps61099-vbus (gpios pm8998 5 active high, no boot-on: driven low at probe) and marks /soc@0/tps61099 status disabled (the overlay sets none); kernel drivers/of/property.c of_link_to_phandle adds no fwnode link when the supplier or an ancestor without a device is unavailable, so the charger's wait is DROPPED, not met; the charger's external-vbus-supply still names the overlay's child and qcom_smbx asks for no regulator, so the new regulator has no consumer yet. The merged dtb (fdtoverlay with the dtbo entry) keeps both. build/build-c4.sh (run by build/job-c4.sh through lpoco-lab job start, log read from the journal): c2's image with Image.gz, ramdisk, header (command line without fw_devlink), size and AVB footer equal, only the dtb changed; the dtb is built in the pristine v7.3 tree from our dts without the PMIC-watchdog block (z8's change, not c2's); 26 checks ok, the dtb diff against c2's counted to the regulator and the disabled node. boot-c4.img sha256 773fa74d4a6acd8f5c3f4518b44e254ad01f926f43877cdc141dd3d614429692; dtb 3ef2a2108b608c16d276ef60c474b2c0b4c95ea56cf2b7eb0499473160839b9c; rebuilt byte for byte (first build of the gpio spelling's twin). programmer review: claims hold; gpio spelling changed to gpios. Not shown yet: that the charger probes on it (the try).
+
+About
+: walleye-first-fastboot-boot
