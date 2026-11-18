@@ -4500,3 +4500,28 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-steps-claimed"></a>
+### Claim walleye's steps on the bring-up chain, each checked against the lab's own records
+
+Status
+: open
+
+Note
+: Request from orchestration (the steps contract reached the lab in the 21:00 follow, docs 0.17.0 -> 0.18.0). They run docs' feeds workflow by hand once the first claims land and need the count.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: Walleye's first claims on the steps contract (the lab base has step_status since the 0.18.0 follow): read docs' research/bringup-steps/2026-11-18/claims-walleye.sh (the draft: 17 done, 2 partial, 1 failing, 6 open of the first 26 steps) and `tad q bringup-chain` (113 steps; goals linux-runs, daily-usable-phone, complete-phone); CHECK EVERY draft claim against this lab's own records (research rows, session log, test results, the keeper's material, the decisions): a claim is `ikb step --step ID --status done|partial|failing|open|not-needed|unknown --proof TEST --run RUN --proven-on IMAGE/KERNEL/DTB`; a done claim carries its proof (a test in tests/host or the lab's tests table) and its run (the keeper's research row or session-log id, with the image/kernel/dtb it ran on: e.g. z7/our v7.3/our dts for the dmesg-clean, y2 for the first light); where the records do not prove a draft claim, claim 'unknown' or 'partial' and say why; what is not measured stays 'unknown' (never 'failing'); then land the claims in one change, run the two tests (bringup-chain-walleye.sh and daily-phone.sh google-walleye, from docs) and report the count by status to the coordinator for orchestration; programmer review of the script that makes the claims; no data of the phone leaves the machine
+
+Rank
+: 2
