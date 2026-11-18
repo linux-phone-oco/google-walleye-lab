@@ -1030,3 +1030,18 @@ Done
 
 Considered
 : next: research/build item to diff our dtb vs porthole's and build d7+
+
+---
+
+
+<a id="2026-11-18-1900-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: pk5l2 twice from fastboot, both back as Android; no mainline text in pstore; phone in fastboot, slot b current, a and b successful, nothing flashed, stock kernel
+
+Considered
+: next: a variant proving mainline reaches ramoops at all, or the dtb diff vs porthole's; note devlab phone needs ~/.config/devlab/google-walleye/password (missing), plain adb root used

@@ -1047,3 +1047,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-pk5l2-tried"></a>
+### walleye-pk5l2-tried
+
+Date
+: 2026-11-18
+
+Brief
+: pk5l2 booted twice from fastboot: no mainline text in pstore either time; try 1 left only the stock Android kernel's own panic (ramoops reader)
+
+Question
+: Does pk5l2 (ramoops in the phone's own region 0xa1100000) leave a mainline panic or console text in Android's pstore?
+
+Found
+: Both tries: fastboot boot, phone back as Android after 60 s and 42 s, adb root. Try 1: pstore held only the stock 4.4.302 Android kernel's boot; it itself oopsed at 17.9 s in init (persistent_ram_save_old -> __memcpy_fromio, paging fault at ffffff8009c60000, Kernel panic - not syncing: Fatal exception), rebooted, bootreason kernel_panic; no Linux version 5-9 anywhere. Try 2: pstore empty, no panic, stable 3+ min. So the mainline kernel wrote nothing Android can read at 0xa1100000: it dies before ramoops probes, or the region differs. The Android oops suggests its mapping of the old region is itself fragile (excerpt in material).
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-pk5l2-tried/
