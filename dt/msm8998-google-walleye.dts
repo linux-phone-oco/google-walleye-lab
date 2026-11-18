@@ -239,3 +239,12 @@
 		charge-term-current-microamp = <50000>;
 	};
 };
+
+/*
+ * The GPU's smmu stays off until GPU work (item walleye-dmesg-clean, research walleye-z6-dmesg-mapped G1): its power domain is
+ * gpucc's GPU_GX_GDSC, which cannot switch on without a GFX rail nothing in this dts powers (which rail: not known yet). Left on, it
+ * logs six "gpu_gx status stuck" WARNs, defers for ever and holds gcc's and gpucc's sync_state.
+ */
+&adreno_smmu {
+	status = "disabled";
+};

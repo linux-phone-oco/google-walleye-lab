@@ -3289,10 +3289,10 @@ Opened
 ### Clean the z6 dmesg: dts disables adreno_smmu (gpu_gx GDSC stuck, smmu deferred for ever); reader mounts debugfs
 
 Status
-: open
+: done
 
 Note
-: From research walleye-z6-dmesg-mapped. Edit dt/msm8998-google-walleye.dts: &adreno_smmu { status = "disabled"; }; build z7 = z6 init + this dtb; the plain background reader mounts debugfs (mount -t debugfs none /sys/kernel/debug) and saves devices_deferred. Vendor-overlay noise (serial@c16f000, c179000.i2c, bt_wcn3990, mnh-sm), psci -3 and misaligned image stay as known.
+: built: images-z7 (research walleye-z7-built); try queued as walleye-try-z7
 
 About
 : walleye-first-fastboot-boot
@@ -3621,3 +3621,28 @@ Proof
 
 Rank
 : 9
+
+
+<a id="walleye-try-z7"></a>
+### Try z7 once from slot b: is the dmesg free of the gpu_gx WARN and the smmu deferral?
+
+Status
+: open
+
+Note
+: built 2026-11-18 (research walleye-z7-built); try once
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: z7 once from slot b (images-z7/boot-z7.img sha256 2dc6ff0e13dc042086ee2f46be91afc35944ae87c4a242e36cda28934d107b30), the z6 recipe (walleye-try-z6: host stty loop, banner capture, banner-loop-check, the reader mainline-shell-read.sh as plain background processes); then tests/host/dmesg-clean-check.sh on the reader's directory must say pass (no gpu_gx status stuck WARN, no 5040000.iommu deferral, devices_deferred listing only the known overlay nodes); phone left in Android. Record the result as research.
+
+Rank
+: 1
