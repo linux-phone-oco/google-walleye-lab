@@ -2707,3 +2707,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-1700-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: z16 part 1 once from slot b: i2c bus and rmi4_i2c bind, probe fails -5 (controller silent). Phone back as Android on slot b, stock kernel, nothing flashed, fastboot reachable, slots a and b successful.
+
+Considered
+: next: walleye-build-z17 touch power/reset (builder): check vdd/vio supplies, reset gpio89, delay against vendor tree; z15/z16 part 2 waits for the author; then walleye-ufs-android-live / walleye-bootchain-readback (read only)

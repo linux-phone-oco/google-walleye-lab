@@ -2914,3 +2914,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z16-part1-tried"></a>
+### walleye-z16-part1-tried
+
+Date
+: 2026-11-18
+
+Brief
+: z16 once from slot b: i2c bus 0 and rmi4_i2c at 0-0020 appear, but probe fails -5 (set page select failed): the controller does not answer
+
+Question
+: Does the RMI4 controller probe on z16 (part 1, nobody touching)?
+
+Found
+: z16 booted once from slot b via lpoco lab fastboot boot; gadget-up passes (gadget at 18 s). Progress over z15: i2c bus i2c-0 (c179000.qup) and device 0-0020 now exist; i2c_qup irq 70 registered; rmi4_i2c bound and ran. dmesg: 'rmi_set_page: set page failed: -5', 'Failed to set page select to 0', 'probe with driver rmi4_i2c failed with error -5' (1.09 s). So no input device from touch (only event0/1, pwrkey and gpio keys). -EIO on first read means the bus works but the chip is silent: likely unpowered or held in reset (supply regulators for the touch vdd/vio, reset gpio89, or a needed delay) - the dtb's touchscreen@20 properties not yet checked against the vendor tree. Proof of walleye-try-z16-part1 not met (rmi4 lines yes, 'no failures' no). Phone returned to Android on slot b, stock kernel, nothing flashed, slots a and b successful, fastboot reachable. Material ~/lab-material/walleye/z16-part1 (dmesg.txt, probe.txt).
+
+About
+: walleye-first-fastboot-boot
