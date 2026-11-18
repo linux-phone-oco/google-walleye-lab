@@ -194,3 +194,11 @@ The serial's `wait for supplier /vendor-overlay-stubs/clock_gcc` and the four `c
 the stock overlay's `clocks = <&clock_gcc ID ...>` land on our empty `clock_gcc` stub, which has no `#clock-cells`, so the clock ID is read as a phandle. `build/build-z3.sh Z2_BOOT_IMG OUT_DIR`
 makes `boot-z3.img` = z2 with only `/__symbols__/clock_gcc` set (fdtput) to `/soc@0/clock-controller@100000`; the overlay merge then writes gcc's phandle into those clock users.
 15 checks, rebuild byte-identical; `tests/host/overlay-clock-gcc.sh` (all four clock users) fails on z2's dtb and passes on z3's. The try is `walleye-try-z3` (it supersedes z2's).
+
+## banner: y2 with a banner init (walleye-build-banner-init)
+
+y2 and z1 were both silent to the reader. `build/build-banner.sh WORK_DIR Y2_BOOT_IMG OUT_DIR` makes `boot-banner.img` = y2's image (our kernel, our dtb, header, command line, AVB footer) with
+**only the ramdisk changed**: `initramfs-mainline/init-banner` binds one ACM function and, from the moment `/dev/ttyGS0` exists, writes `WALLEYE-BANNER beat=N up=..s steps=.. last=[..]` to it every 2 s from its
+own subshell (a blocked write stalls nothing), and puts one `walleye-banner: step N: ...` line on `/dev/kmsg` before each step. Watchdog petted every 2 s by its own subshell, `reboot -f` after ~180 s.
+The try is a plain `cat /dev/ttyACM0 > FILE` (raw bytes, no reader), then `sh tests/host/banner-check.sh FILE`; `banner-selftest.sh` proves the check on made-up captures. If the banner bytes show under
+plain `cat`, the old reader was the problem; if not, the silence is on the phone or the host (ModemManager and who holds the port: see item walleye-reader-eacces-retry).

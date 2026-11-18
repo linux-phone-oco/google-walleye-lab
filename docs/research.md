@@ -1902,3 +1902,25 @@ Sources
 
 About
 : walleye-charger-smb2
+
+
+<a id="walleye-banner-built"></a>
+### walleye-banner-built
+
+Date
+: 2026-11-18
+
+Brief
+: banner built: y2 with only the ramdisk changed, an init that writes a banner to ttyGS0 every 2 s and a kmsg marker per step; 40 checks ok, rebuild identical, reviewed
+
+Question
+: Can y2's kernel and dtb carry an init whose only job is to be heard on ttyGS0, so a plain cat tells which side is silent?
+
+Found
+: images-banner/boot-banner.img sha256 3d9320f01567a9824f1371a218fa397cbedc4eb996e9409b613a458878a4a081; initramfs-banner.cpio.xz sha256 d73a17d74e1163613006aa4a0318f7e2d34db445adb9812cf9bf05f8990669ac. Kernel, dtb, header, command line, AVB footer are y2's (checked byte for byte); the ramdisk is the one change. init-banner: one acm.GS0 function, a writer subshell started before the bind that writes WALLEYE-BANNER beat=N up= steps= last=[..] every ~2 s once /dev/ttyGS0 exists, a kmsg line per step before the step, a watchdog petter subshell that reboots -f after ~180 s. The programmer review found a failed exec redirect could end init, no pet during the UDC wait, the writer started after the bind, wrong redirect order, config check accepting =m: all fixed before the build. Host check: tests/host/banner-check.sh CAPTURE (3+ banner lines with rising beats), banner-selftest.sh 7 ok. Not run on the phone.
+
+Sources
+: none
+
+About
+: walleye-first-fastboot-boot
