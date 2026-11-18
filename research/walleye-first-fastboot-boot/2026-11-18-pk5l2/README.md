@@ -1,0 +1,6 @@
+Hashes and recipe of pk5l2: pk5l with ONLY the ramoops node of the dtb inside its kernel blob edited, so the pstore console of our kernel lands in the phone's own region and Android can read it. Image on the lab machine: ~/Projects/walleye-build/images-pk5l2/boot-pk5l2.img.
+
+Built by `build/build-pk5l2.sh PK5L_BOOT_IMG OUT_DIR` (20 checks, all ok; rebuild byte-identical). It splits pk5l's kernel blob into Image.gz and porthole's taimen dtb, runs `fdtput` on `/reserved-memory/ramoops@b0000000` (reg `0 0xa1100000 0 0x200000`, record-size 0x80000, console-size 0x20000, pmsg-size 0), puts the blob back with pk5l's ramdisk, header, command line and AVB footer. Same dtb size; the dtb as source differs from pk5l's only in that node's properties; no other reserved-memory node overlaps 0xa1100000..0xa1300000; the old region 0xb0000000 is no longer used.
+Node name still reads `ramoops@b0000000` (fdtput cannot rename it; the kernel reads `reg`, not the unit name).
+Kernel config (out-ml/.config) has PSTORE, PSTORE_CONSOLE, PSTORE_RAM. The init and kernel bytes are pk5l's.
+Expected: same as pk5l (no ACM, Android back early); the new thing is the panic text in /sys/fs/pstore/console-ramoops-0 (and /data/vendor_ce/0/ramoops/) after Android is back.

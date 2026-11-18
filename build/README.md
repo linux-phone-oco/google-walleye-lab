@@ -152,3 +152,7 @@ Not run on the phone: the keeper's try `walleye-try-bisect-pk`.
 `build/build-pk5l.sh WORK_DIR PK5_BOOT_IMG OUT_DIR` repacks pk5 (our kernel + porthole's taimen dtb) with **only the ramdisk changed**: `initramfs-mainline/init-pk5l` binds one configfs gadget
 with `acm.GS0` (a respawned `busybox ash` on /dev/ttyGS0) and `mass_storage.0` (a 2 MiB window rewritten every 5 s), pets the SoC watchdog for 180 s (longer while `/tmp/hold` exists) and reboots.
 39 checks incl. the kernel config's gadget options. Host test: `tests/host/mainline-acm-up.sh`. Not run on the phone: the keeper's try `walleye-try-pk5l`.
+
+## pk5l2 (ramoops in the phone's own region)
+
+`build/build-pk5l2.sh PK5L_BOOT_IMG OUT_DIR` edits only the ramoops node of the dtb in pk5l's kernel blob (`fdtput`: reg 0xa1100000/2 MiB, record 0x80000, console 0x20000, pmsg 0), so a panic that ends pk5l early is readable from Android's pstore. 20 checks; hashes in `research/walleye-first-fastboot-boot/2026-11-18-pk5l2/`.
