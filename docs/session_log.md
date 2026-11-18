@@ -2419,3 +2419,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-google-walleye-lab-follows-docs-device-layer"></a>
+### google-walleye-lab follows docs' device layer
+
+Entry date
+: 2026-11-18
+
+Done
+: Copied device-template #26: devicebase.toml pin (docs 0.17.0), device:begin/end markers around the device tables, generic list removed, idealkb.toml why text, AGENTS.md line. follow.sh against docs v0.17.0 found the device part and every device statement already identical, so nothing else moved.
+
+Considered
+: Running follow.sh first with no markers: it would append a second copy of the device tables at the file's end.
+
+Rejected
+: Keeping our own generic list: docs' device-layer/ is the one owner.
+
+About
+: walleye-first-fastboot-boot

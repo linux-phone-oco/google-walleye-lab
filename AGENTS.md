@@ -25,6 +25,7 @@ Principles of linux-phone-oco, cited and never restated ([`tad q principles`](ht
   and wait for their go.
 - **A script that changes state needs explicit intent** (a verb such as `now`); lists are passed as
   arguments, never spliced into a shell string. Secrets stay on the lab machine, mode 600.
+- **The base is followed, not copied.** Its standing tables and statements come from grenudi/ideal-knowledge-base (`idealkb.toml`), its device layer - the phone's queries and records and the tables between `# device:begin` and `# device:end` in `tables.toml` - from linux-phone-oco/docs (`devicebase.toml`: source, version, own). Both pins are moved by idealkb's hourly job; change a followed file at its source, or name it in `own` with its reason under `[why]`. Our own tables sit outside the markers.
 - **Record as you go** in this device's own base (data/, kept by tad): `ikb --help`, then `ikb help RECORD` - decisions with
   what was rejected, research, the backlog (`ikb backlog`; `ikb backlog-needs` for the phone's queue), the log, and
   the parts (`ikb part`: what is claimed of each part, its evidence and date - docs pulls them and derives the

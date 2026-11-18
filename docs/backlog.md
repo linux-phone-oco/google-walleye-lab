@@ -4118,10 +4118,10 @@ Proof
 ### google-walleye-lab follows device-template #26: devicebase.toml pin, device:begin/end markers in tables.toml, a [why] line per own file
 
 Status
-: open
+: done
 
 Note
-: From orchestration (device layer from docs, decision 2026-11-18-device-layer-from-docs; the docs row of the same name is the request). Lab PR 208 is already closed (superseded). Once landed, idealkb's hourly job keeps google-walleye-lab current.
+: Landed: devicebase.toml pins docs 0.17.0 (own empty), device tables between device:begin/end in tables.toml, generic list removed, AGENTS.md line; follow.sh 0.17.0 changed nothing more, check-own, tad check, make verify pass, no data row moved
 
 About
 : walleye-first-fastboot-boot
