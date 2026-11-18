@@ -1476,3 +1476,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-vf3-tried-twice"></a>
+### walleye-vf3-tried-twice
+
+Date
+: 2026-11-18
+
+Brief
+: vf3 twice from the first state (slot b), poller started first: no gadget (no walleye-first-boot / Pixel 2 walleye strings) ever on the host; phone back as Android at 78 s both times
+
+Question
+: Does vf3 (gadget bound first, dump appended after) show its window and facts?
+
+Found
+: Both tries: poller (150 s, own job) saw no USB device with our strings; usb log of try 2 (1 s): fastboot until left at 12 s, then nothing on USB for ~64 s, then Android adb (18d1:4ee7) at 78 s. vf2 had the gadget up at 18 s on the same host. So vf3's reordered init did not reach the gadget (or crashed before it): the 78 s return is the dead-init class, not alive. Nothing flashed; phone left in fastboot on b, flags a and b successful, battery 4376 mV.
+
+About
+: walleye-first-fastboot-boot
