@@ -4018,10 +4018,10 @@ Proof
 ### Build c5: c4's dtb, the charger driver as a module (CONFIG_CHARGER_QCOM_SMB2=m, .ko in the ramdisk), init loads it only when the command line says walleye.charger_after=SECONDS
 
 Status
-: open
+: done
 
 Note
-: c5 and c6 are ONE image: the command line decides (c5: no walleye.charger_after, the module stays unloaded; c6: walleye.charger_after=40). Self-reboot stays at 180 s. Never load the module before the gadget is bound and one reader pass is kept.
+: built: boot-c5.img and boot-c6.img in ~/Projects/walleye-build/images-c5 (SHA256SUMS-c5); research walleye-c5-built; the try is walleye-try-c5, then walleye-try-c6
 
 About
 : walleye-first-fastboot-boot

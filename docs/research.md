@@ -2492,3 +2492,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-c5-built"></a>
+### walleye-c5-built
+
+Date
+: 2026-11-18
+
+Brief
+: c5/c6 built: c4 with the charger as a module (qcom_smbx.ko in the ramdisk), loaded only when the command line says walleye.charger_after=SECONDS (1..120); 40 checks ok, rebuild identical, reviewed
+
+Question
+: Can one image serve as c5 (module never loaded) and c6 (module loaded 40 s after the gadget bound), the command line deciding, so a gate fail isolates the charger probe?
+
+Found
+: build/build-c5.sh takes c4's image (dtb, header, size, AVB footer) and changes only the kernel (c2's config with CONFIG_CHARGER_QCOM_SMB2=m, built by job-c5.sh in the pristine v7.3 tree; rradc stays =y), the ramdisk (z6's packing, byte-equal to c4's with init-z6; plus /lib/modules/qcom_smbx.ko and init-c5) and, for c6 only, the command line + walleye.charger_after=40. init-c5 = init-z6 plus one block right after the bind line (checked by diff hunk): it loads the module only with the argument (1..120 s: the bind waits at most 30 s and the self-reboot is at 180 s) and only when the gadget is bound; tests/host/c5-loader-selftest.sh measures that on the host. Checks count: config differs from c2's in one line; module vermagic equals the kernel release (7.3.0-dirty), no module dependencies; Image.gz without the charger string; c5 and c6 equal but the command line; AVB verifies. boot-c5.img sha256 5a566d70b2646b9fb3a2527768b8ebbd7193ce3dea92fe15e61838f4056bd520; boot-c6.img 774b20f0ee0374bf3c7e2874067f4958442a8c8fc891356825529cbb429f334b; both rebuilt byte for byte; in ~/Projects/walleye-build/images-c5. c5's command line is c4's (no argument), so c5 differs from c4 in kernel config and ramdisk only. Reviewed by the programmer subagent: the placement check, test /tmp use and the 150 s cap were its findings, fixed.
+
+About
+: walleye-first-fastboot-boot

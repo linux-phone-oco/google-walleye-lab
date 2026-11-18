@@ -2320,3 +2320,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-builder-c5-and-c6-built"></a>
+### walleye builder: c5 and c6 built
+
+Entry date
+: 2026-11-18
+
+Done
+: Built c5/c6 as one image (charger as a module, loaded late by command line): build-c5.sh, job-c5.sh, init-c5, c5-loader-selftest; 40 checks ok, rebuild identical, programmer review fixed.
+
+Considered
+: Building c5 and c6 as two inits; one image keeps them equal but the command line.
+
+Rejected
+: Cap of 150 s for the delay: the 180 s self-reboot could race a late bind; 120 s used.
+
+About
+: walleye-first-fastboot-boot
