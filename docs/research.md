@@ -3003,3 +3003,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z17-part1-tried"></a>
+### walleye-z17-part1-tried
+
+Date
+: 2026-11-18
+
+Brief
+: z17 once from slot b: gadget up at 18 s, touch still not probed: rmi4 0-0020 defers on regulator-touch-power; spmi pmi8998@3 has no reg, so no pmi8998 gpio exists
+
+Question
+: Does the RMI4 controller answer on z17 (pmi8998 gpio 2 power switch as fixed regulator), part 1, nobody touching?
+
+Found
+: z17 booted once from slot b via lpoco lab fastboot boot now; gadget 1d6b:0104 at 18 s. dmesg: 'i2c 0-0020: deferred probe pending: i2c: supplier regulator-touch-power not ready' and 'spmi spmi-0: node /soc@0/spmi@800f000/qcom,pmi8998@3 err (-22) does not have reg property'. So the fixed regulator never registers because its gpio (pmi8998 gpio controller) never exists: the pmi8998@3 node lacks its reg (SPMI usid 3 sub-address). No rmi4 probe, no input device from touch, so proof not met (nothing failed, nothing bound). Next: give pmi8998@3 a proper reg (<0x3 SPMI_USID>) in the dts so the pmi8998 gpio probes, then retry. Phone returned to Android slot b via telnet reboot -f, then adb reboot bootloader, state read (slots a,b successful, none unbootable, current b), fastboot reboot; stock kernel, nothing flashed. Material ~/lab-material/walleye/z17-part1 (dmesg.txt, input-devices.txt).
+
+About
+: walleye-first-fastboot-boot
