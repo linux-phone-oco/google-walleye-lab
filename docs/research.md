@@ -2854,3 +2854,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18/
+
+
+<a id="walleye-z15-built"></a>
+### walleye-z15-built
+
+Date
+: 2026-11-18
+
+Brief
+: z15 built: z14 with kernel (RMI4 touch built in) and dtb (touch on blsp1_i2c5) changed; sha256 a675080f; 33 checks ok, rebuild identical, reviewed; not tried
+
+Question
+: Can the Pixel 2's Synaptics RMI4 touch controller be brought up with mainline's rmi_i2c, built and checked before a try?
+
+Found
+: z15 = z14's boot image with only kernel Image.gz and dtb replaced (header, command line, ramdisk with init-z14's ACM+ECM+telnet, AVB footer z14's). Kernel: v7.3 + pmic-wdt series, RMI4_CORE/I2C/F12 =y (F01 is in the core). Dtb: touchscreen@20 (syna,rmi4-i2c) on blsp1_i2c5, irq gpio125 falling, reset gpio89, vdd=pm8998 l28 3.008 V (from bob), vio=l6 1.808 V (from s5), values of mainline's OnePlus 5 and the wahoo GPL tree. Which board revision the lab phone is (xd adds a pmi8998 power gpio) is not known yet: if the probe times out at 0x20, look there first. Panel size not set. Test: tests/host/touch-read.sh (telnet, a person touches the panel, dmesg+input devices+od of the event node) then touch-check.sh (selftest 9 ok; no touch = skip, never fail). Programmer review done: regex anchored, no-dmesg is its own fail, zero events is skip, rpm supply wiring checked. Image sha256 a675080f42a29c25e50937da3d9ee124a387c0b7f0fe52110424c85c14f66a79 at ~/Projects/walleye-build/images-z15.
+
+About
+: walleye-first-fastboot-boot
