@@ -3773,10 +3773,10 @@ Rank
 ### Walleye is off after the PMIC watchdog bite: hold power 15 s (author's hands), then check fastboot
 
 Status
-: open
+: done
 
 Note
-: Found by z9 try 2026-11-18 ~14:54. Lane coordinator to decide, before another bite, whether the PMIC bite's reset type can be made to land in the bootloader.
+: Done 2026-11-18 14:11Z: after the author held Power ~15 s the phone came back as Android (adb device FA81N1A00790, 18d1:4ee7), so the PMIC bite ends in a power-off that a hold of the power button undoes; a bite is not a restart (decision 2026-11-18-walleye-no-pmic-bite-until-reset-type); no further bite until walleye-pmic-bite-reset-type says otherwise.
 
 Waits
 : the author's hands: hold power about 15 s, then see whether it reaches fastboot or Android
