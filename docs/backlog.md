@@ -4272,7 +4272,7 @@ Note
 : Queued by walleye-builder; the image is built and checked.
 
 Blocked by
-: walleye-ufs-readonly
+: walleye-ufs-hazard-research
 
 About
 : walleye-first-fastboot-boot
@@ -4288,3 +4288,28 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-ufs-hazard-research"></a>
+### Can probing the Pixel 2's UFS damage the bootloader (the Sony yoshino failure)? Research before the z11 try
+
+Status
+: open
+
+Note
+: Raised by the builder with z11 (lab PR 274). Decision 2026-11-18-walleye-ufs-research-before-the-try.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: A research row with sources: (1) the Pixel 2's UFS device as the running Android sees it (vendor, model, firmware revision, size, the host controller version: read over adb, read-only, from sysfs and the vendor kernel's dmesg/the saved running fdt of the vfa material); (2) what the mainline kernel and the sdm845/msm8998 communities found about the yoshino UFS: the exact failure mode (what the probe did, which device, which quirk, what was erased and how it was found), whether it was the host controller reset, the link startup gear, the device's init sequence, or the vendor's secure state; the commits/lists/threads; (3) which quirks our kernel's ufs driver (ufs-qcom + the device quirk table) already applies for the vendor/model found, and which are missing; (4) whether a safer probe exists (only link startup and no LUN access, no SCSI scan, no host reset: the minimal sequence; what in the driver would do that; a host controller left unprobed but its registers read by the init (a /dev/mem-free read through the vendor kernel's own ufs sysfs) to learn the card's identity first, which we have from the running Android already); (5) a verdict: the chance and the failure mode in plain words, what would protect the bootloader (e.g. only after a way back for the bootloader exists: the phone's bootloader and slot images read over adb root as files with sha256, kept in the lab, restorable by fastboot flash); the decision follows. NOT a try: no phone item queued by this research, a build item only if the verdict says a safe probe exists
+
+Rank
+: 1

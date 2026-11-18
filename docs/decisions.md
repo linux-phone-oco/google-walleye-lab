@@ -1026,3 +1026,25 @@ Scope
 
 Tracked by
 : walleye-try-z11
+
+
+<a id="2026-11-18-walleye-ufs-research-before-the-try"></a>
+### 2026-11-18-walleye-ufs-research-before-the-try
+
+Date
+: 2026-11-18
+
+Brief
+: No UFS probe on the phone until the yoshino failure mode is understood for the Pixel 2's card
+
+Decision
+: The z11 try (UFS probed by our own kernel) does not run until a research row has answered whether probing the Pixel 2's UFS can damage what the phone boots from. The builder found a hazard in the mainline record: the Sony Xperia XZ1 family (yoshino, MSM8998) keeps UFS disabled upstream because its card needs quirks and the probe left the bootloader erased. UFS holds this phone's bootloader and both Android slots, which is the only way back; a read-only disk setting in our init does not protect against what the host controller's reset and link startup do. So: first research (the Pixel 2's UFS device vendor/model/firmware, read from the running Android over adb: /sys/class/scsi_host, /sys/devices/platform/soc/*.ufshc, the vendor kernel's ufs dmesg lines, getprop; what upstream says about yoshino's failure mode, which quirks apply, and whether our kernel's UFS driver would apply them), then a decision with what is learned; if any real chance of a wipe remains the try needs the author's word (a risk to the phone's recovery goes up to him).
+
+Why
+: The lane's rule: nothing that can leave the phone without its bootloader or the Android reference runs on a guess; UFS is the one device whose misbehaviour cannot be undone from fastboot.
+
+Rejected
+: Running z11 on the strength of the read-only disk flags; waiting for the author without research (he would be asked an unready question).
+
+About
+: walleye-first-fastboot-boot
