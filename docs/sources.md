@@ -688,3 +688,19 @@ By
 
 Takes
 : UFS bring-up sequence, quirk tables and PHY init values as facts (clean room: nothing copied)
+
+
+<a id="linux-v7-3-gpiolib-pinctrl"></a>
+### Linux v7.3 gpiolib, gpiolib-of, pinctrl core, pinctrl-spmi-gpio, regulator fixed.c (read at the tag)
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/gpio?h=v7.3
+
+Author
+: Linux kernel authors
+
+Year
+: 2026
+
+Takes
+: Where gpiod_get_optional can return -EPROBE_DEFER for a chip that exists: of_get_named_gpiod_flags (no gdev matches), pinctrl_gpio_request (no gpio range), gpiod_request (module_get)
