@@ -19,7 +19,16 @@ mkfake fastboot 'exit 1'
 mkfake adb 'case "$*" in *dumpsys*) printf "Current Battery Service state:\n  level: 80\n  voltage: 4012\n";; esac'
 out=$(run battery-ok.sh); [ $? -eq 0 ] && case $out in pass*4012*) ;; *) false;; esac || fail "adb 4012 mV: $out"
 mkfake adb 'exit 1'
-out=$(run battery-ok.sh); [ $? -eq 1 ] && case $out in skip*) ;; *) false;; esac || fail "no reading is not skip: $out"
+out=$(run battery-ok.sh); [ $? -eq 2 ] && case $out in skip*not\ known*) ;; *) false;; esac || fail "no reading is not skip: $out"
+# Android running, fastboot would hang waiting for a device: adb answers, no hang
+mkfake fastboot 'exec sleep 60'
+mkfake adb 'case "$*" in *dumpsys*) printf "  voltage: 4001\n";; esac'
+s=$(date +%s); out=$(run battery-ok.sh); rc=$?; e=$(( $(date +%s) - s ))
+[ $rc -eq 0 ] && [ $e -lt 15 ] && case $out in pass*4001*android*) ;; *) false;; esac || fail "adb with hanging fastboot: rc $rc, $e s: $out"
+# neither answers (both hang): not measured, exit 2, within 15 s
+mkfake adb 'exec sleep 60'
+s=$(date +%s); out=$(run battery-ok.sh); rc=$?; e=$(( $(date +%s) - s ))
+[ $rc -eq 2 ] && [ $e -lt 15 ] && case $out in skip*not\ known*) ;; *) false;; esac || fail "both hanging: rc $rc, $e s: $out"
 # idle-android.sh: Android booted -> pass; fastboot -> fail
 mkfake adb 'case "$*" in *get-state*) echo device;; *boot_completed*) echo 1;; *) :;; esac'
 mkfake fastboot 'exit 0'
