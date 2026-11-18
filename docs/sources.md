@@ -485,3 +485,83 @@ By
 
 Takes
 : the init sequence run at probe (Type-C software control, charging enable, ICL/AICL, watchdog off) and that it has no shutdown, remove or reboot hook
+
+
+<a id="src-sony-ufs-quirks-forward-port"></a>
+### Forward port Yoshino/Tama UFS quirks/hacks from OD k4.9
+
+Url
+: https://github.com/sonyxperiadev/kernel/commit/cfd148999d17ad8f1a7cbce44bb108570ad631ad
+
+Author
+: Angelo Del Regno
+
+Year
+: 2019
+
+By
+: sonyxperiadev
+
+Takes
+: the quirk set: NO_PURGE (Hynix hB8aL1/hC8aL1 D001, Samsung KLUCG4J1 0101, UFS<2.1), EXTEND_SYNC_LENGTH for all Hynix, AVAILTXDATALANES=1
+
+
+<a id="src-yoshino-dtsi-ufs-disabled"></a>
+### msm8998-sony-xperia-yoshino.dtsi: UFS disabled until quirks
+
+Url
+: https://raw.githubusercontent.com/torvalds/linux/master/arch/arm64/boot/dts/qcom/msm8998-sony-xperia-yoshino.dtsi
+
+By
+: mainline
+
+Takes
+: bootloader erased right after card probe without the quirks
+
+
+<a id="src-sony-bugtracker-799"></a>
+### Sony bug tracker 799: Tama on mainline kernel
+
+Url
+: https://github.com/sonyxperiadev/bug_tracker/issues/799
+
+Year
+: 2023
+
+By
+: Marijn Suijten
+
+Takes
+: no one dared sacrifice a device; mechanism unpublished
+
+
+<a id="src-oneplus5-ufs-mainline"></a>
+### OnePlus 5/5T: enable UFS (commit 47498916af)
+
+Url
+: https://github.com/torvalds/linux/commit/47498916af
+
+Year
+: 2021
+
+By
+: Jami Kettunen
+
+Takes
+: MSM8998 UFS works on mainline for that phone's card
+
+
+<a id="src-kumano-ufs-quirks-thread"></a>
+### Kumano devicetree thread: Sony's UFS quirks
+
+Url
+: https://lkml.iu.edu/hypermail/linux/kernel/2106.1/06123.html
+
+Year
+: 2021
+
+By
+: Angelo Del Regno
+
+Takes
+: quirks look intentional; no way to ask Sony; how to do it in mainline

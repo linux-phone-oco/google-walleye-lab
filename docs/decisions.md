@@ -1048,3 +1048,37 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-walleye-ufs-try-needs-quirks-and-the-authors-word"></a>
+### 2026-11-18-walleye-ufs-try-needs-quirks-and-the-authors-word
+
+Date
+: 2026-11-18
+
+Brief
+: z11 (UFS probe) stays unrun: first backport Sony's Hynix quirks in our kernel; then the try goes to the author, who owns the recovery risk
+
+Decision
+: The research is done: a real chance of the Sony failure remains (Hynix card, unpublished mechanism, no way back from an erased bootloader). Steps: (1) build item walleye-ufs-hynix-quirks: our kernel gets Sony's Hynix quirk set in the ufs-qcom fixups, a new image z12 with the UFS probe, built only; (2) research item walleye-ufs-card-identity: learn the card's model and firmware without probing it, to see whether it is one of Sony's two purge models; (3) only then the phone item walleye-try-z11 goes to the author with the plain risk. Until his word the UFS-enabled images do not run.
+
+Why
+: The measured card is Hynix, the maker Sony's quirks single out; upstream says nobody tested the mechanism and an erased bootloader has no known recovery; measured-not-claimed forbids running on a read-only init alone.
+
+Rejected
+: Run z11 now on the read-only init (the erase is not a write from our side, so read-only flags prove nothing); never enable UFS (no storage, no mainline distro); a bootloader backup as protection (unreadable without root, useless when fastboot is gone); copy the OnePlus 5 setup as proof (its card is not known to be Hynix).
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-ufs-hazard-verdict
+
+Amends
+: 2026-11-18-walleye-ufs-research-before-the-try
+
+Scope
+: walleye lane: keeper, builder, coordinator, the author
+
+Tracked by
+: walleye-ufs-hynix-quirks
