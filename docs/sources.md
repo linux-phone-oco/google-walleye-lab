@@ -472,3 +472,16 @@ By
 
 Takes
 : qcom-pon writes only PON_SOFT_RB_SPARE (0x8f) and populates children; it never writes S2_CTL, PS_HOLD_RST_CTL or any reset type
+
+
+<a id="mainline-qcom-smbx-v7-3"></a>
+### drivers/power/supply/qcom_smbx.c, Linux v7.3
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/drivers/power/supply/qcom_smbx.c?h=v7.3
+
+By
+: Casey Connolly et al.
+
+Takes
+: the init sequence run at probe (Type-C software control, charging enable, ICL/AICL, watchdog off) and that it has no shutdown, remove or reboot hook

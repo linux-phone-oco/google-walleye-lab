@@ -3949,10 +3949,10 @@ Status
 : open
 
 Note
-: Built 2026-11-18 (research walleye-c4-built). Same command loop as c2/c3. c3's try ended hung after the reader's reboot -f (work walleye-c3-hung-wait-then-power-cycle): the phone must be back first.
+: c4 probes the charger at boot, so by research walleye-c3-hang-how-it-stands it is expected to hang as c3 did: it waits for c5/c6 (restart gate) or is folded into the bisect; never the first try after c3.
 
 Blocked by
-: walleye-c3-hang-why
+: walleye-try-c6
 
 About
 : walleye-first-fastboot-boot
@@ -3967,17 +3967,17 @@ Proof
 : walleye-charger-smb2: sh tests/host/charger-check.sh DIR passes on the reader's output of c4 (images-c4/boot-c4.img sha256 773fa74d4a6acd8f5c3f4518b44e254ad01f926f43877cdc141dd3d614429692); the dmesg names no tps61099 supplier wait
 
 Rank
-: 1
+: 4
 
 
 <a id="walleye-c3-hang-why"></a>
 ### Why the phone hangs in c3 (charger probed) and no restart works
 
 Status
-: open
+: done
 
 Note
-: Fact (keeper, lab PR 246): c3 charger-check PASS (charger type USB online 1), then the phone hung from 14:13Z with the gadget up, the shell silent, no adb/fastboot: still hung at 14:40Z (27 min). The author's hands (hold Power ~15 s) are needed to recover it; z9's slow recovery (>10 min) suggests waiting, but 27 min is past that. c4 (the tps61099 as a fixed regulator, lab PR 248) is queued behind this.
+: Answered by research walleye-c3-hang-how-it-stands: the SoC never reset (host journal), the charger probe is the only visible change; way back = restart gate then c5/c6 (decision 2026-11-18-walleye-restart-gate-before-charger-try).
 
 About
 : walleye-first-fastboot-boot
@@ -3993,3 +3993,134 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-restart-gate"></a>
+### Restart gate: tests/host/restart-check.sh says from the host journal whether the gadget left the USB bus within 200 s
+
+Status
+: done
+
+Note
+: Landed with research walleye-c3-hang-how-it-stands. The keeper runs it on every try's host journal slice: journalctl -k -o short | grep 'usb 3-2' since the boot command; pass = a USB disconnect within 200 s of the 1d6b:0104 enumeration.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Proof
+: sh tests/host/restart-selftest.sh (5 ok: c2 pass, c3 fail)
+
+
+<a id="walleye-build-c5"></a>
+### Build c5: c4's dtb, the charger driver as a module (CONFIG_CHARGER_QCOM_SMB2=m, .ko in the ramdisk), init loads it only when the command line says walleye.charger_after=SECONDS
+
+Status
+: open
+
+Note
+: c5 and c6 are ONE image: the command line decides (c5: no walleye.charger_after, the module stays unloaded; c6: walleye.charger_after=40). Self-reboot stays at 180 s. Never load the module before the gadget is bound and one reader pass is kept.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: build-c5.sh checks ok and rebuild identical; the image differs from c4's only in kernel config line, ramdisk (module + loader) and cmdline
+
+Rank
+: 1
+
+
+<a id="walleye-try-c5"></a>
+### Try c5 once from slot b (module NOT loaded): the restart gate must pass - c4's dtb alone restarts
+
+Status
+: open
+
+Note
+: Battery rule first (battery-ok.sh). No hands expected: the control.
+
+Blocked by
+: walleye-build-c5
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: sh tests/host/restart-check.sh JOURNAL passes on the host journal of the try
+
+Rank
+: 1
+
+
+<a id="walleye-try-c6"></a>
+### Try c6 once from slot b (module loaded 40 s after enumeration): does the charger probe reproduce the hang, with the restart gate as the verdict
+
+Status
+: open
+
+Note
+: Ask the author to be at the phone before this try. The author's hold is the only exit if it hangs again.
+
+Waits
+: the author's hands (hold Power ~15 s) if the gate fails
+
+Blocked by
+: walleye-try-c5
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: charger-check.sh passes AND restart-check.sh passes; a gate fail with c5 passed makes the probe the cause (research walleye-c3-hang-how-it-stands, A or C)
+
+Rank
+: 2
+
+
+<a id="walleye-charger-init-bisect"></a>
+### If c6 hangs: bisect smb_init_seq by group (Type-C role, OTG, charge enable, ICL/AICL), module option per group, each image gated
+
+Status
+: open
+
+Note
+: Candidate first: the Type-C role mask is cleared while the comment says UFP (qcom_smbx.c smb_init_seq). An upstream item for the finding.
+
+Blocked by
+: walleye-try-c6
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: restart-check.sh passes with the charger online and every group but the culprit applied; a patch or dtb property for the culprit named in a decision
+
+Rank
+: 3
