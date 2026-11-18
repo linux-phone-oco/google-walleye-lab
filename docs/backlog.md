@@ -4196,37 +4196,6 @@ Rank
 : 62
 
 
-<a id="walleye-try-z11"></a>
-### Try z11 once from slot b: do the UFS LUNs and partitions show, and does boot_a's header read ANDROID!?
-
-Status
-: open
-
-Note
-: Use z12 instead (walleye-try-z12): z11 has no Hynix quirks, so it is not to be tried.
-
-Waits
-: the author's word (the UFS risk) after walleye-ufs-hynix-quirks and walleye-ufs-card-identity
-
-Blocked by
-: walleye-ufs-hazard-research
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: z11 once from slot b (images-z11/boot-z11.img sha256 1d84e4675cc7e3b86b7683561c37b2a987cc98de32988838ffa439401e8aba7d), the z10 recipe (host stty loop, banner capture, reader as a plain background process); then tests/host/ufs-lsblk-check.sh must say pass (walleye-ufs-lsblk): luns>=1, a partition boot_a, banner equal to the command, ufs-hdr boot_a magic ANDROID!. Nothing is mounted or written (the init sets every disk read-only). The Pixel 2's UFS card is not known yet (Sony yoshino keeps UFS off for a card needing quirks, bootloader erased after probe): read dmesg for the ufshcd card/quirk lines and stop at the first probe error. Keeper's battery rule applies. Record the result (disk vendor/model, the partition names, the header fields, boot_b too) as research; phone left in Android.
-
-Rank
-: 4
-
-
 <a id="walleye-ufs-hazard-research"></a>
 ### Can probing the Pixel 2's UFS damage the bootloader (the Sony yoshino failure)? Research before the z11 try
 
@@ -4352,34 +4321,6 @@ Rank
 : 1
 
 
-<a id="walleye-try-z13"></a>
-### Try z13 once from slot b: the UFS read-only try with the Hynix quirks and the purge guard at the send (replaces walleye-try-z12)
-
-Status
-: open
-
-Note
-: Never run without the author's word. z12's purge guard missed ufs_bsg; z13 has it at the UPIU send.
-
-Waits
-: the author's word; walleye-ufs-card-identity
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: z13 once from slot b (images-z13/boot-z13.img sha256 b8348e40182e93f1f6c575abdcf586fc6ff91ebaed68bd0a9ecf51f2522cb89f), the z11 recipe; then tests/host/ufs-lsblk-check.sh must say pass (walleye-ufs-lsblk)
-
-Rank
-: 2
-
-
 <a id="walleye-ufs-card-identity-root"></a>
 ### Read the Pixel 2's UFS model and firmware as root over adb (read-only)
 
@@ -4478,3 +4419,84 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-try-z13"></a>
+### Try z13 once from slot b: the UFS read-only try with the Hynix quirks and the purge guard at the send (replaces walleye-try-z12)
+
+Status
+: open
+
+Note
+: Never run without the author's word. z12's purge guard missed ufs_bsg; z13 has it at the UPIU send.
+
+Waits
+: the author said 'Yes, wait' (decision 2026-11-18-walleye-ufs-wait): no UFS probe until an EDL way back is known or he says go
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: z13 once from slot b (images-z13/boot-z13.img sha256 b8348e40182e93f1f6c575abdcf586fc6ff91ebaed68bd0a9ecf51f2522cb89f), the z11 recipe; then tests/host/ufs-lsblk-check.sh must say pass (walleye-ufs-lsblk)
+
+Rank
+: 96
+
+
+<a id="walleye-try-z11"></a>
+### Try z11 once from slot b: do the UFS LUNs and partitions show, and does boot_a's header read ANDROID!?
+
+Status
+: open
+
+Note
+: Use z12 instead (walleye-try-z12): z11 has no Hynix quirks, so it is not to be tried.
+
+Waits
+: the author said 'Yes, wait' (decision 2026-11-18-walleye-ufs-wait): no UFS probe until an EDL way back is known or he says go
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: z11 once from slot b (images-z11/boot-z11.img sha256 1d84e4675cc7e3b86b7683561c37b2a987cc98de32988838ffa439401e8aba7d), the z10 recipe (host stty loop, banner capture, reader as a plain background process); then tests/host/ufs-lsblk-check.sh must say pass (walleye-ufs-lsblk): luns>=1, a partition boot_a, banner equal to the command, ufs-hdr boot_a magic ANDROID!. Nothing is mounted or written (the init sets every disk read-only). The Pixel 2's UFS card is not known yet (Sony yoshino keeps UFS off for a card needing quirks, bootloader erased after probe): read dmesg for the ufshcd card/quirk lines and stop at the first probe error. Keeper's battery rule applies. Record the result (disk vendor/model, the partition names, the header fields, boot_b too) as research; phone left in Android.
+
+Rank
+: 97
+
+
+<a id="walleye-edl-way-back"></a>
+### Is there a known way back from an erased bootloader on the Pixel 2 (EDL, test points, recovery)?
+
+Status
+: open
+
+Note
+: Raised by the top coordinator after the author's 'Yes, wait' on the UFS probe (decision 2026-11-18-walleye-ufs-wait): the answer decides when the UFS items may run.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: A research row with sources, public information only: (1) is EDL (Qualcomm Emergency Download, 9008) reachable on the Pixel 2 (walleye)? how it is entered (the PBL's behaviour on a missing or bad boot chain, test points on the board and where they are, a USB-C cable method, the 'edl' command of fastboot or adb on Pixel devices), and what the public record says; (2) what the public record says about recovering a Pixel 2 whose bootloader (xbl/abl) is erased or corrupted: Google's own repair/flash tool, the factory-image route, reports of successful and failed recoveries, with sources; (3) what a recovery would need (the firehose programmer for MSM8998 and its signing: say only what it is and whether a device-matching one is public; do NOT download or run any programmer or leaked material, record only names and where discussed); (4) the verdict in plain words: is there a known way back from an erased bootloader on the Pixel 2, and how sure is that; (5) what we could prepare without risk if a way back exists (a read-back of the phone's own bootloader partitions over adb root as files with sha256, kept in the lab, only as a restore source for a programmer-based flash: the partitions, the sizes, the slots); clean-room rules hold: public sources only
+
+Rank
+: 5
