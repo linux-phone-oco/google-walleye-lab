@@ -3126,3 +3126,28 @@ Needs
 
 Proof
 : banner image built with build checks, rebuild identical
+
+
+<a id="walleye-try-y2-old-reader"></a>
+### y2 with PR 155's exact reader: is the silence the reader change or the host
+
+Status
+: open
+
+Note
+: Lead from the top coordinator: between y2's working read (lab PR 155, ~07:30 UTC) and the 0-byte reads the reader changed (commit 17ab08e touched tests/host/mainline-shell-read.sh), the host went to lpoco 0.4.1 (~07:45) and 0.6.0 (~08:16: gadget rule GROUP users MODE 0660, re-trigger); ModemManager is off per orchestration. Result of the controlled try (lab PR 165): y2 and z1 both 0 bytes with the current reader. This item separates the reader from the host.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: Run y2 (the image whose shell read worked in lab PR 155) from slot b, battery first, with the reader EXACTLY as it was at lab commit 733052d (git show 733052d:tests/host/mainline-shell-read.sh > a scratch copy, run that copy, not the current one), started before the boot as in the first read; record: bytes received and the first answer. Then, if it reads: the same y2 with the current reader (main) on a second boot, to confirm the reader change (commit 17ab08e, PMIC change touched the script) is the cause; the diff of the two readers goes in the record; if the old reader also gets 0 bytes, the host is the cause: record the tty settings as the reader opens it (stty -F /dev/ttyACM0 -a), fuser /dev/ttyACM0, ls -l, getfacl, systemctl is-active ModemManager, and the host's dmesg lines for the gadget, from the failing moment; do not change the host.
+
+Rank
+: 1
