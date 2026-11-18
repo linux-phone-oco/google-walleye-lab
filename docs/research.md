@@ -1858,3 +1858,25 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-clock-gcc-stub/
+
+
+<a id="walleye-y2-old-reader-tried"></a>
+### walleye-y2-old-reader-tried
+
+Date
+: 2026-11-18
+
+Brief
+: y2 with the old reader (733052d): 0 answers, but the phone's echo of one command reached the host, so the host reads; the shell does not answer
+
+Question
+: y2 with PR 155's exact reader: is the silence the reader change or the host?
+
+Found
+: Battery 4376 mV. adb reboot bootloader (devlab fastboot reboot --bootloader refused from Android), old reader started first, devlab fastboot boot y2 (sha 0579fcf4...). Left fastboot 15 s, back as 1d6b:0104 after 18 s, /dev/ttyACM0 up (ACL user:mll:rw). Old reader: every answer empty, no 'Linux version'; only devices-deferred.txt held 171 bytes, the echoed command line (tty echo, not output). So bytes do travel phone->host; the reader change is not the cause (diff 733052d..main: one added ask line); the host is not deaf; the y2 init's shell does not answer, or its output path is dead. Host: stty raw -echo 115200, fuser only the reader, ModemManager inactive, kernel log only enumeration + cdc_acm ttyACM0. The reader's last write got Permission denied (node re-created after the phone's reboot, before the ACL applied: see walleye-reader-eacces-retry). Android back on slot b, adb up, nothing flashed.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-y2-old-reader/

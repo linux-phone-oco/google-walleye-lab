@@ -1771,3 +1771,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0950-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: y2 tried with the old reader: silent too, only the tty echo arrives; phone back as Android on slot b, stock kernel, nothing flashed, fastboot reachable via adb reboot bootloader
+
+Considered
+: next: banner init (builder) and a raw cat of ttyACM0; devlab suite/phone unavailable: no password file at ~/.config/devlab/google-walleye/password (not created)
+
+About
+: walleye-first-fastboot-boot
