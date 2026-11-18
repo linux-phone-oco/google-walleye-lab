@@ -64,15 +64,15 @@ ck "z17 dtb: $R enables on pmi8998 gpio 2, active high (the phone's own overlay:
 ck "z17 dtb: $R has enable-active-high" "$(fdtget -p "$T/z17.dtb" "$R" | grep -c '^enable-active-high$')" 1
 ck "z17 dtb: $R takes l28 (3.0 V) as its input" "$(fdtget -t u "$T/z17.dtb" "$R" vin-supply)" "$L28PH"
 ck "z17 dtb: $R start-up delay 20 ms" "$(fdtget -t u "$T/z17.dtb" "$R" startup-delay-us)" 20000
-ck "z17 dtb: the new phandle ($NEWPH) is used once" "$(dtc -I dtb -O dts "$T/z17.dtb" 2>/dev/null | grep -c "phandle = <$(printf '0x%x' "$NEWPH")>")" 1
+ck "z17 dtb: the new phandle ($NEWPH) is defined once" "$(dtc -I dtb -O dts "$T/z17.dtb" 2>/dev/null | grep -c "phandle = <$(printf '0x%x' "$NEWPH")>")" 1
 ck "z17 dtb: the touch controller's vdd-supply is $R" "$(fdtget -t u "$T/z17.dtb" "$TS" vdd-supply)" "$NEWPH"
 ck "z17 dtb: the touch controller's vio-supply is still l6" "$(fdtget -t x "$T/z17.dtb" "$TS" vio-supply)" "$(fdtget -t x "$T/k.dtb" "$TS" vio-supply)"
 ck "z17 dtb: /__symbols__ touch_power_regulator names it" "$(fdtget "$T/z17.dtb" /__symbols__ touch_power_regulator)" "$R"
-ck "z16's vdd-supply was a regulator phandle other than the new one (it was l28's $V0)" "$([ "$V0" != "$(printf '%x' "$NEWPH")" ] && echo yes || echo no)" yes
+ck "z16's vdd-supply was l28 itself" "$(printf %d "0x$V0")" "$L28PH"
 # nothing else of the dtb changed: decompiled, z16 and z17 differ only in the new node, its symbol and the vdd-supply line
 dtc -I dtb -O dts "$T/k.dtb" 2>/dev/null > "$T/k.dts"
 dtc -I dtb -O dts "$T/z17.dtb" 2>/dev/null > "$T/z17.dts"
-ck "z17 dtb differs from z16's in 3 hunks only (symbol, vdd-supply, the new node), no line removed but the one vdd-supply" "$(diff "$T/k.dts" "$T/z17.dts" | grep -c '^<')" 1
+ck "z17 dtb adds 12 lines to z16's decompiled dts (the node 10, the symbol, the changed vdd-supply) and removes one" "$(diff "$T/k.dts" "$T/z17.dts" | grep -c "^>")" 12
 ck "z17 dtb: the one removed line is z16's vdd-supply" "$(diff "$T/k.dts" "$T/z17.dts" | sed -n 's/^<[[:space:]]*//p')" "vdd-supply = <$(printf '0x%02x' "$((0x$V0))")>;"
 ck "z17 dtb keeps the qup node, qcom,i2c-qup-v2.2.1" "$(fdtget "$T/z17.dtb" "$N" compatible)" qcom,i2c-qup-v2.2.1
 ck "z17 dtb keeps gpio-reserved-ranges <0 4 81 4>" "$(fdtget -t u "$T/z17.dtb" /soc@0/pinctrl@3400000 gpio-reserved-ranges)" "0 4 81 4"

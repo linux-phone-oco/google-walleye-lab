@@ -1,5 +1,5 @@
 #!/bin/sh
-# walleye-build-z17-touch-power, run on the lab host: after the bootloader's overlay merge, is the touch controller's vdd-supply still our regulator-fixed on the
+# walleye-build-z17-touch-power, run on the lab host: after the overlay merge (fdtoverlay on the dtbo entry the bootloader picks), is the touch controller's vdd-supply still our regulator-fixed on the
 # pmi8998 power gpio (gpio 2, active high; the phone's own overlay: synaptics,power-gpio, power-on-state 1) with l28 as its input?
 # Passes only when, in DTB merged with the dtbo entry the bootloader picks, the touchscreen@20 under the node at reg 0xc179000 has a vdd-supply whose node is regulator-fixed,
 # has gpios <pmi8998 gpio controller, 2, 0> and enable-active-high.
@@ -37,4 +37,8 @@ set -- $g
 [ $# -eq 3 ] && [ "$2" = 2 ] && [ "$3" = 0 ] || say fail "$R gpios is '$g', want <pmi8998-gpio 2 0>"
 c=$(fdtget "$T/m" "$(fdtget "$T/m" /__symbols__ pmi8998_gpios)" compatible 2>/dev/null | cut -d' ' -f1)
 [ "$(fdtget -t u "$T/m" "$(fdtget "$T/m" /__symbols__ pmi8998_gpios)" phandle)" = "$1" ] && [ "$c" = qcom,pmi8998-gpio ] || say fail "$R gpio phandle $1 is not the pmi8998 gpio controller"
+c28=$(fdtget -t u "$T/m" "$R" vin-supply 2>/dev/null); l28=$(fdtget -t u "$T/m" "$(fdtget "$T/m" /__symbols__ vreg_l28_3p0)" phandle)
+[ -n "$c28" ] && [ "$c28" = "$l28" ] || say fail "$R vin-supply is not l28"
+[ "$(fdtget -t u "$T/m" "$R" startup-delay-us 2>/dev/null)" -gt 0 ] 2>/dev/null || say fail "$R has no startup-delay-us"
+[ -n "$(fdtget -t u "$T/m" "$N/touchscreen@20" vio-supply 2>/dev/null)" ] || say fail "touchscreen@20 lost vio-supply"
 say pass "$N touchscreen@20 vdd-supply is $R, pmi8998 gpio 2 active high"
