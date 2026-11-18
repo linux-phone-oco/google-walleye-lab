@@ -4,9 +4,9 @@ Principles of linux-phone-oco, cited and never restated ([`tad q principles`](ht
 
 - **Everything about the phone is in `device.toml`.** No script in this repository names the phone; a
   tool that needs a fact about it reads the manifest. A fact that is missing goes into the manifest -
-  and, if it is new for every phone, into devlab's manifest model (linux-phone-oco/lab-tools).
-- **Reach the phone through devlab** (`devlab phone sh|root` with the commands on standard input, or the
-  `devlab mcp` tools) - never by hand-written ssh with nested quoting.
+  and, if it is new for every phone, into lpoco lab's manifest model (linux-phone-oco/lab-tools).
+- **Reach the phone through lpoco lab** (`lpoco lab phone sh|root` with the commands on standard input, or the
+  `lpoco lab mcp` tools) - never by hand-written ssh with nested quoting.
 - **Keep the phone known-working.** A test kernel is a second boot entry tried once by boot counting,
   falling back to stock by itself; never the initramfs debug shell on an unattended try. Every change
   ends with the phone's health report - read it.

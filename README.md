@@ -4,7 +4,7 @@
 running postmarketOS; everything else - reaching the phone, flashing, provisioning, a test kernel tried
 once and falling back by itself, the phone checking its own health after every boot, gathering its
 reports into the picture, and a door for agents - comes from
-[devlab](https://github.com/linux-phone-oco/lab-tools), which reads this manifest. Surya
+[lpoco lab](https://github.com/linux-phone-oco/lab-tools), which reads this manifest. Surya
 ([linux-phone-oco/surya-lab](https://github.com/linux-phone-oco/surya-lab)) is the first phone made
 this way, not the mould.
 
@@ -24,27 +24,27 @@ how. The standing tables follow [grenudi/ideal-knowledge-base](https://github.co
 (`idealkb.toml`); the device's own are in `tables.toml`. Fill the device (`ikb device ...`) and declare what is
 claimed of each part (`ikb part`: status, evidence, date) - [linux-phone-oco/docs](https://github.com/linux-phone-oco/docs)
 pulls `parts` (contract in `devicebase.toml`) and derives the device's support status from them; it types nothing of
-its own. The phone's queue is `tad q phone-queue`, its keeper's next item `tad q phone-next`; `devlab gather` files runs
+its own. The phone's queue is `tad q phone-queue`, its keeper's next item `tad q phone-next`; `lpoco lab gather` files runs
 with the `test-run` record.
 
 ## The conveyor
 
-    devlab flash now IMAGE BOOTLOADER      an image onto the phone, the manifest's fixes baked in
-    devlab provision now                   packages and Wi-Fi - and then the phone's health
-    devlab suite put now --runner FILE     the health suite onto the phone: it checks itself after every boot
-    devlab kernel install NAME ... / try NAME   a test kernel beside stock, booted once - then its health
-    devlab phone reboot                    and wait - then the new boot's health
-    devlab gather now                      the phone's reports into tests/results and the picture's tables
-    devlab mcp                             the phone for any agent (MCP, stdio)
+    lpoco lab flash now IMAGE BOOTLOADER      an image onto the phone, the manifest's fixes baked in
+    lpoco lab provision now                   packages and Wi-Fi - and then the phone's health
+    lpoco lab suite put now --runner FILE     the health suite onto the phone: it checks itself after every boot
+    lpoco lab kernel install NAME ... / try NAME   a test kernel beside stock, booted once - then its health
+    lpoco lab phone reboot                    and wait - then the new boot's health
+    lpoco lab gather now                      the phone's reports into tests/results and the picture's tables
+    lpoco lab mcp                             the phone for any agent (MCP, stdio)
 
-Every change devlab makes ends with the phone's own health report: nobody has to remember to check.
+Every change lpoco lab makes ends with the phone's own health report: nobody has to remember to check.
 A part the phone never had working is a `gap` - measured on every boot, but not ill health.
 
 ## What lives here
 
 - `device.toml` - the phone, as facts.
 - `tests/health/` - this phone's own checks, if any, beside the generic ones (see its README).
-- `tests/results/` - every health report the phone wrote, as it wrote it (`devlab gather now`).
+- `tests/results/` - every health report the phone wrote, as it wrote it (`lpoco lab gather now`).
 - `provision/packages.txt` - what a freshly flashed phone gets.
 - its backlog, decisions, milestones and log are kept in
   [linux-phone-oco/docs](https://github.com/linux-phone-oco/docs), the project's one database (project =
