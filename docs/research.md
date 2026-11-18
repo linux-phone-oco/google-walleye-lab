@@ -2933,3 +2933,32 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ufs-android-way-compared"></a>
+### walleye-ufs-android-way-compared
+
+Date
+: 2026-11-18
+
+Brief
+: Android resets the card's RST_n and runs it with one quirk and 2 lanes; z13 never resets it and adds 4 Hynix flags (1 TX lane): not a match; abl hand-over and HW version unread
+
+Question
+: How does Android bring up this exact UFS card (vendor GPL kernel + live), and does our z13 path match it? Is a probe safe enough to take back to the author?
+
+Found
+: Read: Google kernel/msm android-msm-wahoo-4.4-android11 @52750b8f (the phone runs a LineageOS 4.4.302 fork, its UFS files not read), the keeper's live readings, ours at d49d54405 (z13). Compared with scripts (PHY tables as sorted lists, quirk tables, dts props live fdt vs our dtb) and by hand (reset, power-up, link startup, power mode). Rerun: material scripts/run-all.sh.
+Android: host full reset, then a hardware RST_n pulse on the card (pinctrl ufs_reset low/high 10-15 us), then HCE: PHY reset 1 ms, tables, release, serdes start, PCS ready; link startup (G1 slow-auto, RX linecfg on, core clk 150, hw clock gating, LCC 0, REG1 mask); for THIS card (H28U74301AMR) only the quirk HOST_PA_SAVECONFIGTIME applies (vendor Hynix model entries are prefixes hB8aL1.. and do not match); HS-G3, rate B, 2 lanes each way; purge never sent (live: only fDeviceInit set).
+Ours differs: (1) no card reset at all: no reset-gpios, and pinctrl-msm8998 ngpios=150 while UFS_RESET is pin 153, so it cannot be described; (2) z13 adds DELAY_BEFORE_LPM, EXTEND_SYNC_LENGTH, NO_PURGE (guard), ONE_TX_LANE: Sony's workarounds for other cards (hB8aL1/hC8aL1 D001) that Android proves this card does not need; one TX lane is a link Android never ran; (3) PHY: mainline msm8998 uses the sdm845 tables; vs vendor 3.1.0 table 10 differing lines (PLL_IVCO 0x0f vs 0x07, RX_EQU_ADAPTOR_CNTRL4 0x1d vs 0x1b, ours-only TX_RES_CODE_LANE_OFFSET and RX_MODE_00), vs 3.0.0 35 lines; which table Android ran is not known yet (HW version register unread); (4) no ICE, no phy/pll loads, plain clocks instead of hw_ctl ones, no bus votes/pm-qos, extra caps (clk scaling, WB, rpm autosuspend).
+Sony's three fixes appear nowhere in the vendor sequence for this card; the erase mechanism stays unpublished, so nothing shows our path safe.
+Verdict: z13 does not match Android and its extra Hynix flags move it away. Matching = SAVECONFIGTIME only (keep the NO_PURGE guard), the right PHY table, ICE/loads, and a card RST_n pulse (needs a kernel change: widen tlmm gpios or pinctrl states). Even matched, the probe is not safe enough to take to the author: abl's hand-over state is unread, the erase cause unknown, no way back (EDL). Provable before any try without our UFS: on live Android with root read UFS_HW_VERSION (0xe0), the full host regs and the PHY regs, and the ufs_reset pad state. Not known yet: abl hand-over, HW version, Lineage-fork differences.
+
+Sources
+: src-google-wahoo-msm44-android11,src-kumano-ufs-quirks-thread
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-ufs-android-way/

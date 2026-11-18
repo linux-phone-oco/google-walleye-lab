@@ -669,3 +669,22 @@ Year
 
 Takes
 : On the Nexus 6 (shamu) adb reboot edl entered EDL; the boot chain PBL -> SBL -> ABOOT; EDL is the way back for a device whose SBL is blank - but only with a signed programmer
+
+
+<a id="src-google-wahoo-msm44-android11"></a>
+### Google kernel/msm, branch android-msm-wahoo-4.4-android11 (head 52750b8f): the stock Pixel 2 (wahoo) 4.4 kernel, UFS host, PHY and dts
+
+Url
+: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-wahoo-4.4-android11
+
+Author
+: Google, Qualcomm (GPL-2.0)
+
+Year
+: 2020
+
+By
+: Google
+
+Takes
+: UFS bring-up sequence, quirk tables and PHY init values as facts (clean room: nothing copied)

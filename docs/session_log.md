@@ -2722,3 +2722,24 @@ Done
 
 Considered
 : next: walleye-build-z17 touch power/reset (builder): check vdd/vio supplies, reset gpio89, delay against vendor tree; z15/z16 part 2 waits for the author; then walleye-ufs-android-live / walleye-bootchain-readback (read only)
+
+---
+
+
+<a id="2026-11-18-walleye-research-ufs-android-way"></a>
+### walleye-research: UFS the Android way
+
+Entry date
+: 2026-11-18
+
+Done
+: Compared Google's wahoo 4.4 UFS/PHY/dts with z13 and the live readings by extracted lists (PHY tables, quirks, dts props) and by hand (reset, power-up, link startup). Finding: Android resets the card and uses one quirk and 2 lanes; z13 does neither. Queued walleye-ufs-android-regs (phone, read-only) and walleye-ufs-match-android-z (build).
+
+Considered
+: Reading msm-4.4 against v7.3 line by line (the author said no: diverged too far); the Lineage fork's UFS files (not read: Google's stock branch is the pairing with the stock bootloader).
+
+Rejected
+: Claiming a match or a safe probe: abl's hand-over, the HW version and the erase cause are unread.
+
+About
+: walleye-first-fastboot-boot
