@@ -4478,10 +4478,10 @@ Rank
 ### Is there a known way back from an erased bootloader on the Pixel 2 (EDL, test points, recovery)?
 
 Status
-: open
+: done
 
 Note
-: Raised by the top coordinator after the author's 'Yes, wait' on the UFS probe (decision 2026-11-18-walleye-ufs-wait): the answer decides when the UFS items may run.
+: Answered 2026-11-18: no known way back (research 2026-11-18-walleye-edl-way-back, decision 2026-11-18-walleye-edl-no-way-back-wait-holds). UFS wait holds; boot-chain read-back queued as walleye-bootchain-readback.
 
 About
 : walleye-first-fastboot-boot
@@ -4547,3 +4547,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-bootchain-readback"></a>
+### Read back the Pixel 2's boot chain as files with sha256 (a restore source, kept on the lab machine)
+
+Status
+: open
+
+Note
+: From research 2026-11-18-walleye-edl-way-back: adb root, dd each partition to the host: xbl_a xbl_b abl_a abl_b tz hyp rpm pmic devcfg keymaster cmnlib cmnlib64 storsec lockbooter apdp msadp both slots, plus ddr cdt sec devinfo; compare sizes with the measured ones (xbl 8104 sectors). Mode 600, outside every repository; write sha256sums and the partition table listing. Read only: nothing on the phone changes. Restores nothing without a matching programmer.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: a test (tests/host/bootchain-readback-check.sh, to write) that fails until every file exists with its measured size and a matching sha256 line, and passes on a second read-back of the same bytes
+
+Rank
+: 4

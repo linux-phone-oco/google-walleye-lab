@@ -2769,3 +2769,28 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-walleye-edl-way-back"></a>
+### 2026-11-18-walleye-edl-way-back
+
+Date
+: 2026-11-18
+
+Brief
+: No known way back from an erased Pixel 2 bootloader: EDL appears when the chain breaks, but no Google-signed MSM8998 firehose programmer is public
+
+Question
+: Is there a known way back from an erased bootloader on the Pixel 2 (EDL, test points, recovery)?
+
+Found
+: EDL 9008 is reached by Pixel 2s with a broken chain (several reports, Sahara HWID 0x0005e0e1, PK hash 7489217...), but recovery needs a firehose programmer signed to that hash; bkerler (2021): none released or leaked for Pixels; ~200-loader survey lists none; threads 2018-2025 end without a fix; Google's repair tool is Pixel 3+; no public test points for walleye. Verdict: no known way back, fairly sure. Preparable at no risk: read-back of xbl_a/b (4,149,248 B each, boot LUNs) and the rest of the boot chain as mode-600 files with sha256.
+
+Sources
+: src-bkerler-edl-204,src-xda-pixel2-hardbrick-3920807,src-hovatek-pixel2-26042,src-xda-edl-loaders-4525079,src-androidse-sailfish-225868,src-pixelrepair-withgoogle,src-passware-qc-testpoints,src-aleph-qualcomm-edl-2
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-edl-way-back/

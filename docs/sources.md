@@ -565,3 +565,107 @@ By
 
 Takes
 : quirks look intentional; no way to ask Sony; how to do it in mainline
+
+
+<a id="src-bkerler-edl-204"></a>
+### bkerler/edl issue 204: How to get or read out a Loader for Google Pixel 2?
+
+Url
+: https://github.com/bkerler/edl/issues/204
+
+Author
+: cubotron, bkerler
+
+Year
+: 2021
+
+Takes
+: A Pixel 2 that restarted into EDL: Sahara HWID 0x0005e0e100420002, PK hash 748921750a6ec931...; no loader found; the owner of the edl tool: the PK hash must match the loader, and for Pixels (except the LG-built) no loader was released or leaked
+
+
+<a id="src-xda-pixel2-hardbrick-3920807"></a>
+### XDA: [Hard bricked Pixel 2] qualcomm hs-usb qdloader 9008
+
+Url
+: https://xdaforums.com/t/hard-bricked-pixel-2-qualcomm-hs-usb-qdloader-9008-in-device-manager.3920807/
+
+Year
+: 2019
+
+Takes
+: Pixel 2 with no bootloader and no recovery shows 9008; QFIL needs a firehose programmer and rawprogram xml, which are proprietary; replies 2019-2023 show no solution; one reply says the device was recovered but not how
+
+
+<a id="src-hovatek-pixel2-26042"></a>
+### Hovatek: Potential Google pixel 2 hard brick
+
+Url
+: https://www.hovatek.com/forum/thread-26042.html
+
+Year
+: 2018
+
+Takes
+: walleye bricked by flash-all of a factory image (Nov 2018, rooted) and came up as 9008 with no logo; advice: find a working firehose programmer or boot from an SD card debrick image made on a working phone of the same model; no outcome reported
+
+
+<a id="src-xda-edl-loaders-4525079"></a>
+### XDA: Identifying EDL (Firehose) loaders (Renate)
+
+Url
+: https://xdaforums.com/t/identifying-edl-firehose-loaders.4525079/
+
+Author
+: Renate
+
+Year
+: 2022
+
+Takes
+: A loader is made by the phone maker from Qualcomm's xbl and is signed; with Secure Boot fused it works only on a device whose root-certificate hash matches; patching is easy, signing is not; the two public collections are bkerler/Loaders and hoplik/Firehose-Finder
+
+
+<a id="src-androidse-sailfish-225868"></a>
+### Android SE: Unbricking my Google Pixel (sailfish)
+
+Url
+: https://android.stackexchange.com/questions/225868/unbricking-my-google-pixel-sailfish
+
+Year
+: 2020
+
+Takes
+: Pixel (MSM8996) hard bricked by flash-all: still 9008; no firehose programmer found for sailfish; the Google driver binaries do not contain one; no solution as of 2025
+
+
+<a id="src-pixelrepair-withgoogle"></a>
+### Google Pixel Update and Software Repair
+
+Url
+: https://pixelrepair.withgoogle.com/
+
+Takes
+: Google's own tool works on Pixel 3 or newer running Android 10 and higher: the Pixel 2 is not covered
+
+
+<a id="src-passware-qc-testpoints"></a>
+### Passware: Qualcomm test-point gallery
+
+Url
+: https://support.passware.com/hc/en-us/articles/15470087921687-Qualcomm-test-point-gallery
+
+Takes
+: Public gallery of EDL test points by SoC: lists SDM845, SDM710, SM8150 and others; no Pixel 2 / MSM8998 / Google entry
+
+
+<a id="src-aleph-qualcomm-edl-2"></a>
+### Aleph Research: Exploiting Qualcomm EDL Programmers (2)
+
+Url
+: https://alephsecurity.com/2018/01/22/qualcomm-edl-2/
+
+Year
+: 2018
+
+Takes
+: On the Nexus 6 (shamu) adb reboot edl entered EDL; the boot chain PBL -> SBL -> ABOOT; EDL is the way back for a device whose SBL is blank - but only with a signed programmer
