@@ -3951,6 +3951,9 @@ Status
 Note
 : Built 2026-11-18 (research walleye-c4-built). Same command loop as c2/c3. c3's try ended hung after the reader's reboot -f (work walleye-c3-hung-wait-then-power-cycle): the phone must be back first.
 
+Blocked by
+: walleye-c3-hang-why
+
 About
 : walleye-first-fastboot-boot
 
@@ -3962,6 +3965,31 @@ Needs
 
 Proof
 : walleye-charger-smb2: sh tests/host/charger-check.sh DIR passes on the reader's output of c4 (images-c4/boot-c4.img sha256 773fa74d4a6acd8f5c3f4518b44e254ad01f926f43877cdc141dd3d614429692); the dmesg names no tps61099 supplier wait
+
+Rank
+: 1
+
+
+<a id="walleye-c3-hang-why"></a>
+### Why the phone hangs in c3 (charger probed) and no restart works
+
+Status
+: open
+
+Note
+: Fact (keeper, lab PR 246): c3 charger-check PASS (charger type USB online 1), then the phone hung from 14:13Z with the gadget up, the shell silent, no adb/fastboot: still hung at 14:40Z (27 min). The author's hands (hold Power ~15 s) are needed to recover it; z9's slow recovery (>10 min) suggests waiting, but 27 min is past that. c4 (the tps61099 as a fixed regulator, lab PR 248) is queued behind this.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: A research row: why c3 (c2 + fw_devlink=permissive, charger probed and online) does not restart the phone while c2 (charger deferred) always did: the init's self-reboot (reboot -f / sysrq b) and the reader's reboot -f both failed to restart it and it stayed on the USB bus with the gadget up and the shell silent for 27+ minutes (since 14:13Z, still hung at 14:40Z), which also means the SoC watchdog did not bite. Look at: what the init of c3 does after the charger probe (the banner/command loop alive? the init blocked on a tty write), what the charger driver (qcom_smbx / smb2 on pmi8998) does on reboot or sysrq b (a charging-mode hold in the PMIC after a reset request while a charger is online? a pending reset waiting for the charger's state), the PMIC reset path in this kernel (psci SYSTEM_RESET versus the PON driver), the watchdog (kpss-wdt opened or not in this init? why no bite), c3's kernel log read out of the phone's ramoops after the power-cycle (if the pstore of c3's boot survived: ask the keeper to read /sys/fs/pstore and /data/vendor_ce/0/ramoops after the author's hold), and the way back for any image that probes the charger: a restart path that is proved BEFORE the image is used for a long try (e.g. the c4 try: first try with a short init hold and reboot proven on a charger-less kernel, or the init stopping the charger via sysfs before reboot); queue the build and phone items accordingly
 
 Rank
 : 1
