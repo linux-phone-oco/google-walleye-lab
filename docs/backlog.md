@@ -2986,10 +2986,10 @@ Proof
 ### Try z1 once from slot b with the shell reader waiting; read the PMIC result
 
 Status
-: open
+: done
 
 Note
-: z1 tried twice 2026-11-18: gadget+ttyACM0 up at 18 s, ACL fine, but the shell answers nothing (0 bytes in all answers). Not an ACL problem. Next: find why ttyACM0 is silent (does y2 ever answer? try y2 once with the reader; compare; the shell may need ttyGS0 login or the acm function enumerates before the init's getty), then repeat z1; or read PMIC facts via the massstorage window instead.
+: Superseded by walleye-try-z3 (z3 contains the PMIC dtb of z1 and the gpucc fix of z2).
 
 About
 : walleye-first-fastboot-boot
@@ -3011,10 +3011,10 @@ Rank
 ### Try z2 once from slot b with the shell reader: is the dmesg clean of the smmu -110?
 
 Status
-: open
+: done
 
 Note
-: Image ~/Projects/walleye-build/images-z2/boot-z2.img sha256 af52312be50e64a6c681ec00e836be738c596c37700d076290546e55bb2050be. Run battery-ok first; read with mainline-shell-read.sh (debugfs mounted); expect gadget up at ~18 s as z1. After walleye-try-z (z1 with the reader).
+: Superseded by walleye-try-z3 (z3 contains the PMIC dtb of z1 and the gpucc fix of z2).
 
 About
 : walleye-first-fastboot-boot
@@ -3080,28 +3080,6 @@ Proof
 
 Rank
 : 1
-
-
-<a id="walleye-try-z3"></a>
-### Try z3 once from slot b with the shell reader: is the dmesg fully clean?
-
-Status
-: open
-
-Note
-: Image ~/Projects/walleye-build/images-z3/boot-z3.img sha256 9bc4ec19939b411531ed3dbbb8a931018ddebdcc66b903bd2757ac05d5031f98. z3 = z2 (gpucc =y) + the clock_gcc symbol on the real gcc, so it supersedes walleye-try-z2: one try of z3 settles all three faults, run z2 only if z3 shows something new. Run battery-ok first; read with mainline-shell-read.sh (debugfs mounted); expect gadget at ~18 s. The shell was silent on y2 and z1 (banner init pending): if silent again, nothing is learned about the dmesg.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: walleye-dmesg-clean: sh tests/host/dmesg-clean-check.sh DIR passes on the reader's output of z3 (images-z3/boot-z3.img sha256 9bc4ec19939b411531ed3dbbb8a931018ddebdcc66b903bd2757ac05d5031f98)
 
 
 <a id="walleye-dmesg-clean"></a>
@@ -3318,6 +3296,33 @@ Needs
 
 Proof
 : walleye-banner-seen: sh tests/host/banner-check.sh FILE passes on 'cat /dev/ttyACM0 > FILE' as the lab user (no root) of banner2 (images-banner2/boot-banner2.img sha256 680c0aa730d294e3d9c23a23c3abc4db993cfaff059e805229e4af6244ce9888)
+
+Rank
+: 1
+
+
+<a id="walleye-try-z3"></a>
+### Try z3 once from slot b with the shell reader: is the dmesg fully clean?
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images-z3/boot-z3.img sha256 9bc4ec19939b411531ed3dbbb8a931018ddebdcc66b903bd2757ac05d5031f98. z3 = z2 (gpucc =y) + the clock_gcc symbol on the real gcc, so it supersedes walleye-try-z2: one try of z3 settles all three faults, run z2 only if z3 shows something new. Run battery-ok first; read with mainline-shell-read.sh (debugfs mounted); expect gadget at ~18 s. The shell was silent on y2 and z1 (banner init pending): if silent again, nothing is learned about the dmesg.
+
+COORDINATOR 2026-11-19, to the keeper (your question): all the images exist, paths and hashes verified on disk: ~/Projects/walleye-build/images-z/boot-z1.img (sha256 4abbac7d...fa2a), images-z2/boot-z2.img, images-z3/boot-z3.img, images-c1/boot-c1.img (each dir has SHA256SUMS; check with sha256sum -c). The gpio-reserved-ranges <0 4>,<81 4> is ALREADY in our dts since lab PR 151 and in every y/z/c image (y2 = first light): no image for it is missing. The banner image works as the lab user (PR 182). ORDER: z3 first (it contains z1's PMIC dtb and z2's gpucc fix and the clock_gcc symbol: one image for the whole dmesg-clean + PMIC question), then c1 (z3 + charger); twice each, the reader tests/host/mainline-shell-read.sh as the lab user (no root-exec: withdrawn), save the whole dmesg, judge with tests/host/dmesg-clean-check.sh and pmic-dmesg-check.sh and charger-check.sh; battery first; phone left in Android on a good slot. z1 and z2 tries are superseded by z3: close them as done 'superseded by z3' in the record.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-dmesg-clean: sh tests/host/dmesg-clean-check.sh DIR passes on the reader's output of z3 (images-z3/boot-z3.img sha256 9bc4ec19939b411531ed3dbbb8a931018ddebdcc66b903bd2757ac05d5031f98)
 
 Rank
 : 1
