@@ -2035,3 +2035,24 @@ Done
 
 Considered
 : next: z4's console block not seen on the phone; read the kmsg counter / pstore as root-less route, or decide vector with coordinator; item walleye-try-z4 left open
+
+---
+
+
+<a id="2026-11-18-z5-banner-reports-shell"></a>
+### z5: the banner reports the shell's state
+
+Entry date
+: 2026-11-18
+
+Done
+: Built z5 (init-z5, build-z5.sh, banner-shell-check and two selftests), reviewed by the programmer agent, fixed its findings, queued walleye-try-z5.
+
+Considered
+: Redirecting the shell's own stderr to a file (loses the prompt and errors on the tty); a probe start whose output goes to a file instead
+
+Rejected
+: Having the banner run stty itself each beat: extra tty ioctls on the banner path; the console block records the tty flags once after its own stty
+
+About
+: walleye-first-fastboot-boot
