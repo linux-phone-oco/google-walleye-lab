@@ -92,7 +92,7 @@ Note
 : ramoops at 0xa1810000/0x200000, qcom_wdt.arm_on_probe=1, watchdog.open_timeout=300, reboot=w (porthole); the Pixel debug cable is not in the lab.
 
 Blocked by
-: walleye-first-fastboot-boot
+: walleye-get-uart-setup
 
 Opened
 : 2026-11-17
@@ -3498,31 +3498,6 @@ Rank
 : 1
 
 
-<a id="walleye-pmic-wdt-proof"></a>
-### Prove the PMIC watchdog way back on walleye (pm8998): it bites unpetted, and its bark wakes a suspend
-
-Status
-: open
-
-Note
-: Image to try: ~/Projects/walleye-build/images-z8/boot-z8.img (z8, sha256 797778f27d7aa0c8e93cbe6d101678132da3f94bc5536c672f4f740767dce0b5). Script https://github.com/linux-phone-oco/docs/blob/main/research/upstream-forks/2026-11-18/tests/pmic-wdt-way-back.sh: check, bite 20 then check (CARDRESET); wake only once walleye suspends at all. The second PMIC (pm8998) the RFC needs before it drops RFC (docs upstream item pmic-wdt-wake-in-suspend).
-
-Blocked by
-: walleye-kernel-pmic-wdt
-
-About
-: deep-sleep
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: pmic-wdt-bites,pmic-wdt-wakes-in-suspend
-
-
 <a id="walleye-try-z6"></a>
 ### Try z6 once from slot b: do commands answer on the plain read/exec loop?
 
@@ -3702,10 +3677,10 @@ Rank
 ### c2's charger defers on supplier tps61099 (no driver): decide how the dts lets pmi8998's charger probe, then build c3
 
 Status
-: open
+: done
 
 Note
-: from research walleye-c2-tried: charger@1000 'wait for supplier /soc@0/tps61099/ti,tps61099'. Ways: remove the supply property from our charger node; give the tps61099 node a fixed-regulator driver; fw_devlink=permissive on the cmdline. Way back of each: tries run from memory on slot b, nothing flashed.
+: Superseded by walleye-charger-supplier (decision 2026-11-18-walleye-charger-supplier-permissive-then-modelled): c3 then c4.
 
 About
 : walleye-charger-smb2
@@ -3739,6 +3714,31 @@ Needs
 
 Proof
 : boot-c3.img = c2 with only the command line changed (fw_devlink=permissive added; every other byte of the image equal to c2's: kernel, dtb, ramdisk, header, footer); checks as c2's, the cmdline diff shown, hashes. Then, only after c3's try shows the charger working: c4 = c2 + the tps61099 as a regulator-fixed node (gpio from the running fdt) with the default fw_devlink, built by a second run of this item (keep the item open until c4 is built, rank unchanged); programmer review each
+
+Rank
+: 1
+
+
+<a id="walleye-pmic-wdt-proof"></a>
+### Prove the PMIC watchdog way back on walleye (pm8998): it bites unpetted, and its bark wakes a suspend
+
+Status
+: open
+
+Note
+: Image to try: ~/Projects/walleye-build/images-z8/boot-z8.img (z8, sha256 797778f27d7aa0c8e93cbe6d101678132da3f94bc5536c672f4f740767dce0b5). Script https://github.com/linux-phone-oco/docs/blob/main/research/upstream-forks/2026-11-18/tests/pmic-wdt-way-back.sh: check, bite 20 then check (CARDRESET); wake only once walleye suspends at all. The second PMIC (pm8998) the RFC needs before it drops RFC (docs upstream item pmic-wdt-wake-in-suspend).
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: pmic-wdt-bites,pmic-wdt-wakes-in-suspend
 
 Rank
 : 1
