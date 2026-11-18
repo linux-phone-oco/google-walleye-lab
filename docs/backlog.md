@@ -2191,3 +2191,66 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-phone-needs-hands"></a>
+### The Pixel 2 is gone from USB since the pk5-stages tries (2026-11-18 ~02:30 UTC): phone work is parked until the author is back
+
+Status
+: open
+
+Note
+: Seen by the keeper (lab how-the-phone-stands 2026-11-18-2300): neither fastboot nor adb, nothing on its USB port; devlab says off or needs hands. Candidate causes: a g-image hang that the outside watchdog did not reset, or the battery drained (the phone has sat in fastboot, which draws power, for hours of tries; the first getvar battery-voltage was 4344 mV). The author's hands: hold Power 10-30 s; if no reaction, plug it into a charger ~15 min first, then hold Power + Volume Down for the bootloader; tell us 'back'. Until then only build and research items run.
+
+Waits
+: the author: the phone is off USB (hold Power 10-30 s; if it does not react, charge it first)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+
+<a id="walleye-battery-watch"></a>
+### The keeper reads the battery before every try and leaves the phone charging (in Android, not in fastboot) between tries
+
+Status
+: open
+
+Note
+: Lesson of 2026-11-18: the phone sat in fastboot for hours and went dark; fastboot mode draws power and charges little. Do not park the phone in fastboot between tries; and every try records the battery. Small item; any builder run may take it (shell + the keeper note).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: (1) tests/host/battery-ok.sh (lab): reads fastboot getvar battery-voltage (or adb dumpsys battery in Android), prints the value, exits 1 below 3700 mV; the keeper's brief (the lab's keeper note in the item/AGENTS.md) says to run it before each try and to stop and record when it fails; (2) the keeper ends each session with the phone booted into Android on a good slot (fastboot reboot, adb) while idle, not left in fastboot; checked by a test that records the end state
+
+
+<a id="walleye-pstore-warm-reset"></a>
+### Why our mainline kernel's console never survives in pstore, and how a MSM8998 kernel asks for a WARM reset (reboot=w, psci reset, qcom pon, the SDI/dload) so the ramoops region keeps its text
+
+Status
+: open
+
+Note
+: Facts (lab research walleye-pk5l2-tried, walleye-ml3-pstore-empty): ramoops at 0xa1100000 as the vendor kernel's own; /sys/fs/pstore empty after every mainline try (1 Android ramoops-reader oops at 17.9 s once). Host-only, public sources; no phone needed while it is parked.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: a research row with sources (porthole's cmdline reboot=w and qcom_wdt.arm_on_probe, kernel docs, postmarketOS and kcxt notes, Qualcomm PSCI/TZ behaviour, the vendor kernel's own warm-reset path read from the GPL source): ranked causes of the empty pstore (DDR cleared by a cold reset, the bootloader zeroing the region, the ramoops node/size mismatch, the vendor reader consuming it), and one or two cheap image changes that would tell (cmdline reboot=warm, the init doing a psci warm reset, panic=5 plus a deliberate panic via sysrq c at a known time) with their expected pstore results
