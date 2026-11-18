@@ -2440,3 +2440,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1840-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Phone is Android on slot b, stock kernel, nothing flashed, adb up. Took walleye-pmic-wdt-read-s2-regs: wrote tests/host/pmic-wdt-s2-regs-read.sh (read only), booted z9 from memory via lpoco lab fastboot boot now; it answered (1d6b:0104, uname 7.3.0-00004-ge123d3bff47d-dirty; spmi regmaps 0-00..0-03 named pmic-spmi under debugfs). First run: no PON register lines read. Second run (NOREBOOT) answers came back as blank lines only. Registers NOT yet read; item stays open. Phone left the mainline image by itself after about 15 min (off USB for part), back on Android b.
+
+Considered
+: next: debug the tty reader (answers blank; compare with mainline-shell-read.sh which worked; check the regmap registers format); retry z9; walleye-pmic-wdt-readback-image is the fallback; dtbo item stays held
+
+About
+: deep-sleep
