@@ -2081,24 +2081,6 @@ About
 ---
 
 
-<a id="2026-11-18-1500-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-18
-
-Done
-: z5b tried once from slot b with the host tty raw -echo and a plain background reader (research walleye-z5b-tried-raw-tty): the '> ' and 'Permission denied' noise is gone (0 in 30 s) but the shell returns no command output, only banner beats. Phone is Android on slot b, stock kernel, nothing flashed, flags a and b successful, battery 4385 mV
-
-Considered
-: next: z6 = z5 with the banner stopped once the shell is up so the shell's answers are alone on ttyGS0; the x1 gpio-reserved-ranges item stays open
-
-About
-: walleye-first-fastboot-boot
-
----
-
-
 <a id="2026-11-18-z6-command-loop-built"></a>
 ### z6: a command loop instead of the silent ash
 
@@ -2251,3 +2233,21 @@ Considered
 
 About
 : deep-sleep
+
+---
+
+
+<a id="2026-11-18-1500-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Took the lease; phone is Android on slot b, stock kernel, adb up (FA81N1A00790), nothing changed this run. phone-next offered only walleye-debug-without-display, which is blocked_by walleye-first-fastboot-boot, has no built image or test, and the pstore chase is paused by decision 2026-11-18-walleye-vendor-kernel-as-instrument; unattended, so not started. lpoco lab suite latest fails: no devlab password file for google-walleye (needs PHONE_PASS or ~/.config/devlab/google-walleye/password).
+
+Considered
+: next: walleye-charger-wait-tps61099 (needs research; decision 2026-11-18-walleye-charger-supplier-permissive-then-modelled already says permissive devlink first, then a modelled fixed regulator) - build c3 with fw_devlink=permissive, then a try on slot b; the queue's phone item should be that try once c3 is built. Also: phone-next lists a blocked item; its blocked_by is not honoured by the query.
+
+About
+: walleye-first-fastboot-boot
