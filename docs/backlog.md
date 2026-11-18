@@ -2545,3 +2545,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-try-vf-control"></a>
+### Controlled repeat: vf2 twice as before, then vf4 twice WITHOUT the poller, to tell the image from the way it was watched
+
+Status
+: open
+
+Note
+: Facts (lab research walleye-vf3-tried-twice, walleye-vf4-tried-twice): vf2 alive twice (single-shot reads, no poller); vf3 and vf4 dead twice each (78 s, no gadget) with the poller running from before the boot, and vf4's init is vf2's byte for byte up to the bind. Two differences remain between the runs: the image's later part (the dump) and the poller. One-factor control: same watching for both images. Record honestly if the 43 s gadget of vf2 does not repeat (flaky). The author is away: tries return by themselves.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: four tries from the first state (battery first, Android on a good slot, adb reboot bootloader), each recorded with the time the gadget appeared (plain lsusb by port, no lsusb -v, no reads of the LUN until 70 s after the jump), the time Android is back, and whether the init's beat/step text appears in a single read at ~70 s of /dev/sdX (massstorage-read.sh as in vf2's tries): order vf2, vf2, vf4, vf4; the finding: does vf2 repeat its ~43 s gadget? does vf4 (identical init to vf2 up to the bind) behave like vf2 when watched the same way? if vf4 is alive unwatched and dead with the poller, the poller (lsusb -v or the LUN reads during enumeration) is what breaks the phone
+
+Rank
+: 1
