@@ -1960,3 +1960,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1148-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: walleye-keeper took walleye-try-z3 and booted z3 once from slot b (fastboot boot, nothing flashed) while the coordinator's tty watcher ran: the node was rw for mll all along; the reader saw silence; the Permission denied was the final write to the vanished node. Phone back as Android on b via adb, stock kernel, flags b/a successful, fastboot reachable via adb reboot bootloader. Item left open with the finding.
+
+Considered
+: next: read what z3's ramdisk init does on ttyGS0 (banner, shell, another tty) before any further try; a plain cat of the node during a try would show whether anything is sent. Earlier next (dtb plus gpio-reserved-ranges, twice) still stands.
+
+About
+: walleye-first-fastboot-boot

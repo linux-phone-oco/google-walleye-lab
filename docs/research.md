@@ -2003,3 +2003,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z3-ttyacm-not-a-permission-problem"></a>
+### walleye-z3-ttyacm-not-a-permission-problem
+
+Date
+: 2026-11-18
+
+Brief
+: z3 try 3: ttyACM0 was readable (root:users 0660 + uaccess ACL for mll, open ok each second); reader got silence for 3 min; 'Permission denied' came at the end, from the vanished node
+
+Question
+: Why did the shell reader fail on z3 with 'Permission denied' at line 50 - the node's owner, mode or ACL?
+
+Found
+: Third boot of boot-z3 (sha 9bc4ec19..) from slot b at 10:44Z, battery 4377 mV, slots b/a successful before; 1d6b:0104 at 18 s; back to Android (adb) at ~10:47:12Z, nothing flashed. Coordinator's watcher (z3-ttywatch-20261118-1042/watch.log, logs changes only): /dev/ttyACM0 first seen 10:44:15Z as crw-rw----+ root:users, ACL user:mll:rw-, open test (exec 3<>) ok on every line to the last at 10:47:12Z; udev: serial walleye-first-boot, 1d6b:0104. The reader (path used: plain) made its OUT dir at 10:44:16Z, ran each ask to its timeout, saved 16 of 17 answers EMPTY (devices-deferred holds only our own command echo); dmesg.txt empty. At 10:47:12Z the node vanished with the phone's return; the final twrite 'reboot -f' did '> /dev/ttyACM0' on a missing node and the shell printed 'Permission denied' (mll cannot create files in /dev; 2>/dev/null comes after the redirect, so the error shows). So: not a permission problem; no udev rule or group needed. The real question is why the phone answers nothing on the ACM: z3's init may run no shell on ttyGS0, or on another tty. dmesg-clean-check: skip, no dmesg.
+
+About
+: walleye-first-fastboot-boot
