@@ -4524,31 +4524,6 @@ Rank
 : 1
 
 
-<a id="walleye-steps-claimed"></a>
-### Claim walleye's steps on the bring-up chain, each checked against the lab's own records
-
-Status
-: open
-
-Note
-: Request from orchestration (the steps contract reached the lab in the 21:00 follow, docs 0.17.0 -> 0.18.0). They run docs' feeds workflow by hand once the first claims land and need the count.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: Walleye's first claims on the steps contract (the lab base has step_status since the 0.18.0 follow): read docs' research/bringup-steps/2026-11-18/claims-walleye.sh (the draft: 17 done, 2 partial, 1 failing, 6 open of the first 26 steps) and `tad q bringup-chain` (113 steps; goals linux-runs, daily-usable-phone, complete-phone); CHECK EVERY draft claim against this lab's own records (research rows, session log, test results, the keeper's material, the decisions): a claim is `ikb step --step ID --status done|partial|failing|open|not-needed|unknown --proof TEST --run RUN --proven-on IMAGE/KERNEL/DTB`; a done claim carries its proof (a test in tests/host or the lab's tests table) and its run (the keeper's research row or session-log id, with the image/kernel/dtb it ran on: e.g. z7/our v7.3/our dts for the dmesg-clean, y2 for the first light); where the records do not prove a draft claim, claim 'unknown' or 'partial' and say why; what is not measured stays 'unknown' (never 'failing'); then land the claims in one change, run the two tests (bringup-chain-walleye.sh and daily-phone.sh google-walleye, from docs) and report the count by status to the coordinator for orchestration; programmer review of the script that makes the claims; no data of the phone leaves the machine
-
-Rank
-: 2
-
-
 <a id="walleye-bootchain-readback"></a>
 ### Read back the Pixel 2's boot chain as files with sha256 (a restore source, kept on the lab machine)
 
@@ -4572,3 +4547,83 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-ufs-android-live"></a>
+### Watch Android's own UFS bring-up read-only with adb root: dmesg, debugfs, sysfs, the live host and phy state
+
+Status
+: open
+
+Note
+: The author's research request (2026-11-18, via the top coordinator): Android runs this exact card safely every boot; read how, and compare to our z13 path. The phone half; the sources half is walleye-ufs-android-way (research).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: With adb root on the running LineageOS (read-only, decision 2026-11-18-walleye-android-disposable-no-bricking; the author's wait on any UFS probe stands, this reads what Android already did): saved as material (redacted: the card's serial number and any device identifier out) and recorded as research: (1) the whole ufs-related dmesg of this boot (dmesg | grep -i -E 'ufs|ufshc|scsi|ufs-qcom|phy') in order, with the timestamps; (2) /sys/kernel/debug/ufshcd* (all that is readable: the host's stats, the clocks, the power state, the quirks flags if shown, any 'err_stats' and 'dme' attributes), (3) the sysfs of the host controller and the device: every attribute under /sys/devices/platform/soc*/*ufshc*/ (and its ufs-phy sibling), /sys/class/scsi_host/host0/*, /sys/block/sda/device/* (descriptors, attributes, flags: read only), the unit and device descriptors through the vendor driver's sysfs if exposed (e.g. /sys/devices/platform/soc/*.ufshc/{device_descriptor,health_descriptor,power_descriptor}); (4) the running device tree nodes of the host and phy (from the vfa fdt material, already in the lab: the ufshc and phy nodes with all properties and quirk flags), (5) the kernel config of the running vendor kernel's UFS (/proc/config.gz: every CONFIG_SCSI_UFS*), (6) which clocks and regulators the host holds (clk_summary / regulator_summary lines for ufs: the debugfs mounted by root), (7) the kernel's quirk table hits as printed by the driver ('ufs: quirks'? the dmesg lines naming quirks). NO write to any block device or sysfs attribute, nothing written anywhere on the phone but /data/local/tmp (and prefer none)
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-android-way"></a>
+### How Android brings up this exact UFS card, from Google's GPL kernel and the live phone, diffed against our z13 path
+
+Status
+: open
+
+Note
+: The author's research request (2026-11-18): is there a precise solution, can the intricacies be understood from Android's own (GPL) code and behaviour? Companion of walleye-edl-way-back.
+
+Blocked by
+: walleye-ufs-android-live
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: A clean-room research row, vendor sources cited and NO vendor code copied into any of our trees (facts and sequences in words and tables only): (1) the vendor's UFS bring-up for this card, read from Google's published GPL kernel (android.googlesource.com kernel/msm, the wahoo/walleye branches, msm-4.4; the exact branch/commit the running kernel was built from if the version string names it: say how found): ufs-qcom (host variant, PHY init, clock/regulator ordering), ufshcd (link startup, the DME sequence, gear changes, the reset paths: ufshcd_reset_and_restore, the hardware reset line, 'ufshcd_host_reset'), the quirk table entries for SK hynix and this model (H28U74301AMR) with the flags they set, the quirk flags of the host (UFSHCD_QUIRK_*) the dts sets, the purge handling (UFSHCD_QUIRK/'NO_PURGE', 'ufs_bsg'), power management (spm/rpm levels, auto-hibern8, pm-qos, 'ufshcd_system_suspend') and what the bootloader leaves configured (what abl hands over: the PHY state, the gear, the clocks; say what is read and what is inferred); (2) the live facts of Android's own boot (the keeper's read-only material of walleye-ufs-android-live: dmesg order and values, debugfs, sysfs, the running fdt's ufshc and phy nodes, the config); (3) the line-by-line diff against OUR z13 path (kernel topic/ufs-hynix-quirks d49d54405 on v7.3): every quirk (host and device), every PHY init write (the QMP phy tables of mainline msm8998 vs the vendor's), the reset sequence, the clock/regulator order, auto-hibern8, gear/lane settings, 'ufshcd_hba_enable'/the host reset at probe, and anything done at link startup or at device reset that differs, especially the yoshino erase path (the unpublished erase cause: say what the Sony downstream fix touched and whether it appears in the vendor sequence of THIS card); (4) a verdict in plain words: can our z13 path match Android's sequence exactly (what remains different and why), and does matching make the probe safe enough to take back to the author (his 'Yes, wait' stands): what would still be risk, what can be proved before any try by reading registers in a vendor-kernel run (the vf instrument) without touching our kernel's UFS; sources listed, with what was read where; programmer-free: research only, no build
+
+Rank
+: 1
+
+
+<a id="walleye-steps-claimed"></a>
+### Claim walleye's steps on the bring-up chain, each checked against the lab's own records
+
+Status
+: open
+
+Note
+: Request from orchestration (the steps contract reached the lab in the 21:00 follow, docs 0.17.0 -> 0.18.0). They run docs' feeds workflow by hand once the first claims land and need the count.
+
+ORCHESTRATION CORRECTION 2026-11-18: BEFORE claiming add `steps = 1` to google-walleye-lab devicebase.toml (the follow never lays that file; without the flag docs feed reads every step as unknown, data/steps.json gives 404). Claim with `tad r step --step S --status done --proof P --run R` (ikb step works too); a not-needed claim needs --notes. The base table is `steps` (data/steps.json); docs pulls it into step_status. bringup-chain-walleye.sh needs EVERY step of the chain claimed, even as open or not-needed (against a fake base with the 26 draft claims it failed only on unclaimed steps). Report the count by status when the first claims land.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: Walleye's first claims on the steps contract (the lab base has step_status since the 0.18.0 follow): read docs' research/bringup-steps/2026-11-18/claims-walleye.sh (the draft: 17 done, 2 partial, 1 failing, 6 open of the first 26 steps) and `tad q bringup-chain` (113 steps; goals linux-runs, daily-usable-phone, complete-phone); CHECK EVERY draft claim against this lab's own records (research rows, session log, test results, the keeper's material, the decisions): a claim is `ikb step --step ID --status done|partial|failing|open|not-needed|unknown --proof TEST --run RUN --proven-on IMAGE/KERNEL/DTB`; a done claim carries its proof (a test in tests/host or the lab's tests table) and its run (the keeper's research row or session-log id, with the image/kernel/dtb it ran on: e.g. z7/our v7.3/our dts for the dmesg-clean, y2 for the first light); where the records do not prove a draft claim, claim 'unknown' or 'partial' and say why; what is not measured stays 'unknown' (never 'failing'); then land the claims in one change, run the two tests (bringup-chain-walleye.sh and daily-phone.sh google-walleye, from docs) and report the count by status to the coordinator for orchestration; programmer review of the script that makes the claims; no data of the phone leaves the machine
+
+Rank
+: 2
