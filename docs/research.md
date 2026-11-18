@@ -1571,3 +1571,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-vfx-tried"></a>
+### walleye-vfx-tried
+
+Date
+: 2026-11-18
+
+Brief
+: vfa twice read (fdt, iomem, interrupts, cmdline); vfb alive but clk_summary rc=1; vfc read regulator_summary; vfd killed the init twice (no gadget)
+
+Question
+: Which single hardware source can the vendor-kernel init read into the window, and which kills it?
+
+Found
+: From the first state (slot b, a and b successful, battery 4.38 V), no poller, read at ~68 s and again near the end. vfa: gadget up at 18 s, header ours, 4 parts rc=0 (fdt 466569 B, iomem, interrupts, cmdline), both tries; the live fdt differs between tries only in 7 bytes of bootargs boottime; Android back at ~165-220 s. vfb: init alive (beat 11 at 52 s, 24 at 117 s), part clk_summary LEN=0 rc=1 - read failed, did not kill; one try. vfc: pass, regulator_summary 22515 B rc=0; one try. vfd (usb/dwc3 debugfs): no gadget ever, Android back at 87 s (try 1) and by ~136 s (try 2) - the dead path; killed twice. Flags and slot unchanged: b active, a and b successful. Material (never in git): ~/Projects/walleye-build/material/vf/2026-11-18-vfx-vf{a,b,c,d}-try*. Side finding: the fdt bootargs hold the phone's own serial unredacted, so the fdt stays in the material path only. Also: tests/host/battery-ok.sh hangs while the phone is in Android (fastboot getvar waits for a device); wrap it in timeout.
+
+About
+: walleye-first-fastboot-boot

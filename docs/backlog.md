@@ -2598,10 +2598,10 @@ Proof
 ### Try vfa twice, then vfb, vfc, vfd once each (twice if one dies): which single hardware source reads, which kills
 
 Status
-: open
+: done
 
 Note
-: Facts (lab research walleye-vfx-built, walleye-vf-control-tried): vfa..vfd are m1's structure plus one source each in the window before the bind; images in ~/Projects/walleye-build/images-vfx (boot-vfa.img ... boot-vfd.img, SHA256SUMS-vfx). Battery first; phone left in Android on a good slot afterwards; plain lsusb by port; no poller; read the LUN with tests/host/window-payload-read.sh at ~70 s after the jump once and again at the end (the beat in it tells alive; a header with PARTS=0 or no header tells the read killed it). Order: vfa, vfa, vfb, vfc, vfd (a source that kills is tried twice).
+: proven by: vfa twice pass (fdt.dtb/dts kept in material path), vfb alive but clk_summary unreadable rc=1, vfc pass, vfd killed twice (research walleye-vfx-tried). Next: give mainline USB its nodes from the read fdt/iomem/interrupts; usb/dwc3 debugfs read kills the init, so it must not be read in the window.
 
 About
 : walleye-first-fastboot-boot
