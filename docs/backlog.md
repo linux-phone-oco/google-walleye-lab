@@ -3789,3 +3789,28 @@ Opened
 
 Needs
 : phone
+
+
+<a id="walleye-pmic-bite-reset-type"></a>
+### Why the PMIC bite powered the phone off (z9) and how to make a bite a restart
+
+Status
+: open
+
+Note
+: Fact (keeper, lab PR 236/237): z9 = z8 + qcom-pon=y; the PM8998 watchdog bit 20 s after arming (the series works); the phone then stayed off the USB bus, not Android, not fastboot: it needs a power-cycle by hand (walleye-needs-power-cycle-after-pmic-bite). Decision 2026-11-18-walleye-no-pmic-bite-until-reset-type.
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: A research row, from the pm8998 and PON sources in the kernel tree used by the build (drivers/input/misc/pm8941-pwrkey, drivers/power/reset/qcom-pon.c, the PMIC watchdog series of the upstreams lane at topic/pmic-wdt-wake-in-suspend e123d3bff, the dtbs of the running fdt for the pon node) and public documentation: what reset type the PM8998 S2 stage (the watchdog's bite) performs by default and what the vendor kernel (the running fdt, vfa material) configures (the qcom,pon properties: s3-debounce, the S2 reset type and timer; pon-cfg registers), why the z9 bite powered the phone off (a SHUTDOWN type: normal on a PMIC whose default S2 reset type is shutdown, versus HARD_RESET/WARM_RESET), how the kernel sets the S2 reset type (the qcom-pon driver's reboot-mode, the register PON_PS_HOLD_RESET_CTL / PON_KPDPWR_RESET_S2_CTL, the property names in the driver) and the one-image change that makes a bite restart the phone: the dts/config change, the expected observation, and a way back that needs no hands (say what stops the next bite from being a dead phone: e.g. the reset type set in the same init before arming, read back from the register through the shell). Also what the bite proved and what stays unproven for the upstream row (the series bites; its reset type is a board setting, not the series' fault). Queue the build item with its proof, and the phone item (blocked by the build) with the way back; do NOT queue any bite try before that
+
+Rank
+: 1
