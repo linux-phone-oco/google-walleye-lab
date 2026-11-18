@@ -2352,3 +2352,28 @@ Found
 
 About
 : deep-sleep
+
+
+<a id="walleye-dtbo-overlay-id-how-it-stands"></a>
+### walleye-dtbo-overlay-id-how-it-stands
+
+Date
+: 2026-11-18
+
+Brief
+: Walleye's bootloader selects dtbo entry 3 (id 0x1bc rev 3, MP1) itself; taimen's 2704 is not walleye's; whether a missing id refuses a boot is not known yet
+
+Question
+: Which dtbo overlay id does walleye's bootloader need before a mainline kernel boots, and can the vendor-overlay nodes be dropped?
+
+Found
+: Every walleye boot (control and our dtbs z6, c2, z7) carries androidboot.dtbo_idx=3 set by the bootloader: id 0x1bc rev 3, from hw-revision MP1. Taimen's 2704 (0xa90) is entry 12, another board's. Our dtb boots with that overlay merged, so the id is known and present. Not measured: boot with the id absent; only a dtbo write tests it, and the stock image is kept for restore. Vendor-overlay nodes in the dmesg go only with a replacement dtbo holding one empty 0x1bc rev 3 overlay: a keeper try.
+
+Sources
+: kcxt-dtbo-wahoo-mainline
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-19-dtbo-id/

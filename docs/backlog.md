@@ -19,10 +19,10 @@ Opened
 ### Find out which dtbo overlay id walleye's bootloader needs before a mainline kernel boots
 
 Status
-: open
+: done
 
 Note
-: The taimen bootloader refuses a kernel unless dtbo holds an overlay with id 2704 (kcxt-dtbo-wahoo-mainline); walleye's id is not known. Read it without writing: from the stock dtbo (Android booted, or the factory image - decision needed, proprietary download). Research: google-walleye-how-others-booted.
+: Answered by research walleye-dtbo-overlay-id-how-it-stands: id 0x1bc rev 3; follow-up walleye-dtbo-minimal-try
 
 Opened
 : 2026-11-17
@@ -3818,3 +3818,31 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-dtbo-minimal-try"></a>
+### Try a minimal dtbo (empty overlays, stock ids) on slot b
+
+Status
+: open
+
+Note
+: Build on host from the stock table (dtc, mkdtboimg), keep ~/Projects/walleye-build/control/dtbo.img for restore. Keeper only; after the kernel's real faults are fixed.
+
+Blocked by
+: walleye-dtbo-overlay-id
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: Test: after the try the phone boots our dtb, dmesg has no serial@c16f000 or reg-less pmic lines, health report ok; original dtbo.img restored after
+
+Rank
+: 20
