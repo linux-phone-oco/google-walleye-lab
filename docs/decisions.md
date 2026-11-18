@@ -617,3 +617,28 @@ About
 
 Research
 : walleye-smmu-timeout-gpucc-module
+
+
+<a id="2026-11-18-walleye-clock-gcc-symbol-to-real-gcc"></a>
+### 2026-11-18-walleye-clock-gcc-symbol-to-real-gcc
+
+Date
+: 2026-11-18
+
+Brief
+: z3 = z2 with only /__symbols__/clock_gcc pointed at the real gcc (fdtput); the stub node stays
+
+Decision
+: build/build-z3.sh sets /__symbols__/clock_gcc to /soc@0/clock-controller@100000 in z2's dtb; kernel, ramdisk, header, command line and AVB footer are z2's.
+
+Why
+: The overlay's clock users need #clock-cells to parse; the real gcc has it and a phandle, so one symbol line fixes the serial supplier and all four phandle lines. A post-compile edit leaves the generated stubs file alone (the other 124 stubs are still needed by the merge).
+
+Rejected
+: Disabling the overlay's nodes: the overlay is the bootloader's, not ours to edit. Giving the stub #clock-cells: a fake clock provider the serial would then bind against. Dropping the clock_gcc stub from the generator: dtc cannot put a second label on mainline's gcc node from our dts. More changes in the same image: one change per image.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-clock-gcc-stub-no-cells

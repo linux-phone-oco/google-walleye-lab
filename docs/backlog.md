@@ -2839,7 +2839,7 @@ Status
 : in-progress
 
 Note
-: z2 built 2026-11-18 (build/build-z2.sh, 19 checks): gpucc =y fixes the smmu -110 cause (research walleye-smmu-timeout-gpucc-module); try queued as walleye-try-z2. Still open: serial@c16f000 waits on stub clock_gcc and four overlay phandle lines (nodes of the stock dtbo overlay: next image, e.g. __symbols__/clock_gcc pointed at the real gcc by fdtput, or the overlay's nodes disabled). Check: tests/host/dmesg-clean-check.sh.
+: z2 built (gpucc =y, smmu -110); z3 built 2026-11-18 (build/build-z3.sh, 15 checks, rebuild identical): /__symbols__/clock_gcc on the real gcc fixes the serial supplier wait and the four phandle lines (research walleye-clock-gcc-stub-no-cells). Try queued as walleye-try-z3 (supersedes walleye-try-z2). Done when the try's dmesg passes tests/host/dmesg-clean-check.sh.
 
 About
 : walleye-first-fastboot-boot
@@ -3151,3 +3151,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-try-z3"></a>
+### Try z3 once from slot b with the shell reader: is the dmesg fully clean?
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images-z3/boot-z3.img sha256 9bc4ec19939b411531ed3dbbb8a931018ddebdcc66b903bd2757ac05d5031f98. z3 = z2 (gpucc =y) + the clock_gcc symbol on the real gcc, so it supersedes walleye-try-z2: one try of z3 settles all three faults, run z2 only if z3 shows something new. Run battery-ok first; read with mainline-shell-read.sh (debugfs mounted); expect gadget at ~18 s. The shell was silent on y2 and z1 (banner init pending): if silent again, nothing is learned about the dmesg.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-dmesg-clean: sh tests/host/dmesg-clean-check.sh DIR passes on the reader's output of z3 (images-z3/boot-z3.img sha256 9bc4ec19939b411531ed3dbbb8a931018ddebdcc66b903bd2757ac05d5031f98)

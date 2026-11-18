@@ -1750,3 +1750,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-builder-dmesg-clean-z3"></a>
+### walleye-builder: dmesg-clean, z3 built
+
+Entry date
+: 2026-11-18
+
+Done
+: Read the first dmesg: the four phandle lines and the serial wait are one cause (the clock_gcc stub has no #clock-cells). Wrote tests/host/overlay-clock-gcc.sh (all four users; seen failing on z2's dtb), build/build-z3.sh (z2 + the clock_gcc symbol on the real gcc, 15 checks, rebuild identical, reviewed by the programmer agent and its findings fixed), queued walleye-try-z3.
+
+Considered
+: Pointing the symbol at gcc by fdtput after the compile; the shell being silent on the phone, so the try may learn nothing until the banner init exists.
+
+Rejected
+: Disabling overlay nodes; a fake #clock-cells on the stub; folding other fixes into z3.
+
+About
+: walleye-first-fastboot-boot

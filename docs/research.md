@@ -1836,3 +1836,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-clock-gcc-stub-no-cells"></a>
+### walleye-clock-gcc-stub-no-cells
+
+Date
+: 2026-11-18
+
+Brief
+: The serial wait and the four 'could not find phandle' lines have one cause: the clock_gcc stub has no #clock-cells, so the kernel reads each clock ID as a phandle
+
+Question
+: Why does c16f000.serial wait on /vendor-overlay-stubs/clock_gcc, and what are the four OF: could not find phandle lines of the first mainline dmesg?
+
+Found
+: Raw dmesg (lab material mainline-shell-20261118-082300, lines 169-173): phandle numbers -1934992561 (i2c@c179000), -1480237014 (bt_wcn3990), -943313008 (serial@c16f000), -130129017 (mnh-sm) are the vendor clock ID words (0x8caa5b4f ...) of 'clocks = <&clock_gcc ID ...>' from the stock dtbo overlay entry 3 (its __fixups__ clock_gcc names those four users). Our stub clock_gcc is an empty node: no #clock-cells, so the kernel takes the ID cell as a phandle. The serial's supplier is the stub, which never probes. Pointing /__symbols__/clock_gcc at /soc@0/clock-controller@100000 (gcc, #clock-cells 1) makes the merge write gcc's phandle (37) into all four; tests/host/overlay-clock-gcc.sh was seen failing on z2's dtb (306, the stub) and passes on z3's.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-clock-gcc-stub/
