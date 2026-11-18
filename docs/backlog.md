@@ -3723,10 +3723,10 @@ Rank
 ### Try c3 (c2 + fw_devlink=permissive) once from slot b with the command loop: does the charger probe now, with a power_supply class?
 
 Status
-: open
+: done
 
 Note
-: c3 built from c2 by build/build-c3.sh; images-c3/boot-c3.img sha256 d8d975650bc570833f21989b584feda4eac5bca387972c456fb52e541011a401. Keeper reads /sys/class/power_supply and the charger lines of the dmesg with charger-check.sh. If the charger works, walleye-charger-supplier builds c4 (tps61099 as a fixed regulator).
+: tried 2026-11-18: walleye-charger-smb2 pass (research walleye-c3-tried); hang afterwards: walleye-c3-hung-wait-then-power-cycle
 
 About
 : walleye-first-fastboot-boot
@@ -3846,3 +3846,28 @@ Proof
 
 Rank
 : 20
+
+
+<a id="walleye-c3-hung-wait-then-power-cycle"></a>
+### Walleye is hung in c3 (mainline, silent): wait, then power cycle (hold 15 s), then check fastboot
+
+Status
+: open
+
+Note
+: Hung after c3's reader reboot -f at 15:13 on 2026-11-18; nothing flashed, slot b active. z9 precedent: back after more than 10 minutes. Next keeper: check lsusb first; if still 1d6b:0104, hold power ~15 s is the author's.
+
+Waits
+: the author's hands, only if it has not come back by itself
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Rank
+: 1

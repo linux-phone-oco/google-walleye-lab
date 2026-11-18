@@ -2377,3 +2377,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-19-dtbo-id/
+
+
+<a id="walleye-c3-tried"></a>
+### walleye-c3-tried
+
+Date
+: 2026-11-18
+
+Brief
+: c3 once from slot b: charger probed with fw_devlink=permissive, type USB, online 1 (charger-check pass); then the phone stayed in c3, silent, after the reader's reboot -f
+
+Question
+: Does pmi8998's charger probe on c3 (c2 + fw_devlink=permissive), and does the phone return by itself?
+
+Found
+: c3 (sha256 d8d97565...) booted from fastboot at 15:12, gadget 1d6b:0104 at 18 s, reader passed (16 answers, dmesg 319 lines, kept outside git in ~/lab-material/walleye/c3-try1). tests/host/charger-check.sh: pass walleye-charger-smb2 - charger probed, type USB, online 1 (one cable state only; follows-the-cable not shown). So fw_devlink=permissive is enough to probe it; next c4 (tps61099 as a fixed regulator, item walleye-charger-supplier). But the phone did not return as Android: after the reader's final reboot -f and the init's own 180 s self-reboot it was still on USB as 1d6b:0104 at 15:26, shell silent to a written command, no adb. c2 returned by itself. Nothing flashed, slot b active. Not known whether it recovers slowly (compare the z9 bite: back after more than 10 minutes) or needs the author's power hold.
+
+About
+: walleye-first-fastboot-boot
