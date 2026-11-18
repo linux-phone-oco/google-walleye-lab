@@ -4014,34 +4014,6 @@ Rank
 : 1
 
 
-<a id="walleye-charger-init-bisect"></a>
-### If c6 hangs: bisect smb_init_seq by group (Type-C role, OTG, charge enable, ICL/AICL), module option per group, each image gated
-
-Status
-: open
-
-Note
-: Candidate first: the Type-C role mask is cleared while the comment says UFP (qcom_smbx.c smb_init_seq). An upstream item for the finding.
-
-Blocked by
-: walleye-try-c6
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: restart-check.sh passes with the charger online and every group but the culprit applied; a patch or dtb property for the culprit named in a decision
-
-Rank
-: 3
-
-
 <a id="walleye-phone-state-witnesses"></a>
 ### One phone-state check that reads adb, fastboot, the USB bus and the tty's answer, and says 'not known' when they disagree (never 'hung' from lsusb alone)
 
@@ -4220,3 +4192,31 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-charger-init-bisect"></a>
+### If c6 hangs: bisect smb_init_seq by group (Type-C role, OTG, charge enable, ICL/AICL), module option per group, each image gated
+
+Status
+: open
+
+Note
+: Candidate first: the Type-C role mask is cleared while the comment says UFP (qcom_smbx.c smb_init_seq). An upstream item for the finding.
+
+Waits
+: the result of walleye-try-c6: only if c6 hangs
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: restart-check.sh passes with the charger online and every group but the culprit applied; a patch or dtb property for the culprit named in a decision
+
+Rank
+: 95
