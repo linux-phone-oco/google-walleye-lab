@@ -410,3 +410,13 @@ By
 
 Takes
 : gpu_gx_gdsc has parent gpu_cx and no supply; adreno_smmu's power-domains is GPU_GX_GDSC
+
+
+<a id="kcxt-dtbo-wahoo-mainline"></a>
+### kcxt linux-wahoo: dtbo README (Pixel 2 XL mainline)
+
+Url
+: https://github.com/kcxt/linux-wahoo
+
+Takes
+: taimen's bootloader refuses a kernel unless dtbo holds an overlay with id 2704; recipe for a minimal dtbo
