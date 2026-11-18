@@ -2620,10 +2620,10 @@ Proof
 ### tests/host/battery-ok.sh must not hang when the phone runs Android: bound every fastboot call by a timeout and fall back to adb
 
 Status
-: open
+: done
 
 Note
-: Found by the keeper (lab 2026-11-18-0650): battery-ok.sh hangs while the phone runs Android because fastboot getvar waits for a device. Small; any builder run.
+: built: adb first then fastboot, each call under timeout -k 1 6, skip exit 2 within 15 s; selftest with hanging fakes passes in 12 s; programmer review done
 
 About
 : walleye-first-fastboot-boot
