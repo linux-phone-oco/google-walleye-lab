@@ -2235,3 +2235,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-19-z7-try1/
+
+
+<a id="walleye-c2-built"></a>
+### walleye-c2-built
+
+Date
+: 2026-11-18
+
+Brief
+: c2 built: z7 with the charger kernel (SMB2 charger, rradc built in) and the dtb with charger + 2700 mAh/4.4 V battery nodes; 29 checks ok, rebuild identical
+
+Question
+: Can the charger work of c1 be put on the z7 base, so its try is read through the command loop?
+
+Found
+: build/build-c2.sh takes z7's image (z6 command-loop ramdisk, header, cmdline, AVB footer) and changes only the kernel Image.gz (c1's: CHARGER_QCOM_SMB2=y, QCOM_SPMI_RRADC=y, config otherwise z2's) and the dtb (current dts: adreno_smmu off, charger okay, simple-battery 2700 mAh / 3.4-4.4 V / 50 mA, clock_gcc symbol on the real gcc). A check counts that the dtb differs from z7's only by the charger status, monitored-battery and the battery node. Failing first on a kernel dir without the charger (z2's out). boot-c2.img sha256 262d6a2c69658ff9167e710a61adc624a5aec7752a8b46ad68a1af6417d6d86c; dtb 40d19254033856de5af6c2289e2c927b9139baec6eafa4769e828cb9d55ed39e; rebuilt byte for byte; AVB verifies.
+
+About
+: walleye-first-fastboot-boot
