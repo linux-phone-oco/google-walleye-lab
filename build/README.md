@@ -165,3 +165,8 @@ that the taimen dtb does not: `w1` camss + cci disabled and their camera childre
 pmic@3 led-controller disabled (led-0 removed), `wr` the nodes only taimen has removed (fingerprint, gpio-keys, seven camera regulators, sound, skin thermal, the audio/camera pin states and dais;
 four pinctrl states the overlay needs become empty stubs, as in pk2), `wa` all of them: its node set and every status equal pk2's (checked). Everything else is pk5's; the stock dtbo overlay still merges.
 399 checks, rebuild byte-identical. Why these and not overlay labels: research `walleye-overlay-enables-what-result`. Not run on the phone: the keeper's try `walleye-try-taimen-walleye`.
+
+## wp1..wp5, wpa: wa plus one group of pk2's property differences (the property-level bisect)
+
+`build/build-property-bisect.sh WA_BOOT_IMG PK2_DTB OUT_DIR` takes wa (alive: node set and statuses of the walleye dtb) and copies in one group of what still differs from pk2's walleye dtb (dead), by property:
+`wp1` root compatible + model, `wp2` battery capacity (/battery, fuel-gauge), `wp3` panel compatible removed, `wp4` `qcom,protection-domain` on the seven apr services, `wp5` leftovers in nodes disabled in both (camss supplies, pcie reg/ranges/supply, resin linux,code), `wpa` all five: every property line equals pk2's (`build/dts-norm.awk` resolves phandles to node paths so renumbered phandles do not count). Nothing differs in /memory, reserved-memory, chosen, cpus, timer, psci. 68 checks, rebuild byte-identical; diff and hashes in `research/walleye-first-fastboot-boot/2026-11-18-property-diff/`. Not run on the phone: the keeper's try `walleye-try-property-bisect`.

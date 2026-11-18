@@ -1,0 +1,59 @@
+4c4
+< / compatible = "google,taimen", "google,wahoo", "qcom,msm8998"
+---
+> / compatible = "google,walleye", "google,wahoo", "qcom,msm8998", "qcom,msm8998-mtp"
+6c6
+< / model = "Google Pixel 2 XL"
+---
+> / model = "Google Pixel 2"
+1283,1284d1282
+< //soc: soc@0/camss: camss@ca00000 vdd_sec-supply = <&//rpm: remoteproc/glink-edge/rpm_requests: rpm-requests/pm8998-regulators/vreg_l1a_0p875: l1>
+< //soc: soc@0/camss: camss@ca00000 vdda-supply = <&//rpm: remoteproc/glink-edge/rpm_requests: rpm-requests/pm8998-regulators/vreg_l2a_1p2: l2>
+1495c1493
+< //soc: soc@0/ipa: ipa@1e40000 iommus = <RAW 0x6a 0x18e0 0x00 0x6a 0x18e2 0x00>
+---
+> //soc: soc@0/ipa: ipa@1e40000 iommus = <RAW 0x62 0x18e0 0x00 0x62 0x18e2 0x00>
+1564d1561
+< //soc: soc@0/mdss: display-subsystem@c900000/mdss_dsi0: dsi@c994000/panel: panel@0 compatible = "lg,sw43402"
+1679c1676
+< //soc: soc@0/mmcc: clock-controller@c8c0000 clocks = <RAW 0x58 0x00 0x5e 0xb2 0xe0 0x01 0xe0 0x00 0xe1 0x01 0xe1 0x00 0xe2 0x00 0x00 0x5e 0xb8>
+---
+> //soc: soc@0/mmcc: clock-controller@c8c0000 clocks = <RAW 0x51 0x00 0x57 0xb2 0xcc 0x01 0xcc 0x00 0xcd 0x01 0xcd 0x00 0xce 0x00 0x00 0x57 0xb8>
+1707c1704
+< //soc: soc@0/pcie0: pcie@1c00000 iommu-map = <&//soc: soc@0/tlmm: pinctrl@3400000/cci0_default: cci0-default-state &//soc: soc@0/anoc1_smmu: iommu@1680000 ?0x1480 &//soc: soc@0/intc: interrupt-controller@17a00000>
+---
+> //soc: soc@0/pcie0: pcie@1c00000 iommu-map = <&//soc: soc@0/qfprom: qfprom@784000/cpr_ro_sel1_pwrcl: rosel1_pwrcl@219 &//soc: soc@0/anoc1_smmu: iommu@1680000 ?0x1480 &//soc: soc@0/intc: interrupt-controller@17a00000>
+1714,1715c1711,1712
+< //soc: soc@0/pcie0: pcie@1c00000 ranges = <0x1000000 0x00 0x1b030000 0x1b030000 0x00 0x20000 0x2000000 0x00 0x1b100000 0x1b100000 0x00 0xf00000>
+< //soc: soc@0/pcie0: pcie@1c00000 reg = <0x1c00000 0x2000 0x1b000000 0xf1d 0x1b000f20 0xa8 0x1b010000 0x20000>
+---
+> //soc: soc@0/pcie0: pcie@1c00000 ranges = <0x1000000 0x00 0x00 0x1b200000 0x00 0x100000 0x2000000 0x00 0x1b300000 0x1b300000 0x00 0xd00000>
+> //soc: soc@0/pcie0: pcie@1c00000 reg = <0x1c00000 0x2000 0x1b000000 0xf1d 0x1b000f20 0xa8 0x1b100000 0x100000>
+1718d1714
+< //soc: soc@0/pcie0: pcie@1c00000 vddpe-3v3-supply = <?0x61>
+1723d1718
+< //soc: soc@0/pcie0: pcie@1c00000/pcie@0 endpoint-powered-off-in-suspend = 
+1877a1873
+> //soc: soc@0/remoteproc_adsp: remoteproc@17300000/glink-edge/apr/q6adm: service@8 qcom,protection-domain = "avs/audio", "msm/adsp/audio_pd"
+1881a1878
+> //soc: soc@0/remoteproc_adsp: remoteproc@17300000/glink-edge/apr/q6afe: service@4 qcom,protection-domain = "avs/audio", "msm/adsp/audio_pd"
+1887a1885
+> //soc: soc@0/remoteproc_adsp: remoteproc@17300000/glink-edge/apr/q6asm: service@7 qcom,protection-domain = "avs/audio", "msm/adsp/audio_pd"
+1894a1893
+> //soc: soc@0/remoteproc_adsp: remoteproc@17300000/glink-edge/apr/q6core: service@3 qcom,protection-domain = "avs/audio", "msm/adsp/audio_pd"
+1895a1895
+> //soc: soc@0/remoteproc_adsp: remoteproc@17300000/glink-edge/apr/q6cvp: service@b qcom,protection-domain = "avs/audio", "msm/adsp/audio_pd"
+1896a1897
+> //soc: soc@0/remoteproc_adsp: remoteproc@17300000/glink-edge/apr/q6cvs: service@a qcom,protection-domain = "avs/audio", "msm/adsp/audio_pd"
+1898a1900
+> //soc: soc@0/remoteproc_adsp: remoteproc@17300000/glink-edge/apr/q6mvm: service@9 qcom,protection-domain = "avs/audio", "msm/adsp/audio_pd"
+2071d2072
+< //soc: soc@0/spmi_bus: spmi@800f000/pm8998_lsid0: pmic@0/pm8998_pon: pon@800/pm8998_resin: resin linux,code = <0x72>
+2102c2103
+< //soc: soc@0/spmi_bus: spmi@800f000/pmi8998_lsid0: pmic@2/pmi8998_fg: fuel-gauge@4000 qcom,battery-capacity-ua = <0x35b600>
+---
+> //soc: soc@0/spmi_bus: spmi@800f000/pmi8998_lsid0: pmic@2/pmi8998_fg: fuel-gauge@4000 qcom,battery-capacity-ua = <0x2932e0>
+2721c2722
+< //wahoo_batt: battery charge-full-design-microamp-hours = <0x35b600>
+---
+> //wahoo_batt: battery charge-full-design-microamp-hours = <0x2932e0>

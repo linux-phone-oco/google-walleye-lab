@@ -1102,3 +1102,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-property-bisect-build"></a>
+### wp1..wp5 and wpa built (property bisect)
+
+Entry date
+: 2026-11-18
+
+Done
+: Diffed wa and pk2 property by property (phandles resolved): five groups, nothing in memory/reserved-memory/chosen/cpus/timer/psci. Built wp1..wp5, wpa with build/build-property-bisect.sh (68 checks ok, rebuild identical); queued walleye-try-property-bisect for the keeper
+
+Considered
+: wa vs pk2 differ in phandle numbering, node order and dtb size too; wpa tests whether any property matters. Mirror images from our dtb after the first results
+
+Rejected
+: Binary halves: five groups, singles are as cheap
+
+About
+: walleye-first-fastboot-boot
