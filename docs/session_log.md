@@ -2617,3 +2617,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-steps-claimed"></a>
+### Walleye's steps claimed on the bring-up chain
+
+Entry date
+: 2026-11-18
+
+Done
+: Added steps = 1 to devicebase.toml; wrote build/claim-steps.sh (ikb step per step) and ran it: 113 claims (17 done, 3 partial, 1 failing, 92 open), each draft claim of docs checked against this base's research, backlog and decisions. Corrected two: charger-online partial (c3 online 1, restart gate open), watchdog-way-back failing (z9 bite, no way back). In a scratch copy of docs the feed reads them, bringup-chain-walleye.sh passes, daily-phone.sh google-walleye fails honestly (66 of 82 not done). Programmer review: no blocking problem; fixed the claim date (re-run identical) and the charger note. Open: research row walleye-c3-tried says z9 came back after 10 min, the z9 row says not - the c3 row's wording is for the keeper to correct.
+
+Rejected
+: unknown for untried steps (the chain test refuses it); copying the draft whole (two claims contradicted the records)
+
+About
+: walleye-first-fastboot-boot
