@@ -802,3 +802,28 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-z8-is-c2-plus-the-pmic-watchdog-on-z7-s-ramdisk"></a>
+### 2026-11-18-z8-is-c2-plus-the-pmic-watchdog-on-z7-s-ramdisk
+
+Date
+: 2026-11-18
+
+Brief
+: z8 is c2 plus the PMIC watchdog, on z7's ramdisk, header and AVB; the series' tree is required by build-kernel.sh
+
+Decision
+: z8 = c2's kernel config and dtb (charger and battery kept) + CONFIG_PM8916_WATCHDOG=y (series at linux-phone-oco/linux e123d3bff on v7.3) + &pm8998_wdt { wakeup-source; status okay }. Image from z7's ramdisk, header, command line, AVB. build-kernel.sh now refuses a tree without pm8998_wdt.
+
+Why
+: Row walleye-kernel-pmic-wdt says z8 on the z7 base after the charger item; the dts and walleye.config are linear, so the charger stays (c2 deferred on tps61099, noise not a crash). One variable changes against c2: the watchdog.
+
+Rejected
+: z7 plus watchdog without the charger: would need the charger disabled by fdtput and a second config; more machinery, less like the tree.
+
+About
+: deep-sleep
+
+Tracked by
+: walleye-kernel-pmic-wdt
