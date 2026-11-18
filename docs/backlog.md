@@ -2639,3 +2639,28 @@ Needs
 
 Proof
 : (1) a research row from the three decompiled trees (material path ~/Projects/walleye-build/material/vf/2026-11-18-vfx-vfa-try1/fdt.dts; wpa/pk5's dtb; our out dtb): what the ABL ADDS to the tree it hands the kernel (chosen, memory, reserved-memory entries, board-id/msm-id/pmic-id, cpu/psci/timer fixups, the overlay's changes): present in the running fdt, absent in the source dtbs; what OUR tree lacks that the alive taimen tree has and the running fdt has too (list the nodes and properties that are in BOTH alive trees but not ours: the likely required ones), in order of suspicion; the structural facts (dtb size, number of nodes, phandle count, root compatible, memory node form: reg ranges and cell sizes, whether our /memory exists); (2) images x1..xn = wa/pk5's alive dtb progressively REPLACED toward ours group by group (the other direction from the earlier bisects: start alive, move top-level groups to ours: root props, /memory, /reserved-memory, /cpus, /psci, /timer, /soc nodes in halves), same kernel/init as pk5 (immediate reboot), checks, hashes, expected returns (alive <= 66 s, dead >= 69 s); (3) the nodes our dts needs for USB peripheral on this phone read from the running fdt (usb@a800000, the phys, regulators, clocks, gpios, extcon/vbus detect) as a proposal for dt/msm8998-google-walleye.dts
+
+
+<a id="walleye-use-lpoco-bisect"></a>
+### Retire walleye's own bisect scripts (build-bisect.sh, check-bisect.sh and their kin) for : write walleye's series files
+
+Status
+: open
+
+Note
+: From orchestration (lab-tools PR 123, release v0.4.0): the one command counts the swaps against the control and wraps lz4 kernels. Low rank; any builder run after the lab host is on 0.4.0. Keep the old scripts until the reproduction passes.
+
+Waits
+: the lab host on lpoco-bringup 0.4.0 (orchestration moves it in an idle window)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: walleye's series file(s) declare the swaps of the bisects done so far (pk4/pk5/pk6, d1-d6, w*/wa/wpa, wp*, the fdt compare when it exists) against the control image; lpoco-bringup image bisect reproduces at least pk5, wa and one d-image byte for byte (sha256 equal to the recorded ones, or the difference explained); the old scripts removed in the same change; checks and hashes; programmer review
