@@ -2041,3 +2041,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z5-built"></a>
+### walleye-z5-built
+
+Date
+: 2026-11-18
+
+Brief
+: z5 built: z4 with only the init changed to banner2's banner + z4's console + the shell's state in the banner; 49 checks ok, rebuild identical, reviewed
+
+Question
+: Can the proven banner channel report why z4's ACM shell is silent?
+
+Found
+: boot-z5.img sha256 fee768d62219fd08ce1e90618ea5a7977dd3ca1c762b6a4563f9ca92dfcc8dd9 (images-z5 on the lab). init-z5 = init-banner + z4's console block; banner line ends shell=[started n pid alive rc probe err], WALLEYE-BANNER-INFO every 10th beat from beat 3 (busybox applets, ash/sh/cttyhack/setsid/stty, tty echo/icanon/hupcl). Host checks: banner-shell-check.sh (pass = last line live shell, start count steady over 3 lines), banner-shell-selftest.sh, z5-console-selftest.sh (busybox ash, /dev/null and a pty). Programmer review found: respawn throttle was 0.2 s not 20 s (fixed), banner lines glued to the prompt (each line now starts with a newline), pass could not see a flapping shell (fixed), selftest process leak (fixed). Not fixed: the kept fd 4 means lines before the host opens the port queue and arrive stale (unlike banner2); applets are checked from the build .config, not the packed binary. Deviation from the item: the info line repeats every 10th beat so a late reader sees it.
+
+About
+: walleye-first-fastboot-boot
