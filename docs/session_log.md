@@ -2947,3 +2947,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-0100-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Android on slot b, stock kernel, nothing flashed; z20 tried a second time for the touch compare (fell back by itself at 180 s; a and b successful, none unbootable); touch-android-compare done (research walleye-touch-android-compare-result)
+
+Considered
+: next: walleye-touch-gpio-shared-proxy (build) then add the synaptics node (tlmm 125/89/75, pmi gpio 2); walleye-ufs-android-regs still needs a mem reader (coordinator); walleye-try-z19 and walleye-bootchain-readback remain
+
+About
+: walleye-first-fastboot-boot
