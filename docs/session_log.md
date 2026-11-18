@@ -1537,3 +1537,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-battery-ok-timeout-built"></a>
+### battery-ok.sh timeout built
+
+Entry date
+: 2026-11-18
+
+Done
+: battery-ok.sh reads adb first, then fastboot, every call bounded (timeout -k 1 6); neither answers: skip, exit 2, 14 s worst. Selftest has hanging fake adb/fastboot. Programmer review: fixed exec bit, -k, missing timeout(1), selftest outer guard.
+
+Rejected
+: fastboot first: hangs the Android case the first 7 s for nothing; a longer timeout: keeps total under the 15 s bound
+
+About
+: walleye-first-fastboot-boot
