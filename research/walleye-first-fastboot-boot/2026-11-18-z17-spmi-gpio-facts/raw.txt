@@ -1,0 +1,263 @@
+ÿýÿýÿûÿû
+echo "== dmesg filtered"; dmesg | grep -iE "spmi|pmi8998|pm8998|gpio|pinctrl|regulator-touch-power|rmi4|deferred"
+echo "== spmi devices"; for d in /sys/bus/spmi/devices/*; do echo "$d -> $(readlink $d/driver)"; done
+echo "== spmi drivers"; ls /sys/bus/spmi/drivers/
+echo "== devices_deferred"; mount -t debugfs none /sys/kernel/debug 2>&1; cat /sys/kernel/debug/devices_deferred
+echo "== debug gpio"; cat /sys/kernel/debug/gpio
+echo "== gpiochips"; for c in /sys/class/gpio/gpiochip*; do echo "$c $(cat $c/label) base=$(cat $c/base) ngpio=$(cat $c/ngpio)"; done
+echo "== regulators"; for r in /sys/class/regulator/*; do echo "$r $(cat $r/name) $(cat $r/state 2>&1)"; done
+echo "== platform"; ls /sys/bus/platform/devices | grep -iE "touch|regulator"; ls /sys/bus/i2c/devices
+echo "== end"
+~ # echo "== dmesg filtered"; dmesg | grep -iE "spmi|pmi8998|pm8998|gpio|pinctrl
+|regulator-touch-power|rmi4|deferred"
+== dmesg filtered
+[    0.566213] spmi_pmic_arb 800f000.spmi: PMIC arbiter version v3 (0x30000000)
+[    0.606721] spmi spmi-0: node /soc@0/spmi@800f000/qcom,pm8998@0 err (-22) does not have 'reg' property
+[    0.606817] spmi spmi-0: node /soc@0/spmi@800f000/qcom,pmi8998@3 err (-22) does not have 'reg' property
+[    0.673115] input: pm8941_pwrkey as /devices/platform/soc@0/800f000.spmi/spmi-0/0-00/800f000.spmi:pmic@0:pon@800/800f000.spmi:pmic@0:pon@800:pwrkey/input/input0
+[    1.394594] input: soc@0:gpio_keys as /devices/platform/soc@0/soc@0:gpio_keys/input/input1
+[   11.748934] i2c 0-0020: deferred probe pending: i2c: supplier regulator-touch-power not ready
+~ # echo "== spmi devices"; for d in /sys/bus/spmi/devices/*; do echo "$d -> $(r
+eadlink $d/driver)"; done
+== spmi devices
+/sys/bus/spmi/devices/0-00 -> ../../../../../../bus/spmi/drivers/pmic-spmi
+/sys/bus/spmi/devices/0-01 -> ../../../../../../bus/spmi/drivers/pmic-spmi
+/sys/bus/spmi/devices/0-02 -> ../../../../../../bus/spmi/drivers/pmic-spmi
+/sys/bus/spmi/devices/0-03 -> ../../../../../../bus/spmi/drivers/pmic-spmi
+/sys/bus/spmi/devices/spmi-0 -> 
+~ # echo "== spmi drivers"; ls /sys/bus/spmi/drivers/
+== spmi drivers
+[1;34mpmic-spmi[m
+~ # echo "== devices_deferred"; mount -t debugfs none /sys/kernel/debug 2>&1; ca
+t /sys/kernel/debug/devices_deferred
+== devices_deferred
+0-0020  i2c: supplier regulator-touch-power not ready
+regulator-touch-power   reg-fixed-voltage: can't get GPIO
+~ # echo "== debug gpio"; cat /sys/kernel/debug/gpio
+== debug gpio
+gpiochip0: 150 GPIOs, parent: platform/3400000.pinctrl, 3400000.pinctrl:
+ gpio4   : in  low  func0 2mA no pull
+ gpio5   : in  low  func0 2mA no pull
+ gpio6   : in  high func0 2mA pull down
+ gpio7   : in  high func0 2mA pull down
+ gpio8   : in  high func2 2mA no pull
+ gpio9   : in  high func2 2mA no pull
+ gpio10  : in  low  func1 2mA no pull
+ gpio11  : in  low  func0 2mA pull down
+ gpio12  : in  high func0 2mA pull down
+ gpio13  : in  low  func0 2mA pull down
+ gpio14  : in  low  func0 2mA pull down
+ gpio15  : in  low  func0 2mA pull down
+ gpio16  : in  low  func0 2mA pull down
+ gpio17  : in  low  func0 2mA pull down
+ gpio18  : in  low  func0 2mA pull down
+ gpio19  : in  low  func0 2mA pull down
+ gpio20  : in  low  func0 2mA pull down
+ gpio21  : in  low  func0 2mA pull down
+ gpio22  : in  low  func0 2mA pull down
+ gpio23  : in  low  func0 2mA pull down
+ gpio24  : in  low  func0 2mA pull down
+ gpio25  : in  low  func0 2mA pull down
+ gpio26  : in  low  func0 2mA pull down
+ gpio27  : in  low  func0 2mA pull down
+ gpio28  : in  low  func0 2mA pull down
+ gpio29  : out high func0 2mA no pull
+ gpio30  : in  high func0 2mA pull down
+ gpio31  : in  low  func0 2mA pull down
+ gpio32  : in  low  func0 2mA pull down
+ gpio33  : in  low  func0 2mA pull down
+ gpio34  : in  low  func0 2mA pull down
+ gpio35  : in  low  func0 2mA pull down
+ gpio36  : in  high func0 2mA no pull
+ gpio37  : in  low  func0 2mA pull down
+ gpio38  : in  high func0 2mA pull down
+ gpio39  : in  low  func0 2mA pull down
+ gpio40  : in  high func0 2mA no pull
+ gpio41  : out high func0 2mA no pull
+ gpio42  : in  low  func0 2mA no pull
+ gpio43  : in  high func0 2mA no pull
+ gpio44  : in  high func0 2mA no pull
+ gpio45  : in  high func0 2mA pull up
+ gpio46  : in  high func0 2mA pull up
+ gpio47  : in  high func0 2mA pull up
+ gpio48  : in  low  func0 2mA pull down
+ gpio49  : out high func0 2mA no pull
+ gpio50  : in  low  func0 2mA pull down
+ gpio51  : in  high func0 2mA pull down
+ gpio52  : in  high func0 2mA pull down
+ gpio53  : in  low  func0 2mA pull down
+ gpio54  : in  low  func0 2mA pull down
+ gpio55  : out low  func3 2mA no pull
+ gpio56  : out low  func3 2mA no pull
+ gpio57  : in  low  func0 2mA pull down
+ gpio58  : in  low  func0 2mA pull down
+ gpio59  : in  low  func0 2mA pull down
+ gpio60  : in  low  func0 2mA pull down
+ gpio61  : in  low  func0 2mA pull down
+ gpio62  : in  low  func0 2mA pull down
+ gpio63  : in  low  func0 2mA pull down
+ gpio64  : in  low  func0 2mA pull down
+ gpio65  : in  low  func0 2mA pull down
+ gpio66  : in  low  func0 2mA pull down
+ gpio67  : in  low  func0 2mA pull down
+ gpio68  : in  low  func0 2mA pull down
+ gpio69  : in  low  func0 2mA pull down
+ gpio70  : in  low  func0 2mA pull down
+ gpio71  : in  low  func0 2mA pull down
+ gpio72  : in  low  func0 2mA pull down
+ gpio73  : in  low  func0 2mA pull down
+ gpio74  : in  low  func0 2mA pull down
+ gpio75  : in  low  func0 2mA pull down
+ gpio76  : out high func0 2mA no pull
+ gpio77  : in  low  func0 2mA no pull
+ gpio78  : in  low  func0 2mA pull down
+ gpio79  : in  low  func0 2mA pull down
+ gpio80  : in  low  func0 2mA pull down
+ gpio85  : in  low  func0 2mA pull down
+ gpio86  : in  low  func0 2mA pull down
+ gpio87  : in  low  func3 2mA no pull
+ gpio88  : in  low  func3 2mA no pull
+ gpio89  : in  low  func0 2mA pull down
+ gpio90  : in  low  func0 2mA pull down
+ gpio91  : out low  func0 2mA no pull
+ gpio92  : in  low  func0 2mA pull down
+ gpio93  : in  low  func0 2mA pull down
+ gpio94  : out high func0 2mA no pull
+ gpio95  : in  low  func0 2mA pull down
+ gpio96  : in  low  func0 2mA pull down
+ gpio97  : in  low  func0 2mA pull down
+ gpio98  : in  low  func0 2mA pull down
+ gpio99  : in  low  func0 2mA pull down
+ gpio100 : in  low  func0 2mA pull down
+ gpio101 : in  low  func0 2mA pull down
+ gpio102 : in  low  func0 2mA pull down
+ gpio103 : in  low  func0 2mA pull down
+ gpio104 : in  low  func0 2mA pull down
+ gpio105 : in  low  func0 2mA pull down
+ gpio106 : in  low  func0 2mA pull down
+ gpio107 : in  low  func0 2mA pull down
+ gpio108 : in  low  func0 2mA pull down
+ gpio109 : in  low  func0 2mA pull down
+ gpio110 : in  low  func0 2mA pull down
+ gpio111 : in  low  func0 2mA pull down
+ gpio112 : in  high func0 2mA no pull
+ gpio113 : in  low  func0 2mA pull down
+ gpio114 : in  low  func0 2mA pull down
+ gpio115 : in  low  func0 2mA pull down
+ gpio116 : in  low  func0 2mA pull down
+ gpio117 : in  low  func0 2mA pull down
+ gpio118 : in  low  func0 2mA pull down
+ gpio119 : in  low  func0 2mA pull down
+ gpio120 : in  low  func0 2mA pull up
+ gpio121 : in  high func0 2mA no pull
+ gpio122 : in  low  func0 2mA pull down
+ gpio123 : in  low  func0 2mA pull down
+ gpio124 : in  low  func0 2mA pull up
+ gpio125 : in  low  func0 2mA no pull
+ gpio126 : in  high func0 2mA no pull
+ gpio127 : in  low  func0 2mA pull down
+ gpio128 : in  low  func0 2mA pull down
+ gpio129 : in  low  func0 2mA pull down
+ gpio130 : in  low  func0 2mA pull up
+ gpio131 : in  low  func0 2mA pull down
+ gpio132 : in  low  func0 2mA pull down
+ gpio133 : in  low  func0 2mA pull down
+ gpio134 : in  low  func0 2mA pull down
+ gpio135 : in  low  func0 2mA pull down
+ gpio136 : in  low  func0 2mA pull down
+ gpio137 : in  low  func0 2mA pull down
+ gpio138 : in  low  func0 2mA pull down
+ gpio139 : in  low  func0 2mA pull down
+ gpio140 : in  low  func0 2mA pull down
+ gpio141 : in  low  func0 2mA pull down
+ gpio142 : in  low  func0 2mA pull down
+ gpio143 : in  low  func0 2mA pull down
+ gpio144 : in  low  func0 2mA pull down
+ gpio145 : in  low  func0 2mA pull down
+ gpio146 : in  low  func0 2mA pull down
+ gpio147 : in  low  func0 2mA pull down
+ gpio148 : in  low  func0 2mA pull down
+ gpio149 : in  low  func0 2mA pull down
+
+gpiochip1: 26 GPIOs, parent: platform/800f000.spmi:pmic@0:gpio@c000, 800f000.spmi:pmic@0:gpio@c000:
+ gpio1 : out  low  func1   vin-0 pull-down 10uA              open-source medium  atest-1 dtest-0
+ gpio2 : in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio3 : in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio4 : in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio5 : out  low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio6 : in   high normal  vin-0 pull-up 30uA                push-pull  low     atest-1 dtest-0
+ gpio7 : in   low  normal  vin-0 pull-up 30uA                push-pull  low     atest-1 dtest-0
+ gpio8 : in   low  normal  vin-0 pull-up 30uA                push-pull  low     atest-1 dtest-0
+ gpio9 : in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio10: in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio11: in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio12: in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio13: out  low  func2   vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio14: out  low  func1   vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio15: in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio16: in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio17: in   high normal  vin-0 pull-up 30uA                push-pull  low     atest-1 dtest-0
+ gpio18: in   high normal  vin-0 pull-up 30uA                push-pull  low     atest-1 dtest-0
+ gpio19: in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio20: in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio21: in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio22: in   high normal  vin-0 pull-up 30uA                push-pull  low     atest-1 dtest-0
+ gpio23: in   low  normal  vin-1 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio24: ---
+ gpio25: ---
+ gpio26: in   low  normal  vin-0 no pull                     push-pull  low     atest-1 dtest-0
+
+gpiochip2: 14 GPIOs, parent: platform/800f000.spmi:pmic@2:gpio@c000, 800f000.spmi:pmic@2:gpio@c000:
+ gpio1 : out  low  func1   vin-0 pull-up 30uA                push-pull  high    atest-1 dtest-0
+ gpio2 : in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio3 : in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio4 : ---
+ gpio5 : in   high normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio6 : in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio7 : ---
+ gpio8 : in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio9 : in   high normal  vin-0 pull-up 30uA                push-pull  low     atest-1 dtest-0
+ gpio10: in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio11: in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio12: in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+ gpio13: ---
+ gpio14: in   low  normal  vin-0 pull-down 10uA              push-pull  low     atest-1 dtest-0
+~ # echo "== gpiochips"; for c in /sys/class/gpio/gpiochip*; do echo "$c $(cat $
+c/label) base=$(cat $c/base) ngpio=$(cat $c/ngpio)"; done
+== gpiochips
+cat: can't open '/sys/class/gpio/gpiochip*/label': No such file or directory
+cat: can't open '/sys/class/gpio/gpiochip*/base': No such file or directory
+cat: can't open '/sys/class/gpio/gpiochip*/ngpio': No such file or directory
+/sys/class/gpio/gpiochip*  base= ngpio=
+~ # echo "== regulators"; for r in /sys/class/regulator/*; do echo "$r $(cat $r/
+name) $(cat $r/state 2>&1)"; done
+== regulators
+/sys/class/regulator/regulator.0 regulator-dummy cat: can't open '/sys/class/regulator/regulator.0/state': No such file or directory
+/sys/class/regulator/regulator.1 vph_pwr cat: can't open '/sys/class/regulator/regulator.1/state': No such file or directory
+/sys/class/regulator/regulator.10 l12 enabled
+/sys/class/regulator/regulator.11 l6 disabled
+/sys/class/regulator/regulator.12 l28 disabled
+/sys/class/regulator/regulator.13 l20 disabled
+/sys/class/regulator/regulator.14 l26 enabled
+/sys/class/regulator/regulator.15 l24 enabled
+/sys/class/regulator/regulator.16 tps61099-vbus disabled
+/sys/class/regulator/regulator.2 s3 enabled
+/sys/class/regulator/regulator.3 s4 enabled
+/sys/class/regulator/regulator.4 bob enabled
+/sys/class/regulator/regulator.5 s5 enabled
+/sys/class/regulator/regulator.6 s7 enabled
+/sys/class/regulator/regulator.7 l1 enabled
+/sys/class/regulator/regulator.8 l2 disabled
+/sys/class/regulator/regulator.9 lvs2 disabled
+~ # echo "== platform"; ls /sys/bus/platform/devices | grep -iE "touch|regulator
+"; ls /sys/bus/i2c/devices
+== platform
+regulator-touch-power
+regulator-tps61099-vbus
+remoteproc:glink-edge:rpm-requests:regulators-0
+remoteproc:glink-edge:rpm-requests:regulators-1
+vph-pwr-regulator
+[1;36m0-0020[m  [1;36mi2c-0[m
+~ # echo "== end"
+== end
+~ # 
