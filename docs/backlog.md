@@ -3842,28 +3842,6 @@ Rank
 : 1
 
 
-<a id="walleye-pmic-wdt-readback-image"></a>
-### Build z10: z9 plus a read-back of the PON S2 type after probe, and an S2 type chosen by property (warm first)
-
-Status
-: open
-
-Note
-: Only if debugfs regmap is absent on z9. Change: pm8916_wdt probe writes the type from a dt property (qcom,s2-reset-type: default hard for pm8916, warm 0x01 for walleye first), with the downstream sequence (clear 0x57 EN, ~500 us, write 0x56, read back, warn on mismatch), and walleye dts sets warm. No bite in this item.
-
-About
-: deep-sleep
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: pmic-wdt-s2-type-readback (checks: type read back equals the one set, before arming; Image holds the property)
-
-
 <a id="walleye-pmic-wdt-bite-try-warm"></a>
 ### One PMIC bite with the type read back as warm (0x01) first; hard (0x07) only after warm restarts
 
@@ -4178,6 +4156,9 @@ Status
 Note
 : Safe: no bite. Read through the spmi regmap debugfs if z9 has it (else build item walleye-pmic-wdt-readback-image). Record values with the POFF reason (0xc5) and the boot slot. Settles: write took (0x56=7)? what the bootloader had set? did the bite log PMIC_WD?
 
+Blocked by
+: walleye-pmic-wdt-readback-image
+
 About
 : deep-sleep
 
@@ -4220,3 +4201,30 @@ Proof
 
 Rank
 : 95
+
+
+<a id="walleye-pmic-wdt-readback-image"></a>
+### Build z10: z9 plus a read-back of the PON S2 type after probe, and an S2 type chosen by property (warm first)
+
+Status
+: open
+
+Note
+: Only if debugfs regmap is absent on z9. Change: pm8916_wdt probe writes the type from a dt property (qcom,s2-reset-type: default hard for pm8916, warm 0x01 for walleye first), with the downstream sequence (clear 0x57 EN, ~500 us, write 0x56, read back, warn on mismatch), and walleye dts sets warm. No bite in this item.
+
+COORDINATOR 2026-11-18: the keeper tried z9 read-s2-regs (lab PR 268): z9 booted and answered but the tty reader returned BLANK answers for the PON register reads (no regmap debugfs reads worked through the command loop): so this build item is needed now, not only as a fallback. The image must put the register values INTO THE PHONE LOG CHANNEL THAT WORKS: the banner lines (WALLEYE-BANNER ...) and the command loop, i.e. the init reads the registers itself at start (the kernel regmap debugfs mounted by the init, or a /dev/mem-free path: whatever the PMIC watchdog driver exposes), writes them into the banner as a line pon-regs 0x54=.. 0x55=.. 0x56=.. 0x57=.. 0x5a=.. 0x5b=.. 0xc5=.. and also answers a command that prints them; reads only, NO bite armed (the init must not arm the watchdog bite of z9). The way back is the usual: init self-reboot at 180 s.
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: pmic-wdt-s2-type-readback (checks: type read back equals the one set, before arming; Image holds the property)
+
+Rank
+: 1
