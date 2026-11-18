@@ -31,3 +31,12 @@ jobs:
       - run: cargo fmt --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test
+  overlay-collisions:
+    name: overlay-collisions test proves itself
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq device-tree-compiler xxd
+      - name: the collision test finds a collision, passes a clean pair, honours its allow list
+        run: sh tests/host/overlay-collisions-selftest.sh

@@ -1291,3 +1291,31 @@ Research
 
 Tracked by
 : walleye-build-z18-pmi8998-reg
+
+
+<a id="2026-11-18-walleye-overlay-collision-fix-stub-label"></a>
+### 2026-11-18-walleye-overlay-collision-fix-stub-label
+
+Date
+: 2026-11-18
+
+Brief
+: A label the overlay targets is a stub, never a real node: delete mainline's pcie0 (disabled) and stub its label; the qup rename goes into the dts too
+
+Decision
+: The collision test (tests/host/overlay-collisions.sh) is the gate: an overwritten property of a node of ours is a collision unless the allow file names it. Fixes: /delete-node/ &pcie0 with a stub pcie0 label (regenerated stubs), blsp1_i2c5 redefined as qup@c179000; z19 carries the pcie one on z17. build-all.sh runs the test on the built dtb; CI runs its selftest.
+
+Why
+: z16 and z17/z18 were found by phone tries; the class is found by one host merge. The control dtbo is not in CI (proprietary), so CI proves the test, the lab's build gates the dts.
+
+Rejected
+: Allow-listing the pcie overwrite (a disabled node today; a later dts change enabling pcie would silently take the vendor reg); renaming the pcie node (the overlay reaches it by label); a Python or C diff tool (no new Python).
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-z19-built
+
+Tracked by
+: walleye-overlay-collisions

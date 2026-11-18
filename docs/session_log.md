@@ -2833,3 +2833,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-builder-overlay-collisions"></a>
+### walleye-builder: overlay collisions test, fix, z19
+
+Entry date
+: 2026-11-18
+
+Done
+: Wrote the collision test and its selftest, found pcie0 (and the dts lacking z16's rename), fixed both in the dts, built z19 from z17 (rebuild identical), CI selftest job, build-all gate; programmer review fixed the gate's path.
+
+Considered
+: Comparing fragments by hand (fdtoverlay plus a flat diff is the same by-name merge); the phone's own dtbo (needs adb root; a builder never touches the phone).
+
+Rejected
+: Allow-listing pcie.
+
+About
+: walleye-first-fastboot-boot

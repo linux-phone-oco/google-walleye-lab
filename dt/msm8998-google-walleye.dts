@@ -25,6 +25,14 @@
 #include "msm8998.dtsi"
 #include "pm8998.dtsi"
 #include "pmi8998.dtsi"
+/*
+ * Overlay collisions (tests/host/overlay-collisions.sh, decision 2026-11-19-walleye-overlay-collisions-as-a-class): the bootloader merges the vendor dtbo overlay
+ * into the dtb BY NAME - a node of the overlay with the name of a node of ours, or a fragment that targets one of our labels, overwrites its properties. So a node the
+ * overlay writes must not be ours: mainline's PCIe host (disabled here; the overlay's pcie0 fragment writes its reg and ranges) is dropped and its label is a stub, and
+ * the QUP i2c controller of the touch panel is named qup@c179000 (below), not i2c@c179000 (z16).
+ */
+/delete-node/ &pcie0;
+
 #include "msm8998-google-walleye-overlay-stubs.dtsi"
 
 /delete-node/ &mpss_mem;
@@ -370,6 +378,31 @@
 		enable-active-high;
 		vin-supply = <&vreg_l28_3p0>;
 		startup-delay-us = <20000>;
+	};
+};
+
+/* The QUP i2c controller of mainline's msm8998.dtsi, under the name qup@c179000: the overlay's own i2c@c179000 must not merge into it (z16). Label, reg, everything else unchanged. */
+/delete-node/ &blsp1_i2c5;
+
+&soc {
+	blsp1_i2c5: qup@c179000 {
+		compatible = "qcom,i2c-qup-v2.2.1";
+		reg = <0x0c179000 0x600>;
+		interrupts = <GIC_SPI 99 IRQ_TYPE_LEVEL_HIGH>;
+
+		clocks = <&gcc GCC_BLSP1_QUP5_I2C_APPS_CLK>,
+			 <&gcc GCC_BLSP1_AHB_CLK>;
+		clock-names = "core", "iface";
+		dmas = <&blsp1_dma 14>, <&blsp1_dma 15>;
+		dma-names = "tx", "rx";
+		pinctrl-names = "default", "sleep";
+		pinctrl-0 = <&blsp1_i2c5_default>;
+		pinctrl-1 = <&blsp1_i2c5_sleep>;
+		clock-frequency = <400000>;
+
+		status = "disabled";
+		#address-cells = <1>;
+		#size-cells = <0>;
 	};
 };
 
