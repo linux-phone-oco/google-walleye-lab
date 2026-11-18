@@ -1,6 +1,6 @@
 #!/bin/sh
 # walleye-vendor-facts-poll, run on the lab host BEFORE the vf3 boot, in its own background job: watch the phone's 4 MiB mass_storage window and keep everything it ever showed.
-# The vf3 window is plain text: block 0 (4096 bytes) the beat "WALLEYE-VF3 BEAT=n UP=s STAGE=x BYTES=n", then from byte 4096 framed blocks "BEGIN name" ... "END name rc=N", the last line "DONE ...".
+# (vf4 reuses it: see VF_MARK/VF_HEAD/VF_BLOCKS below; the 64 KiB text region is also kept as OUT/steps.txt.) The vf3 window is plain text: block 0 (4096 bytes) the beat "WALLEYE-VF3 BEAT=n UP=s STAGE=x BYTES=n", then from byte 4096 framed blocks "BEGIN name" ... "END name rc=N", the last line "DONE ...".
 # Every POLL_SECS (default 2) it finds the LUN by the strings the init sets (serial walleye-first-boot, product "Pixel 2 walleye (mainline)"; never by VID:PID), reads the whole window with O_DIRECT,
 # drops the NULs (the used part is what is left), and
 #   - saves the used part as the next numbered copy OUT/win/NNN.txt when it differs from the last one, and the beat line of every read to OUT/beat.log;
@@ -17,6 +17,10 @@ OUT=${VF_OUT:-$HOME/Projects/walleye-build/material/vf/2026-11-18-vf3}
 EVERY=${POLL_SECS:-2}
 MAX=${POLL_MAX:-150}
 ONCE=${POLL_ONCE:-0}
+# the window's layout, vf3 by default; vf4 (vf2's 64 KiB text region, the stream from byte 65536): VF_MARK=WALLEYE-VF2 VF_HEAD=16 VF_BLOCKS=1040
+MARK=${VF_MARK:-WALLEYE-VF3}
+HEAD=${VF_HEAD:-1}
+NBLK=${VF_BLOCKS:-1024}
 say() { echo "$1 walleye-vendor-facts-poll host $2"; [ "$1" = pass ]; exit $?; }
 find_usb() {
   for d in /sys/bus/usb/devices/*; do
@@ -63,12 +67,12 @@ while :; do
     [ -n "$BLK" ] && WHERE="${USB##*/} $BLK"
   fi
   if [ -n "$BLK" ] && [ -r "$BLK" ]; then
-    if dd if="$BLK" of="$T/raw" bs=4096 count=1024 $DIRECT 2>/dev/null && [ -s "$T/raw" ]; then
+    if dd if="$BLK" of="$T/raw" bs=4096 count=$NBLK $DIRECT 2>/dev/null && [ -s "$T/raw" ]; then
       dd if="$T/raw" bs=4096 count=1 2>/dev/null | tr -d '\000' | head -n1 > "$T/beat"
-      if grep -q '^WALLEYE-VF3 BEAT=' "$T/beat"; then
+      if grep -q "^$MARK BEAT=" "$T/beat"; then
         SEEN_MARKER=1; BEATS=$((BEATS+1)); echo "$(( $(date +%s) - START )) $(cat "$T/beat")" >> "$OUT/beat.log"
         # the contiguous text after block 0 up to the first hole: bytes read across a rewrite never glue; a torn last line is dropped
-        dd if="$T/raw" bs=4096 skip=1 2>/dev/null | head -z -n1 | tr -d '\000' > "$T/used"
+        dd if="$T/raw" bs=4096 skip=$HEAD 2>/dev/null | head -z -n1 | tr -d '\000' > "$T/used"
         [ -z "$(tail -c1 "$T/used")" ] || sed -i '$d' "$T/used"
         leaks "$T/used" || { rm -rf "$OUT"; say fail "an identifying item showed in the window (see above); the output is deleted, nothing left the machine"; }
         if ! cmp -s "$T/used" "$T/last"; then
@@ -76,6 +80,7 @@ while :; do
           [ "$(tail -n1 "$T/used" | cut -c1-4)" = "END " ] || [ "$(tail -n1 "$T/used" | cut -c1-4)" = "DONE" ] && cp "$T/used" "$OUT/last-complete.txt"
           fetch "$T/used" > "$T/n"
         fi
+        if [ "$HEAD" -gt 1 ]; then dd if="$T/raw" bs=4096 count=$HEAD 2>/dev/null | tr -d '\000' > "$T/hdr"; leaks "$T/hdr" || { rm -rf "$OUT"; say fail "an identifying item showed in the text region (see above); the output is deleted, nothing left the machine"; }; cmp -s "$T/hdr" "$T/hdrlast" || { cp "$T/hdr" "$OUT/steps.txt"; cp "$T/hdr" "$T/hdrlast"; }; fi
         grep -q '^DONE ' "$T/used" && { DONE=1; break; }
       fi
     fi

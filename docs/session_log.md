@@ -1423,3 +1423,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-vf4-build"></a>
+### vf4 built
+
+Entry date
+: 2026-11-18
+
+Done
+: init-vf4 (vf2's first 86 lines byte for byte to the bind, then vf3's progressive dump from byte 65536), build-vendor-facts-vf4.sh, poller parametrised (VF_MARK/VF_HEAD/VF_BLOCKS, steps.txt), vendor-facts-poll-selftest-vf4.sh; try queued
+
+Considered
+: Keeping vf2's blob code after the bind as dead code so the diff has additions only: rejected, the diff is checked as 'identical up to the bind, first hunk after it'. A second poller for vf4: rejected, one poller with a layout by environment.
+
+Rejected
+: Moving the gadget earlier again (vf3's order) before knowing whether the early bind killed it.
+
+About
+: walleye-first-fastboot-boot

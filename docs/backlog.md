@@ -2504,10 +2504,10 @@ Rank
 ### vf4: keep vf2's proven init order up to the gadget bind byte for byte, then append vf3's progressive dump after the bind
 
 Status
-: open
+: done
 
 Note
-: Facts (lab research walleye-vf2-tried-twice, walleye-vf3-tried-twice): vf2 (alive: beats every 2 s, steps 0-4 ok, gadget bind step at 43 s) ran; vf3 (gadget moved first, dump progressive) died before the bind (no gadget on the host twice, back at 78 s = the dead class). One change at a time from the last alive image: vf4 = vf2 + the progressive dump AFTER the bind. WHEN DONE queue walleye-try-vf4 (needs phone, rank 1): the poller first in its own job, then boot twice; battery first; phone left in Android.
+: built: boot-vf4.img, 27 checks ok, rebuild identical, selftests ok; research walleye-vf4-built; try queued as walleye-try-vf4
 
 About
 : walleye-first-fastboot-boot
@@ -2520,3 +2520,28 @@ Needs
 
 Proof
 : boot-vf4.img = vf2's init with ONLY the dump part added after the gadget bind: everything vf2 did before and including the UDC bind unchanged (diff of the init against vf2's shows additions only after the bind step); the added part is vf3's progressive framed dump (BEGIN/END lines, appended, synced, timeout 5 per read); the diff vf2->vf3 is written up in the research row with the likely cause of vf3's death (what it did before the bind that vf2 did not: say it), the diff vf2->vf4 shown; the poller of vf3 reused; checks, selftest, programmer review, hashes
+
+
+<a id="walleye-try-vf4"></a>
+### Phone: start tests/host/vendor-facts-poll.sh FIRST in its own background job with VF_MARK=WALLEYE-VF2 VF_HEAD=16 VF_BLOCKS=1040 VF_OUT=$HOME/Projects/walleye-build/material/vf/2026-11-18-vf4 (never killed by the keeper's cleanup), then boot boot-vf4.img twice from the first state; battery first; phone left in Android afterwards; say how many blocks the poller fetched, whether DONE came, the beat log, steps.txt's last lines (where it stopped), and when the phone left USB
+
+Status
+: open
+
+Note
+: Image: ~/Projects/walleye-build/images-vf4/boot-vf4.img (sha256 in SHA256SUMS-vf4 there; research walleye-vf4-built). Expect the gadget at ~43 s as vf2; if vf4 is alive past 60 s the progressive stream names what vf2's blob never gave. Start the poller with POLL_MAX=400.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 1

@@ -1,0 +1,182 @@
+#!/bin/busybox sh
+# vendor-facts-vf2 (walleye-vf2-marker-first): vf1's dump, with the proof of life first. vf1 enumerated and its LUN was readable, but the window never carried its header: the init's first write failed or
+# died before it, and nothing told which. vf2 changes only the init:
+#  (1) the window's first 64 KiB is a TEXT region in m1's proven way (dd bs=65536 conv=sync,notrunc, rewritten whole every 2 s): line 1 "WALLEYE-VF2 BEAT=<n> UP=<s>" is written
+#      BEFORE the gadget exists (so the first bind already shows it) and every 2 s after by a background beat; then one "step N name rc=X detail" line per step; never moved, never shrunk;
+#  (2) every step runs through stp(), which appends its line AFTER the step with the real exit code and the first words of its stderr, and BEFORE it a "start N name" line, so a hung step
+#      shows as a start with no end; nothing is sent to /dev/null on a step, no `set -e`;
+#  (3) the blob is at a fixed offset 65536: a 64-byte header "WALLEYE-VF2-BLOB LEN=<10 digits> ROUND=<2 digits>" (newline at byte 63), then LEN bytes of a gzipped tar (body first, header after).
+# Window: 8 MiB LUN (read-only for the host), same gadget order as m1. The tools used (tar gzip cat dd mount timeout find sed grep stat head tail tr cut wc sync dmesg printf sleep) are listed in the text
+# region at start as "applet NAME ok|MISSING" so a missing one is read, not guessed.
+# Redaction as vf1: nothing identifying leaves the phone. Never exits; reboots itself at about 90 s of rounds (reboot -f, then sysrq b). No write to the phone's storage.
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+say() { echo "walleye-init: $*" > /dev/kmsg 2>/dev/null; echo "walleye-init: $*" > /dev/console 2>/dev/null; }
+LOGF=/tmp/walleye-log.img
+TXT=/tmp/walleye-text
+STAT=/tmp/walleye-steps
+STEPN=0
+# paint [TMP]: rewrite the whole 64 KiB text region (m1's way): line 1 the beat, then the step lines (capped at 60000 bytes), NUL-padded. Snapshot and write are one critical section (flock on fd 9), so the foreground
+# and the 2 s beat never leave an older snapshot over a newer line; the foreground paints with /tmp/walleye-text, the beat with /tmp/walleye-text-b.
+paint() {
+  T=${1:-$TXT}
+  ( flock 9
+    { printf 'WALLEYE-VF2 BEAT=%s UP=%s\n' "$(cat /tmp/walleye-beat 2>/dev/null)" "$(cut -d' ' -f1 /proc/uptime 2>/dev/null)"; tail -c 60000 $STAT 2>/dev/null; } > $T 2>/dev/null
+    dd if=$T of=$LOGF bs=65536 count=1 conv=sync,notrunc 2>/dev/null ) 9> /tmp/walleye-lock
+}
+# note TEXT: append a line to the step log and repaint at once
+note() { echo "$*" >> $STAT; paint; }
+# stp NAME CMD ARGS...: "start N name" BEFORE (and before anything that could block on the console), "step N name rc=X: first words of stderr" after. The real rc, never hidden; a step whose rc is 0 but
+# in which some grab failed ends with rc=<number of failed grabs> and names the first ones (grab logs a failure to /tmp/walleye-gf).
+stp() {
+  STEPN=$((STEPN+1)); N=$STEPN; NAME=$1; shift
+  note "start $N $NAME"
+  say "step $N $NAME: about to run"
+  : > /tmp/walleye-gf
+  "$@" 2> /tmp/walleye-err; RC=$?
+  E=$(head -c 120 /tmp/walleye-err 2>/dev/null | tr '\n' ' ')
+  GF=$(wc -l < /tmp/walleye-gf)
+  if [ "$RC" -eq 0 ] && [ "$GF" -gt 0 ]; then RC=$GF; E="$GF grab(s) failed: $(head -n3 /tmp/walleye-gf | tr '\n' ' ')"; fi
+  note "step $N $NAME rc=$RC${E:+: $E}"
+  return $RC
+}
+
+mkdir -p /tmp /run
+# 1: the 8 MiB window file and the first header, BEFORE the gadget, so the marker is there when the host first reads
+dd if=/dev/zero of=$LOGF bs=1024 count=8192 2>/dev/null
+: > $STAT; echo 0 > /tmp/walleye-beat
+
+paint
+say "vendor-facts-vf2 init start: window file made, marker written"
+mount -t proc proc /proc
+note "step 0 mount-proc rc=$?"
+note "start 0 init (kernel $(uname -r))"
+for ap in tar gzip cat dd mount timeout find sed grep stat head tail tr cut wc sync dmesg printf sleep flock; do
+  if /bin/busybox --list | grep -qx "$ap"; then note "applet $ap ok"; else note "applet $ap MISSING"; fi
+done
+# the beat: every 2 s, forever, in the background: bumps /tmp/walleye-beat and repaints the whole text region (own temp file), so line 1 moves even while a foreground step hangs
+( b=0; while :; do b=$((b+1)); echo $b > /tmp/walleye-beat; paint /tmp/walleye-text-b; sleep 2; done ) &
+stp mount-sysfs mount -t sysfs sys /sys
+mkdir -p /sys/kernel/config /sys/kernel/debug
+stp mount-configfs mount -t configfs none /sys/kernel/config
+stp mount-debugfs mount -t debugfs none /sys/kernel/debug
+G=/sys/kernel/config/usb_gadget/g1
+L=$G/functions/mass_storage.0/lun.0
+UDC=
+put() { echo "$1" > "$2"; }
+gadget() {
+  stp g-mkdir mkdir -p $G
+  stp g-idVendor put 0x1d6b $G/idVendor; stp g-idProduct put 0x0104 $G/idProduct; stp g-bcdDevice put 0x0100 $G/bcdDevice; stp g-bcdUSB put 0x0200 $G/bcdUSB
+  stp g-strings mkdir -p $G/strings/0x409
+  stp g-serial put walleye-first-boot $G/strings/0x409/serialnumber
+  stp g-manufacturer put linux-phone-oco $G/strings/0x409/manufacturer
+  stp g-product put "Pixel 2 walleye (mainline)" $G/strings/0x409/product
+  stp g-function mkdir -p $G/functions/mass_storage.0
+  for a in ro removable; do if [ -e $L/$a ]; then stp g-lun-$a put 1 $L/$a; else note "no lun.0/$a"; fi; done
+  for a in cdrom nofua; do if [ -e $L/$a ]; then stp g-lun-$a put 0 $L/$a; else note "no lun.0/$a"; fi; done
+  stp g-lun-file put $LOGF $L/file
+  note "lun.0 has: $(ls $L 2>&1 | tr "\n" " "); file now: $(cat $L/file 2>&1)"
+  stp g-config mkdir -p $G/configs/c.1/strings/0x409
+  stp g-config-name put MSC $G/configs/c.1/strings/0x409/configuration
+  stp g-symlink ln -s $G/functions/mass_storage.0 $G/configs/c.1/
+  UDC=$(ls /sys/class/udc 2>/dev/null | head -n1)
+  if [ -z "$UDC" ]; then note "step g-udc NO UDC"; else stp g-bind put "$UDC" $G/UDC; fi
+}
+gadget
+# ---- vf4: everything above this line is vf2's init byte for byte (up to and including the gadget bind, bound at ~43 s as in vf2). Below, vf2's single blob is replaced by vf3's progressive dump. ----
+# vf3 moved the gadget first and the phone left USB without ever showing it (twice); vf2 had it alive. One change at a time from the last alive image: vf4 = vf2's order, then vf3's dump appended AFTER the bind.
+# The window (vf2's 8 MiB file, text region = first 64 KiB: beat line + one line per step, kept alive by vf2's own beat) now also carries a stream from byte 65536: framed blocks "BEGIN name", the text,
+# "END name rc=N[: stderr words]", the last line "DONE ...". Each block is appended at the next free offset (from the last 4096-byte boundary) and synced; a source over its share is cut; a stream over its
+# budget skips the rest with an END line saying so. A debugfs read that may block is bounded by timeout 5. Nothing new goes to /dev/console. Redaction as vf1-vf3.
+# The host side is tests/host/vendor-facts-poll.sh with VF_MARK=WALLEYE-VF2 VF_HEAD=16 VF_BLOCKS=1040 POLL_MAX=400 VF_OUT=<a vf4 dir>, started BEFORE the boot.
+OUT=/tmp/walleye-stream
+HEADBLK=16
+BUDGET=3800000
+SPENT=0
+PERSRC=262144
+BLOCK=4096
+WROTE=0
+: > $OUT
+# flush: copy the new part of the stream into the window (from the last 4096-byte boundary already written, after the 64 KiB text region), then sync. Single writer: the foreground only.
+flush() {
+  S=$(stat -c %s $OUT)
+  K=$((WROTE / BLOCK))
+  dd if=$OUT of=$LOGF bs=4096 skip=$K seek=$((K + HEADBLK)) conv=notrunc 2>/dev/null
+  WROTE=$S
+  sync
+}
+echo "BEGIN gadget" >> $OUT
+echo "BEGIN gadget-steps" >> $OUT; cat $STAT >> $OUT; echo "END gadget-steps rc=0" >> $OUT
+echo "END gadget rc=0: udc=${UDC:-none} up=$(cut -d' ' -f1 /proc/uptime)" >> $OUT
+flush
+redact_filter() {
+  sed -e 's/serialno[= :][^ ]*/serialno=REDACTED/g' -e 's/[0-9]\{15\}/IMEI-SHAPED/g' -e 's/\([0-9a-fA-F][0-9a-fA-F]-\)\{5\}[0-9a-fA-F][0-9a-fA-F]/XX-XX-XX-XX-XX-XX/g' \
+      -e 's/\([0-9a-fA-F][0-9a-fA-F]:\)\{5\}[0-9a-fA-F][0-9a-fA-F]/XX:XX:XX:XX:XX:XX/g'
+}
+# chunk NAME CMD ARGS...: run into a temp file (rc kept), redact, cut to PERSRC, frame, flush. A "chunk NAME" line goes to the text region first, so a hang shows as a start with no end.
+chunk() {
+  NAME=$1; shift
+  if [ "$(stat -c %s $OUT)" -gt $BUDGET ]; then
+    [ $SPENT -eq 0 ] && { echo "BEGIN budget"; echo "END budget rc=0: the window budget is spent, the rest (from $NAME) is skipped"; } >> $OUT && flush
+    SPENT=1; return 0
+  fi
+  echo "BEGIN $NAME" >> $OUT
+  note "chunk $NAME"
+  "$@" > /tmp/walleye-chunk 2> /tmp/walleye-err; RC=$?
+  tr -d '\000' < /tmp/walleye-chunk | redact_filter | head -c $PERSRC >> $OUT
+  echo >> $OUT
+  E=$(head -c 100 /tmp/walleye-err 2>/dev/null | tr '\n' ' ')
+  echo "END $NAME rc=$RC${E:+: $E}" >> $OUT
+  flush
+  return 0
+}
+# dtnode DIR: every property file of one device-tree node, text when printable, else hex (never a name that identifies the phone)
+dtnode() {
+  for f in "$1"/*; do
+    [ -f "$f" ] || continue
+    case "${f##*/}" in *mac-address*|*bdaddr*|*bd-addr*|*bd_addr*|*serial-number*|*serialno*|*imei*|*IMEI*|*macaddr*) continue;; esac
+    echo "== ${f##*/}"
+    if [ -z "$(tr -d '[:print:]\000' < "$f" | head -c 1)" ]; then tr '\000' '|' < "$f"; echo; else od -An -v -tx1 "$f"; fi
+  done
+}
+cat_file() { [ -e "$1" ] || { echo "(absent)"; return 0; }; timeout 5 cat "$1"; }
+cat_dir() { [ -d "$1" ] || { echo "(absent)"; return 0; }; for f in "$1"/* "$1"/*/*; do [ -f "$f" ] && { echo "== ${f#$1/}"; timeout 3 cat "$f"; }; done; return 0; }
+dmesg_head() { dmesg | head -n 300; }
+dmesg_tail() { dmesg | tail -n 300; }
+udc_state() {
+  ls -l /sys/class/udc
+  for u in /sys/class/udc/*; do [ -d "$u" ] && for at in state speed current_speed is_a_peripheral maximum_speed; do echo "$u/$at: $(cat $u/$at 2>&1)"; done; done
+  echo "UDC bound: $(cat $G/UDC 2>&1)"
+  ls /sys/class/power_supply; ls /sys/bus/platform/devices; ls /sys/bus/platform/drivers
+}
+chunk udc-state udc_state
+chunk cmdline cat_file /proc/cmdline
+chunk version cat_file /proc/version
+chunk dmesg-head dmesg_head
+chunk dmesg-tail dmesg_tail
+chunk iomem cat_file /proc/iomem
+chunk interrupts cat_file /proc/interrupts
+chunk clk_summary cat_file /sys/kernel/debug/clk/clk_summary
+chunk regulator_summary cat_file /sys/kernel/debug/regulator/regulator_summary
+chunk gpio cat_file /sys/kernel/debug/gpio
+chunk pinctrl-maps cat_file /sys/kernel/debug/pinctrl/pinctrl-maps
+chunk pinctrl-devices cat_file /sys/kernel/debug/pinctrl/pinctrl-devices
+for d in /sys/kernel/debug/pinctrl/*; do [ -d "$d" ] && chunk "pinctrl-${d##*/}" cat_dir "$d"; done
+chunk usb cat_dir /sys/kernel/debug/usb
+for d in /sys/kernel/debug/*dwc3* /sys/kernel/debug/*.usb /sys/kernel/debug/*usb*; do [ -d "$d" ] && [ "${d##*/}" != usb ] && chunk "dbg-${d##*/}" cat_dir "$d"; done
+chunk ioports cat_file /proc/ioports
+chunk devices cat_file /proc/devices
+# the device tree last: one block per node directory
+(cd /proc/device-tree && find . -type d) | sort > /tmp/walleye-dtdirs
+while IFS= read -r p; do
+  case "$p" in *[!A-Za-z0-9_.@,/+-]*) continue;; esac
+  if [ "$p" = . ]; then chunk "dt%_root" dtnode /proc/device-tree; else q=${p#./}; chunk "dt%$(echo "$q" | tr / %)" dtnode "/proc/device-tree/$p"; fi
+done < /tmp/walleye-dtdirs
+note "stream done"
+echo "DONE up=$(cut -d' ' -f1 /proc/uptime) bytes=$(stat -c %s $OUT)" >> $OUT
+flush
+# hold: vf2's beat keeps running; at 90 s of uptime reboot (reboot -f, then sysrq b)
+while [ "$(cut -d. -f1 /proc/uptime)" -lt 90 ]; do sleep 2; done
+sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+while :; do sleep 3600; done
