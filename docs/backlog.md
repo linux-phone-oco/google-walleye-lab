@@ -5003,8 +5003,7 @@ Status
 Note
 : build/walleye.config: CONFIG_DYNAMIC_DEBUG=y, CONFIG_DEBUG_GPIO=y; boot command line dyndbg="file gpiolib.c +p; file gpiolib-of.c +p; file pinctrl/core.c +p" (no phone write); touch dts as z17. The fix item is written from the printed leaf.
 
-Blocked by
-: walleye-touch-gpio-leaf-read
+COORDINATOR 2026-11-19: no longer blocked by the leaf read: one boot of this diag kernel prints the leaf AND the errno itself, which makes the debugfs read redundant; build it first (rank 1), on the z19 base (the overlay-collision-clean dtb), CONFIG_DYNAMIC_DEBUG + DEBUG_GPIO + the dyndbg command line for gpiolib, pinctrl and the spmi-gpio driver; keep the leaf-read item as the fallback.
 
 About
 : walleye-first-fastboot-boot
@@ -5019,4 +5018,4 @@ Proof
 : the diagnostic boot's dmesg shows the gpiolib line naming the leaf and errno for regulator-touch-power
 
 Rank
-: 3
+: 1
