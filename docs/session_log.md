@@ -1405,3 +1405,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-2400-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: vf3 twice from the first state: no gadget ever, no blocks, back as Android at 78 s both times (dead-init class). Phone left in fastboot on slot b, flags a and b successful, stock kernel, nothing flashed, battery 4377 mV
+
+Considered
+: next: turning point for the coordinator - vf2 init was alive, vf3 (gadget first, then progressive dump) is not; diff vf2 vs vf3 init, find what kills it before the gadget bind
+
+About
+: walleye-first-fastboot-boot

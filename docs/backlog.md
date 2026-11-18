@@ -2479,7 +2479,10 @@ Proof
 ### Phone: start tests/host/vendor-facts-poll.sh FIRST in its own background job (never killed by the keeper's cleanup), then boot vf3 twice from the first state; battery first; phone left in Android afterwards; say how many blocks the poller fetched, whether DONE came, and the beat log
 
 Status
-: open
+: done
+
+Note
+: tried twice as asked: no gadget, no window, no blocks (poller fail x2); back as Android 78 s each; see walleye-vf3-tried-twice. Next: coordinator decides - vf2's order alive, vf3's reorder dead; diff the two inits
 
 About
 : walleye-first-fastboot-boot
