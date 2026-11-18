@@ -1276,3 +1276,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-t3-build"></a>
+### T3 image built
+
+Entry date
+: 2026-11-18
+
+Done
+: build/build-t3.sh, init-t3, tests/host/pstore-t3-read.sh; boot-t3.img built from pk5, queued for the keeper (backlog walleye-pstore-t3-wdog-bite). Phone not touched.
+
+Considered
+: Setting the 10 s timeout with busybox watchdog -T and one ping (-t 3600); the dtb's timeout-sec 30 alone
+
+Rejected
+: Opening /dev/watchdog with 'exec 3>' in sh: leaves the default 30 s (dtb) and a failed open would end init; busybox watchdog has the ioctl for the timeout
+
+About
+: walleye-first-fastboot-boot
