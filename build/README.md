@@ -156,3 +156,12 @@ with `acm.GS0` (a respawned `busybox ash` on /dev/ttyGS0) and `mass_storage.0` (
 ## pk5l2 (ramoops in the phone's own region)
 
 `build/build-pk5l2.sh PK5L_BOOT_IMG OUT_DIR` edits only the ramoops node of the dtb in pk5l's kernel blob (`fdtput`: reg 0xa1100000/2 MiB, record 0x80000, console 0x20000, pmsg 0), so a panic that ends pk5l early is readable from Android's pstore. 20 checks; hashes in `research/walleye-first-fastboot-boot/2026-11-18-pk5l2/`.
+
+## w1..w5, wr, wa: pk5 made walleye-like, group by group (the bisect from the alive side)
+
+`build/build-taimen-walleye.sh PK5_BOOT_IMG PK2_DTB OUT_DIR` takes pk5 (our kernel + porthole's TAIMEN dtb, reaches init) and puts in what the walleye dtbs (pk2 and ours) have
+that the taimen dtb does not: `w1` camss + cci disabled and their camera children removed, `w2` dma-controller@17184000, iommu@5100000, video-codec, slim-ngd disabled (slim@1 removed),
+`w3` the five i2c masters disabled and their children (touchscreen, vibrator, codec, nfc, pmic, proximity) removed, `w4` pcie + its phy disabled, `w5` the pon resin key and the
+pmic@3 led-controller disabled (led-0 removed), `wr` the nodes only taimen has removed (fingerprint, gpio-keys, seven camera regulators, sound, skin thermal, the audio/camera pin states and dais;
+four pinctrl states the overlay needs become empty stubs, as in pk2), `wa` all of them: its node set and every status equal pk2's (checked). Everything else is pk5's; the stock dtbo overlay still merges.
+399 checks, rebuild byte-identical. Why these and not overlay labels: research `walleye-overlay-enables-what-result`. Not run on the phone: the keeper's try `walleye-try-taimen-walleye`.
