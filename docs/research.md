@@ -3066,3 +3066,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-z17-spmi-gpio-facts/
+
+
+<a id="walleye-z19-built"></a>
+### walleye-z19-built
+
+Date
+: 2026-11-18
+
+Brief
+: z19 built: z17 with mainline's PCIe host deleted and its label a stub, so the stock dtbo overlay writes nothing of ours by name; sha256 761a3736; rebuild identical
+
+Question
+: Which nodes of our dtb does the stock dtbo overlay (entry 3) overwrite by name, and what fixes them all?
+
+Found
+: tests/host/overlay-collisions.sh merges the control dtbo's entry 3 into a dtb with fdtoverlay and lists every overwritten property: on z17 two (reg, ranges of /soc@0/pcie@1c00000, via the overlay's pcie0 fragment aimed at our label; disabled node); on a dtb built from the dts at main also i2c@c179000 (z16's rename was a dtb edit, never in the dts): ten collisions on two nodes. Fix in the dts: /delete-node/ &pcie0 with its label a stub, blsp1_i2c5 redefined as qup@c179000; z19 = z17 dtb with the pcie change by fdtput (build/build-z19.sh, rebuild identical; images-z19/boot-z19.img sha256 761a3736 on the lab). Test passes on z19 and the dts-built dtb, fails on z17 and main's old dts. Overlay: the control build's official dtbo.img, not the phone's own. CI runs only the test's selftest (dtbo is proprietary); the dts gate is build-all.sh on the lab. Not covered: same-value writes, fdtoverlay's merge standing in for the bootloader's (the z19 try is that check), vendor properties added to our nodes (164, listed not failed).
+
+About
+: walleye-first-fastboot-boot

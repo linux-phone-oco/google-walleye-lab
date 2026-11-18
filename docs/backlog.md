@@ -4873,10 +4873,10 @@ Rank
 ### One host test lists every node the stock dtbo overlay overwrites by name in our dtb; rename them all at once; make the test a CI gate
 
 Status
-: open
+: done
 
 Note
-: Decision 2026-11-19-walleye-overlay-collisions-as-a-class (class lines inside). Replaces node-by-node fixes: z16 (i2c), z17/z18 (pmi8998) were two found by phone tries.
+: Test, dts fix, CI selftest, build-all gate and z19 landed; try queued as walleye-try-z19.
 
 About
 : walleye-first-fastboot-boot
@@ -4942,3 +4942,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-try-z19"></a>
+### Try z19 once from slot b (probe only): z17 with the overlay's last collision (pcie0) removed; does anything change versus z17?
+
+Status
+: open
+
+Note
+: Built by walleye-overlay-collisions. Expected: no visible change from z17 (pcie was disabled); proves the class is closed, not a touch fix.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-touch-probe: images-z19/boot-z19.img (sha256 761a3736) once; dmesg compared with z17's: no regression, gadget up
+
+Rank
+: 2
