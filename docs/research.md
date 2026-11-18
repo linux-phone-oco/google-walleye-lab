@@ -1653,3 +1653,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-y-built"></a>
+### walleye-y-built
+
+Date
+: 2026-11-18
+
+Brief
+: y1 and y2 built: ml6a's kernel with OUR dtb now carrying gpio-reserved-ranges <0 4>, <81 4>; 49 checks ok, rebuild identical
+
+Question
+: Does our own dtb, given the property whose absence killed every dtb of ours, boot to init (y1) and to a USB gadget (y2)?
+
+Found
+: build/build-y.sh compiles dt/msm8998-google-walleye.dts (with the new &tlmm gpio-reserved-ranges = <0 4>, <81 4>) and puts it under ml6a's Image.gz with ml6a's header and command line (no earlycon). y1 carries ml5a's ramdisk (reboot at once); y2 pk5l's gadget init (ACM shell + mass_storage window). The dtb differs from ml6a's in that one property line only; the stock dtbo overlay merges into it; AVB footers verify; sizes are ml6a's. Expected: y1 alive (<= 66 s), y2 shows 1d6b:0104 on the host within ~25 s. Not measured yet: the phone; the cheap extra items of the fdt compare (restart@10ac000, the apps watchdog) are left out on purpose, the finding does not say they matter (x4 was alive), and one change keeps the effect attributable.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-y-built/

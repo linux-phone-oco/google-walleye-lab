@@ -1573,3 +1573,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-y-build"></a>
+### y1 and y2 built (our dts with gpio-reserved-ranges)
+
+Entry date
+: 2026-11-18
+
+Done
+: Added &tlmm gpio-reserved-ranges <0 4>, <81 4> to our dts; build/build-y.sh builds boot-y1.img and boot-y2.img (49 checks, rebuild identical, hashes in the research material); programmer review; try queued as walleye-try-y.
+
+Considered
+: Taking the pshold/watchdog nodes along; rebuilding the whole kernel (only the dtb changes, Image.gz is ml6a's byte for byte).
+
+Rejected
+: Both, see decision 2026-11-18-walleye-our-dts-gets-gpio-reserved-only.
+
+About
+: walleye-first-fastboot-boot

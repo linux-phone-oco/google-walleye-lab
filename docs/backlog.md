@@ -2714,10 +2714,10 @@ Proof
 ### The cause of our dead dtbs: pinctrl@3400000 lacks gpio-reserved-ranges <0 4>, <81 4> (TZ-protected GPIOs). Put it into OUR dts and build images y1 (init: reboot at once) and y2 (the gadget: ACM console + mass_storage window)
 
 Status
-: open
+: done
 
 Note
-: Fact (lab research walleye-try-fdt-bisect, PR 149): 16 boots from slot b: x1 (the alive tree with OUR gpio-reserved-ranges, i.e. none/ours) dead twice, xa dead, x2-x7 alive: the missing property is the cause of every dead walleye dtb of ours (ours, pk2, pk4, d1-d6). Also likely behind pk5l/g1-g3 gadgets that never enumerated? (no: they used the taimen dtb which has it): check with y2. WHEN DONE queue walleye-try-y (needs phone, rank 1): y1 twice then y2 twice; battery first; Android left on a good slot.
+: Built: y1 and y2 by build/build-y.sh (49 checks ok, rebuild identical, hashes in research walleye-y-built); try queued as walleye-try-y (phone, rank 1).
 
 About
 : walleye-first-fastboot-boot
@@ -2730,3 +2730,28 @@ Needs
 
 Proof
 : (1) dt/msm8998-google-walleye.dts gets the property exactly as in the alive trees and the running fdt (pinctrl@3400000 gpio-reserved-ranges = <0 4>, <81 4>), with a comment naming where it comes from (the phone running fdt, vfa) and why (those pins belong to the secure world: touching them resets the phone) - and the other missing items from walleye-fdt-compare that are cheap and certain (restart@10ac000 qcom,pshold, the apps watchdog) only if the finding says they matter, one commit each so the effect is attributable; (2) images y1 = our kernel (the ml6a one, no earlycon) + OUR dtb with the property + the ml5a immediate-reboot init; y2 = the same + the mainline gadget init of pk5l (ACM shell on ttyGS0 + mass_storage window, watchdog petted 180 s, reboot -f at the end) so the first USB light can appear; expected: y1 alive (<=66 s), y2 shows 1d6b:0104 on the host within ~25 s of the jump (plain lsusb); checks, hashes, programmer review; build recipe reproducible; (3) keep dtbo-overlay-merges.sh passing
+
+
+<a id="walleye-try-y"></a>
+### Phone: boot y1 twice, then y2 twice from the first state; battery first; read return times and the host's lsusb; leave Android on a good slot
+
+Status
+: open
+
+Note
+: Images: ~/Projects/walleye-build/images-y/ (hashes in research walleye-y-built). Expected: y1 alive (back as Android <= 66 s); y2 shows 1d6b:0104 (walleye-first-boot) on the host within ~25 s of the jump. Record the returns as research walleye-y-tried; if y1 is dead, the property alone is not enough: compare with x1's fix.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 1
