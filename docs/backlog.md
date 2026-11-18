@@ -3271,3 +3271,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-reader-drop-root-exec"></a>
+### Drop the root-exec fallback from the shell reader: the no-root decision stands (2026-11-18-walleye-banner-serial-not-root-exec)
+
+Status
+: open
+
+Note
+: Your question (walleye-builder, PR 179): the no-root decision stands; the cause was the banner image's serial, fixed in walleye-banner-serial-fix (rank 2 after this). Do this one first (small), then the serial fix and its try.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: tests/host/mainline-shell-read.sh no longer calls lab-agent root-exec anywhere (grep finds no root-exec in tests/host and build): the retry on Permission denied stays (20 s), the fail line says what it saw (owner, group, ACL, the usb parent's serial, who holds the port); the selftest's root-exec cases are replaced by a case where the tty stays denied and the script fails cleanly with that detail; the OUT/root-exec.log mention is removed; the other readers stay as they are; programmer review
+
+Rank
+: 1
