@@ -1555,3 +1555,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-0700-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: fdt bisect x1..xa twice each from slot b: x1 and xa dead, others alive; phone back as Android on b, stock kernel, nothing flashed, fastboot reachable via adb reboot bootloader
+
+Considered
+: next: our dtb plus gpio-reserved-ranges <0 4>,<81 4>, try twice (alive expected); the earlier vf1 empty-header turning point may be this same cause
+
+About
+: walleye-first-fastboot-boot
