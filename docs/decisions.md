@@ -730,3 +730,25 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-19-walleye-reader-plain-background-process"></a>
+### 2026-11-19-walleye-reader-plain-background-process
+
+Date
+: 2026-11-18
+
+Brief
+: The tty reader runs as a plain background process of the keeper; the lab-agent job route is withdrawn
+
+Decision
+: The lab-agent job route for the tty reader (decision 2026-11-19-walleye-reader-runs-as-a-lab-job) is withdrawn: lab-agent's GitHub token answers 401 (journal: poll error ... lab-agent-jobs ... 401 every 5 s), so no job is ever picked up (z3 try, z5b try). The reader runs as a plain background process of the keeper (as in the z4 and z5 tries, which worked: the keeper opened the tty and read it), started BEFORE the boot with nohup, its output in the lab-material path; the keeper's own sandbox did open /dev/ttyACM0 in those tries (the 'sandbox' denial of the z3 try was the reader's last reboot write after the node vanished, lab research walleye-z3-ttyacm-not-a-permission-problem). No lab-agent submit, no root-exec.
+
+Why
+: The job route cannot work while lab-agent is retired; the plain background process has worked twice; the lane must not wait on the author for a token of a tool being retired.
+
+Rejected
+: Renewing lab-agent's token (the author's hands, for a retiring tool); running the reader through the coordinator each time (it does not scale and keeps the coordinator on the critical path).
+
+About
+: walleye-first-fastboot-boot

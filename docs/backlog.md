@@ -3448,6 +3448,8 @@ Status
 Note
 : tried once 2026-11-18 13:2x: no result, lab-agent GitHub token 401 so the reader job never ran (research walleye-z5b-try-no-reader); waits on the author renewing the token (lab-agent connect); job script at ~/lab-material/walleye/z5b-try1/job.sh
 
+SECOND ROUND (coordinator): the job route is withdrawn (decision 2026-11-19-walleye-reader-plain-background-process): start the host-side stty loop and the reader as plain background processes (nohup, own process group) BEFORE the boot, as in the z4/z5 tries; a prepared job.sh from the first round (~/lab-material/walleye/z5b-try1/job.sh) is the script to run directly with sh. No lab-agent, no root-exec.
+
 About
 : walleye-first-fastboot-boot
 
