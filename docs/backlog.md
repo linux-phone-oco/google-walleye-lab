@@ -3852,7 +3852,7 @@ Status
 : open
 
 Note
-: Hung after c3's reader reboot -f at 15:13 on 2026-11-18; nothing flashed, slot b active. z9 precedent: back after more than 10 minutes. Next keeper: check lsusb first; if still 1d6b:0104, hold power ~15 s is the author's.
+: Still hung at 14:50Z by USB (gadget 1d6b:0104 on 3-2 since 15:13:50 local, no disconnect, no adb). The author sees LineageOS on the screen and says he did not reboot it: a command-mode panel (S6E3FA5) keeps showing its last frame while the SoC is stuck, and mainline drives no display, so a lit screen with LineageOS is NOT evidence of Android running (lesson: judge a recovery only by USB, never by the screen). Needs the author's Power hold (~15 s) once he is at the phone.
 
 Waits
 : the author's hands, only if it has not come back by itself
