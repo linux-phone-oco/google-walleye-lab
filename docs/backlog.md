@@ -2498,3 +2498,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-vf4-vf2-order-progressive"></a>
+### vf4: keep vf2's proven init order up to the gadget bind byte for byte, then append vf3's progressive dump after the bind
+
+Status
+: open
+
+Note
+: Facts (lab research walleye-vf2-tried-twice, walleye-vf3-tried-twice): vf2 (alive: beats every 2 s, steps 0-4 ok, gadget bind step at 43 s) ran; vf3 (gadget moved first, dump progressive) died before the bind (no gadget on the host twice, back at 78 s = the dead class). One change at a time from the last alive image: vf4 = vf2 + the progressive dump AFTER the bind. WHEN DONE queue walleye-try-vf4 (needs phone, rank 1): the poller first in its own job, then boot twice; battery first; phone left in Android.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: boot-vf4.img = vf2's init with ONLY the dump part added after the gadget bind: everything vf2 did before and including the UDC bind unchanged (diff of the init against vf2's shows additions only after the bind step); the added part is vf3's progressive framed dump (BEGIN/END lines, appended, synced, timeout 5 per read); the diff vf2->vf3 is written up in the research row with the likely cause of vf3's death (what it did before the bind that vf2 did not: say it), the diff vf2->vf4 shown; the poller of vf3 reused; checks, selftest, programmer review, hashes
