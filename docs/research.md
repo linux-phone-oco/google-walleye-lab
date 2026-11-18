@@ -1252,3 +1252,22 @@ Sources
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-pk5-stages-tried"></a>
+### walleye-pk5-stages-tried
+
+Date
+: 2026-11-18
+
+Brief
+: g1, g2, g3 (pk5 + gadget steps) twice each: all back as Android; g1 42-43 s, g2 138 s, g3 42-48 s; no 1d6b gadget enumerated in 100 s, even by g3; pstore empty
+
+Question
+: Which gadget step on pk5 (dir+strings; +mass_storage; +UDC bind) first kills init, and does g3 enumerate?
+
+Found
+: Each of g1,g2,g3 booted twice from fastboot (slot b, nothing flashed), lsusb polled each second for 100 s, pstore read after each via adb root. Left fastboot at 15 s every time. Back as Android: g1 43 s,42 s; g2 138 s,138 s; g3 48 s,42 s. USB showed only fastboot then Android's 18d1:4ee7: no 1d6b device ever, so g3 (UDC bind) did not enumerate as the item expected (~25 s). pstore empty in the tries read (g1 try 1 not read). g2 returns at 138 s, outside the 42-63 alive and 75 dead classes. Battery 4377 mV read after the tries (the battery rule landed during the run).
+
+About
+: walleye-first-fastboot-boot

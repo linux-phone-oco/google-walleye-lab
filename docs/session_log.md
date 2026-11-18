@@ -1201,3 +1201,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-2330-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: g1,g2,g3 tried twice each (research walleye-pk5-stages-tried); phone back in Android on slot b (idle-android pass, battery 4377 mV), nothing flashed, stock kernel; lease released
+
+Considered
+: next: g3 never enumerated and g2 returns at 138 s; find what differs from expectation (UDC name, ordering, dtb usb node)
+
+About
+: walleye-first-fastboot-boot
