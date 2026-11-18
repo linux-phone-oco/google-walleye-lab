@@ -1066,3 +1066,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-2000-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: wa tried 3 times (42, 63, 63 s); phone in fastboot, slot b current, a and b successful, nothing flashed, stock kernel; lease released
+
+Considered
+: next: decide whether 63 s is a new return class (a ramoops read, or wa x2 more); then w1..w5, wr twice each as planned
+
+About
+: walleye-first-fastboot-boot

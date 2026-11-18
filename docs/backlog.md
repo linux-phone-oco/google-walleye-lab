@@ -2078,10 +2078,10 @@ Proof
 ### Phone: boot wa twice from the first state, then w1..w5 and wr twice each; record the return times (~42 s init ran, ~75 s dead)
 
 Status
-: open
+: in-progress
 
 Note
-: images ~/Projects/walleye-build/images-w, SHA256SUMS there; plan in research walleye-taimen-walleye-built: wa first; if wa returns ~42 s the cause is a property, stop
+: wa done x3: 42, 63, 63 s (research walleye-wa-tried); w1..w5 and wr twice each remain
 
 About
 : walleye-first-fastboot-boot
