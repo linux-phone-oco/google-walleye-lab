@@ -4792,3 +4792,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-ufs-regs-reader"></a>
+### How to read UFS_HW_VERSION and the PHY registers on live Android (no /dev/mem): debugfs, a read-only module, or skip
+
+Status
+: open
+
+Note
+: From the keeper (lab PR 309): host regs read through sysfs/debugfs (UFSHCI 2.1, HS G3 x2 rate B, Hynix 64GB); HW version and PHY registers need a reader. Low rank: the UFS probe waits anyway (the author's 'Yes, wait'); this only sharpens the later verdict.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: A research row that decides HOW to read UFS_HW_VERSION and the QMP PHY registers on the live Android, since the vendor kernel has no /dev/mem (read-only reads were done through sysfs/debugfs: UFSHCI 2.1, HS G3 x2 rate B): the options with their risk in plain words: (1) the vendor kernel's own debugfs/sysfs knobs that print host registers (ufshcd debugfs 'show_hba', 'dump_regs' if built; the 'ufs-qcom' debug registers 'testbus', 'dbg_regs' tokens), (2) a tiny GPL read-only kernel module built against the vendor kernel's source and /proc/config.gz (insmod via adb root; it ioremaps the UFS host and PHY regions and prints a fixed list of registers to the kernel log; unload at once; Android is disposable but the bound is bricking: a read of a powered, clocked region that Android itself reads is safe, say why and what the exact addresses and offsets are from the running fdt; no write), (3) reading the registers from our own vendor-kernel instrument (the vf image) is NOT possible for the same /dev/mem reason, (4) skipping the read: what the UFS-way question loses without UFS_HW_VERSION and the PHY registers (the PHY table choice 3.0.0 vs 3.1.0 is the open one: another way to tell the PHY version: the vendor kernel's dmesg 'ufs-phy' lines, the compatible/version in the running fdt, the GPL source's selection logic); verdict and recommendation; a build item queued only if a module is recommended, with its way back (nothing is written to storage; reboot clears)
+
+Rank
+: 40
