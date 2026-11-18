@@ -4372,10 +4372,10 @@ Rank
 ### Try z12 once from slot b: the UFS read-only try with the Hynix quirks (replaces walleye-try-z11's image)
 
 Status
-: open
+: done
 
 Note
-: Superseded by a z13 once walleye-hynix-quirks-review-fixes is done: z12's purge guard misses the ufs_bsg path. Never run without the author's word.
+: Superseded by walleye-try-z13 (never run): z12's purge guard missed the ufs_bsg path.
 
 Waits
 : walleye-hynix-quirks-review-fixes; the author's word; walleye-ufs-card-identity
@@ -4385,9 +4385,6 @@ About
 
 Opened
 : 2026-11-18
-
-Needs
-: phone
 
 Proof
 : z12 once from slot b (images-z12/boot-z12.img sha256 f959c44868200c9a4056e5f6ffa56679e42b24a98f64f8337c87b8f791c74f41), the z11 recipe; then tests/host/ufs-lsblk-check.sh must say pass (walleye-ufs-lsblk)
@@ -4400,10 +4397,10 @@ Rank
 ### Fix the review findings of the Hynix UFS quirks and build z13 (built only)
 
 Status
-: open
+: done
 
 Note
-: From research walleye-z12-built (review): see its findings 1-6. walleye-try-z12 waits for this.
+: z13 built (kernel d49d54405, boot-z13.img sha256 b8348e40), programmer review done; try queued as walleye-try-z13; research walleye-z13-built
 
 About
 : walleye-first-fastboot-boot
@@ -4419,3 +4416,31 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-try-z13"></a>
+### Try z13 once from slot b: the UFS read-only try with the Hynix quirks and the purge guard at the send (replaces walleye-try-z12)
+
+Status
+: open
+
+Note
+: Never run without the author's word. z12's purge guard missed ufs_bsg; z13 has it at the UPIU send.
+
+Waits
+: the author's word; walleye-ufs-card-identity
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: z13 once from slot b (images-z13/boot-z13.img sha256 b8348e40182e93f1f6c575abdcf586fc6ff91ebaed68bd0a9ecf51f2522cb89f), the z11 recipe; then tests/host/ufs-lsblk-check.sh must say pass (walleye-ufs-lsblk)
+
+Rank
+: 2
