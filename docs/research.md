@@ -987,3 +987,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-pk5l/
+
+
+<a id="walleye-pk5l-tried"></a>
+### walleye-pk5l-tried
+
+Date
+: 2026-11-18
+
+Brief
+: pk5l booted twice from fastboot: no ACM gadget ever enumerated; the phone came back as Android (adb) after 57 s and 42 s
+
+Question
+: Does pk5l (our kernel, porthole's dtb, gadget init) bring up the ACM console and the mass_storage window?
+
+Found
+: Two tries from the first state (slot b current, a and b successful). Each: left fastboot after 15 s; ACM_WAIT 60 and 40 s: no walleye-first-boot gadget, no ttyACM, no 18d1 device but fastboot; then Android adb gadget at 57 s / 42 s (the bootloader fell back to slot b's Android, i.e. the init never held 180 s nor showed a gadget). Window not read. Slot flags unchanged after (b current, both successful, retry 0). Return to fastboot by adb reboot bootloader. Suite latest not run: no devlab password (fastboot-only phone). Next: the dtb diff/bisect (walleye-try-dtb-bisect).
+
+About
+: walleye-first-fastboot-boot

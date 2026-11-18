@@ -1984,10 +1984,10 @@ Rank
 ### Phone: boot pk5l twice from the first state; read the ACM console and the window, record the first mainline dmesg
 
 Status
-: open
+: done
 
 Note
-: image ~/Projects/walleye-build/images-pk5l/boot-pk5l.img, SHA256SUMS, research walleye-pk5l-built; host test tests/host/mainline-acm-up.sh (ACM_WAIT=60), window by tests/host/massstorage-read.sh (needs disk group or sudo: backlog walleye-host-access-via-lab-prepare). The init stays up 180 s, longer while /tmp/hold exists (touch it from the shell on /dev/ttyACM*); then reboots by itself: no hands. Run before walleye-try-dtb-bisect.
+: tried twice: no ACM, Android back at 57/42 s; recorded walleye-pk5l-tried; next walleye-try-dtb-bisect
 
 About
 : walleye-first-fastboot-boot
