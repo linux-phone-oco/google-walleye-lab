@@ -248,3 +248,13 @@
 &adreno_smmu {
 	status = "disabled";
 };
+
+/*
+ * The PMIC's own watchdog (item walleye-kernel-pmic-wdt, linux-phone-oco/linux topic/pmic-wdt-wake-in-suspend on v7.3): pm8998.dtsi describes it, in the series
+ * (qcom,pm8998-wdt, bite interrupt) and leaves it disabled. Enabled with wakeup-source, the driver keeps it running through
+ * suspend, so a bite is a way to wake the phone (proof pmic-wdt-bites, pmic-wdt-wakes-in-suspend).
+ */
+&pm8998_wdt {
+	wakeup-source;
+	status = "okay";
+};

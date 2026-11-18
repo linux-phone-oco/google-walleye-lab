@@ -2233,3 +2233,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-z8-built-c2-plus-pmic-watchdog"></a>
+### z8 built: c2 plus PMIC watchdog
+
+Entry date
+: 2026-11-18
+
+Done
+: Built kernel (v7.3 + e123d3bff, PM8916_WATCHDOG=y, dts pm8998_wdt okay wakeup-source), build/build-z8.sh with all checks ok (rebuilt twice, same hashes), programmer review applied. boot-z8.img sha256 797778f27d7aa0c8e93cbe6d101678132da3f94bc5536c672f4f740767dce0b5, dtb 1cb054698d37202a64c0408975023374ee429605cd08b04727f491a62c43946b, in ~/Projects/walleye-build/images-z8/. Not tried on the phone.
+
+Considered
+: tying Image.gz to the commit: only the compatible string is checked; not known yet beyond that.
+
+About
+: deep-sleep

@@ -3505,7 +3505,7 @@ Status
 : open
 
 Note
-: Script https://github.com/linux-phone-oco/docs/blob/main/research/upstream-forks/2026-11-18/tests/pmic-wdt-way-back.sh: check, bite 20 then check (CARDRESET); wake only once walleye suspends at all. The second PMIC (pm8998) the RFC needs before it drops RFC (docs upstream item pmic-wdt-wake-in-suspend).
+: Image to try: ~/Projects/walleye-build/images-z8/boot-z8.img (z8, sha256 797778f27d7aa0c8e93cbe6d101678132da3f94bc5536c672f4f740767dce0b5). Script https://github.com/linux-phone-oco/docs/blob/main/research/upstream-forks/2026-11-18/tests/pmic-wdt-way-back.sh: check, bite 20 then check (CARDRESET); wake only once walleye suspends at all. The second PMIC (pm8998) the RFC needs before it drops RFC (docs upstream item pmic-wdt-wake-in-suspend).
 
 Blocked by
 : walleye-kernel-pmic-wdt
@@ -3652,12 +3652,10 @@ Rank
 ### walleye's v7.3 kernel with the PMIC watchdog series (linux-phone-oco/linux topic/pmic-wdt-wake-in-suspend) and &pm8998_wdt enabled, wakeup-source
 
 Status
-: open
+: done
 
 Note
-: docs decision 2026-11-18-upstream-forks. The branch is on v7.3 (local worktree ~/Projects/linux-phone-oco/linux-topics until the upstreams lane pushes it): merge it into walleye's test branch, CONFIG_PM8916_WATCHDOG=y, board: &pm8998_wdt { status = "okay"; wakeup-source; }.
-
-UPDATE 2026-11-18 (upstreams coordinator): the series is pushed: https://github.com/grenudi/linux branch topic/pmic-wdt-wake-in-suspend, commit e123d3bff, on v7.3 (replaces the local worktree path). Order: after walleye-charger-on-z7; the image is z8 on the z7 base. WHEN DONE queue the phone row walleye-pmic-wdt-proof as written (it is already blocked_by this item) and tell the coordinator the build result.
+: z8 built: ~/Projects/walleye-build/images-z8/boot-z8.img (sha256 797778f2...dce0b5), build/build-z8.sh checks all ok; kernel out ~/Projects/walleye-build/out-z8, tree wt-k-z8 at e123d3bff.
 
 About
 : deep-sleep
