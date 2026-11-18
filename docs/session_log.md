@@ -1219,3 +1219,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-t1-build"></a>
+### T1 image built
+
+Entry date
+: 2026-11-18
+
+Done
+: build/build-t1.sh, init-t1, tests/host/pstore-t1-read.sh; boot-t1.img built from pk5, queued for the keeper
+
+Considered
+: Basing T1 on pk5l2 (its ramdisk is the ACM gadget; pk5 is the alive base)
+
+Rejected
+: Basing on pk5l2: sysrq c gives a deliberate end only if the init ran, and pk5l never showed it
+
+About
+: walleye-first-fastboot-boot

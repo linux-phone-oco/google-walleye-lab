@@ -2260,10 +2260,10 @@ Proof
 ### Image T1: init marks /dev/kmsg, waits 20 s, sysrq c (panic=5); read console-ramoops after the return
 
 Status
-: open
+: done
 
 Note
-: From research walleye-pstore-warm-reset-how-it-stands; run only after a kernel has shown life
+: Built: images-t1/boot-t1.img (research walleye-t1-built); try queued as walleye-pstore-t1-try
 
 About
 : walleye-first-fastboot-boot
@@ -2323,3 +2323,25 @@ Needs
 
 Proof
 : pstore holds the marker after a plain reboot -f
+
+
+<a id="walleye-pstore-t1-try"></a>
+### Try T1: fastboot boot boot-t1.img, wait 90 s, read console-ramoops for the marker
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images-t1/boot-t1.img (SHA256SUMS in research/.../2026-11-18-t1); run only after a kernel has shown life; expected: marker absent (cause B)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: tests/host/pstore-t1-read.sh
