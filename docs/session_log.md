@@ -2686,3 +2686,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-builder-z16"></a>
+### walleye-builder: z16 built
+
+Entry date
+: 2026-11-18
+
+Done
+: Read z15 part 1; found the overlay overwrites the qup node by name; wrote tests/host/i2c-qup-after-merge.sh (fails on z15, passes on z16) and build/build-z16.sh (26 checks, rebuild identical); recorded research, decision, the phone try queued.
+
+Considered
+: compatible edit, dtbo edit, soc symbol repoint, dtc round trip
+
+Rejected
+: all four, see the decision
+
+About
+: walleye-first-fastboot-boot

@@ -4606,7 +4606,7 @@ Status
 : open
 
 Note
-: PART 1 done 2026-11-18: probe absent - i2c@c179000 compatible qcom,i2c-msm-v2 has no mainline driver (research walleye-z15-part1-tried). Needs a z16 build with the mainline i2c-qup compatible before touch can be tried. PART 2 (person touches panel) still waits for the author; its steps go to the top coordinator when they are back.
+: PART 1 done 2026-11-18: probe absent - overlay overwrote the qup compatible. z16 built (walleye-z16-built); try it as walleye-try-z16-part1. PART 2 (person touches panel) still waits for the author; its steps go to the top coordinator when they are back.
 
 About
 : walleye-first-fastboot-boot
@@ -4628,10 +4628,10 @@ Rank
 ### Build z16: z15 with blsp1_i2c5's compatible changed to the mainline i2c-qup one, so the RMI4 touch controller can probe
 
 Status
-: open
+: done
 
 Note
-: From research walleye-z15-part1-tried: z15's i2c node is qcom,i2c-msm-v2 (downstream), no mainline driver binds.
+: Built as z16 (research walleye-z16-built, decision 2026-11-18-walleye-z16-rename-the-qup-node): the compatible was already right; the overlay overwrote it by node name, so the node is renamed. Try: walleye-try-z16-part1.
 
 About
 : walleye-first-fastboot-boot
@@ -4671,6 +4671,31 @@ Proof
 : A clean-room research row, vendor sources cited and NO vendor code copied into any of our trees (facts and sequences in words and tables only): (1) the vendor's UFS bring-up for this card, read from Google's published GPL kernel (android.googlesource.com kernel/msm, the wahoo/walleye branches, msm-4.4; the exact branch/commit the running kernel was built from if the version string names it: say how found): ufs-qcom (host variant, PHY init, clock/regulator ordering), ufshcd (link startup, the DME sequence, gear changes, the reset paths: ufshcd_reset_and_restore, the hardware reset line, 'ufshcd_host_reset'), the quirk table entries for SK hynix and this model (H28U74301AMR) with the flags they set, the quirk flags of the host (UFSHCD_QUIRK_*) the dts sets, the purge handling (UFSHCD_QUIRK/'NO_PURGE', 'ufs_bsg'), power management (spm/rpm levels, auto-hibern8, pm-qos, 'ufshcd_system_suspend') and what the bootloader leaves configured (what abl hands over: the PHY state, the gear, the clocks; say what is read and what is inferred); (2) the live facts of Android's own boot (the keeper's read-only material of walleye-ufs-android-live: dmesg order and values, debugfs, sysfs, the running fdt's ufshc and phy nodes, the config); (3) the line-by-line diff against OUR z13 path (kernel topic/ufs-hynix-quirks d49d54405 on v7.3): every quirk (host and device), every PHY init write (the QMP phy tables of mainline msm8998 vs the vendor's), the reset sequence, the clock/regulator order, auto-hibern8, gear/lane settings, 'ufshcd_hba_enable'/the host reset at probe, and anything done at link startup or at device reset that differs, especially the yoshino erase path (the unpublished erase cause: say what the Sony downstream fix touched and whether it appears in the vendor sequence of THIS card); (4) a verdict in plain words: can our z13 path match Android's sequence exactly (what remains different and why), and does matching make the probe safe enough to take back to the author (his 'Yes, wait' stands): what would still be risk, what can be proved before any try by reading registers in a vendor-kernel run (the vf instrument) without touching our kernel's UFS; sources listed, with what was read where; programmer-free: research only, no build
 
 HOW TO COMPARE (the author's concern, via the top coordinator, 2026-11-18): NO line-by-line reading: msm-4.4 and mainline v7.3 have diverged too far for a whole-file diff to mean anything. Compare the specific things, with tools: (1) extract the PHY init tables (the register and value arrays of the QMP UFS PHY on msm8998) from both trees and diff them as sorted lists; (2) diff the quirk flags applied to this card: the vendor's ufs_fixups and quirk table entries for SK hynix against ours, plus the z13 backport; (3) diff the dts ufshc and phy node properties, vendor against ours, as normalised key-value lists, adding Android's live readings (debugfs and the register dump of lab PR 297) as the ground truth; (4) read code BY HAND only for the reset and link-startup paths, the narrow functions where yoshino's erase could hide. The extraction scripts are kept in the material folder so the comparison can be rerun (shell/awk/dtc/jq; no Python)
+
+Rank
+: 1
+
+
+<a id="walleye-try-z16-part1"></a>
+### Try z16 once from slot b (probe only, nobody touching): does the RMI4 controller probe on the qup i2c bus?
+
+Status
+: open
+
+Note
+: Queued by walleye-builder from z16's build. Material to ~/lab-material/walleye/z16-part1.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-touch-probe: images-z16/boot-z16.img (sha256 05849ba7) once; dmesg has an i2c bus at c179000.qup and rmi4_i2c lines, no failures (tests/host/touch-check.sh answers skip without events, not fail); part 2 (a person touching) waits for the author with walleye-try-z15's
 
 Rank
 : 1

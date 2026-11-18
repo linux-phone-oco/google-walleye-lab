@@ -1210,3 +1210,34 @@ About
 
 Research
 : walleye-z9-tried-pmic-wdt-bites
+
+
+<a id="2026-11-18-walleye-z16-rename-the-qup-node"></a>
+### 2026-11-18-walleye-z16-rename-the-qup-node
+
+Date
+: 2026-11-18
+
+Brief
+: z16: rename our QUP node qup@c179000 so the overlay's i2c@c179000 cannot overwrite it; not a compatible edit
+
+Decision
+: Name our controller node at 0xc179000 qup@c179000 (same-length substitution of node and its two symbol paths in z15's dtb). The overlay's i2c@c179000 then stands as a separate driverless node. Check after the overlay merge (fdtoverlay with dtbo entry 3), not on our dtb alone.
+
+Why
+: The merge is by node name, so our dtb alone shows the right compatible while the merged tree has the downstream one (z15 proved it on the phone and fdtoverlay reproduces it).
+
+Rejected
+: Setting the compatible in our dtb (the item's first wording): already the value, overwritten by the overlay. Editing the dtbo: it is the phone's own partition and the control we compare against. Repointing the soc symbol or emptying the overlay target: hits every other fragment on soc. A dtc round trip to rename: rewrites the whole dtb for a one-word change; the byte substitution leaves nine bytes different.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-z16-built
+
+Scope
+: walleye builds from z16 on keep the node name qup@c179000
+
+Tracked by
+: walleye-build-z16-i2c-compatible
