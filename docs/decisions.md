@@ -542,3 +542,28 @@ About
 
 Research
 : walleye-y-built
+
+
+<a id="2026-11-18-walleye-bringup-order"></a>
+### 2026-11-18-walleye-bringup-order
+
+Date
+: 2026-11-18
+
+Brief
+: Bring walleye up in this order: PMIC, clean probes, charger, UFS read-only; then USB net, fuel gauge, touch, display, Wi-Fi; audio and the radios last
+
+Decision
+: The lane's builders and keeper take items by rank: 1 walleye-pmic-spmi, 2 walleye-dmesg-clean, 3 walleye-charger-smb2, 4 walleye-ufs-readonly; the unranked items follow in the order of the plan table. The research session itself queued each item with its needs and proof. Parts without a mainline driver (S6E3FA5 panel, PMI8998 fuel gauge, DRV2624, TAS2557) are upstream candidates: a clean-room port from the vendor's GPL sources, then sent upstream.
+
+Why
+: The first mainline dmesg shows the SPMI PMIC unbound, the smmu and serial probes failing; every later part rests on those. UFS rails are RPM regulators, so UFS does not wait for the PMIC. qcom_smbx is already in mainline, so a charging phone costs a dts node, and it ends the battery constraint of the keeper's rule. UFS read-only gives the phone's boot.img header and the firmware partitions the radios need.
+
+Rejected
+: Display first: the panel driver is new and a person must witness it, while ACM already reads a dmesg. Wi-Fi first: needs UFS to read firmware. Adopting porthole's 263 taimen patches whole: taimen-focused, one untested walleye board (mainline-path research). A fuel gauge before the charger: the gauge is an unmerged RFC; the charger is merged. PMIC as the gate of UFS (the brief's guess): the vendor tree puts UFS rails on the RPM.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-bringup-order-plan-made

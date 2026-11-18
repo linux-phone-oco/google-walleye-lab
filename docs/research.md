@@ -1713,3 +1713,28 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-bringup-order-plan-made"></a>
+### walleye-bringup-order-plan-made
+
+Date
+: 2026-11-18
+
+Brief
+: Walleye bring-up order: PMIC, clean probes, charger, UFS first; UFS does not wait on SPMI; fuel gauge, panel, DRV2624, TAS2557 are upstream candidates
+
+Question
+: In what order should the Pixel 2's parts come up on mainline, what does each unlock and prove, and what has mainline for these chips?
+
+Found
+: From the first mainline dmesg (y2) and the vendor tree's facts: the order is 1 PMIC on SPMI (the reg-property fault), 2 clean probes (arm-smmu timeout, serial supplier, i2c phandle), 3 charger (qcom_smbx is in mainline: a dts node and a monitored battery of 2700 mAh/4.4 V, no new driver), 4 UFS read-only (its rails L20, L26, S4 are RPM regulators already present, so it does not wait for SPMI), then USB networking, fuel gauge, touch, display, Wi-Fi/BT, audio and haptics; modem, sensors, camera, NFC, fingerprint and deep sleep get research items. Needing new drivers (upstream candidates): the S6E3FA5 panel, the PMI8998 fuel gauge (an RFC series of 2025-11-24, to test and review), DRV2624 haptics, TAS2557 amps. Has mainline: smb2 charger, rradc, UFS, DPU/DSI, RMI4 touch, WCD934x, ath10k WCN3990. Each part has its proof in the material's table; the 21 docs components map to three phases (reachable, usable, a phone); the jack is absent by hardware. Not known yet: UFS vs smmu order, the MP1 touch wiring.
+
+Sources
+: lwn-pmi8998-fg-rfc,kernel-qcom-smbx-charger,linux-msm-mainline-status
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-bringup-order-plan/2026-11-18/
