@@ -2708,3 +2708,25 @@ Needs
 
 Proof
 : pstore holds the marker after a plain reboot -f
+
+
+<a id="walleye-our-dts-gpio-reserved"></a>
+### The cause of our dead dtbs: pinctrl@3400000 lacks gpio-reserved-ranges <0 4>, <81 4> (TZ-protected GPIOs). Put it into OUR dts and build images y1 (init: reboot at once) and y2 (the gadget: ACM console + mass_storage window)
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-try-fdt-bisect, PR 149): 16 boots from slot b: x1 (the alive tree with OUR gpio-reserved-ranges, i.e. none/ours) dead twice, xa dead, x2-x7 alive: the missing property is the cause of every dead walleye dtb of ours (ours, pk2, pk4, d1-d6). Also likely behind pk5l/g1-g3 gadgets that never enumerated? (no: they used the taimen dtb which has it): check with y2. WHEN DONE queue walleye-try-y (needs phone, rank 1): y1 twice then y2 twice; battery first; Android left on a good slot.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: (1) dt/msm8998-google-walleye.dts gets the property exactly as in the alive trees and the running fdt (pinctrl@3400000 gpio-reserved-ranges = <0 4>, <81 4>), with a comment naming where it comes from (the phone running fdt, vfa) and why (those pins belong to the secure world: touching them resets the phone) - and the other missing items from walleye-fdt-compare that are cheap and certain (restart@10ac000 qcom,pshold, the apps watchdog) only if the finding says they matter, one commit each so the effect is attributable; (2) images y1 = our kernel (the ml6a one, no earlycon) + OUR dtb with the property + the ml5a immediate-reboot init; y2 = the same + the mainline gadget init of pk5l (ACM shell on ttyGS0 + mass_storage window, watchdog petted 180 s, reboot -f at the end) so the first USB light can appear; expected: y1 alive (<=66 s), y2 shows 1d6b:0104 on the host within ~25 s of the jump (plain lsusb); checks, hashes, programmer review; build recipe reproducible; (3) keep dtbo-overlay-merges.sh passing
