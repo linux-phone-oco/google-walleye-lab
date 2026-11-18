@@ -3766,33 +3766,6 @@ Needs
 : phone
 
 
-<a id="walleye-pmic-bite-reset-type"></a>
-### Why the PMIC bite powered the phone off (z9) and how to make a bite a restart
-
-Status
-: open
-
-Note
-: Fact (keeper, lab PR 236/237): z9 = z8 + qcom-pon=y; the PM8998 watchdog bit 20 s after arming (the series works); the phone then stayed off the USB bus, not Android, not fastboot: it needs a power-cycle by hand (walleye-needs-power-cycle-after-pmic-bite). Decision 2026-11-18-walleye-no-pmic-bite-until-reset-type.
-
-FACTS FROM THE UPSTREAMS COORDINATOR (series grenudi/linux topic/pmic-wdt-wake-in-suspend, drivers/watchdog/pm8916_wdt.c probe): the driver writes S2_CTL (PON +0x56) = RESET_TYPE_HARD 0x07 ONCE at probe, with no unlock and no read-back, and writes nothing there at start time. Downstream qpnp-power-on configures a reset by: clearing S2_CTL2 EN, waiting a few slow-clock cycles, writing the type, then re-enabling. So the power-off points at (a) the write not taking, (b) being overwritten later by qcom-pon (z9 added qcom-pon=y) or the bootloader, or (c) a different type encoding on PM8998's gen2 PON. Reading +0x56 (and S2_CTL2) back through the shell BEFORE the next bite settles which: the reading is a safe phone item (no bite): it needs the phone, which is parked until the author's hands; queue it behind walleye-needs-power-cycle-after-pmic-bite. Any fix goes into the series as its own patch (the upstreams lane carries it).
-
-About
-: deep-sleep
-
-Opened
-: 2026-11-18
-
-Needs
-: research
-
-Proof
-: A research row, from the pm8998 and PON sources in the kernel tree used by the build (drivers/input/misc/pm8941-pwrkey, drivers/power/reset/qcom-pon.c, the PMIC watchdog series of the upstreams lane at topic/pmic-wdt-wake-in-suspend e123d3bff, the dtbs of the running fdt for the pon node) and public documentation: what reset type the PM8998 S2 stage (the watchdog's bite) performs by default and what the vendor kernel (the running fdt, vfa material) configures (the qcom,pon properties: s3-debounce, the S2 reset type and timer; pon-cfg registers), why the z9 bite powered the phone off (a SHUTDOWN type: normal on a PMIC whose default S2 reset type is shutdown, versus HARD_RESET/WARM_RESET), how the kernel sets the S2 reset type (the qcom-pon driver's reboot-mode, the register PON_PS_HOLD_RESET_CTL / PON_KPDPWR_RESET_S2_CTL, the property names in the driver) and the one-image change that makes a bite restart the phone: the dts/config change, the expected observation, and a way back that needs no hands (say what stops the next bite from being a dead phone: e.g. the reset type set in the same init before arming, read back from the register through the shell). Also what the bite proved and what stays unproven for the upstream row (the series bites; its reset type is a board setting, not the series' fault). Queue the build item with its proof, and the phone item (blocked by the build) with the way back; do NOT queue any bite try before that
-
-Rank
-: 1
-
-
 <a id="walleye-pmic-wdt-proof"></a>
 ### Prove the PMIC watchdog way back on walleye (pm8998): it bites unpetted, and its bark wakes a suspend
 
@@ -3816,3 +3789,32 @@ Needs
 
 Proof
 : pmic-wdt-bites,pmic-wdt-wakes-in-suspend
+
+
+<a id="walleye-pmic-bite-reset-type"></a>
+### Why the PMIC bite powered the phone off (z9) and how to make a bite a restart
+
+Status
+: open
+
+Note
+: Fact (keeper, lab PR 236/237): z9 = z8 + qcom-pon=y; the PM8998 watchdog bit 20 s after arming (the series works); the phone then stayed off the USB bus, not Android, not fastboot: it needs a power-cycle by hand (walleye-needs-power-cycle-after-pmic-bite). Decision 2026-11-18-walleye-no-pmic-bite-until-reset-type.
+
+FACTS FROM THE UPSTREAMS COORDINATOR (series grenudi/linux topic/pmic-wdt-wake-in-suspend, drivers/watchdog/pm8916_wdt.c probe): the driver writes S2_CTL (PON +0x56) = RESET_TYPE_HARD 0x07 ONCE at probe, with no unlock and no read-back, and writes nothing there at start time. Downstream qpnp-power-on configures a reset by: clearing S2_CTL2 EN, waiting a few slow-clock cycles, writing the type, then re-enabling. So the power-off points at (a) the write not taking, (b) being overwritten later by qcom-pon (z9 added qcom-pon=y) or the bootloader, or (c) a different type encoding on PM8998's gen2 PON. Reading +0x56 (and S2_CTL2) back through the shell BEFORE the next bite settles which: the reading is a safe phone item (no bite): it needs the phone, which is parked until the author's hands; queue it behind walleye-needs-power-cycle-after-pmic-bite. Any fix goes into the series as its own patch (the upstreams lane carries it).
+
+CORRECTION (keeper walleye-348f6c2b, 2026-11-18): the phone was not dead after the z9 bite: it reappeared in fastboot (18d1:4ee0) a few minutes after the keeper's report, current slot b, successful, not unbootable. Time to reappear: more than 10 minutes, not ~75 s. The author also held Power ~15 s in that window (coordinator's relay at 14:08-14:11Z, which then showed Android 18d1:4ee7 with adb), so 'recovered by itself after >10 min' and 'recovered by the hold' are NOT told apart by the record. What is known: a bite does not restart the phone in the ~75 s a try allows; it ends with the phone off the bus for minutes (a power-off, then the bootloader or a later boot). The research should explain the delay too (a PMIC shutdown then a charger/PON auto-power-on? a different S2 stage reset type with a long hold?), and any next bite try waits for it.
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: A research row, from the pm8998 and PON sources in the kernel tree used by the build (drivers/input/misc/pm8941-pwrkey, drivers/power/reset/qcom-pon.c, the PMIC watchdog series of the upstreams lane at topic/pmic-wdt-wake-in-suspend e123d3bff, the dtbs of the running fdt for the pon node) and public documentation: what reset type the PM8998 S2 stage (the watchdog's bite) performs by default and what the vendor kernel (the running fdt, vfa material) configures (the qcom,pon properties: s3-debounce, the S2 reset type and timer; pon-cfg registers), why the z9 bite powered the phone off (a SHUTDOWN type: normal on a PMIC whose default S2 reset type is shutdown, versus HARD_RESET/WARM_RESET), how the kernel sets the S2 reset type (the qcom-pon driver's reboot-mode, the register PON_PS_HOLD_RESET_CTL / PON_KPDPWR_RESET_S2_CTL, the property names in the driver) and the one-image change that makes a bite restart the phone: the dts/config change, the expected observation, and a way back that needs no hands (say what stops the next bite from being a dead phone: e.g. the reset type set in the same init before arming, read back from the register through the shell). Also what the bite proved and what stays unproven for the upstream row (the series bites; its reset type is a board setting, not the series' fault). Queue the build item with its proof, and the phone item (blocked by the build) with the way back; do NOT queue any bite try before that
+
+Rank
+: 1
