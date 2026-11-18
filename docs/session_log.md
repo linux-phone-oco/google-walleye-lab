@@ -2815,3 +2815,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-2130-how-the-phone-stands-z17-facts"></a>
+### How the phone stands (after z17 facts)
+
+Entry date
+: 2026-11-18
+
+Done
+: Android on slot b, stock kernel, nothing flashed, a/b successful, fastboot reachable. z17 facts read once (no write): pmi8998 gpiochip2 exists, touch regulator still 'can't get GPIO'
+
+Considered
+: next: why gpiod_get fails on an existing chip (full dmesg order: pmic@2 gpio probe vs regulator-fixed); walleye-ufs-android-regs needs a reader decision; bootchain-readback remains
+
+About
+: walleye-first-fastboot-boot

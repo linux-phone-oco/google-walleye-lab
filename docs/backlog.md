@@ -4898,10 +4898,10 @@ Rank
 ### z17's spmi, gpio and regulator facts over the network shell: why is the pmi8998 gpio chip absent?
 
 Status
-: open
+: done
 
 Note
-: From the builder's falsified premise (lab PR 314, decision 2026-11-18-walleye-z18-not-built-pmi8998-reg-no-effect): z18 (renaming pmi8998) is not the fix; the gpio's absence is unexplained. This costs no new image: z17 has the network shell.
+: proven by research walleye-z17-spmi-gpio-facts-read: facts saved; chip exists, premise falsified further
 
 About
 : walleye-first-fastboot-boot

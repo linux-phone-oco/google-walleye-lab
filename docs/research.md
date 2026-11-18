@@ -3041,3 +3041,28 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z17-spmi-gpio-facts-read"></a>
+### walleye-z17-spmi-gpio-facts-read
+
+Date
+: 2026-11-18
+
+Brief
+: z17 read-only: the pmi8998 gpio chip exists (gpiochip2, 14 GPIOs, phandle matches) yet regulator-touch-power says 'can't get GPIO'
+
+Question
+: Why is the pmi8998 gpio chip absent on z17?
+
+Found
+: z17 once from slot b (fastboot boot now; gadget 1d6b:0104 at 18 s), read only over the network shell (telnet 172.16.43.1). Nothing written but debugfs mount.
+Facts: the pmi8998 gpio chip EXISTS: gpiochip2 = 800f000.spmi:pmic@2:gpio@c000, 14 GPIOs (gpiochip1 = pm8998 pmic@0, 26 GPIOs; gpiochip0 = tlmm 150). spmi devices 0-00..0-03 all bound to pmic-spmi. dmesg: 'qcom,pm8998@0' and 'qcom,pmi8998@3' nodes 'err -22 does not have reg' (stray vendor-style nodes; the real nodes are pmic@N). The touch regulator's gpios = <0x60 2 0>, and phandle 0x60 is pmi8998_gpios (pmic@2 gpio@c000), i.e. the existing chip. Yet devices_deferred says 'regulator-touch-power  reg-fixed-voltage: can't get GPIO' and 'i2c 0-0020: supplier regulator-touch-power not ready'. pmic@2 gpio2 reads in/low/normal (not driven). regulators: l6, l28 disabled; touch-power not registered.
+So the premise 'chip absent because pmi8998@3 lacks reg' is wrong (confirms builder's falsified premise). New question: why does gpiod_get fail for a chip that exists - probe order (regulator-fixed probed before gpiochip2 and not retried?), or gpio-ranges/pinctrl-less gpiochip lookup, or line 2 not requestable. dmesg for the gpio probe time was not captured (filter lacked timestamps of pmic@2 gpio probe); next read: full dmesg and 'cat /sys/kernel/debug/gpio' after force re-probe is NOT done (would write).
+Phone returned to Android via reboot -f (see material). Material: research/walleye-first-fastboot-boot/2026-11-18/z17-spmi-gpio-facts.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-z17-spmi-gpio-facts/
