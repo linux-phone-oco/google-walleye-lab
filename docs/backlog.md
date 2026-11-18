@@ -2451,3 +2451,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-vf3-gadget-first-progressive"></a>
+### vf3: the gadget FIRST, then the dump written progressively (each file appended as read, plain text, no gzip/tar step), and a host poller that keeps everything the window ever showed
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-vf2-tried-twice): vf2's init is ALIVE (beat every 2 s, steps 0-4 rc=0, step 5 at 43 s) but the single-shot reads came back empty and the phone left USB after ~45-60 s: the long first part (43 s before the gadget is bound?) and the single read missed the window. Order the work so the gadget exists first and the data lands progressively; a crash then loses only the tail. WHEN DONE queue walleye-try-vf3 (needs phone, rank 1): twice; the keeper starts the poller first and keeps it alive in its own job (never killed by its own cleanup); battery first; phone left in Android.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: (1) boot-vf3.img = vf2 with only the ramdisk's init reordered: marker + gadget bound within the first seconds (as m1: ~18 s on the host), THEN the dump, one small source at a time (device tree files from /proc/device-tree as text/hex, clk_summary, regulator_summary, pinctrl/gpio, interrupts, iomem, dwc3/usb debugfs, dmesg head/tail), each appended at the next free offset of the 4 MiB window, framed with 'BEGIN name' / 'END name rc=N' lines, flushed (sync) after each; the init stays up until its hold (90 s) and the tail of the window carries a 'DONE' line; a read of a debugfs file that blocks is bounded by timeout 5; (2) tests/host/vendor-facts-poll.sh: started BEFORE the boot in its own background job, finds the LUN by our strings, copies the whole used part of the window every 2 s to numbered files, keeps the last complete copy, and fetches every new BEGIN..END block into research/.../vf/NAME the moment it appears; stops at 'DONE' or after 150 s; (3) selftest, programmer review, hashes
