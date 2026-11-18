@@ -2854,3 +2854,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-research-touch-gpio"></a>
+### walleye-research: touch gpio defer
+
+Entry date
+: 2026-11-18
+
+Done
+: Read v7.3 gpiolib, pinctrl and spmi-gpio source against the built z17 dtb: the specifier is valid (tests/host/touch-gpio-specifier.sh passes), the failure is a persistent -EPROBE_DEFER at an unnamed leaf; queued a read-only phone read and a dyndbg diagnostic build.
+
+Considered
+: dts hog, pinctrl-0 node, label rename, replacing the regulator, unbind/bind re-probe
+
+Rejected
+: all guesses or writes: see decision 2026-11-19-walleye-touch-gpio-diag-first
+
+About
+: walleye-first-fastboot-boot

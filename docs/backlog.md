@@ -4923,10 +4923,10 @@ Rank
 ### Why gpiod_get fails for the touch power on an existing pmi8998 gpio chip (z17)
 
 Status
-: open
+: done
 
 Note
-: From the keeper (lab PR 316): the pmi8998 gpiochip exists (gpiochip2, 14 GPIOs), the regulator's gpios phandle 0x60 points at it, yet devices_deferred says 'regulator-touch-power: can't get GPIO'. The z18 renaming premise was falsified (lab PR 314).
+: Answered by research walleye-touch-gpio-defer-leaves and decision 2026-11-19-walleye-touch-gpio-diag-first: specifier valid; leaf to be named by the queued phone read and diagnostic kernel.
 
 About
 : walleye-first-fastboot-boot
@@ -4967,3 +4967,56 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-touch-gpio-leaf-read"></a>
+### z-next read-only: which gpio/pinctrl defer leaf the touch power hits
+
+Status
+: open
+
+Note
+: Read only over the network shell: cat /sys/kernel/debug/pinctrl/*/gpio-ranges and pinctrl-devices; readlink /sys/bus/gpio/devices/gpiochip*/of_node; cat /sys/kernel/debug/devices_deferred with dmesg timestamps. Name leaf (a) no gpio device matched or (b) no pinctrl range.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: tests/host/touch-gpio-specifier.sh (host, passes) and the phone read tests/health/touch-gpio-leaf-read (to write)
+
+Rank
+: 2
+
+
+<a id="walleye-build-gpio-diag-kernel"></a>
+### Diagnostic kernel: dynamic debug for gpiolib and pinctrl on the command line
+
+Status
+: open
+
+Note
+: build/walleye.config: CONFIG_DYNAMIC_DEBUG=y, CONFIG_DEBUG_GPIO=y; boot command line dyndbg="file gpiolib.c +p; file gpiolib-of.c +p; file pinctrl/core.c +p" (no phone write); touch dts as z17. The fix item is written from the printed leaf.
+
+Blocked by
+: walleye-touch-gpio-leaf-read
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: the diagnostic boot's dmesg shows the gpiolib line naming the leaf and errno for regulator-touch-power
+
+Rank
+: 3

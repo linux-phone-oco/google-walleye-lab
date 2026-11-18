@@ -1319,3 +1319,28 @@ Research
 
 Tracked by
 : walleye-overlay-collisions
+
+
+<a id="2026-11-19-walleye-touch-gpio-diag-first"></a>
+### 2026-11-19-walleye-touch-gpio-diag-first
+
+Date
+: 2026-11-18
+
+Brief
+: Settle which defer leaf the touch gpio hits with a read-only z-next read and a dyndbg diagnostic kernel; change no dts until a leaf is named
+
+Decision
+: No dts change is queued: the specifier is proven valid. Step 1: read-only z-next reads of the pinctrl and gpio-device facts. Step 2: a diagnostic image with CONFIG_DYNAMIC_DEBUG=y and CONFIG_DEBUG_GPIO=y and dyndbg for gpiolib, gpiolib-of and pinctrl core on the command line, so the next boot prints the exact leaf and errno. The fix is written from that line.
+
+Why
+: Source reading proves the specifier and removes candidate causes but cannot choose between two defer leaves; a dts guess would burn a z build and a phone try on a premise already falsified once (z18 renaming, lab PR 314).
+
+Rejected
+: Guess a dts fix (hog the gpio, add a pinctrl-0 pin node, rename the label, change the number): the specifier and pin config are proven not at fault; a hog uses the same request path and a failing hog drops the chip. Replace the regulator-fixed by something else or drop the supply: hides a defect every pmic gpio consumer will meet. Force a re-probe by unbind/bind on the phone: a write, and it repeats the silent failure without debug prints.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-touch-gpio-defer-leaves

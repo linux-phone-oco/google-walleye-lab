@@ -3085,3 +3085,28 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-touch-gpio-defer-leaves"></a>
+### walleye-touch-gpio-defer-leaves
+
+Date
+: 2026-11-19
+
+Brief
+: Touch power gpio: our specifier is valid; the failure is a persistent -EPROBE_DEFER at one of two leaves (no gpio device matched, or no pinctrl range), not settled by source alone
+
+Question
+: Exactly why does gpiod_get of regulator-touch-power fail although the pmi8998 gpiochip2 (14 GPIOs) exists?
+
+Found
+: Read from v7.3 source and the built z17 dtb. (1) The specifier is right: dtb gpios <0x60 2 0>; 0x60 = pmic@2/gpio@c000, compatible qcom,pmi8998-gpio, #gpio-cells 2, gpio-ranges <0x60 0 0 14>; pmic_gpio_of_xlate returns 2-1 = offset 1 (PMIC_GPIO_PHYSICAL_OFFSET 1), below 14; debugfs shows gpiochip2 gpio2 as a normal line. Host proof: tests/host/touch-gpio-specifier.sh passes. So no 1-based/label/ngpios error (the driver table says 14 for pmi8998). (2) The failure is -EPROBE_DEFER (-517): devices_deferred lists only deferred probes; the string is fixed.c's dev_err_probe after gpiod_get_optional; dd.c clears the reason at every retry, so it is the last retry's, which came after pmic@2's gpio probe (late_initcall retry and every later bind): not a mere ordering race. (3) Non-defer errnos (-EINVAL from xlate, -EBUSY, pinmux errors) would not be listed: ruled out. (4) Source leaves that return -EPROBE_DEFER with the chip present: (a) of_find_gpio_device_by_xlate finds no gpio_device (its of_node is not the specifier's node, or xlate fails); (b) pinctrl_get_device_gpio_range finds no range for the line and pinctrl_ready_for_gpio_range is false (gpiochip_generic_request); (c) try_module_get on the owner: impossible, PINCTRL_QCOM_SPMI_PMIC=y. Mainline sdm845 users of the same pmi8998 dtsi work, so the source gives no static reason; which of (a)/(b) is not known yet. (5) No pin config is needed first: the line is muxed by the request itself; the overlay's switch-gpio (tlmm 75) is another pin and not on this path. (6) Our kernel has CONFIG_DYNAMIC_DEBUG off, so the gpio core's dev_dbg lines ('cannot find GPIO chip', 'gpiod_request: status -517') never print: why the z17 dmesg names no leaf. Cheapest settle: read-only z-next reads (per-pinctrl gpio-ranges in debugfs, gpiochip2 of_node vs the regulator's phandle) and a diagnostic kernel with dynamic debug and dyndbg on the command line.
+
+Sources
+: linux-v7-3-gpiolib-pinctrl
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-z17-spmi-gpio-facts/
