@@ -3083,10 +3083,10 @@ Rank
 ### Control: y2 once with the reader, then z1 once: is the silent ttyACM0 of z1 the new dtb or the reader
 
 Status
-: open
+: done
 
 Note
-: Fact (lab PR 163): z1 (y2 + the PMIC dtb): gadget and ttyACM0 up at 18 s, ACL fine under the new rule, the shell answers nothing; the earlier EACCES was the tty vanishing, not the ACL; PMIC result unknown.
+: proven by two tries: y2 and z1 both silent to the reader; the fault is the reader or the init's tty, not z1's dtb. Next: z1 variant with a banner every 2 s on ttyGS0 and a kmsg marker per step (builder), and a raw cat of the tty before any command
 
 About
 : walleye-first-fastboot-boot
@@ -3102,3 +3102,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-build-banner-init"></a>
+### Build a banner init: y2's kernel and dtb with an init that writes a banner to /dev/ttyGS0 every 2 s from the start and a kmsg marker per step
+
+Status
+: open
+
+Note
+: Why: y2 and z1 are both silent to the reader (research walleye-y2-z1-control-both-silent). Then the keeper tries it with a plain cat of ttyACM0 (raw bytes logged) before any reader.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: banner image built with build checks, rebuild identical
