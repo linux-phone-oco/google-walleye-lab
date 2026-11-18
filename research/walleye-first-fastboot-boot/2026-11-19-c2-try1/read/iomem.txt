@@ -1,0 +1,54 @@
+00100000-001affff : 100000.clock-controller clock-controller@100000
+00784000-0078a21b : 784000.qfprom qfprom@784000
+010aa000-010aafff : 10ab000.thermal thermal@10ab000
+010ab000-010abfff : 10ab000.thermal thermal@10ab000
+010ad000-010adfff : 10ae000.thermal thermal@10ae000
+010ae000-010aefff : 10ae000.thermal thermal@10ae000
+01680000-0168ffff : 1680000.iommu iommu@1680000
+016c0000-016fffff : 16c0000.iommu iommu@16c0000
+01f40000-01f5ffff : 1f40000.hwlock hwlock@1f40000
+03400000-03ffffff : 3400000.pinctrl pinctrl@3400000
+05065000-0506dfff : 5065000.clock-controller clock-controller@5065000
+0800a000-0800cfff : 800f000.spmi cnfg
+08400000-093fffff : 800f000.spmi chnls
+09400000-0a3fffff : 800f000.spmi obsrvr
+0a400000-0a61ffff : 800f000.spmi intr
+0a80c100-0a80ccff : a800000.usb usb@a800000
+0a8f8800-0a8f8bff : a8f8800.usb usb@a8f8800
+0c012000-0c0122a7 : c012000.phy phy@c012000
+0c144000-0c168fff : c144000.dma-controller dma-controller@c144000
+0c184000-0c1a8fff : c184000.dma-controller dma-controller@c184000
+0c1b0000-0c1b0fff : msm_serial
+0c8c0000-0c8fffff : c8c0000.clock-controller clock-controller@c8c0000
+0cd00000-0cd3ffff : cd00000.iommu iommu@cd00000
+17817000-17817fff : 17817000.watchdog watchdog@17817000
+17911000-17911fff : 17911000.mailbox mailbox@17911000
+17921000-17921fff : arch_mem_timer
+17a00000-17a0ffff : GICD
+17b00000-17bfffff : GICR
+80000000-857fffff : System RAM
+  80080000-81feffff : Kernel code
+  81ff0000-822effff : reserved
+  822f0000-8294ffff : Kernel data
+  84a00000-84a2dfff : reserved
+  84c00000-84cdefff : reserved
+85800000-85efffff : reserved
+85f00000-85ffffff : System RAM
+86000000-890fffff : reserved
+89100000-8aafffff : System RAM
+8ab00000-95214fff : reserved
+95215000-955fffff : System RAM
+95600000-957fffff : reserved
+95800000-bfffbfff : System RAM
+  a1100000-a12fffff : reserved
+bfffc000-bfffffff : reserved
+  bfffc000-bfffffff : reserved
+c0000000-17e4bffff : System RAM
+  fa000000-ffffffff : reserved
+  179470000-17dbfffff : reserved
+  17dc39000-17dc39fff : reserved
+  17dc3c000-17dc3cfff : reserved
+  17dc3d000-17dc3ffff : reserved
+  17dc40000-17dc53fff : reserved
+  17dc54000-17dd36fff : reserved
+  17dd37000-17e4bffff : reserved
