@@ -4892,3 +4892,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-z17-spmi-gpio-facts"></a>
+### z17's spmi, gpio and regulator facts over the network shell: why is the pmi8998 gpio chip absent?
+
+Status
+: open
+
+Note
+: From the builder's falsified premise (lab PR 314, decision 2026-11-18-walleye-z18-not-built-pmi8998-reg-no-effect): z18 (renaming pmi8998) is not the fix; the gpio's absence is unexplained. This costs no new image: z17 has the network shell.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: Boot z17 once from slot b (battery first) and, over its network shell (telnet 172.16.43.1, read-only commands only), read and save as material (redacted, no ids): the dmesg lines of spmi, pmi8998, pm8998, gpio, pinctrl, regulator-touch-power, rmi4 and 'deferred'; /sys/bus/spmi/devices (every device with its driver link: readlink driver), /sys/bus/spmi/drivers/*; mount debugfs (mount -t debugfs none /sys/kernel/debug) and cat devices_deferred, /sys/kernel/debug/gpio (every gpiochip with its ngpio and label), /sys/class/gpio/gpiochip*/{label,base,ngpio}; /sys/class/regulator/*/{name,state}; the platform device list for the touch controller and its supply; so that the question 'why does the pmi8998 gpio chip not exist although pmic@2 and pmic@3 have reg and the drivers are configured' is answered by facts (the builder's research walleye-z18-premise-falsified); then the phone returns by itself (the init's reboot at its hold). Read only; nothing on the phone but /tmp
+
+Rank
+: 1
