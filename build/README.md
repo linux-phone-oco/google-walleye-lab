@@ -187,3 +187,10 @@ Image.gz, ramdisk, header, command line and AVB footer y2's; 19 checks, among th
 `tests/host/dmesg-clean-check.sh DIR` reads the shell reader's output and passes only when `devices_deferred` is empty and the dmesg has no `-110` probe timeout and no
 `could not find phandle`; `dmesg-clean-selftest.sh` proves it on made-up files. z2 does not touch the other two faults (the overlay's `serial@c16f000` waiting on the
 `clock_gcc` stub, the overlay's phandles): one change per image, those come next.
+
+## z3: z2 with the overlay's clock supplier on the real gcc (walleye-dmesg-clean)
+
+The serial's `wait for supplier /vendor-overlay-stubs/clock_gcc` and the four `could not find phandle -...` lines (i2c@c179000, bt_wcn3990, serial@c16f000, mnh-sm) are one fault:
+the stock overlay's `clocks = <&clock_gcc ID ...>` land on our empty `clock_gcc` stub, which has no `#clock-cells`, so the clock ID is read as a phandle. `build/build-z3.sh Z2_BOOT_IMG OUT_DIR`
+makes `boot-z3.img` = z2 with only `/__symbols__/clock_gcc` set (fdtput) to `/soc@0/clock-controller@100000`; the overlay merge then writes gcc's phandle into those clock users.
+15 checks, rebuild byte-identical; `tests/host/overlay-clock-gcc.sh` (all four clock users) fails on z2's dtb and passes on z3's. The try is `walleye-try-z3` (it supersedes z2's).
