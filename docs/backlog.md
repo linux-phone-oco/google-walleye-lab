@@ -3205,10 +3205,10 @@ Proof
 ### Try banner once from slot b with a plain cat of ttyACM0: are the banner bytes on the host?
 
 Status
-: open
+: done
 
 Note
-: Image ~/Projects/walleye-build/images-banner/boot-banner.img sha256 3d9320f01567a9824f1371a218fa397cbedc4eb996e9409b613a458878a4a081 (y2 + a banner init). Run battery-ok first. NO reader: start 'cat /dev/ttyACM0 > FILE' (set raw first: stty -F /dev/ttyACM0 raw -echo -hupcl) as soon as it appears, and before the try record 'systemctl is-active ModemManager' and, once the port exists, 'fuser -v /dev/ttyACM0' / holders in /proc/*/fd. Do NOT stop services or change the host: record the finding, tell the coordinator. Banner bytes under plain cat = the old reader was the problem; none = silence is on the phone or the host (compare lsusb 1d6b:0104 at ~18 s). Also read the kmsg-step lines afterwards from pstore only if the author unlocks. Banner prints every ~2 s; the phone reboots itself at ~180 s.
+: proven by banner-check.sh pass on a root read of ttyACM0 (7 lines, beats increasing); plain-user read was Permission denied: host needs uucp/udev for mll (author's call) - coordinator told
 
 About
 : walleye-first-fastboot-boot
