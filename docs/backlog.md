@@ -3723,10 +3723,10 @@ Rank
 ### Prove the PMIC watchdog way back on walleye (pm8998): it bites unpetted, and its bark wakes a suspend
 
 Status
-: open
+: in-progress
 
 Note
-: Image to try: ~/Projects/walleye-build/images-z8/boot-z8.img (z8, sha256 797778f27d7aa0c8e93cbe6d101678132da3f94bc5536c672f4f740767dce0b5). Script https://github.com/linux-phone-oco/docs/blob/main/research/upstream-forks/2026-11-18/tests/pmic-wdt-way-back.sh: check, bite 20 then check (CARDRESET); wake only once walleye suspends at all. The second PMIC (pm8998) the RFC needs before it drops RFC (docs upstream item pmic-wdt-wake-in-suspend).
+: pmic-wdt-bites proven on z9 (pass, 20 s). pmic-wdt-wakes-in-suspend waits for walleye to suspend at all. Phone left off after the bite: see walleye-needs-power-cycle-after-pmic-bite.
 
 About
 : deep-sleep
@@ -3767,3 +3767,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-needs-power-cycle-after-pmic-bite"></a>
+### Walleye is off after the PMIC watchdog bite: hold power 15 s (author's hands), then check fastboot
+
+Status
+: open
+
+Note
+: Found by z9 try 2026-11-18 ~14:54. Lane coordinator to decide, before another bite, whether the PMIC bite's reset type can be made to land in the bootloader.
+
+Waits
+: the author's hands: hold power about 15 s, then see whether it reaches fastboot or Android
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: phone

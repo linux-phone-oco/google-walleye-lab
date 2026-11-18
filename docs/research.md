@@ -2295,3 +2295,60 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z8-tried-no-pmic-wdt"></a>
+### walleye-z8-tried-no-pmic-wdt
+
+Date
+: 2026-11-18
+
+Brief
+: z8 once from slot b: command loop up, but no PMIC watchdog device: only the apps wdt 17817000 exists; pm8998 pon never bound (qcom-pon is =m, ramdisk has no modules)
+
+Question
+: Does z8's pm8998 PMIC watchdog bite unpetted (item walleye-pmic-wdt-proof)?
+
+Found
+: z8 (sha 797778f2...) booted from memory on slot b. /sys/class/watchdog has only watchdog0 = 17817000.watchdog (qcom_wdt). DT has pon@800/watchdog okay + wakeup-source; pm8916-wdt driver registered (=y) but the pon parent has no driver bound: CONFIG_POWER_RESET_QCOM_PON=m and qcom-pon.c populates its children. Fix =y (z9). Nothing armed or flashed.
+
+About
+: deep-sleep
+
+
+<a id="walleye-z9-built"></a>
+### walleye-z9-built
+
+Date
+: 2026-11-18
+
+Brief
+: z9 built: z8 with CONFIG_POWER_RESET_QCOM_PON=y (qcom-pon populates the PMIC watchdog child); 28 checks ok; sha256 de051922...
+
+Question
+: Why was no PMIC watchdog on z8, and what image has one?
+
+Found
+: build-kernel.sh and walleye.config now require POWER_RESET_QCOM_PON=y; build/build-z9.sh = build-z8.sh with the config-diff check allowing that line; images-z9/boot-z9.img sha256 de051922417e4f039fda4fb82ce1d9de485116f323f6009fe879ff7fbfdfe521.
+
+About
+: deep-sleep
+
+
+<a id="walleye-z9-tried-pmic-wdt-bites"></a>
+### walleye-z9-tried-pmic-wdt-bites
+
+Date
+: 2026-11-18
+
+Brief
+: z9 from slot b: PMIC watchdog (watchdog1, pon@800 child) bit unpetted, phone gone 20 s after arming for 20 s - but it did not come back on USB afterwards (needs hands)
+
+Question
+: Does pm8998's PMIC watchdog bite unpetted (test pmic-wdt-bites)?
+
+Found
+: tests/host/pmic-wdt-bites.sh: dry run pass (watchdog1 under spmi; kernel exposes no identity/pretimeout/bootstatus attributes, so found by sysfs path). First armed run failed (busybox watchdog without -F forks and keeps petting: no bite in 60 s, the test seen failing); with -F: pass, gone 20 s after arming for 20 s. Afterwards no USB device at port 3-2 for 10+ minutes (non-bite tries return to Android in ~75 s): the bite left the phone off or hung; fastboot and adb absent. Needs the author's hands: hold power ~15 s.
+
+About
+: deep-sleep
