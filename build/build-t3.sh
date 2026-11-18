@@ -92,16 +92,16 @@ mkdir "$T/x" && (cd "$T/x" && xz -dc "$T/u/ramdisk" | cpio -id --quiet 2>/dev/nu
 ck "init in the ramdisk is init-t3" "$(cmp -s "$T/x/init" "$I" && echo same || echo differs)" same
 ck "busybox in it is aarch64 static" "$(file -b "$T/x/bin/busybox" | grep -o -e "ARM aarch64" -e "statically linked" | wc -l)" 2
 ck "init holds the marker the reader greps" "$(grep -c walleye-t3-marker-5c1e "$I")" 2
-ck "the reader greps the same marker" "$(grep -c walleye-t3-marker-5c1e "$HERE/../tests/host/pstore-t3-read.sh")" 2
+ck "the reader greps the same marker" "$(grep -c walleye-t3-marker-5c1e "$HERE/../tests/host/pstore-t3-read.sh")" 3
 ck "init has no bashisms (busybox ash -n)" "$("$W/busybox-x86_64" ash -n "$I" 2>&1 || echo syntax-error)" ""
 ck "init writes to /dev/kmsg" "$(grep -c "> /dev/kmsg" "$I")" 1
 ck "init opens the watchdog with a 10 s timeout and one ping" "$(grep -c -e "^watchdog -T 10 -t 3600 -F /dev/watchdog &$" "$I")" 1
-ck "init never asks for sysrq c (the bite must be the only reset)" "$(grep -c "sysrq-trigger" "$I")" 1
+ck "init has no sysrq c" "$(grep -c "echo c" "$I")" 0
 for a in ash mount sleep reboot uname sync echo watchdog; do
   ck "busybox has the applet $a (arm64 build config)" "$(grep -cx "CONFIG_$(echo "$a" | tr a-z A-Z)=y" "$W/busybox-arm64.src/.config")" 1
 done
-for k in MAGIC_SYSRQ PSTORE PSTORE_CONSOLE PSTORE_RAM QCOM_WDT DEVTMPFS RD_XZ BLK_DEV_INITRD; do
-  ck "kernel config has CONFIG_$k" "$(grep -cE "^CONFIG_$k=[ym]$" "$CFG")" 1
+for k in WATCHDOG WATCHDOG_CORE MAGIC_SYSRQ PSTORE PSTORE_CONSOLE PSTORE_RAM QCOM_WDT DEVTMPFS RD_XZ BLK_DEV_INITRD; do
+  ck "kernel config has CONFIG_$k" "$(grep -cE "^CONFIG_$k=y$" "$CFG")" 1
 done
 ck "sysrq is fully enabled by default (0x1)" "$(grep -c '^CONFIG_MAGIC_SYSRQ_DEFAULT_ENABLE=0x1$' "$CFG")" 1
 ck "size is pk5's ($PSIZE)" "$(stat -c %s "$IMG")" "$PSIZE"

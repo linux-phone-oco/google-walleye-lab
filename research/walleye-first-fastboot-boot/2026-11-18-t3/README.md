@@ -5,4 +5,4 @@ phone's own region 0xa1100000 (as T1) and the ramdisk = `build/initramfs-mainlin
 busybox `watchdog -T 10 -t 3600 -F /dev/watchdog` (10 s timeout, one ping, the next an hour away), so the SoC watchdog bites at ~10 s. No sysrq c.
 The dtb already has `watchdog@17817000` (qcom,apss-wdt-msm8998, kpss-wdt, timeout-sec 30), so no dtb node is added. Command line is pk5's (panic=5).
 Built by `build/build-t3.sh WORK_DIR PK5_BOOT_IMG OUT_DIR`; checks ok, rebuild byte-identical. sha256 in SHA256SUMS.
-Reader after the return, phone back as Android with adb root: `tests/host/pstore-t3-read.sh` (pass = the marker in console-ramoops; hoped pass: a bite is a warm path).
+Reader after the return, phone back as Android with adb root: `tests/host/pstore-t3-read.sh` (pass = marker, last tick under 15, no "no bite" line).
