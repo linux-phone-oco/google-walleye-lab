@@ -2664,10 +2664,10 @@ Proof
 ### Phone: boot x4, x1, x2, x6, x5, x3, x7, xa twice each from the first state; record the sixteen return times
 
 Status
-: open
+: done
 
 Note
-: Images ~/Projects/walleye-build/images-x (SHA256SUMS in research/walleye-first-fastboot-boot/2026-11-18-fdt-compare/). Alive <= 66 s, dead >= 69 s. Order by suspicion in walleye-fdt-compare. One dead single image names the cause; only xa dead: groups interact; xa alive: the cause is in the pinned leftover lines.
+: proven by 16 boots: x1 dead twice (79,78 s), xa dead (78,76), x2-x7 alive. Next: add gpio-reserved-ranges <0 4>,<81 4> to our dtb and try (alive expected)
 
 About
 : walleye-first-fastboot-boot

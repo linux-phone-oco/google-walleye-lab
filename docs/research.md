@@ -1634,3 +1634,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-fdt-compare/
+
+
+<a id="walleye-fdt-bisect-x-tried"></a>
+### walleye-fdt-bisect-x-tried
+
+Date
+: 2026-11-18
+
+Brief
+: x1..x7, xa twice each: only x1 (gpio-reserved-ranges made ours) and xa are dead, both times; x2-x7 alive
+
+Question
+: Which disjoint group of dtb differences from the alive wpa to ours makes init die?
+
+Found
+: Returns (s), try 1/2: x4 61/64, x1 79/78, x2 43/43, x6 37/37, x5 64/64, x3 64/64, x7 64/49, xa 78/76. Alive <=66, dead >=69. x1 dead twice alone, so pinctrl@3400000 missing gpio-reserved-ranges <0 4>,<81 4> is a cause. xa dead as expected; other groups alone alive. Slot b, flags a and b successful before each; nothing flashed.
+
+About
+: walleye-first-fastboot-boot
