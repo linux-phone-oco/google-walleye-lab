@@ -1107,3 +1107,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-wa-tried"></a>
+### walleye-wa-tried
+
+Date
+: 2026-11-18
+
+Brief
+: wa (all walleye dtb differences on pk5) tried 3 times: returned at 42, 63, 63 s - not the 42 s alive, not the 75 s dead
+
+Question
+: Does wa (taimen dtb with every walleye difference) run init (~42 s) or die (~75 s)?
+
+Found
+: Three tries of boot-wa.img from fastboot on slot b, nothing flashed: back as Android after 42 s, 63 s, 63 s (devlab's measure, includes the 15 s in fastboot). Slots' flags unchanged (a and b successful, none unbootable). The plan's rule (alive ~42 means a property) is not met cleanly: one alive-looking, two between. 63 s twice may be a third path (kernel ran longer before reset) or timing noise; unresolved. w1..w5 and wr not tried yet. Note devlab phone needs the missing password file; plain adb used to return to fastboot.
+
+About
+: walleye-first-fastboot-boot
