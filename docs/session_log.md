@@ -2074,3 +2074,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1325-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: z5b tried once from slot b: gadget up at 18 s; reader job never ran (lab-agent GitHub token 401). Phone is Android on slot b, stock kernel, nothing flashed, fastboot reachable via adb reboot bootloader, battery 4376 mV
+
+Considered
+: next: author renews lab-agent token (lab-agent connect), then z5b again with the same job script; the x1 gpio-reserved-ranges item stays open
+
+About
+: walleye-first-fastboot-boot

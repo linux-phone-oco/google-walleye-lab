@@ -2082,3 +2082,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18/
+
+
+<a id="walleye-z5b-try-no-reader"></a>
+### walleye-z5b-try-no-reader
+
+Date
+: 2026-11-18
+
+Brief
+: z5b once from slot b: gadget 1d6b:0104 up at 18 s, but the reader job was never run (lab-agent polls 401), so no tty result
+
+Question
+: Is the shell drowned by the host's echo of the banner (z5 with the host tty raw/-echo from first appearance)?
+
+Found
+: boot-z5.img (sha fee768d6...) booted via lpoco lab fastboot boot now from slot b, battery 4376 mV; gadget 1d6b:0104 at 18 s; phone came back as Android on b (adb), nothing flashed. The reader was submitted first as lab-agent job 1795004341-job (stty raw -echo -hupcl on appearance, 30 s cat, then mainline-shell-read.sh), but lab-agent's journal shows 'poll error: listing grenudi/lab-agent-jobs ... status code 401' every 5 s: the job was never picked up (lab-agent jobs does not list it). So NOT a z5b result: (a) (b) (c) unanswered. The keeper's own sandbox denies the tty open (decision 2026-11-19-walleye-reader-runs-as-a-lab-job), so there is no other sanctioned route. Needs the author's hands: renew lab-agent's GitHub token (lab-agent connect).
+
+About
+: walleye-first-fastboot-boot
