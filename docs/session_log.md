@@ -2194,3 +2194,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-c2-built"></a>
+### c2 built
+
+Entry date
+: 2026-11-18
+
+Done
+: build/build-c2.sh: z7 + the charger kernel + the charger/battery dtb; images-c2 hashed; try queued, try-c1 closed as superseded
+
+Considered
+: re-applying the c1 diff by hand on z7's sources: the dts already carries both the charger and the smmu line, so the dtb is a plain build of the dts
+
+Rejected
+: a dtb diff against z7 by line count: z7's dtb is an older dts's and phandles shift; the check normalises values and compares the sorted lines
+
+About
+: walleye-first-fastboot-boot
