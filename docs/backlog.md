@@ -4683,7 +4683,10 @@ Status
 : open
 
 Note
-: Queued by walleye-builder from z16's build. Material to ~/lab-material/walleye/z16-part1.
+: TRIED once 2026-11-18, proof not met (probe -5, see research walleye-z16-part1-tried); waits for z17; not to be tried again as is.
+
+Blocked by
+: walleye-build-z17-touch-power
 
 About
 : walleye-first-fastboot-boot
@@ -4699,3 +4702,22 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-build-z17-touch-power"></a>
+### Build z17: z16 with the touch controller's power and reset right, so rmi4_i2c's first read answers
+
+Status
+: open
+
+Note
+: From research walleye-z16-part1-tried: probe -5 at set_page, chip silent. Check vdd/vio supplies, reset gpio89 and delay in the dtb against the vendor tree; queue its try as walleye-try-z17-part1.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
