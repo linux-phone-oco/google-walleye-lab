@@ -8,5 +8,5 @@ machine = ["test-run"]
 
 # Why each own file is kept (bin/check-own.sh in ideal-knowledge-base reads it): a reason, or upstream:ITEM.
 [why]
-"tables.toml" = "the device's own tables (devices, parts, test runs and results) sit in this file beside the generic ones"
+"tables.toml" = "the base's own rules and tables beside idealkb's part: what about may name (parts, backlog) and hardware; the device layer's tables are docs' part, laid by devicebase.toml"
 "records/backlog.sql" = "names the queue's fields beside the generic ones; a candidate to drop now that idealkb's backlog record has needs, proof, rank and hardware (backlog tables-own-drift)"
