@@ -1891,3 +1891,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1030-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: banner2 tried once from slot b: banner read as lab user, proof passes. Phone back as Android on b, stock kernel, nothing flashed, fastboot reachable via adb reboot bootloader
+
+Considered
+: next: z3 and c1 tries with the reader (our dtb plus gpio-reserved-ranges) twice each
+
+About
+: walleye-first-fastboot-boot

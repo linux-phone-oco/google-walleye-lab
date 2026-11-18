@@ -3302,10 +3302,10 @@ Rank
 ### Try banner2 once from slot b with a plain cat of ttyACM0 as the lab user: do the banner bytes reach it?
 
 Status
-: open
+: done
 
 Note
-: Image ~/Projects/walleye-build/images-banner2/boot-banner2.img sha256 680c0aa730d294e3d9c23a23c3abc4db993cfaff059e805229e4af6244ce9888. Same as banner but the USB serial is walleye-first-boot, so the host rule gives the lab user the tty (no root-exec). Then the z3 and c1 tries with the reader.
+: proven by banner-check pass on banner2.cap: 29 lines, beats increasing
 
 About
 : walleye-first-fastboot-boot
