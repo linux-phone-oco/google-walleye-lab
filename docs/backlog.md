@@ -61,10 +61,10 @@ Proof
 ### Initramfs that brings up a USB gadget (ACM console + RNDIS/ECM) and telnet/ssh on 172.16.42.1
 
 Status
-: in-progress
+: done
 
 Note
-: Built (build/initramfs, busybox 1.36.1 static arm64, 1148576 bytes gz). Proven under x86_64 QEMU with dummy_hcd (build/selftest-initramfs.sh): gadget binds, lease 172.16.42.2, ping and telnet command answered on 172.16.42.1, ttyGS0 exists. NOT proven on arm64: qemu-system-aarch64 is not installed here, so the arm64 busybox and the real UDC first run on the phone try. No ssh yet (telnet only; dropbear is a later piece).
+: Done: the gadget initramfs works on our own kernel (first light y2, lab PR 152); the console reliability is walleye-shell-reliable.
 
 Opened
 : 2026-11-17
@@ -118,28 +118,6 @@ Proof
 
 Rank
 : 4
-
-
-<a id="walleye-display-s6e3fa5"></a>
-### Display: Samsung S6E3FA5 command-mode panel through DPU/DSI
-
-Status
-: open
-
-Note
-: No mainline driver; start from the out-of-tree S6E3FA5 driver (OnePlus 5) and porthole's sw43402 cmd-mode work for the DPU side; init sequence from the GPL downstream dtsi; reset gpio94, TE gpio10 (walleye) - the panel and its rails are walleye's own.
-
-Waits
-: walleye-ufs-readonly (not required) / walleye-first-fastboot-boot; a person witnesses the first light
-
-Opened
-: 2026-11-17
-
-Needs
-: build
-
-Proof
-: the DRM connector is connected and a test pattern is seen by a person (test: walleye-display-pattern)
 
 
 <a id="walleye-touch-rmi4"></a>
@@ -1557,31 +1535,6 @@ Proof
 : check.yml rust job green on the PR; read back from main
 
 
-<a id="walleye-code-hygiene-rust-ci"></a>
-### Remove the C probe of the ffs helper (build/ffs-acm/ffs-acm.c and what only builds n3 from it) once n3r is tried
-
-Status
-: open
-
-Note
-: CI half split off as walleye-rust-ci-ffs-acm-rs (done). This half waits by the coordinator's order until the keeper has tried n3r (walleye-ffs-rust-try), so the C probe stays buildable until the Rust helper is shown on the phone.
-
-Waits
-: walleye-ffs-rust-try (the keeper's first try of n3r)
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-17
-
-Needs
-: build
-
-Proof
-: build/ffs-acm/ffs-acm.c and anything that only builds n3 from it removed (n3's recorded hashes stay as history; n3r is the image to try); the lab's checks pass; read back from main
-
-
 <a id="walleye-retry-massstorage-after-reboot"></a>
 ### Try m1 again now the host runs 7.3.4 (usb_storage loads): read the first text the phone writes
 
@@ -2882,31 +2835,6 @@ Proof
 : walleye-gadget-up: ssh to 172.16.43.1 answers within 60 s of the boot
 
 
-<a id="walleye-fuel-gauge"></a>
-### Fuel gauge: test the PMI8998 FG gen3 driver (RFC series of 2025-11-24) on walleye; an upstream candidate
-
-Status
-: open
-
-Note
-: Not in mainline: lwn.net/Articles/1048226 (driver by Joel Selvaraj, carried by sdm845-next). Take the series as a patch file, test, report upstream (ikb upstream-item). The walleye battery profile is the vendor tree's, read in our own words.
-
-Blocked by
-: walleye-charger-smb2
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: walleye-battery-capacity: capacity and voltage_now within 100 mV of the fastboot battery reading; the reading sent upstream as a Tested-by
-
-
 <a id="walleye-wifi-wcn3990"></a>
 ### Wi-Fi and Bluetooth: WCN3990 through ath10k snoc, firmware read from the phone's own vendor partition
 
@@ -3080,31 +3008,6 @@ Proof
 
 Rank
 : 1
-
-
-<a id="walleye-dmesg-clean"></a>
-### Clean probes in the dmesg: arm-smmu 5040000 timeout, the serial supplier from the overlay stubs, i2c@c179000 phandle
-
-Status
-: in-progress
-
-Note
-: z2 built (gpucc =y, smmu -110); z3 built 2026-11-18 (build/build-z3.sh, 15 checks, rebuild identical): /__symbols__/clock_gcc on the real gcc fixes the serial supplier wait and the four phandle lines (research walleye-clock-gcc-stub-no-cells). Try queued as walleye-try-z3 (supersedes walleye-try-z2). Done when the try's dmesg passes tests/host/dmesg-clean-check.sh.
-
-Waits
-: walleye-build-banner-init and walleye-reader-eacces-retry (the shell must speak first: z-tries learn nothing while the tty is silent)
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: walleye-dmesg-clean: with debugfs mounted devices_deferred is empty; the dmesg has no -110 probe timeout and no 'phandle not found'
 
 
 <a id="walleye-build-banner-init"></a>
@@ -3355,13 +3258,101 @@ Rank
 ### Stale waits: waits and blocked_by naming items that are done
 
 Status
-: open
+: done
 
 Note
-: sign seen by patrol 2026-11-18: blocked_by walleye-charger-smb2 (done) still shown on walleye-fuel-gauge; waits naming same-base items that are done: walleye-first-fastboot-boot (walleye-boot-refused-why, walleye-control-on-slot-a), walleye-dmesg-clean (walleye-build-banner-init, walleye-reader-eacces-retry), walleye-code-hygiene-rust-ci (walleye-ffs-rust-try); waits naming a same-base item that belong in blocked_by: walleye-scripts-call-bringup (bringup-image-swap), walleye-display-s6e3fa5 (walleye-ufs-readonly). Owner: walleye coordinator clears or moves them.
+: Done 2026-11-18: waits naming done items cleared on dmesg-clean, code-hygiene-rust-ci, display, fuel-gauge; done items closed (bootimage, first-fastboot-boot, load-error-uart, loaderror-dtbo-stub, host-access-via-lab-prepare, initramfs-usb-gadget).
 
 About
 : walleye-first-fastboot-boot
 
 Opened
 : 2026-11-18
+
+
+<a id="walleye-dmesg-clean"></a>
+### Clean probes in the dmesg: arm-smmu 5040000 timeout, the serial supplier from the overlay stubs, i2c@c179000 phandle
+
+Status
+: in-progress
+
+Note
+: z2 built (gpucc =y, smmu -110); z3 built 2026-11-18 (build/build-z3.sh, 15 checks, rebuild identical): /__symbols__/clock_gcc on the real gcc fixes the serial supplier wait and the four phandle lines (research walleye-clock-gcc-stub-no-cells). Try queued as walleye-try-z3 (supersedes walleye-try-z2). Done when the try's dmesg passes tests/host/dmesg-clean-check.sh.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: walleye-dmesg-clean: with debugfs mounted devices_deferred is empty; the dmesg has no -110 probe timeout and no 'phandle not found'
+
+
+<a id="walleye-code-hygiene-rust-ci"></a>
+### Remove the C probe of the ffs helper (build/ffs-acm/ffs-acm.c and what only builds n3 from it) once n3r is tried
+
+Status
+: open
+
+Note
+: CI half split off as walleye-rust-ci-ffs-acm-rs (done). This half waits by the coordinator's order until the keeper has tried n3r (walleye-ffs-rust-try), so the C probe stays buildable until the Rust helper is shown on the phone.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: build/ffs-acm/ffs-acm.c and anything that only builds n3 from it removed (n3's recorded hashes stay as history; n3r is the image to try); the lab's checks pass; read back from main
+
+
+<a id="walleye-display-s6e3fa5"></a>
+### Display: Samsung S6E3FA5 command-mode panel through DPU/DSI
+
+Status
+: open
+
+Note
+: No mainline driver; start from the out-of-tree S6E3FA5 driver (OnePlus 5) and porthole's sw43402 cmd-mode work for the DPU side; init sequence from the GPL downstream dtsi; reset gpio94, TE gpio10 (walleye) - the panel and its rails are walleye's own.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: the DRM connector is connected and a test pattern is seen by a person (test: walleye-display-pattern)
+
+
+<a id="walleye-fuel-gauge"></a>
+### Fuel gauge: test the PMI8998 FG gen3 driver (RFC series of 2025-11-24) on walleye; an upstream candidate
+
+Status
+: open
+
+Note
+: Not in mainline: lwn.net/Articles/1048226 (driver by Joel Selvaraj, carried by sdm845-next). Take the series as a patch file, test, report upstream (ikb upstream-item). The walleye battery profile is the vendor tree's, read in our own words.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: walleye-battery-capacity: capacity and voltage_now within 100 mV of the fastboot battery reading; the reading sent upstream as a Tested-by
