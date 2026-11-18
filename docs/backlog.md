@@ -3280,10 +3280,10 @@ Opened
 ### Clean probes in the dmesg: arm-smmu 5040000 timeout, the serial supplier from the overlay stubs, i2c@c179000 phandle
 
 Status
-: in-progress
+: open
 
 Note
-: z2 built (gpucc =y, smmu -110); z3 built 2026-11-18 (build/build-z3.sh, 15 checks, rebuild identical): /__symbols__/clock_gcc on the real gcc fixes the serial supplier wait and the four phandle lines (research walleye-clock-gcc-stub-no-cells). Try queued as walleye-try-z3 (supersedes walleye-try-z2). Done when the try's dmesg passes tests/host/dmesg-clean-check.sh.
+: Back to open (blocked by walleye-shell-reliable): z2/z3 built; the dmesg of a try is read only when the shell answers.
 
 Blocked by
 : walleye-shell-reliable
