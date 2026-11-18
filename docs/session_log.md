@@ -1942,3 +1942,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1140-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: z3 booted once from slot b: gadget up at 18 s, back in Android on slot b, stock kernel, nothing flashed, fastboot reachable via adb reboot bootloader; reader denied /dev/ttyACM0 so no dmesg
+
+Considered
+: next: make /dev/ttyACM0 readable for mll (udev rule/group; host change, coordinator's), fresh reader, then z3 twice and c1 twice
+
+About
+: walleye-first-fastboot-boot
