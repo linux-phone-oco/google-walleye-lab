@@ -642,3 +642,25 @@ About
 
 Research
 : walleye-clock-gcc-stub-no-cells
+
+
+<a id="2026-11-18-walleye-tty-read-through-root-exec"></a>
+### 2026-11-18-walleye-tty-read-through-root-exec
+
+Date
+: 2026-11-18
+
+Brief
+: Read the gadget's tty through lab-agent root-exec (that one node, recorded) until the udev rule is fixed
+
+Decision
+: The banner try (lab PR 175) proved the phone speaks: 7 WALLEYE-BANNER lines, beats 11..17, gadget bound at ~54 s, read with a root-exec cat. The silence of the earlier reads was the host: /dev/ttyACM0 was root:uucp 0660 for the lab user (mll is in neither uucp nor, for this node, the udev rule's group), although /etc/udev/rules.d/70-lpoco-google-walleye.rules (lpoco 0.6.0) sets GROUP users MODE 0660 for SUBSYSTEM tty with ATTRS serial walleye-first-boot. Until orchestration settles why the rule does not apply to the tty node (to test with the gadget up: udevadm info and udevadm test of the node, the rule order against 60-serial.rules/50-udev-default), the keepers and readers may read and write THAT ONE device node through the lab's own `lab-agent root-exec -- COMMAND` (cat, stty, a single printf to the node: the commands named in the reader), every use recorded; no other root use, no host change, no group change.
+
+Why
+: Every try of the lane after first light learns through this tty; the author is away and nothing may wait on a host rule fix; root-exec is the lab's own sanctioned way to run a root command; the rule that should make it unnecessary is orchestration's tool to fix.
+
+Rejected
+: Waiting for orchestration's fix before reading anything more (the lane stalls); asking the author to add mll to uucp (a host change, his or orchestration's); changing the rule or the group myself (not the lane's).
+
+About
+: walleye-first-fastboot-boot
