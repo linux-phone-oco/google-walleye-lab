@@ -3048,10 +3048,10 @@ Rank
 ### Try c1 once from slot b with the shell reader: does pmi8998's charger probe, and is online 1 with the cable in?
 
 Status
-: open
+: done
 
 Note
-: Rebuild c1 on the z6 init (z6's dtb is z3's: no charger node); keeper recipe: battery-ok first, z6 plain background reader, saves power-supply-facts.txt and dmesg automatically; then charger-check.sh. Risks as before: float voltage 4.4 V, Type-C reset may drop the ACM link (a missing tty is a finding; z3/z6 is the fallback).
+: superseded by c2 (walleye-try-c2): c1 was on z3's silent-ash init, z7's command loop answers
 
 Blocked by
 : walleye-charger-on-z7
@@ -3061,9 +3061,6 @@ About
 
 Opened
 : 2026-11-18
-
-Needs
-: phone
 
 Proof
 : walleye-charger-smb2: sh tests/host/charger-check.sh DIR passes on the reader's output of c1 (images-c1/boot-c1.img sha256 ddae19b523f2a68d902755f0e57d53c3b98c74b9b146d372bc40ea307aaee0c0)
@@ -3630,10 +3627,10 @@ Rank
 ### c2: the charger (c1's work) on the z7 base, so its try is read through the working command loop
 
 Status
-: open
+: done
 
 Note
-: c1 was built on z3's silent-ash init (lab PR 173); z6/z7 answer commands. WHEN DONE queue walleye-try-c2 (needs phone, rank 1) and close walleye-try-c1 as superseded (done, 'superseded by c2'): c2 once from slot b with the host stty loop + reader as plain background processes; read the dmesg, /sys/class/power_supply, charger-check.sh; battery first (the phone may be charging on USB: that is the test); phone left in Android.
+: c2 built: images-c2/boot-c2.img sha256 262d6a2c69658ff9167e710a61adc624a5aec7752a8b46ad68a1af6417d6d86c; 30 checks ok, rebuild identical; tried by walleye-try-c2
 
 About
 : walleye-first-fastboot-boot
@@ -3676,3 +3673,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-try-c2"></a>
+### Try c2 once from slot b with the command loop: does pmi8998's charger probe, and is online 1 with the cable in?
+
+Status
+: open
+
+Note
+: c2 once from slot b with the host stty loop + reader as plain background processes; read the dmesg, /sys/class/power_supply, charger-check.sh; battery first (the phone may be charging on USB: that is the test); phone left in Android. Risk: float voltage 4.4 V; a Type-C reset may drop the ACM link (a missing tty is a finding; z7 is the fallback).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-charger-smb2: sh tests/host/charger-check.sh DIR passes on the reader's output of c2 (images-c2/boot-c2.img sha256 262d6a2c69658ff9167e710a61adc624a5aec7752a8b46ad68a1af6417d6d86c)
+
+Rank
+: 1
