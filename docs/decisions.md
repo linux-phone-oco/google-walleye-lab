@@ -752,3 +752,31 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-walleye-z6-dmesg-fix-order"></a>
+### 2026-11-18-walleye-z6-dmesg-fix-order
+
+Date
+: 2026-11-18
+
+Brief
+: Fix the z6 dmesg in this order: disable adreno_smmu, then c1 on the z6 init with debugfs and facts, UFS read-only, USB net, touch, display; leave vendor-overlay noise
+
+Decision
+: 1 walleye-dmesg-clean: dts sets &adreno_smmu disabled (no gpu_gx WARN, no deferral, gcc/gpucc sync_state clears for it); the reader mounts debugfs and saves devices_deferred. 2 walleye-try-c1 rebuilt on the z6 init (charger node, rradc). 3 walleye-ufs-readonly (ufshc, ufsphy, rails, UFS and QMP-UFS config). Then usb-net, touch, display. The vendor-overlay noise (serial@c16f000, i2c@c179000, bt_wcn3990, mnh-sm, reg-less PMIC nodes), psci -3 and the misaligned-image line are recorded as known and not fixed until walleye-dtbo-overlay-id says whether the overlay is needed.
+
+Why
+: Only G1 is a kernel WARN and the only one that holds a probe; the rest is noise from a overlay we do not own or firmware we cannot change. The charger and UFS each need their own dts and config, not a dmesg fix.
+
+Rejected
+: Fixing the vendor clock ids with a translation table in the dtb (a dtb cannot translate ids, and the overlay stays the bootloader's). fw_devlink=permissive to hide sync_state (hides, does not fix). Powering the GFX rail now (the rail is not known yet and GPU is far down the order).
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-z6-dmesg-mapped
+
+Tracked by
+: walleye-dmesg-clean

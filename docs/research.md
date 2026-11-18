@@ -2164,3 +2164,30 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-19-z6-try1/
+
+
+<a id="walleye-z6-dmesg-mapped"></a>
+### walleye-z6-dmesg-mapped
+
+Date
+: 2026-11-18
+
+Brief
+: z6 dmesg read in full: five distinct faults (gpu_gx GDSC stuck via adreno_smmu, vendor-overlay clock ids, psci, misaligned image, reg-less nodes); PMIC, RPM, USB, wdt, ramoops work
+
+Question
+: What does every warning, deferral and failure in the z6 dmesg (590 lines) mean, and in what order do we fix them?
+
+Found
+: Full map in the material (map.md). Works by lines: SPMI arbiter v3 with 0-00..0-03, RPM clock/power/regulators-0/-1 (12 regulators), USB udc and gadget bound at 1.17 s, kpss watchdog, ramoops/pstore, gpio_keys, three arm-smmu (1680000, 16c0000, cd00000) probe fine.
+Faults: G1 gpu_gx GDSC "status stuck at 'off'" (six WARNs): 5040000.iommu (adreno_smmu) lists power-domains GPU_GX_GDSC, whose collapse switch needs the GFX rail nothing in our dts powers (which rail: not known yet); the smmu defers for ever ("reason unknown") and holds gcc and gpucc sync_state; the old backlog line "arm-smmu 5040000 timeout" is this. Smallest fix: our dts disables adreno_smmu until GPU work. G2 serial@c16f000 probe error -2, "qcom_cc_clk_hw_get: invalid index": a node of the vendor dtbo overlay whose clock ids are the vendor's; with c179000.i2c, bt_wcn3990 and mnh-sm it keeps gcc sync_state pending; we cannot edit the overlay, harmless with clk_ignore_unused; gone only if the bootloader merge is avoided (item walleye-dtbo-overlay-id). G3 psci "failed to set PC mode: -3": firmware does not support it, kernel falls back, harmless. G4 "Kernel image misaligned at boot": bootloader loads Image off a 2 MiB boundary, harmless. G5 two reg-less pm8998@0/pmi8998@3 nodes from the overlay; ours bind.
+Not in the dmesg because not in the dtb or config yet: UFS (no node, no driver), charger (z6's dtb is z3's; main's dts has it, c1 carries it), display, touch, sensors, fuel gauge, remoteprocs. debugfs is not mounted so devices_deferred was unreadable.
+
+Sources
+: linux-gpucc-msm8998-gx
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-z6-dmesg-map/
