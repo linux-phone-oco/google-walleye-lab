@@ -1336,3 +1336,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-0430-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: vf1 tried twice from the first state: gadget up, LUN readable, header empty both times; phone back as Android on b, stock kernel, flags a and b successful, fastboot reachable, nothing flashed; host on 7.3.4 with usb_storage
+
+Considered
+: next: turning point for the coordinator - a first-round marker written at once by the vf1 init (or the dump step read) so an empty header can be told from a dead init; meanwhile the queue's other items wait on the author (unlock, UART)
+
+About
+: walleye-first-fastboot-boot

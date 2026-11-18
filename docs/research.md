@@ -1400,3 +1400,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-vf1-tried-twice"></a>
+### walleye-vf1-tried-twice
+
+Date
+: 2026-11-18
+
+Brief
+: vf1 twice from the first state (slot b): gadget 1d6b:0104 up at 18 s, LUN /dev/sda readable, header never WALLEYE-VF1; no facts read
+
+Question
+: Does vf1 write the vendor-facts blob into its mass_storage window, readable on the host?
+
+Found
+: Host now on 7.3.4 with usb_storage, so the earlier module block is gone. Two tries (battery 4378 mV, slots a and b successful, boot from fastboot on b, nothing flashed): left fastboot at 12 s, enumerated 1d6b:0104 with our strings at 18 s, /dev/sda read by the reader, but the 64-byte header was empty (not WALLEYE-VF1) over 12 reads in try 1 and the full LUN_WAIT=60 VF_TRIES=60 run in try 2. Phone then left USB and came back as Android on b, flags unchanged, fastboot reachable. Not told apart: init never wrote a blob (dump step failing), host read of the LUN cached or empty, or the vendor kernel dying before the first round. Next, by the coordinator: read the vf1 init's dump step for what it writes before the first round, or add a marker round written at once; a UART remains the sure witness.
+
+About
+: walleye-first-fastboot-boot
