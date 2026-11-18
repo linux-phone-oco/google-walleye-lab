@@ -1185,3 +1185,28 @@ Amends
 
 Scope
 : walleye lane: coordinator, keeper, builders; the author
+
+
+<a id="2026-11-18-walleye-steps-open-not-failing"></a>
+### 2026-11-18-walleye-steps-open-not-failing
+
+Date
+: 2026-11-18
+
+Brief
+: Steps nobody has tried are claimed open; failing only where a check ran and failed
+
+Decision
+: Of the 113 steps of docs' bring-up chain, walleye claims 17 done (each with proof, run and image), 3 partial, 1 failing (watchdog-way-back, from the z9 bite) and 92 open. A step nobody has tried on this phone is open, not unknown and not failing; charger-online is partial because c3 probed it online but the restart gate is not passed.
+
+Why
+: docs' bringup-chain-walleye test needs every step claimed; unknown would fail it, failing would say a check ran. open says: not done, not tried.
+
+Rejected
+: unknown for the untried steps (the chain test refuses it); the draft's failing for charger-online (c3's charger-check passed); the draft's open for watchdog-way-back (z9 bit and the phone stayed off)
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-z9-tried-pmic-wdt-bites

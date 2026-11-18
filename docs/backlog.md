@@ -4606,12 +4606,10 @@ Rank
 ### Claim walleye's steps on the bring-up chain, each checked against the lab's own records
 
 Status
-: open
+: done
 
 Note
-: Request from orchestration (the steps contract reached the lab in the 21:00 follow, docs 0.17.0 -> 0.18.0). They run docs' feeds workflow by hand once the first claims land and need the count.
-
-ORCHESTRATION CORRECTION 2026-11-18: BEFORE claiming add `steps = 1` to google-walleye-lab devicebase.toml (the follow never lays that file; without the flag docs feed reads every step as unknown, data/steps.json gives 404). Claim with `tad r step --step S --status done --proof P --run R` (ikb step works too); a not-needed claim needs --notes. The base table is `steps` (data/steps.json); docs pulls it into step_status. bringup-chain-walleye.sh needs EVERY step of the chain claimed, even as open or not-needed (against a fake base with the 26 draft claims it failed only on unclaimed steps). Report the count by status when the first claims land.
+: claims landed: 17 done, 3 partial, 1 failing, 92 open of 113; bringup-chain-walleye.sh passes against them, daily-phone.sh google-walleye fails as it should (66 of 82 not done); script build/claim-steps.sh
 
 About
 : walleye-first-fastboot-boot
