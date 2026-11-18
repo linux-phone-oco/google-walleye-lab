@@ -1498,3 +1498,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0650-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: vfa twice, vfb, vfc once, vfd twice tried from the first state through devlab fastboot boot; phone is Android on slot b, stock kernel, a and b successful, nothing flashed, fastboot reachable; the live fdt, iomem, interrupts, cmdline and regulator summary are in the material path
+
+Considered
+: next: build mainline USB nodes from the vfa fdt (porthole/taimen dtb bisect can now be compared against the live walleye fdt); vfb's clk_summary needs a look at why the read fails (debugfs path); fix battery-ok.sh to time out while Android runs; queue's other items wait on the author (unlock, UART)
+
+About
+: walleye-first-fastboot-boot
