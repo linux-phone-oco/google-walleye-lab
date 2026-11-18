@@ -1,6 +1,6 @@
 #!/bin/sh
 # vendor-facts-vf4 (backlog walleye-vf4-vf2-order-progressive): the stock control's boot.img with only the ramdisk swapped (xz), init = initramfs-vendor5/init-vf4: vf2's init byte for byte up to and including the gadget bind, then vf3's progressive
-# dump (framed BEGIN/END blocks from byte 65536 of vf2's 8 MiB window; the 64 KiB text region keeps vf2's beat and step lines). Read on the host by tests/host/vendor-facts-poll.sh (VF_MARK=WALLEYE-VF2 VF_HEAD=16 VF_BLOCKS=1040), started before the boot. Host only; nothing touches the phone.
+# dump (framed BEGIN/END blocks from byte 65536 of vf2's 8 MiB window; the 64 KiB text region keeps vf2's beat and step lines). Read on the host by tests/host/vendor-facts-poll.sh (VF_MARK=WALLEYE-VF2 VF_HEAD=16 VF_BLOCKS=1040 POLL_MAX=400), started before the boot. Host only; nothing touches the phone.
 #
 #   build-vendor-facts-vf4.sh WORK_DIR CONTROL_BOOT_IMG OUT_DIR [M1_BOOT_IMG]     (WORK_DIR as build-vendor-gadget4.sh)
 # Writes OUT_DIR/initramfs-vendor-vf4.cpio.xz and OUT_DIR/boot-vf4.img, checks each (ok/FAIL, exit 1 on a FAIL), prints the sha256s.

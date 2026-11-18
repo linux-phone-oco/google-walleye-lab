@@ -1495,3 +1495,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-vf4-built"></a>
+### walleye-vf4-built
+
+Date
+: 2026-11-18
+
+Brief
+: vf4 built: vf2's init byte for byte to the gadget bind (first 86 lines), then vf3's progressive dump after it; 27 checks ok, rebuild identical, selftests ok
+
+Question
+: Which change between vf2 (alive) and vf3 (dead before the bind, twice) killed vf3, and what is the smallest step from vf2 toward a readable dump?
+
+Found
+: Diff vf2->vf3 BEFORE the bind (what vf3 did that vf2 did not, or not as vf2 did): (1) no 'say' to /dev/console and /dev/kmsg per step - vf2 wrote the console twice per step, and its gadget bind came only at 43 s; vf3 bound within seconds of boot; (2) no debugfs mount before the bind (vf2 mounted debugfs before); (3) no applet loop, no flock'd 64 KiB text region, no per-step start/step lines; (4) window 4 MiB with a 4096-byte beat block instead of 8 MiB with a 64 KiB text region. Likely cause (a hypothesis, not measured): the bind itself came too EARLY - vf2's slow console writes put it after the kernel's late unused clock/regulator cleanup (~30 s), vf3's bind ran before it, and the UDC/PHY went down or the phone reset; vf4 keeps vf2's timing so a dead vf4 would speak against this, an alive one for it. Not excluded: the missing debugfs mount or the window size. vf4 = vf2's init lines 1-86 unchanged (up to and including the 'gadget' call = UDC bind; diff vf2->vf4 first hunk at line 87, md5 of the 86 lines equal, checked by the build), then vf3's stream appended from byte 65536 of vf2's 8 MiB window (framed BEGIN/END blocks, flushed from the last 4096-byte boundary and synced, a 'chunk NAME' step line first so a hang shows in the text region, timeout 5 on debugfs reads, 3.8 MB budget, DONE, hold to 90 s then reboot -f). Poller of vf3 reused with VF_MARK=WALLEYE-VF2 VF_HEAD=16 VF_BLOCKS=1040 (reads 4259840 bytes; also keeps the 64 KiB text region as steps.txt, leak-checked). sha256 (first 16) 6184dbdc240ead5c 681b5d0858cde6e1  full in ~/Projects/walleye-build/images-vf4/SHA256SUMS-vf4 on the lab. Selftests: poll 25 ok (vf3 layout unchanged), vf4 13 ok. Programmer review (no defect on the first read) led to: POLL_MAX=400 (the dump needs more than 150 s after a 43 s bind), the gadget step lines copied into the stream as block gadget-steps, dmesg and udc before the clk/regulator/gpio reads (a wedged read cannot hide them), dbg-usb no longer a duplicate of usb. Not measured yet: the phone.
+
+About
+: walleye-first-fastboot-boot

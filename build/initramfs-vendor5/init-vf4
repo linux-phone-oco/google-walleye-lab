@@ -89,7 +89,7 @@ gadget
 # The window (vf2's 8 MiB file, text region = first 64 KiB: beat line + one line per step, kept alive by vf2's own beat) now also carries a stream from byte 65536: framed blocks "BEGIN name", the text,
 # "END name rc=N[: stderr words]", the last line "DONE ...". Each block is appended at the next free offset (from the last 4096-byte boundary) and synced; a source over its share is cut; a stream over its
 # budget skips the rest with an END line saying so. A debugfs read that may block is bounded by timeout 5. Nothing new goes to /dev/console. Redaction as vf1-vf3.
-# The host side is tests/host/vendor-facts-poll.sh with VF_MARK=WALLEYE-VF2 VF_HEAD=16 VF_BLOCKS=1040, started BEFORE the boot.
+# The host side is tests/host/vendor-facts-poll.sh with VF_MARK=WALLEYE-VF2 VF_HEAD=16 VF_BLOCKS=1040 POLL_MAX=400 VF_OUT=<a vf4 dir>, started BEFORE the boot.
 OUT=/tmp/walleye-stream
 HEADBLK=16
 BUDGET=3800000
@@ -107,6 +107,7 @@ flush() {
   sync
 }
 echo "BEGIN gadget" >> $OUT
+echo "BEGIN gadget-steps" >> $OUT; cat $STAT >> $OUT; echo "END gadget-steps rc=0" >> $OUT
 echo "END gadget rc=0: udc=${UDC:-none} up=$(cut -d' ' -f1 /proc/uptime)" >> $OUT
 flush
 redact_filter() {
@@ -152,6 +153,8 @@ udc_state() {
 chunk udc-state udc_state
 chunk cmdline cat_file /proc/cmdline
 chunk version cat_file /proc/version
+chunk dmesg-head dmesg_head
+chunk dmesg-tail dmesg_tail
 chunk iomem cat_file /proc/iomem
 chunk interrupts cat_file /proc/interrupts
 chunk clk_summary cat_file /sys/kernel/debug/clk/clk_summary
@@ -161,11 +164,9 @@ chunk pinctrl-maps cat_file /sys/kernel/debug/pinctrl/pinctrl-maps
 chunk pinctrl-devices cat_file /sys/kernel/debug/pinctrl/pinctrl-devices
 for d in /sys/kernel/debug/pinctrl/*; do [ -d "$d" ] && chunk "pinctrl-${d##*/}" cat_dir "$d"; done
 chunk usb cat_dir /sys/kernel/debug/usb
-for d in /sys/kernel/debug/*dwc3* /sys/kernel/debug/*.usb /sys/kernel/debug/*usb*; do [ -d "$d" ] && chunk "dbg-${d##*/}" cat_dir "$d"; done
+for d in /sys/kernel/debug/*dwc3* /sys/kernel/debug/*.usb /sys/kernel/debug/*usb*; do [ -d "$d" ] && [ "${d##*/}" != usb ] && chunk "dbg-${d##*/}" cat_dir "$d"; done
 chunk ioports cat_file /proc/ioports
 chunk devices cat_file /proc/devices
-chunk dmesg-head dmesg_head
-chunk dmesg-tail dmesg_tail
 # the device tree last: one block per node directory
 (cd /proc/device-tree && find . -type d) | sort > /tmp/walleye-dtdirs
 while IFS= read -r p; do
