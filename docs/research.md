@@ -2574,3 +2574,22 @@ Sources
 
 About
 : deep-sleep
+
+
+<a id="walleye-z10-tried-pon-regs-not-read"></a>
+### walleye-z10-tried-pon-regs-not-read
+
+Date
+: 2026-11-18
+
+Brief
+: z10 once from slot b: booted, command loop up, but banner stayed 'pon-regs not read yet' for 60+ s; test failed, nothing armed
+
+Question
+: What do the PON S2 registers read, from z10's banner?
+
+Found
+: z10 booted from memory (fastboot boot now), ttyACM0 came up, banner beats to 25 (up 60 s) all said 'WALLEYE-BANNER-PON [pon-regs not read yet]'. The test script ran only after the boot, 40 s listen, no line with registers: fail. A hand-typed pon-regs on the tty was garbled by banner output (WALLpon-regs), so the command's answer is untried. Phone fell back to Android on slot b by itself (init reboots at 180 s), adb up, flags unchanged. Nothing armed, nothing flashed. Next: find why init-z10 does not read (regmaps? read happens at which step?) - read the init's step list; run the test script in parallel with the boot, with the command sent as one write.
+
+About
+: deep-sleep

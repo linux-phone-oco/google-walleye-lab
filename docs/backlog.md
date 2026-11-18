@@ -4235,7 +4235,7 @@ Status
 : open
 
 Note
-: Image ~/Projects/walleye-build/images-z10/boot-z10.img (sha256 3485e89b...cf55, SHA256SUMS-z10 beside it). Run tests/host/pmic-wdt-pon-regs-banner.sh after the boot: it waits for the WALLEYE-BANNER-PON line with all seven values and checks the command pon-regs answers the same; it arms nothing; the init reboots itself at 180 s. Record the values with 0xc5 (power-off reason) and the slot; they settle which of the three causes of the missing restart holds (research walleye-pmic-bite-reset-type-how-it-stands). A line 'pon-regs none regmaps=[..] dbgfs=[..]' is a result too: it names the regmaps the kernel has.
+: Tried once 2026-11-18: banner stayed 'pon-regs not read yet' (research walleye-z10-tried-pon-regs-not-read). Not done. Next: read init-z10 to see why the read never happened; retry with the test started before the boot.
 
 About
 : deep-sleep

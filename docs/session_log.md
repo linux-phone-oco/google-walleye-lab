@@ -2479,3 +2479,21 @@ Rejected
 
 About
 : deep-sleep
+
+---
+
+
+<a id="2026-11-18-1915-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Phone is Android on slot b, stock kernel, adb up, nothing flashed, flags unchanged. z10 tried once from memory: no PON register values (banner 'not read yet'); item walleye-pmic-wdt-z10-read-pon-regs stays open.
+
+Considered
+: next: why init-z10 never read the registers; walleye-pmic-wdt-read-s2-regs; walleye-dtbo-minimal-try question to coordinator still open
+
+About
+: deep-sleep
