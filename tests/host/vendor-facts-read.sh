@@ -29,7 +29,7 @@ else
     [ "$n" -ge "$WAIT" ] && break
     sleep 1; n=$((n+1))
   done
-  [ -n "$USB" ] || say fail "no USB device with our gadget strings (the phone is in fastboot, off, or hung): $(lsusb 2>/dev/null | grep -ci google) google device(s) on the bus"
+  [ -n "$USB" ] || say fail "no USB device with our gadget strings; phone-state: $(sh "$(dirname "$0")/phone-state.sh" 2>&1 | grep "^verdict" | head -n1 | grep . || echo unavailable)"
   [ -n "$BLK" ] || say fail "gadget ${USB##*/} enumerated but no block device under it (usb-storage not bound, or the LUN has no medium yet)"
   [ -r "$BLK" ] || say skip "gadget ${USB##*/} is $BLK but it is not readable by $(id -un) (disk group or sudo needed)"
 fi

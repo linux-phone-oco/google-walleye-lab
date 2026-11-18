@@ -2380,3 +2380,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-wire-phone-state"></a>
+### Wire phone-state into restart-check and readers
+
+Entry date
+: 2026-11-18
+
+Done
+: restart-check.sh consults phone-state.sh when the journal has no disconnect; five readers print its verdict not 'hung'; selftest 11 ok
+
+Considered
+: consult by default without NOW
+
+Rejected
+: consulting phone-state against a recorded journal: today's phone proves nothing about it (programmer review)
+
+About
+: walleye-first-fastboot-boot

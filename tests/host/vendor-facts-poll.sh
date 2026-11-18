@@ -92,7 +92,7 @@ done
 BLOCKS=$(grep -c . "$OUT/.done")
 (cd "$OUT" && find vf -type f -printf '%s %p\n' | sort -k2 > INDEX.txt)
 LASTBEAT=$(tail -n1 "$OUT/beat.log" | cut -c1-80)
-[ "$SEEN_MARKER" = 1 ] || { rm -rf "$OUT"; say fail "no window with our marker in $(( $(date +%s) - START )) s (${WHERE:-no USB device with our gadget strings: the phone is in fastboot, off, or hung}); nothing left"; }
+[ "$SEEN_MARKER" = 1 ] || { rm -rf "$OUT"; say fail "no window with our marker in $(( $(date +%s) - START )) s (${WHERE:-no USB device with our gadget strings; phone-state: $(sh "$(dirname "$0")/phone-state.sh" 2>&1 | grep "^verdict" | head -n1 | grep . || echo unavailable)}); nothing left"; }
 [ "$BLOCKS" -gt 0 ] || say fail "the window showed its marker ($BEATS beats, last: $LASTBEAT) but no block ended; copies in $OUT/win"
 if [ "$DONE" = 1 ]; then END=DONE; else END="no DONE, partial"; fi
 say pass "$BLOCKS blocks in $OUT/vf, $NCOPY copies, $BEATS beats, $END (last beat: $LASTBEAT)"
