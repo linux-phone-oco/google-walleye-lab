@@ -2890,3 +2890,24 @@ Done
 
 Considered
 : next: walleye-try-z19, then walleye-bootchain-readback; UFS HW_VERSION/PHY need a reader (coordinator)
+
+---
+
+
+<a id="2026-11-19-walleye-builder-gpio-diag"></a>
+### walleye-builder: gpio diag kernel, z20
+
+Entry date
+: 2026-11-18
+
+Done
+: Built z20: z19 with a dynamic-debug and DEBUG_GPIO kernel (EXTRA_CONFIG hook in build-kernel.sh, build/walleye-diag.config), command line plus dyndbg by full kernel paths; test first (fails on z19), checks ok, rebuild identical; the programmer review found the short path pinctrl/core.c matching nothing - fixed, test made exact; queued walleye-try-z20 for the keeper.
+
+Considered
+: drivers/base/dd.c +p (every deferral of every device: too loud); module-style short file names
+
+Rejected
+: A debugfs leaf read first (the coordinator's fallback, redundant once the diag kernel prints the gpio errno); a new kernel branch for the config (the tree is z15's, only a config fragment differs).
+
+About
+: walleye-first-fastboot-boot

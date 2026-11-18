@@ -4998,12 +4998,10 @@ Rank
 ### Diagnostic kernel: dynamic debug for gpiolib and pinctrl on the command line
 
 Status
-: open
+: done
 
 Note
-: build/walleye.config: CONFIG_DYNAMIC_DEBUG=y, CONFIG_DEBUG_GPIO=y; boot command line dyndbg="file gpiolib.c +p; file gpiolib-of.c +p; file pinctrl/core.c +p" (no phone write); touch dts as z17. The fix item is written from the printed leaf.
-
-COORDINATOR 2026-11-19: no longer blocked by the leaf read: one boot of this diag kernel prints the leaf AND the errno itself, which makes the debugfs read redundant; build it first (rank 1), on the z19 base (the overlay-collision-clean dtb), CONFIG_DYNAMIC_DEBUG + DEBUG_GPIO + the dyndbg command line for gpiolib, pinctrl and the spmi-gpio driver; keep the leaf-read item as the fallback.
+: Built: build/build-z20.sh, images-z20/boot-z20.img sha256 fe9e0cce (rebuild identical); test tests/host/gpio-diag-boot.sh seen failing on z19, passes on z20. The try is walleye-try-z20; the fix item is written from the printed leaf.
 
 About
 : walleye-first-fastboot-boot
@@ -5013,6 +5011,31 @@ Opened
 
 Needs
 : build
+
+Proof
+: the diagnostic boot's dmesg shows the gpiolib line naming the leaf and errno for regulator-touch-power
+
+Rank
+: 1
+
+
+<a id="walleye-try-z20"></a>
+### Try z20 once from slot b (probe only): the diagnostic kernel; read the gpiolib/pinctrl lines that name the leaf and errno for regulator-touch-power
+
+Status
+: open
+
+Note
+: Built by walleye-build-gpio-diag-kernel: images-z20/boot-z20.img sha256 fe9e0cce. Expected: z19's behaviour (gadget up, touch deferred) plus dmesg lines from gpiolib-of ('parsed ... status (-517)'), pinctrl core and devicetree; keep the dmesg as a file and record the leaf and errno as research. If the pinctrl leaf prints nothing, the debugfs read (walleye-touch-gpio-leaf-read) is the fallback. No write to the phone beyond the fastboot boot.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
 
 Proof
 : the diagnostic boot's dmesg shows the gpiolib line naming the leaf and errno for regulator-touch-power

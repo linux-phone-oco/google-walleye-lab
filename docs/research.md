@@ -3129,3 +3129,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z20-built"></a>
+### walleye-z20-built
+
+Date
+: 2026-11-18
+
+Brief
+: z20 built: z19 with a diagnostic kernel (dynamic debug, DEBUG_GPIO) and dyndbg for gpiolib, gpiolib-of, pinctrl core and devicetree on the command line; sha256 fe9e0cce; rebuild identical
+
+Question
+: Can one boot print which gpio/pinctrl leaf the touch power gpio defers at, and the errno?
+
+Found
+: The kernel is z15's tree (linux-phone-oco/linux topic/pmic-wdt-wake-in-suspend e123d3bff) built with build/walleye.config plus build/walleye-diag.config (CONFIG_DYNAMIC_DEBUG=y, CONFIG_DEBUG_GPIO=y; build-kernel.sh takes EXTRA_CONFIG). DEBUG_GPIO also compiles drivers/gpio with -DDEBUG: more boot output from every gpio driver, so z20 differs from z19 in that as well. build/build-z20.sh repacks z19: dtb, ramdisk, header (but sizes and command line) and AVB properties are z19's byte for byte; the command line is z19's plus dyndbg="file drivers/gpio/gpiolib.c +p; file drivers/gpio/gpiolib-of.c +p; file drivers/pinctrl/core.c +p; file drivers/pinctrl/devicetree.c +p; file drivers/pinctrl/qcom/pinctrl-spmi-gpio.c +p". Review finding kept: a dyndbg file query is a whole-string match, so the short path pinctrl/core.c matches nothing - full paths are used and the test checks them. What prints: gpiolib-of prints the errno of a failed gpio lookup (the -517 line); pinctrl core and devicetree print their steps; pinctrl-spmi-gpio has no debug lines (its +p prints nothing) and pinctrl core's defer returns are silent, so if the pinctrl leaf is the suspect and nothing prints, the fallback is the debugfs read (devices_deferred). Test tests/host/gpio-diag-boot.sh fails on z19 and on the first z20 (short paths), passes on this one; build checks ok incl. kernel headroom before the ramdisk; rebuild identical. images-z20/boot-z20.img on the lab. No dts changed. Not covered: the phone's dmesg (the keeper's try).
+
+About
+: walleye-first-fastboot-boot
