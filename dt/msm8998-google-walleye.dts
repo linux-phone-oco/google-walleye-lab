@@ -203,3 +203,15 @@
 	/* Peripheral until the type-C port is hooked up */
 	dr_mode = "peripheral";
 };
+
+&tlmm {
+	/*
+	 * GPIOs 0-3 and 81-84 are expected to belong to the secure world (TrustZone); touching them from
+	 * the non-secure side is expected to reset the phone (the mechanism is inferred, not measured here).
+	 * Source: the alive taimen dtb and porthole's walleye dtb carry exactly this property, and the fdt
+	 * bisect (research walleye-fdt-bisect-x-tried) showed that taking it out of the alive tree kills init
+	 * twice (x1): its absence is a cause of dead dtbs of ours; image y1 tests whether adding it is enough.
+	 * The vendor kernel's running fdt has no such property (its driver never touches those pins).
+	 */
+	gpio-reserved-ranges = <0 4>, <81 4>;
+};

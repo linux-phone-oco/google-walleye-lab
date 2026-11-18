@@ -517,3 +517,28 @@ About
 
 Research
 : walleye-fdt-bisect-x-built
+
+
+<a id="2026-11-18-walleye-our-dts-gets-gpio-reserved-only"></a>
+### 2026-11-18-walleye-our-dts-gets-gpio-reserved-only
+
+Date
+: 2026-11-18
+
+Brief
+: Give our dts the gpio-reserved-ranges property alone, one commit; leave pshold and the apps watchdog out until the try says they matter
+
+Decision
+: dt/msm8998-google-walleye.dts gets &tlmm gpio-reserved-ranges = <0 4>, <81 4>, with a comment naming its source (the alive taimen dtb, porthole's dtb, and the x1 bisect). Images y1 and y2 are ml6a plus that one dtb change.
+
+Why
+: Of 16 boots in the fdt bisect, x1 (the property removed from the alive tree) was dead twice and x2-x7 alive: the property is the cause. One change keeps the effect attributable (the item's own rule).
+
+Rejected
+: Adding restart@10ac000 (qcom,pshold) and the apps watchdog now: x4 was alive without them being ours, so the finding does not say they matter; they come after y1/y2 are read. Putting the property in a separate overlay or only in the image's dtb with fdtput: the source of truth is our dts, which the images must be built from. Changing the ramdisks or command line: they are the proven ml5a/pk5l ones, unchanged.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-y-built
