@@ -3011,10 +3011,10 @@ Proof
 ### Try z1 once from slot b with the shell reader waiting; read the PMIC result
 
 Status
-: open
+: in-progress
 
 Note
-: Keeper: battery-ok first; z1 once from slot b with mainline-shell-read.sh waiting (OUT under lab-material), save the whole dmesg, compare with research 2026-11-18-walleye-first-mainline-shell-map; phone left in Android on a good slot. The dtb is the only change from y2.
+: z1 tried once 2026-11-18: kernel alive, gadget+ttyACM0 up 18 s, but reader Permission denied on /dev/ttyACM0 -> no dmesg. Next: make the tty readable by the keeper session (ACL/uaccess: check 'getfacl /dev/ttyACM0' during a try, or run reader in a seat-active terminal), then try z1 again with the reader, battery-ok first.
 
 About
 : walleye-first-fastboot-boot

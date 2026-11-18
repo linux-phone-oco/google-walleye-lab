@@ -1675,3 +1675,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0900-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: z1 tried once from slot b: alive, ttyACM0 up, reader denied the tty so the PMIC dmesg was not read; phone back as Android on b, stock kernel, nothing flashed, adb up, fastboot reachable on demand
+
+Considered
+: next: fix tty access for the keeper session (getfacl during the try; uaccess tag only reaches the seat user), then try z1 again with the reader waiting; coordinator to decide who fixes access (host prepare is lab-tools')
+
+About
+: walleye-first-fastboot-boot
