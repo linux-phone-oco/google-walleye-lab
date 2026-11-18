@@ -2238,10 +2238,10 @@ Proof
 ### Why our mainline kernel's console never survives in pstore, and how a MSM8998 kernel asks for a WARM reset (reboot=w, psci reset, qcom pon, the SDI/dload) so the ramoops region keeps its text
 
 Status
-: open
+: done
 
 Note
-: Facts (lab research walleye-pk5l2-tried, walleye-ml3-pstore-empty): ramoops at 0xa1100000 as the vendor kernel's own; /sys/fs/pstore empty after every mainline try (1 Android ramoops-reader oops at 17.9 s once). Host-only, public sources; no phone needed while it is parked.
+: Answered in research walleye-pstore-warm-reset-how-it-stands and decision 2026-11-18-walleye-warm-reset-by-watchdog-bite-first; tries queued as walleye-pstore-t1/t3/t4
 
 About
 : walleye-first-fastboot-boot
@@ -2254,3 +2254,72 @@ Needs
 
 Proof
 : a research row with sources (porthole's cmdline reboot=w and qcom_wdt.arm_on_probe, kernel docs, postmarketOS and kcxt notes, Qualcomm PSCI/TZ behaviour, the vendor kernel's own warm-reset path read from the GPL source): ranked causes of the empty pstore (DDR cleared by a cold reset, the bootloader zeroing the region, the ramoops node/size mismatch, the vendor reader consuming it), and one or two cheap image changes that would tell (cmdline reboot=warm, the init doing a psci warm reset, panic=5 plus a deliberate panic via sysrq c at a known time) with their expected pstore results
+
+
+<a id="walleye-pstore-t1-sysrq-reset"></a>
+### Image T1: init marks /dev/kmsg, waits 20 s, sysrq c (panic=5); read console-ramoops after the return
+
+Status
+: open
+
+Note
+: From research walleye-pstore-warm-reset-how-it-stands; run only after a kernel has shown life
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: tests/health: pstore holds the marker after the T1 return (expected absent: records cause B)
+
+
+<a id="walleye-pstore-t3-wdog-bite"></a>
+### Image T3: init opens /dev/watchdog (kpss-wdt) with a short timeout and never pets it; read console-ramoops after the bite
+
+Status
+: open
+
+Note
+: The one cheap try with real hope; needs the kpss-wdt node's address/irq measured (dts says not measured yet)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: tests/health: pstore holds the marker after the bite return (expected present)
+
+
+<a id="walleye-pstore-t4-pon-warm-notifier"></a>
+### Kernel patch T4: a reboot notifier setting the PON PS_HOLD reset type to warm (read registers from vendor qpnp-power-on first)
+
+Status
+: open
+
+Note
+: Only if T3 fails or a plain reboot must keep DDR; candidate to send upstream
+
+Blocked by
+: walleye-pstore-t3-wdog-bite
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: pstore holds the marker after a plain reboot -f

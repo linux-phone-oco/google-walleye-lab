@@ -423,3 +423,28 @@ About
 
 Research
 : walleye-property-diff
+
+
+<a id="2026-11-18-walleye-warm-reset-by-watchdog-bite-first"></a>
+### 2026-11-18-walleye-warm-reset-by-watchdog-bite-first
+
+Date
+: 2026-11-18
+
+Brief
+: Prove a kernel alive first; then try a deliberate sysrq-c reset, then an unpetted-watchdog bite, before any kernel patch for a PMIC warm reset
+
+Decision
+: Order of tries for the pstore question: T1 sysrq c with panic=5 (expected empty, measures cause B), T3 unpetted kpss-wdt bite (expected present), only then T4 a PON reset-type reboot notifier patch. cmdline reboot=w alone is not a try worth an image slot beyond T1 (PSCI has no RESET2 here). None of it before a kernel has shown life.
+
+Why
+: msm_restart_prepare of the vendor kernel shows plain reboot is a PMIC hard reset and only panic/dload/commanded reboot are warm; mainline sets no reset type and psci runs before the watchdog restart handler; the bite is the one warm-capable path already in our dts and init.
+
+Rejected
+: A PON reset-type kernel patch first: more work and the register values are not yet read from source. reboot=warm first: needs PSCI 1.1 SYSTEM_RESET2, not present as far as known. Reading more of the empty pstore on stock Android: it cannot tell a missing kernel from a lost region.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-pstore-warm-reset-how-it-stands
