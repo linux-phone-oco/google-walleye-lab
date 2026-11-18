@@ -1248,10 +1248,10 @@ Proof
 ### Try m1 from the first state, then read the log window on the host for 90 s
 
 Status
-: in-progress
+: done
 
 Note
-: host is now on 7.3.4 with usb_storage (no longer waiting on that); m1's window read superseded by vf1 tries
+: m1 tried and its window read as the lab user (lab PR 70: lpoco-host acceptance passed); ml/pk variants superseded.
 
 Waits
 : host: usb_storage for the running kernel (reboot into 7.3.4)
@@ -1298,10 +1298,10 @@ Proof
 ### Phone: boot image n3 once; host sees ttyACM and a shell answers
 
 Status
-: in-progress
+: done
 
 Note
-: n3 tried once: gadget enumerates with the ACM interface, host cannot bind (no cdc_acm module for 7.3.3). Next: after the host reboot, boot n3 again and run tests/host/ffs-acm-up.sh with ACM_WAIT=60; the phone is in fastboot on a, flags unchanged
+: n3/n3r tried (lab PR 76): cdc_acm refuses a FunctionFS interface without functional descriptors: parked (decision 2026-11-17-walleye-ffs-console-parked).
 
 Waits
 : host: cdc_acm for the running kernel (reboot the lab host into 7.3.4)
@@ -2282,10 +2282,10 @@ Proof
 ### Image T3: init opens /dev/watchdog (kpss-wdt) with a short timeout and never pets it; read console-ramoops after the bite
 
 Status
-: in-progress
+: done
 
 Note
-: tried once 2026-11-18: fail (no marker, back at 42 s). Not conclusive about the bite itself; a turning point for the coordinator: how to see init run (UART) or read ramoops by other means
+: Tried once (lab PR 122): back at 42 s, no marker: inconclusive without a witness; the pstore chase is paused by decision 2026-11-18-walleye-vendor-kernel-as-instrument.
 
 About
 : walleye-first-fastboot-boot
@@ -2379,10 +2379,10 @@ Proof
 ### Phone: boot vf1 twice from the first state; the keeper reads the window with tests/host/vendor-facts-read.sh (battery first, phone left in Android afterwards); first run may be partial: say what was missing
 
 Status
-: in-progress
+: done
 
 Note
-: tried twice 2026-11-18 from the first state: gadget up at 18 s, LUN readable, header empty both times (see walleye-vf1-tried-twice); phone back as Android on b. Turning point for the coordinator: marker-first round in the init, or read the dump step
+: vf1 tried twice (lab PR 125): enumerates, LUN readable, no header: superseded by vf2.
 
 Waits
 : coordinator: how to make the window show life first
@@ -2436,9 +2436,6 @@ Status
 
 Note
 : image: ~/Projects/walleye-build/images-vf2/boot-vf2.img (sha256 in SHA256SUMS-vf2). LUN_WAIT=60 tests/host/vendor-facts-read.sh; if the lab user cannot read the LUN, that is the skip as in m1
-
-Blocked by
-: walleye-vf2-marker-first
 
 About
 : walleye-first-fastboot-boot
