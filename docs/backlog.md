@@ -2303,31 +2303,6 @@ Rank
 : 1
 
 
-<a id="walleye-pstore-t4-pon-warm-notifier"></a>
-### Kernel patch T4: a reboot notifier setting the PON PS_HOLD reset type to warm (read registers from vendor qpnp-power-on first)
-
-Status
-: open
-
-Note
-: Only if T3 fails or a plain reboot must keep DDR; candidate to send upstream
-
-Blocked by
-: walleye-pstore-t3-wdog-bite
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: research
-
-Proof
-: pstore holds the marker after a plain reboot -f
-
-
 <a id="walleye-pstore-t1-try"></a>
 ### Try T1: fastboot boot boot-t1.img, wait 90 s, read console-ramoops for the marker
 
@@ -2708,3 +2683,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-pstore-t4-pon-warm-notifier"></a>
+### Kernel patch T4: a reboot notifier setting the PON PS_HOLD reset type to warm (read registers from vendor qpnp-power-on first)
+
+Status
+: open
+
+Note
+: Only if T3 fails or a plain reboot must keep DDR; candidate to send upstream
+
+Waits
+: paused by decision 2026-11-18-walleye-vendor-kernel-as-instrument: the pstore chase waits for a witness (UART) or the fdt bisect's result
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: pstore holds the marker after a plain reboot -f
