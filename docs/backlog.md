@@ -3324,3 +3324,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-shell-reliable"></a>
+### Make the ACM shell answer reliably: the phone's tty must not hang up between commands, and the reader must keep one fd open (z4)
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-z3-ttyacm-not-a-permission-problem, PR 190): the node is root:users 0660 with ACL user:mll:rw- and opens fine; the reader's 16 of 17 answers were empty although the phone's side is alive (the banner init writes lines the host reads); the y2 old-reader try saw only the tty's own echo of one command. That pattern (echo with no answer) means NO process was reading ttyGS0 at that moment: the init's shell reads `ash -i < /dev/ttyGS0` and ends when the port is closed by the host (hang up), and the reader reopens the node for every command. WHEN DONE queue walleye-try-z4 (needs phone, rank 1): z4 once from slot b; the keeper starts the new reader itself FIRST as a plain background process (no job, no root); judge with dmesg-clean-check.sh, pmic-dmesg-check.sh; then c1 the same way (rebuild c1 with the same init change: c2).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: Two changes that together make the ACM shell reliable, each its own commit: (1) the init (build/initramfs-mainline/init-pk5l and the one the z images use): before the shell starts, `stty -F /dev/ttyGS0 raw -echo -hupcl` (so that a host closing and reopening the port does not hang up the shell's terminal), the shell loop respawns at once (no sleep), and the shell is started with `setsid` and `cttyhack`-style controlling terminal if busybox has it (say what applets exist), so `ash -i` has a tty; a kmsg line per (re)start of the shell with a counter; (2) tests/host/mainline-shell-read.sh holds ONE file descriptor open on the tty for the whole session (exec 3<>"$TTY"), writes each command to fd 3 and reads answers from fd 3 with a per-command timeout, never reopening the node per command (line 50's per-command redirection closes the port after each command, which hangs the phone's shell up); the selftest's fake phone is changed to reproduce the hang-up on close (a fake that exits its 'shell' when the node is closed) so the old reader fails the selftest and the new one passes; the image z4 = z3 with only the ramdisk's init changed, 35+ checks, programmer review, hashes
+
+Rank
+: 1
