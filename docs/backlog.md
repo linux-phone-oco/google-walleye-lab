@@ -4848,10 +4848,10 @@ Rank
 ### Build z18: give spmi pmi8998@3 its reg so the pmi8998 gpio probes and regulator-touch-power registers
 
 Status
-: open
+: done
 
 Note
-: Premise falsified (research walleye-z18-premise-falsified, decision 2026-11-18-walleye-z18-not-built-pmi8998-reg-no-effect): the reg-less pmi8998@3 is the overlay's and the spmi core skips it; no build from this item. Next: walleye-overlay-collisions first; then z17's image with an init that reads spmi devices, devices_deferred and gpiochips (or a higher loglevel), tried once; the dtb change follows the read fact.
+: Not built, not needed: the premise (a reg-less pmi8998 node blocks the gpio) was falsified (lab PR 314, z17 facts PR 316: the gpio chip exists); the touch power failure is walleye-touch-gpio-get-fails.
 
 About
 : walleye-first-fastboot-boot
