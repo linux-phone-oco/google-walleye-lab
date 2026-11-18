@@ -1654,3 +1654,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-builder-pmic"></a>
+### walleye builder: PMIC nodes, z1 built
+
+Entry date
+: 2026-11-18
+
+Done
+: walleye-pmic-spmi: dts includes pm8998/pmi8998, build-z.sh builds z1 (16 checks, rebuild identical), pmic-dmesg-check with selftest (12 ok; programmer review fixed the loose overlay filter, added 0-01 and the probe-failed line, the check says registered, not working), the reader also lists /sys/bus/spmi/devices; queued walleye-try-z for the keeper.
+
+Considered
+: Own pmic nodes named like the overlay's; zero-line proof.
+
+Rejected
+: See decision 2026-11-18-walleye-pmic-from-mainline-dtsi.
+
+About
+: walleye-first-fastboot-boot

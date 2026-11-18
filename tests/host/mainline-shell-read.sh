@@ -2,7 +2,7 @@
 # walleye-mainline-shell-read, run on the lab host: read the first shell of OUR mainline kernel over the phone's ttyACM (the init holds 180 s, touch /tmp/hold keeps it).
 # Waits for the tty (TTY, default /dev/ttyACM0), then sends commands ONE AT A TIME, each followed by an end marker, with a read timeout per command, and saves each answer under OUT
 # (default $HOME/lab-material/walleye/mainline-shell-DATE, never inside git): dmesg in full first, then uname -a, /proc/{cmdline,cpuinfo,iomem,interrupts,version}, the device lists
-# (/sys/bus/platform/devices, devices_deferred if debugfs, /sys/class/{udc,power_supply,drm,input,regulator}); `touch /tmp/hold` runs right after the tty is up, `reboot -f` at the end
+# (/sys/bus/platform/devices, /sys/bus/spmi/devices, devices_deferred if debugfs, /sys/class/{udc,power_supply,drm,input,regulator}); `touch /tmp/hold` runs right after the tty is up, `reboot -f` at the end
 # unless NOREBOOT=1. Nothing is written to the phone beyond /tmp. IDs (serial in the cmdline, MAC-shaped words) are redacted before saving.
 # Environment: TTY, OUT, WAIT (seconds to wait for the tty, default 60), CMD_TIMEOUT (per command, default 15; dmesg gets 3x).
 # Prints `pass|fail walleye-mainline-shell-read host DETAIL`; exit 0 only on pass (dmesg non-empty and contains "Linux version").
@@ -31,6 +31,7 @@ ask uname $CT 'uname -a'
 for p in cmdline cpuinfo iomem interrupts version; do ask $p $CT "cat /proc/$p"; done
 ask platform-devices $CT 'ls /sys/bus/platform/devices'
 ask devices-deferred $CT 'cat /sys/kernel/debug/devices_deferred 2>&1 || mount -t debugfs none /sys/kernel/debug 2>&1 && cat /sys/kernel/debug/devices_deferred 2>&1'
+ask spmi-devices $CT 'ls /sys/bus/spmi/devices 2>&1'
 for c in udc power_supply drm input regulator; do ask class-$c $CT "ls /sys/class/$c 2>&1"; done
 [ "${NOREBOOT:-0}" = 1 ] || { printf 'reboot -f\n' > "$TTY" 2>/dev/null; }
 grep -q 'Linux version' "$OUT/dmesg.txt" 2>/dev/null || say fail "dmesg has no 'Linux version' line (see $OUT; $got answers non-empty)"

@@ -1738,3 +1738,22 @@ About
 
 Material
 : research/walleye-bringup-order-plan/2026-11-18/
+
+
+<a id="walleye-z1-built"></a>
+### walleye-z1-built
+
+Date
+: 2026-11-18
+
+Brief
+: z1 built: y2 with only the dtb replaced by ours with mainline's pm8998/pmi8998 SPMI nodes; 16 checks ok, rebuild identical; the two reg-less nodes come from the dtbo overlay
+
+Question
+: How does our dtb give the SPMI bus pm8998 and pmi8998 with their children, and what is z1?
+
+Found
+: The 'does not have reg property' of the first dmesg is not our dtb: the stock dtbo overlay (idx 3, merged by the bootloader) adds qcom,pm8998@0 and qcom,pmi8998@3 under spmi@800f000 in downstream style (no reg, no compatible), while our dtb had no PMIC node at all. Mainline's OnePlus 5(T), Sony Yoshino and Mi 6 boards all include pm8998.dtsi (pmic@0, pmic@1) and pmi8998.dtsi (pmic@2, pmic@3), reg <usid SPMI_USID>; dt/msm8998-google-walleye.dts now does the same, two lines. Five overlay stub labels (pm8998_adc_tm, pm8998_gpios, pmi8998_charger, pmi8998_gpios, pmi8998_wled) are now real nodes and left the stubs (125 stubs, 12 labels ours); the overlay still merges into the new dtb (fdtoverlay pass). build/build-z.sh: y2's Image.gz, ramdisk (gadget init), header, command line and AVB footer byte for byte, only the dtb replaced; 16 checks ok, rebuild byte-identical. boot-z1.img sha256 4abbac7db9047103b93e30c79ab840c8f1772479c0ed230b7d687c259954fa2a, dtb 33fb9762d0d6c381b9a5b399ef8bdc1faf7ae20b66cd4103e96ca1b0a3895c6b (lab: ~/Projects/walleye-build/images-z). The two overlay nodes keep printing reg-less lines (no board file can remove them); tests/host/pmic-dmesg-check.sh tolerates exactly those two and demands spmi devices 0-00 0-01 0-02 0-03 registered and no probe of them failed (selftest 12 ok; a programmer review tightened it). Not known yet: whether the PMIC children bind on the phone; what the bootloader's overlay merge adds inside the live mainline PMIC nodes (the booted dtb differs from the built one); whether charger and fuel gauge defer for want of more nodes.
+
+About
+: walleye-first-fastboot-boot
