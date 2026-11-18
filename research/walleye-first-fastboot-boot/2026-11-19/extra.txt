@@ -1,0 +1,18 @@
+1
+dbg_print_en
+dme_local_read
+dme_peer_read
+dump_device_desc
+dump_health_desc
+err_state
+host_regs
+power_mode
+qcom
+reset_controller
+124674048
+lun0 124674048
+lun1 8192
+lun2 8192
+lun3 196608
+lun4 73728
+lun5 16384

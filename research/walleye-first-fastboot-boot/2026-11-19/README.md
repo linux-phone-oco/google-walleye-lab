@@ -1,0 +1,1 @@
+Pixel 2 (walleye) UFS identity, read-only over adb root on LineageOS userdebug (2026-11-19). Files: dmesg lines, host controller attributes, debugfs device descriptor dump (health read zeros). Serials left out.
