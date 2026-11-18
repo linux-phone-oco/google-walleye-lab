@@ -1,7 +1,7 @@
 # Notes for agents
 
 
-**Owner**: the walleye coordinator session (local_7fb92f70-cce3-4da1-8c0c-64d61faab677, "walleye coordinator: the Pixel 2 lane"), parent: the top coordinator. It queues the lane (tad q phone-next, lane-next), starts the keeper, builder and research launchers, decides what needs no hands and records it here; the keeper holds the phone, the builder and research sessions never touch it.
+**Owner**: `walleye-coordinator` - the lane coordinator of the Pixel 2 (the top coordinator is its parent). It queues the lane (tad q phone-next, lane-next), starts the keeper, builder and research launchers, decides what needs no hands and records it here; the keeper (`walleye-keeper`) holds the phone, the builder and research sessions never touch it.
 
 Principles of linux-phone-oco, cited and never restated ([`tad q principles`](https://github.com/linux-phone-oco/docs) in docs): [as-good-as-android](https://github.com/linux-phone-oco/docs/blob/main/docs/concepts.md#as-good-as-android), [measured-not-claimed](https://github.com/linux-phone-oco/docs/blob/main/docs/concepts.md#measured-not-claimed), [mainline-first](https://github.com/linux-phone-oco/docs/blob/main/docs/concepts.md#mainline-first), [no-manual-steps](https://github.com/linux-phone-oco/docs/blob/main/docs/concepts.md#no-manual-steps), [rust-with-argenv](https://github.com/linux-phone-oco/docs/blob/main/docs/concepts.md#rust-with-argenv).
 
