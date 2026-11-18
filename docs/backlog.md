@@ -2432,10 +2432,10 @@ Proof
 ### Phone: boot vf2 twice from the first state; read the window with tests/host/vendor-facts-read.sh (step lines print first; battery first; phone left in Android afterwards); say whether the marker, the beat and which step the init reached
 
 Status
-: open
+: done
 
 Note
-: image: ~/Projects/walleye-build/images-vf2/boot-vf2.img (sha256 in SHA256SUMS-vf2). LUN_WAIT=60 tests/host/vendor-facts-read.sh; if the lab user cannot read the LUN, that is the skip as in m1
+: proven by try 2: marker, beat and init steps seen; blob unread - see walleye-vf2-tried-twice
 
 About
 : walleye-first-fastboot-boot

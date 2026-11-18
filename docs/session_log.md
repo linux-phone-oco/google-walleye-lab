@@ -1372,3 +1372,18 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-0510-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: vf2 tried twice from the first state: init alive, steps run, beat ticks; phone left in fastboot on slot b, a and b successful, stock kernel, nothing flashed
+
+Considered
+: next: turning point for the coordinator - a poller that saves the whole 64 KiB text region every 2 s to files (not only the end) and fetches the blob the moment its header appears, since the phone leaves USB after ~45-60 s; reader's single-shot read is racy
