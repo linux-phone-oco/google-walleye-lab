@@ -3373,6 +3373,9 @@ Status
 Note
 : tried once 2026-11-18 11:50Z: shell still silent, dmesg empty; see research walleye-z4-tried-once. Needs a decision on the next vector (coordinator)
 
+Blocked by
+: walleye-banner-shell
+
 About
 : walleye-first-fastboot-boot
 
@@ -3384,6 +3387,31 @@ Needs
 
 Proof
 : walleye-dmesg-clean: sh tests/host/mainline-shell-read.sh answers all 21 files on z4 (images-z4/boot-z4.img sha256 4115db3e2c678919cb3d3bd725d5065bbbbac1e6026732989c1eca3590043b20) and sh tests/host/dmesg-clean-check.sh DIR passes on its dmesg
+
+Rank
+: 1
+
+
+<a id="walleye-banner-shell"></a>
+### z5: the banner (it works) reports the shell's state, so the silent shell explains itself
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-z4-tried-once, PR 199): z4 (the shell fix: stty raw -echo -hupcl, respawn, one-fd reader) enumerates but its shell stays silent: dmesg empty, 16/17 answers empty. The banner init's one-way output works (29 lines, beat 31 at 64 s). The earlier y2 old-reader try saw the tty's own echo of a command (data from the host reaches the phone). So: the phone writes to ttyGS0 and receives from it, but nothing answers on it: the shell is not running or not reading. Instead of guessing: put the shell's state INTO the proven banner channel. WHEN DONE queue walleye-try-z5 (needs phone, rank 1): z5 once, reader NOT needed first: a plain cat of /dev/ttyACM0 for 90 s (no commands sent), then, if the banner shows a live shell, once the reader; record the banner lines (they say what is wrong). Battery first; phone left in Android.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: boot-z5.img = the banner2 init (its banner on /dev/ttyGS0 works, read by the lab user with a plain cat, lab PR 182) PLUS the console block of init-z4 started in the background, and the banner line extended with the shell's state: shell started yes/no, restart count, the shell pid and whether it is alive (kill -0), the exit status of the last run, and the first error text of its start (stderr of the shell start captured into a file in /tmp and its first line in the banner); the banner keeps going when the shell dies; also a one-time line with what busybox offers (busybox --list | grep -c, and whether 'ash', 'sh', 'cttyhack', 'setsid', 'stty' are there) and `stty -F /dev/ttyGS0 -a` summarized (echo/icanon/hupcl); a kernel + dtb equal to z3/z4's; checks like banner2's and z4's, the serial check; the host test banner-shell-check.sh: reads the banner with a plain cat for 60 s, prints the last banner line and passes when it shows a live shell; programmer review; hashes
 
 Rank
 : 1
