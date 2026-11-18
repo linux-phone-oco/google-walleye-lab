@@ -1533,3 +1533,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-vf-control-tried"></a>
+### walleye-vf-control-tried
+
+Date
+: 2026-11-18
+
+Brief
+: vf control, no poller: vf2 gadget up twice (18-20 s, gone by 70-72 s, header empty or gone); vf4 dead twice (back as Android at 78 s, no gadget): the image, not the poller
+
+Question
+: Does vf2 repeat, and does vf4 behave like vf2 when watched the same way (no poller, no lsusb -v, LUN read only at 70 s)?
+
+Found
+: Four tries from slot b (a and b successful), no poller, plain lsusb 1 s, one LUN read at >=70 s. vf2 try1: gadget 1d6b:0104 at 20 s (counted from the boot command), gone before 70 s (read: no device), Android at 125 s. vf2 try2: gadget at 20 s, LUN /dev/sda readable at 70 s, header empty (no WALLEYE-LOG), gone at 72 s, Android at 127 s. vf4 tries 1 and 2: no gadget at all, Android back at 78-80 s (the dead path), nothing readable. So vf2 repeats (alive, gadget up ~50 s, window empty again); vf4 is dead unwatched too, though its init equals vf2's byte for byte up to the bind: the poller is cleared; what differs is vf4's later part (the progressive dump after the bind) or the image's size/layout. Note: tries 1 (vf2) and the vf2 try 1 first run (read missed by a loop timing slip, re-run as try 1b) began from fastboot after an earlier tool slip, not from Android; slot flags unchanged all along, phone back as Android on b.
+
+About
+: walleye-first-fastboot-boot

@@ -2551,10 +2551,10 @@ Rank
 ### Controlled repeat: vf2 twice as before, then vf4 twice WITHOUT the poller, to tell the image from the way it was watched
 
 Status
-: open
+: done
 
 Note
-: Facts (lab research walleye-vf3-tried-twice, walleye-vf4-tried-twice): vf2 alive twice (single-shot reads, no poller); vf3 and vf4 dead twice each (78 s, no gadget) with the poller running from before the boot, and vf4's init is vf2's byte for byte up to the bind. Two differences remain between the runs: the image's later part (the dump) and the poller. One-factor control: same watching for both images. Record honestly if the 43 s gadget of vf2 does not repeat (flaky). The author is away: tries return by themselves.
+: proven by 4 tries: vf2 repeats (gadget ~50 s, empty header), vf4 dead twice unwatched; poller cleared; next: diff vf4 vs vf2 after the bind, bisect the dump
 
 About
 : walleye-first-fastboot-boot
