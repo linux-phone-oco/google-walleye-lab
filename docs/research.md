@@ -1675,3 +1675,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-y-built/
+
+
+<a id="walleye-y-tried"></a>
+### walleye-y-tried
+
+Date
+: 2026-11-18
+
+Brief
+: y1 twice alive (Android back at 36 s both); y2 twice: gadget 1d6b:0104 at 18 s, ttyACM0 appears; gpio-reserved-ranges in our dtb is enough
+
+Question
+: Does our own dtb with gpio-reserved-ranges <0 4>,<81 4> boot to init (y1) and to a USB gadget (y2)?
+
+Found
+: From slot b (a and b successful), battery 4379 mV. y1: left fastboot at 15 s, back as Android 36 s after the jump, both tries (alive class, <=66 s). y2: left fastboot at 15 s, 1d6b:0104 (serial walleye-first-boot, 'Pixel 2 walleye (mainline)') enumerated 18 s after the jump on both tries, /dev/ttyACM0 appeared on the host; back as Android after the init's 180 s reboot. tests/host/gadget-up.sh fails only at its ping step: y2 is ACM + mass_storage, no network function, so no ping is expected. Our own dtb now gives the first mainline USB gadget on walleye: the missing gpio-reserved-ranges property was the cause of every dead dtb of ours (x1/xa, d1..d6). Not read: ACM shell content, mass_storage window. Phone left Android on slot b, stock kernel, nothing flashed.
+
+About
+: walleye-first-fastboot-boot
