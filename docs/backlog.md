@@ -3559,3 +3559,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-z6-dmesg-map"></a>
+### Read the first full dmesg of our own kernel (z6: 590 lines): every warning, deferral and failure with its cause, and queue the fixes in order
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-z6-tried, PR 216): z6's command loop answers: dmesg 590 lines (Linux 7.3.0), SPMI 0-00..0-03 present (pmic-dmesg-check passes), no drm, no power_supply, 14 deferred/fail lines. The channel works: from here every try is read automatically.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: A research row that reads the full dmesg of the z6 try (the keeper's saved material path in the lab-material directory; the research row walleye-z6-tried names it): every line that is a warning, error, deferred probe, 'failed', timeout or 'not found', each with its cause as far as the kernel source and our dts show (a missing node, a missing driver in our config, a supplier, a clock, a regulator, a firmware), grouped by part (PMIC/regulators, clocks, smmu, UFS, display, touch, charger/fuel gauge, USB, serial, remoteprocs, sensors); what already works as proved by lines (SPMI 0-00..0-03, USB udc, watchdog, ramoops, RPM regulators); and for every group the backlog item (build, with --needs, rank and proof) queued by the research session itself, ordered by the bring-up order decision (2026-11-18-walleye-bringup-order): the dmesg-clean work (smmu timeout, serial supplier, phandles) is the first, then charger (c1 rebuilt on the z6 init), UFS read-only, then USB networking, touch, display; the first phone items carry the z6 init and the plain background reader so every later try reads its dmesg and /sys facts automatically (a keeper recipe in the item)
+
+Rank
+: 1
