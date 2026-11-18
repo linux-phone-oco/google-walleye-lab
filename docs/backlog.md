@@ -61,10 +61,10 @@ Proof
 ### Initramfs that brings up a USB gadget (ACM console + RNDIS/ECM) and telnet/ssh on 172.16.42.1
 
 Status
-: in-progress
+: done
 
 Note
-: Built (build/initramfs, busybox 1.36.1 static arm64, 1148576 bytes gz). Proven under x86_64 QEMU with dummy_hcd (build/selftest-initramfs.sh): gadget binds, lease 172.16.42.2, ping and telnet command answered on 172.16.42.1, ttyGS0 exists. NOT proven on arm64: qemu-system-aarch64 is not installed here, so the arm64 busybox and the real UDC first run on the phone try. No ssh yet (telnet only; dropbear is a later piece).
+: Done: the gadget initramfs works on our own kernel (first light y2, lab PR 152); the console reliability is walleye-shell-reliable.
 
 Opened
 : 2026-11-17
@@ -3258,10 +3258,10 @@ Rank
 ### Stale waits: waits and blocked_by naming items that are done
 
 Status
-: open
+: done
 
 Note
-: sign seen by patrol 2026-11-18: blocked_by walleye-charger-smb2 (done) still shown on walleye-fuel-gauge; waits naming same-base items that are done: walleye-first-fastboot-boot (walleye-boot-refused-why, walleye-control-on-slot-a), walleye-dmesg-clean (walleye-build-banner-init, walleye-reader-eacces-retry), walleye-code-hygiene-rust-ci (walleye-ffs-rust-try); waits naming a same-base item that belong in blocked_by: walleye-scripts-call-bringup (bringup-image-swap), walleye-display-s6e3fa5 (walleye-ufs-readonly). Owner: walleye coordinator clears or moves them.
+: Done 2026-11-18: waits naming done items cleared on dmesg-clean, code-hygiene-rust-ci, display, fuel-gauge; done items closed (bootimage, first-fastboot-boot, load-error-uart, loaderror-dtbo-stub, host-access-via-lab-prepare, initramfs-usb-gadget).
 
 About
 : walleye-first-fastboot-boot
