@@ -1984,3 +1984,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18/
+
+
+<a id="walleye-z3-try1-reader-job-not-picked-up"></a>
+### walleye-z3-try1-reader-job-not-picked-up
+
+Date
+: 2026-11-18
+
+Brief
+: z3 once from slot b: gadget 1d6b:0104 at 18 s, back as Android; the reader job was never picked up by lab-agent in 600 s, so no dmesg: not a z3 result
+
+Question
+: Is z3's dmesg clean (reader as a lab job, per decision 2026-11-19-walleye-reader-runs-as-a-lab-job)?
+
+Found
+: battery-ok pass 4385 mV; z3 sha256 verified; submitted job 1794997309-walleye-z3-read1 BEFORE the boot; fastboot boot now: left fastboot 15 s, gadget 1d6b:0104 at 18 s; lab-agent wait: 'not picked up within 600s - is the agent running?' (service active since 11-17 22:18, but jobs/logs --remote show the job nowhere). The 17 zero-byte files in ~/lab-material/walleye/z3-try1 are unexplained (mtime 11:12, dmesg 0 lines): not a reading. Phone back as Android (adb) on slot b, nothing flashed. Nothing is known yet about z3's dmesg.
+
+About
+: walleye-first-fastboot-boot
