@@ -1015,3 +1015,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1800-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: pk4 and d1..d6 twice each, all back as Android at 75 s; phone in fastboot, slot b current, a and b successful, nothing flashed, stock kernel; lease released
+
+Considered
+: next: research/build item to diff our dtb vs porthole's and build d7+

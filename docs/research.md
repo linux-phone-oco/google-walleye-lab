@@ -1028,3 +1028,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-pk5l2/
+
+
+<a id="walleye-dtb-bisect-tried"></a>
+### walleye-dtb-bisect-tried
+
+Date
+: 2026-11-18
+
+Brief
+: pk4 and d1..d6 (twice each): all 13 returned to Android at 75 s, the dead-kernel path; no group removal made init run
+
+Question
+: Which node group of our dtb stops init (d1 watchdog, d2 ramoops, d3 slpi, d4 RPM regulators, d5 usb+qusb2, d6 = d1+d2+d3)?
+
+Found
+: 13 boots from fastboot, each left fastboot after 12 s and came back as Android after 75 s (the no-init time; init would be 40-65 s). No image differed, d6 included. So none of the removed groups alone or d1+d2+d3 together is the cause. pstore not read (needs root). Slots unchanged after: b current, a and b successful. Next: diff our dtb against porthole's taimen dtb for other nodes and build d7+.
+
+About
+: walleye-first-fastboot-boot
