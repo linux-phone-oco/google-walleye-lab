@@ -2789,10 +2789,10 @@ Rank
 ### PMIC first: bind pm8998 and pmi8998 on the SPMI bus (the first mainline dmesg: 'does not have reg property')
 
 Status
-: open
+: done
 
 Note
-: Fact (lab research 2026-11-18-walleye-first-mainline-shell-map): the first mainline dmesg of this phone (Linux 7.3.0, 336 lines): USB udc, pinctrl, spmi 800f000, RPM regulators and clocks, ramoops, watchdog present; no drm, no power_supply; faults: spmi pm8998@0/pmi8998@3 no reg property; arm-smmu 5040000 probe timeout; c16f000.serial waits on a supplier from our overlay stubs; i2c@c179000 phandle not found. The PMIC is the base of the charger, the PON/reboot reasons, the RTC and the display backlight: first. WHEN DONE queue walleye-try-z (needs phone, rank 1): z1 once from slot b with the shell reader waiting (mainline-shell-read.sh), save the whole dmesg, compare with the map; battery first; the phone left in Android on a good slot.
+: z1 built (hashes in research walleye-z1-built); try queued as walleye-try-z; the phone result is not known yet
 
 About
 : walleye-first-fastboot-boot
@@ -3005,3 +3005,28 @@ Needs
 
 Proof
 : a research row per component with the chosen way and its failing test, as research-a-feature says
+
+
+<a id="walleye-try-z"></a>
+### Try z1 once from slot b with the shell reader waiting; read the PMIC result
+
+Status
+: open
+
+Note
+: Keeper: battery-ok first; z1 once from slot b with mainline-shell-read.sh waiting (OUT under lab-material), save the whole dmesg, compare with research 2026-11-18-walleye-first-mainline-shell-map; phone left in Android on a good slot. The dtb is the only change from y2.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: sh tests/host/pmic-dmesg-check.sh DIR passes on the reader's output of z1 (images-z/boot-z1.img sha256 4abbac7d...fa2a): no reg-less spmi node of ours, /sys/bus/spmi/devices has 0-00 0-01 0-02 0-03, no probe of them failed
+
+Rank
+: 1

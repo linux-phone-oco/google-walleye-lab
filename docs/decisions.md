@@ -567,3 +567,28 @@ About
 
 Research
 : walleye-bringup-order-plan-made
+
+
+<a id="2026-11-18-walleye-pmic-from-mainline-dtsi"></a>
+### 2026-11-18-walleye-pmic-from-mainline-dtsi
+
+Date
+: 2026-11-18
+
+Brief
+: Include mainline's pm8998.dtsi and pmi8998.dtsi in our dts; leave the overlay's two reg-less nodes alone and tolerate exactly them in the test
+
+Decision
+: dt/msm8998-google-walleye.dts includes pm8998.dtsi and pmi8998.dtsi as the OnePlus 5(T) and Yoshino boards do; the stubs lose the five labels now real. The host check names the two nodes of the dtbo overlay (qcom,pm8998@0, qcom,pmi8998@3) as not ours and fails on any other reg-less spmi node.
+
+Why
+: Mainline binds PMICs through those two files with reg <usid SPMI_USID>; the reg-less lines of the first dmesg are the bootloader-merged overlay's downstream nodes, which no board file can remove.
+
+Rejected
+: Writing our own pmic nodes with the vendor-style names qcom,pm8998@0 so the overlay merges into them: a name no mainline file uses. Demanding zero reg-less lines: unreachable while the stock dtbo is merged, and the dtbo cannot be dropped (the bootloader picks it by idx 3). Porting the vendor PMIC node set whole: the charger and fuel gauge need their own bring-up (next items).
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-z1-built

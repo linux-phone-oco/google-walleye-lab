@@ -4,8 +4,8 @@
  *
  * It brings up the SoC, its reserved memory, the RPM regulators the USB 2.0 PHY stands on, the USB
  * controller as a high-speed peripheral (the gadget is the first sign of life), pstore/ramoops and the
- * debug UART. UFS, display, touch, GPU, Wi-Fi, remote processors and the PMICs' SPMI children stay off
- * until a part is brought up on purpose.
+ * debug UART. UFS, display, touch, GPU, Wi-Fi and remote processors stay off
+ * until a part is brought up on purpose. The PMICs' SPMI nodes (mainline's pm8998.dtsi and pmi8998.dtsi) are in: their children bind or defer on their own.
  *
  * No /chosen/bootargs and no stdout-path: the bootloader appends the boot image's command line to the
  * device tree, and a bootargs already there would hide it (decision 2026-11-17-walleye-first-kernel).
@@ -23,6 +23,8 @@
 /dts-v1/;
 
 #include "msm8998.dtsi"
+#include "pm8998.dtsi"
+#include "pmi8998.dtsi"
 #include "msm8998-google-walleye-overlay-stubs.dtsi"
 
 /delete-node/ &mpss_mem;
