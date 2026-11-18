@@ -19,7 +19,6 @@
 {"step":"shell-on-console","status":"done","proof":"tests/host/mainline-shell-read.sh","run":"walleye-z6-tried","proven_on":"z6","notes":null,"updated":"2026-11-18"}
 {"step":"pmic-bound","status":"done","proof":"tests/host/pmic-dmesg-check.sh","run":"walleye-z7-tried","proven_on":"z7","notes":null,"updated":"2026-11-18"}
 {"step":"charger-online","status":"partial","proof":"tests/host/charger-check.sh","run":"walleye-c3-tried","proven_on":"c3","notes":"c2 deferred it (tps61099 has no driver); c3 with fw_devlink=permissive reads type USB, online 1, only one cable state seen and voltage_now read 0, and the phone then went silent: no restart gate yet (decision 2026-11-18-walleye-restart-gate-before-charger-try)","updated":"2026-11-18"}
-{"step":"watchdog-way-back","status":"failing","proof":"tests/host/pmic-wdt-bites.sh","run":"walleye-z9-tried-pmic-wdt-bites","proven_on":"z9","notes":"the PMIC watchdog bit and the phone stayed off: no way back yet; no more bites until the reset type is a restart (decision 2026-11-18-walleye-no-pmic-bite-until-reset-type)","updated":"2026-11-18"}
 {"step":"firmware-reachable","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"pd-mapper-before-remoteproc","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"panel-lit","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
@@ -111,3 +110,4 @@
 {"step":"days-without-reboot","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"daily-usable-phone","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"complete-phone","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
+{"step":"watchdog-way-back","status":"unknown","proof":null,"run":null,"proven_on":null,"notes":"The z9 PMIC bite did bite (20 s after arming; the series works) but the phone's recovery is unproven as 'by itself' (the author's Power hold fell in the window: research walleye-z9-recovery-unproven); a bite that restarts is not measured yet (decision 2026-11-18-walleye-pmic-bite-read-then-warm, the series fix f5bb57d27 is untried).","updated":"2026-11-18"}
