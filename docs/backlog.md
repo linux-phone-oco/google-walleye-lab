@@ -2056,10 +2056,10 @@ Rank
 ### What does the stock dtbo overlay (entry 3) switch on in OUR dtb that it does not in porthole's taimen dtb? Analyse it on the host, then neutralize label by label
 
 Status
-: open
+: done
 
 Note
-: Facts (lab research walleye-try-dtb-bisect, walleye-try-no-earlycon): our kernel + porthole's TAIMEN dtb reaches init (pk5, 42 s); our kernel + our dtb, porthole's kernel + our dtb, porthole's kernel + porthole's own WALLEYE dtb (pk2) all die (~75 s); removing watchdog/ramoops/slpi/RPM-regulator/usb groups from our dtb changes nothing (13 boots). Subtraction cannot find a MISSING thing; and the walleye dtbs have in common that the walleye overlay (dtbo entry 3, picked by the bootloader) lands on them. The overlay enables hardware by label: on ours those labels are real SoC nodes with no clocks/regulators wired = an unclocked access = a hang. WHEN DONE queue walleye-try-overlay-labels (needs phone, rank 1): L-images twice each by the bisect plan; the returns by themselves (~42 s init ran, ~75 s dead). Alternative if the analysis shows another cause (top-level nodes: memory, cpus, psci, chosen), say so and build the additive images from pk5's dtb instead.
+: analysed: overlay inert on our dtb; images w1..w5, wr, wa built (research walleye-overlay-enables-what-result, walleye-taimen-walleye-built); try queued
 
 About
 : walleye-first-fastboot-boot
@@ -2072,3 +2072,28 @@ Needs
 
 Proof
 : (1) a research row: fdtoverlay (or ufdt-equivalent) merges entry 3 of the control's dtbo.img into (a) pk5's taimen dtb (works) and (b) our dtb (dead), the merged dtbs decompiled and diffed: the nodes/properties the overlay sets or adds (status okay, panel, touch, regulators, clocks, pinctrl, charger...) that exist in ours as real SoC nodes but are absent or differently wired in taimen's; ranked as suspects (a driver that probes unclocked hardware and hangs the SoC is the pattern: a reset ~33 s after the jump); (2) images L1..Ln = our dtb (the ml6a one) with the __symbols__ entries of groups of those labels pointed at harmless dummy nodes so the overlay lands on the dummy and the real node is not enabled (the merge still succeeds: tests/host/dtbo-overlay-merges.sh passes), ramdisk = ml5a's init, cmdline as ml6a; checks, hashes; the bisect plan (binary halving of the label set)
+
+
+<a id="walleye-try-taimen-walleye"></a>
+### Phone: boot wa twice from the first state, then w1..w5 and wr twice each; record the return times (~42 s init ran, ~75 s dead)
+
+Status
+: open
+
+Note
+: images ~/Projects/walleye-build/images-w, SHA256SUMS there; plan in research walleye-taimen-walleye-built: wa first; if wa returns ~42 s the cause is a property, stop
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 1

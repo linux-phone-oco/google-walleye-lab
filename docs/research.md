@@ -1069,3 +1069,41 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-pk5l2-tried/
+
+
+<a id="walleye-overlay-enables-what-result"></a>
+### walleye-overlay-enables-what-result
+
+Date
+: 2026-11-18
+
+Brief
+: The walleye dtbo overlay does less on our dtb than on the working taimen dtb; the difference is node status in the base dtb, not the overlay
+
+Question
+: What does the stock dtbo overlay (entry 3) switch on in OUR dtb that it does not in porthole's taimen dtb?
+
+Found
+: fdtoverlay merges entry 3 into pk5's taimen dtb and into ours; the merged dtbs were flattened and diffed. Of the 137 labels the overlay names, 7 are real nodes in ours (mdss_dsi0, mdss_dsi1, mdss_mdp, pcie0, soc, spmi_bus, tlmm), 130 land on empty stubs the kernel ignores; the taimen dtb has all 137 real. On existing nodes the overlay changes in ours: i2c@c179000 (disabled to okay, compatible qcom,i2c-msm-v2, no mainline driver: inert), pcie and dsi properties (nodes stay disabled: inert), one display-controller property. Everything it adds under real parents (gpio_keys, serial@0c16f000, bt_wcn3990, tps61099, panel nodes, pmic nodes) it adds to the taimen dtb too: ours' added node set is a subset of pk5's (232 against 269). The overlay hypothesis is falsified; a label-neutralizing bisect would test almost nothing. What differs between the alive taimen dtb and the dead walleye dtbs (porthole's pk2 too, same kernel) is the base: the walleye dtbs leave 15 nodes disabled that taimen enables (camss, cci, dma-controller@17184000, iommu@5100000, video-codec, slim-ngd, five i2c masters, pcie and its phy, pon resin, pmic@3 led-controller) and lack ~100 nodes taimen has (fingerprint, gpio-keys, cam regulators, sound, skin thermal, i2c children, pin states). Ranked suspects: dma/iommu group, pcie, i2c, camera, removed nodes. Next: images w1..w5, wr, wa from pk5 (research walleye-taimen-walleye-built).
+
+About
+: walleye-first-fastboot-boot
+
+
+<a id="walleye-taimen-walleye-built"></a>
+### walleye-taimen-walleye-built
+
+Date
+: 2026-11-18
+
+Brief
+: w1..w5, wr, wa built: pk5 (alive) with the walleye dtb's differences put in group by group; 399 checks ok, rebuild identical
+
+Question
+: Which difference between the alive taimen dtb and the dead walleye dtbs stops init?
+
+Found
+: build-taimen-walleye.sh builds seven images from pk5 (our kernel + porthole's taimen dtb, init 42 s): w1 camera, w2 dma/iommu/codec/slim, w3 i2c, w4 pcie, w5 pmic key/led (each: status disabled, children removed), wr nodes only taimen has removed (dangling references left on purpose), wa all of them: node set and every status equal pk2's. Header, command line, ramdisk (reboot at once), Image.gz, AVB props are pk5's; the stock overlay still merges in all. Bisect plan: wa twice first (~42 s init ran, ~75 s dead): wa alive means the cause is a property, stop; wa dead then w1..w5 and wr twice each, the dead ones hold it, halve inside.
+
+About
+: walleye-first-fastboot-boot

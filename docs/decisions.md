@@ -373,3 +373,28 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-walleye-bisect-from-the-alive-dtb"></a>
+### 2026-11-18-walleye-bisect-from-the-alive-dtb
+
+Date
+: 2026-11-18
+
+Brief
+: Bisect from the alive taimen dtb toward walleye (additive), not by neutralizing overlay labels in our dtb
+
+Decision
+: Build images from pk5 (alive) that take on the walleye dtb's differences group by group; wa is the whole difference at node and status level
+
+Why
+: Research walleye-overlay-enables-what-result: the overlay does less on our dtb than on the taimen dtb, so neutralizing its labels cannot find a missing thing; the base differs by 15 disabled nodes and ~100 absent ones, the same for porthole's own walleye dtb
+
+Rejected
+: Images L1..Ln (our dtb, overlay labels pointed at dummies): the overlay adds nothing live to ours that taimen lacks. More subtraction from our dtb: 13 boots found nothing.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-overlay-enables-what-result

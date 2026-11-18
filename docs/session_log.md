@@ -1045,3 +1045,24 @@ Done
 
 Considered
 : next: a variant proving mainline reaches ramoops at all, or the dtb diff vs porthole's; note devlab phone needs ~/.config/devlab/google-walleye/password (missing), plain adb root used
+
+---
+
+
+<a id="2026-11-18-walleye-taimen-walleye-build"></a>
+### Overlay analysed, taimen-to-walleye images built
+
+Entry date
+: 2026-11-18
+
+Done
+: Merged the dtbo overlay into pk5's and our dtb and diffed: inert on ours beyond one i2c node. Diffed porthole's taimen and walleye dtbs: 15 nodes disabled, ~100 absent. Built w1..w5, wr, wa (399 checks, identical rebuild; programmer review fixed phandle check, header, stale sums).
+
+Considered
+: Overlay-label neutralizing images L1..Ln as the item said
+
+Rejected
+: L1..Ln: the analysis falsified their premise
+
+About
+: walleye-first-fastboot-boot
