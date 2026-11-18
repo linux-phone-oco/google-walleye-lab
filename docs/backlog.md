@@ -2150,10 +2150,10 @@ Rank
 ### Stage the mainline gadget bring-up on the ALIVE base (pk5: our kernel + porthole's taimen dtb): one step per image, each holds 60 s so alive and dead are 30 s apart
 
 Status
-: open
+: done
 
 Note
-: Facts (lab research walleye-try-pk5l, walleye-try-property-bisect): pk5l (our kernel + taimen dtb + ACM/mass_storage gadget init) ended after 42/57 s with no gadget although its init stays 180 s: the init or the kernel died early; pk5 with the reboot-at-once init is alive (42 s). The alive/dead timing bins are too close (42/60/63 alive vs 69-78 dead) to trust for small differences, so these images hold 60 s: alive is then ~108 s, far from the 75 s dead mark. The USB enumeration is the reliable light. Use the vendor-kernel proven order (m1 worked there: dir -> mass_storage -> bind). Also mainline's own configfs ACM can come after g3. WHEN DONE queue walleye-try-pk5-stages (needs phone, rank 1): g1, g2, g3, twice each, stop at the first that dies; lsusb polled by port every second for 90 s; pstore read after each.
+: built: g1..g3, 58 checks ok, rebuild identical; try queued as walleye-try-pk5-stages
 
 About
 : walleye-first-fastboot-boot
@@ -2166,3 +2166,28 @@ Needs
 
 Proof
 : images g1..g3 on pk5's kernel/dtb/cmdline/header/footer (bytes equal), ramdisk init: mount proc/sys/devtmpfs/configfs, then g1 = gadget dir + strings (serial walleye-first-boot, product 'Pixel 2 walleye (mainline)') and nothing else; g2 = g1 + mass_storage.0 function (2 MiB file LUN, ro) linked into a config, NO UDC bind; g3 = g2 + UDC bind to the first /sys/class/udc entry (expects USB enumeration on the host as 1d6b:0104 within ~25 s of the jump: the first mainline light, readable with plain lsusb); every init pets /dev/watchdog and holds 60 s then reboot -f (sysrq b fallback); no ACM, no shell loop (pk5l had them and ended early); expected returns: alive (init ran) ~12+60+36 = ~108 s, dead ~75 s (outside watchdog), early panic with panic=5 ~45-60 s; checks, hashes; table in the item
+
+
+<a id="walleye-try-pk5-stages"></a>
+### Phone: boot g1, g2, g3 (images-g) twice each from the first state, stop at the first that dies; lsusb polled by port every second for 90 s; pstore read after each
+
+Status
+: open
+
+Note
+: returns: alive ~108 s, dead ~75 s, early panic ~45-60 s; g3 alive shows 1d6b:0104 within ~25 s of the jump. Hashes: research/walleye-first-fastboot-boot/2026-11-18-pk5g/SHA256SUMS
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 1

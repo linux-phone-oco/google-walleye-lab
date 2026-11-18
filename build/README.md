@@ -170,3 +170,10 @@ four pinctrl states the overlay needs become empty stubs, as in pk2), `wa` all o
 
 `build/build-property-bisect.sh WA_BOOT_IMG PK2_DTB OUT_DIR` takes wa (alive: node set and statuses of the walleye dtb) and copies in one group of what still differs from pk2's walleye dtb (dead), by property:
 `wp1` root compatible + model, `wp2` battery capacity (/battery, fuel-gauge), `wp3` panel compatible removed, `wp4` `qcom,protection-domain` on the seven apr services, `wp5` leftovers in nodes disabled in both (camss supplies, pcie reg/ranges/supply, resin linux,code), `wpa` all five: every property line equals pk2's (`build/dts-norm.awk` resolves phandles to node paths so renumbered phandles do not count). Nothing differs in /memory, reserved-memory, chosen, cpus, timer, psci. 68 checks, rebuild byte-identical; diff and hashes in `research/walleye-first-fastboot-boot/2026-11-18-property-diff/`. Not run on the phone: the keeper's try `walleye-try-property-bisect`.
+
+## g1..g3: the mainline gadget in stages on the alive base (pk5)
+
+`build/build-pk5g.sh WORK_DIR PK5_BOOT_IMG OUT_DIR` repacks pk5 (our kernel + porthole's taimen dtb, alive) with only the ramdisk changed: one init, `initramfs-mainline/init-pk5g`, the stage is the number in `/stage` (the only file that differs).
+`g1` configfs gadget dir + strings (serial walleye-first-boot, product "Pixel 2 walleye (mainline)") and nothing else; `g2` = g1 + `mass_storage.0` (2 MiB file LUN, ro) linked into config c.1, no UDC bind; `g3` = g2 + UDC bind to the first `/sys/class/udc` entry
+(the host should see 1d6b:0104 within ~25 s of the jump: the first mainline light, plain `lsusb`). Every init pets /dev/watchdog each second, holds 60 s, then `reboot -f` (sysrq b behind it); no ACM, no shell loop.
+Expected returns: alive (init ran) ~108 s, dead ~75 s, early panic ~45-60 s. 58 checks, rebuild byte-identical; hashes in `research/walleye-first-fastboot-boot/2026-11-18-pk5g/`. Not run on the phone: the keeper's try `walleye-try-pk5-stages`.

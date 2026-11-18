@@ -1,0 +1,69 @@
+#!/bin/busybox sh
+# pk5g (backlog walleye-pk5-gadget-stages): the mainline gadget brought up in stages on the alive base (our kernel + porthole's taimen dtb). One init for g1, g2, g3:
+# the stage is the number in /stage (one line), the only file that differs between the three ramdisks.
+#   g1 = gadget dir + strings                      (no function)
+#   g2 = g1 + mass_storage.0 (2 MiB file LUN, ro) linked into config c.1, NO UDC bind
+#   g3 = g2 + UDC bind to the first /sys/class/udc entry (host should see 1d6b:0104 within ~25 s)
+# No ACM, no shell loop. The SoC watchdog is petted every second, the init holds 60 s, then reboot -f with sysrq b behind it. Never exits (an init that ends is a panic);
+# no `set -e`; every step says what it is about to do BEFORE it does it.
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+say() { echo "walleye-init: $*" > /dev/kmsg 2>/dev/null; echo "walleye-init: $*" > /dev/console 2>/dev/null; }
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+mount -t devtmpfs dev /dev 2>/dev/null
+STAGE=$(head -n1 /stage 2>/dev/null)
+say "pk5g init start, stage g$STAGE, kernel $(uname -r)"
+mkdir -p /tmp
+mount -t configfs none /sys/kernel/config 2>/dev/null || { mkdir -p /sys/kernel/config; mount -t configfs none /sys/kernel/config; }
+say "step g$STAGE: about to open /dev/watchdog"
+if [ -e /dev/watchdog ]; then exec 3> /dev/watchdog; say "watchdog open"; else say "NO /dev/watchdog (the SoC watchdog did not probe)"; fi
+
+G=/sys/kernel/config/usb_gadget/g1
+say "step g$STAGE: about to mkdir the gadget"
+mkdir -p $G
+echo 0x1d6b > $G/idVendor
+echo 0x0104 > $G/idProduct
+echo 0x0100 > $G/bcdDevice
+echo 0x0200 > $G/bcdUSB
+mkdir -p $G/strings/0x409
+echo "walleye-first-boot" > $G/strings/0x409/serialnumber
+echo "linux-phone-oco" > $G/strings/0x409/manufacturer
+echo "Pixel 2 walleye (mainline)" > $G/strings/0x409/product
+say "step g$STAGE: gadget dir and strings done"
+
+if [ "$STAGE" -ge 2 ] 2>/dev/null; then
+  LOGF=/tmp/walleye-log.img
+  say "step g$STAGE: about to create the 2 MiB file"
+  dd if=/dev/zero of=$LOGF bs=1024 count=2048 2>/dev/null
+  say "step g$STAGE: about to mkdir functions/mass_storage.0"
+  mkdir -p $G/functions/mass_storage.0
+  L=$G/functions/mass_storage.0/lun.0
+  for a in ro removable; do if [ -e $L/$a ]; then echo 1 > $L/$a; else say "no lun.0/$a"; fi; done
+  for a in cdrom nofua; do if [ -e $L/$a ]; then echo 0 > $L/$a; else say "no lun.0/$a"; fi; done
+  say "step g$STAGE: about to set lun.0/file"
+  echo $LOGF > $L/file
+  say "step g$STAGE: about to mkdir configs/c.1 and link the function"
+  mkdir -p $G/configs/c.1/strings/0x409
+  echo "MSC" > $G/configs/c.1/strings/0x409/configuration
+  ln -s $G/functions/mass_storage.0 $G/configs/c.1/
+  say "step g$STAGE: function linked"
+fi
+
+if [ "$STAGE" -ge 3 ] 2>/dev/null; then
+  n=0
+  while [ -z "$(ls /sys/class/udc 2>/dev/null)" ] && [ $n -lt 30 ]; do sleep 1; n=$((n+1)); done
+  UDC=$(ls /sys/class/udc 2>/dev/null | head -n1)
+  if [ -z "$UDC" ]; then say "NO UDC"; else say "step g$STAGE: about to bind $UDC"; echo "$UDC" > $G/UDC && say "gadget bound to $UDC"; fi
+fi
+
+say "step g$STAGE: holding 60 s"
+n=0
+while [ $n -lt 60 ]; do
+  echo >&3 2>/dev/null
+  sleep 1
+  n=$((n+1))
+done
+say "self-reboot now"; sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+while :; do sleep 3600; done
