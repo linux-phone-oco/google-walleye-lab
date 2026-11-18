@@ -4634,9 +4634,7 @@ Status
 : open
 
 Note
-: Built by walleye-touch-rmi4; the keeper's usual battery rule and end state apply.
-
-COORDINATOR 2026-11-18: the author is away, so run this in TWO parts. PART 1, no person needed, run it now: boot z15 once from slot b over the z14 network shell (telnet 172.16.43.1): the dmesg lines of the rmi4/synaptics driver and the i2c bus, /sys/class/input/*/name (does a Synaptics RMI4 touchscreen input device exist), /proc/bus/input/devices, the touch irq in /proc/interrupts: record present/absent and the exact errors (a probe error is a finding); that proves the probe, not the touch. PART 2, a person must touch the panel and witness: the touch-read.sh events with fingers on the glass: waits for the author (record it as waits, do not ask now): the item stays open for part 2 with a note of what part 1 found; the part 2 steps (what to touch, what to expect: events with coordinates in the range of the panel) go to the top coordinator when the author is back.
+: PART 1 done 2026-11-18: probe absent - i2c@c179000 compatible qcom,i2c-msm-v2 has no mainline driver (research walleye-z15-part1-tried). Needs a z16 build with the mainline i2c-qup compatible before touch can be tried. PART 2 (person touches panel) still waits for the author; its steps go to the top coordinator when they are back.
 
 About
 : walleye-first-fastboot-boot
@@ -4652,3 +4650,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-build-z16-i2c-compatible"></a>
+### Build z16: z15 with blsp1_i2c5's compatible changed to the mainline i2c-qup one, so the RMI4 touch controller can probe
+
+Status
+: open
+
+Note
+: From research walleye-z15-part1-tried: z15's i2c node is qcom,i2c-msm-v2 (downstream), no mainline driver binds.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: a z16 image whose dtb node c179000 has a compatible i2c_qup matches (fdtget), rebuild identical; then a try shows an i2c bus and rmi4 lines
+
+Rank
+: 2
