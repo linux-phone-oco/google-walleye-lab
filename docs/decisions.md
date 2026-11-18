@@ -1154,3 +1154,34 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-walleye-edl-no-way-back-wait-holds"></a>
+### 2026-11-18-walleye-edl-no-way-back-wait-holds
+
+Date
+: 2026-11-18
+
+Brief
+: No way back is known, so the UFS wait holds until the author's explicit go; first, read back the boot chain as files (no risk)
+
+Decision
+: The condition 'an EDL way back is known' (decision 2026-11-18-walleye-ufs-wait) is NOT met: no Google-signed MSM8998 firehose programmer is public, no walleye test point is published, Google's repair tool does not cover the Pixel 2 (research 2026-11-18-walleye-edl-way-back). So the UFS items stay waiting; only the author's explicit go lifts it, knowing that an erased bootloader means the phone is lost. Meanwhile one risk-free step is queued for the keeper: read back the phone's own boot chain (xbl_a/b and the partitions listed in the research) over adb root as mode-600 files with sha256, kept on the lab machine, never in a repository. It restores nothing without a matching programmer; it costs nothing and is what a programmer or a service route would need.
+
+Why
+: Evidence: the owner of the edl tool says no Pixel loader was released or leaked (2021); a ~200-loader survey lists none; every Pixel 2 hard-brick thread 2018-2025 ends without a method; a loader for any other phone is refused by the fused PK hash. The author's bound is bricking; this keeps it.
+
+Rejected
+: Treating Google's factory image or fastboot as a way back (needs a running bootloader, the very thing lost). Buying or downloading a leaked loader from service sites (clean-room, and a mismatch is refused). Opening the phone to hunt test points (no public map; risk to the only reference phone). Entering EDL with adb reboot edl to 'see' (no recovery value without a programmer; a state change on the phone for nothing). Lifting the wait on our own because the probe is 'probably safe' (the mechanism of the Sony erase is unpublished).
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: 2026-11-18-walleye-edl-way-back
+
+Amends
+: 2026-11-18-walleye-ufs-wait
+
+Scope
+: walleye lane: coordinator, keeper, builders; the author
