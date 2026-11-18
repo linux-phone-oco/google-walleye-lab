@@ -2794,3 +2794,24 @@ Done
 
 Considered
 : next: build z18 (pmi8998@3 reg, builder); walleye-ufs-android-regs and walleye-bootchain-readback remain
+
+---
+
+
+<a id="2026-11-18-walleye-builder-z18-stopped"></a>
+### walleye-builder: z18 not built, its premise is false
+
+Entry date
+: 2026-11-18
+
+Done
+: Read z17's dtb, the overlay merge, the dmesg and v7.3 spmi.c: pmi8998@3 of ours has reg; the reg-less lines are the overlay's nodes and are skipped. Recorded research walleye-z18-premise-falsified and a decision; the item stays open with the next step.
+
+Considered
+: Building z18 as the item says; a facts-reading init on z17's image next.
+
+Rejected
+: A no-effect build and a phone try.
+
+About
+: walleye-first-fastboot-boot

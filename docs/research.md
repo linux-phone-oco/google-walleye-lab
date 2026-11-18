@@ -3022,3 +3022,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z18-premise-falsified"></a>
+### walleye-z18-premise-falsified
+
+Date
+: 2026-11-18
+
+Brief
+: z18 'give pmi8998@3 a reg' would change nothing: the reg-less node is the overlay's, the spmi core skips it; our pmic@3 and pmic@2 have reg. Why the pmi8998 gpio is absent is not known yet
+
+Question
+: Does giving spmi pmi8998@3 a reg make the pmi8998 gpio probe (backlog walleye-build-z18-pmi8998-reg)?
+
+Found
+: Read, not run. (1) z17's own dtb has pmic@2 (pmi8998_lsid0, holds gpio@c000) and pmic@3, both with reg <usid 0>; the two 'does not have reg' lines of the z17 dmesg name qcom,pm8998@0 and qcom,pmi8998@3, which the stock dtbo entry 3 adds in downstream style (fragments under spmi_bus; already known from the z1 build; tests/host/pmic-dmesg-check.sh tolerates exactly them). (2) Linux v7.3 drivers/spmi/spmi.c of_spmi_register_devices: a child without reg logs the error and 'continue's, so it blocks no other child; pm8998's pon/pwrkey (pmic@0) did probe in the same dmesg. (3) The kernel config of z15 and on has PINCTRL_QCOM_SPMI_PMIC=y, MFD_SPMI_PMIC=y, REGULATOR_FIXED_VOLTAGE=y, GPIOLIB=y. So a reg on the overlay's node cannot make the gpio appear; naming it as ours would add a second device at usid 3 or merge by name into our pmic@3. The z17 dmesg has no line at all from the pmi8998 gpio, charger or rradc, so it is NOT KNOWN YET whether pmic@2's children bound, deferred or failed quietly. Next look: a try of z17's image whose init reads facts (devices_deferred, /sys/bus/spmi/devices, gpiochips, the regulator's deferral reason), nothing in the dtb changed; or loglevel and dyndbg for spmi and pinctrl-spmi-gpio. Item walleye-overlay-collisions (host test of every by-name collision) comes first and may show one under pmic@2. Material: ~/lab-material/walleye/z17-part1/dmesg.txt lines 270-272 and 379.
+
+About
+: walleye-first-fastboot-boot

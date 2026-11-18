@@ -1263,3 +1263,31 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-walleye-z18-not-built-pmi8998-reg-no-effect"></a>
+### 2026-11-18-walleye-z18-not-built-pmi8998-reg-no-effect
+
+Date
+: 2026-11-18
+
+Brief
+: Do not build z18 'pmi8998@3 gets a reg': it cannot change the pmi8998 gpio; first read why pmic@2's gpio is absent (facts from the init), then change the dtb
+
+Decision
+: The backlog item walleye-build-z18-pmi8998-reg stays open with a corrected note; no image is built from it. After the overlay-collisions test, the next build is z17's image plus an init (or loglevel) that reads the spmi devices, devices_deferred and the gpiochips, so the dtb change that follows rests on a read fact.
+
+Why
+: The reg-less nodes are the overlay's and the spmi core skips them with continue (v7.3 spmi.c); ours have reg; the config has the drivers. A build that cannot change the outcome costs a phone try.
+
+Rejected
+: Adding a reg to qcom,pmi8998@3 in our dtb: merged by name it would sit beside or inside our pmic@3 at the same usid and cannot reach pmic@2's gpio. Deleting the overlay's nodes: the bootloader merges the overlay, we cannot. Building z18 anyway as a try: no change, a wasted phone slot.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-z18-premise-falsified
+
+Tracked by
+: walleye-build-z18-pmi8998-reg
