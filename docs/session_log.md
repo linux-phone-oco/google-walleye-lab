@@ -1387,3 +1387,21 @@ Done
 
 Considered
 : next: turning point for the coordinator - a poller that saves the whole 64 KiB text region every 2 s to files (not only the end) and fetches the blob the moment its header appears, since the phone leaves USB after ~45-60 s; reader's single-shot read is racy
+
+---
+
+
+<a id="2026-11-18-walleye-vf3-build"></a>
+### vf3 built
+
+Entry date
+: 2026-11-18
+
+Done
+: init-vf3, build-vendor-facts-vf3.sh, vendor-facts-poll.sh and its selftest; programmer review's findings fixed; try queued
+
+Considered
+: appending with dd bs=1 seek bytes (rejected: slow; 4096-aligned rewrite of the last partial block instead); one nested dt/ directory tree in the poller (rejected: a block named dt/soc blocks dt/soc/spi; flat names with %)
+
+About
+: walleye-first-fastboot-boot

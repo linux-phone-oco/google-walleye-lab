@@ -1457,3 +1457,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-vf3-built"></a>
+### walleye-vf3-built
+
+Date
+: 2026-11-18
+
+Brief
+: vf3 built: gadget bound first, the dump appended progressively as framed text blocks in a 4 MiB window, a host poller; 24 checks ok, rebuild identical, selftests ok, reviewed
+
+Question
+: How does the window keep what the phone shows before it leaves USB at ~45-60 s?
+
+Found
+: boot-vf3.img = the control's kernel with init-vf3: window file + WALLEYE-VF3 beat block 0 (2 s), proc/sysfs/configfs, gadget bound, THEN one source at a time (cmdline, version, udc, iomem, interrupts, clk/regulator/gpio/pinctrl, usb/dwc3, ioports, devices, applets, dmesg head/tail, device tree one node per block) framed BEGIN/END rc=N, appended from the last 4096-byte boundary and synced, ending in DONE; nothing to the console; stream budget 3.8 MB. tests/host/vendor-facts-poll.sh (start BEFORE the boot, own job): finds the LUN by our strings, copies the used part every 2 s (numbered copies, last-complete), fetches each finished block once as a flat file, stops at DONE or 150 s, refuses and deletes on a MAC/15-digit/serialno. Programmer review: nested names aborted the fetch (fixed: flat dt%a%b names), torn reads could glue across a hole (fixed: contiguous prefix, torn last line dropped), leak check now on the whole copy before any save, budget line once. sha256 boot-vf3.img cb5c7ad9bad50d80... (full in images-vf3/SHA256SUMS-vf3 on the lab). Selftest poll 25 ok, reader 25 ok.
+
+About
+: walleye-first-fastboot-boot
