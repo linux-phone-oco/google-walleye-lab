@@ -2282,10 +2282,10 @@ Proof
 ### Image T3: init opens /dev/watchdog (kpss-wdt) with a short timeout and never pets it; read console-ramoops after the bite
 
 Status
-: open
+: in-progress
 
 Note
-: The one cheap try with real hope; needs the kpss-wdt node's address/irq measured (dts says not measured yet)
+: tried once 2026-11-18: fail (no marker, back at 42 s). Not conclusive about the bite itself; a turning point for the coordinator: how to see init run (UART) or read ramoops by other means
 
 About
 : walleye-first-fastboot-boot
