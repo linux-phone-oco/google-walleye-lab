@@ -849,3 +849,34 @@ Rejected
 
 About
 : deep-sleep
+
+
+<a id="2026-11-19-walleye-minimal-dtbo-try"></a>
+### 2026-11-19-walleye-minimal-dtbo-try
+
+Date
+: 2026-11-18
+
+Brief
+: Keep the stock dtbo until the kernel's real faults are fixed; then try one minimal dtbo (empty overlays, stock ids) on slot b
+
+Decision
+: No dtbo write now: the id is known (0x1bc rev 3) and the overlay's noise is harmless with clk_ignore_unused. Later, one try with a dtbo built on the host from the stock table with every overlay empty, original dtbo.img kept for restore, health report after.
+
+Why
+: Overlay hypothesis was falsified as the cause of no-start (walleye-overlay-enables-what-result); a dtbo write cannot be read back, so it waits until it can buy something.
+
+Rejected
+: Writing a one-entry dtbo with only 2704: wrong id for walleye. Writing now: no fault it fixes. Dropping the dtbo partition: bootloader may refuse, no way back.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-dtbo-overlay-id-how-it-stands
+
+Scope
+: walleye keeper
+
+Tracked by
+: walleye-dtbo-minimal-try

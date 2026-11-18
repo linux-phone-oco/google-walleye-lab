@@ -1,0 +1,8 @@
+Which dtbo overlay id walleye's bootloader needs (2026-11-19; host only, nothing written to the phone, no new try).
+
+Read from records already in this base: dtbo-measurements.md (table), the try cmdlines (z6/c2/z7 and the control), getvar-all.
+- The bootloader picks the entry itself and tells the kernel: `androidboot.dtbo_idx=3` on every walleye boot (control, our dtbs z6, c2, z7 alike). Entry 3 = id 0x1bc (444) rev 3. Board facts it went by: hw-revision MP1, androidboot.revision=MP1, hw_ver_id 2005E0E1, mid G011A.
+- Taimen: dtbo_idx=12 = id 0xa90 (2704) = kcxt's id. Same table holds both phones' ids (0x1bc rev 0..4,0x80 for walleye hardware revisions; 0x190..0xa90 for the other boards), so 2704 is taimen's, not walleye's.
+- Every try where the kernel started (z6, c2, z7) had the stock overlay merged: the bootloader accepts our dtb WITH the id-0x1bc overlay present. Not measured: boot with that overlay absent or different. Only a dtbo write can test that (no read-back on fastboot: a write with no way back unless the original image is kept - ~/Projects/walleye-build/control/dtbo.img is it).
+Answer: walleye's id is 0x1bc (rev 3 for MP1), the one the stock dtbo already has. Whether the bootloader refuses a kernel when that id is missing (as kcxt reports for taimen) is not known yet.
+Consequence for the dmesg: the vendor-overlay nodes (G2 serial@c16f000 clock ids, G5 reg-less pmic nodes) stay while the stock dtbo stays; to drop them, a dtbo with one empty overlay of id 0x1bc rev 3 (all entries keeping the table shape) is the minimal try. Build with dtc + mkdtboimg on the host; try is the keeper's, slot b, original dtbo kept for restore.
