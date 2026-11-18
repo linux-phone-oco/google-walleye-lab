@@ -2780,3 +2780,47 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-pmic-spmi"></a>
+### PMIC first: bind pm8998 and pmi8998 on the SPMI bus (the first mainline dmesg: 'does not have reg property')
+
+Status
+: open
+
+Note
+: Fact (lab research 2026-11-18-walleye-first-mainline-shell-map): the first mainline dmesg of this phone (Linux 7.3.0, 336 lines): USB udc, pinctrl, spmi 800f000, RPM regulators and clocks, ramoops, watchdog present; no drm, no power_supply; faults: spmi pm8998@0/pmi8998@3 no reg property; arm-smmu 5040000 probe timeout; c16f000.serial waits on a supplier from our overlay stubs; i2c@c179000 phandle not found. The PMIC is the base of the charger, the PON/reboot reasons, the RTC and the display backlight: first. WHEN DONE queue walleye-try-z (needs phone, rank 1): z1 once from slot b with the shell reader waiting (mainline-shell-read.sh), save the whole dmesg, compare with the map; battery first; the phone left in Android on a good slot.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: dt/msm8998-google-walleye.dts gets the PMIC nodes right so that the kernel's SPMI bus binds pm8998 and pmi8998 with their children (pon, rtc, gpio, charger/fuel-gauge candidates, regulators if the vendor tree lists them): the fault of the first mainline dmesg is 'spmi pm8998@0 and pmi8998@3 does not have reg property (-22)'; read how mainline's own msm8998 boards (the OnePlus 5/5T, Sony Yoshino, Xiaomi Mi 6 dts in the kernel tree used by the build) include pm8998.dtsi and pmi8998.dtsi (spmi_bus children with reg = <0x0 SPMI_USID>, <0x1 SPMI_GSID>) and what the running fdt of the phone shows for the same bus (sid values, the nodes it enables); the change as small commits, each with the reason; image z1 = y2 (our gadget init, ACM console) with the new dts; the host test (the shell reader from lab PR 154) greps the new dmesg: zero 'does not have reg property' lines, pm8998/pmi8998 child devices present under /sys/bus/spmi/devices, and the rest of the dmesg not worse than the first map (research 2026-11-18-walleye-first-mainline-shell-map); programmer review; hashes
+
+
+<a id="walleye-bringup-order-plan"></a>
+### Plan the real bring-up order from the first mainline map and queue the items
+
+Status
+: open
+
+Note
+: Now that our own kernel and device tree boot to a shell (first light, lab PR 152) and the first dmesg is read (map), the lane needs a dependency-ordered plan of the real parts, queued as items, so builders and the keeper never wait for a coordinator. Public sources, the lab research rows and the vendor facts; clean room as before. Include the ideal of the project: a phone as good as Android: which parts of the 20 (docs components) walleye's list covers and how each is proven.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: research
+
+Proof
+: A research row that orders the bring-up from the first mainline map and the vendor facts (the running fdt, the dmesg of y2, the vendor kernel's regulator_summary): the dependencies between the parts (PMIC and its regulators -> UFS (rootfs) and storage; PMIC/charger -> battery and safe charging while testing; arm-smmu -> UFS DMA, display, USB; clocks (gcc/rpmcc) -> everything; USB networking (a function the host can bind with the lab-prepare rules: ncm with its attributes written the mainline way, ecm or rndis, as the mainline kernel supports them natively) for ssh instead of a serial console; display (S6E3FA5 command-mode through DSI/DPU) and touch (Synaptics RMI4 i2c); audio, modem and Wi-Fi/BT later), the order with what each unlocks and its proof test (the kernel dmesg, a sysfs file, the shell), and for each part the backlog item (build and phone) queued by the research session itself in this base with --needs, proof and note; the first three items after the PMIC get ranks; the research names the parts mainline has for the Pixel 2's chips (panel driver for the S6E3FA5?, touchscreen RMI4, charger smb2 (pmi8998), fuel gauge, haptics DRV2624, audio WCD934x/TAS2557) and which would need new drivers (upstream candidates)
