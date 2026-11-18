@@ -2200,10 +2200,10 @@ Rank
 ### The Pixel 2 is gone from USB since the pk5-stages tries (2026-11-18 ~02:30 UTC): phone work is parked until the author is back
 
 Status
-: open
+: done
 
 Note
-: Seen by the keeper (lab how-the-phone-stands 2026-11-18-2300): neither fastboot nor adb, nothing on its USB port; devlab says off or needs hands. Candidate causes: a g-image hang that the outside watchdog did not reset, or the battery drained (the phone has sat in fastboot, which draws power, for hours of tries; the first getvar battery-voltage was 4344 mV). The author's hands: hold Power 10-30 s; if no reaction, plug it into a charger ~15 min first, then hold Power + Volume Down for the bootloader; tell us 'back'. Until then only build and research items run.
+: Closed: the phone came back on its own (the keepers' tries since 2026-11-18 05:00 UTC ran on it; first light and the first mainline shell followed). The lesson stays in walleye-battery-watch and walleye-battery-ok-timeout.
 
 Waits
 : the author: the phone is off USB (hold Power 10-30 s; if it does not react, charge it first)
