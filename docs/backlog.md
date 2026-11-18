@@ -3133,12 +3133,10 @@ Proof
 ### Build a banner init: y2's kernel and dtb with an init that writes a banner to /dev/ttyGS0 every 2 s from the start and a kmsg marker per step
 
 Status
-: open
+: done
 
 Note
-: Why: y2 and z1 are both silent to the reader (research walleye-y2-z1-control-both-silent). Then the keeper tries it with a plain cat of ttyACM0 (raw bytes logged) before any reader.
-
-ADDED by the coordinator 2026-11-18: a host-side suspect for the silent ttyACM0 (y2 AND z1 both gave 0 bytes in the controlled try, while y2's first read in lab PR 155 worked): the lab host's ModemManager (or another service) probes every new ttyACM device with AT commands and can hold it open or change its mode; and the reader's termios (it must set raw mode, no echo, no hangup on close). In the reader work (also walleye-reader-eacces-retry): set raw mode itself (stty -F DEV raw -echo -hupcl), find who holds the port (fuser, /proc/*/fd, systemctl is-active ModemManager) and print it in the fail line, and wait for the port to be free. Do NOT stop services or change the host: record the finding and tell the coordinator (stopping ModemManager is orchestration's or the author's call). The banner image then tells which side is silent: if a plain 'cat /dev/ttyACM0' shows the banner bytes, the reader was the problem.
+: Built 2026-11-18: images-banner/boot-banner.img sha256 3d9320f01567a9824f1371a218fa397cbedc4eb996e9409b613a458878a4a081, 40 checks, rebuild identical, reviewed; research walleye-banner-built; try queued as walleye-try-banner.
 
 About
 : walleye-first-fastboot-boot
@@ -3201,3 +3199,28 @@ Needs
 
 Proof
 : walleye-charger-smb2: sh tests/host/charger-check.sh DIR passes on the reader's output of c1 (images-c1/boot-c1.img sha256 ddae19b523f2a68d902755f0e57d53c3b98c74b9b146d372bc40ea307aaee0c0)
+
+
+<a id="walleye-try-banner"></a>
+### Try banner once from slot b with a plain cat of ttyACM0: are the banner bytes on the host?
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images-banner/boot-banner.img sha256 3d9320f01567a9824f1371a218fa397cbedc4eb996e9409b613a458878a4a081 (y2 + a banner init). Run battery-ok first. NO reader: start 'cat /dev/ttyACM0 > FILE' (set raw first: stty -F /dev/ttyACM0 raw -echo -hupcl) as soon as it appears, and before the try record 'systemctl is-active ModemManager' and, once the port exists, 'fuser -v /dev/ttyACM0' / holders in /proc/*/fd. Do NOT stop services or change the host: record the finding, tell the coordinator. Banner bytes under plain cat = the old reader was the problem; none = silence is on the phone or the host (compare lsusb 1d6b:0104 at ~18 s). Also read the kmsg-step lines afterwards from pstore only if the author unlocks. Banner prints every ~2 s; the phone reboots itself at ~180 s.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-banner-seen: sh tests/host/banner-check.sh FILE passes on 'cat /dev/ttyACM0 > FILE' of banner (images-banner/boot-banner.img sha256 3d9320f01567a9824f1371a218fa397cbedc4eb996e9409b613a458878a4a081)
+
+Rank
+: 1

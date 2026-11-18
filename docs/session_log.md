@@ -1810,3 +1810,24 @@ Rejected
 
 About
 : walleye-charger-smb2
+
+---
+
+
+<a id="2026-11-18-walleye-builder-banner"></a>
+### walleye-builder: the banner image
+
+Entry date
+: 2026-11-18
+
+Done
+: Built boot-banner.img (y2 + init-banner), build/build-banner.sh with 40 checks, tests/host/banner-check.sh and banner-selftest.sh; queued walleye-try-banner for the keeper; marked walleye-build-banner-init done.
+
+Considered
+: Building on z3 instead of y2 (the item says y2: one change per image, and the banner tells reader from phone first).
+
+Rejected
+: A shell on ttyGS0 in the banner image: the banner must not depend on anything reading it. A held-open tty fd: a plain open-write-close per line is simpler and survives the host reopening the port.
+
+About
+: walleye-first-fastboot-boot
