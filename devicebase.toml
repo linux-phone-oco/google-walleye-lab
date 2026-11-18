@@ -5,7 +5,7 @@
 # table: component, status, evidence, notes, updated, judged, measured, measured_run) that docs validates what it
 # pulls against; docs reads this file first.
 source = "linux-phone-oco/docs"
-version = "0.17.0"
+version = "0.18.0"
 own = []
 parts = 1
 
