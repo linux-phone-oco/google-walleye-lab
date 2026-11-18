@@ -3817,34 +3817,6 @@ Rank
 : 1
 
 
-<a id="walleye-dtbo-minimal-try"></a>
-### Try a minimal dtbo (empty overlays, stock ids) on slot b
-
-Status
-: open
-
-Note
-: Build on host from the stock table (dtc, mkdtboimg), keep ~/Projects/walleye-build/control/dtbo.img for restore. Keeper only; after the kernel's real faults are fixed.
-
-Blocked by
-: walleye-dtbo-overlay-id
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: Test: after the try the phone boots our dtb, dmesg has no serial@c16f000 or reg-less pmic lines, health report ok; original dtbo.img restored after
-
-Rank
-: 20
-
-
 <a id="walleye-c3-hung-wait-then-power-cycle"></a>
 ### Walleye is hung in c3 (mainline, silent): wait, then power cycle (hold 15 s), then check fastboot
 
@@ -3868,31 +3840,6 @@ Needs
 
 Rank
 : 1
-
-
-<a id="walleye-pmic-wdt-read-s2-regs"></a>
-### Read the PMIC PON watchdog registers (0x54-0x57, 0x5a, 0x5b, 0xc5) on z9 without arming
-
-Status
-: open
-
-Note
-: Safe: no bite. Read through the spmi regmap debugfs if z9 has it (else build item walleye-pmic-wdt-readback-image). Record values with the POFF reason (0xc5) and the boot slot. Settles: write took (0x56=7)? what the bootloader had set? did the bite log PMIC_WD?
-
-Blocked by
-: walleye-needs-power-cycle-after-pmic-bite
-
-About
-: deep-sleep
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: pmic-wdt-s2-regs-read
 
 
 <a id="walleye-pmic-wdt-readback-image"></a>
@@ -4218,3 +4165,58 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-dtbo-minimal-try"></a>
+### Try a minimal dtbo (empty overlays, stock ids) on slot b
+
+Status
+: open
+
+Note
+: Build on host from the stock table (dtc, mkdtboimg), keep ~/Projects/walleye-build/control/dtbo.img for restore. Keeper only; after the kernel's real faults are fixed.
+
+HELD by the coordinator 2026-11-18 (keeper ee341e7e): this item FLASHES the dtbo partition. It is not a try that returns by itself and its way back is not recorded: before it runs it needs (a) a recorded decision with the way back (the phone own dtbo of the written slot read back over adb root as a file first, sha256 kept, then restored with fastboot flash; the official dtbo.img of another build is NOT the phone own) and (b) the author present (a write; the slot it overwrites is the one the phone boots Android from or the spare slot: say which). Not ready. Keepers skip it.
+
+Waits
+: a recorded decision with the way back (a backup of the phone's own dtbo, restored by fastboot flash) and the author present: a partition write
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: Test: after the try the phone boots our dtb, dmesg has no serial@c16f000 or reg-less pmic lines, health report ok; original dtbo.img restored after
+
+Rank
+: 90
+
+
+<a id="walleye-pmic-wdt-read-s2-regs"></a>
+### Read the PMIC PON watchdog registers (0x54-0x57, 0x5a, 0x5b, 0xc5) on z9 without arming
+
+Status
+: open
+
+Note
+: Safe: no bite. Read through the spmi regmap debugfs if z9 has it (else build item walleye-pmic-wdt-readback-image). Record values with the POFF reason (0xc5) and the boot slot. Settles: write took (0x56=7)? what the bootloader had set? did the bite log PMIC_WD?
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: pmic-wdt-s2-regs-read
+
+Rank
+: 1
