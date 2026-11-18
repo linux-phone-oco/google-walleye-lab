@@ -2640,3 +2640,25 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-ufs-hazard/
+
+
+<a id="walleye-z12-built"></a>
+### walleye-z12-built
+
+Date
+: 2026-11-18
+
+Brief
+: z12 built: z11 with only the kernel changed - Hynix UFS quirks (no purge, sync length 0x48, one TX lane); sha256 f959c448; not tried
+
+Question
+: Can our 7.3 kernel carry Sony's Hynix UFS quirks, in a z11-identical image?
+
+Found
+: Kernel branch linux-phone-oco/linux topic/ufs-hynix-quirks (12dca401a, on e123d3bff): UFS_DEVICE_QUIRK_NO_PURGE (core: ufshcd_query_flag refuses set/clear/toggle of fPurgeEnable), EXTEND_SYNC_LENGTH (PA_TXHSG1/2/3SYNCLENGTH=0x48) and ONE_TX_LANE (PA_AVAILTXDATALANES=1 in apply_dev_quirks, lane_tx=1 in pwr_change PRE_CHANGE), all on SKHYNIX ANY_MODEL in ufs_qcom_dev_fixups. Sony sets one lane before link startup from a Kconfig; ours applies once the vendor is read, so link startup still runs two lanes - not equal to Sony; the card is not known earlier. Sony limits no-purge to two Hynix models and spec <2.1; ours is every Hynix (safer for a probe). build-z12.sh: z12 = z11 with only Image.gz changed (dtb, ramdisk, header, AVB equal), 15 checks ok. images-z12/boot-z12.img sha256 f959c44868200c9a4056e5f6ffa56679e42b24a98f64f8337c87b8f791c74f41. Not run on a phone.
+
+Sources
+: src-sony-ufs-quirks-forward-port
+
+About
+: walleye-first-fastboot-boot
