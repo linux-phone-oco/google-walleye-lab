@@ -6,7 +6,7 @@ T=$(mktemp -d) || exit 1; trap 'rm -rf "$T"' EXIT
 fail() { echo "fail walleye-battery-selftest host $1"; exit 1; }
 mkfake() { # NAME BODY
   printf '#!/bin/sh\n%s\n' "$2" > "$T/$1"; chmod +x "$T/$1"; }
-run() { PATH="$T:$PATH" sh "$HERE/$1" 2>&1; }
+run() { PATH="$T:$PATH" timeout -k 1 30 sh "$HERE/$1" 2>&1; }
 # fastboot at 3892 mV: pass; at 3600: fail; no tool answering: skip (exit 1 too, nothing measured)
 mkfake fastboot 'case "$*" in *battery-voltage*) echo "battery-voltage: 3892mV" >&2;; esac'; mkfake adb 'exit 1'
 out=$(run battery-ok.sh); [ $? -eq 0 ] || fail "3892 mV did not pass: $out"
