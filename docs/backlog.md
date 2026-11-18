@@ -3154,31 +3154,6 @@ Rank
 : 1
 
 
-<a id="walleye-reader-eacces-retry"></a>
-### The host readers retry the device node while it says Permission denied (the uaccess ACL arrives a moment after the node)
-
-Status
-: open
-
-Note
-: Fact (lab research walleye-try-z, PR 160): z1 booted and its gadget (1d6b:0104 + ttyACM0) was up at 18 s, but the reader got Permission denied on /dev/ttyACM0 (so no dmesg, the PMIC result unknown). The same reader worked for y2 (PR 155), and the rule (70-lpoco-google-walleye.rules: uaccess on serial walleye-first-boot, tty and block) is in place; seat0's session 4 (mll, tty2) is active. Likely cause: a race, the node appears root:uucp 0660 first and logind adds the uaccess ACL a moment later; the reader opened too early. If the retry does not cure it, record the facts (ls -l, getfacl, loginctl show-seat) from the failing moment and ask orchestration (lpoco host prepare). WHEN DONE re-queue the z1 try as walleye-try-z (rank 1): the keeper runs it again; nothing else changes.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: tests/host/mainline-shell-read.sh (and massstorage-read.sh / window-payload-read.sh if they open a device node the same way) retries opening the device node while it answers 'Permission denied', for up to 20 s with 0.5 s steps, before it gives up with a fail that says what it saw (the node's owner, group and ACL via ls -l and getfacl, and the udev rule file present or not); selftest with a fake that is denied for the first 3 s and then allowed; no change of the rule, no chmod, no sudo (the lab-prepare rules stay the author's tool); programmer review
-
-Rank
-: 2
-
-
 <a id="walleye-try-c1"></a>
 ### Try c1 once from slot b with the shell reader: does pmi8998's charger probe, and is online 1 with the cable in?
 
@@ -3246,3 +3221,30 @@ Opened
 
 Proof
 : Find why /etc/udev/rules.d/70-lpoco-google-walleye.rules (GROUP users, MODE 0660, TAG uaccess; SUBSYSTEM tty, ATTRS serial walleye-first-boot) leaves /dev/ttyACM0 as root:uucp 0660 for the lab user: with the gadget up (a keeper holds the phone: ask the coordinator for a window or look at the next keeper try's record) run udevadm info -a -n /dev/ttyACM0 (does ATTRS serial walleye-first-boot match on a parent?), udevadm test of the node (rule order against 60-serial.rules and 50-udev-default.rules, which rule sets GROUP last), ls -l and getfacl at the moment of the try. Fix in the lpoco host prepare manifest (device.toml [host]) not by hand. Then the root-exec use of decision 2026-11-18-walleye-tty-read-through-root-exec ends.
+
+
+<a id="walleye-reader-eacces-retry"></a>
+### The host readers retry the device node while it says Permission denied (the uaccess ACL arrives a moment after the node)
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-try-z, PR 160): z1 booted and its gadget (1d6b:0104 + ttyACM0) was up at 18 s, but the reader got Permission denied on /dev/ttyACM0 (so no dmesg, the PMIC result unknown). The same reader worked for y2 (PR 155), and the rule (70-lpoco-google-walleye.rules: uaccess on serial walleye-first-boot, tty and block) is in place; seat0's session 4 (mll, tty2) is active. Likely cause: a race, the node appears root:uucp 0660 first and logind adds the uaccess ACL a moment later; the reader opened too early. If the retry does not cure it, record the facts (ls -l, getfacl, loginctl show-seat) from the failing moment and ask orchestration (lpoco host prepare). WHEN DONE re-queue the z1 try as walleye-try-z (rank 1): the keeper runs it again; nothing else changes.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: tests/host/mainline-shell-read.sh (and massstorage-read.sh / window-payload-read.sh if they open a device node the same way) retries opening the device node while it answers 'Permission denied', for up to 20 s with 0.5 s steps, before it gives up with a fail that says what it saw (the node's owner, group and ACL via ls -l and getfacl, and the udev rule file present or not); selftest with a fake that is denied for the first 3 s and then allowed; no change of the rule, no chmod, no sudo (the lab-prepare rules stay the author's tool); programmer review
+
+AND (decision 2026-11-18-walleye-tty-read-through-root-exec): when the plain open of the tty node stays denied after the retry, the reader falls back to `lab-agent root-exec -- ...` for exactly that one node: setting raw mode (stty -F NODE raw -echo -hupcl), reading it (cat or dd), writing one command at a time (a root-exec sh -c with a printf to the node); the reader prints which path it used; the selftest covers both paths with a fake root-exec in PATH; no other root use, no chmod/chown/usermod; every use is a line in the saved record.
+
+Rank
+: 1
