@@ -38,3 +38,16 @@ Contacts
 
 Notes
 : Where this base's device layer comes from: the parts contract (devicebase.toml), the phone queries, the records part, device, backlog-status, backlog-needs and test-run.
+
+
+<a id="linux-arm-msm"></a>
+### linux-arm-msm
+
+Kind
+: list
+
+Address
+: linux-arm-msm@vger.kernel.org
+
+How
+: git send-email to the list; Qualcomm maintainers and the DT binding reviewers in Cc (scripts/get_maintainer.pl)
