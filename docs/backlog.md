@@ -5073,10 +5073,10 @@ Rank
 ### The part comparison tool: capture a part's state on live Android and on our kernel, diff them normalised
 
 Status
-: open
+: done
 
 Note
-: The author's question (decision 2026-11-19-walleye-compare-with-android-for-every-part). Orchestration may lift it into lpoco-bringup as a general helper.
+: Landed: tests/host/part-compare.sh (capture android|ours, diff), part-compare.d/touch.list and README, part-compare-selftest.sh (fake captures and fake transports, all ok). Review by programmer: stdin drain on adb, printf for backslashes, gpio header formats (4.4, msm dbg_show), pinmux filter, relative dirs, chip-prefixed pinmux keys, debugfs mount guard fixed. NOT yet run on a real phone: gpio/pinconf formats of the real Android 4.4 output are unseen, the tool says so when a normaliser matches nothing; the first real capture (walleye-touch-android-compare) should pin real fixtures.
 
 About
 : walleye-first-fastboot-boot
@@ -5101,7 +5101,7 @@ Status
 : open
 
 Note
-: The top coordinator, for the author (2026-11-19): do this now, before more theory (the touch lane has spent z15-z17 on guesses). The z20 diagnostic try runs first; this follows with the comparison tool.
+: Tool landed (part-compare.sh capture touch android / ours, then diff). Needs a phone visit: Android now over adb root, then our kernel's network shell (z20 or z17/z19). Pin real gpio/pinconf output as selftest fixtures from the first capture.
 
 Blocked by
 : walleye-part-compare-tool

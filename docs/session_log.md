@@ -2926,3 +2926,24 @@ Done
 
 Considered
 : next: walleye-touch-gpio-shared-proxy (build), then walleye-try-z19 and walleye-bootchain-readback; UFS HW_VERSION/PHY still need a reader (coordinator)
+
+---
+
+
+<a id="2026-11-18-walleye-part-compare-tool-built"></a>
+### walleye: part-compare tool built
+
+Entry date
+: 2026-11-18
+
+Done
+: Built tests/host/part-compare.sh with per-part lists (touch first), selftest on fake captures and transports; programmer review fixed 10 defects before landing; no phone touched.
+
+Considered
+: One telnet session per command (kept: simple, same as touch-read.sh); a dt phandle resolver (left as a documented limit).
+
+Rejected
+: grep -P and bash-only constructs: host and phone shells are dash/busybox/toybox; Python: forbidden.
+
+About
+: walleye-first-fastboot-boot

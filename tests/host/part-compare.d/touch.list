@@ -1,0 +1,11 @@
+# touch: Synaptics RMI4 touchscreen@20 on the i2c bus at c179000, its power gpio (pmi8998 gpio 2) and its supplies. NAME<TAB>COMMAND, run on the phone.
+gpio	cat /sys/kernel/debug/gpio 2>&1
+pinmux	for d in /sys/kernel/debug/pinctrl/*/; do c=$(basename $d); sed "s|^|$c: |" $d/pinmux-pins 2>&1; done | sed -E "s/^([^:]*): pin ([0-9]+) \(/pin \2 (\1:/"
+pinconf	for d in /sys/kernel/debug/pinctrl/*/; do c=$(basename $d); sed "s|^|$c: |" $d/pinconf-pins 2>&1; done | sed -E "s/^([^:]*): pin ([0-9]+) \(/pin \2 (\1:/"
+regulator	for d in /sys/class/regulator/regulator.*; do echo "$(cat $d/name 2>/dev/null):$(cat $d/state 2>/dev/null):$(cat $d/microvolts 2>/dev/null)"; done
+summary-regulator	cat /sys/kernel/debug/regulator/regulator_summary 2>&1 | grep -i -e touch -e vdd -e pmi8998
+clk	grep -i -e i2c -e qup -e gcc_blsp /sys/kernel/debug/clk/clk_summary 2>&1
+dt-i2c	for d in $(find /sys/firmware/devicetree/base/ -type d -name 'i2c@c179000'); do cd $d && for f in $(find . -type f); do echo "$f=$(od -An -tx1 -v $f | tr -d ' \n')"; done; done
+driver-sysfs	for d in /sys/bus/i2c/devices/*-0020; do echo "i2c-0020/driver=$(basename $(readlink $d/driver) 2>&1)"; echo "i2c-0020/name=$(cat $d/name 2>&1)"; done; for n in $(ls /sys/bus/i2c/drivers 2>&1); do echo "i2c-driver/$n=1"; done
+input	cat /proc/bus/input/devices 2>&1 | grep -i "^N:" | sed "s/^N: Name=/input-name=/"
+dmesg	dmesg 2>&1 | grep -i -e rmi -e synaptics -e touch -e 0-0020 -e c179000 -e gpiolib -e regulator-touch
