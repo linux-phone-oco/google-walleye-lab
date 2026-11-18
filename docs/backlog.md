@@ -4359,10 +4359,10 @@ Opened
 : 2026-11-18
 
 Needs
-: research
+: phone
 
 Proof
-: a research row naming the model and firmware revision, or 'not obtainable without root' with the routes tried (fastboot getvar/fetch, Google factory image, vendor dmesg)
+: a research row naming model and firmware read from a root shell in recovery (or 'fastboot getvar all shows none')
 
 Rank
 : 2

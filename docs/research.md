@@ -2662,3 +2662,25 @@ Sources
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ufs-card-identity-2026-11-18"></a>
+### walleye-ufs-card-identity-2026-11-18
+
+Date
+: 2026-11-18
+
+Brief
+: Walleye UFS card: vendor Hynix known; model and firmware not obtainable without root (shell-user routes tried)
+
+Question
+: What are the model and firmware revision of walleye's UFS card, without probing it from our kernel?
+
+Found
+: ro.boot.hardware.ufs=64GB,Hynix is all a non-root read gives; sysfs scsi attrs, /proc/scsi, ufshc sysfs and dmesg are denied; no public page names the card; Google bootloader.img carries no inquiry data. Left to the keeper: fastboot getvar, or a root shell in recovery reading /sys/block/sda/device/{model,rev}. Hynix vendor alone is enough to apply Sony's Hynix quirks (sync length) first.
+
+About
+: walleye-ufs-card-identity
+
+Material
+: research/walleye-ufs-card-identity/2026-11-18/
