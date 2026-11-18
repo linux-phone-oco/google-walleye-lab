@@ -4867,3 +4867,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-overlay-collisions"></a>
+### One host test lists every node the stock dtbo overlay overwrites by name in our dtb; rename them all at once; make the test a CI gate
+
+Status
+: open
+
+Note
+: Decision 2026-11-19-walleye-overlay-collisions-as-a-class (class lines inside). Replaces node-by-node fixes: z16 (i2c), z17/z18 (pmi8998) were two found by phone tries.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: tests/host/overlay-collisions.sh (new, selftested with a small fake overlay and a fake dtb: a collision is reported, a clean pair passes): reads the stock dtbo entry 3 (the official image of the build in the control directory, or better the phone's own dtbo: read once over adb root into the material path with sha256; say which), decompiles it, resolves every fragment target to a path (by label via the overlay's own fixups/symbols or by path), lists every NODE the overlay writes by name under that target (and the properties it writes on existing nodes), and compares with the paths in OUR built dtb: prints every collision (our path, the overlay's property writes) and a count; exits 1 on any collision of a node that is not a pure property addition we intend; then ALL collisions found are fixed in the dts in one change (rename, keep labels, keep unit addresses and regs, as the qup@c179000 rename), with an image z19 (z17 base + the z18 pmi8998 work if it has landed, else on current main) built by the usual script; checks, the collision test passes on z19, dtbo-overlay-merges.sh still passes, programmer review; the test joins the lab's CI checks (check.yml) so a later dts change that collides fails before any phone try; then queue the try (walleye-try-z19, needs phone)
+
+Rank
+: 1

@@ -1241,3 +1241,25 @@ Scope
 
 Tracked by
 : walleye-build-z16-i2c-compatible
+
+
+<a id="2026-11-19-walleye-overlay-collisions-as-a-class"></a>
+### 2026-11-19-walleye-overlay-collisions-as-a-class
+
+Date
+: 2026-11-18
+
+Brief
+: The overlay merges by name: list every collision with one host test and rename them all; the dtbo write only as a fallback
+
+Decision
+: The stock dtbo overlay (entry 3, picked by the bootloader) is merged into our dtb by name, and a node of ours with the same path and name as one the overlay writes is overwritten (z16: i2c@c179000 under &soc; z17: pmi8998@3 under the spmi bus). Seen twice, so the class gets the root answer, not a third node-by-node fix: (a) a host test lists EVERY collision at once (every node path the overlay writes by name against our dtb's paths, with the properties it writes), and ALL colliding nodes are renamed in one change, keeping labels and phandles (the qup@c179000 move), so the overlay's nodes stand beside ours and ours stay intact; the test then guards every later dts change (a new node that collides fails the check before any phone try). (b) is not available: the bootloader chooses the entry and passes androidboot.dtbo_idx itself; its source is not public; nothing on a fastboot boot is known to make it skip or pick another entry (and writing nothing is the lane's rule). (c) the minimal dtbo write stays the fallback only for what cannot be renamed (a node whose name the binding fixes, like soc or the root), attended and with the phone's own dtbo backed up first; it becomes the answer only if the collision test finds such a node, and then the top coordinator puts it to the author. Class lines for the record: (1) what happened: the overlay rewrote our i2c node and our pmi8998 node by name, two phone tries apart; (2) why it fits the class 'a sign seen twice': one cause (a merge by name at boot that we do not control), two nodes found by two tries; (3) the answer: list the whole class with one host test and fix it whole, then make the test a gate.
+
+Why
+: It is the cheapest answer that holds: host-side, no phone try to find each collision, no write to the phone, and it turns a repeating surprise into a check.
+
+Rejected
+: Fixing nodes one by one as tries find them (each costs a phone try); writing a minimal dtbo now (an attended write for what renames can solve); steering the bootloader's overlay choice (not known to be possible).
+
+About
+: walleye-first-fastboot-boot
