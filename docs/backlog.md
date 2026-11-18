@@ -4347,10 +4347,10 @@ Rank
 ### Learn the card's model and firmware without probing it from our kernel
 
 Status
-: open
+: done
 
 Note
-: Android shell cannot read scsi_device attrs; only ro.boot.hardware.ufs=64GB,Hynix is known
+: proof by the 'fastboot getvar all shows none' branch: research walleye-ufs-card-identity-not-readable-stock; model/firmware itself still unknown
 
 About
 : walleye-first-fastboot-boot

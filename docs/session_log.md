@@ -2539,3 +2539,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-2330-how-the-phone-stands-ufs"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up. Item walleye-ufs-card-identity closed on the getvar-none branch (one fastboot visit, rebooted back).
+
+Considered
+: next: coordinator to say whether the exact UFS model needs a recovery root shell, since z11/z12 wait on it; walleye-pmic-wdt-z10-read-pon-regs is parked. Note: the earlier 2300 entry says the phone was off USB; it is back on Android now.
+
+About
+: walleye-first-fastboot-boot
