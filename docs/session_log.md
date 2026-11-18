@@ -2095,3 +2095,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-z6-command-loop-built"></a>
+### z6: a command loop instead of the silent ash
+
+Entry date
+: 2026-11-18
+
+Done
+: Built init-z6 (z5 with the console block replaced by a read/exec loop on one fd), build-z6.sh, the pty selftest z6-loop-selftest, banner-loop-check and its selftest; the reader leaves banner lines out. Reviewed by the programmer agent. Queued walleye-try-z6.
+
+Considered
+: Reading with < /dev/ttyGS0 per line as the item sketched; an end marker printed by the loop.
+
+Rejected
+: Reopening the tty per line (bytes arriving between closes can be lost, and a close with hangup could end the session): the port is opened once, as z4 decided. An own end marker (__END_n__): the reader's command already carries its marker, a second one would only add a line to each answer.
+
+About
+: walleye-first-fastboot-boot

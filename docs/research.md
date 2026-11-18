@@ -2123,3 +2123,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-z5b-try2/
+
+
+<a id="walleye-z6-built"></a>
+### walleye-z6-built
+
+Date
+: 2026-11-18
+
+Brief
+: z6 built: z5 with the console block replaced by a plain read/exec command loop on ttyGS0; checks ok, rebuild identical, pty selftest measures a line in gets an answer out
+
+Question
+: Can the silent interactive ash be replaced by a loop that needs no job control, no prompt and no controlling terminal, and is that shown before the phone?
+
+Found
+: init-z6 = init-z5 with only the console block replaced: fd 4 opened once on ttyGS0 (raw -echo -hupcl), then read a line, run it with sh -c (stdin /dev/null, output to /tmp/out), cat /tmp/out to fd 4; no end marker of its own - the host reader's command carries its own (CMD; echo wmsr-PID-N-END), so tests/host/mainline-shell-read.sh works with one change: banner lines (WALLEYE-BANNER) are left out of each answer. The banner keeps running and ends with loop=[started starts cmds last rc err]; a running command shows rc=running. tests/host/z6-loop-selftest.sh runs the loop under busybox ash on a real pty (script): 7 commands, answers, stderr, CRLF, marker order, rc and last command in the state; 13 of its checks fail on init-z5. banner-loop-check.sh and its selftest judge a capture. build-z6.sh: checks ok incl. the busybox options the loop uses, rebuild identical. Programmer review: no blocking bug; fixed: state before the command runs, selftest under busybox ash, config checks. Not fixed, known: a banner line can land inside an answer over 4 KB (reader drops it); a lost tty is noticed after ~10 s; each line is its own sh -c. Hashes: 71e240da2c5093092907ffd94bd831045a85b08dac33de25e67ff65566d34099  initramfs-z6.cpio.xz;7f8af938a4a5c07197f81d306e4f7122f358a6fd657db6b53898bd8bbe94a97a  boot-z6.img;
+
+About
+: walleye-first-fastboot-boot
