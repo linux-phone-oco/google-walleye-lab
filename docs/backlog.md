@@ -3487,3 +3487,50 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-kernel-pmic-wdt"></a>
+### walleye's v7.3 kernel with the PMIC watchdog series (linux-phone-oco/linux topic/pmic-wdt-wake-in-suspend) and &pm8998_wdt enabled, wakeup-source
+
+Status
+: open
+
+Note
+: docs decision 2026-11-18-upstream-forks. The branch is on v7.3 (local worktree ~/Projects/linux-phone-oco/linux-topics until the upstreams lane pushes it): merge it into walleye's test branch, CONFIG_PM8916_WATCHDOG=y, board: &pm8998_wdt { status = "okay"; wakeup-source; }.
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: pmic-wdt-bites
+
+
+<a id="walleye-pmic-wdt-proof"></a>
+### Prove the PMIC watchdog way back on walleye (pm8998): it bites unpetted, and its bark wakes a suspend
+
+Status
+: open
+
+Note
+: Script https://github.com/linux-phone-oco/docs/blob/main/research/upstream-forks/2026-11-18/tests/pmic-wdt-way-back.sh: check, bite 20 then check (CARDRESET); wake only once walleye suspends at all. The second PMIC (pm8998) the RFC needs before it drops RFC (docs upstream item pmic-wdt-wake-in-suspend).
+
+Blocked by
+: walleye-kernel-pmic-wdt
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: pmic-wdt-bites,pmic-wdt-wakes-in-suspend
