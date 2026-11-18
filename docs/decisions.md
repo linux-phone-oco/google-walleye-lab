@@ -1132,3 +1132,25 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-walleye-ufs-wait"></a>
+### 2026-11-18-walleye-ufs-wait
+
+Date
+: 2026-11-18
+
+Brief
+: No UFS probe for now: wait for an EDL way back or the author's explicit go
+
+Decision
+: The author's answer on the UFS probe, verbatim (2026-11-18, relayed by the top coordinator): "Yes, wait". So: no UFS probe from our kernel on the phone for now. z13 (kernel topic/ufs-hynix-quirks d49d54405, boot-z13.img) stays BUILT AND UNRUN. The UFS items wait until an EDL way back for walleye is known, or the author says go explicitly. The lane goes on with USB networking, touch and display from the RAM-booted ramdisk. Researching an EDL way back (is EDL reachable on the Pixel 2, test points, what the public record says of recovering a Pixel 2 whose bootloader is gone) is a research item in its own right.
+
+Why
+: His bound is bricking; a UFS probe carries the one risk the lane cannot undo (the yoshino failure left the bootloader erased, and no way back is known); the real parts that need no storage are enough work for a long time.
+
+Rejected
+: Probing once for the identity 'to see' (the identity is already read as root); probing with the quirks and a guard that is checked only by source counts.
+
+About
+: walleye-first-fastboot-boot
