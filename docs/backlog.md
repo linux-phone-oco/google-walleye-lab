@@ -2172,10 +2172,10 @@ Proof
 ### Phone: boot g1, g2, g3 (images-g) twice each from the first state, stop at the first that dies; lsusb polled by port every second for 90 s; pstore read after each
 
 Status
-: open
+: done
 
 Note
-: returns: alive ~108 s, dead ~75 s, early panic ~45-60 s; g3 alive shows 1d6b:0104 within ~25 s of the jump. Hashes: research/walleye-first-fastboot-boot/2026-11-18-pk5g/SHA256SUMS
+: proven by 6 tries: no gadget enumerates, g2 returns at 138 s; research walleye-pk5-stages-tried
 
 About
 : walleye-first-fastboot-boot
