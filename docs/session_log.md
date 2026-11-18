@@ -2779,3 +2779,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-1900-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Android on slot b, stock kernel, nothing flashed, fastboot reachable, slots a/b successful. Tried z17 once: touch still silent, rmi4 defers on regulator-touch-power because pmi8998@3 lacks reg (research walleye-z17-part1-tried)
+
+Considered
+: next: build z18 (pmi8998@3 reg, builder); walleye-ufs-android-regs and walleye-bootchain-readback remain

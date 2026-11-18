@@ -4823,10 +4823,10 @@ Rank
 ### Try z17 once from slot b (probe only, nobody touching): does the RMI4 controller answer now that its pmi8998 power gpio is driven?
 
 Status
-: open
+: done
 
 Note
-: Built (research walleye-z17-built): ~/Projects/walleye-build/images-z17/boot-z17.img sha256 9c272493...; a person's touch (part 2) waits for the author. If still silent: the pin's power-source, the overlay's switch-gpio (tlmm gpio 75), a reset pulse.
+: tried once 2026-11-19: proof NOT met - rmi4 defers on regulator-touch-power; pmi8998@3 has no reg (research walleye-z17-part1-tried). Done as a try; fix goes to a builder: z18.
 
 About
 : walleye-first-fastboot-boot
@@ -4839,6 +4839,31 @@ Needs
 
 Proof
 : walleye-touch-probe: images-z17/boot-z17.img (sha256 9c272493) once; dmesg has rmi4_i2c at 0-0020 bound with no 'set page failed' and an input device from the touch controller (tests/host/touch-check.sh answers skip without events, not fail)
+
+Rank
+: 1
+
+
+<a id="walleye-build-z18-pmi8998-reg"></a>
+### Build z18: give spmi pmi8998@3 its reg so the pmi8998 gpio probes and regulator-touch-power registers
+
+Status
+: open
+
+Note
+: From research walleye-z17-part1-tried: dmesg 'qcom,pmi8998@3 err (-22) does not have reg property'. Then try z18 once (touch power, part 1).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: dtb whose pmi8998@3 has reg; boot-z18.img checks ok, rebuild identical
 
 Rank
 : 1
