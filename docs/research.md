@@ -1006,3 +1006,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-pk5l2-built"></a>
+### walleye-pk5l2-built
+
+Date
+: 2026-11-18
+
+Brief
+: pk5l2 built: pk5l with only the dtb's ramoops node moved to the phone's own region 0xa1100000; 20 checks ok, rebuild identical
+
+Question
+: Can pk5l's early end be read from Android's pstore: an image that differs from pk5l only in the ramoops node?
+
+Found
+: boot-pk5l2.img (sha256 222c6196...b5fd): fdtput on porthole's dtb in the kernel blob, reg 0xa1100000/2 MiB, record 0x80000, console 0x20000, pmsg 0; same dtb size, only that node differs, no overlap, kernel config has PSTORE_CONSOLE and PSTORE_RAM; kernel, ramdisk, header, cmdline, footer are pk5l's.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-pk5l2/

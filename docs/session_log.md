@@ -994,3 +994,24 @@ Done
 
 Considered
 : next: walleye-try-dtb-bisect (d1..d6); pk5l's init may not start at all, a console-less sign is the return time only
+
+---
+
+
+<a id="2026-11-18-walleye-pk5l2-build"></a>
+### pk5l2 built (ramoops in the phone's own region)
+
+Entry date
+: 2026-11-18
+
+Done
+: build/build-pk5l2.sh: pk5l's kernel blob split, the dtb's ramoops node edited with fdtput to 0xa1100000/2 MiB (record 0x80000, console 0x20000, pmsg 0), reassembled with pk5l's ramdisk, header and footer; 20 checks ok, rebuild identical; try walleye-try-pk5l2 queued rank 1
+
+Considered
+: dtc round trip to rename the node to ramoops@a1100000
+
+Rejected
+: dtc dts round trip: it re-emits the whole dtb, so more than the ramoops node would change; fdtput keeps size and every other byte
+
+About
+: walleye-first-fastboot-boot

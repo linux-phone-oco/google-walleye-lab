@@ -2009,10 +2009,10 @@ Rank
 ### pk5l2: pk5l with the dtb's ramoops node moved to the phone's own region, so the panic that ends pk5l after ~5-20 s can be read from Android's pstore
 
 Status
-: open
+: done
 
 Note
-: Fact (lab research walleye-try-pk5l): pk5l (our kernel + porthole's taimen dtb + the ACM/mass_storage gadget init) twice: no gadget ever enumerated and the phone was back at 57 s and 42 s, though the init stays up 180 s: so something ended it early - the kernel panicked (panic=5 resets 5 s later) or the init died; pk5 with the immediate-reboot init returned at 42 s as designed. A panic text would be in the pstore console IF the ramoops region is the phone's own (porthole's dtb has their taimen address, unreadable by Android). WHEN DONE queue walleye-try-pk5l2 (needs phone, rank 1): twice; after each, adb root and read /sys/fs/pstore/* and /data/vendor_ce/0/ramoops/* (the author's screen lock is off): the first mainline kernel console from this phone; record it as research with the panic lines (redact IDs). Parallel: walleye-try-dtb-bisect keeps its rank.
+: built: boot-pk5l2.img in walleye-build/images-pk5l2, 20 checks ok, hashes in research/walleye-first-fastboot-boot/2026-11-18-pk5l2; try queued as walleye-try-pk5l2
 
 About
 : walleye-first-fastboot-boot
@@ -2025,3 +2025,28 @@ Needs
 
 Proof
 : boot-pk5l2.img = pk5l with ONLY the ramoops node of the (porthole taimen) dtb edited (fdtput/dtc on the dtb, no kernel or init change): reg 0xa1100000 size 0x200000, record-size 0x80000, console-size 0x20000, pmsg-size 0 (as in our decision 2026-11-17-walleye-ramoops-at-the-phones-region), the old node/region removed or checked for overlap; fdtget read-back in the checks; kernel config has PSTORE_CONSOLE and PSTORE_RAM (say); hashes; recipe in build/
+
+
+<a id="walleye-try-pk5l2"></a>
+### Phone: boot pk5l2 twice from the first state; after each read /sys/fs/pstore/* and /data/vendor_ce/0/ramoops/*, record the first mainline panic or console text
+
+Status
+: open
+
+Note
+: image ~/Projects/walleye-build/images-pk5l2/boot-pk5l2.img, hashes in research/walleye-first-fastboot-boot/2026-11-18-pk5l2; adb root, screen lock is off; record the panic lines as research (redact IDs)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: TEST
+
+Rank
+: 1
