@@ -1909,3 +1909,18 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1120-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: z3 tried twice from slot b (fastboot boot from memory, nothing flashed): both times the image came up as USB 1d6b:0104 at 18 s, but mainline-shell-read.sh got Permission denied opening /dev/ttyACM0 and saved an empty dmesg, so nothing is learned about the dmesg. Inside this keeper session (sandboxed Bash) a plain open of /dev/ttyACM0 is denied although getfacl shows user:mll:rw-; probably the sandbox, not the udev ACL. Phone is back as Android on slot b, stock kernel, both slots good, battery 4357 mV
+
+Considered
+: next: run the z3 reader with the sandbox off (needs the author's or coordinator's ok), or from a terminal tab of the user; walleye-try-z3 stays open. Not done: no third try, no root-exec (withdrawn)
