@@ -3717,3 +3717,28 @@ Opened
 
 Needs
 : research
+
+
+<a id="walleye-charger-supplier"></a>
+### c3 (fw_devlink=permissive) then c4 (tps61099 as a fixed regulator): the charger's deferral
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-c2-tried, PR 227): the command loop works on c2; the charger defers on its supplier /soc@0/tps61099 (no driver): no power_supply class, charger-check fails. Decision 2026-11-18-walleye-charger-supplier-permissive-then-modelled. WHEN c3 is built queue walleye-try-c3 (needs phone, rank 1); the keeper reads /sys/class/power_supply and the charger lines of the dmesg with charger-check.sh.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: boot-c3.img = c2 with only the command line changed (fw_devlink=permissive added; every other byte of the image equal to c2's: kernel, dtb, ramdisk, header, footer); checks as c2's, the cmdline diff shown, hashes. Then, only after c3's try shows the charger working: c4 = c2 + the tps61099 as a regulator-fixed node (gpio from the running fdt) with the default fw_devlink, built by a second run of this item (keep the item open until c4 is built, rank unchanged); programmer review each
+
+Rank
+: 1

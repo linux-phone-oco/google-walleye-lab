@@ -780,3 +780,25 @@ Research
 
 Tracked by
 : walleye-dmesg-clean
+
+
+<a id="2026-11-18-walleye-charger-supplier-permissive-then-modelled"></a>
+### 2026-11-18-walleye-charger-supplier-permissive-then-modelled
+
+Date
+: 2026-11-18
+
+Brief
+: Charger deferred on tps61099: permissive devlink to prove, then a modelled fixed regulator
+
+Decision
+: For the charger's deferral on its supplier /soc@0/tps61099 (no driver for the boost converter): two steps, the cheap one first. (1) c3 = c2 with ONLY the kernel command line changed, fw_devlink=permissive added: it proves whether the charger probes once the unmet supplier no longer blocks it (the charger driver does not need that supplier to run); one try. (2) the proper model, if (1) shows the charger working: the tps61099 as the board describes it, read from the phone's running fdt (the material path of vfa: the node's compatible, the enable GPIO and the regulator it makes), as a regulator-fixed (or gpio-controlled fixed regulator) node in OUR dts with the GPIO from the running fdt, so the supply link is met without a driver for the chip; then c4 = c2 with that dts and without fw_devlink=permissive, and fw_devlink back to its default. The choice and its reasons go into the decision row.
+
+Why
+: Permissive devlink is a one-argument experiment that answers 'is the supply the only blocker?' at the cost of one image; the modelled regulator is the right end state and needs no driver; dropping the supply link in the dts would hide a real part of the board.
+
+Rejected
+: Removing the supplier from the dts only (hides the hardware); waiting for a tps61099 driver (none exists; a fixed regulator is what the board does for this boost); leaving fw_devlink=permissive forever.
+
+About
+: walleye-first-fastboot-boot
