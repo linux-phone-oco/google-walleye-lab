@@ -2755,3 +2755,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-first-mainline-shell"></a>
+### The first shell of our own mainline kernel: read y2 over /dev/ttyACM0 - the whole dmesg first, then the facts
+
+Status
+: open
+
+Note
+: First light: y2 (lab PR 152): our kernel + our dtb with gpio-reserved-ranges reaches USB: 1d6b:0104 at 18 s, /dev/ttyACM0 on the host. The init stays up 180 s petting the watchdog; touch /tmp/hold keeps it. Battery first; the phone left in Android on a good slot; redact IDs (cmdline serial, MACs) before anything leaves the machine. A hang still returns by itself through the watchdog. The keeper writes the reader script in this item if no builder has (it is a host script, not a phone change).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: A script tests/host/mainline-shell-read.sh (new, in the lab, selftested with a fake tty) opens /dev/ttyACM0 as the lab user the moment it appears, sends commands one at a time with a read timeout, and saves under the lab material path (never into git without redaction): (1) dmesg in full - the first mainline kernel log of this phone; (2) uname -a, /proc/cmdline, /proc/cpuinfo, /proc/iomem, /proc/interrupts, /proc/version; (3) the device list: ls /sys/bus/platform/devices, deferred probes (/sys/kernel/debug/devices_deferred if debugfs is mounted), /sys/class/udc, /sys/class/power_supply, /sys/class/drm, /sys/class/input, /sys/class/regulator; (4) touch /tmp/hold to keep the phone up while reading, then reboot -f. Nothing is written to the phone beyond /tmp. The research row names what the dmesg shows works, what defers or fails (display, touch, UFS, charger, regulators): the real map of the next parts to bring up.
+
+Rank
+: 1
