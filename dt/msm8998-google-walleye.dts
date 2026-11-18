@@ -341,8 +341,9 @@
 /*
  * The touch panel (item walleye-touch-rmi4): a Synaptics RMI4 touch controller on blsp1_i2c5 at 0x20, interrupt gpio125, reset gpio89 -
  * the pins and the address of the wahoo GPL tree and of mainline's OnePlus 5 (same SoC), which uses the same mainline rmi_i2c driver.
- * The rails are pm8998 l6 (1.8 V I/O) and l28 (3.0 V). The "xd" board revisions add a pmi8998 power gpio: which revision the lab phone
- * is, is not known yet, so none is modelled. The panel size is not known yet either (touchscreen-x-mm/y-mm left out: the driver reads
+ * The rails are pm8998 l6 (1.8 V I/O) and l28 (3.0 V); the phone's own dtbo overlay (entry 3) adds a pmi8998 power gpio, gpio 2 active high
+ * (synaptics,power-gpio, power-on-state 1), modelled below as a fixed regulator the touch node takes as vdd (item walleye-build-z17-touch-power; z16 left it
+ * undriven and the chip was silent). The overlay's switch-gpio (tlmm gpio 75) is not known yet. The panel size is not known yet either (touchscreen-x-mm/y-mm left out: the driver reads
  * the sensor's own size); the display stays off, so the test is a person's touch read as events.
  */
 &tlmm {
@@ -361,6 +362,17 @@
 	};
 };
 
+/ {
+	touch_power_regulator: regulator-touch-power {
+		compatible = "regulator-fixed";
+		regulator-name = "touch-power";
+		gpios = <&pmi8998_gpios 2 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		vin-supply = <&vreg_l28_3p0>;
+		startup-delay-us = <20000>;
+	};
+};
+
 &blsp1_i2c5 {
 	status = "okay";
 
@@ -376,7 +388,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&ts_int_active &ts_reset_active>;
 
-		vdd-supply = <&vreg_l28_3p0>;
+		vdd-supply = <&touch_power_regulator>;
 		vio-supply = <&vreg_l6a_1p8>;
 
 		syna,reset-delay-ms = <20>;
