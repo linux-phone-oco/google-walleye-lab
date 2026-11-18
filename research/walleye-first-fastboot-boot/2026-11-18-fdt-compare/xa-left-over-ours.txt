@@ -1,0 +1,82 @@
+N < /aliases
+N > /remoteproc/glink-edge/rpm-requests/regulators-0
+N > /remoteproc/glink-edge/rpm-requests/regulators-0/l1
+N > /remoteproc/glink-edge/rpm-requests/regulators-0/l12
+N > /remoteproc/glink-edge/rpm-requests/regulators-0/l2
+N > /remoteproc/glink-edge/rpm-requests/regulators-0/l24
+N > /remoteproc/glink-edge/rpm-requests/regulators-0/lvs2
+N > /remoteproc/glink-edge/rpm-requests/regulators-0/s3
+N > /remoteproc/glink-edge/rpm-requests/regulators-0/s4
+N > /remoteproc/glink-edge/rpm-requests/regulators-0/s5
+N > /remoteproc/glink-edge/rpm-requests/regulators-0/s7
+N > /remoteproc/glink-edge/rpm-requests/regulators-1
+N > /remoteproc/glink-edge/rpm-requests/regulators-1/bob
+N < /reserved-memory/ramoops@b0000000
+N < /soc@0/cci@ca0c000
+N < /soc@0/spmi@800f000/pmic@0
+N < /soc@0/spmi@800f000/pmic@0/adc-tm@3400
+N < /soc@0/spmi@800f000/pmic@0/gpio@c000
+N < /soc@0/spmi@800f000/pmic@2
+N < /soc@0/spmi@800f000/pmic@2/charger@1000
+N < /soc@0/spmi@800f000/pmic@2/fuel-gauge@4000
+N < /soc@0/spmi@800f000/pmic@2/gpio@c000
+N < /soc@0/spmi@800f000/pmic@3
+N < /soc@0/spmi@800f000/pmic@3/leds@d800
+N > /vendor-overlay-stubs/cci
+N > /vendor-overlay-stubs/pm8998_adc_tm
+N > /vendor-overlay-stubs/pm8998_gpios
+N > /vendor-overlay-stubs/pmi8998_charger
+N > /vendor-overlay-stubs/pmi8998_fg
+N > /vendor-overlay-stubs/pmi8998_gpios
+N > /vendor-overlay-stubs/pmi8998_wled
+N > /vendor-overlay-stubs/ramoops
+P < /remoteproc/glink-edge qcom,rpm-msg-ram = <0x36>
+P > /remoteproc/glink-edge qcom,rpm-msg-ram = <0x13>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0 compatible = "qcom,rpm-pm8998-regulators"
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/l12 regulator-max-microvolt = <0x1b7740>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/l12 regulator-min-microvolt = <0x1b7740>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/l1 regulator-max-microvolt = <0xd6d80>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/l1 regulator-min-microvolt = <0xd6d80>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/l24 regulator-max-microvolt = <0x2f1e80>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/l24 regulator-min-microvolt = <0x2f1e80>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/l2 regulator-max-microvolt = <0x124f80>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/l2 regulator-min-microvolt = <0x124f80>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/lvs2 regulator-max-microvolt = <0x1b7740>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/lvs2 regulator-min-microvolt = <0x1b7740>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/s3 regulator-max-microvolt = <0x14a140>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/s3 regulator-min-microvolt = <0x14a140>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/s4 regulator-allow-set-load = 
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/s4 regulator-max-microvolt = <0x1b7740>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/s4 regulator-min-microvolt = <0x1b7740>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/s5 regulator-max-microvolt = <0x1f20c0>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/s5 regulator-min-microvolt = <0x1d0d80>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/s7 regulator-max-microvolt = <0xfafa0>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0/s7 regulator-min-microvolt = <0xdbba0>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0 vdd_l1_l27-supply = <&//remoteproc/glink-edge/rpm-requests/regulators-0/s7>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0 vdd_l20_l24-supply = <&//remoteproc/glink-edge/rpm-requests/regulators-1/bob>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0 vdd_l2_l8_l17-supply = <&//remoteproc/glink-edge/rpm-requests/regulators-0/s3>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0 vdd_l7_l12_l14_l15-supply = <&//remoteproc/glink-edge/rpm-requests/regulators-0/s5>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0 vdd_lvs1_lvs2-supply = <&//remoteproc/glink-edge/rpm-requests/regulators-0/s4>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0 vdd_s3-supply = <&//vph-pwr-regulator>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0 vdd_s4-supply = <&//vph-pwr-regulator>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0 vdd_s5-supply = <&//vph-pwr-regulator>
+P > /remoteproc/glink-edge/rpm-requests/regulators-0 vdd_s7-supply = <&//vph-pwr-regulator>
+P > /remoteproc/glink-edge/rpm-requests/regulators-1/bob regulator-max-microvolt = <0x36ee80>
+P > /remoteproc/glink-edge/rpm-requests/regulators-1/bob regulator-min-microvolt = <0x328980>
+P > /remoteproc/glink-edge/rpm-requests/regulators-1 compatible = "qcom,rpm-pmi8998-regulators"
+P > /remoteproc/glink-edge/rpm-requests/regulators-1 vdd_bob-supply = <&//vph-pwr-regulator>
+P < /soc@0/clock-controller@c8c0000 clocks = <RAW 0x58 0x00 0x5e 0xb2 0xe0 0x01 0xe0 0x00 0xe1 0x01 0xe1 0x00 0xe2 0x00 0x00 0x5e 0xb8>
+P > /soc@0/clock-controller@c8c0000 clocks = <RAW 0x21 0x00 0x24 0xb2 0x85 0x01 0x85 0x00 0x86 0x01 0x86 0x00 0x87 0x00 0x00 0x24 0xb8>
+P < /soc@0/pcie@1c00000 iommu-map = <?0x100 &//soc@0/iommu@1680000 ?0x1480 &//soc@0/interrupt-controller@17a00000>
+P > /soc@0/pcie@1c00000 iommu-map = <&//soc@0/spi@c1b7000 &//soc@0/iommu@1680000 ?0x1480 &//soc@0/interrupt-controller@17a00000>
+P < /soc@0/phy@1c06000 vdda-phy-supply = <?0x62>
+P < /soc@0/phy@1c06000 vdda-pll-supply = <?0x63>
+P > /soc@0/phy@1c06000 vdda-phy-supply = <&//remoteproc/glink-edge/rpm-requests/regulators-0/l1>
+P > /soc@0/phy@1c06000 vdda-pll-supply = <&//remoteproc/glink-edge/rpm-requests/regulators-0/l2>
+P < /soc@0/phy@c012000 vdda-phy-dpdm-supply = <?0xa9>
+P < /soc@0/phy@c012000 vdda-pll-supply = <?0xa8>
+P > /soc@0/phy@c012000 vdda-phy-dpdm-supply = <&//remoteproc/glink-edge/rpm-requests/regulators-0/l24>
+P > /soc@0/phy@c012000 vdda-pll-supply = <&//remoteproc/glink-edge/rpm-requests/regulators-0/l12>
+P > /soc@0/phy@c012000 vdd-supply = <&//remoteproc/glink-edge/rpm-requests/regulators-0/l1>
+P < /soc@0/remoteproc@5800000 px-supply = <?0x7b>
+P > /soc@0/remoteproc@5800000 px-supply = <&//remoteproc/glink-edge/rpm-requests/regulators-0/lvs2>

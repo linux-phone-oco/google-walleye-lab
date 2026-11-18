@@ -1516,3 +1516,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-fdt-compare-build"></a>
+### fdt compare and x1..xa built
+
+Entry date
+: 2026-11-18
+
+Done
+: Decompiled and normalized our, the alive, wpa and the running fdt; listed what ours lacks; built x1..x7 and xa with build-fdt-bisect.sh (114 checks, rebuild identical, programmer-reviewed); wrote the USB read of the running fdt; queued the try.
+
+Considered
+: A phandle-rewriting merge tool; splicing at source level.
+
+Rejected
+: Both: see the decision 2026-11-18-walleye-bisect-from-alive-by-fdtput.
+
+About
+: walleye-first-fastboot-boot

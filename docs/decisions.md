@@ -492,3 +492,28 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-walleye-bisect-from-alive-by-fdtput"></a>
+### 2026-11-18-walleye-bisect-from-alive-by-fdtput
+
+Date
+: 2026-11-18
+
+Brief
+: Bisect from the alive wpa dtb toward ours by fdtput edits per group, emptying overlay targets
+
+Decision
+: The x images are wpa with one group made equal to ours, by fdtput node removals and property edits on the dtb; a node the dtbo overlay targets is emptied, not removed. The groups change disjoint lines; xa (all groups) differs from ours only in pinned lines.
+
+Why
+: wpa is the alive tree closest to ours (same properties as pk2), so each group is a small, named change; keeping the overlay merging keeps the bootloader's step identical across images, so only the group can change the outcome.
+
+Rejected
+: A dtb merge tool that rewrites phandles by path (days of work, new code to trust); source-level splicing (ours and porthole's trees have different bases); removal from ours again (d1..d6 did that: all dead, uninformative); starting from pk5 (further from ours: more groups per image).
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-fdt-bisect-x-built
