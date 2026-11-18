@@ -4130,10 +4130,10 @@ Rank
 ### One phone-state check that reads adb, fastboot, the USB bus and the tty's answer, and says 'not known' when they disagree (never 'hung' from lsusb alone)
 
 Status
-: open
+: done
 
 Note
-: The author's sign (via the top coordinator, 2026-11-18): the lane concluded 'hung' from lsusb alone; the phone was in LineageOS and the host kept a stale enumeration of our gadget (lab research walleye-c3-hang-unproven). The class: a check that reads only one witness (lsusb) cannot tell a stale listing from a live device. Three lines for the record: (1) what happened: a gadget stayed listed 44 min, adb silent, and the lane called it a hang; (2) why it fits the class: a USB host drops a device only on a disconnect event, a screen shows the panel's last frame, and a reader's silence is not the phone's silence - every one of these is a single witness read as a fact; (3) the answer: a state is a verdict over several witnesses, and where they disagree or one is missing the verdict is 'not known', never a failure.
+: tests/host/phone-state.sh + phone-state-selftest.sh (fake adb/fastboot/sysfs/tty; 14 cases pass; programmer review done, 7 findings fixed: tty set raw -echo -hupcl clocal and taken from the gadget's own interface, adb states other than device are not-known, age not measured). Not yet run on the real phone; wiring restart-check.sh and the try recipes to call it is the keeper's next use.
 
 About
 : walleye-first-fastboot-boot
