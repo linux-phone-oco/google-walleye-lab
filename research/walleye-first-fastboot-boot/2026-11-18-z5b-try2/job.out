@@ -1,0 +1,15 @@
+stty rc=0 after 159 polls
+speed 9600 baud; rows 0; columns 0; line = 0;
+intr = ^C; quit = ^\; erase = ^?; kill = ^U; eof = ^D; eol = <undef>;
+eol2 = <undef>; swtch = <undef>; start = ^Q; stop = ^S; susp = ^Z; rprnt = ^R;
+banner bytes: 2332 lines: 32
+0
+0
+WALLEYE-BANNER-INFO beat=13 busybox-applets=401 ash=y sh=y cttyhack=y setsid=y stty=y tty=[echo=off,icanon=off,hupcl=off]
+
+WALLEYE-BANNER beat=14 up=30.02s steps=8 last=[step 8 gadget bound to a800000.usb] shell=[started=yes n=1 pid=152 alive=yes rc=- probe=0 err=[none]]
+walleye-mainline-shell-read: path used: plain
+/home/mll/Projects/linux-phone-oco/wt-walleye-keeper-1795004734/tests/host/mainline-shell-read.sh: line 42: printf: write error: Input/output error
+/home/mll/Projects/linux-phone-oco/wt-walleye-keeper-1795004734/tests/host/mainline-shell-read.sh: line 42: printf: write error: Input/output error
+/home/mll/Projects/linux-phone-oco/wt-walleye-keeper-1795004734/tests/host/mainline-shell-read.sh: line 42: printf: write error: Input/output error
+fail walleye-mainline-shell-read host dmesg has no 'Linux version' line (see /home/mll/lab-material/walleye/z5b-try2/shell; 13 answers non-empty)

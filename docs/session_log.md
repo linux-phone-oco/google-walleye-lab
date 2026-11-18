@@ -926,21 +926,6 @@ About
 ---
 
 
-<a id="2026-11-18-1500-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-17
-
-Done
-: pk bisect done: our dtb stops init, our kernel is fine; phone in fastboot, slot b current, a and b successful, nothing flashed, stock kernel; lease released
-
-Considered
-: next: diff our dtb vs porthole's taimen dtb and bisect nodes; pstore unreadable without root
-
----
-
-
 <a id="2026-11-18-walleye-dtb-bisect-build"></a>
 ### d1..d6 built (our dtb bisect)
 
@@ -2089,6 +2074,24 @@ Done
 
 Considered
 : next: author renews lab-agent token (lab-agent connect), then z5b again with the same job script; the x1 gpio-reserved-ranges item stays open
+
+About
+: walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1500-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: z5b tried once from slot b with the host tty raw -echo and a plain background reader (research walleye-z5b-tried-raw-tty): the '> ' and 'Permission denied' noise is gone (0 in 30 s) but the shell returns no command output, only banner beats. Phone is Android on slot b, stock kernel, nothing flashed, flags a and b successful, battery 4385 mV
+
+Considered
+: next: z6 = z5 with the banner stopped once the shell is up so the shell's answers are alone on ttyGS0; the x1 gpio-reserved-ranges item stays open
 
 About
 : walleye-first-fastboot-boot

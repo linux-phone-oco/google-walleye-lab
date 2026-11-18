@@ -1,0 +1,12 @@
+> 
+WALLEYE-BANNER beat=33 up=68.54s steps=8 last=[step 8 gadget bound to a800000.usb] shell=[started=yes n=1 pid=152 alive=yes rc=- probe=0 err=[none]]
+
+WALLEYE-BANNER-INFO beat=33 busybox-applets=401 ash=y sh=y cttyhack=y setsid=y stty=y tty=[echo=off,icanon=off,hupcl=off]
+
+WALLEYE-BANNER beat=34 up=70.61s steps=8 last=[step 8 gadget bound to a800000.usb] shell=[started=yes n=1 pid=152 alive=yes rc=- probe=0 err=[none]]
+
+WALLEYE-BANNER beat=35 up=72.63s steps=8 last=[step 8 gadget bound to a800000.usb] shell=[started=yes n=1 pid=152 alive=yes rc=- probe=0 err=[none]]
+
+WALLEYE-BANNER beat=36 up=74.66s steps=8 last=[step 8 gadget bound to a800000.usb] shell=[started=yes n=1 pid=152 alive=yes rc=- probe=0 err=[none]]
+
+WALLEYE-BANNER beat=37 up=76.69s steps=8 last=[step 8 gadget bound to a800000.usb] shell=[started=yes n=1 pid=152 alive=yes rc=- probe=0 err=[none]]

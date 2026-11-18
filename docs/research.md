@@ -2101,3 +2101,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z5b-tried-raw-tty"></a>
+### walleye-z5b-tried-raw-tty
+
+Date
+: 2026-11-18
+
+Brief
+: z5b once from slot b, host tty raw -echo: 0 '> ' and 0 'Permission denied' in a 30 s banner capture, but the shell still answers no command
+
+Question
+: Is the shell drowned by the host's echo of the banner (z5 had '> ' prompts and 'ash: /: Permission denied' lines)?
+
+Found
+: stty raw -echo -hupcl succeeded at the first poll after the node appeared (159 polls of 0.1 s); banner capture 2332 bytes, 32 lines, 0 lines '> ', 0 'Permission denied'; banner shows tty=[echo=off,icanon=off,hupcl=off], shell started alive pid=152 probe=0 err none. So the host's echo explains the prompt/error noise. But the one-fd reader got 13 non-empty answers that are all banner beats, never a command's output (no 'Linux version'; uname answer is banner lines); one '> ' prompt appeared once the reader began writing. The banner written to ttyGS0 every 2 s shares the line with any answer, and the shell still gives no command output. Next: z6 stops the banner beats once the shell is up (or sends them to kmsg only) so the shell's answers are alone on ttyGS0. Phone back as Android on slot b (flags a and b successful, none unbootable), nothing flashed.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-z5b-try2/
