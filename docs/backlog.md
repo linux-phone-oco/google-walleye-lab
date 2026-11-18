@@ -2642,13 +2642,13 @@ Proof
 
 
 <a id="walleye-use-lpoco-bisect"></a>
-### Retire walleye's own bisect scripts (build-bisect.sh, check-bisect.sh and their kin) for : write walleye's series files
+### Retire walleye's own bisect scripts (build-bisect.sh, check-bisect.sh and their kin) for `lpoco-bringup image bisect SERIES`: write walleye's series files
 
 Status
 : open
 
 Note
-: From orchestration (lab-tools PR 123, release v0.4.0): the one command counts the swaps against the control and wraps lz4 kernels. Low rank; any builder run after the lab host is on 0.4.0. Keep the old scripts until the reproduction passes.
+: From orchestration (lab-tools PR 123, release v0.4.0): the one command `lpoco-bringup image bisect SERIES --out DIR` counts the swaps against the control and wraps lz4 kernels. Low rank; any builder run after the lab host is on 0.4.0. Keep the old scripts until the reproduction passes.
 
 Waits
 : the lab host on lpoco-bringup 0.4.0 (orchestration moves it in an idle window)
@@ -2663,4 +2663,4 @@ Needs
 : build
 
 Proof
-: walleye's series file(s) declare the swaps of the bisects done so far (pk4/pk5/pk6, d1-d6, w*/wa/wpa, wp*, the fdt compare when it exists) against the control image; lpoco-bringup image bisect reproduces at least pk5, wa and one d-image byte for byte (sha256 equal to the recorded ones, or the difference explained); the old scripts removed in the same change; checks and hashes; programmer review
+: walleye's series file(s) declare the swaps of the bisects done so far (pk4/pk5/pk6, d1-d6, w*/wa/wpa, wp*, the fdt compare when it exists) against the control image; `lpoco-bringup image bisect` reproduces at least pk5, wa and one d-image byte for byte (sha256 equal to the recorded ones, or the difference explained); the old scripts removed in the same change; checks and hashes; programmer review
