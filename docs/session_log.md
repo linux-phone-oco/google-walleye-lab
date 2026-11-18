@@ -979,3 +979,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1700-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: pk5l tried twice from fastboot, no ACM, fell to Android both times (57 s, 42 s); phone in fastboot, slot b current, a and b successful, nothing flashed, stock kernel
+
+Considered
+: next: walleye-try-dtb-bisect (d1..d6); pk5l's init may not start at all, a console-less sign is the return time only
