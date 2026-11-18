@@ -3800,6 +3800,8 @@ Status
 Note
 : Fact (keeper, lab PR 236/237): z9 = z8 + qcom-pon=y; the PM8998 watchdog bit 20 s after arming (the series works); the phone then stayed off the USB bus, not Android, not fastboot: it needs a power-cycle by hand (walleye-needs-power-cycle-after-pmic-bite). Decision 2026-11-18-walleye-no-pmic-bite-until-reset-type.
 
+FACTS FROM THE UPSTREAMS COORDINATOR (series grenudi/linux topic/pmic-wdt-wake-in-suspend, drivers/watchdog/pm8916_wdt.c probe): the driver writes S2_CTL (PON +0x56) = RESET_TYPE_HARD 0x07 ONCE at probe, with no unlock and no read-back, and writes nothing there at start time. Downstream qpnp-power-on configures a reset by: clearing S2_CTL2 EN, waiting a few slow-clock cycles, writing the type, then re-enabling. So the power-off points at (a) the write not taking, (b) being overwritten later by qcom-pon (z9 added qcom-pon=y) or the bootloader, or (c) a different type encoding on PM8998's gen2 PON. Reading +0x56 (and S2_CTL2) back through the shell BEFORE the next bite settles which: the reading is a safe phone item (no bite): it needs the phone, which is parked until the author's hands; queue it behind walleye-needs-power-cycle-after-pmic-bite. Any fix goes into the series as its own patch (the upstreams lane carries it).
+
 About
 : deep-sleep
 
