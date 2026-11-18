@@ -2134,3 +2134,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-research-z6-dmesg-map"></a>
+### walleye-research: z6 dmesg map
+
+Entry date
+: 2026-11-18
+
+Done
+: Read the z6 dmesg, grouped five faults, recorded research walleye-z6-dmesg-mapped, decision 2026-11-18-walleye-z6-dmesg-fix-order, reranked dmesg-clean/try-c1/ufs-readonly, queued dtbo-overlay-id (PR 218).
+
+Considered
+: fw_devlink=permissive; powering the GFX rail.
+
+Rejected
+: Both: hide or premature.
+
+About
+: walleye-first-fastboot-boot
