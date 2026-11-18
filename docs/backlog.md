@@ -3786,7 +3786,7 @@ Note
 : c4 probes the charger at boot, so by research walleye-c3-hang-how-it-stands it is expected to hang as c3 did: it waits for c5/c6 (restart gate) or is folded into the bisect; never the first try after c3.
 
 Blocked by
-: walleye-try-c6
+: walleye-ufs-off-gate
 
 About
 : walleye-first-fastboot-boot
@@ -3963,6 +3963,9 @@ Note
 Waits
 : the author at the phone (decision 2026-11-18-walleye-c6-waits-for-the-author): a risky try, batched with the other risky ones
 
+Blocked by
+: walleye-ufs-off-gate
+
 About
 : walleye-first-fastboot-boot
 
@@ -4042,6 +4045,9 @@ HELD by the coordinator 2026-11-18 (keeper ee341e7e): this item FLASHES the dtbo
 
 Waits
 : a recorded decision with the way back (a backup of the phone's own dtbo, restored by fastboot flash) and the author present: a partition write
+
+Blocked by
+: walleye-ufs-off-gate
 
 About
 : walleye-first-fastboot-boot
@@ -4126,6 +4132,9 @@ Note
 
 PARKED by the coordinator 2026-11-18: three tries (z9 blank, z10 not read) have not read one register, and this is the deep-sleep line (the upstreams lane) not the bring-up of the phone itself; storage (UFS), USB networking, touch and display come first for the weakest link of the whole. The z10 init finds why it did not read in a later builder run (the banner says "pon-regs not read yet": the source it tried and its error are the lead). Rank 60 until the first parts are up.
 
+Blocked by
+: walleye-ufs-off-gate
+
 About
 : deep-sleep
 
@@ -4154,7 +4163,7 @@ Note
 PARKED by the coordinator 2026-11-18: three tries (z9 blank, z10 not read) have not read one register, and this is the deep-sleep line (the upstreams lane) not the bring-up of the phone itself; storage (UFS), USB networking, touch and display come first for the weakest link of the whole. The z10 init finds why it did not read in a later builder run (the banner says "pon-regs not read yet": the source it tried and its error are the lead). Rank 60 until the first parts are up.
 
 Blocked by
-: walleye-pmic-wdt-z10-read-pon-regs
+: walleye-ufs-off-gate
 
 About
 : deep-sleep
@@ -4184,7 +4193,7 @@ Note
 UPSTREAMS LANE 2026-11-18 (FYI): the probable cause of z9 powering off at the bite is fixed on https://github.com/grenudi/linux topic/pmic-wdt-wake-in-suspend at f5bb57d27: the probe wrote the S2 reset type while S2 might be running (firmware-armed on msm8998, by wahoo msm-poweroff.c) with no disable or wait, so the firmware type could stay; patch 5/5 disables S2, waits, updates the type field, re-enables and reads it back (dev_dbg logs the original value). WHEN these PMIC items come back up: build from f5bb57d27 (not e123d3bff). Option C, if 0x07 reads back and it still powers off: DVDD_HARD_RESET 0x08. The bite remains parked (decision 2026-11-18-walleye-no-pmic-bite-until-reset-type) until a build shows the restart in the read-back first.
 
 Blocked by
-: walleye-pmic-wdt-read-s2-regs,walleye-pmic-wdt-readback-image
+: walleye-ufs-off-gate
 
 About
 : deep-sleep
@@ -4435,6 +4444,9 @@ Note
 
 Waits
 : the author said 'Yes, wait' (decision 2026-11-18-walleye-ufs-wait): no UFS probe until an EDL way back is known or he says go
+
+Blocked by
+: walleye-ufs-off-gate
 
 About
 : walleye-first-fastboot-boot
@@ -4953,6 +4965,9 @@ Status
 Note
 : Built by walleye-overlay-collisions. Expected: no visible change from z17 (pcie was disabled); proves the class is closed, not a touch fix.
 
+Blocked by
+: walleye-ufs-off-gate
+
 About
 : walleye-first-fastboot-boot
 
@@ -5145,3 +5160,28 @@ Proof
 
 Rank
 : 50
+
+
+<a id="walleye-ufs-off-gate"></a>
+### UFS off in the shared dts and a gate on every boot image (the accident of z11+), then z21
+
+Status
+: open
+
+Note
+: Decision 2026-11-19-walleye-ufs-off-by-a-gate. Keepers: NO boot of an image of ours until this lands, except read-only Android items. The top coordinator asked to hear before the next phone try.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: (1) dt/msm8998-google-walleye.dts: &ufshc and &ufsphy status = "disabled" with a comment citing decision 2026-11-19-walleye-ufs-off-by-a-gate; the z11/z13 UFS experiments move to their own dts variant file used only by their build scripts; (2) tests/host/ufs-off-image.sh IMAGE|DTB (selftested with a fake image and dtb: one with UFS on fails, one off passes; unpack_bootimg/dtc/fdtoverlay as the other host tests do): takes every appended dtb of the boot image, merges the stock dtbo entry 3 (the control's dtbo.img or the phone's own) and fails if ufshc@1da4000 or the ufs phy has status okay or is missing a status (default enabled), and ALSO if the kernel command line of the image contains anything that enables it; (3) wired into build-all.sh and every build-*.sh that makes a boot image, and into check.yml (the selftest in CI; the gate on built images where they are built); (4) inventory: run it over every images-*/boot-*.img and print which have UFS on (that list goes into the research row walleye-ufs-on-by-accident as an addendum and the images are named 'not to boot'); (5) z21 = z20 with UFS off, everything else equal, for the touch work: gpio-diag kernel, the overlay-collision fixes; programmer review
+
+Rank
+: 0
