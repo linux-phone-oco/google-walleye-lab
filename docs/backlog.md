@@ -5120,3 +5120,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-use-lpoco-ffs-acm"></a>
+### Retire the lab's own ffs-acm helpers (Rust and C probe) for the shared lpoco-ffs-acm crate
+
+Status
+: open
+
+Note
+: Request from orchestration (2026-11-19). It also settles walleye-code-hygiene-rust-ci (the C probe removal).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: google-walleye-lab retires its own FunctionFS ACM helper in favour of the shared crate lpoco-ffs-acm (lab-tools #192, release v0.20.1, licence MIT OR Apache-2.0 by the author's word 'Yes, match lpoco'): (1) remove build/ffs-acm-rs (the Rust helper) and build/ffs-acm (the C probe, held by walleye-code-hygiene-rust-ci) and their CI job (the rust job in .github/workflows/check.yml for ffs-acm-rs) and the scripts that only build n3/n3r (build-vendor-gadget-n3*.sh) together, keeping the recorded images, hashes and research as history; (2) if any current build still needs a FunctionFS helper (check: our mainline images use native configfs ACM and NCM/ECM; the FunctionFS route is parked by decision 2026-11-17-walleye-ffs-console-parked, so probably none), take the binary from the shared crate (the lpoco-bringup initramfs init/files route) and say so; (3) no file of the lab keeps the old licence text for the removed code; grep shows no reference left (tests/host/ffs-acm-up.sh may be kept as history or removed with its item: say which); (4) all checks pass (check-init-serials, overlay-collisions, selftests), programmer review; low rank: not on the critical path
+
+Rank
+: 50
