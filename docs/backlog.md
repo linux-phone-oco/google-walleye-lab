@@ -2294,10 +2294,10 @@ Opened
 : 2026-11-18
 
 Needs
-: build
+: phone
 
 Proof
-: tests/health: pstore holds the marker after the bite return (expected present)
+: tests/host/pstore-t3-read.sh: pstore holds the T3 marker after the bite return (expected present)
 
 
 <a id="walleye-pstore-t4-pon-warm-notifier"></a>

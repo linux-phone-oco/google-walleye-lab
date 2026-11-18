@@ -1,0 +1,24 @@
+#!/bin/busybox sh
+# t3 (backlog walleye-pstore-t3-wdog-bite): the kernel is already alive on pk5; this init writes a marker to /dev/kmsg, then opens /dev/watchdog (kpss-wdt) with a
+# 10 s timeout and pets it once only (busybox watchdog -t 3600: the next ping is an hour away), so the SoC watchdog bites at ~10 s. After the return Android reads
+# console-ramoops: the marker there = the region survived a hardware bite. Never exits; no `set -e`; every step says what it does BEFORE it does it.
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+say() { echo "walleye-init: $*" > /dev/kmsg 2>/dev/null; echo "walleye-init: $*" > /dev/console 2>/dev/null; }
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+mount -t devtmpfs dev /dev 2>/dev/null
+say "T3 MARKER walleye-t3-marker-5c1e init start, kernel $(uname -r)"
+[ -e /dev/watchdog ] && say "T3 watchdog present; opening it with a 10 s timeout, one ping, then none" || say "T3 NO /dev/watchdog"
+sync
+watchdog -T 10 -t 3600 -F /dev/watchdog &
+n=0
+while [ $n -lt 45 ]; do
+  say "T3 MARKER walleye-t3-marker-5c1e tick $n"
+  sleep 1
+  n=$((n+1))
+done
+say "T3 no bite in 45 s; reboot -f"
+reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+while :; do sleep 3600; done
