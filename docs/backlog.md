@@ -2832,31 +2832,6 @@ Proof
 : A research row that orders the bring-up from the first mainline map and the vendor facts (the running fdt, the dmesg of y2, the vendor kernel's regulator_summary): the dependencies between the parts (PMIC and its regulators -> UFS (rootfs) and storage; PMIC/charger -> battery and safe charging while testing; arm-smmu -> UFS DMA, display, USB; clocks (gcc/rpmcc) -> everything; USB networking (a function the host can bind with the lab-prepare rules: ncm with its attributes written the mainline way, ecm or rndis, as the mainline kernel supports them natively) for ssh instead of a serial console; display (S6E3FA5 command-mode through DSI/DPU) and touch (Synaptics RMI4 i2c); audio, modem and Wi-Fi/BT later), the order with what each unlocks and its proof test (the kernel dmesg, a sysfs file, the shell), and for each part the backlog item (build and phone) queued by the research session itself in this base with --needs, proof and note; the first three items after the PMIC get ranks; the research names the parts mainline has for the Pixel 2's chips (panel driver for the S6E3FA5?, touchscreen RMI4, charger smb2 (pmi8998), fuel gauge, haptics DRV2624, audio WCD934x/TAS2557) and which would need new drivers (upstream candidates)
 
 
-<a id="walleye-dmesg-clean"></a>
-### Clean probes in the dmesg: arm-smmu 5040000 timeout, the serial supplier from the overlay stubs, i2c@c179000 phandle
-
-Status
-: in-progress
-
-Note
-: z2 built (gpucc =y, smmu -110); z3 built 2026-11-18 (build/build-z3.sh, 15 checks, rebuild identical): /__symbols__/clock_gcc on the real gcc fixes the serial supplier wait and the four phandle lines (research walleye-clock-gcc-stub-no-cells). Try queued as walleye-try-z3 (supersedes walleye-try-z2). Done when the try's dmesg passes tests/host/dmesg-clean-check.sh.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: walleye-dmesg-clean: with debugfs mounted devices_deferred is empty; the dmesg has no -110 probe timeout and no 'phandle not found'
-
-Rank
-: 2
-
-
 <a id="walleye-charger-smb2"></a>
 ### Charger and battery: enable pmi8998's smb2 charger (qcom_smbx) with a monitored battery of 2700 mAh / 4.4 V
 
@@ -3173,3 +3148,28 @@ Needs
 
 Proof
 : walleye-dmesg-clean: sh tests/host/dmesg-clean-check.sh DIR passes on the reader's output of z3 (images-z3/boot-z3.img sha256 9bc4ec19939b411531ed3dbbb8a931018ddebdcc66b903bd2757ac05d5031f98)
+
+
+<a id="walleye-dmesg-clean"></a>
+### Clean probes in the dmesg: arm-smmu 5040000 timeout, the serial supplier from the overlay stubs, i2c@c179000 phandle
+
+Status
+: in-progress
+
+Note
+: z2 built (gpucc =y, smmu -110); z3 built 2026-11-18 (build/build-z3.sh, 15 checks, rebuild identical): /__symbols__/clock_gcc on the real gcc fixes the serial supplier wait and the four phandle lines (research walleye-clock-gcc-stub-no-cells). Try queued as walleye-try-z3 (supersedes walleye-try-z2). Done when the try's dmesg passes tests/host/dmesg-clean-check.sh.
+
+Waits
+: walleye-build-banner-init and walleye-reader-eacces-retry (the shell must speak first: z-tries learn nothing while the tty is silent)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: walleye-dmesg-clean: with debugfs mounted devices_deferred is empty; the dmesg has no -110 probe timeout and no 'phandle not found'
