@@ -2750,3 +2750,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-19/
+
+
+<a id="walleye-z14-built"></a>
+### walleye-z14-built
+
+Date
+: 2026-11-18
+
+Brief
+: z14 built: z7 with only the ramdisk changed: ECM beside the ACM console, usb0 172.16.43.1, DHCP lease, telnetd; sha256 c2e616f8; reviewed; not tried
+
+Question
+: Can the proven z7 image carry USB networking (ECM) without touching the ACM console, built and checked before a try?
+
+Found
+: z14 = z7's boot image with only the ramdisk changed (kernel+dtb, header, command line, AVB footer z7's byte for byte; z7's kernel has the CDC ECM function). init-z14 = init-z6 plus an ecm.usb0 function in the ACM configuration (dev_addr/host_addr written before the bind, the mainline way), then in a subshell: usb0 172.16.43.1, udhcpd (one lease, 172.16.43.2), telnetd bound to 172.16.43.1. The ACM console and command loop are untouched, so a network failure leaves z6's shell. 28 checks ok, programmer review done (devpts mount added), rebuild identical; sha256 boot-z14.img c2e616f872328b1a28df9ff37903796579e078a7a7ea2f66195a928beee64238, initramfs-z14.cpio.xz 37e61b1b4e16ba7801d8cbb1ae6ed188e9671485bb5c770d1c558c3a664bc2d4 (~/Projects/walleye-build/images-z14). Built only, not tried. The proof walleye-gadget-up pings and talks telnet (tests/host/gadget-up.sh), not ssh: the initramfs has no sshd and no key; ssh waits for the real system.
+
+About
+: walleye-first-fastboot-boot
