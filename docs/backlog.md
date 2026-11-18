@@ -3277,13 +3277,13 @@ Opened
 ### Clean probes in the dmesg: arm-smmu 5040000 timeout, the serial supplier from the overlay stubs, i2c@c179000 phandle
 
 Status
-: in-progress
+: open
 
 Note
-: z3 built (gpucc, clock_gcc); its try could not be read (shell silent). z4 = z3 + working shell; try queued as walleye-try-z4. Done when the try's dmesg passes tests/host/dmesg-clean-check.sh.
+: Open and blocked: the dmesg of a try is read only when the shell answers (walleye-banner-shell first).
 
 Blocked by
-: walleye-try-z4
+: walleye-banner-shell
 
 About
 : walleye-first-fastboot-boot
