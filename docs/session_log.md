@@ -2557,3 +2557,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-builder-z13"></a>
+### Hynix quirks review fixes, z13 built
+
+Entry date
+: 2026-11-18
+
+Done
+: Fixed findings 1,4,5,6 of walleye-z12-built; a second programmer review caught that the raw-path guard keyed on msgcode was bypassable, moved it to ufshcd_issue_devman_upiu_cmd by transaction code; z13 built, checks ok.
+
+Considered
+: Propagating DME write errors (would fail the UFS probe)
+
+Rejected
+: Keeping the PA_AVAILTXDATALANES write: read-only per spec, would warn every boot. Guarding in ufs_bsg alone: bypassable.
+
+About
+: walleye-first-fastboot-boot

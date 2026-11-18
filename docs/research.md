@@ -2703,3 +2703,28 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z13-built"></a>
+### walleye-z13-built
+
+Date
+: 2026-11-18
+
+Brief
+: z13 built: z11 with only the kernel changed (Hynix quirks, review fixes: purge refused at the UPIU send); sha256 b8348e40; not tried; programmer review done
+
+Question
+: Do the review findings of walleye-z12-built (purge guard misses ufs_bsg, unchecked writes, comments as fact, no tie to the commit) hold fixed in a z13?
+
+Found
+: Kernel topic/ufs-hynix-quirks d49d54405 (on 12dca401a): one helper ufshcd_purge_refused refuses set/clear/toggle of fPurgeEnable on ufshcd_query_flag and in ufshcd_issue_devman_upiu_cmd, judged by the UPIU's own transaction code (the programmer review showed that keying on ufs_bsg's msgcode is bypassable by NOP_OUT msgcode with a query header). Sync-length write failures are logged; the read-only PA_AVAILTXDATALANES write is dropped (lane_tx=1 in the power-mode change does it); ratelimited warning; comments say reported. build-z13.sh ties the Image to the commit (banner g d49d54405f11, -dirty only from our dts Makefile lines, ufs files clean and no untracked) and counts the guard in the source; all checks ok. images-z13/boot-z13.img sha256 b8348e40182e93f1f6c575abdcf586fc6ff91ebaed68bd0a9ecf51f2522cb89f; never run. Not measured: the guard's behaviour (checks count source text; no test calls the raw path); advanced RPMB purge (UFS_RPMB_PURGE_ENABLE) is not covered and not known to matter; blanket for every Hynix on every ufs-qcom SoC (finding 2) and Sony's lane behaviour (3) stay open; the fixup commit should be squashed into 12dca401a before any upstream.
+
+Sources
+: src-sony-ufs-quirks-forward-port
+
+About
+: walleye-first-fastboot-boot
+
+Supersedes
+: walleye-z12-built
