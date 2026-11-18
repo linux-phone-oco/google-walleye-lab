@@ -1141,3 +1141,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-pk5g-build"></a>
+### g1..g3 built (mainline gadget staged on pk5)
+
+Entry date
+: 2026-11-18
+
+Done
+: build/build-pk5g.sh and init-pk5g: three images on pk5's kernel/dtb/header, ramdisks differing in /stage; 58 checks ok, rebuild identical; try walleye-try-pk5-stages queued
+
+Considered
+: three separate inits (rejected: one init + /stage keeps the diff to one file); 60 s holds so alive and dead are 30+ s apart
+
+Rejected
+: ACM and a shell loop in these steps: pk5l had them and ended early
+
+About
+: walleye-first-fastboot-boot

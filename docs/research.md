@@ -1208,3 +1208,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-pk5g-built"></a>
+### walleye-pk5g-built
+
+Date
+: 2026-11-18
+
+Brief
+: g1..g3 built: pk5 (alive) with one gadget step per ramdisk (dir+strings; +mass_storage; +UDC bind), each holds 60 s; 58 checks ok, rebuild identical
+
+Question
+: Can the mainline gadget be staged on the alive base so each image adds one step and alive and dead are 30+ s apart?
+
+Found
+: g1, g2, g3 are pk5's kernel, dtb, cmdline, header and size byte for byte; only the ramdisk differs, and the three ramdisks differ in /stage alone (one init, init-pk5g). Each pets the watchdog every second, holds 60 s, then reboot -f. No ACM, no shell loop. 58 checks ok (kernel config has the gadget, configfs, dwc3, qusb2, wdt options; AVB footer verifies), rebuild byte-identical. Not run on the phone.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-pk5g/
