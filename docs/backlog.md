@@ -4372,10 +4372,10 @@ Rank
 ### Touch: Synaptics RMI4 on blsp1_i2c5 (0x20, irq gpio125, reset gpio89)
 
 Status
-: open
+: done
 
 Note
-: Mainline rmi_i2c driver; supplies pm8998 l6 and l28; xd boards add a pmi8998 power gpio - which board revision the lab phone is, is not known.
+: Built as z15 (research walleye-z15-built); the phone's proof is walleye-try-z15
 
 About
 : walleye-first-fastboot-boot
@@ -4625,3 +4625,25 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-try-z15"></a>
+### Try z15 once from slot b with a person touching the panel: does the RMI4 controller probe and make events?
+
+Status
+: open
+
+Note
+: Built by walleye-touch-rmi4; the keeper's usual battery rule and end state apply.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-touch-events: sh tests/host/touch-read.sh then tests/host/touch-check.sh DIR passes (images-z15/boot-z15.img sha256 a675080f; the person must touch the panel while it reads: say so and wait for their go)
