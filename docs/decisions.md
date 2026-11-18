@@ -664,3 +664,25 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-18-walleye-banner-serial-not-root-exec"></a>
+### 2026-11-18-walleye-banner-serial-not-root-exec
+
+Date
+: 2026-11-18
+
+Brief
+: The banner tty was denied because the image's serial was wrong; the root-exec reading (decision 2026-11-18-walleye-tty-read-through-root-exec) is withdrawn
+
+Decision
+: The root-exec reading of the gadget tty (decision 2026-11-18-walleye-tty-read-through-root-exec) is withdrawn: orchestration found the real cause. The banner image's USB serial is 'walleye-banner' (build/initramfs-mainline/init-banner line 39) while every other image and device.toml say walleye-first-boot, so the host rule (serial walleye-first-boot: GROUP users, MODE 0660) correctly did not apply to its tty node. No host or root change is needed: the banner init gets the serial walleye-first-boot (its product string may stay distinct) and the same serial check as build-mainline-light.sh has for init-ml; the readers keep their plain open with the retry on Permission denied and never use root-exec.
+
+Why
+: Orchestration read the host's kernel log (Product: Pixel 2 walleye (mainline banner), SerialNumber: walleye-banner): the rule is right, our image broke the contract of device.toml [host]; fixing the image keeps root out of the lane.
+
+Rejected
+: Reading as root through lab-agent root-exec (it hid our own bug and used a privilege the lane did not need); asking the author to change groups.
+
+About
+: walleye-first-fastboot-boot
