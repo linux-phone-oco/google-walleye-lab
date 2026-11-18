@@ -2875,3 +2875,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-2000-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Android on slot b, stock kernel, nothing flashed or booted; read UFS via debugfs (read only); fastboot reachable per last stand, adb root on
+
+Considered
+: next: walleye-try-z19, then walleye-bootchain-readback; UFS HW_VERSION/PHY need a reader (coordinator)

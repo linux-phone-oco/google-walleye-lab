@@ -4748,7 +4748,7 @@ Status
 : open
 
 Note
-: keeper 2026-11-19: partly read (host regs, power mode); HW_VERSION and PHY need a reader: no /dev/mem on this Android (research walleye-ufs-android-regs-read)
+: keeper 2026-11-19: read what debugfs gives (research walleye-ufs-android-regs-read2); HW_VERSION and PHY regs need a mem reader (no /dev/mem, no kcore): to the walleye coordinator
 
 About
 : walleye-first-fastboot-boot

@@ -3110,3 +3110,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-z17-spmi-gpio-facts/
+
+
+<a id="walleye-ufs-android-regs-read2"></a>
+### walleye-ufs-android-regs-read2
+
+Date
+: 2026-11-18
+
+Brief
+: UFS on live Android: ufs_version 0x210, gear 3 two-lane fast rate B, PHY driver qmp_v3; HW_VERSION and PHY registers unreadable without a memory reader
+
+Question
+: What are the UFS host and PHY registers and pad state of live Android, read only?
+
+Found
+: adb root works. debugfs ufshcd0: host_regs 0x00-0x9c read (CAP 0x1587001f, VER 0x210), power_mode gear 3/3, lanes 2/2, FAST, rate B; show_hba ufs_version 0x210, nutrs 32, nutmrs 8, no auto-hibern8. PHY driver bound: ufs_qcom_phy_qmp_v3 (not v3_660); ICE 3.0.65; rails ufshc 1.8V/2.96V/1.2V, ufsphy 0.88V/1.2V. Pinctrl lists UFS_RESET as pin 153, unclaimed, pad state not shown. qcom/debug-regs reads all zero. No /dev/mem, no /proc/kcore, so UFS_HW_VERSION (0xe0) and the PHY registers cannot be read from Android. Nothing written; dme_local_read not used. A reader needs a kernel module or a boot-from-memory try: an item for the coordinator.
+
+About
+: walleye-first-fastboot-boot
