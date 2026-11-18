@@ -2284,3 +2284,18 @@ Done
 
 Considered
 : next: author power cycle (item walleye-needs-power-cycle-after-pmic-bite), then check fastboot; lane coordinator to decide the PMIC bite's reset type before another bite; c3 try (c2 + fw_devlink=permissive, PR 235) still queued; wake-in-suspend waits for walleye to suspend at all
+
+---
+
+
+<a id="2026-11-18-1530-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: c3 tried once from slot b: charger probes with fw_devlink=permissive (charger-check pass). Walleye is HUNG in c3 (silent, USB 1d6b:0104, no adb/fastboot) since 15:13; may recover slowly as after z9, else needs the author's power hold. Nothing flashed, slot b active.
+
+Considered
+: next: item walleye-c3-hung-wait-then-power-cycle first; then c4 (tps61099 fixed regulator, walleye-charger-supplier). PMIC bite proof stays barred by decision 2026-11-18-walleye-no-pmic-bite-until-reset-type
