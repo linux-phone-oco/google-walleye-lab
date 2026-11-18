@@ -2570,3 +2570,25 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-vfa-one-source-per-image"></a>
+### One hardware source per image on m1's proven structure: vfa = /sys/firmware/fdt (the merged running device tree) + iomem + interrupts + cmdline; vfb = clk_summary; vfc = regulator_summary; vfd = the USB/dwc3 debugfs state
+
+Status
+: open
+
+Note
+: Facts (lab research walleye-vf-control-tried): m1 is the stable window (alive, read by the lab user); vf2 alive twice; vf3/vf4 (progressive dump after the bind, and a poller) dead; the dump step is the suspect, and reading some vendor debugfs file may be what kills the kernel (that is itself a fact to find). One source per image tells which source works and which kills. /sys/firmware/fdt first: it is the single most valuable file (the merged device tree of the running walleye, GPL-kernel hardware description for our dts). WHEN DONE queue walleye-try-vfa (needs phone, rank 1): vfa twice, then vfb, vfc, vfd once each unless one dies (then twice); battery first; phone left in Android on a good slot afterwards; plain lsusb by port; no poller; read at ~70 s after the jump once and again at the end.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: four images, each = m1 (its init, window file and gadget order byte for byte) plus ONE payload copied into the window file BEFORE the bind (cat to the window file with timeout 5; the payload sizes checked to fit the 2 MiB window, else split across images; the first 512 bytes of the window carry a plain 'WALLEYE-VFx' header, the payload's name and its byte length, then the payload as plain bytes, so the host reads it with massstorage-read.sh and one dd of the LUN; no tar, no gzip, no progressive appends, no poller); a host reader script extracts the payload by the header into the lab material path (the fdt kept as .dtb, with dtc -I dtb -O dts for the readable form); selftest; programmer review; hashes
