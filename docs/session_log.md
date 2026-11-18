@@ -2401,3 +2401,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-1200-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: Phone is Android on slot b, stock kernel, nothing flashed, adb up. phone-state.sh recorded in android, fastboot and mainline-answering (banner2 from memory); it fell back to Android on its own after about 15 min (gone from USB for part of it). Item walleye-phone-state-real-states done (PR 260). Skipped walleye-dtbo-minimal-try: it flashes a dtbo, against decision 2026-11-17-walleye-slot-flags-tries-on-b, and is blocked by walleye-dtbo-overlay-id.
+
+Considered
+: next: ask the walleye coordinator about walleye-dtbo-minimal-try being ready though it flashes; walleye-pmic-wdt-read-s2-regs (read only); walleye-charger-wait-tps61099 dts choice
+
+About
+: walleye-first-fastboot-boot
