@@ -1110,3 +1110,25 @@ Research
 
 Tracked by
 : walleye-ufs-hynix-quirks
+
+
+<a id="2026-11-18-walleye-android-disposable-no-bricking"></a>
+### 2026-11-18-walleye-android-disposable-no-bricking
+
+Date
+: 2026-11-18
+
+Brief
+: Android on walleye is throw-away; the one hard line is bricking
+
+Decision
+: The author's word (2026-11-18, relayed by the top coordinator, verbatim): "if they need root access for more detailed analisys, they can add it, again android is to be treated like throw away , the only concern to avoid bricking the phone as much as we can if possible without crazy hurdles". So: (1) the Android on walleye is disposable: the lane may root it (LineageOS userdebug adb root, or a Magisk-patched boot on the inactive slot), change its settings, read anything from it, and data loss there does not matter; (2) the one hard line is bricking: never write the bootloader or its siblings (xbl, abl, devcfg, tz, hyp, keymaster and the other firmware partitions) or the partition tables, and keep at least one slot booting at all times with a recorded way back (the original boot/dtbo/vbmeta of a slot read back over adb root into the lab with sha256 BEFORE a write to that partition, restore by fastboot flash); (3) 'no crazy hurdles': a write to a slot's boot, dtbo or vbmeta partition with that backup and the other slot intact is the lane's call, recorded; fastboot flash/erase/set_active outside that remain refused by the guards; (4) UFS probing from our kernel stays decided separately (decision 2026-11-18-walleye-ufs-try-needs-quirks-and-the-authors-word): the author's bound is bricking, and a UFS probe is exactly that risk, so it goes to him with what root learned.
+
+Why
+: It is his word, in his own terms, for the thing that ends the lane (a bricked phone) and the thing that does not (Android's data and settings); it widens the reading side (root) at once and the writing side only with a backup.
+
+Rejected
+: Treating Android's state as precious (it slows every analysis); treating partition writes as free (the bootloader family and the partition tables stay out of any write); asking the author for each root step.
+
+About
+: walleye-first-fastboot-boot

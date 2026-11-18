@@ -4343,31 +4343,6 @@ Rank
 : 1
 
 
-<a id="walleye-ufs-card-identity"></a>
-### Learn the card's model and firmware without probing it from our kernel
-
-Status
-: open
-
-Note
-: Android shell cannot read scsi_device attrs; only ro.boot.hardware.ufs=64GB,Hynix is known
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: a research row naming model and firmware read from a root shell in recovery (or 'fastboot getvar all shows none')
-
-Rank
-: 2
-
-
 <a id="walleye-try-z12"></a>
 ### Try z12 once from slot b: the UFS read-only try with the Hynix quirks (replaces walleye-try-z11's image)
 
@@ -4416,6 +4391,33 @@ Needs
 
 Proof
 : purge refused in the raw-UPIU path (ufs_bsg / ufshcd_exec_raw_upiu_cmd) for fPurgeEnable set/clear/toggle; quirk write results checked; comment says 'reported'; build script ties the Image to the kernel commit; z13 sha256 recorded; programmer review
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-card-identity"></a>
+### Learn the card's model and firmware without probing it from our kernel
+
+Status
+: open
+
+Note
+: Android shell cannot read scsi_device attrs; only ro.boot.hardware.ufs=64GB,Hynix is known
+
+AUTHOR'S WORD 2026-11-18 (decision 2026-11-18-walleye-android-disposable-no-bricking): root is allowed. Read the card with adb root (LineageOS userdebug): /sys/block/sda/device/{vendor,model,rev}, /sys/class/scsi_device, the ufs sysfs of the host controller (/sys/devices/platform/soc*/1da4000.ufshc/ or the one the running fdt names: its health descriptor, device descriptor via the vendor driver debugfs if any), the vendor kernel dmesg lines of the ufs. READ ONLY: no write to any block device, no fastboot flash, no setting of the ufs sysfs. If adb root is refused, say so; do not install anything to get root without a recorded plan. Then: the research row for the UFS-probe decision with what root learned, to the top coordinator via the coordinator.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: a research row naming model and firmware read from a root shell in recovery (or 'fastboot getvar all shows none')
 
 Rank
 : 1
