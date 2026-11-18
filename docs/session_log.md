@@ -2269,3 +2269,18 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-1510-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: PMIC watchdog: z8 had none (qcom-pon =m); z9 (=y) bit unpetted, gone 20 s after arming (pmic-wdt-bites pass, landed PR 236). Phone is OFF/not on USB since 14:54 after the bite: not Android, not fastboot - needs the author's hands (hold power ~15 s). Slots untouched (b current, a and b successful as of 14:49). Nothing flashed.
+
+Considered
+: next: author power cycle (item walleye-needs-power-cycle-after-pmic-bite), then check fastboot; lane coordinator to decide the PMIC bite's reset type before another bite; c3 try (c2 + fw_devlink=permissive, PR 235) still queued; wake-in-suspend waits for walleye to suspend at all
