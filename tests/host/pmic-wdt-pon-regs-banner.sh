@@ -16,7 +16,7 @@ redact() { sed -E -e 's/\x1b\[[0-9;]*[A-Za-z]//g' -e 's/(androidboot\.serialno=)
 # 1. the banner line (the first one with all seven values), listening up to BEATS seconds
 timeout "$BEATS" sh -c 'while IFS= read -r l <&3; do case $l in *WALLEYE-BANNER-PON*0xc5=*) printf "%s\n" "$l"; break;; esac; done' 2>/dev/null | tr -d '\r' | redact > "$OUT/banner-pon.txt"
 [ -s "$OUT/banner-pon.txt" ] || say fail "no WALLEYE-BANNER-PON line with registers in ${BEATS}s ($OUT)"
-B=$(sed -n 's/.*\(pon-regs 0x54=[^]]*\]\).*/\1/p' "$OUT/banner-pon.txt" | head -n1)
+B=$(grep -o 'pon-regs 0x54=[0-9a-fA-F][^]]*\]' "$OUT/banner-pon.txt" | grep -v '??' | head -n1)
 [ -n "$B" ] || say fail "banner line has no pon-regs line ($OUT/banner-pon.txt)"
 case $B in *'??'*) say fail "banner values not all read: $B";; esac
 # 2. the command's answer, first line
@@ -24,7 +24,7 @@ M=wpr-$$
 timeout 0.3 cat <&3 >/dev/null 2>&1 || true
 printf '%s\n' "pon-regs; echo $M-E''ND" >&3
 timeout 20 sh -c "while IFS= read -r l <&3; do l=\${l%\$(printf '\r')}; case \$l in *$M-END) break;; esac; printf '%s\n' \"\$l\"; done" 2>/dev/null | grep -v -e "$M" -e WALLEYE-BANNER | redact > "$OUT/command.txt"
-C=$(sed -n 1p "$OUT/command.txt")
+C=$(grep '^pon-regs 0x54=[0-9a-fA-F]' "$OUT/command.txt" | grep -v '??' | head -n1)
 [ -n "$C" ] || say fail "the command pon-regs gave no answer ($OUT/command.txt)"
 [ "${NOREBOOT:-0}" = 1 ] || printf '%s\n' 'reboot -f' >&3
 [ "$B" = "$C" ] || say fail "banner and command differ: banner [$B] command [$C]"

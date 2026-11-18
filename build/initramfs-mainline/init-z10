@@ -26,22 +26,28 @@ mount -t configfs none /sys/kernel/config
 PONF=/tmp/pon-regs
 cat > /bin/pon-regs <<'EOS'
 #!/bin/sh
-# reads only; DBG and NOMOUNT are for the host selftest
+# reads only; DBG and NOMOUNT are for the host selftest. The kernel's regmap `registers` file has one fixed-width line "ADDR: VAL" per register and reads only the registers from the file position on: each of the seven is read with one dd of one line
+# (not a scan of the 65536 registers); a line that is not the register asked for (a sparse map) falls back to grep for that register; a failed read shows XX in the kernel's line and ?? here.
 DBG=${DBG:-/sys/kernel/debug}
-[ -n "${NOMOUNT:-}" ] || mount -t debugfs none "$DBG" 2>/dev/null
 D=$DBG/regmap
+[ -d "$D" ] || [ -n "${NOMOUNT:-}" ] || mount -t debugfs none "$DBG" 2>/dev/null
 found=0; names=
 for d in "$D"/*; do
-  [ -f "$d/registers" ] || continue
+  f=$d/registers
+  [ -f "$f" ] || continue
   n=${d##*/}; names="$names${names:+,}$n"
-  R=$(grep -E '^0*8(54|55|56|57|5a|5b|c5):' "$d/registers" 2>/dev/null) || continue
-  [ -n "$R" ] || continue
-  line="pon-regs"
+  E=$(head -n1 "$f" 2>/dev/null | wc -c)
+  [ "$E" -gt 4 ] || continue
+  line=; any=0
   for r in 54 55 56 57 5a 5b c5; do
-    v=$(printf '%s\n' "$R" | sed -n "s/^0*8$r: *\([0-9a-fA-F]*\).*/\1/p" | head -n1)
+    l=$(dd if="$f" bs="$E" skip=$((0x800 + 0x$r)) count=1 2>/dev/null)
+    case $l in *8$r:*) ;; *) l=$(grep -E "^0*8$r:" "$f" 2>/dev/null | head -n1);; esac
+    v=$(printf '%s\n' "$l" | sed -n "s/^0*8$r: *\([0-9a-fA-F][0-9a-fA-F]*\).*/\1/p" | head -n1)
+    [ -n "$v" ] && any=1
     line="$line 0x$r=${v:-??}"
   done
-  echo "$line src=[$n]"; found=1
+  [ $any -eq 1 ] || continue
+  echo "pon-regs$line src=[$n]"; found=1
 done
 if [ $found -eq 0 ]; then
   dbg=no; [ -d "$D" ] && dbg=yes
@@ -53,7 +59,7 @@ chmod 755 /bin/pon-regs
   n=0
   while [ $n -lt 60 ]; do
     /bin/pon-regs > $PONF.new 2>/dev/null
-    if grep -q '0x54=' $PONF.new 2>/dev/null; then mv $PONF.new $PONF; say "pon-regs read"; break; fi
+    if grep -q '0x54=[0-9a-fA-F]' $PONF.new 2>/dev/null; then mv $PONF.new $PONF; say "pon-regs read"; break; fi
     mv $PONF.new $PONF 2>/dev/null
     n=$((n+1)); sleep 2
   done

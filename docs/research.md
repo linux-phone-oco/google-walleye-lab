@@ -2552,3 +2552,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z10-built"></a>
+### walleye-z10-built
+
+Date
+: 2026-11-18
+
+Brief
+: z10 built: z9 plus an init that reads the PON registers into the banner and a command (reads only); 27 checks ok; sha256 3485e89b...
+
+Question
+: How can the PON watchdog registers reach the log channel that works, when the debugfs reads through the command loop came back blank?
+
+Found
+: The z9 test guessed the regmap name (pmic-spmi, dir 0-00) and scanned nothing it could name; z10's init lists every regmap, reads the seven registers of each that has them, one fixed-width line each through the registers file (the kernel reads only from the file position), and prints them where the banner already works (WALLEYE-BANNER-PON beat=N [pon-regs 0x54=.. 0x55=.. 0x56=.. 0x57=.. 0x5a=.. 0x5b=.. 0xc5=.. src=[REGMAP]]), also on the command pon-regs; when none has them it says pon-regs none regmaps=[names] dbgfs=[yes|no], so a miss names the maps. Reviewed by the programmer subagent: a full 65536-register scan per poll was replaced by one-line reads, an all-XX map stopped counting as read, a stacked debugfs mount guarded. Not tried on the phone: the keeper's item walleye-pmic-wdt-z10-read-pon-regs.
+
+Sources
+: pmic-wdt-series-pm8916-wdt,lineage-wahoo-qpnp-power-on
+
+About
+: deep-sleep

@@ -17,8 +17,8 @@ sed -n '/^cat > \/bin\/pon-regs <<.EOS.$/,/^EOS$/p' "$INIT" | sed '1d;$d' > "$T/
 ck "the reader was found in init-z10" "$([ "$(wc -l < "$T/pon-regs")" -gt 5 ] && echo yes || echo no)" yes
 mkdir -p "$T/d/regmap/spmi-0" "$T/d/regmap/spmi-2" "$T/d/regmap/other"
 echo spmi-0 > "$T/d/regmap/spmi-0/name"; echo spmi-2 > "$T/d/regmap/spmi-2/name"; echo other > "$T/d/regmap/other/name"
-reg() { printf '%s\n' "0000: 00" "0800: 11" "0854: 01" "0855: 02" "0856: 07" "0857: 80" "085a: 0c" "085b: 33" "08c5: a5" "0900: ff" > "$1"; }
-reg "$T/d/regmap/spmi-0/registers"
+dense() { i=0; while [ $i -le 2303 ]; do printf "%04x: 00\n" $i; i=$((i+1)); done | sed -e "s/^0854: 00/0854: 01/" -e "s/^0855: 00/0855: 02/" -e "s/^0856: 00/0856: 07/" -e "s/^0857: 00/0857: 80/" -e "s/^085a: 00/085a: 0c/" -e "s/^085b: 00/085b: 33/" -e "s/^08c5: 00/08c5: a5/" > "$1"; }
+dense "$T/d/regmap/spmi-0/registers"; mkdir "$T/d/regmap/xx"; echo xx > "$T/d/regmap/xx/name"; printf "%s\n" "0854: XX" "0855: XX" > "$T/d/regmap/xx/registers"
 printf '%s\n' "0854: 10" "0855: 20" "0856: 30" "0857: 40" "085a: 50" "085b: 60" "08c5: 70" > "$T/d/regmap/spmi-2/registers"
 printf '%s\n' "0000: 00" "0100: 01" > "$T/d/regmap/other/registers"
 chmod a-w "$T/d/regmap/spmi-0/registers"
@@ -26,7 +26,7 @@ touch "$T/mark"; sleep 1
 OUT=$(DBG=$T/d NOMOUNT=1 $SH "$T/pon-regs")
 ck "first line: the sid-0 regmap's seven registers, in order" "$(printf '%s\n' "$OUT" | sed -n 1p)" "pon-regs 0x54=01 0x55=02 0x56=07 0x57=80 0x5a=0c 0x5b=33 0xc5=a5 src=[spmi-0]"
 ck "second line: the other pmic's registers, same form" "$(printf '%s\n' "$OUT" | sed -n 2p)" "pon-regs 0x54=10 0x55=20 0x56=30 0x57=40 0x5a=50 0x5b=60 0xc5=70 src=[spmi-2]"
-ck "a regmap without the PON range prints nothing" "$(printf '%s\n' "$OUT" | wc -l | tr -d ' ')" 2
+ck "a regmap without the PON range, and one whose reads all failed (XX), print nothing" "$(printf "%s\n" "$OUT" | wc -l | tr -d " ")" 2
 ck "the reader changed no file of the tree (reads only)" "$(cd "$T/d" && find . -type f -newer "$T/mark" | wc -l | tr -d ' ')" 0
 mkdir "$T/e"; mkdir -p "$T/e/regmap/other"; echo other > "$T/e/regmap/other/name"; printf '%s\n' "0000: 00" > "$T/e/regmap/other/registers"
 ck "no PON registers anywhere: a line that says so and names the regmaps" "$(DBG=$T/e NOMOUNT=1 $SH "$T/pon-regs")" "pon-regs none regmaps=[other] dbgfs=[yes]"
