@@ -3842,31 +3842,6 @@ Rank
 : 1
 
 
-<a id="walleye-pmic-wdt-bite-try-warm"></a>
-### One PMIC bite with the type read back as warm (0x01) first; hard (0x07) only after warm restarts
-
-Status
-: open
-
-Note
-: Way back with no hands: arm only when the type reads back as 0x01 (hard 0x07 only if warm restarted); the command loop never arms the watchdog on boot (a restart lands in a quiet loop); battery rule first. If the phone does not come back it waits for hands as before - so the read item and the warm choice come first. Expect after the bite: same slot, uptime reset, watchdog bootstatus CARDRESET.
-
-Blocked by
-: walleye-pmic-wdt-read-s2-regs,walleye-pmic-wdt-readback-image
-
-About
-: deep-sleep
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: pmic-wdt-bites,pmic-wdt-restarts
-
-
 <a id="walleye-try-c4"></a>
 ### Try c4 (c2 + tps61099 modelled, default fw_devlink) once from slot b with the command loop: does the charger probe without permissive?
 
@@ -4255,3 +4230,33 @@ Proof
 
 Rank
 : 61
+
+
+<a id="walleye-pmic-wdt-bite-try-warm"></a>
+### One PMIC bite with the type read back as warm (0x01) first; hard (0x07) only after warm restarts
+
+Status
+: open
+
+Note
+: Way back with no hands: arm only when the type reads back as 0x01 (hard 0x07 only if warm restarted); the command loop never arms the watchdog on boot (a restart lands in a quiet loop); battery rule first. If the phone does not come back it waits for hands as before - so the read item and the warm choice come first. Expect after the bite: same slot, uptime reset, watchdog bootstatus CARDRESET.
+
+UPSTREAMS LANE 2026-11-18 (FYI): the probable cause of z9 powering off at the bite is fixed on https://github.com/grenudi/linux topic/pmic-wdt-wake-in-suspend at f5bb57d27: the probe wrote the S2 reset type while S2 might be running (firmware-armed on msm8998, by wahoo msm-poweroff.c) with no disable or wait, so the firmware type could stay; patch 5/5 disables S2, waits, updates the type field, re-enables and reads it back (dev_dbg logs the original value). WHEN these PMIC items come back up: build from f5bb57d27 (not e123d3bff). Option C, if 0x07 reads back and it still powers off: DVDD_HARD_RESET 0x08. The bite remains parked (decision 2026-11-18-walleye-no-pmic-bite-until-reset-type) until a build shows the restart in the read-back first.
+
+Blocked by
+: walleye-pmic-wdt-read-s2-regs,walleye-pmic-wdt-readback-image
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: pmic-wdt-bites,pmic-wdt-restarts
+
+Rank
+: 62
