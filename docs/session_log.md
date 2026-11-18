@@ -1240,3 +1240,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-2345-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-18
+
+Done
+: walleye-try-pk5-stages was already done and recorded by an earlier keeper (2330, #114); I found the phone off USB, then in Android, read fastboot state (b current, a and b successful), and ran g1 x2 and g2 x1 again: same result, no 1d6b:0104. Phone in Android on b, nothing flashed, stock kernel, lease released
+
+Considered
+: next: walleye-pstore-t1-try says run only after a kernel has shown life; none has, so it is a turning point for the coordinator
+
+About
+: walleye-first-fastboot-boot
