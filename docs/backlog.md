@@ -4350,19 +4350,16 @@ Rank
 ### USB networking: ncm/ecm gadget with ssh on 172.16.43.1 instead of the ACM console
 
 Status
-: open
+: in-progress
 
 Note
-: The ACM shell already works (y2). Host side: the lab-prepare rules; function ncm with attributes written the mainline way, ecm or rndis as fallback. Does not need the PMIC.
+: z14 built and reviewed (research walleye-z14-built); the try is walleye-try-z14. Proof walleye-gadget-up uses ping + telnet in the initramfs; ssh waits for a real system.
 
 About
 : walleye-first-fastboot-boot
 
 Opened
 : 2026-11-18
-
-Needs
-: build
 
 Proof
 : walleye-gadget-up: ssh to 172.16.43.1 answers within 60 s of the boot
@@ -4500,3 +4497,28 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-try-z14"></a>
+### Try z14 once from slot b: USB networking (ECM + telnet on 172.16.43.1) beside the ACM console
+
+Status
+: open
+
+Note
+: Safe: z7's kernel and dtb, nothing probes UFS or the charger; only the init's gadget gains an ECM function. The lab host needs the interface to take the DHCP lease (172.16.43.2) or a static one; MAC 02:42:ac:10:2b:02. Research walleye-z14-built.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: z14 once from slot b (images-z14/boot-z14.img sha256 c2e616f872328b1a28df9ff37903796579e078a7a7ea2f66195a928beee64238); GADGET_WAIT=60 tests/host/gadget-up.sh must say pass (walleye-gadget-up); on a fail read the banner on ttyACM0: its steps say how far the network block got
+
+Rank
+: 1
