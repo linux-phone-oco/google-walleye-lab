@@ -4149,3 +4149,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-wire-phone-state"></a>
+### Wire phone-state.sh into restart-check.sh and the try recipes; no script says 'hung' from lsusb alone
+
+Status
+: open
+
+Note
+: Follow-up of walleye-phone-state-witnesses (lab PR 255), which exists but is not called yet.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: tests/host/restart-check.sh and the try recipes' return-watching steps (the keeper's own steps in the try items: 'watch lsusb by port') call tests/host/phone-state.sh for every verdict about the phone's return, and no script in tests/host or build prints 'hung' from lsusb alone (a grep over tests/host and build/*.sh for the word and for lsusb-only decisions lists none); the selftest of restart-check.sh gets the case 'our gadget listed, adb says device' = restarted (the c3 case), and 'our gadget listed, tty silent, no adb/fastboot' = NOT KNOWN; phone-state.sh run once on the real phone in each of its states by a keeper (Android now, fastboot, our gadget) and the three outputs recorded as research; programmer review
+
+Rank
+: 2
