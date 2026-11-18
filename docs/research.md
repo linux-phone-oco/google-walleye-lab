@@ -1438,3 +1438,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-vf2-tried-twice"></a>
+### walleye-vf2-tried-twice
+
+Date
+: 2026-11-18
+
+Brief
+: vf2 twice from the first state (slot b): init ALIVE (beat ticking 2 s, steps 0-4 ended rc=0, applets ok, step 5 g-idVendor reached by 43 s); blob not read, reader unreliable
+
+Question
+: Does the vf2 init run, and how far does it get?
+
+Found
+: Try 1: gadget 1d6b:0104 at 18 s, reader found no marker/empty text on its re-reads (phone gone from USB before any manual read). Try 2: polling the LUN every 2 s from 15 s showed WALLEYE-VF2 BEAT=2..22 (UP 3.4..43.5 s), 'start 0 init (kernel 4.4.302-...)', 21 applets ok, steps mount-sysfs/configfs/debugfs/g-mkdir rc=0, 'start 5 g-idVendor' at 43 s; my capture cut at 600 bytes so later steps and any blob header unseen; then the phone left USB. Back as Android on b both tries, left in fastboot, slots a and b successful. So the earlier empty header meant the first dump round had not been written yet, not a dead init. The init runs the VENDOR kernel 4.4.302 inside (the instrument). Reader: reads of the 64 KiB text region came back empty at times (O_DIRECT while the init rewrites every 2 s?); a plain dd poll worked.
+
+About
+: walleye-first-fastboot-boot
