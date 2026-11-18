@@ -3349,3 +3349,19 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-stale-waits-on-done"></a>
+### Stale waits: waits and blocked_by naming items that are done
+
+Status
+: open
+
+Note
+: sign seen by patrol 2026-11-18: blocked_by walleye-charger-smb2 (done) still shown on walleye-fuel-gauge; waits naming same-base items that are done: walleye-first-fastboot-boot (walleye-boot-refused-why, walleye-control-on-slot-a), walleye-dmesg-clean (walleye-build-banner-init, walleye-reader-eacces-retry), walleye-code-hygiene-rust-ci (walleye-ffs-rust-try); waits naming a same-base item that belong in blocked_by: walleye-scripts-call-bringup (bringup-image-swap), walleye-display-s6e3fa5 (walleye-ufs-readonly). Owner: walleye coordinator clears or moves them.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
