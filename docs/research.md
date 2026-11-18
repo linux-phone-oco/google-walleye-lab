@@ -1293,3 +1293,47 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-t1/
+
+
+<a id="walleye-g1-tried"></a>
+### walleye-g1-tried
+
+Date
+: 2026-11-18
+
+Brief
+: g1 twice from the first state (slot b, a and b successful): back as Android at ~108 s and 64 s; no 1d6b:0104 and no pstore either time
+
+Question
+: Does pk5g's first stage (gadget dir+strings) keep init alive and show a USB gadget?
+
+Found
+: Start state read first: fastboot, current slot b, both slots successful, none unbootable; the earlier keeper left no record but the state was clean. g1 try 1: left USB at ~15 s, back as adb at ~108 s (alive class), pstore empty, bootreason reboot. g1 try 2: left at 14 s, back at 64 s (neither 108 alive nor 75 dead). Neither showed a 1d6b:0104 device. Slot flags unchanged.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-pk5g-tried/
+
+
+<a id="walleye-g2-try1"></a>
+### walleye-g2-try1
+
+Date
+: 2026-11-18
+
+Brief
+: g2 (+mass_storage) try 1 from the first state: left USB at 15 s, back as Android at 138 s; no 1d6b:0104 seen
+
+Question
+: Does pk5g's second stage show a USB gadget?
+
+Found
+: g2 try 1: fastboot boot accepted, left USB at 15 s, no 1d6b:0104 in the per-second lsusb log (g2-try1-usb.log), back as adb at 138 s: later than the 108 s alive and 75 s dead classes. Slot flags unchanged (b current, a and b successful). Second g2 try and g3 still to run.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-pk5g-tried/
