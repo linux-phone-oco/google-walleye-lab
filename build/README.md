@@ -212,3 +212,9 @@ y2 and z1 were both silent to the reader. `build/build-banner.sh WORK_DIR Y2_BOO
 own subshell (a blocked write stalls nothing), and puts one `walleye-banner: step N: ...` line on `/dev/kmsg` before each step. Watchdog petted every 2 s by its own subshell, `reboot -f` after ~180 s.
 The try is a plain `cat /dev/ttyACM0 > FILE` (raw bytes, no reader), then `sh tests/host/banner-check.sh FILE`; `banner-selftest.sh` proves the check on made-up captures. If the banner bytes show under
 plain `cat`, the old reader was the problem; if not, the silence is on the phone or the host (ModemManager and who holds the port: see item walleye-reader-eacces-retry).
+
+## z20: the diagnostic kernel (walleye-build-gpio-diag-kernel)
+
+`EXTRA_CONFIG=$PWD/build/walleye-diag.config build/build-kernel.sh TREE out-z20` builds the z15 kernel tree with dynamic debug and `CONFIG_DEBUG_GPIO`;
+`build/build-z20.sh Z19_BOOT_IMG out-z20 images-z20` repacks z19 with it, adding `dyndbg="file drivers/gpio/gpiolib.c +p; file drivers/gpio/gpiolib-of.c +p; file drivers/pinctrl/core.c +p; file drivers/pinctrl/devicetree.c +p; file drivers/pinctrl/qcom/pinctrl-spmi-gpio.c +p"` to the
+command line (dtb, ramdisk and the rest are z19's, byte for byte). `tests/host/gpio-diag-boot.sh` fails on z19 and passes on z20. Built only; the keeper tries it once (walleye-try-z20).
