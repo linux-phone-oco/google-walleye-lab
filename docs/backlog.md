@@ -3007,28 +3007,6 @@ Rank
 : 1
 
 
-<a id="walleye-reader-eacces-retry"></a>
-### The host readers retry the device node while it says Permission denied (the uaccess ACL arrives a moment after the node)
-
-Status
-: open
-
-Note
-: Fact (lab research walleye-try-z, PR 160): z1 booted and its gadget (1d6b:0104 + ttyACM0) was up at 18 s, but the reader got Permission denied on /dev/ttyACM0 (so no dmesg, the PMIC result unknown). The same reader worked for y2 (PR 155), and the rule (70-lpoco-google-walleye.rules: uaccess on serial walleye-first-boot, tty and block) is in place; seat0's session 4 (mll, tty2) is active. Likely cause: a race, the node appears root:uucp 0660 first and logind adds the uaccess ACL a moment later; the reader opened too early. If the retry does not cure it, record the facts (ls -l, getfacl, loginctl show-seat) from the failing moment and ask orchestration (lpoco host prepare). WHEN DONE re-queue the z1 try as walleye-try-z (rank 1): the keeper runs it again; nothing else changes.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: tests/host/mainline-shell-read.sh (and massstorage-read.sh / window-payload-read.sh if they open a device node the same way) retries opening the device node while it answers 'Permission denied', for up to 20 s with 0.5 s steps, before it gives up with a fail that says what it saw (the node's owner, group and ACL via ls -l and getfacl, and the udev rule file present or not); selftest with a fake that is denied for the first 3 s and then allowed; no change of the rule, no chmod, no sudo (the lab-prepare rules stay the author's tool); programmer review
-
-
 <a id="walleye-try-z2"></a>
 ### Try z2 once from slot b with the shell reader: is the dmesg clean of the smmu -110?
 
@@ -3077,30 +3055,6 @@ Proof
 
 Rank
 : 1
-
-
-<a id="walleye-build-banner-init"></a>
-### Build a banner init: y2's kernel and dtb with an init that writes a banner to /dev/ttyGS0 every 2 s from the start and a kmsg marker per step
-
-Status
-: open
-
-Note
-: Why: y2 and z1 are both silent to the reader (research walleye-y2-z1-control-both-silent). Then the keeper tries it with a plain cat of ttyACM0 (raw bytes logged) before any reader.
-
-ADDED by the coordinator 2026-11-18: a host-side suspect for the silent ttyACM0 (y2 AND z1 both gave 0 bytes in the controlled try, while y2's first read in lab PR 155 worked): the lab host's ModemManager (or another service) probes every new ttyACM device with AT commands and can hold it open or change its mode; and the reader's termios (it must set raw mode, no echo, no hangup on close). In the reader work (also walleye-reader-eacces-retry): set raw mode itself (stty -F DEV raw -echo -hupcl), find who holds the port (fuser, /proc/*/fd, systemctl is-active ModemManager) and print it in the fail line, and wait for the port to be free. Do NOT stop services or change the host: record the finding and tell the coordinator (stopping ModemManager is orchestration's or the author's call). The banner image then tells which side is silent: if a plain 'cat /dev/ttyACM0' shows the banner bytes, the reader was the problem.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: banner image built with build checks, rebuild identical
 
 
 <a id="walleye-try-y2-old-reader"></a>
@@ -3173,3 +3127,55 @@ Needs
 
 Proof
 : walleye-dmesg-clean: with debugfs mounted devices_deferred is empty; the dmesg has no -110 probe timeout and no 'phandle not found'
+
+
+<a id="walleye-build-banner-init"></a>
+### Build a banner init: y2's kernel and dtb with an init that writes a banner to /dev/ttyGS0 every 2 s from the start and a kmsg marker per step
+
+Status
+: open
+
+Note
+: Why: y2 and z1 are both silent to the reader (research walleye-y2-z1-control-both-silent). Then the keeper tries it with a plain cat of ttyACM0 (raw bytes logged) before any reader.
+
+ADDED by the coordinator 2026-11-18: a host-side suspect for the silent ttyACM0 (y2 AND z1 both gave 0 bytes in the controlled try, while y2's first read in lab PR 155 worked): the lab host's ModemManager (or another service) probes every new ttyACM device with AT commands and can hold it open or change its mode; and the reader's termios (it must set raw mode, no echo, no hangup on close). In the reader work (also walleye-reader-eacces-retry): set raw mode itself (stty -F DEV raw -echo -hupcl), find who holds the port (fuser, /proc/*/fd, systemctl is-active ModemManager) and print it in the fail line, and wait for the port to be free. Do NOT stop services or change the host: record the finding and tell the coordinator (stopping ModemManager is orchestration's or the author's call). The banner image then tells which side is silent: if a plain 'cat /dev/ttyACM0' shows the banner bytes, the reader was the problem.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: banner image built with build checks, rebuild identical
+
+Rank
+: 1
+
+
+<a id="walleye-reader-eacces-retry"></a>
+### The host readers retry the device node while it says Permission denied (the uaccess ACL arrives a moment after the node)
+
+Status
+: open
+
+Note
+: Fact (lab research walleye-try-z, PR 160): z1 booted and its gadget (1d6b:0104 + ttyACM0) was up at 18 s, but the reader got Permission denied on /dev/ttyACM0 (so no dmesg, the PMIC result unknown). The same reader worked for y2 (PR 155), and the rule (70-lpoco-google-walleye.rules: uaccess on serial walleye-first-boot, tty and block) is in place; seat0's session 4 (mll, tty2) is active. Likely cause: a race, the node appears root:uucp 0660 first and logind adds the uaccess ACL a moment later; the reader opened too early. If the retry does not cure it, record the facts (ls -l, getfacl, loginctl show-seat) from the failing moment and ask orchestration (lpoco host prepare). WHEN DONE re-queue the z1 try as walleye-try-z (rank 1): the keeper runs it again; nothing else changes.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: tests/host/mainline-shell-read.sh (and massstorage-read.sh / window-payload-read.sh if they open a device node the same way) retries opening the device node while it answers 'Permission denied', for up to 20 s with 0.5 s steps, before it gives up with a fail that says what it saw (the node's owner, group and ACL via ls -l and getfacl, and the udev rule file present or not); selftest with a fake that is denied for the first 3 s and then allowed; no change of the rule, no chmod, no sudo (the lab-prepare rules stay the author's tool); programmer review
+
+Rank
+: 2
