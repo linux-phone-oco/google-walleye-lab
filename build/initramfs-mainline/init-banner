@@ -36,7 +36,7 @@ echo 0x0104 > $G/idProduct
 echo 0x0100 > $G/bcdDevice
 echo 0x0200 > $G/bcdUSB
 mkdir -p $G/strings/0x409
-echo "walleye-banner" > $G/strings/0x409/serialnumber
+echo "walleye-first-boot" > $G/strings/0x409/serialnumber
 echo "linux-phone-oco" > $G/strings/0x409/manufacturer
 echo "Pixel 2 walleye (mainline banner)" > $G/strings/0x409/product
 say "about to mkdir functions/acm.GS0"

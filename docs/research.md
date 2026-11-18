@@ -1943,3 +1943,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-banner2-built"></a>
+### walleye-banner2-built
+
+Date
+: 2026-11-18
+
+Brief
+: banner2 built: boot-banner.img with only init-banner's USB serial changed to walleye-first-boot; 41 checks ok, rebuild identical, reviewed
+
+Question
+: Can the banner image carry the serial the host's udev rule knows, with nothing else changed?
+
+Found
+: images-banner2/boot-banner2.img sha256 680c0aa730d294e3d9c23a23c3abc4db993cfaff059e805229e4af6244ce9888 (initramfs-banner2.cpio.xz 502b1142f58bf022d24cd385acaa07f4c2bae0282e5920173ad818eaa24c9dcb). Kernel bytes equal boot-banner.img's; the ramdisk differs in one init line (serialnumber). build/check-init-serials.sh reads every init under build/initramfs*/init* (23 serial lines, all walleye-first-boot) and fails on another serial or a serialnumber line of a form it cannot read; build-banner.sh runs it (BANNER_NAME names outputs, SHA256SUMS-NAME). Seen failing first with the old serial. Programmer review applied: no silently skipped forms, plain initramfs/ included, name validated.
+
+About
+: walleye-first-fastboot-boot

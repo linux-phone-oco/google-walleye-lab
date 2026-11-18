@@ -1870,3 +1870,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-banner-serial-fix-built"></a>
+### banner2 built: the serial fix
+
+Entry date
+: 2026-11-18
+
+Done
+: init-banner serial walleye-banner -> walleye-first-boot; build/check-init-serials.sh (every init, no unread form skipped); build-banner.sh runs it and takes BANNER_NAME; boot-banner2.img built twice identical, 41 checks; programmer review applied; walleye-banner-serial-fix done, walleye-try-banner2 queued for the keeper.
+
+Considered
+: check inside build-banner.sh only for init-banner
+
+Rejected
+: a name-guess grep over serial forms: it silently skipped gst/unquoted forms; now any unread serialnumber line fails
+
+About
+: walleye-first-fastboot-boot

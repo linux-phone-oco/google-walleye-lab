@@ -3252,10 +3252,10 @@ Rank
 ### init-banner writes the wrong USB serial (walleye-banner): the host rule did not apply; fix it and check every init
 
 Status
-: open
+: done
 
 Note
-: Found by orchestration from the host kernel log (lab PR 175's try). WHEN DONE queue walleye-try-banner2 (needs phone, rank 1): plain cat of /dev/ttyACM0 as the lab user (no root-exec): the banner bytes must reach it; then the z3 and c1 tries with the reader.
+: Built 2026-11-18: images-banner2/boot-banner2.img sha256 680c0aa730d294e3d9c23a23c3abc4db993cfaff059e805229e4af6244ce9888, 41 checks, rebuild identical, reviewed; research walleye-banner2-built; check-init-serials.sh over every init; try queued as walleye-try-banner2.
 
 About
 : walleye-first-fastboot-boot
@@ -3293,6 +3293,31 @@ Needs
 
 Proof
 : tests/host/mainline-shell-read.sh no longer calls lab-agent root-exec anywhere (grep finds no root-exec in tests/host and build): the retry on Permission denied stays (20 s), the fail line says what it saw (owner, group, ACL, the usb parent's serial, who holds the port); the selftest's root-exec cases are replaced by a case where the tty stays denied and the script fails cleanly with that detail; the OUT/root-exec.log mention is removed; the other readers stay as they are; programmer review
+
+Rank
+: 1
+
+
+<a id="walleye-try-banner2"></a>
+### Try banner2 once from slot b with a plain cat of ttyACM0 as the lab user: do the banner bytes reach it?
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images-banner2/boot-banner2.img sha256 680c0aa730d294e3d9c23a23c3abc4db993cfaff059e805229e4af6244ce9888. Same as banner but the USB serial is walleye-first-boot, so the host rule gives the lab user the tty (no root-exec). Then the z3 and c1 tries with the reader.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-banner-seen: sh tests/host/banner-check.sh FILE passes on 'cat /dev/ttyACM0 > FILE' as the lab user (no root) of banner2 (images-banner2/boot-banner2.img sha256 680c0aa730d294e3d9c23a23c3abc4db993cfaff059e805229e4af6244ce9888)
 
 Rank
 : 1
