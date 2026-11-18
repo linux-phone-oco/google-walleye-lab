@@ -1789,3 +1789,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-18-walleye-builder-charger-c1"></a>
+### walleye-builder: charger c1 built
+
+Entry date
+: 2026-11-18
+
+Done
+: Enabled pmi8998's charger and a simple-battery (2700 mAh, 4.4 V) in dt/, built the two drivers in, wrote build/build-c1.sh (z3 + new kernel + our dtb, 27 checks, rebuild identical), tests/host/charger-check.sh with its selftest, and one reader step that saves each power supply's type/online/voltage; queued the try.
+
+Considered
+: Building c1 on z3, which still waits for its own try (the silent shell): the charger try reads the same way, so both wait on the banner init and reader work.
+
+Rejected
+: Modules for the charger (the initramfs carries none); a fuel-gauge node now (capacity stays not known yet); changing the PMIC's JEITA bounds.
+
+About
+: walleye-charger-smb2

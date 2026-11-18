@@ -2836,10 +2836,10 @@ Proof
 ### Charger and battery: enable pmi8998's smb2 charger (qcom_smbx) with a monitored battery of 2700 mAh / 4.4 V
 
 Status
-: open
+: done
 
 Note
-: No new driver: qcom,pmi8998-charger is in mainline (research walleye-bringup-order-plan-made). Needs the pmi8998 charger node, rradc, a simple-battery node (cell facts of the vendor GPL tree: 2700 mAh, 4.4 V max, 3.4 V cutoff, 50 mA termination). Capacity stays not known yet until the fuel gauge. Keep the vendor's JEITA bounds; the keeper's battery rule stays.
+: c1 built (research walleye-c1-built), try queued as walleye-try-c1; proof walleye-charger-online comes from that try
 
 Blocked by
 : walleye-pmic-spmi
@@ -3179,3 +3179,25 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-try-c1"></a>
+### Try c1 once from slot b with the shell reader: does pmi8998's charger probe, and is online 1 with the cable in?
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images-c1/boot-c1.img sha256 ddae19b523f2a68d902755f0e57d53c3b98c74b9b146d372bc40ea307aaee0c0. c1 = z3 + SMB2 charger and rradc built in + charger/battery in the dtb. Run battery-ok first; read with mainline-shell-read.sh (saves power-supply-facts.txt); the cable is in during the read, so online must be 1; give DIR to charger-check.sh (a second DIR with the cable out, from any later read, proves it follows). Risks (review): float voltage is set from 4.4 V (4402.5 mV in the register); the charger init rewrites Type-C/USB-input limits and may drop the ttyACM link: a missing tty on c1 is a finding, z3 is the fallback; keep the try short and watch warmth. If the shell is silent (y2, z1 were), nothing is learned: wait for walleye-build-banner-init. Battery voltage rising is read in Android afterwards (capacity stays not known yet).
+
+About
+: walleye-charger-smb2
+
+Opened
+: 2026-11-18
+
+Needs
+: phone
+
+Proof
+: walleye-charger-smb2: sh tests/host/charger-check.sh DIR passes on the reader's output of c1 (images-c1/boot-c1.img sha256 ddae19b523f2a68d902755f0e57d53c3b98c74b9b146d372bc40ea307aaee0c0)

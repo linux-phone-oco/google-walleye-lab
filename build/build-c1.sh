@@ -44,6 +44,7 @@ ck ".config has CHARGER_QCOM_SMB2=y" "$(grep -c '^CONFIG_CHARGER_QCOM_SMB2=y$' "
 ck ".config has QCOM_SPMI_RRADC=y" "$(grep -c '^CONFIG_QCOM_SPMI_RRADC=y$' "$KO/.config")" 1
 ck ".config differs from z2's kernel config in the charger and rradc lines only (depends-on lines may follow)" "$(diff "$BASE_CFG" "$KO/.config" | grep '^[<>]' | grep -vc -e 'CHARGER_QCOM_SMB2' -e 'QCOM_SPMI_RRADC')" 0
 ck "the new Image.gz is not z3's (the kernel change)" "$(cmp -s "$KO/Image.gz" "$T/k.gz" && echo same || echo differs)" differs
+ck "Image.gz holds the charger driver" "$(zcat "$KO/Image.gz" | grep -ac qcom-smbx-charger)" 1
 # the dtb
 ck "c1 dtb: the charger is okay" "$(fdtget "$T/c1.dtb" "$PMI/charger@1000" status)" okay
 ck "c1 dtb: charger compatible" "$(fdtget "$T/c1.dtb" "$PMI/charger@1000" compatible)" qcom,pmi8998-charger
@@ -66,7 +67,7 @@ ck "after the merge the overlay's clock users name gcc" "$(DTB="$T/c1.dtb" sh "$
 # the image
 set --
 while IFS= read -r pr; do [ -n "$pr" ] && set -- "$@" --prop "$pr"; done <<EOP
-$(echo "$AV" | sed -n "s/^ *Prop: \([^ ]*\) -> '\(.*\)'$/\1:\2/p")
+$(printf "%s\n" "$AV" | sed -n "s/^ *Prop: \([^ ]*\) -> '\(.*\)'$/\1:\2/p")
 EOP
 IMG=$T/boot-c1.img
 mkbootimg --header_version 0 --base 0x0 --kernel_offset "$(field 'kernel load address')" --ramdisk_offset "$(field 'ramdisk load address')" \
@@ -74,7 +75,7 @@ mkbootimg --header_version 0 --base 0x0 --kernel_offset "$(field 'kernel load ad
   --os_version "$(field 'os version')" --os_patch_level "$(field 'os patch level')" --cmdline "$(field 'command line args')" \
   --kernel "$T/blob" --ramdisk "$T/z3/ramdisk" -o "$IMG"
 avbtool add_hash_footer --image "$IMG" --partition_size "$PSIZE" --partition_name boot --algorithm NONE \
-  --salt "$(echo "$AV" | sed -n 's/^ *Salt: *//p' | head -n1)" "$@"
+  --salt "$(printf "%s\n" "$AV" | sed -n 's/^ *Salt: *//p' | head -n1)" "$@"
 U=$(unpack_bootimg --boot_img "$IMG" --out "$T/u")
 split "$T/u/kernel" "$T/uk"
 ck "c1 Image.gz is the new build's, byte for byte" "$(cmp -s "$T/uk.gz" "$KO/Image.gz" && echo same || echo differs)" same

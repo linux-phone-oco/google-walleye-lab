@@ -1880,3 +1880,25 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-y2-old-reader/
+
+
+<a id="walleye-c1-built"></a>
+### walleye-c1-built
+
+Date
+: 2026-11-18
+
+Brief
+: c1 built: z3 plus the SMB2 charger and RRADC built in and pmi8998's charger enabled with a 2700 mAh / 4.4 V simple-battery; 27 checks ok, rebuild identical
+
+Question
+: Can mainline's pmi8998 charger be switched on for walleye with no new driver, and what is the image?
+
+Found
+: Mainline v7.3 has qcom_smbx (CHARGER_QCOM_SMB2) and the rradc driver (QCOM_SPMI_RRADC), both off in defconfig; pmi8998.dtsi has the charger (disabled) and rradc nodes with the interrupts and io-channels. The driver refuses to probe without a monitored-battery and sets the float voltage from voltage-max-design, so the battery node carries the vendor GPL tree's cell facts: 2700 mAh, 4.4 V max, 3.4 V min, 50 mA termination; JEITA stays the PMIC's own. c1 = z3's ramdisk, header, command line and AVB footer with the new kernel (the two lines built in; config differs from z2's in those only) and our dtb (charger okay, battery, clock_gcc symbol on the real gcc as z3). Image ~/Projects/walleye-build/images-c1/boot-c1.img sha256 ddae19b523f2a68d902755f0e57d53c3b98c74b9b146d372bc40ea307aaee0c0, dtb dfb66904...06e3ea. Checks: build/build-c1.sh 27 ok, rebuild identical; tests/host/charger-selftest.sh 8 ok. Not measured: whether the charger probes or the cable shows online: that is the try.
+
+Sources
+: kernel-qcom-smbx-charger
+
+About
+: walleye-charger-smb2
