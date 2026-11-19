@@ -2993,21 +2993,6 @@ About
 ---
 
 
-<a id="2026-11-19-2200-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: Android on slot b, stock kernel, nothing flashed, adb up, 4381 mV; z21 tried once and done: touch binds (rmi4 0-0020, Synaptics S3708AR input1), no gpiolib_shared deferral
-
-Considered
-: next: touch events need a touch (touch-read.sh with a person) and part-compare capture touch ours (z21 again with NOREBOOT=1); walleye-ufs-android-regs still needs a mem reader (coordinator); then walleye-try-z19/bootchain-readback
-
----
-
-
 <a id="2026-11-19-2230-how-the-phone-stands"></a>
 ### How the phone stands
 
@@ -4579,3 +4564,21 @@ Considered
 
 About
 : walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-19-2200-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed; B1 tried once unattended from fastboot (13/13 display modules ok, DSI-1 connected, backlight write fails -110, glass not looked at); phone returned by the init's deadman. Tooling note: the run needs build/images linked to ~/Projects/walleye-build and the phone password file is still missing (suite and phone root unavailable).
+
+Considered
+: next: author's look at B1 (one command), then the backlight -110 on the dsi cmd dma (research row); next ready: walleye-ufs-card-fw-rev-read (1), walleye-attend-pmic-unattended-run-4 (3)
+
+About
+: walleye-first-fastboot-boot
