@@ -113,12 +113,19 @@ pub fn fresh_boot(uptime: u64, since_arming: u64) -> bool {
     uptime <= since_arming + 5
 }
 
+/// One of the two images the try may boot: A (next + the six patches) or B (the fallback), with its path.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Image {
+    pub name: &'static str,
+    pub path: PathBuf,
+}
+
 #[derive(Default)]
 struct Facts {
     /// boots of the image so far: the files of each boot are kept apart (b1-, b2-)
     boots: u32,
     /// the image that booted (A, or B when A showed no banner)
-    chosen: Option<(String, PathBuf)>,
+    chosen: Option<Image>,
     know: Option<Know>,
     armed_at: Option<Instant>,
     /// what each step learned, written to summary.txt at the end
@@ -207,20 +214,27 @@ impl Pmic {
         }
     }
 
-    fn image(&self, which: &str) -> PathBuf {
-        if which == "A" {
-            self.s.image_a.clone()
-        } else {
-            self.s.image_b.clone()
-        }
+    /// The two images, in the order they are tried: A, then B.
+    fn images(&self) -> [Image; 2] {
+        [
+            Image {
+                name: "A",
+                path: self.s.image_a.clone(),
+            },
+            Image {
+                name: "B",
+                path: self.s.image_b.clone(),
+            },
+        ]
     }
 
     /// Both images are the ones built: each sha256 is the one its SHA256SUMS line records.
     pub fn images_are_the_built_ones(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
         move || {
-            for w in ["A", "B"] {
-                host::image_is_the_built_one(&t.image(w)).map_err(|e| format!("image {w}: {e}"))?;
+            for i in t.images() {
+                host::image_is_the_built_one(&i.path)
+                    .map_err(|e| format!("image {}: {e}", i.name))?;
             }
             Ok(())
         }
@@ -230,11 +244,11 @@ impl Pmic {
     pub fn ufs_is_off_in_both(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
         move || {
-            for w in ["A", "B"] {
-                let image = t.image(w).to_string_lossy().into_owned();
-                let line = t.lab.script("ufs-off-image.sh", &[&image], &[])?;
+            for i in t.images() {
+                let path = i.path.to_string_lossy().into_owned();
+                let line = t.lab.script("ufs-off-image.sh", &[&path], &[])?;
                 if !line.starts_with("pass ") {
-                    return Err(format!("image {w}: {line}"));
+                    return Err(format!("image {}: {line}", i.name));
                 }
             }
             Ok(())
@@ -294,14 +308,14 @@ impl Pmic {
         let t = self.clone();
         move || {
             let chosen = t.facts.borrow().chosen.clone();
-            let which: Vec<&str> = match &chosen {
-                Some((w, _)) => vec![if w == "A" { "A" } else { "B" }],
-                None => vec!["A", "B"],
+            let which: Vec<Image> = match chosen {
+                Some(image) => vec![image],
+                None => t.images().to_vec(),
             };
             let toml = t.s.device_toml();
-            for (i, w) in which.iter().enumerate() {
-                let image = t.image(w);
-                t.boot(&image)?;
+            for (i, image) in which.iter().enumerate() {
+                let w = image.name;
+                t.boot(&image.path)?;
                 let up = t.lab.script(
                     "gadget-up.sh",
                     &[&toml.to_string_lossy()],
@@ -310,7 +324,7 @@ impl Pmic {
                 if up.is_ok() {
                     {
                         let mut f = t.facts.borrow_mut();
-                        f.chosen = Some((w.to_string(), image));
+                        f.chosen = Some(image.clone());
                         f.boots += 1;
                     }
                     t.note(format!("image {w} booted and shows its banner"));
@@ -473,6 +487,34 @@ impl Pmic {
         move || t.stays_up(t.s.stay.min(60), "after the bite and the power hold")
     }
 
+    /// An Android property by adb: "unread" when adb does not answer or the property is empty.
+    fn getprop(&self, name: &str) -> String {
+        self.tool(&self.s.adb, &["shell", "getprop", name])
+            .ok()
+            .filter(|s| s.ok)
+            .map(|s| s.text.trim().to_string())
+            .filter(|v| !v.is_empty())
+            .unwrap_or_else(|| "unread".into())
+    }
+
+    /// After the bite pass, Android says why it booted and from which slot; both are recorded (never judged: a
+    /// slot or a reason that cannot be read is said as unread, the bite's own witnesses stand).
+    pub fn bootreason_and_slot_are_read(&self) -> impl FnOnce() -> Done + 'static {
+        let t = self.clone();
+        move || {
+            let reason = t.getprop("ro.boot.bootreason");
+            let slot = t.getprop("ro.boot.slot_suffix");
+            t.save(
+                "android-boot.txt",
+                &format!("bootreason [{reason}] slot [{slot}]"),
+            )?;
+            t.note(format!(
+                "Android after the bite: boot reason [{reason}], active slot [{slot}]"
+            ));
+            Ok(())
+        }
+    }
+
     /// Arm the watchdog at 20 s and never pet it: the bite is due.
     pub fn arm_and_bite(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
@@ -523,10 +565,7 @@ impl Pmic {
                 let now = secs(Instant::now());
                 if let Some(up) = t.android_uptime() {
                     if fresh_boot(up, now) {
-                        let reason = t
-                            .tool(&t.s.adb, &["shell", "getprop", "ro.boot.bootreason"])
-                            .map(|s| s.text)
-                            .unwrap_or_default();
+                        let reason = t.getprop("ro.boot.bootreason");
                         t.save("bite.txt", &format!("lost {lost} s, Android uptime {up} s at {now} s, bootreason [{reason}]"))?;
                         t.note(format!(
                             "BITE: the shell went quiet {lost} s after the arming; Android is back by itself at {now} s with uptime {up} s (a new boot); boot reason [{reason}]"
@@ -662,7 +701,7 @@ mod walkthrough {
         std::fs::write(
             d.join("adb"),
             format!(
-                "#!/bin/sh\ncase \"$*\" in\n *uptime*) n=$(cat \"{0}/n\" 2>/dev/null || echo {1}); echo $((n+1)) > \"{0}/n\"; echo \"$n.0 1.0\";;\n *bootreason*) echo watchdog;;\n *reboot*) : > \"{0}/bootloader\";;\n *) echo device;;\nesac\n",
+                "#!/bin/sh\ncase \"$*\" in\n *uptime*) n=$(cat \"{0}/n\" 2>/dev/null || echo {1}); echo $((n+1)) > \"{0}/n\"; echo \"$n.0 1.0\";;\n *bootreason*) echo watchdog;;\n *slot_suffix*) echo _b;;\n *reboot*) : > \"{0}/bootloader\";;\n *) echo device;;\nesac\n",
                 d.display(),
                 adb_state
             ),
@@ -768,6 +807,80 @@ mod walkthrough {
         );
         let dmesg = std::fs::read_to_string(d.join("out/b1-dmesg.txt")).unwrap();
         assert!(dmesg.contains("serialno=REDACTED") && !dmesg.contains("SECRET"));
+        std::fs::remove_dir_all(d).ok();
+    }
+
+    #[test]
+    fn image_a_not_booting_leads_to_b_and_says_so() {
+        let d = lab("fallback", "5");
+        // a gadget that comes up only for the image B (the last image lpoco was asked to boot)
+        std::fs::write(
+            d.join("tests/host/gadget-up.sh"),
+            format!(
+                "tail -n1 \"{}/lpoco.calls\" | grep -q boot-wdt1-b.img && echo 'pass walleye-gadget-up kernel up' && exit 0\necho 'fail walleye-gadget-up no gadget'; exit 1\n",
+                d.display()
+            ),
+        )
+        .unwrap();
+        let t = the_try(&d, phone(STATE_OK, BITE_OK));
+        t.boot_image()().unwrap();
+        let notes = t.facts.borrow().notes.join("\n");
+        assert!(
+            notes.contains("image A shows no banner")
+                && notes.contains("next does not boot walleye"),
+            "{notes}"
+        );
+        assert!(notes.contains("image B booted"), "{notes}");
+        let chosen = t.facts.borrow().chosen.clone().unwrap();
+        assert_eq!(chosen.name, "B");
+        assert_eq!(chosen.path, d.join("boot-wdt1-b.img"));
+        // the second boot of the test keeps B and does not try A again
+        t.boot_image()().unwrap();
+        let calls = std::fs::read_to_string(d.join("lpoco.calls")).unwrap();
+        let a = calls.matches("boot-wdt1-a.img").count();
+        assert_eq!(a, 1, "{calls}");
+        std::fs::remove_dir_all(d).ok();
+    }
+
+    #[test]
+    fn both_images_not_booting_is_an_error_naming_the_last() {
+        let d = lab("neither", "5");
+        std::fs::write(
+            d.join("tests/host/gadget-up.sh"),
+            "echo 'fail walleye-gadget-up no gadget'; exit 1\n",
+        )
+        .unwrap();
+        let t = the_try(&d, phone(STATE_OK, BITE_OK));
+        let e = t.boot_image()().unwrap_err();
+        assert!(e.contains("image B shows no banner"), "{e}");
+        std::fs::remove_dir_all(d).ok();
+    }
+
+    #[test]
+    fn the_boot_reason_and_the_slot_are_read_and_recorded() {
+        let d = lab("reason", "5");
+        let t = the_try(&d, phone(STATE_OK, BITE_OK));
+        t.facts.borrow_mut().boots = 2; // both boots are done by this step: files are kept apart as b2-
+        t.bootreason_and_slot_are_read()().unwrap();
+        let said = std::fs::read_to_string(d.join("out/b2-android-boot.txt")).unwrap();
+        assert!(
+            said.contains("bootreason [watchdog]") && said.contains("slot [_b]"),
+            "{said}"
+        );
+        // an adb that does not answer is said as unread, not an error
+        let t = Pmic {
+            s: Rc::new(Settings {
+                adb: "/nonexistent/adb".into(),
+                ..(*t.s).clone()
+            }),
+            ..t
+        };
+        t.bootreason_and_slot_are_read()().unwrap();
+        let notes = t.facts.borrow().notes.join("\n");
+        assert!(
+            notes.contains("boot reason [unread], active slot [unread]"),
+            "{notes}"
+        );
         std::fs::remove_dir_all(d).ok();
     }
 

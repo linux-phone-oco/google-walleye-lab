@@ -7498,10 +7498,10 @@ Rank
 ### PMIC program: an Image type for A and B, the A-to-B fallback's witnesses with a stand-in test, and bootreason and slot read in the bite pass
 
 Status
-: open
+: done
 
 Note
-: Left open by the builder of walleye-tries-shared-lab-plumbing (PR 517): not in that item's proof. The A to B fallback had no stand-in test since the program was built (PR 453). Do after walleye-wdt-state-without-sysfs-identity and before the PMIC attended try is asked. NEW IMAGES (builder, PR 520): the sysfs-less reader fix is in the ramdisk init, so the program must boot the rebuilt pair: A ~/Projects/walleye-build/images-wdt1-sysfsless/boot-wdt1-a.img (sha256 9dfea096...), B .../boot-wdt1-b.img (15f5e97d...), checked against SHA256SUMS-wdt1 beside them. The defaults in tools/walleye-tries/src/settings.rs still point to images-wdt1 (old). Rank 3 (2026-11-19): after walleye-pmic-program-way-back; both before the author is asked for the PMIC try.
+: Landed: Image type, fallback stand-in test, bootreason and slot step; 64 tests, clippy, fmt, dry-run pass. No phone try run (builder never touches the phone).
 
 About
 : walleye-attend-program-pmic

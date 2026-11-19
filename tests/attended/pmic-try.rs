@@ -53,6 +53,7 @@ fn main() {
     ask_author(words::HOLD_POWER);
     check("Android is back", wdt.android_is_back());
     check("Android stays up", wdt.android_stays_up_a_minute());
+    check("Android's boot reason and active slot are read", wdt.bootreason_and_slot_are_read());
     step("save the result", wdt.result_is_saved());
     step("the phone is on Android (the way back, if it is not)", wdt.way_back());
 }

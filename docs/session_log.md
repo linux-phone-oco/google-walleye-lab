@@ -4408,3 +4408,21 @@ Rejected
 
 About
 : walleye-attend-program-pmic
+
+---
+
+
+<a id="2026-11-19-walleye-pmic-program-ab-and-witnesses"></a>
+### PMIC program: Image type, A-to-B fallback test, boot reason and slot read
+
+Entry date
+: 2026-11-19
+
+Done
+: pmic.rs: an Image type (A, B) replaces loose paths; a stand-in test that A not showing a banner leads to B and says so (and keeps B for the second boot; both failing names image B); a new step after the bite pass reads ro.boot.bootreason and ro.boot.slot_suffix from Android and records them (unread when adb gives nothing). 64 tests pass, clippy -D warnings and fmt clean, --dry-run passes (26 steps). Default images already are the rebuilt sysfsless pair via device.toml [images.wdt1-a/b].
+
+Rejected
+: a failing step when the slot or reason is unread: the bite's own witnesses stand, so it is said, not judged
+
+About
+: walleye-attend-program-pmic
