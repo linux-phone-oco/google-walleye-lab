@@ -4412,10 +4412,10 @@ Rank
 ### Display: Samsung S6E3FA5 command-mode panel through DPU/DSI
 
 Status
-: open
+: in-progress
 
 Note
-: No mainline driver; start from the out-of-tree S6E3FA5 driver (OnePlus 5) and porthole's sw43402 cmd-mode work for the DPU side; init sequence from the GPL downstream dtsi; reset gpio94, TE gpio10 (walleye) - the panel and its rails are walleye's own.
+: Driver compiles; boot-display.img built and gate-checked (research walleye-display-s6e3fa5-built); the keeper's try is walleye-try-display; done when a person sees the pattern.
 
 About
 : walleye-first-fastboot-boot
@@ -5374,3 +5374,31 @@ Proof
 
 Rank
 : 6
+
+
+<a id="walleye-try-display"></a>
+### Try the display image once from slot b: boot-display.img, read the DRM connector, show a test pattern a person sees
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images-display/boot-display.img, sha256 21a1134ebf99aca90fb77042697e40fa7a7b032734d706b8d2328c5b08bd09b0 (SHA256SUMS-display-img beside it). KEEPER: battery rule, tests/host/ufs-off-image.sh on the image first (passes), try once from slot b, read dmesg for the s6e3fa5 probe, the DSI host and /sys/class/drm/*/status BEFORE the person looks; the pattern needs the person's go (witness). Built by build/build-display.sh and build/build-display-image.sh. Programmer review done.
+
+Blocked by
+: walleye-display-s6e3fa5
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: walleye-display-pattern (to write: connector connected in /sys/class/drm, then a pattern written to /dev/fb0 or the DRM test pattern; a person says seen)
+
+Witness
+: person

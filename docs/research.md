@@ -3303,3 +3303,22 @@ About
 
 Supersedes
 : walleye-z21-touch-events-nobody-swiped
+
+
+<a id="walleye-display-s6e3fa5-built"></a>
+### walleye-display-s6e3fa5-built
+
+Date
+: 2026-11-19
+
+Brief
+: Display kernel and image built: the S6E3FA5 driver compiles with the Pixel 2's own init read from the phone's dtbo; boot-display.img passes the UFS-off gate; not lit yet
+
+Question
+: Does the S6E3FA5 panel driver with the DPU/DSI path build into a boot image the keeper can try?
+
+Found
+: Earlier unlanded driver had lost its reset and on functions. The phone's own dtbo (entry 3, node mdss_dsi_samsung_s6e3fa5_1080p_cmd) gives the facts: on = sleep out, 120 ms, TE on, 0x53=0x20, 0xf0 unlock, 0xbb 54 00 36 20 f3, 0xf0 lock, display on; off = display off, 10 ms, sleep in, 150 ms; reset high 1 ms, low 1 ms, high 10 ms; porches h 18/10/82, v 8/2/16; 62x110 mm; vddio 1.8 V; backlight by 8-bit DCS 0x51. Programmer review: brightness changed to a one-byte write, the 16-bit read dropped, build script paths made absolute; its uncompressed-headroom check rejected (z21 boots at 43.4 MB uncompressed with the ramdisk at 16 MB). build-display.sh builds Image.gz and the display dtb (rc 0); build-display-image.sh puts them into z21's image, every check ok incl. the UFS-off gate. boot-display.img sha256 21a1134ebf99aca90fb77042697e40fa7a7b032734d706b8d2328c5b08bd09b0. NOT lit: untried. The kernel config is walleye.config plus walleye-display.config, not z21's diagnostic fragment.
+
+About
+: walleye-first-fastboot-boot
