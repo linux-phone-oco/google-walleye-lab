@@ -5405,7 +5405,7 @@ Witness
 
 
 <a id="walleye-pmic-wdt-v1-image"></a>
-### Build the Pixel 2 images with the PMIC watchdog v1 series: A on the next-based tree, B on v7.3 plus six patches
+### Build the Pixel 2 images with the PMIC watchdog v1 series: A on the next-based tree, B on v7.3 plus topic 8b2283da3
 
 Status
 : open
@@ -5418,6 +5418,8 @@ Both: patch 1 (reset type set with S2 disabled, read back) and patch 2 (stop on 
 Init (same in A and B): print the S2 type read back in the banner (/bin/pon-regs from z10 reads PON registers, reads only); two explicit commands from the telnet shell and no arming on boot: `wdt-bite` arms the watchdog at 20 s and never pets it, and only when the type reads back as the one the dts set (warm 0x01 first, hard 0x07 only on a later try if warm restarted); `wdt-reboot` arms the watchdog (20 s) and then does a clean `reboot`, to prove the stop-on-reboot path. Keep the 180 s self-reboot and /tmp/hold for the unarmed part; the self-reboot must never arm anything.
 Record both image paths and sha256 in this note and in walleye-try-pmic-wdt-v1, run the host selftests, and land.
 
+UPSTREAMS LANE 2026-11-19 (their message to the walleye coordinator): kernel B is v7.3 + linux-phone-oco/linux topic/pmic-wdt-wake-in-suspend at 8b2283da3 (NOT the old pin e123d3bff; patches 1 and 2 there are f5bb57d27 and 8b2283da3, identical in code to the v1 patches 1 and 2, which are only rebased onto next). Image A (next-based v1 tree) stays as asked. In both images switch dynamic debug on for the driver (kernel command line, e.g. dyndbg="file drivers/watchdog/pm8916_wdt.c +p", or the equivalent that works for a built-in) so the banner or dmesg carries "S2 reset control was %#x" (the firmware's type) and shows that the probe does not fail (the read-back passed): the init prints those two lines in the banner.
+
 About
 : walleye-pmic-wdt-proof
 
@@ -5428,7 +5430,7 @@ Needs
 : build
 
 Proof
-: both images pass ufs-off-image.sh, boot to the banner with the S2 type read back equal to the one set (check pmic-wdt-s2-type-readback), and arm only by the explicit commands wdt-bite and wdt-reboot
+: both images pass ufs-off-image.sh, boot to the banner with the S2 type read back equal to the one set and the dyndbg lines printed (check pmic-wdt-s2-type-readback), and arm only by the explicit commands wdt-bite and wdt-reboot
 
 Rank
 : 2
@@ -5449,6 +5451,8 @@ THE PLAIN-WORDS ASK (the coordinator sends it to him when he is at the phone):
 KEEPER, in order: (1) the images: the next-based image A first; tests/host/ufs-off-image.sh on it (do not boot if it fails); battery rule; (2) boot A from fastboot boot (never flash); read the banner. If A shows no banner within 120 s by several witnesses (tests/host/phone-state.sh), say so as the result "next does not boot walleye" and let the self-reboot run, then use B (v7.3 plus the six patches, the same gate) for both tests, so the author stays for one session; (3) test 2 first, the reboot path (the low-risk one): send the coordinator the one line "ready" at once through the send tool, start the reader first; run `wdt-reboot`; judge: Android comes up by itself and stays up for 3 minutes (no reset every ~20-30 s); read S2 off in Android (adb root, the PON registers through debugfs regmap, root is allowed: Android is throw-away) when possible, else say not known yet; (4) then `adb reboot bootloader`, boot the same image again, read back the S2 type (if it does not equal the one the dts set: stop, record, no bite); send "ready" the same way; `wdt-bite`; judge by several witnesses: pass = back by itself with uptime reset and bootstatus CARDRESET on the same slot. After the bite S2 may stay armed across the reset: a restart loop of about 20 s is a finding, the author then holds power 15 s; (5) record counts and how each test ended (never "hung" from lsusb alone), and a one-line result in a note for the upstreams coordinator. If it powered off: write that and leave the phone for the author's hands (power 15 s), then check fastboot and the first state. Never flash, erase or set the active slot.
 
 THE RESULT goes to the upstreams coordinator (its note on the series): what booted (A or B), the bite result, the reboot result. The series stays unsent until then.
+
+UPSTREAMS LANE 2026-11-19 (their message to the walleye coordinator), TO RECORD: (a) with dyndbg on pm8916_wdt: the line "S2 reset control was %#x" (the firmware's type) and that the probe did not fail (the read-back passed); (b) a bite RESTARTS the phone instead of powering it off (z9 powered off); (c) patch 2: after a plain reboot with the watchdog open, the next boot is not reset by the watchdog. SAFETY: after a bite S2 stays enabled, so the next boot must carry pm8916_wdt or it resets every timeout until a full power-off (surya learned this on the POCO X3). The next boot after OUR bite is the phone's own Android (no pm8916_wdt), so a restart loop of about 20 s is EXPECTED there, not only possible: that is why the reboot test goes first and the bite last, and why the author stays at the phone for it: judge the bite pass at the FIRST restart (uptime reset seen once, bootloader or Android reached), then ask him to hold power 15 s, then check fastboot and the first state. When the result is in, send the upstreams coordinator the record id (the research row of this try) and the lab PR.
 
 Blocked by
 : walleye-pmic-wdt-v1-image
