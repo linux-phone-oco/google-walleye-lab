@@ -6525,10 +6525,10 @@ Rank
 ### Keeper: the touch program's unattended parts run for real
 
 Status
-: open
+: done
 
 Note
-: Run tests/attended/touch-try.rs (rust-script, from this lab's folder) once with standard input from /dev/null: the ufs gate, boot of z21, shell, device listed and EVENTS-READY must pass, and the run stops at the ask with 'nobody answered'; the phone then restarts by itself at 180 s; check tests/host/idle-android.sh; record the program's log and the window it printed. No author needed; the real attended run is walleye-try-z21-touch-events with the author's go.
+: proven by the program's log: EVENTS-READY shown, 'nobody answered' at the ask, idle-android passes; see research walleye-touch-program-unattended-run
 
 About
 : walleye-attend-program-touch
@@ -6809,3 +6809,25 @@ Proof
 
 Rank
 : 9
+
+
+<a id="walleye-touch-program-enter-fastboot"></a>
+### touch-try.rs enters fastboot itself from Android (as pmic-try's back_to_fastboot does) before the boot step
+
+Status
+: open
+
+Note
+: Found by the keeper's unattended run: step 4 fails 'not in fastboot now' when the phone idles on Android; keeper entered fastboot by adb reboot bootloader. Code for tools/walleye-tries/src/touch.rs.
+
+About
+: walleye-attend-program-touch
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: touch-try.rs --dry-run and a stand-in test pass starting from Android

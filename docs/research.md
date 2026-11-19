@@ -4188,3 +4188,22 @@ For the try: tests/host/display-late-probe.sh needs a timeout of 400 s or more (
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-touch-program-unattended-run"></a>
+### walleye-touch-program-unattended-run
+
+Date
+: 2026-11-19
+
+Brief
+: touch-try.rs unattended run: checks 1-9 pass, EVENTS-READY (120 s window), stops at the ask with 'nobody answered'; phone back on Android; program has no step into fastboot
+
+Question
+: Do the touch program's unattended parts pass for real, stdin from /dev/null?
+
+Found
+: First run stopped at step 4: the phone was on Android, not in fastboot (the program has no adb-reboot-bootloader step; pmic-try has back_to_fastboot). After adb reboot bootloader by the keeper, the rerun passed checks 1-3 (battery, built image, UFS off), boot from memory, shell + dmesg saved, touch controller listed, window 120 s (restart at 180 s), reader started, EVENTS-READY; stopped at ask 10 with 'nobody answered'. Phone restarted by itself; tests/host/idle-android.sh passes. Nothing flashed, slot b. Also: lpoco lab suite latest fails here - no password file ~/.config/devlab/google-walleye/password.
+
+About
+: walleye-attend-program-touch
