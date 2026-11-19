@@ -8434,37 +8434,6 @@ Go until
 : 2026-11-20T00:54:53+01:00
 
 
-<a id="walleye-wdt-bite-cable-out"></a>
-### Optional: the PMIC bite once more with the USB cable OUT, to see a plain restart; the author's call
-
-Status
-: open
-
-Note
-: From the upstreams coordinator (2026-11-20): a bite with the cable out would show a plain restart, and the v1 SEND-NOTES list 'restart with no charger attached' and bootstatus as unproven. Optional, the author's call. A warm-reset type 0x01 that boots Android with USB in would be its own later patch, not a v1 change: the driver sets hard reset on every PMIC it supports, so a change needs a reason that holds for all of them or a device-tree property.
-
-Waits
-: the author's word: it is optional; it needs the phone unplugged, so the lab's link (adb, gadget) is not there to read the result: the way to read it is the phone itself (does Android start without a power press) and a stopwatch
-
-About
-: walleye-pmic-wdt-v1-image
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: a bite of image A with no cable attached restarts the phone and Android starts by itself (the author sees the lock or home screen, or the phone's own boot animation); nothing else is needed; the result and his words go into the research row walleye-pmic-wdt-v1-try-result's follow-up (item walleye-wdt-reset-boots-charger-mode)
-
-Rank
-: 40
-
-Witness
-: person
-
-
 <a id="walleye-wdt-reset-boots-charger-mode"></a>
 ### A PMIC-watchdog bite with USB in boots the bootloader's charger screen, not Android: why, and should PON or the reset type make it warm-boot
 
@@ -8488,3 +8457,34 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-wdt-bite-cable-out"></a>
+### Optional: the PMIC bite once more with the USB cable OUT, to see a plain restart; the author's call
+
+Status
+: open
+
+Note
+: From the upstreams coordinator (2026-11-20): a bite with the cable out would show a plain restart, and the v1 SEND-NOTES list 'restart with no charger attached' and bootstatus as unproven. Optional, the author's call. A warm-reset type 0x01 that boots Android with USB in would be its own later patch, not a v1 change: the driver sets hard reset on every PMIC it supports, so a change needs a reason that holds for all of them or a device-tree property. When it runs, its result goes to the upstreams coordinator (local_ab8f8562), who puts it in the v1 cover letter.
+
+Waits
+: the author's word: it is optional; it needs the phone unplugged, so the lab's link (adb, gadget) is not there to read the result: the way to read it is the phone itself (does Android start without a power press) and a stopwatch
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: a bite of image A with no cable attached restarts the phone and Android starts by itself (the author sees the lock or home screen, or the phone's own boot animation); nothing else is needed; the result and his words go into the research row walleye-pmic-wdt-v1-try-result's follow-up (item walleye-wdt-reset-boots-charger-mode)
+
+Rank
+: 40
+
+Witness
+: person
