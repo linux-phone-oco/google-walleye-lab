@@ -4207,3 +4207,22 @@ Found
 
 About
 : walleye-attend-program-touch
+
+
+<a id="walleye-display-late-probe-l3-tried-still-defers"></a>
+### walleye-display-late-probe-l3-tried-still-defers
+
+Date
+: 2026-11-19
+
+Brief
+: L3 (vdd-supply = l1a) tried once from slot b: shell up, 13 modules load, shell alive; c994000.dsi still deferred, no DRM card, no panel line
+
+Question
+: Does the DSI host bind with vdd-supply = vreg_l1a_0p875, does a DRM card appear, what does the connector say?
+
+Found
+: Gates: ufs-off-image pass, battery 4376 mV, sha256 ok. fastboot boot of boot-l3.img (nothing flashed, slot b): gadget 1d6b:0104 after 18 s, shell 2 s later. display-late-probe.sh: all 13 modules loaded, shell alive (stream carried the marker, netconsole did not). Reads: devices_deferred lists only c994000.dsi; msm-mdss, msm_dpu, msm_dsi_phy (c994400.phy) bound; /sys/class/drm has only 'version', no /dev/dri, no panel line; all of dsi's devlink suppliers (pinctrl, pmic gpio, gcc, mdss, dpu, phy, glink) are 'available'. A manual bind of c994000.dsi (dd.c/dsi dyndbg on) shows really_probe, one mdss runtime resume/suspend, then EAGAIN with no message: the defer is silent and comes after the parent's resume, so it is in the host's own gets (regulators, clocks) or the phy/panel lookup. l1a as vdd did NOT clear it (or is not the one missing). No ftrace in this kernel (no tracefs), so the return site is not named. Phone back on Android slot b, idle-android pass. Material: /home/mll/Projects/walleye-build/runs/l3-1795095458. Next: read the dsi host's gets in the msm dsi driver source (msm_dsi_host_init: regulator bulk vdd/vdda, clocks, phy) against our dsi node and name which can defer; candidates: a 0.9 V vdd rail other than l1a, the vdda rail (l2a), a core clock from gcc/mmcc; or add pr_info/dev_err_probe in a try image.
+
+About
+: walleye-display-s6e3fa5

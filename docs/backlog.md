@@ -6672,10 +6672,10 @@ Rank
 ### Try L3 once: does the DSI host bind, does a DRM card appear, what does the connector say
 
 Status
-: open
+: done
 
 Note
-: UNATTENDED, no person (decision 2026-11-19-walleye-display-console-before-eyes). After the reads only: the author is asked, through the coordinator, for the stripes alone; the stripes themselves are drawn by the display attended program (item walleye-attend-program-display), which is written once a card exists.
+: tried once; proof read: still deferred, no card (research walleye-display-late-probe-l3-tried-still-defers). No 'console and connector read' - no card. Next: name the deferring get from the driver source, then an L4 with dev_err_probe prints or the right rail.
 
 Blocked by
 : walleye-display-late-probe-l3-image
