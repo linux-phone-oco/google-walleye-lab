@@ -7147,6 +7147,22 @@ Rank
 : 95
 
 
+<a id="walleye-display-late-probe-l5-gpio-shared-proxy"></a>
+### Name why the gpiolib_shared proxy for the panel reset (tlmm 94) is missing, and make an L5 image that fixes it
+
+Status
+: open
+
+Note
+: From research walleye-display-late-probe-l4-tried-dsi-binds-panel-defers-on-reset. Host first: who else references tlmm 94 in dtb+overlay, and the kernel's gpiolib-shared config.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+
 <a id="walleye-try-z21-touch-events"></a>
 ### Touch events on z21: a person touches the panel while the reader reads the RMI4 input device
 
@@ -7154,14 +7170,7 @@ Status
 : open
 
 Note
-: Part 2 of the touch probe: z21's try (lab PR 343) found rmi4 0-0020 bound, Synaptics S3708AR input1, zero gpiolib_shared deferrals. What remains is the finger.
-
-GO 2026-11-19: the author said "yes im next to both phones" (relayed by the top coordinator); the witnessed go is open for 30 minutes. KEEPER: run tests/host/ufs-off-image.sh on the z21 image first as always (do not boot if it fails); boot z21; AS SOON AS the host sees the input device (rmi4 / Synaptics in /proc/bus/input/devices over the network shell), SEND THE COORDINATOR ONE LINE: "ready" (the author then swipes for 20 s: drags across the whole glass and taps each corner); then start touch-read.sh with NOREBOOT=1 on the go; report pass or fail with the event counts; the init returns the phone to Android by itself.
-
-ATTENDED RUN 2026-11-19T02:34:19+01:00: THE AUTHOR IS AT THE PHONE NOW ("Yes, still here", relayed by the top coordinator; the go is open until 2026-11-19T04:04:19+01:00). A keeper launched by the coordinator after this line IS the attended run: do not wait for more proof of attendance, run it now: gate, boot z21, send the coordinator "ready" when the host sees the input device. No password file is needed (walleye has no ssh userland; do not use lpoco lab phone/suite/health): use lpoco lab keeper/fastboot, adb, tests/host scripts and telnet 172.16.43.1.
-
-RESULT OF THE 2026-11-19 ATTENDED RUN: z21 booted, Synaptics S3708AR bound (event1), but touch events are NOT KNOWN YET: the author swiped and tapped the corners after the keeper 20 s reader had closed (research walleye-z21-touch-events-window-missed; the earlier row said nobody swiped, wrong). The go has expired and stays closed until the author is next at the phone. RETRY: ufs-off gate first; boot z21; touch /tmp/hold on the phone as soon as telnet answers (the self-reboot at 180 s is then skipped); start touch-read.sh with NOREBOOT=1 and 90 s or more BEFORE sending ready; send the coordinator "ready" the moment the device shows (use the coordinator session id with the send tool, not a plain text line); then touch-check.sh and record the counts; remove /tmp/hold and let the phone reboot. The go window must be at least 90 minutes.
-2026-11-19 RULE (the author, via the Top Coordinator): ask him only when the try is ONE command away, its unattended parts run for real first - blocked by walleye-attend-program-touch (decision 2026-11-19-walleye-attended-tries-one-command). Blocked 2026-11-19 by walleye-attend-touch-unattended-run-2 (the program repeated from Android with no hand step). 2026-11-19 ONE COMMAND AWAY: the program tests/attended/touch-try.rs ran twice from Android with no hand step and stopped at the ask (PRs 460, 471); the unattended parts are proven. The author is asked only now. A keeper runs the one command at his go (go window via ikb backlog-go, at least 20 minutes). THE PLAIN-WORDS ASK for the touch try (the coordinator sends it when he is at the phone): "Touch test, about 5 minutes of you, nothing is written to the phone. One command on my side: the phone restarts into a test system from the computer, I wait until the touch reader is running and the terminal says so, then I say SWIPE NOW. You then drag slowly across the whole glass and tap each corner, for about 20 seconds (the reader stays open about 2 minutes), and say ok. The terminal counts your touches; PASS is that it counted events. The screen may show the Google logo or stay dark: a lit screen proves nothing. The phone returns to Android by itself within 3 minutes of starting; if it has not after 4 minutes, hold the power button about 15 seconds." THE AUTHOR'S GO 2026-11-19: his word, verbatim "Go", relayed by the Top Coordinator, who told him the plain-words text above; the go window is 45 minutes, until 2026-11-19T16:07:20+01:00. KEEPER ORDERS (this is the attended run; do not wait for more proof of attendance): (1) battery rule, phone-state android; (2) run tests/attended/touch-try.rs once from this lab's folder (no --dry-run), its stdin from a FIFO you hold open and feed yourself, its --log in ~/lab-material/walleye; (3) MESSAGES: send them yourself with SendMessage to the Top Coordinator (local_12b18c70-1b6d-4783-bb6f-50113ab63250), directly, never through the walleye coordinator: one line 'touch: booting' when the boot starts; the line 'SWIPE NOW' the moment the program reaches its ask with EVENTS-READY showing (he swipes the whole glass and taps each corner for about 20 s); at the end 'touch: PASS <n> events' or 'touch: FAIL <what>'; (4) the ask: feed the FIFO 'ok' when the Top Coordinator relays the author's ok or what he saw, or when the reader window closes, whichever is first - the count decides PASS or FAIL, not the ok; never leave the reader window to wait for a relay; (5) the way back is the program's (back on Android, idle-android pass); record the result as a research row and the log path, name the author's words if he gave any; (6) if the program fails before the ask, say so in the same one line to the Top Coordinator and stop: nobody swipes.
+: CURRENT GO: the field go_until of this item is the go (until 2026-11-19T16:18:02+01:00, the author's word 'Go', 2026-11-19, relayed by the Top Coordinator). Older go lines of this item (04:04, 30 minutes) were history and have been removed: IGNORE any 'expired' go from before; this one is open. Part 2 of the touch probe: z21's try (lab PR 343) found rmi4 0-0020 bound, Synaptics S3708AR input1; what remains is the finger. A keeper started after this line takes THIS item first. 2026-11-19 RULE (the author, via the Top Coordinator): ask him only when the try is ONE command away, its unattended parts run for real first - blocked by walleye-attend-program-touch (decision 2026-11-19-walleye-attended-tries-one-command). Blocked 2026-11-19 by walleye-attend-touch-unattended-run-2 (the program repeated from Android with no hand step). 2026-11-19 ONE COMMAND AWAY: the program tests/attended/touch-try.rs ran twice from Android with no hand step and stopped at the ask (PRs 460, 471); the unattended parts are proven. The author is asked only now. A keeper runs the one command at his go (go window via ikb backlog-go, at least 20 minutes). THE PLAIN-WORDS ASK for the touch try (the coordinator sends it when he is at the phone): "Touch test, about 5 minutes of you, nothing is written to the phone. One command on my side: the phone restarts into a test system from the computer, I wait until the touch reader is running and the terminal says so, then I say SWIPE NOW. You then drag slowly across the whole glass and tap each corner, for about 20 seconds (the reader stays open about 2 minutes), and say ok. The terminal counts your touches; PASS is that it counted events. The screen may show the Google logo or stay dark: a lit screen proves nothing. The phone returns to Android by itself within 3 minutes of starting; if it has not after 4 minutes, hold the power button about 15 seconds." THE AUTHOR'S GO 2026-11-19: his word, verbatim "Go", relayed by the Top Coordinator, who told him the plain-words text above; the go window is 45 minutes, until 2026-11-19T16:07:20+01:00. KEEPER ORDERS (this is the attended run; do not wait for more proof of attendance): (1) battery rule, phone-state android; (2) run tests/attended/touch-try.rs once from this lab's folder (no --dry-run), its stdin from a FIFO you hold open and feed yourself, its --log in ~/lab-material/walleye; (3) MESSAGES: send them yourself with SendMessage to the Top Coordinator (local_12b18c70-1b6d-4783-bb6f-50113ab63250), directly, never through the walleye coordinator: one line 'touch: booting' when the boot starts; the line 'SWIPE NOW' the moment the program reaches its ask with EVENTS-READY showing (he swipes the whole glass and taps each corner for about 20 s); at the end 'touch: PASS <n> events' or 'touch: FAIL <what>'; (4) the ask: feed the FIFO 'ok' when the Top Coordinator relays the author's ok or what he saw, or when the reader window closes, whichever is first - the count decides PASS or FAIL, not the ok; never leave the reader window to wait for a relay; (5) the way back is the program's (back on Android, idle-android pass); record the result as a research row and the log path, name the author's words if he gave any; (6) if the program fails before the ask, say so in the same one line to the Top Coordinator and stop: nobody swipes.
 
 About
 : walleye-first-fastboot-boot
@@ -7182,20 +7191,4 @@ Witness
 : person
 
 Go until
-: 2026-11-19T16:07:20+01:00
-
-
-<a id="walleye-display-late-probe-l5-gpio-shared-proxy"></a>
-### Name why the gpiolib_shared proxy for the panel reset (tlmm 94) is missing, and make an L5 image that fixes it
-
-Status
-: open
-
-Note
-: From research walleye-display-late-probe-l4-tried-dsi-binds-panel-defers-on-reset. Host first: who else references tlmm 94 in dtb+overlay, and the kernel's gpiolib-shared config.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
+: 2026-11-19T16:18:02+01:00
