@@ -2,12 +2,12 @@
 //! The touch try on z21 (item walleye-attend-program-touch; decision 2026-11-19-walleye-attended-tries-one-command).
 //! One command: the gate, the boot, the reader open and showing EVENTS-READY, THEN the author is asked to swipe
 //! across the whole glass and tap each corner; then the way back and the count. Each step stops the run when it fails.
-//!   tests/attended/touch-try.rs [--dry-run] [--log FILE]      (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
+//!   procedures/touch-events-on-z21.rs [--dry-run] [--log FILE]      (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
 //!
 //! ```cargo
 //! [dependencies]
 //! lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.35.1" }
-//! walleye-tries = { path = "../../tools/walleye-tries" }
+//! walleye-tries = { path = "../tools/walleye-tries" }
 //! ```
 // SPDX-License-Identifier: MIT OR Apache-2.0
 

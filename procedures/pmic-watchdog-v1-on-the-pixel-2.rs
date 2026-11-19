@@ -4,12 +4,12 @@
 //! (arm, never pet, the phone restarts by itself), the plain-words prompts built in. However the run ends (a failed check,
 //! an unanswered ask, Ctrl-C) the way back runs last: reboot -f, the sysrq trigger, then the power-hold sentence.
 //! Nothing is written to storage.
-//!   tests/attended/pmic-try.rs [--dry-run] [--log FILE]      (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
+//!   procedures/pmic-watchdog-v1-on-the-pixel-2.rs [--dry-run] [--log FILE]      (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
 //!
 //! ```cargo
 //! [dependencies]
 //! lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.35.1" }
-//! walleye-tries = { path = "../../tools/walleye-tries" }
+//! walleye-tries = { path = "../tools/walleye-tries" }
 //! ```
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
