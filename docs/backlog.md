@@ -5734,7 +5734,7 @@ Status
 : open
 
 Note
-: Unattended-safe like z21's try: RAM boot, the init returns the phone to Android by its own 180 s timer (/tmp/hold only while reading), a dark screen costs nothing. Order d0 (kernel alone), d1, d2; one try each; if d0 loses the shell the kernel build itself is the cause and the rest is skipped. The author need not be there; if the panel lights in d2 or d3 he may be told. Needs walleye-display-bisect-images done. The author's words on try 1 (research walleye-display-try1-author-saw): logo, then black, then Lineage in under a minute. So for EVERY image also record what the panel did if a person is at the phone (logo stays / goes black / lights): ask the coordinator to ask him, one line per image; without a person, say 'panel not seen'. d0 is the contrast: the logo should stay if the black comes from the display path.
+: UNATTENDED, NO PERSON, 2026-11-19: the author's words (via the Top Coordinator): "can they first make sure it boots and they have console then ask me to look ?" - decision 2026-11-19-walleye-display-console-before-eyes. Do not ask him to look at the panel for d0, d1 or d2. The mainline shell is telnet 172.16.43.1 without password (tests/host/mainline-shell-read.sh; no root, no ssh, nothing to add): if it does not answer, the kernel did not reach the gadget: say so and read pstore and the boot reason after Android is back. Order d0 (display kernel, z21 dtb: contrast), d1 (mdss + display controller), d2 (+ dsi, phy, no panel). Only when an image WITH the panel boots with a working shell and the dmesg, the probe lines and the connector are already read: send the coordinator 'look now' (stripes alone) and hold /tmp/hold. Earlier line: Research walleye-display-try1-author-saw (try 1: logo, black, Lineage in under a minute).
 
 Blocked by
 : walleye-display-bisect-images
@@ -5749,7 +5749,7 @@ Needs
 : phone
 
 Proof
-: per image: the gate passes right before the boot, left fastboot, gadget 1d6b:0104 within 60 s or not (host kernel log), shell read by tests/host/mainline-shell-read.sh with dmesg if up; a research row naming the first image that loses the shell (the stage that kills it) and, where the shell was up, the dmesg lines of the display probe (mdss, dpu, dsi, panel)
+: per image d0, d1, d2 (one try each, in order, stop at the first that loses the shell): the gate passes right before the boot; the host kernel log says whether 1d6b:0104 enumerated and when (seconds after leaving fastboot); the shell read by tests/host/mainline-shell-read.sh with dmesg (DPU, DSI, PHY, panel probe lines) and the DRM connector status if it is up; if it is not, the seconds until Android is back, and /sys/fs/pstore and the boot reason read from Android; a research row naming the first image that loses the shell and what was read
 
 Rank
 : 2
