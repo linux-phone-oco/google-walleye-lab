@@ -58,3 +58,45 @@ modules = ["usb_storage", "cdc_acm"]
 [[host.gadget]]
 serial = "walleye-first-boot"
 access = ["block", "tty"]          # /dev/sdX (mass_storage window m1) and /dev/ttyACM* (FunctionFS console n3)
+
+# The device layer, declared once (decision 2026-11-19-device-layer-declared-once): each package format is generated
+# from it. Checked against lab-tools' manifest/device.schema.json by `lpoco-manifest check`. Facts only: no
+# proprietary blob, serial or address is in it - the firmware is the phone's own, read from its partitions.
+[layer]
+name = "google-walleye"            # the packages' stem: google-walleye-config, google-walleye-boot, linux-google-walleye
+needs = []                         # none yet: no userland of ours runs on walleye (it has only the bring-up init); not invented
+
+[layer.kernel]
+tree = "https://github.com/linux-phone-oco/linux"
+tag = "topic/pmic-wdt-wake-in-suspend"   # kernel.org v7.3 plus this topic (our dts needs its &pm8998_wdt); a branch until a release is tagged
+config = "build/walleye.config"          # over the arm64 defconfig; build/build-kernel.sh merges it
+dtbs = ["qcom/msm8998-google-walleye.dtb"]   # from dt/msm8998-google-walleye.dts (UFS off, by decision 2026-11-19-walleye-ufs-off-by-a-gate)
+
+[layer.boot]
+method = "android-bootimg"         # an Android boot.img rewritten per kernel, the addresses from [boot] below; AVB footer, algorithm NONE
+
+[layer.firmware]
+# The Pixel 2's own firmware is read from its vendor partitions (modem, adsp, slpi, venus, wifi), never packaged and
+# never put in a repository: they are named here as sources only. Nothing reads them yet (walleye-wifi-wcn3990 will).
+method = "extract-from-partitions"
+
+# No UCM files and no udev files yet: walleye has no sound card and no udev userland of ours. Not invented.
+
+# The boot glue for [layer.boot]: header v0 as the recorded boot images carry it (z21; its diagnostic dyndbg words left out of the cmdline); [boot.gadget] comes with walleye-init-from-roof.
+[boot]
+header_version = 0
+base = 0x0
+kernel_offset = 0x8000
+ramdisk_offset = 0x1000000
+second_offset = 0x0
+tags_offset = 0x100
+pagesize = 4096
+os_version = "15.0.0"
+os_patch_level = "2026-11"
+cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3"
+partition_size = 33554432          # the boot partition, 32 MiB: an image with its AVB footer must fit
+msm_id = [0x124, 0x20001]          # qcom,msm-id of dt/msm8998-google-walleye.dts
+dtb = "qcom/msm8998-google-walleye.dtb"   # appended to the kernel
+kernel_compression = "gzip"
+ramdisk_compression = "xz"
+avb_footer = true
