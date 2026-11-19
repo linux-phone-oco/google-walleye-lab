@@ -3486,10 +3486,10 @@ Rank
 ### Kernel image misaligned at boot: check the boot image kernel offset against a 2 MiB boundary
 
 Status
-: open
+: done
 
 Note
-: Low rank, harmless; from research walleye-z6-dmesg-mapped (G4).
+: Recorded as the bootloader's (research walleye-boot-image-align-is-the-bootloaders): stock, taimen and LineageOS all use kernel offset 0x8000; no image change. Optional try (kernel_offset 0x200000, ramdisk clear of the Image) not queued: harmless line.
 
 About
 : walleye-first-fastboot-boot
