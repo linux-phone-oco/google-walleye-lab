@@ -4690,3 +4690,18 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-1500-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed; B2 tried once unattended from fastboot by the real procedure (13/13 modules ok, DSI-1 connected, panel init and backlight -110 as in B1, stopped at look 1 'nobody answered'); phone returned to Android only by the init's 600 s deadman, not by the run.
+
+Considered
+: next: the procedure's way back when it stops at an ask (so the bar's 'phone back on Android' holds without waiting 10 min), programmer review, then tell the Top Coordinator: ready, one command; the -110 on the dsi cmd dma (research walleye-display-backlight-timeout); next ready after: walleye-ufs-card-fw-rev-read, walleye-attend-pmic-unattended-run-4. Tooling: phone password file missing.
