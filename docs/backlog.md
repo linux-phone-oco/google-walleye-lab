@@ -5330,6 +5330,8 @@ GO 2026-11-19: the author said "yes im next to both phones" (relayed by the top 
 
 ATTENDED RUN 2026-11-19T02:34:19+01:00: THE AUTHOR IS AT THE PHONE NOW ("Yes, still here", relayed by the top coordinator; the go is open until 2026-11-19T04:04:19+01:00). A keeper launched by the coordinator after this line IS the attended run: do not wait for more proof of attendance, run it now: gate, boot z21, send the coordinator "ready" when the host sees the input device. No password file is needed (walleye has no ssh userland; do not use lpoco lab phone/suite/health): use lpoco lab keeper/fastboot, adb, tests/host scripts and telnet 172.16.43.1.
 
+RESULT OF THE 2026-11-19 ATTENDED RUN: z21 booted, Synaptics S3708AR bound (event1), but touch events are NOT KNOWN YET: the author swiped and tapped the corners after the keeper 20 s reader had closed (research walleye-z21-touch-events-window-missed; the earlier row said nobody swiped, wrong). The go has expired and stays closed until the author is next at the phone. RETRY: ufs-off gate first; boot z21; touch /tmp/hold on the phone as soon as telnet answers (the self-reboot at 180 s is then skipped); start touch-read.sh with NOREBOOT=1 and 90 s or more BEFORE sending ready; send the coordinator "ready" the moment the device shows (use the coordinator session id with the send tool, not a plain text line); then touch-check.sh and record the counts; remove /tmp/hold and let the phone reboot. The go window must be at least 90 minutes.
+
 About
 : walleye-first-fastboot-boot
 
@@ -5347,6 +5349,3 @@ Rank
 
 Witness
 : person
-
-Go until
-: 2026-11-19T04:04:20+01:00

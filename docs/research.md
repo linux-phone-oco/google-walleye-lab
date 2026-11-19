@@ -3281,3 +3281,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z21-touch-events-window-missed"></a>
+### walleye-z21-touch-events-window-missed
+
+Date
+: 2026-11-19
+
+Brief
+: z21 third try: Synaptics up at 107 s; the author DID swipe but the 20 s reader had closed; touch events not known yet (the window was missed, not failed)
+
+Question
+: On z21, does the RMI4 node give EV_ABS events when a person touches the glass?
+
+Found
+: ufs-off gate passed; booted from Android slot b; Synaptics S3708AR (event1) listed at uptime 107 s; init reboots at 180 s. touch-read NOREBOOT=1 read 20 s (02:37:20-02:37:44): 1 line; touch-check skip. The keeper's ready reached the coordinator only after the read had closed; the author swiped and tapped the corners when the coordinator relayed READY NOW (his words: i did swiped and tapped corners as i could), so the swipe fell after the reader. The first record said nobody swiped: wrong, corrected here. Result: touch events NOT KNOWN YET, not failed. Retry recipe: start the event reader first (90 s, well past the swipe, or touch /tmp/hold and read 150 s), send ready the moment the device shows, go window of at least 90 minutes, only at the author's next time at the phone. Phone is back on Android slot b, nothing flashed.
+
+About
+: walleye-first-fastboot-boot
+
+Supersedes
+: walleye-z21-touch-events-nobody-swiped
