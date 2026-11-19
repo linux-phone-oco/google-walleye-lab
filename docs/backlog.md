@@ -7800,31 +7800,6 @@ Rank
 : 5
 
 
-<a id="walleye-ufs-card-fw-rev-read"></a>
-### Read the UFS card's firmware revision and descriptors on live Android with adb root, read only
-
-Status
-: open
-
-Note
-: The refreshed go note says: whether this phone's card firmware is a risky revision cannot be read without root. Rooted debugging is on now (the author, 2026-11-19), so it can be read: adb root, cat the scsi_device attributes, nothing else. It sharpens the go note's risk paragraph; the author is told the result. Not a UFS probe by our kernel.
-
-About
-: walleye-ufs-match-android-z
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: a research row naming the card's vendor, model and firmware revision string (sysfs scsi_device vendor, model, rev, and the ufs descriptors the vendor kernel exposes), compared with what is known of the Sony yoshino card (SK hynix, Samsung fw 0200 XZ1 probed without erase): whether this card's revision is one of the risky ones; no write, no reset_controller, no fstrim; files mode 600 in ~/lab-material, never git
-
-Rank
-: 1
-
-
 <a id="walleye-attend-program-ufs"></a>
 ### One command for the UFS try, when the author says go: gate-exempt boot of the matched image, version read, the card read, the way back
 
@@ -7858,3 +7833,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-ufs-card-fw-rev-read"></a>
+### Read the UFS card's firmware revision and descriptors on live Android with adb root, read only
+
+Status
+: open
+
+Note
+: The refreshed go note says: whether this phone's card firmware is a risky revision cannot be read without root. Rooted debugging is on now (the author, 2026-11-19), so it can be read: adb root, cat the scsi_device attributes, nothing else. It sharpens the go note's risk paragraph; the author is told the result. Not a UFS probe by our kernel. KEEPER ORDERS (the Top Coordinator, 2026-11-19): adb root (rooted debugging is on); read ONLY: /sys/block/sda/device/vendor, model, rev (and every sd* of the UFS LUNs), the ufshcd sysfs the vendor kernel exposes (device_descriptor, string_descriptors, geometry and health descriptors, if present, under /sys/devices/platform/soc/1da4000.ufshc/ or /sys/class/scsi_host), nothing else; NO write, NO ufs_bsg ioctl, NO reset_controller, NO fstrim, no echo into any sysfs file. Save the raw text to ~/lab-material/walleye/ufs-card-2026-11-19 (mode 600, dir 700, never git), put vendor, model and revision strings in the research row (they are not personal identifiers; leave out any serial number). Compare with what is known of Sony's yoshino card (SK hynix, XZ1 Samsung fw 0200 probed several times without erase; SODP contributor's purge-flag suspicion, research walleye-ufs-gap-sony-mechanism-public-record) and say plainly whether this card's revision is known to be risky, known to be fine, or not known.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: a research row naming the card's vendor, model and firmware revision string (sysfs scsi_device vendor, model, rev, and the ufs descriptors the vendor kernel exposes), compared with what is known of the Sony yoshino card (SK hynix, Samsung fw 0200 XZ1 probed without erase): whether this card's revision is one of the risky ones; no write, no reset_controller, no fstrim; files mode 600 in ~/lab-material, never git; the result is added to the go note: a research row walleye-ufs-card-revision and a line in research walleye-ufs-go-note
+
+Rank
+: 1
