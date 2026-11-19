@@ -3205,3 +3205,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z21-built"></a>
+### walleye-z21-built
+
+Date
+: 2026-11-19
+
+Brief
+: Second claimant of pmi8998 gpio 2 found (overlay synaptics_dsx@20 under stub i2c_5); fix = /vendor-overlay-stubs disabled; a UFS-on z21 was built and is NOT to boot
+
+Question
+: Who else claims pmi8998 gpio 2 so that gpiolib_shared.proxy.0 is needed, and can our dtb stop it without touching the phone's own overlay?
+
+Found
+: After the stock dtbo overlay (entry 3) merges, two nodes name the gpio by a gpio property: our /regulator-touch-power and the overlay's synaptics_dsx@20 (synaptics,power-gpio <pmi8998 gpio 2>), which the overlay puts under the label i2c_5 - an empty stub of ours inside /vendor-overlay-stubs. drivers/gpio/gpiolib-shared.c (gpio_shared_of_traverse) skips a node whose status is not okay together with its children, and makes a gpio shared when two nodes name it; the proxy never registered on z20. The overlay cannot be edited, but its place can: status = disabled on /vendor-overlay-stubs (build/gen-overlay-stubs.sh and the dtsi, landed). tests/host/touch-gpio-single-claimant.sh merges the overlay and counts available claimants: z19/z20 dtb 2 (fail, seen first), with the change 1 (pass). build/build-z21.sh repacks z20 with that one dtb change (all checks ok, rebuild identical, sha256 58994599) - but z20 has UFS on, so that image is moved to NOT-TO-BOOT-ufs-on-images-z21 and never queued. The z21 to try is the one walleye-ufs-off-gate builds (z20 with UFS off) with this stub change in the dtsi. Programmer review: kernel reading correct; test narrowed to the kernel's property names. Not covered: the phone's dmesg.
+
+About
+: walleye-first-fastboot-boot

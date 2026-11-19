@@ -1388,3 +1388,34 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-19-walleye-stubs-disabled"></a>
+### 2026-11-19-walleye-stubs-disabled
+
+Date
+: 2026-11-19
+
+Brief
+: Disable the overlay-stubs container: the stock overlay's nodes under our stub labels must not claim our gpios in the kernel's shared-gpio scan
+
+Decision
+: /vendor-overlay-stubs is status = disabled (generator and dtsi).
+
+Why
+: gpiolib-shared scans every available node; the overlay's synaptics_dsx@20 under stub i2c_5 named pmi8998 gpio 2 like our touch regulator, making it shared with a proxy that never registers (research walleye-z20-tried-touch-gpio-leaf). Disabled nodes and their children are skipped; the merge by label is unaffected.
+
+Rejected
+: Editing or replacing the vendor dtbo (the phone's own, not ours to change); moving only i2c_5 out of the container (the same claim recurs for any other stub); dropping our regulator's gpio (the vendor wiring is right; the second claim is the fault); fixing the shared-gpio proxy (a core problem for a claim that should not exist).
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-z21-built
+
+Scope
+: walleye dtb, build/gen-overlay-stubs.sh
+
+Tracked by
+: walleye-touch-gpio-shared-proxy
