@@ -859,3 +859,19 @@ By
 
 Takes
 : what mainline has: wcd934x.c, tas2552/2562/2764/2770/2780/2781/2783, tfa989x, drv260x/2665/2667; no tas2557, no drv2624; msm8998.dtsi has no slimbus/audio/q6 nodes
+
+
+<a id="porthole-pmaports-taimen"></a>
+### porthole-dev/pmaports: Pixel 2 XL (taimen) port on mainline 7.2.2 (Giuseppe Maggio)
+
+Url
+: https://github.com/porthole-dev/pmaports
+
+Author
+: Giuseppe Maggio
+
+Year
+: 2026
+
+Takes
+: tas2557.c, drv2624.c, ADSP/q6/MI2S/SLIMbus/wcd934x patches 0018-0175, taimen dts audio nodes, firmware package (tas2557s_PG21_uCDSP.bin)

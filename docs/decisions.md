@@ -2079,3 +2079,31 @@ About
 
 Research
 : walleye-audio-haptics-ways
+
+
+<a id="2026-11-19-walleye-audio-from-porthole"></a>
+### 2026-11-19-walleye-audio-from-porthole
+
+Date
+: 2026-11-19
+
+Brief
+: Walleye audio and haptics: take porthole's drivers and dts piece by piece onto our kernel, one try per piece, instead of writing new clean-room drivers
+
+Decision
+: Replace the plan to write DRV2624 and a bypass TAS2557 from scratch. Take porthole's patches for the Pixel 2 XL one group at a time onto our kernel, in this order: DRV2624 (0018, with its dts node) as the smallest proof; then ADSP, q6 and the sound card (0084, 0085, 0159); then TAS2557 (0024, 0162, 0171-0174) with its firmware file; WCD934x microphones and voice last. Each group is a second boot entry tried by the keeper and proved by a heard tone or a read register. Whether to ship the vendor TAS2557 blob is the author's question, put in the backlog.
+
+Why
+: Porthole has them working on the same SoC family and the lab already boots its kernel; practice 13 says build on what exists. The TAS2557 needs its firmware, which settles the unknown that the bypass plan rested on. The earlier decision rested on a research row that missed porthole.
+
+Rejected
+: Writing both drivers clean-room (the superseded decision): duplicates working code, and bypass mode is not a known way. Adopting all 263 patches whole (decision of 2026-11-18): still rejected, taimen-focused and one untested walleye board; only audio groups are taken. Waiting for mainline: neither driver is upstream.
+
+About
+: walleye-audio-haptics
+
+Research
+: walleye-audio-haptics-porthole-has-it
+
+Supersedes
+: 2026-11-19-walleye-audio-haptics-way
