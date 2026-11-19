@@ -3243,3 +3243,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z21-touch-part-compare"></a>
+### walleye-z21-touch-part-compare
+
+Date
+: 2026-11-19
+
+Brief
+: z21 second try: touch part-compare captured on ours (10 answers) and diffed against the Android capture; touch-power regulator enabled 3008 mV; phone back on Android slot b
+
+Question
+: On z21, how does the touch part's state differ from live Android?
+
+Found
+: z21 booted again from slot b (battery 4385 mV; ufs-off-image.sh passed right before; network shell 172.16.43.1 up, telnet). part-compare.sh capture touch ours: 10 answers in ~/lab-material/walleye/compare-touch-ours-20261119-021653; diff against compare-touch-android-20261119-004949 saved as ~/lab-material/walleye/compare-touch-diff-z21.txt (941 lines; the clk section reports the Android format as unmatched, so its 58 'we have' rows are not a finding). Seen: ours has regulator touch-power enabled at 3008 mV and the rmi4 device bound (previous research walleye-z21-tried-touch-binds). The gpio/pinconf lines for pmi8998 gpio 2 differ between the two captures (ours gpio.txt carries two 'gpio2' rows, in-low and out-high, from different controllers; which is the pmi8998 one is NOT settled here) - read the diff gpio section before drawing a conclusion. Touch events not tested (nobody touched). Phone fell back to Android slot b by the init's own timer; adb up, 4379 mV, nothing flashed.
+
+About
+: walleye-first-fastboot-boot
