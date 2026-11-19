@@ -4444,3 +4444,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-display-at-boot"></a>
+### Display at boot image B1 built
+
+Entry date
+: 2026-11-19
+
+Done
+: init-display, build-display-at-boot-image.sh, tests/host/display-at-boot-init.sh (behavioural, mutants fail); B1 built, rebuild identical, reviewed
+
+Considered
+: building the modules into the kernel (a new kernel build)
+
+Rejected
+: built-in DRM: it moves the display probe before the shell, which is what lost the shell in d1; init-loaded modules keep the shell alive
+
+About
+: walleye-display-s6e3fa5

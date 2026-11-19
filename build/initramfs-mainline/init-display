@@ -1,0 +1,161 @@
+#!/bin/busybox sh
+# init-display (item walleye-display-at-boot) = init-late with ONE addition: after the gadget bind, a subshell loads every line of /display-modules.list (insmod lines, dependency order) itself, each step said to the kernel log, so the display path comes up at boot with no host script (tests/host/display-late-probe.sh is not needed). The subshell keeps the console, the network and the petter free of the display; a failed insmod is logged and the next line still runs. Everything else is init-late's. The self-reboot is held 600 s at boot (then released) so the glass can be looked at; a missing list is said, not reported done.
+# init-late (item walleye-display-late-probe-image) = init-z14 with ONE change: the petter and its self-reboot after 90 beats are held while /tmp/hold exists (the host script touches it as soon as the shell answers), so a hand-loaded display module has the time it needs; without the file the self-reboot is z14's. Everything else, the ACM command loop, the ECM network 172.16.43.1 and telnetd, is z14's.
+# z14 (backlog walleye-usb-net) = z6 plus USB networking: the gadget gets an ECM function beside the ACM console (one configuration), and after the bind usb0 is 172.16.43.1, udhcpd leases 172.16.43.2 and telnetd answers on it (the way the first images did; tests/host/gadget-up.sh pings and talks telnet). The ACM console and the command loop are z6's, untouched. Kernel and dtb of z7.
+# z6 (backlog walleye-command-loop) = z5's init (banner2's proven banner on /dev/ttyGS0) with the console block REPLACED: no interactive ash (it stayed silent on the raw tty, research walleye-z5b-tried-raw-tty) but a plain
+# read/exec command loop that needs no job control, no prompt and no controlling terminal. The port is opened ONCE (fd 4, raw, no echo, no hangup); then, one line at a time: read a line from fd 4 (a trailing CR dropped),
+# run it with `sh -c` (stdin /dev/null) into /tmp/out, write /tmp/out to fd 4. No end marker of its own: the host reader's command carries its own (`CMD; echo wmsr-PID-N-END`, tests/host/mainline-shell-read.sh), so the answer ends where that echo is.
+# The banner line keeps init-banner's fields and ends with the loop's state: loop=[started=yes|no starts=OPENS cmds=RUN last=[LAST COMMAND, unsafe characters made ?, 40 at most|-] rc=LAST EXIT|- err=[FIRST ERROR LINE|none]]
+# Every banner line starts with WALLEYE-BANNER and ends with `]`, so the reader can leave it out and no line of it ever ends in an end marker. Every 10th beat from beat 3 a WALLEYE-BANNER-INFO line names the busybox applets and the tty flags.
+# The SoC watchdog is opened and petted every 2 s by its own subshell, which after 90 beats (~180 s from the open) does reboot -f, sysrq b behind it.
+# Never exits (an init that ends is a kernel panic); no `set -e`; no special builtin (exec, `:`) carries a redirect that can fail in the main shell (a failed one ends the shell).
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+TTY=/dev/ttyGS0
+SH=/tmp/sh
+STEP=0
+BANNERLOG=/tmp/banner-steps
+say() { STEP=$((STEP+1)); echo "walleye-banner: step $STEP: $*" > /dev/kmsg 2>/dev/null; echo "step $STEP $*" >> $BANNERLOG 2>/dev/null; }
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+mount -t devtmpfs dev /dev 2>/dev/null
+mkdir -p /dev/pts; mount -t devpts devpts /dev/pts 2>/dev/null   # telnetd needs a pty
+mkdir -p /sys/kernel/config /tmp
+true > $BANNERLOG 2>/dev/null
+say "late init start, kernel $(uname -r)"
+mount -t configfs none /sys/kernel/config
+say "about to start the watchdog petter"
+# the petter: opens /dev/watchdog itself (its own subshell: a failed open ends only it), pets every 2 s, reboots after 90 beats
+(
+  if [ -e /dev/watchdog ]; then
+    exec 3> /dev/watchdog || exit 0
+  fi
+  n=0
+  while [ $n -lt 90 ] || [ -e /tmp/hold ]; do echo >&3 2>/dev/null; n=$((n+1)); sleep 2; done
+  echo "walleye-banner: self-reboot now" > /dev/kmsg 2>/dev/null
+  sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+) &
+[ -e /dev/watchdog ] || say "NO /dev/watchdog"
+G=/sys/kernel/config/usb_gadget/g1
+say "about to create the gadget g1 (1d6b:0104)"
+mkdir -p $G
+echo 0x1d6b > $G/idVendor
+echo 0x0104 > $G/idProduct
+echo 0x0100 > $G/bcdDevice
+echo 0x0200 > $G/bcdUSB
+mkdir -p $G/strings/0x409
+echo "walleye-first-boot" > $G/strings/0x409/serialnumber
+echo "linux-phone-oco" > $G/strings/0x409/manufacturer
+echo "Pixel 2 walleye (mainline banner shell)" > $G/strings/0x409/product
+say "about to mkdir functions/acm.GS0"
+mkdir -p $G/functions/acm.GS0 $G/functions/ecm.usb0
+# the ECM addresses, written before the bind the mainline way (locally administered; the host gets the second, so its interface name stays the same every boot)
+echo "02:42:ac:10:2b:01" > $G/functions/ecm.usb0/dev_addr
+echo "02:42:ac:10:2b:02" > $G/functions/ecm.usb0/host_addr
+# the banner writer, started before the bind: it waits for the tty node, then writes
+(
+  b=0
+  while :; do
+    if [ -c $TTY ]; then
+      S=no; N=0; C=0; LC=-; LR=-; TTYSUM=unknown
+      [ -f $SH.state ] && . $SH.state 2>/dev/null
+      E=$(head -n1 $SH.err 2>/dev/null | tr -d '\r' | cut -c1-80); [ -n "$E" ] || E=none
+      [ -f $SH.state ] || E="console block not run yet"
+      printf "\n%s\n" "WALLEYE-BANNER beat=$b up=$(cut -d' ' -f1 /proc/uptime)s steps=$(wc -l < $BANNERLOG) last=[$(tail -n1 $BANNERLOG)] loop=[started=$S starts=$N cmds=$C last=[$LC] rc=$LR err=[$E]]" > $TTY 2>/dev/null
+      if [ $b -ge 3 ] && [ $((b % 10)) -eq 3 ]; then
+        L=$(busybox --list 2>/dev/null)
+        have() { case "
+$L
+" in *"
+$1
+"*) echo y;; *) echo n;; esac; }
+        printf "\n%s\n" "WALLEYE-BANNER-INFO beat=$b busybox-applets=$(echo "$L" | wc -l) sh=$(have sh) stty=$(have stty) tr=$(have tr) cut=$(have cut) cat=$(have cat) tty=[$TTYSUM]" > $TTY 2>/dev/null
+      fi
+      b=$((b+1))
+    fi
+    sleep 2
+  done
+) &
+say "banner writer started"
+mkdir -p $G/configs/c.1/strings/0x409
+echo "ACM + ECM" > $G/configs/c.1/strings/0x409/configuration
+say "about to symlink acm.GS0 into configs/c.1"
+ln -s $G/functions/acm.GS0 $G/configs/c.1/
+say "about to symlink ecm.usb0 into configs/c.1"
+ln -s $G/functions/ecm.usb0 $G/configs/c.1/
+n=0
+while [ -z "$(ls /sys/class/udc 2>/dev/null)" ] && [ $n -lt 30 ]; do sleep 1; n=$((n+1)); done
+UDC=$(ls /sys/class/udc 2>/dev/null | head -n1)
+if [ -z "$UDC" ]; then say "NO UDC after ${n}s"; else say "about to bind $UDC (waited ${n}s)"; echo "$UDC" > $G/UDC && say "gadget bound to $UDC" || say "bind of $UDC FAILED"; fi
+# the display (item walleye-display-at-boot): its own subshell, so nothing else waits for it; one line per module, the step said before and the result after
+# the self-reboot is held 600 s so the glass can be looked at, then released (nobody else touches /tmp/hold at boot)
+(
+  touch /tmp/hold; sleep 600; rm -f /tmp/hold
+) &
+# display block begin
+(
+  if [ ! -r /display-modules.list ]; then say "NO /display-modules.list"; exit 0; fi
+  say "display modules: loading"
+  while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    echo "walleye-display: $line" > /dev/kmsg 2>/dev/null
+    if $line < /dev/null; then echo "walleye-display: ok" > /dev/kmsg 2>/dev/null; else rc=$?; echo "walleye-display: FAILED rc=$rc" > /dev/kmsg 2>/dev/null; fi
+  done < /display-modules.list
+  say "display modules: done"
+) &
+# display block end
+# z14: the network, in its own subshell so the console below never waits for it: usb0 appears when the gadget is bound; it gets 172.16.43.1, one DHCP lease (172.16.43.2) for the lab host, telnetd with no password (the phone sits on a cable in the lab; the way the first images did)
+(
+  n=0
+  while ! ifconfig usb0 >/dev/null 2>&1 && [ $n -lt 30 ]; do sleep 1; n=$((n+1)); done
+  if ifconfig usb0 172.16.43.1 netmask 255.255.255.0 up; then
+    say "usb0 is 172.16.43.1 (after ${n}s)"
+    udhcpd -S /etc/udhcpd.conf
+    telnetd -l /bin/sh -b 172.16.43.1 && say "telnetd on 172.16.43.1:23"
+  else
+    say "NO usb0 after ${n}s"
+  fi
+) &
+
+# the console, a command loop (backlog walleye-command-loop): the port is opened ONCE here (fd 4) and kept; raw, no echo, no hangup on close (stty). Then forever: read a line, run it, write the answer.
+# State for the banner goes to /tmp/sh.state (shell variables it sources): S started, N opens of the port, C commands run, LC the last command (made safe to source), LR its exit status, TTYSUM the tty flags.
+(
+  n=0; c=0; lc=-; lr=-; ts=unknown
+  CR=$(printf '\r')
+  st() { { echo "S=$1; N=$n; C=$c; LC='$lc'; LR=$lr; TTYSUM=$ts"; } > $SH.state.new 2>/dev/null && mv $SH.state.new $SH.state; }
+  st no
+  while :; do
+    if [ -c $TTY ]; then
+      n=$((n+1))
+      true > $SH.err
+      { command exec 4<> $TTY; } 2>> $SH.err || { st no; sleep 1; continue; }
+      stty -F $TTY raw -echo -hupcl 2>> $SH.err || echo "stty on $TTY failed" >> $SH.err
+      A=" $(stty -F $TTY -a 2>/dev/null | tr '\n;' '  ') "
+      flag() { case "$A" in *" -$1 "*) echo "$1=off";; *" $1 "*) echo "$1=on";; *) echo "$1=?";; esac; }
+      ts="$(flag echo),$(flag icanon),$(flag hupcl)"
+      echo "walleye-init: command loop on $TTY, open $n" > /dev/kmsg 2>/dev/null
+      st yes
+      bad=0
+      while [ $bad -lt 50 ]; do
+        if IFS= read -r line <&4; then
+          bad=0
+          line=${line%"$CR"}
+          [ -n "$line" ] || continue
+          lc=$(printf %s "$line" | tr -c 'A-Za-z0-9 ./_=:-' '?' | cut -c1-40)
+          c=$((c+1)); lr=running; st yes   # the banner shows a command that has not ended
+          sh -c "$line" < /dev/null > /tmp/out 2>&1
+          lr=$?
+          cat /tmp/out >&4 2>/dev/null
+          st yes
+        else
+          bad=$((bad+1)); sleep 0.2
+        fi
+      done
+      echo "walleye-init: command loop on $TTY lost its input, reopening (open $n)" > /dev/kmsg 2>/dev/null
+      exec 4<&-
+    else
+      sleep 1
+    fi
+  done
+) &
+while :; do sleep 3600; done

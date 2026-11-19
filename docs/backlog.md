@@ -7502,10 +7502,10 @@ Rank
 ### The display comes up by itself at boot: the 13 display modules built in or loaded by the init, the kernel log and later a console on the glass, no host script
 
 Status
-: open
+: in-progress
 
 Note
-: Today the 13 display modules are loaded by hand from the shell by a host script or the procedure (research walleye-display-late-probe-l5-tried-dsi-connected-1080x1920). Built in (the initramfs carries no modules otherwise) or loaded by the init's own list /display-modules.list; the iommu fix (passthrough or the mdss iommus) and the four pinctrl labels and the reset-gpio claimant are already in L6's dts; the lab-only overlay stubs stay a RAM-boot artefact.
+: B1 built and reviewed (research walleye-display-at-boot-b1-built); queued for the keeper's try; done when the try and the author's look pass
 
 About
 : walleye-display-s6e3fa5
@@ -7514,10 +7514,10 @@ Opened
 : 2026-11-19
 
 Needs
-: build
+: phone
 
 Proof
-: a boot image (UFS-off gate and AVB pass, rebuild identical, programmer review) in which the display path is up before the init's shell, without tests/host/display-late-probe.sh: the glass shows the kernel log from early boot (fbcon) and the init's banner; one unattended try reads card0 and DSI-1 connected, then the author's look: the console on the glass; a test that no module is loaded by a host script any more
+: one unattended try of images-display-at-boot/boot-b1.img (sha256 57ab1b69de78a304e0fba1b2576a1781de2b9cbc41a02c2d73b5328c67b8ebd7): shell up, kmsg shows 'walleye-display: ok' for all 13 modules, card0 and DSI-1 connected, with no host script; then the author's look: the kernel log and the init's console on the glass
 
 Rank
 : 4
