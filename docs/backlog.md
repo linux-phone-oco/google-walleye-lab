@@ -6038,10 +6038,10 @@ Rank
 ### Try f0, f1, f2, f3 once each from slot b: which group of the display dtb's additions stops the gadget
 
 Status
-: open
+: done
 
 Note
-: UNATTENDED, no person (decision 2026-11-19-walleye-display-console-before-eyes). One try each, f0 first: if f0 does not boot, stop, the control is broken and the rest says nothing. Nobody is asked to look.
+: proven by f0,f1,f2 shell up, f3 no gadget (research walleye-display-dtb-bisect-tried)
 
 Blocked by
 : walleye-display-dtb-bisect-images
@@ -6219,3 +6219,19 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-display-f3-node-split"></a>
+### Split f3 by node: mdss, display controller, DSI host, DSI phy okay one at a time on the late-probe kernel
+
+Status
+: open
+
+Note
+: builder piece: series file for lpoco-bringup image bisect from f3's dtb; then a phone try of each (unattended, f0 control first). Basis: research walleye-display-dtb-bisect-tried
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
