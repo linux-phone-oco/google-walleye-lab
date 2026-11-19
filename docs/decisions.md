@@ -1693,3 +1693,87 @@ Amends
 
 Tracked by
 : walleye-ufs-go-note-for-author
+
+
+<a id="2026-11-19-walleye-ufs-match-reset-by-ngpios"></a>
+### 2026-11-19-walleye-ufs-match-reset-by-ngpios
+
+Date
+: 2026-11-19
+
+Brief
+: The card's RST_n pulse: raise the msm8998 tlmm ngpios to 154 and give ufshc reset-gpios <tlmm 153>; reserve the three sdc2 pads
+
+Decision
+: The matched UFS image pulses the card through mainline's reset-gpios path: pinctrl-msm8998 ngpios 154 (UFS_RESET is pin 153), gpio-ranges 0 0 154 and gpio-reserved-ranges 150 3 in the overlay, reset-gpios <&tlmm 153 GPIO_ACTIVE_LOW> on ufshc. ufshcd_init pulses it (10-15 us each way) before it enables the host.
+
+Why
+: Mainline's own path, the sdm845 precedent (same UFS_RESET macro, oe_bit -1, same reset-gpios); no new code in the host driver. Pins 150-152 become gpio lines and are reserved, so nothing can drive their pads.
+
+Rejected
+: pinctrl states dev-reset-assert/deassert as the vendor does (needs a new driver path: mainline's host driver takes a gpio, not states); a ufs-qcom fix that writes the pad register directly (hidden hardware access); no pulse (leaves abl's card state, which Android never does)
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-ufs-match-built
+
+Tracked by
+: walleye-ufs-match-android-z
+
+
+<a id="2026-11-19-walleye-ufs-match-no-ice-no-linkstartup"></a>
+### 2026-11-19-walleye-ufs-match-no-ice-no-linkstartup
+
+Date
+: 2026-11-19
+
+Brief
+: The matched UFS image leaves out ICE, bus votes, PM-QoS, hw-gated clocks and Android's link-startup pre-change: it matches the card-facing parts
+
+Decision
+: The matched image carries what touches the card and the PHY: quirks, purge guard, PHY table by version, RST_n pulse, the l26 rail always on. It does not carry ICE, bus votes, PM-QoS, hardware-gated clocks, the pad drive/pull of ufs_reset, nor Android's link-startup pre-change (RX line config, PA_VS_CONFIG_REG1 mask, hw clock gating before link startup), and mainline's clock scaling and other host caps stay.
+
+Why
+: Mainline has no MSM8998 ICE node or binding and ICE cannot touch the link or the card's identity; bus votes and PM-QoS are performance; the link-startup pre-change would be new host-driver code for a probe that is not yet allowed. The image says it matches the card-facing parts, not all of Android's path.
+
+Rejected
+: writing the link-startup pre-change now (new code before the author's go, unreviewed hardware access); calling the image a full match (it is not)
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-ufs-match-built
+
+Tracked by
+: walleye-ufs-match-android-z
+
+
+<a id="2026-11-19-walleye-ufs-match-refuse-at-init"></a>
+### 2026-11-19-walleye-ufs-match-refuse-at-init
+
+Date
+: 2026-11-19
+
+Brief
+: A UFS host version the PHY refuses stops the probe at init, before the card reset and the host enable
+
+Decision
+: ufs_qcom_init hands the version it read to the PHY (phy_configure); the MSM8998 PHY accepts 3.0.0 and 3.1.0 only and answers -ENODEV, so the probe fails there. The same call stays in the power-up sequence.
+
+Why
+: The programmer review showed the host enable ignores a failed power-up pre-change, so a refusal there was not a stop.
+
+Rejected
+: refusing only in the power-up sequence (the host is enabled anyway); a version check in the PHY's power_on (same problem)
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-ufs-match-built
+
+Tracked by
+: walleye-ufs-match-android-z

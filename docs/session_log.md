@@ -3439,3 +3439,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-ufs-match"></a>
+### walleye-builder: the matched UFS image, built and never booted
+
+Entry date
+: 2026-11-19
+
+Done
+: Built walleye-ufs-match-android-z: kernel topic/ufs-match-android (quirks, PHY tables by host version, RST_n gpio 153), z21 plus a UFS overlay, image NOT-TO-BOOT-ufs-on-ufs-match.img. The programmer review found 7 points; stop-at-init, the leaked tag, the weak tests, the dirty-Image and queue-name points are fixed, the scope points recorded. The kernel branch is local in ~/Projects/walleye-build/wt-k-ufsm (not pushed). Nothing touched a phone; the try is walleye-try-ufs-match, waiting for the author's go.
+
+Considered
+: pinctrl states for the reset; a board-file variant dts instead of an overlay (z21's dtb had drifted from the board file)
+
+Rejected
+: a full match of Android's path (link-startup pre-change, ICE not carried)
+
+About
+: walleye-first-fastboot-boot

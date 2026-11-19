@@ -1,0 +1,39 @@
+// SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
+/*
+ * The UFS delta that matches Android's path to the Pixel 2's card: an overlay on a built walleye dtb (z21's), for build/build-ufs-match.sh ONLY (backlog
+ * walleye-ufs-match-android-z, decision 2026-11-19-walleye-ufs-image-builds-before-the-go). The shared board file keeps UFS off (decision
+ * 2026-11-19-walleye-ufs-off-by-a-gate): an image carrying this is NOT TO BOOT, the gate tests/host/ufs-off-image.sh refuses it, and the try waits for the author's
+ * word (decision 2026-11-18-walleye-ufs-wait). An overlay, not a board-file variant, so that the image is z21's dtb plus exactly these lines and nothing the board
+ * file gained since.
+ *
+ * Each line is from research walleye-first-fastboot-boot/2026-11-18-ufs-android-way:
+ * - the card's RST_n pulse: reset-gpios on tlmm pin 153 (the ufs_reset pad), a gpio line with the kernel branch topic/ufs-match-android (ngpios 154); the pads
+ *   150-152 (sdc2) become gpio lines with it and are reserved here. Android pulses the pin low then high, 10-15 us each, before it enables the host; mainline's
+ *   ufs_qcom_device_reset does the same pulse, with a different order around it: ours is pulse, host core reset (in the host enable pre-change), PHY, host enable; Android's is core reset, pulse, host enable (the effect on the card is not known).
+ * - the l26 rail always on: the vendor's vddp-ref-clk is l26, always-on, 100 uA.
+ * - the rest of Android's rails already match: the host's loads (vcc 750000, vccq 560000, vccq2 750000 uA) are in the board file, the phy's (51400, 14600 uA) in the
+ *   QMP driver.
+ *
+ * Not carried, and why (research rows 5, 8-11 of walleye-ufs-android-way-compared): the link-startup pre-change (RX line config, the PA_VS_CONFIG_REG1 mask, hardware clock gating before link startup) stays the mainline one, and clock scaling, write booster and the other mainline host caps stay on; ICE (mainline's ICE driver has no MSM8998 node or binding, and ICE cannot touch the link or the card's identity), the bus votes and PM-QoS
+ * groups (performance), the hardware-gated clocks (the plain ones are what mainline has).
+ */
+/dts-v1/;
+/plugin/;
+
+&tlmm {
+	gpio-ranges = <&tlmm 0 0 154>;
+	gpio-reserved-ranges = <0 4>, <81 4>, <150 3>;
+};
+
+&vreg_l26a_1p2 {
+	regulator-always-on;
+};
+
+&ufshc {
+	status = "okay";
+	reset-gpios = <&tlmm 153 1>;	/* GPIO_ACTIVE_LOW */
+};
+
+&ufsphy {
+	status = "okay";
+};
