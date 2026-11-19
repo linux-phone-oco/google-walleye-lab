@@ -5265,34 +5265,6 @@ Rank
 : 1
 
 
-<a id="walleye-try-z21-touch-events"></a>
-### Touch events on z21: a person touches the panel while the reader reads the RMI4 input device
-
-Status
-: open
-
-Note
-: Part 2 of the touch probe: z21's try (lab PR 343) found rmi4 0-0020 bound, Synaptics S3708AR input1, zero gpiolib_shared deferrals. What remains is the finger.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: z21 (UFS off, gate passed right before the boot) once from slot b with a PERSON at the phone: the keeper starts tests/host/touch-read.sh with NOREBOOT=1 behind the network shell once the gadget is up and the RMI4 device is listed (rmi4 0-0020, Synaptics S3708AR, input1 as the z21 try found), says the word, and the person touches the glass for the 20 s the reader reads /dev/input/event*: slow drags across the whole panel and a tap in each corner; the reader saves events.txt; tests/host/touch-check.sh passes with EV_ABS events (position/slot); then the part-compare capture for touch over the shell (NOREBOOT) for the record, and the init's own reboot at 180 s returns the phone to Android by itself. The person sees nothing on the screen (our kernel drives no display; the panel keeps its last frame or stays dark). Way back: none needed beyond the init's reboot; if the phone is not Android (adb device) 10 minutes after the try, hold Power ~15 s. Attended (witness=person): runs only with a go from the author, delivered by the top coordinator
-
-Rank
-: 1
-
-Witness
-: person
-
-
 <a id="walleye-licences"></a>
 ### Licences for google-walleye-lab: LICENSE files, SPDX headers or REUSE.toml, a README line, a CI coverage check
 
@@ -5343,3 +5315,36 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-try-z21-touch-events"></a>
+### Touch events on z21: a person touches the panel while the reader reads the RMI4 input device
+
+Status
+: open
+
+Note
+: Part 2 of the touch probe: z21's try (lab PR 343) found rmi4 0-0020 bound, Synaptics S3708AR input1, zero gpiolib_shared deferrals. What remains is the finger.
+
+GO 2026-11-19: the author said "yes im next to both phones" (relayed by the top coordinator); the witnessed go is open for 30 minutes. KEEPER: run tests/host/ufs-off-image.sh on the z21 image first as always (do not boot if it fails); boot z21; AS SOON AS the host sees the input device (rmi4 / Synaptics in /proc/bus/input/devices over the network shell), SEND THE COORDINATOR ONE LINE: "ready" (the author then swipes for 20 s: drags across the whole glass and taps each corner); then start touch-read.sh with NOREBOOT=1 on the go; report pass or fail with the event counts; the init returns the phone to Android by itself.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: z21 (UFS off, gate passed right before the boot) once from slot b with a PERSON at the phone: the keeper starts tests/host/touch-read.sh with NOREBOOT=1 behind the network shell once the gadget is up and the RMI4 device is listed (rmi4 0-0020, Synaptics S3708AR, input1 as the z21 try found), says the word, and the person touches the glass for the 20 s the reader reads /dev/input/event*: slow drags across the whole panel and a tap in each corner; the reader saves events.txt; tests/host/touch-check.sh passes with EV_ABS events (position/slot); then the part-compare capture for touch over the shell (NOREBOOT) for the record, and the init's own reboot at 180 s returns the phone to Android by itself. The person sees nothing on the screen (our kernel drives no display; the panel keeps its last frame or stays dark). Way back: none needed beyond the init's reboot; if the phone is not Android (adb device) 10 minutes after the try, hold Power ~15 s. Attended (witness=person): runs only with a go from the author, delivered by the top coordinator
+
+Rank
+: 1
+
+Witness
+: person
+
+Go until
+: 2026-11-19T02:59:54+01:00
