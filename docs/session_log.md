@@ -4543,3 +4543,21 @@ Considered
 
 About
 : walleye-attend-program-ufs
+
+---
+
+
+<a id="2026-11-19-2100-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: walleye-attend-program-ufs proven: real unattended run of the UFS procedure stopped at 'no go' and the phone came back to Android; nothing flashed, slot b, stock kernel, Android running (adb up)
+
+Considered
+: next: walleye-ufs-card-fw-rev-read (1, read-only adb root), walleye-display-at-boot try (4), pmic unattended run 4 (3); suite latest needs the phone password file (not present)
+
+About
+: walleye-first-fastboot-boot
