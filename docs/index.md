@@ -6,7 +6,7 @@
 - [Decisions](decisions.md): 94
 - [Devices](devices.md): 0
 - [Hardware](hardware.md): 4
-- [Parts](parts.md): 21
+- [Parts](parts.md): 22
 - [Research](research.md): 234
 - [Session Log](session_log.md): 250
 - [Sources](sources.md): 84

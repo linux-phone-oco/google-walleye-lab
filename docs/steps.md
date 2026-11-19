@@ -464,7 +464,7 @@ Updated
 ### Row 24
 
 Step
-: panel-lit
+: camera-bus-bound
 
 Status
 : open
@@ -476,7 +476,7 @@ Updated
 ### Row 25
 
 Step
-: camera-bus-bound
+: remoteprocs-running
 
 Status
 : open
@@ -488,7 +488,7 @@ Updated
 ### Row 26
 
 Step
-: usb-network
+: gpu-renders
 
 Status
 : open
@@ -500,7 +500,7 @@ Updated
 ### Row 27
 
 Step
-: remoteprocs-running
+: bt-controller-up
 
 Status
 : open
@@ -512,7 +512,7 @@ Updated
 ### Row 28
 
 Step
-: touch-input
+: image-sensor-identified
 
 Status
 : open
@@ -524,7 +524,7 @@ Updated
 ### Row 29
 
 Step
-: gpu-renders
+: lab-link-held-awake
 
 Status
 : open
@@ -536,7 +536,7 @@ Updated
 ### Row 30
 
 Step
-: bt-controller-up
+: audio-codec-attached
 
 Status
 : open
@@ -548,7 +548,7 @@ Updated
 ### Row 31
 
 Step
-: image-sensor-identified
+: wifi-joins
 
 Status
 : open
@@ -560,7 +560,7 @@ Updated
 ### Row 32
 
 Step
-: lab-link-held-awake
+: raw-frame-captured
 
 Status
 : open
@@ -572,7 +572,7 @@ Updated
 ### Row 33
 
 Step
-: audio-codec-attached
+: shell-autosleep-tamed
 
 Status
 : open
@@ -584,7 +584,7 @@ Updated
 ### Row 34
 
 Step
-: wifi-joins
+: sound-card-registered
 
 Status
 : open
@@ -596,7 +596,7 @@ Updated
 ### Row 35
 
 Step
-: raw-frame-captured
+: camera-stream-viewable
 
 Status
 : open
@@ -608,7 +608,7 @@ Updated
 ### Row 36
 
 Step
-: shell-autosleep-tamed
+: speaker-amps-fed
 
 Status
 : open
@@ -620,7 +620,7 @@ Updated
 ### Row 37
 
 Step
-: sound-card-registered
+: mic-captures
 
 Status
 : open
@@ -632,7 +632,7 @@ Updated
 ### Row 38
 
 Step
-: camera-stream-viewable
+: focus-and-flash
 
 Status
 : open
@@ -644,7 +644,7 @@ Updated
 ### Row 39
 
 Step
-: speaker-amps-fed
+: pon-reason-read
 
 Status
 : open
@@ -656,7 +656,7 @@ Updated
 ### Row 40
 
 Step
-: mic-captures
+: reset-types-right
 
 Status
 : open
@@ -668,7 +668,7 @@ Updated
 ### Row 41
 
 Step
-: focus-and-flash
+: reset-state-survives
 
 Status
 : open
@@ -680,7 +680,7 @@ Updated
 ### Row 42
 
 Step
-: battery-gauge-reads
+: key-reset-recovers
 
 Status
 : open
@@ -692,7 +692,7 @@ Updated
 ### Row 43
 
 Step
-: pon-reason-read
+: rootfs-boots
 
 Status
 : open
@@ -704,7 +704,7 @@ Updated
 ### Row 44
 
 Step
-: storage-readonly
+: suspend-way-back
 
 Status
 : open
@@ -716,7 +716,7 @@ Updated
 ### Row 45
 
 Step
-: reset-types-right
+: power-off-stays-off
 
 Status
 : open
@@ -728,7 +728,7 @@ Updated
 ### Row 46
 
 Step
-: reset-state-survives
+: thermal-zones-sane
 
 Status
 : open
@@ -740,7 +740,7 @@ Updated
 ### Row 47
 
 Step
-: key-reset-recovers
+: health-suite-runs
 
 Status
 : open
@@ -752,7 +752,7 @@ Updated
 ### Row 48
 
 Step
-: rootfs-boots
+: fastrpc-helpers-stable
 
 Status
 : open
@@ -764,7 +764,7 @@ Updated
 ### Row 49
 
 Step
-: suspend-way-back
+: buttons-report
 
 Status
 : open
@@ -776,7 +776,7 @@ Updated
 ### Row 50
 
 Step
-: power-off-stays-off
+: ucm-hifi-profile
 
 Status
 : open
@@ -788,7 +788,7 @@ Updated
 ### Row 51
 
 Step
-: thermal-zones-sane
+: modem-file-services
 
 Status
 : open
@@ -800,7 +800,7 @@ Updated
 ### Row 52
 
 Step
-: health-suite-runs
+: nfc-reads-tag
 
 Status
 : open
@@ -812,7 +812,7 @@ Updated
 ### Row 53
 
 Step
-: fastrpc-helpers-stable
+: usb-host-works
 
 Status
 : open
@@ -824,7 +824,7 @@ Updated
 ### Row 54
 
 Step
-: buttons-report
+: s2idle-cycle-returns
 
 Status
 : open
@@ -836,7 +836,7 @@ Updated
 ### Row 55
 
 Step
-: haptics-buzz
+: charger-mode-entered
 
 Status
 : open
@@ -848,7 +848,7 @@ Updated
 ### Row 56
 
 Step
-: ucm-hifi-profile
+: rtc-alarm-powers-on
 
 Status
 : open
@@ -860,7 +860,7 @@ Updated
 ### Row 57
 
 Step
-: modem-file-services
+: speaker-heard
 
 Status
 : open
@@ -872,7 +872,7 @@ Updated
 ### Row 58
 
 Step
-: nfc-reads-tag
+: earpiece-plays
 
 Status
 : open
@@ -884,7 +884,7 @@ Updated
 ### Row 59
 
 Step
-: usb-host-works
+: headset-jack
 
 Status
 : open
@@ -896,7 +896,7 @@ Updated
 ### Row 60
 
 Step
-: s2idle-cycle-returns
+: modem-seen
 
 Status
 : open
@@ -908,7 +908,7 @@ Updated
 ### Row 61
 
 Step
-: charger-mode-entered
+: bt-pairs-carries-audio
 
 Status
 : open
@@ -920,7 +920,7 @@ Updated
 ### Row 62
 
 Step
-: rtc-alarm-powers-on
+: sensor-hub-stable
 
 Status
 : open
@@ -932,7 +932,7 @@ Updated
 ### Row 63
 
 Step
-: speaker-heard
+: suspend-wakes-quiet
 
 Status
 : open
@@ -944,7 +944,7 @@ Updated
 ### Row 64
 
 Step
-: earpiece-plays
+: radios-survive-suspend
 
 Status
 : open
@@ -956,7 +956,7 @@ Updated
 ### Row 65
 
 Step
-: headset-jack
+: shell-runs-with-hardware
 
 Status
 : open
@@ -968,7 +968,7 @@ Updated
 ### Row 66
 
 Step
-: modem-seen
+: update-applies
 
 Status
 : open
@@ -980,7 +980,7 @@ Updated
 ### Row 67
 
 Step
-: bt-pairs-carries-audio
+: kernel-upgrade-keeps-steps
 
 Status
 : open
@@ -992,7 +992,7 @@ Updated
 ### Row 68
 
 Step
-: sensor-hub-stable
+: linux-runs
 
 Status
 : open
@@ -1004,7 +1004,7 @@ Updated
 ### Row 69
 
 Step
-: suspend-wakes-quiet
+: off-mode-charging
 
 Status
 : open
@@ -1016,7 +1016,7 @@ Updated
 ### Row 70
 
 Step
-: radios-survive-suspend
+: mic-hears-speaker
 
 Status
 : open
@@ -1028,7 +1028,7 @@ Updated
 ### Row 71
 
 Step
-: shell-runs-with-hardware
+: sim-ready
 
 Status
 : open
@@ -1040,7 +1040,7 @@ Updated
 ### Row 72
 
 Step
-: update-applies
+: emergency-numbers-known
 
 Status
 : open
@@ -1052,7 +1052,7 @@ Updated
 ### Row 73
 
 Step
-: kernel-upgrade-keeps-steps
+: sensors-exposed
 
 Status
 : open
@@ -1064,7 +1064,7 @@ Updated
 ### Row 74
 
 Step
-: linux-runs
+: gnss-fix
 
 Status
 : open
@@ -1076,7 +1076,7 @@ Updated
 ### Row 75
 
 Step
-: off-mode-charging
+: fingerprint-unlocks
 
 Status
 : open
@@ -1088,7 +1088,7 @@ Updated
 ### Row 76
 
 Step
-: mic-hears-speaker
+: photo-taken
 
 Status
 : open
@@ -1100,7 +1100,7 @@ Updated
 ### Row 77
 
 Step
-: sim-ready
+: soc-floor-reached
 
 Status
 : open
@@ -1112,7 +1112,7 @@ Updated
 ### Row 78
 
 Step
-: emergency-numbers-known
+: on-screen-keyboard
 
 Status
 : open
@@ -1124,7 +1124,7 @@ Updated
 ### Row 79
 
 Step
-: sensors-exposed
+: lock-and-unlock
 
 Status
 : open
@@ -1136,7 +1136,7 @@ Updated
 ### Row 80
 
 Step
-: gnss-fix
+: update-rolls-back
 
 Status
 : open
@@ -1148,7 +1148,7 @@ Updated
 ### Row 81
 
 Step
-: fingerprint-unlocks
+: modem-registered
 
 Status
 : open
@@ -1160,7 +1160,7 @@ Updated
 ### Row 82
 
 Step
-: photo-taken
+: proximity-reads
 
 Status
 : open
@@ -1172,7 +1172,7 @@ Updated
 ### Row 83
 
 Step
-: soc-floor-reached
+: auto-rotate-follows
 
 Status
 : open
@@ -1184,7 +1184,7 @@ Updated
 ### Row 84
 
 Step
-: on-screen-keyboard
+: brightness-follows-light
 
 Status
 : open
@@ -1196,7 +1196,7 @@ Updated
 ### Row 85
 
 Step
-: lock-and-unlock
+: video-recorded
 
 Status
 : open
@@ -1208,7 +1208,7 @@ Updated
 ### Row 86
 
 Step
-: update-rolls-back
+: sensors-across-suspend
 
 Status
 : open
@@ -1220,7 +1220,7 @@ Updated
 ### Row 87
 
 Step
-: modem-registered
+: sms-both-ways
 
 Status
 : open
@@ -1232,7 +1232,7 @@ Updated
 ### Row 88
 
 Step
-: proximity-reads
+: mobile-data
 
 Status
 : open
@@ -1244,7 +1244,7 @@ Updated
 ### Row 89
 
 Step
-: auto-rotate-follows
+: call-audio-path
 
 Status
 : open
@@ -1256,7 +1256,7 @@ Updated
 ### Row 90
 
 Step
-: brightness-follows-light
+: resume-without-stall
 
 Status
 : open
@@ -1268,7 +1268,7 @@ Updated
 ### Row 91
 
 Step
-: video-recorded
+: coprocessor-restart-recovers
 
 Status
 : open
@@ -1280,7 +1280,7 @@ Updated
 ### Row 92
 
 Step
-: sensors-across-suspend
+: mms-both-ways
 
 Status
 : open
@@ -1292,7 +1292,7 @@ Updated
 ### Row 93
 
 Step
-: sms-both-ways
+: voice-call-both-ways
 
 Status
 : open
@@ -1304,7 +1304,7 @@ Updated
 ### Row 94
 
 Step
-: mobile-data
+: hotspot-shares-data
 
 Status
 : open
@@ -1316,7 +1316,7 @@ Updated
 ### Row 95
 
 Step
-: call-audio-path
+: real-suspend-under-shell
 
 Status
 : open
@@ -1328,7 +1328,7 @@ Updated
 ### Row 96
 
 Step
-: resume-without-stall
+: notifications-arrive
 
 Status
 : open
@@ -1340,7 +1340,7 @@ Updated
 ### Row 97
 
 Step
-: coprocessor-restart-recovers
+: cycles-repeat-clean
 
 Status
 : open
@@ -1352,7 +1352,7 @@ Updated
 ### Row 98
 
 Step
-: mms-both-ways
+: proximity-blanks-in-call
 
 Status
 : open
@@ -1364,7 +1364,7 @@ Updated
 ### Row 99
 
 Step
-: voice-call-both-ways
+: volte-call
 
 Status
 : open
@@ -1376,7 +1376,7 @@ Updated
 ### Row 100
 
 Step
-: hotspot-shares-data
+: call-wakes-from-sleep
 
 Status
 : open
@@ -1388,7 +1388,7 @@ Updated
 ### Row 101
 
 Step
-: real-suspend-under-shell
+: standby-current
 
 Status
 : open
@@ -1400,7 +1400,7 @@ Updated
 ### Row 102
 
 Step
-: notifications-arrive
+: alarm-wakes-from-sleep
 
 Status
 : open
@@ -1412,7 +1412,7 @@ Updated
 ### Row 103
 
 Step
-: cycles-repeat-clean
+: all-day-battery
 
 Status
 : open
@@ -1424,7 +1424,7 @@ Updated
 ### Row 104
 
 Step
-: proximity-blanks-in-call
+: days-without-reboot
 
 Status
 : open
@@ -1436,7 +1436,7 @@ Updated
 ### Row 105
 
 Step
-: volte-call
+: daily-usable-phone
 
 Status
 : open
@@ -1448,78 +1448,6 @@ Updated
 ### Row 106
 
 Step
-: call-wakes-from-sleep
-
-Status
-: open
-
-Updated
-: 2026-11-18
-
-
-### Row 107
-
-Step
-: standby-current
-
-Status
-: open
-
-Updated
-: 2026-11-18
-
-
-### Row 108
-
-Step
-: alarm-wakes-from-sleep
-
-Status
-: open
-
-Updated
-: 2026-11-18
-
-
-### Row 109
-
-Step
-: all-day-battery
-
-Status
-: open
-
-Updated
-: 2026-11-18
-
-
-### Row 110
-
-Step
-: days-without-reboot
-
-Status
-: open
-
-Updated
-: 2026-11-18
-
-
-### Row 111
-
-Step
-: daily-usable-phone
-
-Status
-: open
-
-Updated
-: 2026-11-18
-
-
-### Row 112
-
-Step
 : complete-phone
 
 Status
@@ -1529,7 +1457,7 @@ Updated
 : 2026-11-18
 
 
-### Row 113
+### Row 107
 
 Step
 : watchdog-way-back
@@ -1542,3 +1470,147 @@ Notes
 
 Updated
 : 2026-11-18
+
+
+### Row 108
+
+Step
+: panel-lit
+
+Status
+: done
+
+Proof
+: procedures/display-stripes-on-the-pixel-2.rs
+
+Run
+: research walleye-display-l7-looks-seen (lab PR 592, 594, 595)
+
+Proven on
+: boot-l7.img sha256 643d1f83c6aea4ecb2d08e95aebc7fb2694d86c5c021e8463dc902eff5b9e711
+
+Notes
+: The author saw the kernel log and four held vertical stripes on the glass, 2026-11-19, 'they look perfect'. The modules are loaded by the procedure in a hand-picked order; the display at boot in any order is not done (B2: items walleye-display-b2-dsi-clock-warning, walleye-display-dts-any-order).
+
+Updated
+: 2026-11-19
+
+
+### Row 109
+
+Step
+: touch-input
+
+Status
+: done
+
+Proof
+: tests/attended/touch-try.rs
+
+Run
+: research walleye-z21-touch-events-pass (lab PR 485)
+
+Proven on
+: boot-z21.img sha256 bdc0a89179d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff
+
+Notes
+: Synaptics S3708AR probed; 3593 EV_ABS events read while the author swiped. No UI uses it yet.
+
+Updated
+: 2026-11-19
+
+
+### Row 110
+
+Step
+: usb-network
+
+Status
+: done
+
+Proof
+: tests/host/gadget-up.sh
+
+Run
+: research walleye-z14-tried
+
+Proven on
+: boot-z14.img sha256 c2e616f872328b1a28df9ff37903796579e078a7a7ea2f66195a928beee64238
+
+Notes
+: ECM usb0 172.16.43.1 pings and telnet answers, 18 s after fastboot; every try since (z21, upstream-dts, L-images, the UFS try) used it.
+
+Updated
+: 2026-11-19
+
+
+### Row 111
+
+Step
+: storage-readonly
+
+Status
+: done
+
+Proof
+: research walleye-ufs-try1-card-readable
+
+Run
+: research walleye-ufs-match-tried-version-ok-link-stays-gear1 (lab PR 580, 583, 584)
+
+Proven on
+: NOT-TO-BOOT-ufs-on-ufs-match.img sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5
+
+Notes
+: One read-only try on the author's go: UFS 3.1.0, six LUNs SKhynix H28U74301AMR D003, partition tables read by the kernel, no UFS error, nothing written. The link idles at HS gear 1 (speed, item walleye-ufs-why-gear1); by-name partition listing needs udev, not read.
+
+Updated
+: 2026-11-19
+
+
+### Row 112
+
+Step
+: battery-gauge-reads
+
+Status
+: done
+
+Proof
+: tests/host/fuel-gauge-check.sh
+
+Run
+: research walleye-fg1-tried-capacity-matches
+
+Proven on
+: boot-fg1.img sha256 9f6a7033ae13e532b91874bb90e8a08803172ccfa552bbe6eb53d7f07086b99b
+
+Notes
+: pmi8998-fg probes; capacity 99 percent and 4374 mV equal fastboot's 4374 mV.
+
+Updated
+: 2026-11-19
+
+
+### Row 113
+
+Step
+: haptics-buzz
+
+Status
+: partial
+
+Proof
+: tests/host/drv2624-builds.sh
+
+Run
+: research walleye-drv1-tried-drv2624-probes (lab PR 518)
+
+Proven on
+: boot-drv1.img sha256 96e85804db5478aae4525266997dfcf65f6990493cbb00ac3398114cc3501e8b
+
+Notes
+: DRV2624 answers at 0-005a, id 0x03, input drv2624:haptics registered. No effect has been played yet.
+
+Updated
+: 2026-11-19
