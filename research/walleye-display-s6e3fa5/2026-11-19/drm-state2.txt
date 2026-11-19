@@ -1,0 +1,69 @@
+Trying 172.16.43.1...
+Connected to 172.16.43.1.
+Escape character is '^]'.
+
+dmesg | tail -n 25; echo ==DEF; cat /sys/kernel/debug/devices_deferred 2>&1 | head; ls /sys/bus/platform/drivers | grep -iE "msm|dpu|mdss|dsi"; ls /sys/bus/mipi-dsi/devices 2>&1
+~ # dmesg | tail -n 25; echo ==DEF; cat /sys/kernel/debug/devices_deferred 2>&1 
+| head; ls /sys/bus/platform/drivers | grep -iE "msm|dpu|mdss|dsi"; ls /sys/bus/
+mipi-dsi/devices 2>&1
+[    8.223068] netconsole: netconsole: remote ethernet address 02:42:ac:10:2b:02
+[    8.237450] netconsole: network logging started
+[   12.001406] mmcc-msm8998 c8c0000.clock-controller: sync_state() pending due to c900000.display-subsystem
+[   12.001511] gcc-msm8998 100000.clock-controller: sync_state() pending due to soc@0:bt_wcn3990
+[   12.001570] gcc-msm8998 100000.clock-controller: sync_state() pending due to c16f000.serial
+[   12.001623] gcc-msm8998 100000.clock-controller: sync_state() pending due to soc@0:mnh-sm
+[   12.001673] gcc-msm8998 100000.clock-controller: sync_state() pending due to c179000.i2c
+[   13.741088] late-probe-marker-3965692
+[   32.408805] random: crng init done
+[  662.215629] [drm:init_module [msm]] init
+[  662.216364] [drm:msm_mdp_register [msm]] 
+[  662.220292] [drm:msm_dsi_register [msm]] 
+[  662.231009] msm-mdss c900000.display-subsystem: mapped mdss address space @000000008be2a212
+[  662.233635] [drm:mdss_runtime_resume [msm]] 
+[  662.239049] [drm:mdss_runtime_suspend [msm]] 
+[  662.240345] [drm:mdss_runtime_resume [msm]] 
+[  662.247758] [drm:mdss_runtime_suspend [msm]] 
+[  662.248886] [drm:mdss_runtime_resume [msm]] 
+[  662.254851] [drm:dsi_pll_10nm_init [msm]] DSI PLL0
+[  662.255556] [drm:dsi_pll_10nm_init [msm]] DSI0
+[  662.256271] [drm:dsi_pll_10nm_vco_recalc_rate [msm]] DSI PLL0 returning vco rate = 1577625878, dec = 29, frac = 5606
+[  662.258234] [drm:dsi_10nm_pll_save_state [msm]] DSI PLL0 outdiv 1 bit_clk_div 1 pix_clk_div 3 pll_mux 1
+[  662.258993] [drm:dsi_pll_10nm_init [msm]] DSI PLL0 returning vco rate = 1577625878, dec = 29, frac = 5606
+[  662.265084] [drm:dpu_kms_mmap_dpu [msm]] mapped dpu address space @000000006975fd50
+[  662.270328] [drm:mdss_runtime_suspend [msm]] 
+==DEF
+cat: can't open '/sys/kernel/debug/devices_deferred': No such file or directory
+gcc-msm8916
+gcc-msm8953
+gcc-msm8994
+gcc-msm8996
+gcc-msm8998
+gpucc-msm8998
+hdmi_msm
+mmcc-msm8998
+msm-dp-display
+msm-mdss
+msm-restart
+msm8916-pinctrl
+msm8953-pinctrl
+msm8976-pinctrl
+msm8994-pinctrl
+msm8996-pinctrl
+msm8998-pinctrl
+msm_dpu
+msm_dsi
+msm_dsi_phy
+msm_hdmi_phy
+msm_hsusb
+msm_mdp
+msm_serial
+qcom,gcc-msm8976
+qcom-apcs-msm8916-clk
+qcom-apcs-msm8996-clk
+qcom-msm8996-apcc
+qcom-msm8996-cbf
+qcom-smsm
+qnoc-msm8953
+qnoc-msm8996
+sdhci_msm
+~ # 
