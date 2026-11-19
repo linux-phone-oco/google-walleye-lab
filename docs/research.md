@@ -4463,3 +4463,22 @@ Material
 
 Supersedes
 : walleye-fingerprint-way
+
+
+<a id="walleye-touch-program-unattended-run-2"></a>
+### walleye-touch-program-unattended-run-2
+
+Date
+: 2026-11-19
+
+Brief
+: touch-try.rs unattended run 2 from Android, no hand step: steps 1-10 pass, EVENTS-READY, stops at ask 11 'nobody answered'; phone back on Android slot b
+
+Question
+: Does touch-try.rs now run unattended from Android with the enter-fastboot step in?
+
+Found
+: Yes. Checks 1-3, step 4 (enters fastboot itself), step 5 boot from memory, checks 6-8 (window 120 s, restart at 180 s), step 9, check 10 EVENTS-READY all pass; stops at the ask with 'nobody answered'. Nothing flashed, slot b. After the 180 s self-reboot idle-android passes (slot _b, adb up). stdin /dev/null. Note: lpoco lab suite latest still needs ~/.config/devlab/google-walleye/password (absent), so the suite was not read.
+
+About
+: walleye-attend-program-touch

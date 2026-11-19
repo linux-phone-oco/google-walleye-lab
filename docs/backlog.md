@@ -6827,10 +6827,10 @@ Rank
 ### Repeat the touch program's unattended run from Android with no hand step (the enter-fastboot step is in)
 
 Status
-: open
+: done
 
 Note
-: Run 1 (PR 460) needed adb reboot bootloader by hand; PR 465 added the step. The attended try walleye-try-z21-touch-events waits for this clean run (decision 2026-11-19-walleye-attended-tries-one-command).
+: proven by clean run 2026-11-19 (research walleye-touch-program-unattended-run-2): steps to EVENTS-READY pass, stops at ask 'nobody answered', idle-android passes. Attended try walleye-try-z21-touch-events can now be offered (still needs z21-hold-init for a longer window).
 
 About
 : walleye-attend-program-touch
