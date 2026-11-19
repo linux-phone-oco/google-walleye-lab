@@ -5706,10 +5706,10 @@ Witness
 ### Bisect images for the display try: the display kernel with z21's dtb (d0), then mdss+DPU only (d1), then DSI and its PHY without the panel (d2)
 
 Status
-: open
+: done
 
 Note
-: Research walleye-display-try1-no-shell-what-is-known: the gadget never enumerated; the display dtb differs from z21's only by the display nodes and the kernel only by DRM, so a stage-by-stage image says where the shell is lost. Also: images-display/msm8998-google-walleye-display.dtb is STALE (old clock_gcc on the stub, sha256 84c72763); the dtb inside boot-display.img is ed155326 with clock_gcc on the real gcc: refresh or remove the stale file and say which one the image build script reads. Build only; the try is walleye-try-display-bisect.
+: Built: boot-d0/d1/d2.img in ~/Projects/walleye-build/images-display-bisect (series build/series/display-bisect.toml, parts build/build-display-bisect-dtbs.sh, counts build/check-display-bisect.sh), each passes tests/host/ufs-off-image.sh. sha256 d0 3d67ad26ad92d46592053ae9a63442174729efdf4d5642a4201eb2fdc5d1c0e1, d1 9665b12a15d41f8528fd9076ed3d91872afa169539c6a9225da37369ed11e708, d2 e94a7b67474c03326b38d8880c19fd794931e43cd679dc0cb9b4085b6010bfbd. Not booted. Next: walleye-try-display-bisect.
 
 About
 : walleye-display-s6e3fa5
