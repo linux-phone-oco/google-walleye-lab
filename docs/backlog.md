@@ -7548,7 +7548,7 @@ Status
 : open
 
 Note
-: From the second L6 try: the drawer needs ~12 s after the settle to reach the hold and the fixed read came too early; the script said fail though the drawer exited 0. Rank 8 (2026-11-19): the display procedure polls the drawer itself; this fix is only for the shell script's own use.
+: From the second L6 try: the drawer needs ~12 s after the settle to reach the hold and the fixed read came too early; the script said fail though the drawer exited 0. Rank 8 (2026-11-19): the display procedure polls the drawer itself; this fix is only for the shell script's own use. Rank 30 (2026-11-19 coordinator): the display procedure polls the drawer itself and does not use this script; a real L6 run of the script is wanted only when a phone slot is idle, after the display procedure's unattended run.
 
 About
 : walleye-display-s6e3fa5
@@ -7563,4 +7563,4 @@ Proof
 : tests/host/display-late-probe-selftest.sh passes with a drawer that ends late (done, PR); a real L6 run reports pass
 
 Rank
-: 8
+: 30
