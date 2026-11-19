@@ -8434,6 +8434,37 @@ Go until
 : 2026-11-20T00:54:53+01:00
 
 
+<a id="walleye-wdt-bite-cable-out"></a>
+### Optional: the PMIC bite once more with the USB cable OUT, to see a plain restart; the author's call
+
+Status
+: open
+
+Note
+: From the upstreams coordinator (2026-11-20): a bite with the cable out would show a plain restart, and the v1 SEND-NOTES list 'restart with no charger attached' and bootstatus as unproven. Optional, the author's call. A warm-reset type 0x01 that boots Android with USB in would be its own later patch, not a v1 change: the driver sets hard reset on every PMIC it supports, so a change needs a reason that holds for all of them or a device-tree property.
+
+Waits
+: the author's word: it is optional; it needs the phone unplugged, so the lab's link (adb, gadget) is not there to read the result: the way to read it is the phone itself (does Android start without a power press) and a stopwatch
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: a bite of image A with no cable attached restarts the phone and Android starts by itself (the author sees the lock or home screen, or the phone's own boot animation); nothing else is needed; the result and his words go into the research row walleye-pmic-wdt-v1-try-result's follow-up (item walleye-wdt-reset-boots-charger-mode)
+
+Rank
+: 40
+
+Witness
+: person
+
+
 <a id="walleye-wdt-reset-boots-charger-mode"></a>
 ### A PMIC-watchdog bite with USB in boots the bootloader's charger screen, not Android: why, and should PON or the reset type make it warm-boot
 
@@ -8441,7 +8472,7 @@ Status
 : open
 
 Note
-: From the bite test of walleye-try-pmic-wdt-v1 (2026-11-20): reset by itself 20 s after arming, phone came up in off-mode charger (charging icon, black screen), Android only after a short power press (author's words, verbatim: 'it did restart into charging, it showed charging icon, now the screen is black'). Questions: which PON/reset reason the bite leaves (read PON registers from Android, debugfs regmap as root, and the bootloader's view), why the bootloader takes charger mode (S2 hard reset type 7 looks like a power-off to it, with USB in), whether a different S2 type or a PON bit makes it warm-boot, and what the upstreams series should say. Does it block the series? Not as a bite proof; it matters for the user-visible behaviour. Rank 3 and a proof added 2026-11-20 by the walleye coordinator at the Top Coordinator's ask (his words in research walleye-pmic-wdt-v1-try-result).
+: From the bite test of walleye-try-pmic-wdt-v1 (2026-11-20): reset by itself 20 s after arming, phone came up in off-mode charger (charging icon, black screen), Android only after a short power press (author's words, verbatim: 'it did restart into charging, it showed charging icon, now the screen is black'). Questions: which PON/reset reason the bite leaves (read PON registers from Android, debugfs regmap as root, and the bootloader's view), why the bootloader takes charger mode (S2 hard reset type 7 looks like a power-off to it, with USB in), whether a different S2 type or a PON bit makes it warm-boot, and what the upstreams series should say. Does it block the series? Not as a bite proof; it matters for the user-visible behaviour. Rank 3 and a proof added 2026-11-20 by the walleye coordinator at the Top Coordinator's ask (his words in research walleye-pmic-wdt-v1-try-result). From the upstreams coordinator (docs #723): the v1 cover letter already says the bite reset the phone and that with USB in the bootloader stopped at its off-mode charging screen; if a warm-reset type (0x01) turns out to boot Android with USB in, that is its own later patch, not a v1 change (the driver sets hard reset on every PMIC it supports; a change needs a reason that holds for all of them or a DT property). Optional cable-out bite: walleye-wdt-bite-cable-out.
 
 About
 : walleye-pmic-wdt-v1-image
