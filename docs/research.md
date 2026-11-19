@@ -4104,3 +4104,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-z21-init-has-no-hold"></a>
+### walleye-z21-init-has-no-hold
+
+Date
+: 2026-11-19
+
+Brief
+: z21's init does NOT hold on /tmp/hold: it restarts the phone at 180 s of uptime whatever is touched; the touch window is what is left after the device appears
+
+Question
+: Does touching /tmp/hold keep z21 up past its 180 s self-reboot, as the retry recipe of walleye-try-z21-touch-events says?
+
+Found
+: Unpacked boot-z21.img (unpack_bootimg, ramdisk): its /init is z14's; the petter subshell runs 'while [ $n -lt 90 ]' (90 beats of 2 s) and then reboot -f; there is no test of /tmp/hold in it. The hold lives only in init-late, init-pk5l, init-wdt1 and vendor3 (git grep tmp/hold build). So the recipe's hold step has no effect on z21; with Synaptics seen at 107 s (research walleye-z21-touch-events-window-missed) the reader has about 65 s, not 90. The touch program (tests/attended/touch-try.rs) therefore sets the window to what the restart leaves (180 s less uptime less 8 s) and refuses to ask the author when that is under 40 s.
+
+About
+: walleye-first-fastboot-boot

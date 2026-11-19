@@ -3631,3 +3631,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-walleye-builder-touch-program"></a>
+### walleye-builder: the touch try as one program
+
+Entry date
+: 2026-11-19
+
+Done
+: tests/attended/touch-try.rs (13 named steps) over tools/walleye-tries; found z21's init has no hold; window follows the restart; reader open and EVENTS-READY before the author is asked; Android awaited before the count; CI job runs the crate's tests; unattended run queued for the keeper.
+
+Considered
+: A keeper-side shell recipe; an unattended switch in the program; a hold with a deadman (removed after review).
+
+Rejected
+: All three: the one program on the shared runner covers it.
+
+About
+: walleye-attend-program-touch
