@@ -7453,31 +7453,6 @@ Rank
 : 6
 
 
-<a id="walleye-display-late-probe-poll-stripes-rc"></a>
-### display-late-probe.sh polls for stripes-rc (bounded) instead of a fixed sleep of STRIPES_SECONDS+10
-
-Status
-: open
-
-Note
-: From the second L6 try: the drawer needs ~12 s after the settle to reach the hold and the fixed read came too early; the script said fail though the drawer exited 0.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: tests/host/display-late-probe-selftest.sh passes with a drawer that ends late; a real L6 run reports pass
-
-Rank
-: 2
-
-
 <a id="walleye-host-lpoco-matches-manifest"></a>
 ### The host's installed lpoco (0.24.0) accepts this lab's device.toml (manifest v0.32 keys)
 
@@ -7538,7 +7513,17 @@ Status
 : open
 
 Note
-: Decision 2026-11-19-walleye-attended-tries-one-command (the author's words in it). The display plan is first because it is the next try; it waits for the late-probe try to name the stage (the image the program boots is the one that boots with a console and has the panel). The framework grows out of this plan and the touch plan, not before it. ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone. SHARED RUNNER (orchestration, 2026-11-19): write the program against lpoco-attended, the crate of lab-tools (dir attended/, example in attended/examples/), used from a rust-script entry file with a cargo git dependency on linux-phone-oco/lab-tools at tag lpoco-attended-vX.Y.Z (orchestration sends the tag; until then a path dependency on the lab-tools builder's worktree or branch). Entry file: use lpoco_attended::prelude::*; then in order procedure("name", "google-walleye"); step("what", || ...); check("what must hold", || ...); ask_author("what to do, what to check"); each stops the run on failure; phone() reaches the device through devlab; --dry-run and the log come from the library. Our own plumbing (readers, parsing, retries) goes in helper modules of this lab, not in the entry file and not in a copy of the runner. Anything the runner lacks: write it in a note in the shared notes folder for orchestration (what is missing, which step needed it); do not work around it with your own runner. CORRECTION (orchestration, 2026-11-19, lab-tools tag lpoco-v0.28.3, #243): the runner is released and lives in lpoco-bringup, NOT in a crate of its own: dependency lpoco-bringup = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-v0.28.3" }; use lpoco_bringup::attended::*; entry = procedure("name").run(|p| { p.step("..", phone("..").retry(3,1))?; p.ask_author("what to do", "what to check")?; p.check("..", phone("..").expect(".."))?; Ok(()) }); phone(..) runs as the phone user, phone_root(..) as root, sh(..) on the host; --dry-run, --log FILE, --help come from the library; copy bringup/examples/attended.rs. Where this paragraph and the older 'lpoco-attended' wording differ, this one holds. Device-agnostic steps keyed to bring-up step ids (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) are coming in lab-tools: write ours inline for now and name the ones we would want in the library (note in the shared notes folder for orchestration). FINAL CORRECTION (orchestration, 2026-11-19, lab-tools #247, tag lpoco-attended-v0.29.0): the attended runner is its own crate again and the lpoco_bringup::attended module is removed; this paragraph replaces the earlier two (lpoco-attended vX.Y.Z, then lpoco-v0.28.3). Dependency: lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.29.0" }; use lpoco_attended::prelude::*; let _run = procedure("name", "google-walleye"); (keep it bound) then step("what", || ..), check("what", || ..) (returns (), bool or Result; false or Err stops and names the step), ask_author("what to do / what to check"), phone().sh(..) / phone().root(..), retry(tries, secs, || ..); --dry-run runs no closure; --log FILE; copy attended/examples/attended.rs. Library steps (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) come next in lab-tools: write ours inline for now and tell orchestration which are needed (note walleye-to-orchestration-attended-steps-wanted.md). PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. LIBRARY STEPS (orchestration, 2026-11-19, lab-tools tag lpoco-attended-v0.29.2, #250 #251): dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb are in the library; boot_once and back_to_known_good come next, then lpoco attended new|run|check. Write the PMIC, display and UFS programs against v0.29.2 and these steps, not walleye-tries copies; where the library lacks a step, write it in procedures/steps and name it as wanted. 2026-11-19: L5 has a DRM card and a connected DSI-1 (PR 499); L6 draws the stripes; this program boots L6, loads the modules, reads the panel lines and the connector, draws the stripes, asks the author with look_for("four stripes red green blue white"), holds, and returns to Android. LPOCO-ATTENDED v0.31.0 (orchestration, lab-tools #266, 2026-11-19): physical steps over a Bench (press_power, hold_button, unplug_usb, replug_usb, touch, swipe, look_for, listen_for, confirm; a person by default, --dry-run lists the doer; ask_author is confirm); boot_once and back_to_known_good read device.toml [kernels] test and kept, a missing key or an unlisted name exits 2 naming it, dry run too. Declare [kernels] and [[host.gadget]] usb_id in this lab's device.toml; programs pinned to v0.29.x keep working until moved. Write the program on v0.31.0 with the physical steps. Blocked 2026-11-19 by the second unattended stripes try (walleye-try-display-stripes-unattended-2): the drawer's result and the full hold must be read first. READY 2026-11-19: the unattended stripes try 2 ran (PR 524): L6 drawer detached, exit 0, 60.3 s hold, all ioctls 0. After walleye-display-late-probe-poll-stripes-rc (the host script's read came too early). Write procedures/NAME.rs style from the start where the scaffold allows (lpoco-attended v0.32), keys read at the top of main, one screen; the person step is look_for("four stripes red green blue white"); about 5 minutes of the author; Top Coordinator is told 'ready, one command' only after the program's dry-run and an unattended run for real have passed.
+: CURRENT INSTRUCTION (rewritten 2026-11-19; it replaces every earlier runner, path and wait line of this item, which were history).
+
+WHAT: the display try as one Rust procedure that shows the author four stripes on the Pixel 2's glass. Image: L6 (~/Projects/walleye-build/images-display-stripes/boot-l6.img, sha256 8ca3af879b4c9d87ff98f8d269282557131ca8eef5d39bc42d5a97eb5e587bad): the late-probe kernel with the display drivers as modules, the full display dtb, iommu.passthrough=1, the four overlay pinctrl labels on real tlmm groups, the dsi vdd-supply, the panel reset gpio single-claimant, and /bin/walleye-stripes in the ramdisk.
+
+HOW: procedures/display-stripes-on-the-pixel-2.rs on lpoco-attended v0.32 (cargo git dependency on linux-phone-oco/lab-tools, tag lpoco-attended-v0.32.0 or the newest v0.32.x; the scaffold is lpoco-attended new NAME, run NAME --dry-run, check; copy attended/examples/attended.rs). Entry file: use lpoco_attended::prelude::*; let _run = procedure(NAME, "google-walleye"); every device value read at the top of main with dev(..) and proc(..) from device.toml (declare [images.l6] path and sha256 and [procedures.display-stripes-on-the-pixel-2] hold and the module-load pause; the other keys exist), then one plainly named step per line, each stops the run on failure, the whole procedure on one screen. Library steps where they exist (boot_once, wait_for_gadget, read_dmesg, back_to_known_good, check_probe, the physical step look_for). Our own steps (module load in the order of the ramdisk's /display-modules.list over the mainline shell; start the drawer detached with setsid and POLL its log and exit code until the hold has ended; read the connector status, enabled and mode and the panel prepare and enable lines) are helpers in tools/walleye-tries/src/display.rs (the crate that the later procedures move relocates as a whole). Do NOT call tests/host/display-late-probe.sh: its read of the drawer's result came too early and says fail (item walleye-display-late-probe-poll-stripes-rc); the helpers poll themselves, so this does not wait for that item.
+
+THE PERSON STEP: look_for("four vertical stripes: red, green, blue, white"). The author looks at the glass for the hold, about 60 s; the program says what to expect first (the glass may stay dark for a moment while the phone restarts into the test image; a lit screen alone proves nothing until the stripes appear) and how the phone returns to Android (by itself at the end; if not after 4 minutes, hold power about 15 seconds).
+
+MEASURED SO FAR (so the steps know what to expect): on L5/L6 all 13 modules load with the shell alive; card0 and renderD128 exist; card0-DSI-1 is connected at 1080x1920; devices_deferred is empty; the L6 drawer ran detached, exit 0, hold 60.3 s, pan, commit and unblank returned 0, the panel's init commands went out without error (PR 524). Whether the glass lit is not known: that is this try's question.
+
+BAR before the Top Coordinator is told 'ready, one command': (1) lpoco-attended check and --dry-run pass; stand-in tests pass; clippy and fmt clean; programmer review; (2) a keeper runs it once for real on the installed host lpoco (0.32.1) with stdin from /dev/null: it takes the phone to fastboot itself, boots L6, loads the modules, reads the panel path, draws the stripes and holds them, stops at look_for with 'nobody answered', and the phone is back on Android (idle-android passes); (3) the keeper's record is landed. A fresh worktree needs ln -s ~/Projects/walleye-build build/images first (AGENTS.md).
 
 About
 : walleye-display-s6e3fa5
@@ -7550,7 +7535,32 @@ Needs
 : build
 
 Proof
-: a Rust program (rust-script or a crate of this lab, argenv-declared, a first look at what lab-tools already offers recorded) with: dry-run (prints and checks the whole sequence, boots nothing), an unattended mode that runs for real everything that needs no person (gate, battery, boot, shell, dmesg probe lines, DRM connector status, the way back) and the person steps (what to expect, what to check, 'look now', the stripes) in the attended mode; unit tests; programmer review; a keeper's record of the unattended mode run for real; ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone.; runner: lpoco-attended (tag lpoco-attended-v0.29.0), use lpoco_attended::prelude::*
+: procedures/display-stripes-on-the-pixel-2.rs on lpoco-attended v0.32 (dry-run, stand-in tests, check, review), then a keeper's unattended run for real that stops at look_for; see the note's BAR
 
 Rank
-: 3
+: 1
+
+
+<a id="walleye-display-late-probe-poll-stripes-rc"></a>
+### display-late-probe.sh polls for stripes-rc (bounded) instead of a fixed sleep of STRIPES_SECONDS+10
+
+Status
+: open
+
+Note
+: From the second L6 try: the drawer needs ~12 s after the settle to reach the hold and the fixed read came too early; the script said fail though the drawer exited 0. Rank 8 (2026-11-19): the display procedure polls the drawer itself; this fix is only for the shell script's own use.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: tests/host/display-late-probe-selftest.sh passes with a drawer that ends late; a real L6 run reports pass
+
+Rank
+: 8
