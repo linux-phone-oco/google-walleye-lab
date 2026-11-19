@@ -7723,10 +7723,10 @@ Rank
 ### One command for the UFS try, when the author says go: gate-exempt boot of the matched image, version read, the card read, the way back
 
 Status
-: in-progress
+: done
 
 Note
-: BUILT 2026-11-19 (builder): procedures/ufs-matched-image-on-the-pixel-2.rs + tools/walleye-tries/src/ufs.rs on lpoco-attended v0.32.1; dry-run, lpoco-attended check, 102 stand-in tests, clippy, fmt pass; programmer review answered (strict go date; the boot step re-checks sha256 and the go itself; the go must be on an item whose row NAMES the image's sha256). The UFS-off gate is untouched and not run on this image. NEXT: a keeper runs 'lpoco-attended run ufs-matched-image-on-the-pixel-2' once for real without a go (it takes the phone to fastboot, stops at the go step with 'no go', the way back returns it to Android); that record is the bar for 'one command away'. NOTE FOR THE GO: item walleye-try-ufs-match's note still names the OLD image (ufs-match, sha f8f6215e...4f45); until its note names sha 461077869fb2...97df5 the go step says 'no go' even with go_until open - update that note when the go note goes to the author. Fresh worktree: ln -s ~/Projects/walleye-build build/images.
+: proven by a real run 2026-11-19 without a go: battery, matched-image tests and fastboot step passed, the run stopped at check 5 'no go' (exit 1), phone back on Android (adb up). Log ~/lab-material/walleye/ufs-attended-nogo-run-2026-11-19.log. try-ufs-match note already names sha 461077869fb2...97df5: one command away once the author's go is recorded.
 
 About
 : walleye-ufs-match-android-z
