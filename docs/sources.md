@@ -901,3 +901,172 @@ By
 
 Takes
 : pinctrl_bind_pins runs before the bus probe (platform_probe) and the driver's probe; its failure defers with no message
+
+
+<a id="lkml-nxp-pn553-binding"></a>
+### dt-bindings: nfc: nxp,nci: document pn553
+
+Url
+: https://lkml.iu.edu/hypermail/linux/kernel/2410.2/06246.html
+
+By
+: research-lead
+
+Takes
+: nxp,pn553 compatible with nxp-nci-i2c, enable-gpios
+
+
+<a id="lkml-cpuidle-msm8998-latency-fix"></a>
+### msm8998 idle-state latency and residency fix (e52fecdd0c14, v5.16-rc1)
+
+Url
+: https://ayakael.net/forge/linux-uconsole/commit/e52fecdd0c14
+
+By
+: research-lead
+
+Takes
+: msm8998 PSCI idle states corrected
+
+
+<a id="hackernoon-oneplus3t-mainline-pm"></a>
+### How I fixed power management on a mainline OnePlus 3T
+
+Url
+: https://hackernoon.com/how-i-fixed-power-management-on-a-mainline-oneplus-3t
+
+By
+: research-lead
+
+Takes
+: cpuidle-psci was disabled in the kernel config; a sibling msm8996 phone
+
+
+<a id="biometricupdate-pixel2-crucialtec"></a>
+### Google Pixel 2 has integrated CrucialTec fingerprint module, sources say
+
+Url
+: https://www.biometricupdate.com/201710/google-pixel-2-has-integrated-crucialtec-fingerprint-module-sources-say
+
+By
+: research-lead
+
+Takes
+: Pixel 2 fingerprint module maker, as sources said in 2017; unconfirmed
+
+
+<a id="mss-msm8998-driver-1665cbd5"></a>
+### remoteproc: qcom: q6v5-mss: add msm8998 support (Jeffrey Hugo, 2019)
+
+Url
+: https://lab.nexedi.com/kirr/linux/-/commit/1665cbd5731fa7c66103ec719c57922bbc457447
+
+By
+: research-lead
+
+Takes
+: MSM8998 modem driver is upstream
+
+
+<a id="pmaports-oneplus5-mainline-mr3531"></a>
+### pmaports MR 3531: OnePlus 5 mainline kernel
+
+Url
+: https://gitlab.postmarketos.org/postmarketOS/pmaports/-/merge_requests/3531
+
+By
+: research-lead
+
+Takes
+: ipa blocked from autoload; closest working msm8998 modem
+
+
+<a id="modemmanager-issue-386"></a>
+### ModemManager issue 386: IPA v3.1 over QRTR
+
+Url
+: https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/issues/386
+
+By
+: research-lead
+
+Takes
+: msm8998 modem in ModemManager
+
+
+<a id="camss-sdm630-660-v2"></a>
+### SDM630/660 camss v2 (Del Regno, 2020)
+
+Url
+: https://lore.kernel.org/20201022174706.8813-1-kholk11@gmail.com/
+
+By
+: research-lead
+
+Takes
+: VFE 4.8, CSID 5.0 base, said 90% reusable for msm8998
+
+
+<a id="sdm670-mainline-camera-vcm-issue"></a>
+### sdm670-mainline issue 2: Pixel 3a camera, VCM driver missing
+
+Url
+: https://gitlab.com/sdm670-mainline/linux/-/issues/2
+
+By
+: research-lead
+
+Takes
+: closest Pixel camera effort; blocked on LC898212XD VCM
+
+
+<a id="imx378-rfc-2020"></a>
+### imx378 driver RFC (Gomez, 2020)
+
+Url
+: https://lore.kernel.org/all/20200414200151.80089-1-daniel@qtec.com/T/
+
+By
+: research-lead
+
+Takes
+: front sensor driver draft, stalled
+
+
+<a id="pmos-msm8998-wiki"></a>
+### postmarketOS Qualcomm Snapdragon 835 (MSM8998)
+
+Url
+: https://wiki.postmarketos.org/wiki/Qualcomm_Snapdragon_835_(MSM8998)
+
+By
+: research-lead
+
+Takes
+: SoC feature status: modem Partial, cpuidle Partial
+
+
+<a id="lkml-slpi-msm8998-pas-2019"></a>
+### remoteproc qcom_q6v5_pas: msm8998 ADSP and SLPI (Sankar, 2019)
+
+Url
+: https://lkml.iu.edu/hypermail/linux/kernel/1912.2/04264.html
+
+By
+: research-lead
+
+Takes
+: SLPI pas support upstream
+
+
+<a id="pmaports-mr4050-sdm845-sensors"></a>
+### pmaports MR 4050: SDM845 sensors via libssc, hexagonrpcd, iio-sensor-proxy
+
+Url
+: https://gitlab.com/postmarketOS/pmaports/-/merge_requests/4050
+
+By
+: research-lead
+
+Takes
+: the recipe for the SLPI sensor stack; msm8998 not mentioned

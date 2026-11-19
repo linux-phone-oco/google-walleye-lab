@@ -2832,10 +2832,10 @@ Proof
 ### Research items for modem, sensors (SLPI), camera, NFC, fingerprint and deep sleep: one question each
 
 Status
-: open
+: done
 
 Note
-: Components of docs with no mainline path yet. The lane's later lead takes them one by one after UFS read-only.
+: Six research rows (walleye-*-way), decision 2026-11-19-walleye-radios-way, six backlog items, four failing checks in tests/health/base.
 
 Blocked by
 : walleye-ufs-readonly
@@ -6987,3 +6987,153 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-modem-mss-proof"></a>
+### Modem: boot remoteproc_mss with factory-image blobs, read-only; rmtfs, pd-mapper, tqftpserv, qrtr
+
+Status
+: open
+
+Note
+: From walleye-modem-way. Host first: find modem blobs and rmtfs partitions in the factory image. Keep rmtfs read-only.
+
+Blocked by
+: walleye-ufs-readonly
+
+About
+: modem-calls
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: dmesg shows the MSS ready and qrtr-lookup lists services (a modem check in the suite passes)
+
+
+<a id="walleye-slpi-boot-qrtr"></a>
+### Sensors: enable remoteproc_slpi with the phone's own firmware and read qrtr services
+
+Status
+: open
+
+Note
+: From walleye-sensors-way. Host first: settle the SLPI carve-out (0x94b00000/7 MiB vs 0x94c00000/15 MiB) from the vendor dtb and the slpi header.
+
+Blocked by
+: walleye-ufs-readonly
+
+About
+: sensors
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: tests/health/base/slpi-sensor-service.sh passes; then libssc reads accelerometer samples while tilted
+
+
+<a id="walleye-nfc-nxp-nci-node"></a>
+### NFC: nxp-nci node for the PN553 from the Android dtb
+
+Status
+: open
+
+Note
+: From walleye-nfc-way. Host first: read I2C address, enable/IRQ GPIOs, supplies from the Android dtb.
+
+Blocked by
+: walleye-ufs-readonly
+
+About
+: nfc
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: tests/health/base/nfc-present.sh passes, then a tag poll
+
+
+<a id="walleye-deep-sleep-baseline"></a>
+### Deep sleep: measure Android's suspend current, then enable PSCI cpuidle + s2idle
+
+Status
+: open
+
+Note
+: From walleye-deep-sleep-way. Needs a meter and the author's hands for the baseline; after the PMIC watchdog proof.
+
+Blocked by
+: walleye-ufs-readonly
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: tests/health/base/suspend-residency.sh passes and a 10-minute suspend current is measured against idle
+
+
+<a id="walleye-fingerprint-identify"></a>
+### Fingerprint: identify the sensor and its bus from the vendor dtb (host only), then decide
+
+Status
+: open
+
+Note
+: From walleye-fingerprint-way. No phone change.
+
+Blocked by
+: walleye-ufs-readonly
+
+About
+: fingerprint
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a named compatible string recorded in a part row
+
+
+<a id="walleye-camera-camss-diff"></a>
+### Camera: diff wahoo downstream camera dtsi against sdm660 camss tables (host only), then port
+
+Status
+: open
+
+Note
+: From walleye-camera-way. 40-80 h port after UFS, modem, sensors.
+
+Blocked by
+: walleye-ufs-readonly
+
+About
+: camera-rear
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row with the diff and a go or no-go for a camss msm8998 port; test camera-sensor-present.sh stays failing until a frame

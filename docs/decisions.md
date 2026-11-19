@@ -2222,3 +2222,28 @@ Research
 
 Scope
 : walleye lane: builder (L4 image), keeper (the try); build/gen-overlay-stubs.sh
+
+
+<a id="2026-11-19-walleye-radios-way"></a>
+### 2026-11-19-walleye-radios-way
+
+Date
+: 2026-11-19
+
+Brief
+: Walleye radios: modem and SLPI sensors first (remoteproc proofs), NFC next, camera last; fingerprint waits on identifying the chip; deep sleep on Android's baseline
+
+Decision
+: Order by certain progress per cost: 1 modem remoteproc proof, 2 SLPI boot + qrtr sensors, 3 NFC node, 4 deep sleep (Android baseline, then cpuidle), 5 fingerprint identification, 6 camera port. Each first step is a host-side read or a read-only proof by the keeper; all wait behind walleye-ufs-readonly where they need partitions. Failing tests in tests/health/base: nfc-present, camera-sensor-present, slpi-sensor-service, suspend-residency. Backlog: walleye-modem-mss-proof, walleye-slpi-boot-qrtr, walleye-nfc-nxp-nci-node, walleye-deep-sleep-baseline, walleye-fingerprint-identify, walleye-camera-camss-diff.
+
+Why
+: Rests on research rows walleye-modem-way, -sensors-way, -camera-way, -nfc-way, -fingerprint-way, -deep-sleep-way: modem and SLPI drivers are upstream and a sibling phone (OnePlus 5) or the SDM845 recipe shows the path; NFC is a mainline driver plus a dts node; the camera needs a new camss port (40-80 h) and a VCM driver nobody has; fingerprint and deep sleep have an unknown a cheap read settles first.
+
+Rejected
+: Direct i2c sensor drivers (the SLPI owns the buses, probably); PN80T secure element (closed); fingerprint userspace SPI driver now (protocol proprietary, TEE-gated); libhybris/Android HAL for the camera (not upstreamable, against the mainline goal); modem IPA data first (unstable on OnePlus 5)
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-modem-way

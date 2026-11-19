@@ -4284,3 +4284,135 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-19/
+
+
+<a id="walleye-modem-way"></a>
+### walleye-modem-way
+
+Date
+: 2026-11-19
+
+Brief
+: Modem: mainline has the MSM8998 MSS driver; OnePlus 5 runs it with qrtr/rmtfs/pd-mapper/tqftpserv, calls broken; nobody shows a Pixel 2 modem
+
+Question
+: How can the Pixel 2 modem (calls, SMS, data) work on mainline?
+
+Found
+: q6v5-mss for msm8998 is upstream (2019). Closest working phone, OnePlus 5 (same SoC): modem up, ModemManager sees it only with the ipa module held back, calls/SMS broken, remoteproc crashes after Wi-Fi disconnects. Vectors: (1) remoteproc-only proof, blobs from the factory image, userspace rmtfs/pd-mapper/tqftpserv/qrtr, ~8 h, proof MSS ready + qrtr-lookup; (2) ModemManager SMS/registration with a SIM, ~10 h; (3) data over IPA by hand, ~15 h, unstable on OnePlus 5; (4) wait for OnePlus 5 fixes. Not known yet: modem partition layout and rmtfs files on walleye, whether the Wi-Fi diag-router workaround is needed, any working Pixel 2 modem. Unread: pmOS walleye wiki (blocked by Anubis), kcxt/linux-wahoo. Chosen: vector 1 then 2, read-only until walleye-ufs-readonly settles.
+
+Sources
+: mss-msm8998-driver-1665cbd5,pmaports-oneplus5-mainline-mr3531,modemmanager-issue-386,pmos-msm8998-wiki
+
+About
+: modem-calls
+
+
+<a id="walleye-sensors-way"></a>
+### walleye-sensors-way
+
+Date
+: 2026-11-19
+
+Brief
+: Sensors: all sit behind the SLPI; mainline has remoteproc_slpi for msm8998 (disabled, no fastrpc node); the SDM845 libssc/hexagonrpcd recipe is the way
+
+Question
+: How can the Pixel 2 sensors work on mainline when the SLPI owns their buses?
+
+Found
+: Our vendor-kernel-hardware-inventory says the AP tree has no sensor chips, so direct i2c drivers are probably not possible (not proven). Mainline msm8998.dtsi has remoteproc_slpi at 5800000, disabled. pmaports MR 4050 gives the SDM845 stack (SLPI remoteproc, FastRPC, hexagonrpcd, libssc, iio-sensor-proxy) with firmware from the user's own phone. Vectors: (1) full stack ~20-40 h; (2) direct i2c, likely blocked; (3) SLPI + qrtr + libssc only, first milestone; (4) defer. Unknowns: SLPI boots under PAS with Pixel firmware; the memory carve-out differs (0x94b00000/7 MiB stock vs 0x94c00000/15 MiB HTC); msm8998 FastRPC node not known yet. Chosen: 3 as the first milestone toward 1.
+
+Sources
+: lkml-slpi-msm8998-pas-2019,pmaports-mr4050-sdm845-sensors,pmos-msm8998-wiki
+
+About
+: sensors
+
+
+<a id="walleye-camera-way"></a>
+### walleye-camera-way
+
+Date
+: 2026-11-19
+
+Brief
+: Cameras: mainline camss has no MSM8998, no IMX362/IMX378 driver, no Pixel VCM driver; far from working, sdm660 camss is the base
+
+Question
+: How can the Pixel 2 cameras (IMX362 rear, IMX378 front) work on mainline?
+
+Found
+: Nothing exists for walleye. Del Regno's SDM630/660 camss (VFE 4.8, CSID 5.0) is said to be 90% reusable for msm8998. The sdm670-mainline Pixel 3a effort has out-of-tree IMX355/363 and is blocked on a VCM driver. Vectors: (1) port msm8998 camss on the sdm660 base plus an IMX362 driver, 40-80 h, one raw frame; (2) rebase sdm670-mainline patches, 30-60 h; (3) front IMX378 only, no VCM/OIS; (4) libhybris, not researched, not upstream. Pixel Visual Core probably not needed for raw capture (inference). Chosen: vector 1 to one raw frame, first step host-only: diff the wahoo downstream camera dtsi against the sdm660 camss tables; it waits behind UFS and modem, sensors.
+
+Sources
+: camss-sdm630-660-v2,sdm670-mainline-camera-vcm-issue,imx378-rfc-2020
+
+About
+: camera-rear
+
+
+<a id="walleye-nfc-way"></a>
+### walleye-nfc-way
+
+Date
+: 2026-11-19
+
+Brief
+: NFC: PN553 is a mainline nxp-nci device (nxp,pn553 binding); the work is a dts node from Android's dtb; the PN80T secure element is out of reach
+
+Question
+: How can the Pixel 2 NFC work on mainline?
+
+Found
+: nxp-nci with nxp,pn553 and enable-gpios is mainline. Vector A (chosen): node with I2C address, enable/IRQ GPIOs and supplies read from the Android dtb on the host, neard/libnfc, proof a tag poll, ~4 h, upstreamable. B: secure element PN80T, closed, rejected. C: skip. Unknown: whether the PN553 needs firmware download.
+
+Sources
+: lkml-nxp-pn553-binding
+
+About
+: nfc
+
+
+<a id="walleye-fingerprint-way"></a>
+### walleye-fingerprint-way
+
+Date
+: 2026-11-19
+
+Brief
+: Fingerprint: the sensor model is not confirmed (CrucialTec reported); no libfprint path known; identify it first, then decide
+
+Question
+: How can the Pixel 2 fingerprint reader work on mainline?
+
+Found
+: Press report says CrucialTec module; Pixel 3 uses FPC1075; not confirmed for walleye. No mainline or libfprint support known; Android's HAL may need a TrustZone trustlet. Vectors: A identify sensor and bus from the vendor dtb, host only, ~1 h, proof a named compatible; B userspace SPI driver with libfprint, protocol probably proprietary and TEE-gated, rejected for now; C defer. Chosen: A then decide.
+
+Sources
+: biometricupdate-pixel2-crucialtec
+
+About
+: fingerprint
+
+
+<a id="walleye-deep-sleep-way"></a>
+### walleye-deep-sleep-way
+
+Date
+: 2026-11-19
+
+Brief
+: Deep sleep: msm8998 has PSCI idle states upstream (latency fix v5.16); whether s2idle/RPM sleep reaches deep states is not known; measure Android's suspend current first
+
+Question
+: How can the Pixel 2 reach deep sleep and low standby current on mainline?
+
+Found
+: Upstream has PSCI cpuidle states for msm8998; pmOS lists CPUidle Partial; a OnePlus 3T write-up found cpuidle-psci disabled in the config. Not known yet: s2idle vs PSCI suspend state, RPM sleep sets and XO shutdown, Android's suspend current. Vectors: A enable PSCI cpuidle + s2idle and read rpm_stats/cpuidle residency, ~6 h, risk of resume hang; B Android baseline suspend current first, needs a meter and the author's hands; C cpuidle only. Chosen: B then A, after the PMIC watchdog proof.
+
+Sources
+: lkml-cpuidle-msm8998-latency-fix,hackernoon-oneplus3t-mainline-pm,pmos-msm8998-wiki
+
+About
+: deep-sleep
