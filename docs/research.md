@@ -4778,3 +4778,22 @@ About
 
 Supersedes
 : walleye-display-stripes-try2-no-answer
+
+
+<a id="walleye-display-at-boot-b1-built"></a>
+### walleye-display-at-boot-b1-built
+
+Date
+: 2026-11-19
+
+Brief
+: B1 built: L5 with init-display, which loads the 13 display modules itself at boot, no host script; checks pass, rebuild identical, reviewed; not tried
+
+Question
+: Can the display come up at boot with no host script?
+
+Found
+: B1 = L5's kernel, dtb, command line and modules; only /init differs (init-display = init-late plus a background subshell insmod-ing every line of /display-modules.list, each step to /dev/kmsg, failures logged with rc; a missing list is said). The self-reboot is held 600 s at boot so the glass can be looked at, then released. Gate, AVB, UFS-off tests, reset-gpio single claimant pass; rebuild identical; programmer review done (test made behavioural, missing-list and hold findings fixed). sha256 boot-b1.img 57ab1b69de78a304e0fba1b2576a1781de2b9cbc41a02c2d73b5328c67b8ebd7 in ~/Projects/walleye-build/images-display-at-boot. Kernel unchanged; fbcon takes the early log when msm loads. Not tried.
+
+About
+: walleye-display-s6e3fa5
