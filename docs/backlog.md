@@ -5474,3 +5474,28 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-layer-declared"></a>
+### Declare walleye's device layer in device.toml under [layer], checked against the manifest schema
+
+Status
+: open
+
+Note
+: From orchestration (lab-tools 212, decision 2026-11-19-device-layer-declared-once, which the author agreed): the [layer] table is typed in lpoco-manifest. Declare walleye's layer once in device.toml under [layer]: name (the packages' stem NAME-config, NAME-boot, linux-NAME), needs, the kernel (our v7.3 build), the dtb (dt/msm8998-google-walleye.dts, the built dtb), the firmware (what the phone needs: read the Android vendor partition list we already compared; no proprietary blobs go into git, name them as sources only), the UCM and udev files (none yet: say so, do not invent), and the boot glue, which for walleye is an Android boot.img (v0, base 0, kernel 0x8000, ramdisk 0x1000000, tags 0x100, page 4096, dtb appended, AVB footer) rewritten per kernel: bootimg-trigger-per-base covers the trigger (read its row in the lab-tools data first). Check it against manifest/device.schema.json (a builder reads the schema, the lpoco-manifest tool in lab-tools validates). lpoco layer pack comes next in lab-tools; leave pack out. No phone touch.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: device.toml carries [layer] (name; needs; kernel, dtb, firmware, UCM and udev files; boot glue) and validates against lab-tools manifest/device.schema.json (lpoco-manifest check passes); no secrets, serials or MACs in it
+
+Rank
+: 4
