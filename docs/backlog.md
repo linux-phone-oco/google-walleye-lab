@@ -7457,10 +7457,10 @@ Rank
 ### One command for the display try: a Rust program that boots the display image, reads the console and the DRM connector, shows the stripes, prompts the author and returns the phone to Android
 
 Status
-: in-progress
+: done
 
 Note
-: Program landed (dry-run, stand-in tests, check, clippy, fmt, review). Waits for the keeper's unattended real run per the note's BAR (2): ln -s ~/Projects/walleye-build build/images, stdin from /dev/null, expect a stop at look_for 'nobody answered', phone back on Android (idle-android), record landed.
+: proven by the unattended real run 2026-11-19 (host lpoco 0.32.1, stdin /dev/null): 12 steps passed (13 modules loaded, DSI-1 connected enabled 1080x1920, drawer drew), stopped at look_for 'nobody answered'; the program stops there without its own way back, so the test image's deadman restarted the phone and adb shows Android on slot b within minutes. idle-android suite not run (no phone password file); adb and fastboot state read instead. Whether the glass lit still waits for the author's look: run the program attended.
 
 About
 : walleye-display-s6e3fa5
