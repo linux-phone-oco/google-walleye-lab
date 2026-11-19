@@ -4167,3 +4167,24 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-19/
+
+
+<a id="walleye-display-late-probe-l3-built"></a>
+### walleye-display-late-probe-l3-built
+
+Date
+: 2026-11-19
+
+Brief
+: L3 built: L1 plus vdd-supply = vreg_l1a_0p875 on dsi@c994000, nothing else; gate and AVB pass, rebuild identical, reviewed; not tried
+
+Question
+: Build the late-probe image L1 plus the vdd-supply on the DSI host node, the rail read from the phone's dtbo
+
+Found
+: boot-l3.img (sha256 9360c0579f1350128b8f43573d9900f8c74e08e0dac21e15089a628f20924e08, ~/Projects/walleye-build/images-display-late-l3/) = L1 with only the dtb changed: dsi@c994000 gains vdd-supply = <&vreg_l1a_0p875> (l1a, 0.88 V; diff in l3.diff, one line). Ramdisk, command line (iommu.passthrough=1), header, size and Image.gz are L1's; tests/host/ufs-off-image.sh and the AVB check pass; rebuild identical; the build and check scripts refuse an input that is not L1 (sha256 against SHA256SUMS-display-late-l). Programmer review done: input-identity check added, comment reworded.
+THE RAIL IS NOT READ FROM THE PHONE: the dtbo entry 3 (~/Projects/walleye-build/control/dtbo.img) names no DSI core rail; its dsi fragments carry only the panel's vci (l22), wqhd-vddio (l14), pinctrl and gpios. Chosen by analogy: mainline msm8998_dsi_regulators wants vdd 0.9 V and vdda 1.2 V; our dts has vdda = l2a (1.2 V) and the DSI PHY's vdds = l1a (0.88 V). No mainline board in the tree supplies msm8998 DSI vdd. The try proves or refutes it; if the host still defers, other 0.9 V candidates are next.
+For the try: tests/host/display-late-probe.sh needs a timeout of 400 s or more (item walleye-try-display-late-probe-l3). Build: build/build-display-late-l3-dtb.sh, build/series/display-late-l3.toml (lpoco-bringup image bisect), build/check-display-late-l3.sh.
+
+About
+: walleye-display-s6e3fa5

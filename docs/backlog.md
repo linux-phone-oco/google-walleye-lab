@@ -6647,10 +6647,10 @@ Rank
 ### L3: the late-probe image L1 plus the vdd-supply on the dsi node, the rail read from the phone's own dtbo
 
 Status
-: open
+: done
 
 Note
-: Research walleye-display-why-dsi-defers-silently (PR 454): the DRM master waits for c994000.dsi, deferred with an empty reason, because msm_dsi_host_init asks for the regulators 'vdd' and 'vdda' (msm8998_dsi_cfg) and the node has vdda-supply, vci-supply, wqhd-vddio-supply and no vdd-supply; devm_regulator_bulk_get returns without a message. Not proven until an image with the supply binds the dsi: this image is the proof's first half, the try is the second. No phone read is needed for the rail: the dtbo file is on the lab host.
+: boot-l3.img sha256 9360c0579f1350128b8f43573d9900f8c74e08e0dac21e15089a628f20924e08; see research walleye-display-late-probe-l3-built
 
 About
 : walleye-display-s6e3fa5
