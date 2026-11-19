@@ -2502,3 +2502,31 @@ Research
 
 Tracked by
 : walleye-display-delay-bisect-build
+
+
+<a id="2026-11-19-walleye-display-flip-dts-not-timing"></a>
+### 2026-11-19-walleye-display-flip-dts-not-timing
+
+Date
+: 2026-11-19
+
+Brief
+: Do not rely on a delay: fix the handover in the dts (reserve the splash, simple-framebuffer), driver wait upstream if faults remain; the 17-23 s images stay unqueued
+
+Decision
+: The load delay is a lab aid only. Next step is walleye-display-splash-region-dts at the early load (2 s); if SMMU faults remain there, walleye-display-handover-driver. Narrowing images at 17, 19, 21, 23 s are not queued.
+
+Why
+: The logs show the flip is in the bootloader's scanout, not a kernel event we could wait on; a fixed 25 s delay would be a guess depending on an unmeasured bootloader idle timer.
+
+Rejected
+: Waiting a fixed 25-30 s at boot: hides the fault, depends on an unmeasured timer, delays the display half a minute. Narrowing images 17-23 s: only refine the timer, change no work. Waiting on an event: none found in the logs.
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-flip-15-25-read-from-logs
+
+Tracked by
+: walleye-display-splash-region-dts
