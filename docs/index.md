@@ -2,13 +2,13 @@
 
 # Index
 
-- [Backlog](backlog.md): 276
+- [Backlog](backlog.md): 277
 - [Decisions](decisions.md): 85
 - [Devices](devices.md): 0
 - [Hardware](hardware.md): 4
 - [Parts](parts.md): 21
-- [Research](research.md): 194
-- [Session Log](session_log.md): 196
+- [Research](research.md): 195
+- [Session Log](session_log.md): 197
 - [Sources](sources.md): 62
 - [Steps](steps.md): 113
 - [Summaries](summaries.md): 0
