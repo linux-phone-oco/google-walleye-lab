@@ -6580,31 +6580,6 @@ Rank
 : 5
 
 
-<a id="walleye-tries-shared-lab-plumbing"></a>
-### walleye-tries: one shared Lab type for the plumbing touch and pmic both copy
-
-Status
-: open
-
-Note
-: Programmer review of the PMIC program: shell, script, save, battery_is_good, boot, shell_answers, android_is_back are copied between touch.rs and pmic.rs; move into host.rs or a Lab type. Also: an Image enum for A/B; the A->B fallback has no stand-in test and decides on gadget-up.sh alone (item says several witnesses, phone-state.sh); the bite pass could also check bootreason and the slot; arming_said needs 'rebooting cleanly now' though reboot -f follows at once.
-
-About
-: walleye-attend-program-pmic
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: both tries on one Lab type, tests pass
-
-Rank
-: 20
-
-
 <a id="walleye-display-late-probe-l3-image"></a>
 ### L3: the late-probe image L1 plus the vdd-supply on the dsi node, the rail read from the phone's own dtbo
 
@@ -6937,3 +6912,28 @@ Proof
 
 Rank
 : 9
+
+
+<a id="walleye-tries-shared-lab-plumbing"></a>
+### walleye-tries: one shared Lab type for the plumbing touch and pmic both copy
+
+Status
+: open
+
+Note
+: Programmer review of the PMIC program: shell, script, save, battery_is_good, boot, shell_answers, android_is_back are copied between touch.rs and pmic.rs; move into host.rs or a Lab type. Also: an Image enum for A/B; the A->B fallback has no stand-in test and decides on gadget-up.sh alone (item says several witnesses, phone-state.sh); the bite pass could also check bootreason and the slot; arming_said needs 'rebooting cleanly now' though reboot -f follows at once. Review notes from the second builder that dropped its duplicate of #465: check #465's host::to_fastboot for an empty serial (fail fast), an unrunnable fastboot (error at once) and an unreadable device.toml (name the file).
+
+About
+: walleye-attend-program-pmic
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: both tries on one Lab type, tests pass; pmic.rs back_to_fastboot moves onto host::to_fastboot (#465); host::to_fastboot: an empty serial fails fast, an unrunnable fastboot errors at once instead of waiting out the 90 s timeout, an unreadable device.toml names the file
+
+Rank
+: 20
