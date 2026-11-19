@@ -3344,3 +3344,22 @@ NOT PROVEN: the init's pon-regs reader has never been shown to read on the phone
 
 About
 : walleye-pmic-wdt-proof
+
+
+<a id="walleye-generated-init-gaps"></a>
+### walleye-generated-init-gaps
+
+Date
+: 2026-11-19
+
+Brief
+: lpoco-bringup 0.24.0 generated init (console acm, --net 43) against our z14/wdt1 init: serial, ACM+ECM, usb0 172.16.43.1, DHCP .2, telnetd covered; five things missing
+
+Question
+: Does the generated bring-up init cover what our own init (init-z14, init-wdt1) keeps, so the ~20 variants can be retired?
+
+Found
+: Generated from device.toml [boot.gadget] with --net 43 (3519 bytes): COVERED - serial walleye-first-boot from the manifest, configfs ACM + ECM in c.1, usb0 172.16.43.1 with DHCP 172.16.43.2, telnetd, UDC wait, self-test. MISSING - (1) the watchdog petter and the 180 s hold with self-reboot (reboot -f, sysrq b) that waits while /tmp/hold exists; (2) the raw command loop on ttyGS0 (generated: an interactive sh respawned on ttyGS0, which research walleye-z5b-tried-raw-tty found silent on the raw tty); (3) the WALLEYE-BANNER lines on ttyGS0 and /tmp/banner-steps; (4) a hook for image-specific additions (wdt-arm, wdt-bite, wdt-reboot are written into the ramdisk by init-wdt1); (5) the ECM MAC bytes differ (02:42:ac:10:2b:* ours, generated 2a at net 42, expected 2b at 43 - checked only by grep for the address). Also generated: no watchdog node is opened, so a try held in memory would sit until the phone's own watchdog bites. Decision: keep our own init; [boot.gadget] is declared in device.toml so the tool reads it; the gaps go to orchestration.
+
+About
+: walleye-first-fastboot-boot
