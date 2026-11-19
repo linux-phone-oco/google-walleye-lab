@@ -743,3 +743,16 @@ By
 
 Takes
 : link_startup_pre_change steps, register addresses and masks
+
+
+<a id="src-mainline-v73-ufs-qcom-ice"></a>
+### Linux v7.3: ufs-qcom.c, soc/qcom/ice.c, ICE and ufshc bindings, msm8998.dtsi
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/soc/qcom/ice.c?h=v7.3
+
+By
+: Linux kernel
+
+Takes
+: ICE-less path warns and returns 0; no msm8998 ICE compatible or node

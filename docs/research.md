@@ -3748,3 +3748,28 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ufs-ice-verdict"></a>
+### walleye-ufs-ice-verdict
+
+Date
+: 2026-11-19
+
+Brief
+: ICE inits after the PHY and before link startup in Android but cannot touch link or card; mainline without ICE only warns: skip it for the read-only probe
+
+Question
+: What does Android's probe do with ICE before the first UFS command, and does the card path need it?
+
+Found
+: Android: HCE pre-change = PHY power-up, lane clocks, then ICE init (own block 0x1db0000, 4 clocks, TZ config call, version/fuse/BIST reads, leaves global bypass); per-command key setup only for requests with a key, and returns at once for host major 3. ICE writes no link, PHY, reset or card registers and issues no command. Mainline v7.3: no msm8998 ICE node/compatible; without it ufs_qcom_ice_init warns and returns 0, no ICE access at all. Verdict: skip for a read-only probe; later an upstreamable port only if inline encryption is wanted. Not known yet: UFS_HW_VERSION of this host.
+
+Sources
+: src-google-wahoo-msm44-android11,src-mainline-v73-ufs-qcom-ice
+
+About
+: walleye-ufs-match-android-z
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-19-ufs-ice/

@@ -5941,10 +5941,10 @@ Rank
 ### Inline crypto engine: what Android's probe does with ICE before the first command, and whether the card path needs it
 
 Status
-: open
+: done
 
 Note
-: Missing from Android's side: ICE (decision 2026-11-19-walleye-ufs-match-no-ice-no-linkstartup). Next step: the research row.
+: Research row walleye-ufs-ice-verdict: skip ICE for the read-only probe; port queued as walleye-ice-port.
 
 About
 : walleye-ufs-match-android-z
@@ -6116,3 +6116,28 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-ice-port"></a>
+### Inline crypto engine port for msm8998 (ICE node, binding compatible), only if inline encryption is wanted
+
+Status
+: open
+
+Note
+: From research walleye-ufs-ice-verdict: not needed for the read-only probe; after the card path works. Upstreamable.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: an ICE node for 0x1db0000 with its clocks reviewed against the ICE binding, the dtb builds and checks, and on the phone dmesg shows ICE enabled with the card path unchanged
+
+Rank
+: 40
