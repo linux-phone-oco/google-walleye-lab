@@ -7378,31 +7378,6 @@ Rank
 : 5
 
 
-<a id="walleye-pmic-program-ab-and-witnesses"></a>
-### PMIC program: an Image type for A and B, the A-to-B fallback's witnesses with a stand-in test, and bootreason and slot read in the bite pass
-
-Status
-: open
-
-Note
-: Left open by the builder of walleye-tries-shared-lab-plumbing (PR 517): not in that item's proof. The A to B fallback had no stand-in test since the program was built (PR 453). Do after walleye-wdt-state-without-sysfs-identity and before the PMIC attended try is asked. NEW IMAGES (builder, PR 520): the sysfs-less reader fix is in the ramdisk init, so the program must boot the rebuilt pair: A ~/Projects/walleye-build/images-wdt1-sysfsless/boot-wdt1-a.img (sha256 9dfea096...), B .../boot-wdt1-b.img (15f5e97d...), checked against SHA256SUMS-wdt1 beside them. The defaults in tools/walleye-tries/src/settings.rs still point to images-wdt1 (old).
-
-About
-: walleye-attend-program-pmic
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: pmic-try.rs and tools/walleye-tries/src/pmic.rs: one Image type (A, B) replacing loose paths; a stand-in test that A not booting leads to B and says so in the log; the bite pass reads the boot reason and the active slot from Android afterwards and records them; 32 stand-in tests plus the new ones pass, clippy and fmt clean, --dry-run passes; the program's default images are the rebuilt pair images-wdt1-sysfsless (A and B), not images-wdt1
-
-Rank
-: 8
-
-
 <a id="walleye-try-settings-into-device-toml"></a>
 ### Move the WALLEYE_TRY_* settings into device.toml, under the tables that already hold those facts
 
@@ -7564,3 +7539,53 @@ Proof
 
 Rank
 : 30
+
+
+<a id="walleye-pmic-program-way-back"></a>
+### pmic-try.rs always takes the phone back to Android when it stops, however it stops: the way back is a last step that runs after a failure or an unanswered ask
+
+Status
+: open
+
+Note
+: PMIC run 3 (keeper, PR 534): steps 1-7 pass on the rebuilt pair; after the unanswered ask the program left the phone in image A's ramdisk, which has no self-reboot and is off adb and fastboot; the keeper got it back with 'reboot -f; echo b > /proc/sysrq-trigger' over the telnet shell. That way back belongs in the program: an attended run ends the same way when the author stops or the bite is not answered. Same step for the touch and display programs where their init lacks a self-reboot (z21 and the L-images restart by themselves; check each).
+
+About
+: walleye-attend-program-pmic
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: after an unanswered ask, a failed check and a Ctrl-C the program ends with the phone on Android (idle-android passes) without a hand step: it sends reboot -f over the telnet shell, then the sysrq trigger (echo b > /proc/sysrq-trigger) as the fallback, waits for adb, and if the phone does not return says the power-hold sentence (hold power about 15 s) and exits non-zero; the run still counts as failed or stopped; a stand-in test per path (no answer, check failure, shell silent); the library's back_to_known_good is used if it covers this, otherwise a helper in tools/walleye-tries; dry-run lists the step
+
+Rank
+: 2
+
+
+<a id="walleye-pmic-program-ab-and-witnesses"></a>
+### PMIC program: an Image type for A and B, the A-to-B fallback's witnesses with a stand-in test, and bootreason and slot read in the bite pass
+
+Status
+: open
+
+Note
+: Left open by the builder of walleye-tries-shared-lab-plumbing (PR 517): not in that item's proof. The A to B fallback had no stand-in test since the program was built (PR 453). Do after walleye-wdt-state-without-sysfs-identity and before the PMIC attended try is asked. NEW IMAGES (builder, PR 520): the sysfs-less reader fix is in the ramdisk init, so the program must boot the rebuilt pair: A ~/Projects/walleye-build/images-wdt1-sysfsless/boot-wdt1-a.img (sha256 9dfea096...), B .../boot-wdt1-b.img (15f5e97d...), checked against SHA256SUMS-wdt1 beside them. The defaults in tools/walleye-tries/src/settings.rs still point to images-wdt1 (old). Rank 3 (2026-11-19): after walleye-pmic-program-way-back; both before the author is asked for the PMIC try.
+
+About
+: walleye-attend-program-pmic
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: pmic-try.rs and tools/walleye-tries/src/pmic.rs: one Image type (A, B) replacing loose paths; a stand-in test that A not booting leads to B and says so in the log; the bite pass reads the boot reason and the active slot from Android afterwards and records them; 32 stand-in tests plus the new ones pass, clippy and fmt clean, --dry-run passes; the program's default images are the rebuilt pair images-wdt1-sysfsless (A and B), not images-wdt1
+
+Rank
+: 3

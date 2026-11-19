@@ -2,7 +2,7 @@
 
 # Index
 
-- [Backlog](backlog.md): 306
+- [Backlog](backlog.md): 307
 - [Decisions](decisions.md): 90
 - [Devices](devices.md): 0
 - [Hardware](hardware.md): 4
