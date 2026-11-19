@@ -3577,3 +3577,50 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-18-ufs-android-way/
+
+
+<a id="walleye-ufs-go-note"></a>
+### walleye-ufs-go-note
+
+Date
+: 2026-11-19
+
+Brief
+: Note for the author before the UFS go: the matched image follows Android's bring-up of this card in most steps; the erase cause is unknown, no way back (EDL) exists; the go is his
+
+Question
+: How close is the matched image to Android's bring-up of H28U74301AMR, what is unknown, what could a failure cost?
+
+Found
+: NOTE FOR THE AUTHOR (plain words; the go is yours, no session lifts the hold - decision 2026-11-19-walleye-ufs-hold-second-path).
+
+WHAT THE TRY IS: boot one image (NOT-TO-BOOT-ufs-on-ufs-match.img, sha256 f8f6215e...) whose kernel brings up the phone's UFS card (SK hynix H28U74301AMR, 64 GB). It is built and reviewed, never booted. Nothing is written to the card by us.
+
+STEP BY STEP AGAINST ANDROID (from Google's wahoo 4.4 source, the phone's live readings, and our tree):
+- Card reset pulse (RST_n low/high 10-15 us before the host starts): Android yes; matched image yes (pin 153 made reachable); EQUAL. The old z13 never pulsed: that was different.
+- Card quirks: Android applies only SAVECONFIGTIME for this card; matched image SAVECONFIGTIME plus our purge guard (never sends purge); EQUAL in effect. Sony's three erase-related workarounds are gone (Android never used them on this card).
+- Purge: Android never sends it; the guard blocks it in ours; EQUAL.
+- Link speed: Android runs high-speed gear 3, rate B, 2 lanes each way, reading it live; ours negotiates the same by mainline; EQUAL as far as read, shown only at the try.
+- PHY tables: Android picks table 3.0.0 or 3.1.0 by the host version; ours picks by the same version and stops (no PHY init) on any other; the same rule. WHICH one is NOT KNOWN: the version register cannot be read on live Android; our own init reads and prints it first.
+- Rails and clocks: same voltages set (1.8/2.96/1.2 V host, 0.88/1.2 V PHY); we use plain clocks, Android hardware-gated ones; DIFFERENT, judged harmless, not proven.
+- Link-startup pre-change (RX line config, one register mask, hardware clock gating): Android does it, ours does NOT; DIFFERENT, decision 2026-11-19-walleye-ufs-match-no-ice-no-linkstartup (no new unreviewed hardware code before your go).
+- Inline encryption (ICE), bus votes, PM-QoS, pad drive of the reset pin: Android has them, ours does NOT; DIFFERENT. Mainline's clock scaling and extras stay.
+So: not a full match. It matches what touches the card's identity and reset; it does not match Android's tuning of the link.
+
+WHAT IS STILL UNKNOWN:
+1. The host version (3.0.0 or 3.1.0): read first thing in our own init.
+2. Whether the 3.0.0 table (lane 0 only) leaves lane 1 usable.
+3. The bootloader's (abl) hand-over state of the card: unread.
+4. WHY Sony's phone (yoshino, a similar Hynix card) lost its bootloader with a probe lacking quirks: unpublished, nobody knows the mechanism. Our Android-matched sequence contains none of Sony's fixes because Android's own does not.
+
+EVIDENCE FOR THE RISK: by accident (research walleye-ufs-on-by-accident) images z15, z16, z17, z20 had UFS on; our kernel brought the link up and read the card at least four times with no quirks of Sony's kind, nothing was written, and the phone still boots Android from both slots with the bootloader intact. That lowers the risk; it is not a proof for every sequence.
+
+REMAINING RISK AND COST OF FAILURE: chance not zero, not measured. If the erase happened, the bootloader is gone and the fastboot way back with it; EDL (Qualcomm rescue mode) may appear but no Google-signed programmer for MSM8998 is public (research 2026-11-18-walleye-edl-way-back): the phone would be a brick for us. the Pixel 2 lane would end.
+
+OPTIONS FOR YOU: (a) go now on the matched image, one try, read-only; (b) wait for an EDL way back first (path a of the decision); (c) no go. Reading the version before the try needs a kernel module with a bus-hang risk; judged not worth it.
+
+Sources
+: src-sony-ufs-quirks-forward-port,src-oneplus5-ufs-mainline
+
+About
+: walleye-first-fastboot-boot
