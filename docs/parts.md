@@ -149,24 +149,6 @@ Judged
 ### Row 9
 
 Component
-: display-panel
-
-Status
-: unknown
-
-Notes
-: No report for walleye's panel. The fork has a walleye device tree, but no source says its display works (the wiki reports a blank screen on the 2 XL, taimen). No source found reporting this on this phone (surveyed 2026-11-17: the Nura wiki, pmaports, the mainline tree, kcxt/linux-wahoo). Nobody here has measured it. Settles with: the phone's own test on a booted Linux kernel.
-
-Updated
-: 2026-11-17
-
-Judged
-: unknown
-
-
-### Row 10
-
-Component
 : fastboot
 
 Status
@@ -182,43 +164,7 @@ Judged
 : unknown
 
 
-### Row 11
-
-Component
-: haptics
-
-Status
-: unknown
-
-Notes
-: No source found reporting this on this phone (surveyed 2026-11-17: the Nura wiki, pmaports, the mainline tree, kcxt/linux-wahoo). Nobody here has measured it. Settles with: the phone's own test on a booted Linux kernel.
-
-Updated
-: 2026-11-17
-
-Judged
-: unknown
-
-
-### Row 12
-
-Component
-: kernel
-
-Status
-: unknown
-
-Notes
-: No Nura wiki page and no pmaports package for walleye (checked 2026-11-17). The out-of-tree fork kcxt/linux-wahoo (wahoo/5.17, last push 2022-02-27) carries msm8998-google-walleye.dts and wahoo.dtsi, but no source says it boots; the repository calls itself 'Mainline Linux for the Google Pixel 2XL (And 2?)'. Not in mainline Linux (checked 2026-11-17). Settles with: booting that fork on a Pixel 2.
-
-Updated
-: 2026-11-17
-
-Judged
-: unknown
-
-
-### Row 13
+### Row 10
 
 Component
 : modem-calls
@@ -236,7 +182,7 @@ Judged
 : unknown
 
 
-### Row 14
+### Row 11
 
 Component
 : modem-data
@@ -254,7 +200,7 @@ Judged
 : unknown
 
 
-### Row 15
+### Row 12
 
 Component
 : modem-sms
@@ -272,7 +218,7 @@ Judged
 : unknown
 
 
-### Row 16
+### Row 13
 
 Component
 : nfc
@@ -290,7 +236,7 @@ Judged
 : unknown
 
 
-### Row 17
+### Row 14
 
 Component
 : sensors
@@ -308,25 +254,7 @@ Judged
 : unknown
 
 
-### Row 18
-
-Component
-: touchscreen
-
-Status
-: unknown
-
-Notes
-: No source found reporting this on this phone (surveyed 2026-11-17: the Nura wiki, pmaports, the mainline tree, kcxt/linux-wahoo). Nobody here has measured it. Settles with: the phone's own test on a booted Linux kernel.
-
-Updated
-: 2026-11-17
-
-Judged
-: unknown
-
-
-### Row 19
+### Row 15
 
 Component
 : usb-otg
@@ -344,7 +272,7 @@ Judged
 : unknown
 
 
-### Row 20
+### Row 16
 
 Component
 : wifi
@@ -362,7 +290,7 @@ Judged
 : unknown
 
 
-### Row 21
+### Row 17
 
 Component
 : fingerprint
@@ -375,6 +303,96 @@ Evidence
 
 Notes
 : Identified from the vendor dtb 2026-11-19: FPC (compatible fpc,fpc1020), irq GPIO86, reset GPIO128, vdd_io PM8998 S4, SPI bus not named (TrustZone side). Exact chip and bus settle with an SPI HWID read; no driver on mainline or libfprint.
+
+Updated
+: 2026-11-19
+
+
+### Row 18
+
+Component
+: haptics
+
+Status
+: partial
+
+Evidence
+: research walleye-drv1-tried-drv2624-probes
+
+Notes
+: DRV2624 bound at 0-005a with its input device (2026-11-19); no effect played yet; the rail that powers it is unread.
+
+Updated
+: 2026-11-19
+
+
+### Row 19
+
+Component
+: kernel
+
+Status
+: partial
+
+Evidence
+: research walleye-upstream-dts-tried-boots
+
+Notes
+: Mainline v7.3 with our board dts boots RAM-booted from fastboot to a shell over USB (gadget 18 s); display, touch, fuel gauge, haptics and the UFS card read on it. Not installed: nothing is written to the phone (decision: no flash without a recorded decision, item walleye-install-stage-decision).
+
+Updated
+: 2026-11-19
+
+
+### Row 20
+
+Component
+: storage
+
+Status
+: partial
+
+Evidence
+: research walleye-ufs-try1-card-readable
+
+Notes
+: UFS card read on mainline (read only, one try on the author's go): version 3.1.0, six LUNs, partitions listed, no errors; link at HS gear 1; nothing written; not used as a root filesystem.
+
+Updated
+: 2026-11-19
+
+
+### Row 21
+
+Component
+: display-panel
+
+Status
+: partial
+
+Evidence
+: research walleye-display-l7-looks-seen
+
+Notes
+: Lit on mainline with L7 (the late-probe kernel, modules loaded by the procedure in a hand-picked order): the author saw the kernel log and four held stripes on the glass, 2026-11-19. Not yet from the board dts in any load order: B2 fails (pixel clock rcg warning, DSI -110, SMMU faults); research walleye-display-b2-dsi-clock-warning.
+
+Updated
+: 2026-11-19
+
+
+### Row 22
+
+Component
+: touchscreen
+
+Status
+: works
+
+Evidence
+: research walleye-z21-touch-events-pass
+
+Notes
+: Works as an input device on z21 (RAM-booted): 3593 EV_ABS events from the Synaptics S3708AR while the author swiped, 2026-11-19. No UI uses it yet.
 
 Updated
 : 2026-11-19
