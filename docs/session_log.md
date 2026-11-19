@@ -4615,3 +4615,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-2130-walleye-keeper-how-the-phone-stands-pmic-run4"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: PMIC program unattended run 4 passed: stopped at the first ask, phone left on Android slot b, stock kernel, nothing flashed. Tooling: build/images must link to ~/Projects/walleye-build (the dir itself); the phone password file is still absent (suite not read: no login).
+
+Considered
+: next: author's look at B1 display (one command); then PMIC attended try walleye-try-pmic-wdt-v1 (one command); ready: display-at-boot, slpi-boot-qrtr(21)
+
+About
+: walleye-attend-program-pmic
