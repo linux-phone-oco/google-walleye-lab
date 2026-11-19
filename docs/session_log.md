@@ -4873,3 +4873,24 @@ Considered
 
 About
 : walleye-attend-program-pmic
+
+---
+
+
+<a id="2026-11-20-walleye-tries-flakes"></a>
+### walleye-tries flaky tests fixed
+
+Entry date
+: 2026-11-19
+
+Done
+: Reproduced the ETXTBSY and sysrq flakes under CPU load, wrote fixture::executable and fake::phone_marking, moved the reboot, sysrq and fastboot way-back tests to restart markers; programmer review applied (best-effort comment, /proc panic, simpler labs, marker write error shown); 50 of 50 loaded full-suite runs pass.
+
+Considered
+: Locking every spawn; longer margins.
+
+Rejected
+: Retries.
+
+About
+: walleye-attend-program-touch
