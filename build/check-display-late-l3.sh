@@ -12,6 +12,8 @@ ck() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1: got '$2', wa
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 same() { cmp -s "$1" "$2" && echo same || echo differs; }
 rm -f "$D/SHA256SUMS-display-late-l3"   # a failed run leaves no earlier sums standing
+L1SUM=$(cd "$(dirname "$L")" && grep " boot-l1.img\$" SHA256SUMS-display-late-l | cut -d" " -f1)
+ck "the control is L1: its sha256 is the one recorded (SHA256SUMS-display-late-l)" "$(sha256sum "$L" | cut -d" " -f1)" "$L1SUM"
 IMG=$D/boot-l3.img
 lpoco-bringup image unpack "$L" --out "$T/l1" >/dev/null
 lpoco-bringup image unpack "$IMG" --out "$T/l3" >/dev/null

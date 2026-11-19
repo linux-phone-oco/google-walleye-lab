@@ -2,8 +2,8 @@
 # The dtb of image L3 (item walleye-display-late-probe-l3-image; research walleye-display-why-dsi-defers-silently), from image L1's own dtb:
 #   build-display-late-l3-dtb.sh L1_BOOT_IMG OUT_DIR      (L1_BOOT_IMG: images-display-late-l/boot-l1.img)
 # l3.dtb = L1's dtb with vdd-supply = the l1a rail (0.88 V, vreg_l1a_0p875) on the DSI host node (dsi@c994000), nothing else.
-# Why that rail: msm8998's DSI config asks for 'vdd' (0.9 V in the driver) and 'vdda' (1.2 V); our dts already gives vdda the l2a 1.2 V rail and the DSI PHY's vdds the l1a 0.88 V rail
-# (the 0.9 V core rail, as on mainline's other msm8998 and sdm845 boards); the phone's dtbo entry 3 names no DSI core rail (its dsi fragments carry only the panel's vci, wqhd-vddio, pinctrl).
+# Why that rail (chosen by analogy, not read from the phone): msm8998's DSI config asks for 'vdd' (0.9 V in the driver) and 'vdda' (1.2 V); our dts already gives vdda the l2a 1.2 V rail and the DSI PHY's vdds the l1a 0.88 V rail,
+# the nearest to 0.9 V. No mainline board supplies the msm8998 DSI vdd, and the phone's dtbo entry 3 names no DSI core rail (its dsi fragments carry only the panel's vci, wqhd-vddio, pinctrl). The try proves or refutes it.
 # Writes OUT_DIR/{l3.dtb,l3.diff (L1's decompiled dtb against l3.dtb),SHA256SUMS-display-late-l3-parts}; every check stops the build (ok/FAIL, exit 1, nothing written).
 set -eu
 IMG=${1:?usage: build-display-late-l3-dtb.sh L1_BOOT_IMG OUT_DIR}
@@ -12,8 +12,10 @@ HERE=$(cd "$(dirname "$0")/.." && pwd)
 total=0
 ck() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1: got '$2', want '$3'"; total=$((total+1)); fi; }
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
-rm -f "$OUT/l3.dtb" "$OUT/l3.diff" "$OUT/SHA256SUMS-display-late-l3-parts"   # a failed run leaves no earlier outputs standing
 [ -s "$IMG" ] || { echo "build-display-late-l3-dtb: missing $IMG" >&2; exit 1; }
+L1SUM=$(cd "$(dirname "$IMG")" && grep " boot-l1.img\$" SHA256SUMS-display-late-l | cut -d" " -f1)
+ck "the input is L1: its sha256 is the one recorded (SHA256SUMS-display-late-l)" "$(sha256sum "$IMG" | cut -d" " -f1)" "$L1SUM"
+rm -f "$OUT/l3.dtb" "$OUT/l3.diff" "$OUT/SHA256SUMS-display-late-l3-parts"   # a failed run leaves no earlier outputs standing
 lpoco-bringup image unpack "$IMG" --out "$T/l1" >/dev/null
 L1=$T/l1/appended.dtb
 dts() { dtc -I dtb -O dts -q "$1" 2>/dev/null; }
