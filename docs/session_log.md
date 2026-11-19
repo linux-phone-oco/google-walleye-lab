@@ -3220,3 +3220,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-upstream-dts-image"></a>
+### walleye-builder: image of the exact upstream board dts
+
+Entry date
+: 2026-11-19
+
+Done
+: Built boot-upstream-dts.img (sha256 a8e4364813f3c82a35b9e5edcffb6650eac710e780119b27fa32dc2fa9521377): z21 with the dtb of the series' dts unedited plus a wrapper with overlay stubs and two deleted nodes; build/build-upstream-dts-image.sh, 31 checks, rebuilt identical, programmer review applied (tree-clean check, FDT_ERR_NOTFOUND check, tool failures stop the build). No phone touched.
+
+Considered
+: Editing the series' dts to carry the stubs
+
+Rejected
+: Editing the series' dts: the stubs and deletions are the stock bootloader's merge, not upstream's; kept in a wrapper
+
+About
+: walleye-first-fastboot-boot

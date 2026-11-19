@@ -5537,10 +5537,10 @@ Rank
 ### Build an image from the upstream board dts exactly as the series has it, to boot it once
 
 Status
-: open
+: done
 
 Note
-: Build item for one boot of the EXACT upstream board dts (research/walleye-first-fastboot-boot/2026-11-19-upstream-dts/, lab PR 376; its README: "boot this exact dtb once on the phone and put the result in the cover letter"). Build an image whose dtb is built from the series' msm8998-google-walleye.dts as it is in that folder (applied to the v7.3 tree of the build; not the lab's dt/ file), the same kernel config, ramdisk and init as z21 (the network shell; UFS off) or its latest successor, plus the overlay-collisions and UFS-off gates (tests/host/overlay-collisions.sh and ufs-off-image.sh must pass on the image; if the series' dts lacks something the lab dts needs to reach USB (the gpio-reserved-ranges on tlmm), say what, and that is a finding for the series, do not edit the series' dts without recording it). The touch node and the pwm of the lab dts are not in the series: expect no touch; that is not a failure. Record the image path and sha256 in this note and in walleye-try-upstream-dts, build it twice for the same bytes, and land. No phone touch.
+: Built: boot-upstream-dts.img sha256 a8e4364813f3c82a35b9e5edcffb6650eac710e780119b27fa32dc2fa9521377 on the lab host at ~/Projects/walleye-build/images-upstream-dts/ (research/walleye-first-fastboot-boot/2026-11-19-upstream-dts-image/, build/build-upstream-dts-image.sh); rebuilt identical; gates pass. Finding: series dtb alone needs overlay stubs and the deletion of pcie0/blsp1_i2c5.
 
 About
 : walleye-first-fastboot-boot
@@ -5565,7 +5565,7 @@ Status
 : open
 
 Note
-: UNATTENDED (no person is needed: it is a boot, nothing to see; witness none). Try the image of walleye-upstream-dts-image once from slot b: the lab's usual way (ufs-off-image.sh and overlay gate on the image first, battery rule, fastboot boot from RAM, never flash; the 180 s self-reboot is the way back, and set-active metadata only if the slot flipped). Expect: the usb0 network shell at 172.16.43.1 (telnet), a clean dmesg in the same classes as z21 (tests/host dmesg-clean check), the PMIC and charger probing as on z21, no touch (the series has none). Judge by several witnesses (tests/host/phone-state.sh), never by lsusb alone. Record: booted yes/no, what is in dmesg that z21's is not and the reverse (a short diff of the probe lines), whether the gadget came up. A hang or no-USB is a finding for the series (the dts as cut lacks something): record which witness said what, and put the one-line result as a research row about walleye-upstream-dts-polish so the upstreams lane can quote it in the cover letter. Phone ends on Android slot b, first state.
+: Image to try: ~/Projects/walleye-build/images-upstream-dts/boot-upstream-dts.img sha256 a8e4364813f3c82a35b9e5edcffb6650eac710e780119b27fa32dc2fa9521377 (research walleye-upstream-dts-image-built). UNATTENDED (no person is needed: it is a boot, nothing to see; witness none). Try the image of walleye-upstream-dts-image once from slot b: the lab's usual way (ufs-off-image.sh and overlay gate on the image first, battery rule, fastboot boot from RAM, never flash; the 180 s self-reboot is the way back, and set-active metadata only if the slot flipped). Expect: the usb0 network shell at 172.16.43.1 (telnet), a clean dmesg in the same classes as z21 (tests/host dmesg-clean check), the PMIC and charger probing as on z21, no touch (the series has none). Judge by several witnesses (tests/host/phone-state.sh), never by lsusb alone. Record: booted yes/no, what is in dmesg that z21's is not and the reverse (a short diff of the probe lines), whether the gadget came up. A hang or no-USB is a finding for the series (the dts as cut lacks something): record which witness said what, and put the one-line result as a research row about walleye-upstream-dts-polish so the upstreams lane can quote it in the cover letter. Phone ends on Android slot b, first state.
 
 Blocked by
 : walleye-upstream-dts-image
