@@ -3626,25 +3626,6 @@ About
 : walleye-first-fastboot-boot
 
 
-<a id="walleye-display-try1-no-shell-what-is-known"></a>
-### walleye-display-try1-no-shell-what-is-known
-
-Date
-: 2026-11-19
-
-Brief
-: Display try 1: the gadget never enumerated in the 49 s window; the clock_gcc fix IS in the image; the dtb differs from z21 only by the display nodes, the kernel only by DRM
-
-Question
-: Why did boot-display.img give no shell (left fastboot 11:40:18, Android back 11:41:07, nothing between)?
-
-Found
-: Host kernel log (journalctl -k, host grig): 11:39:26 fastboot 18d1:4ee0; 11:40:18 disconnect (left fastboot); 11:41:07 Android 18d1:4ee7 (49 s later). No USB device between: the gadget (1d6b:0104, z21 and upstream-dts: 18 s after leaving fastboot) never enumerated. The kernel died or hung before the gadget bound. pstore: per the records /sys/fs/pstore was empty after every mainline try (ml3, pk5l2, pk5-stages) and the ramoops file after unlock needs root which stock Android does not give; not re-read for this try (the keeper owns the phone). The mainline shell is telnet 172.16.43.1 with no password: the keeper did not need root or ssh, the shell never came up; no access change is needed. DTB: the dtb INSIDE boot-display.img (extracted at kernel blob offset 15870703, sha256 ed155326...) has clock_gcc on the real gcc (clock-controller@100000); the standalone images-display/msm8998-google-walleye-display.dtb (sha256 84c72763...) is the OLD one with clock_gcc on /vendor-overlay-stubs/clock_gcc, a stale file beside the image (not what booted). So the clock_gcc rebuild is not the cause. Versus z21's dtb (phandle-blind diff, node paths): only /soc@0/display-subsystem@c900000, its display-controller@c901000, dsi@c994000, phy@c994400 are 'okay' (z21: disabled), plus panel@0 (samsung,s6e3fa5) under the dsi, three pinctrl states (gpio94 x2, gpio10 TE), regulators l14 (1.8 V) and l22 (3.0 V) with vdd_l18_l22-supply; everything else equal. Kernel config versus z21's kernel (out-z20): only DRM, DRM_MSM(_DPU,_DSI,_DSI_10NM_PHY) =y, panel, fbdev/fbcon, backlight, LLCC/OCMEM/AOSS_QMP/MDT_LOADER/SMEM =y, UBWC_CONFIG m->y; the diagnostic fragment (DEBUG_GPIO, DYNAMIC_DEBUG) is dropped. So the cause is in the display path: a built-in driver probe (DRM_MSM, DPU, DSI, panel, or one of the five =y helpers) or the display nodes, seen only by a bisect since no log survives. The author's report of the screen is not in yet.
-
-About
-: walleye-display-s6e3fa5
-
-
 <a id="walleye-display-try1-author-saw"></a>
 ### walleye-display-try1-author-saw
 
@@ -3659,6 +3640,25 @@ Question
 
 Found
 : The author's words (2026-11-19, relayed by the Top Coordinator, 'i think' his): "google logo then a black screen i think then it rebooted into lineage not more than i minute after". So: logo (the bootloader's splash, shown while fastboot boot loads), then black, no stripes, then Android within a minute (host log: 49 s after leaving fastboot). Reading: the bootloader's splash stays on the panel until something takes the display; a kernel that never reaches a display driver would leave the logo up until the reset. Black before the reset therefore points at the kernel having reached the display handover (DPU/DSI probe, a panel reset or a clock or iommu change that blanks the bootloader's scan-out) and then died or hung before the gadget bound - consistent with a fault in the display path, and not with a kernel that failed earlier. It is one witness's 'i think', and what z21 and upstream-dts showed on the panel in their tries is not recorded, so the contrast is missing: d0 (the display kernel with z21's dtb, no display node) should keep the logo up if this reading holds; d1/d2 say which stage turns it black. Not a proof: black could also be the bootloader turning the panel off at its own reboot.
+
+About
+: walleye-display-s6e3fa5
+
+
+<a id="walleye-display-try1-no-shell-what-is-known"></a>
+### walleye-display-try1-no-shell-what-is-known
+
+Date
+: 2026-11-19
+
+Brief
+: Display try 1: the gadget never enumerated in the 49 s window; the clock_gcc fix IS in the image; the dtb differs from z21 only by the display nodes, the kernel only by DRM
+
+Question
+: Why did boot-display.img give no shell (left fastboot 11:40:18, Android back 11:41:07, nothing between)?
+
+Found
+: Host kernel log (journalctl -k, host grig): 11:39:26 fastboot 18d1:4ee0; 11:40:18 disconnect (left fastboot); 11:41:07 Android 18d1:4ee7 (49 s later). No USB device between: the gadget (1d6b:0104, z21 and upstream-dts: 18 s after leaving fastboot) never enumerated. The kernel died or hung before the gadget bound. pstore: per the records /sys/fs/pstore was empty after every mainline try (ml3, pk5l2, pk5-stages) and the ramoops file after unlock needs root which stock Android does not give; not re-read for this try (the keeper owns the phone). The mainline shell is telnet 172.16.43.1 with no password: the keeper did not need root or ssh, the shell never came up; no access change is needed. DTB: the dtb INSIDE boot-display.img (extracted at kernel blob offset 15870703, sha256 ed155326...) has clock_gcc on the real gcc (clock-controller@100000); the standalone images-display/msm8998-google-walleye-display.dtb (sha256 84c72763...) is the raw input that build-display-image.sh fixes itself (clock_gcc on /vendor-overlay-stubs/clock_gcc in the raw file, moved to the real gcc by the script; builder, PR 404): not stale, and not what booted. So the clock_gcc rebuild is not the cause. Versus z21's dtb (phandle-blind diff, node paths): only /soc@0/display-subsystem@c900000, its display-controller@c901000, dsi@c994000, phy@c994400 are 'okay' (z21: disabled), plus panel@0 (samsung,s6e3fa5) under the dsi, three pinctrl states (gpio94 x2, gpio10 TE), regulators l14 (1.8 V) and l22 (3.0 V) with vdd_l18_l22-supply; everything else equal. Kernel config versus z21's kernel (out-z20): only DRM, DRM_MSM(_DPU,_DSI,_DSI_10NM_PHY) =y, panel, fbdev/fbcon, backlight, LLCC/OCMEM/AOSS_QMP/MDT_LOADER/SMEM =y, UBWC_CONFIG m->y; the diagnostic fragment (DEBUG_GPIO, DYNAMIC_DEBUG) is dropped. So the cause is in the display path: a built-in driver probe (DRM_MSM, DPU, DSI, panel, or one of the five =y helpers) or the display nodes, seen only by a bisect since no log survives. The author's report of the screen is not in yet.
 
 About
 : walleye-display-s6e3fa5
