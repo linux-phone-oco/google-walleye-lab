@@ -4705,3 +4705,24 @@ Done
 
 Considered
 : next: the procedure's way back when it stops at an ask (so the bar's 'phone back on Android' holds without waiting 10 min), programmer review, then tell the Top Coordinator: ready, one command; the -110 on the dsi cmd dma (research walleye-display-backlight-timeout); next ready after: walleye-ufs-card-fw-rev-read, walleye-attend-pmic-unattended-run-4. Tooling: phone password file missing.
+
+---
+
+
+<a id="2026-11-19-walleye-builder-l7"></a>
+### Builder: image L7 and the display look with a way back
+
+Entry date
+: 2026-11-19
+
+Done
+: Built L7 (L6 + the KD_GRAPHICS drawer, build/build-display-l7-image.sh, control byte for byte, rebuild identical); rewrote procedures/display-stripes-on-the-pixel-2.rs as the watched look (look 1 kernel log, look 2 stripes held) on lpoco-attended 0.35.1; display.rs gained the console-mode checks, the two expect texts, the touch mark and the way_back step; 117 tests, clippy, fmt, dry-run (18 steps), check --host ok; programmer review; queued the keeper's unattended run for real.
+
+Considered
+: Making B2 the base of the look (init-display loads the modules itself): B2 is not a good look yet (DSI -110, SMMU faults, pclk0 rcg warning), so L6's load order leads.
+
+Rejected
+: A new L6-style build script copy per image: this one takes its control from L6's own ramdisk, so the next drawer change needs no new control.
+
+About
+: walleye-display-s6e3fa5

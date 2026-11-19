@@ -3,9 +3,10 @@
 //! L6 once from memory, the display modules loaded in the order of the ramdisk's /display-modules.list over the
 //! mainline shell, the connector and the panel read, the stripe drawer started detached and POLLED until it has
 //! drawn and until it has ended. Each method is one step of procedures/display-stripes-on-the-pixel-2.rs, returns
-//! what that step runs and fails with what it saw. Nothing is written to the phone's storage; the drawer's own end
-//! gives the phone back: it removes /tmp/hold, and the ramdisk's init then restarts the phone by itself.
+//! what that step runs and fails with what it saw. Nothing is written to the phone's storage; the run's last step releases
+//! /tmp/hold, and the ramdisk's init then restarts the phone by itself (the watching parent is the way back if it does not).
 
+use crate::display_boot::{console_lines, console_mode_is, console_went_graphics_and_back};
 use crate::lab::Lab;
 use crate::settings::Settings;
 use crate::touch::redact;
@@ -26,9 +27,15 @@ pub const END_SLACK_S: u64 = 30;
 /// How long the phone stays up after the drawer ended, for the host to read its code (the author may be slow to say ok).
 pub const GRACE_S: u64 = 60;
 
-/// What the words said to the author are.
-pub const EXPECT: &str = "Four vertical stripes (red, green, blue, white) appear on the glass for about a minute. The glass may stay dark for a moment while the phone restarts into the test image; a lit screen alone proves nothing until the stripes appear. The phone returns to Android by itself at the end; if it is not there after 4 minutes, hold the power button about 15 seconds.";
-pub const LOOK_FOR: &str = "four vertical stripes: red, green, blue, white";
+/// How long the hold must outlast one look: the author may be slow to answer (the run waits for the answer file).
+pub const LOOK_WAIT_S: u64 = 600;
+
+/// What the words said to the author are: look 1 (the kernel log on the glass), then look 2 (four stripes held).
+pub const EXPECT_LOG: &str = "The phone has restarted into the test image and its display modules are loaded. Look at the glass: the kernel log (white text on black) is what should be there. Answer ok to go on to the stripes whatever you see (the run records what the phone itself says); answer anything else only to stop the run. A second look follows with four stripes. The phone returns to Android by itself when the run is done; if it is not there after 4 minutes, hold the power button about 15 seconds.";
+pub const LOOK_FOR_LOG: &str =
+    "the kernel log's text on the glass (say what you see, or that it is blank or dark)";
+pub const EXPECT_STRIPES: &str = "Now the run draws four vertical stripes, red, green, blue and white, from left to right, and holds them. Look at the glass at once: they stay for the time said below and then the screen goes black.";
+pub const LOOK_FOR_STRIPES: &str = "four vertical stripes, red, green, blue, white, HELD on the glass (say what you see: the stripes, the kernel log text over them, blank or dark)";
 
 /// The `insmod` lines of the ramdisk's /display-modules.list, in its order.
 pub fn module_lines(list: &str) -> Vec<String> {
@@ -77,10 +84,10 @@ pub fn hold_command(deadman: u64) -> String {
 }
 
 /// The command that starts the drawer detached (a shell session that ends must not end it): its log, its exit code
-/// as `stripes-rc=N-end`, and then the hold file removed, which lets the phone restart by itself.
+/// as `stripes-rc=N-end`. The hold stays: the host releases it after the author has answered.
 pub fn drawer_command(hold: u64) -> String {
     format!(
-        "rm -f {DRAWER_LOG}; setsid sh -c '/bin/walleye-stripes --seconds {hold} > {DRAWER_LOG} 2>&1; r=$?; echo stripes-rc=$r-end >> {DRAWER_LOG}; sleep {GRACE_S}; rm -f {HOLD_FILE}' </dev/null >/dev/null 2>&1 & echo started-$((6*7))"
+        "rm -f {DRAWER_LOG}; setsid sh -c '/bin/walleye-stripes --seconds {hold} > {DRAWER_LOG} 2>&1; r=$?; echo stripes-rc=$r-end >> {DRAWER_LOG}' </dev/null >/dev/null 2>&1 & echo started-$((6*7))"
     )
 }
 
@@ -147,9 +154,9 @@ impl Display {
         }
     }
 
-    /// What the hold may last at most if nothing releases it: past every wait of the steps, the draw and its hold.
+    /// What the hold may last at most if nothing releases it: past every wait of the steps, both looks, the draw and its hold.
     fn deadman_s(&self) -> u64 {
-        self.s.device_wait * 2 + self.s.hold + DRAW_WAIT_S + GRACE_S + 200
+        self.s.device_wait * 2 + 2 * LOOK_WAIT_S + self.s.hold + DRAW_WAIT_S + GRACE_S + 200
     }
 
     fn read_log(&self) -> Result<String, String> {
@@ -175,13 +182,16 @@ impl Display {
         move || d.lab.ufs_is_off(&d.s.image)
     }
 
-    /// The phone is in fastboot (the shared step).
+    /// The phone is in fastboot (the shared step); the first act on the phone, so the watcher owns the way back.
     pub fn phone_is_in_fastboot(&self) -> impl FnOnce() -> Done + 'static {
         let lab = self.lab.clone();
-        move || lab.phone_is_in_fastboot()
+        move || {
+            crate::watch::phone_is_touched();
+            lab.phone_is_in_fastboot()
+        }
     }
 
-    /// Boot L6 from the phone's fastboot, from memory: nothing is written to it.
+    /// Boot L7 from the phone's fastboot, from memory: nothing is written to it.
     pub fn boot_image(&self) -> impl FnOnce() -> Done + 'static {
         let d = self.clone();
         move || d.lab.boot_image(&d.s.image)
@@ -336,14 +346,26 @@ impl Display {
                     c.status, c.enabled
                 ));
             }
+            for l in console_lines(&log) {
+                println!("  {l}");
+            }
+            console_mode_is(&log, "KD_GRAPHICS")
+        }
+    }
+
+    /// Say what to expect at look 1, before the author is asked.
+    pub fn author_is_told(&self) -> impl FnOnce() -> Done + 'static {
+        move || {
+            println!("  {EXPECT_LOG}");
             Ok(())
         }
     }
 
-    /// Say what to expect, before the author is asked.
-    pub fn author_is_told(&self) -> impl FnOnce() -> Done + 'static {
+    /// Say what look 2 is for, before the drawer starts.
+    pub fn stripes_are_announced(&self) -> impl FnOnce() -> Done + 'static {
+        let hold = self.s.hold;
         move || {
-            println!("  {EXPECT}");
+            println!("  {EXPECT_STRIPES} (held {hold} s)");
             Ok(())
         }
     }
@@ -364,7 +386,7 @@ impl Display {
                         }
                     }
                     return if rc == 0 {
-                        Ok(())
+                        console_went_graphics_and_back(&log)
                     } else {
                         Err(format!("the drawer ended with {rc}"))
                     };
@@ -377,6 +399,22 @@ impl Display {
                 }
                 std::thread::sleep(Duration::from_secs(2));
             }
+        }
+    }
+
+    /// The way back, the last step: the phone ends on Android whatever stopped the run (the shared step); the watching
+    /// parent runs it after the child ends, whatever ended it.
+    pub fn way_back(&self) -> impl FnOnce() -> Done + 'static {
+        let lab = self.lab.clone();
+        move || {
+            if std::env::var_os(crate::watch::CHILD).is_some() {
+                // the child releases the hold (best effort): the init restarts the phone; the watching parent is the way back if it does not
+                if let Ok(mut sh) = lab.shell(5) {
+                    let _ = sh.run_partial(&format!("rm -f {HOLD_FILE}"), Duration::from_secs(5));
+                }
+                return Ok(());
+            }
+            lab.way_back()
         }
     }
 
@@ -436,7 +474,8 @@ mod tests {
         assert!(c.contains("setsid") && c.contains("--seconds 60"));
         assert!(c.contains("</dev/null") && c.trim_end().contains("& echo started-"));
         // the hold file goes after the exit code is written, whatever the code
-        assert!(c.find("stripes-rc=").unwrap() < c.find("sleep 60; rm -f /tmp/hold").unwrap());
+        // the drawer does not release the hold: the host does, after the author has answered look 2
+        assert!(c.find("stripes-rc=").is_some() && !c.contains("rm -f /tmp/hold"));
     }
 
     #[test]
@@ -457,6 +496,21 @@ mod tests {
             ("connected", "enabled", "1080x1920")
         );
         assert_eq!(connector_of("nothing"), Connector::default());
+    }
+
+    #[test]
+    fn the_two_looks_are_the_kernel_log_text_then_four_stripes_held() {
+        assert!(LOOK_FOR_LOG.contains("kernel log"), "{LOOK_FOR_LOG}");
+        assert!(
+            LOOK_FOR_STRIPES.contains("four vertical stripes") && LOOK_FOR_STRIPES.contains("HELD")
+        );
+        assert!(EXPECT_LOG.contains("kernel log") && EXPECT_STRIPES.contains("red"));
+    }
+
+    #[test]
+    fn the_hold_outlasts_two_slow_answers_so_no_look_ends_in_the_phone_restarting() {
+        let d = Display::new(Settings::stand_in(crate::settings::Try::Display));
+        assert!(d.deadman_s() >= 2 * LOOK_WAIT_S + d.s.hold + DRAW_WAIT_S + GRACE_S);
     }
 
     #[test]
@@ -486,7 +540,7 @@ mod tests {
         }
 
         const DMESG: &str = "[ 1.0] msm: bound\n[ 9.0] panel-samsung-s6e3fa5 0: prepared\n[ 9.1] panel-samsung-s6e3fa5 0: enabled";
-        const ENDED: &str = "walleye-stripes: connector before the draw: status = connected\nwalleye-stripes: connector before the draw: enabled = enabled\nwalleye-stripes: connector before the draw: modes = 1080x1920\nwalleye-stripes: draw: four stripes (red, green, blue, white) on /dev/fb0, held 1 s\nstripes-rc=0-end";
+        const ENDED: &str = "walleye-stripes: connector before the draw: status = connected\nwalleye-stripes: connector before the draw: enabled = enabled\nwalleye-stripes: connector before the draw: modes = 1080x1920\nwalleye-stripes: KDSETMODE KD_GRAPHICS on /dev/tty0 = 0\nwalleye-stripes: draw: four stripes (red, green, blue, white) on /dev/fb0, held 1 s\nwalleye-stripes: KDSETMODE KD_TEXT on /dev/tty0 = 0\nstripes-rc=0-end";
 
         fn phone(log: &'static str) -> Vec<(&'static str, &'static str)> {
             vec![
@@ -578,6 +632,22 @@ mod tests {
             let d = display(phone(log), "disabled");
             let e = d.stripes_are_drawn()().unwrap_err();
             assert!(e.contains("connected and disabled"), "{e}");
+        }
+
+        #[test]
+        fn a_console_that_did_not_take_graphics_is_no_pass_before_the_author_is_asked() {
+            let log = "walleye-stripes: connector before the draw: status = connected\nwalleye-stripes: connector before the draw: enabled = enabled\nwalleye-stripes: KDSETMODE KD_GRAPHICS: /dev/tty0 could not be opened\nwalleye-stripes: draw: four stripes (red, green, blue, white) on /dev/fb0, held 1 s\n";
+            let d = display(phone(log), "nograph");
+            let e = d.stripes_are_drawn()().unwrap_err();
+            assert!(e.contains("KD_GRAPHICS"), "{e}");
+        }
+
+        #[test]
+        fn a_console_not_back_in_text_mode_after_the_drawer_is_no_pass() {
+            let log = "walleye-stripes: KDSETMODE KD_GRAPHICS on /dev/tty0 = 0\nwalleye-stripes: draw: four stripes\nstripes-rc=0-end";
+            let d = display(phone(log), "notext");
+            let e = d.drawer_has_ended()().unwrap_err();
+            assert!(e.contains("KD_TEXT"), "{e}");
         }
 
         #[test]

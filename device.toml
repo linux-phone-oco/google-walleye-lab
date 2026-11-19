@@ -143,6 +143,10 @@ sha256 = "bdc0a89179d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff"
 path = "images-display-stripes/boot-l6.img"
 sha256 = "8ca3af879b4c9d87ff98f8d269282557131ca8eef5d39bc42d5a97eb5e587bad"   # the late-probe kernel, display drivers as modules, the full display dtb, /bin/walleye-stripes
 
+[images.l7]
+path = "images-display-l7/boot-l7.img"
+sha256 = "643d1f83c6aea4ecb2d08e95aebc7fb2694d86c5c021e8463dc902eff5b9e711"   # L6 with /bin/walleye-stripes replaced by B2's drawer (KDSETMODE KD_GRAPHICS while held, KD_TEXT after, also after a failed draw): the author's look on the known-good load order (item walleye-display-look-l7)
+
 [images.b1]
 path = "images-display-at-boot/boot-b1.img"
 sha256 = "57ab1b69de78a304e0fba1b2576a1781de2b9cbc41a02c2d73b5328c67b8ebd7"   # L5's kernel and dtb, init-display as /init: the init loads the 13 display modules itself (item walleye-display-at-boot)

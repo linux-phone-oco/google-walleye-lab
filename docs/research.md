@@ -4952,3 +4952,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-display-l7-built"></a>
+### walleye-display-l7-built
+
+Date
+: 2026-11-19
+
+Brief
+: Image L7 built: L6 with the KD_GRAPHICS stripe drawer; control L6 rebuilt byte for byte, UFS-off gate and AVB pass, rebuild identical; not tried
+
+Question
+: Can the author's look run on the known-good L6 load order with the held-stripes drawer, as one command with a way back after any stop?
+
+Found
+: L7 = L6 (modules loaded by the host procedure in order) with /bin/walleye-stripes replaced by B2's drawer (aarch64 static, sha256 ee8ad01e8f62..., built twice identical; KDSETMODE KD_GRAPHICS while held, KD_TEXT after, also after a failed draw). build/build-display-l7-image.sh: 18 checks ok - L6's own sha256, the ramdisk repacked with L6's drawer equals L6's byte for byte (control; LATE_DIR out-display-late, the L4 dir fails the control), kernel/cmdline/header/size/init-late unchanged, file list unchanged, AVB footer verifies, UFS-off gate and tests pass, panel reset gpio one claimant; boot-l7.img sha256 643d1f83c6ae..., rebuilt with the second drawer build into another dir: identical (cmp). Procedure display-stripes-on-the-pixel-2.rs on lpoco-attended 0.35.1: look 1 the kernel log text, look 2 four stripes held; a real run is watched (walleye_tries::watch) so the way back (reboot -f, sysrq b, power-hold sentence) runs after any stop incl. 'nobody answered'; the hold's deadman now outlasts two 600 s answers. 117 crate tests, clippy -D warnings, fmt, lpoco-attended run --dry-run (18 steps) and check --host ok. Never booted: the keeper's unattended run for real is the open proof.
+
+About
+: walleye-display-s6e3fa5
