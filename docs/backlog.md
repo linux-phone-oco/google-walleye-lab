@@ -8313,3 +8313,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-procedures-on-step-groups"></a>
+### The walleye procedures use lpoco-attended's step groups: phone_ready and leave_known_good in place of the repeated gate, boot, shell and way-back lines
+
+Status
+: open
+
+Note
+: Orchestration, 2026-11-19 (lab-tools #300, v0.37.2, decision 2026-11-19-procedures-chain-by-named-groups): group(name, [steps]) as one line with .way_back(step), --from a group, library groups steps::phone_ready(kernel) and leave_known_good; way backs run on failure only. Known gap: after leave_known_good a finished group's way back is still owed and would run again on a later failure (lab-tools attended-way-back-settled, rank 3 there). Not urgent: the procedures work as they are; this makes them shorter and shared.
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the display (look and delay bisect and any-order), UFS, PMIC and touch procedures pinned to lpoco-attended v0.37.2 or newer; each one's repeated battery/gate/fastboot/boot/wait-for-gadget/shell lines are one group steps::phone_ready(kernel) and its ending is steps::leave_known_good LAST in the entry file (a finished group's way back is still owed until lab-tools attended-way-back-settled lands: do not put any step after leave_known_good); values from device.toml ([kernels], [images.*], [procedures.*]); the entry files get shorter, still read as a checklist on one screen; dry-run, lpoco-attended check --host, stand-in tests and one real run each of the display look (unattended, answer limit) pass; the way back on an unanswered ask still leaves the phone on Android by its own way
+
+Rank
+: 6
