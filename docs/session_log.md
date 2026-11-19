@@ -4369,3 +4369,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-2130-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Real unattended run of procedures/display-stripes-on-the-pixel-2.rs: steps 1-12 passed, stopped at look_for with 'nobody answered'; phone restarted by the image's deadman into Android on slot b (adb device up). Stock kernel, nothing flashed or written. Log: ~/Projects/walleye-build/display-real.log (first try failed at once on a --log path with AGENT_BUILD unset; nothing ran).
+
+Considered
+: next: the program's stop at look_for leaves the phone in the test image until the deadman - it should reboot itself back when nobody answers (for the lane coordinator); suite latest needs ~/.config/devlab/google-walleye/password; next ready: walleye-slpi-boot-qrtr (21)
+
+About
+: walleye-display-s6e3fa5
