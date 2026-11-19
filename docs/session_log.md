@@ -4525,3 +4525,21 @@ Rejected
 
 About
 : walleye-ufs-match-android-z
+
+---
+
+
+<a id="2026-11-19-2130-walleye-keeper-banner-shell-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Took walleye-attend-program-ufs. lpoco-attended run ufs-matched-image-on-the-pixel-2 (no go) stopped at check 1 (battery: no voltage from adb or fastboot), phone untouched. The phone is NOT on Android as the last hand-over said: USB shows 1d6b:0104 'Pixel 2 walleye (mainline banner shell)' serial walleye-first-boot (enp10s0f3u2i2 172.16.43.2), not fastboot, no adb. Nothing flashed or written. Suite cannot run (no ~/.config/devlab/google-walleye/password).
+
+Considered
+: next: whoever left the banner-shell image on brings the phone back to Android by its way back, then re-run the UFS no-go run; item stays in-progress.
+
+About
+: walleye-attend-program-ufs
