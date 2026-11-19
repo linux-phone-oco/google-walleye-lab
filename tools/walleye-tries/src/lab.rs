@@ -66,6 +66,32 @@ impl Lab {
         host::in_fastboot(&self.s.fastboot, &self.serial()?)
     }
 
+    /// UFS is off in the image (the gate every image passes before a boot, decision 2026-11-19-walleye-ufs-off-by-a-gate).
+    pub fn ufs_is_off(&self, image: &std::path::Path) -> Done {
+        let image = image.to_string_lossy().into_owned();
+        let line = self.script("ufs-off-image.sh", &[&image], &[])?;
+        if line.starts_with("pass ") {
+            Ok(())
+        } else {
+            Err(line)
+        }
+    }
+
+    /// Boot the image from the phone's fastboot, from memory: nothing is written to it.
+    pub fn boot_image(&self, image: &std::path::Path) -> Done {
+        let mut c = std::process::Command::new(&self.s.lpoco);
+        c.args(["lab", "--device"])
+            .arg(self.s.device_toml())
+            .args(["fastboot", "boot", "now"])
+            .arg(image);
+        let said = host::run(c)?;
+        if said.ok {
+            Ok(())
+        } else {
+            Err(format!("the boot did not go: {}", said.text))
+        }
+    }
+
     /// The phone is back on Android (adb device, boot completed, not parked in fastboot).
     pub fn android_is_back(&self) -> Done {
         let until = Instant::now() + Duration::from_secs(self.s.back_wait);

@@ -7457,20 +7457,10 @@ Rank
 ### One command for the display try: a Rust program that boots the display image, reads the console and the DRM connector, shows the stripes, prompts the author and returns the phone to Android
 
 Status
-: open
+: in-progress
 
 Note
-: CURRENT INSTRUCTION (rewritten 2026-11-19; it replaces every earlier runner, path and wait line of this item, which were history).
-
-WHAT: the display try as one Rust procedure that shows the author four stripes on the Pixel 2's glass. Image: L6 (~/Projects/walleye-build/images-display-stripes/boot-l6.img, sha256 8ca3af879b4c9d87ff98f8d269282557131ca8eef5d39bc42d5a97eb5e587bad): the late-probe kernel with the display drivers as modules, the full display dtb, iommu.passthrough=1, the four overlay pinctrl labels on real tlmm groups, the dsi vdd-supply, the panel reset gpio single-claimant, and /bin/walleye-stripes in the ramdisk.
-
-HOW: procedures/display-stripes-on-the-pixel-2.rs on lpoco-attended v0.32 (cargo git dependency on linux-phone-oco/lab-tools, tag lpoco-attended-v0.32.0 or the newest v0.32.x; the scaffold is lpoco-attended new NAME, run NAME --dry-run, check; copy attended/examples/attended.rs). Entry file: use lpoco_attended::prelude::*; let _run = procedure(NAME, "google-walleye"); every device value read at the top of main with dev(..) and proc(..) from device.toml (declare [images.l6] path and sha256 and [procedures.display-stripes-on-the-pixel-2] hold and the module-load pause; the other keys exist), then one plainly named step per line, each stops the run on failure, the whole procedure on one screen. Library steps where they exist (boot_once, wait_for_gadget, read_dmesg, back_to_known_good, check_probe, the physical step look_for). Our own steps (module load in the order of the ramdisk's /display-modules.list over the mainline shell; start the drawer detached with setsid and POLL its log and exit code until the hold has ended; read the connector status, enabled and mode and the panel prepare and enable lines) are helpers in tools/walleye-tries/src/display.rs (the crate that the later procedures move relocates as a whole). Do NOT call tests/host/display-late-probe.sh: its read of the drawer's result came too early and says fail (item walleye-display-late-probe-poll-stripes-rc); the helpers poll themselves, so this does not wait for that item.
-
-THE PERSON STEP: look_for("four vertical stripes: red, green, blue, white"). The author looks at the glass for the hold, about 60 s; the program says what to expect first (the glass may stay dark for a moment while the phone restarts into the test image; a lit screen alone proves nothing until the stripes appear) and how the phone returns to Android (by itself at the end; if not after 4 minutes, hold power about 15 seconds).
-
-MEASURED SO FAR (so the steps know what to expect): on L5/L6 all 13 modules load with the shell alive; card0 and renderD128 exist; card0-DSI-1 is connected at 1080x1920; devices_deferred is empty; the L6 drawer ran detached, exit 0, hold 60.3 s, pan, commit and unblank returned 0, the panel's init commands went out without error (PR 524). Whether the glass lit is not known: that is this try's question.
-
-BAR before the Top Coordinator is told 'ready, one command': (1) lpoco-attended check and --dry-run pass; stand-in tests pass; clippy and fmt clean; programmer review; (2) a keeper runs it once for real on the installed host lpoco (0.32.1) with stdin from /dev/null: it takes the phone to fastboot itself, boots L6, loads the modules, reads the panel path, draws the stripes and holds them, stops at look_for with 'nobody answered', and the phone is back on Android (idle-android passes); (3) the keeper's record is landed. A fresh worktree needs ln -s ~/Projects/walleye-build build/images first (AGENTS.md).
+: Program landed (dry-run, stand-in tests, check, clippy, fmt, review). Waits for the keeper's unattended real run per the note's BAR (2): ln -s ~/Projects/walleye-build build/images, stdin from /dev/null, expect a stop at look_for 'nobody answered', phone back on Android (idle-android), record landed.
 
 About
 : walleye-display-s6e3fa5
@@ -7479,10 +7469,10 @@ Opened
 : 2026-11-19
 
 Needs
-: build
+: phone
 
 Proof
-: procedures/display-stripes-on-the-pixel-2.rs on lpoco-attended v0.32 (dry-run, stand-in tests, check, review), then a keeper's unattended run for real that stops at look_for; see the note's BAR
+: keeper runs procedures/display-stripes-on-the-pixel-2.rs once for real on host lpoco 0.32.1, stdin from /dev/null: stops at look_for with 'nobody answered', phone back on Android (idle-android passes), record landed
 
 Rank
 : 1

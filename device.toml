@@ -139,6 +139,10 @@ dir = "build/images"
 path = "images-z21/boot-z21.img"
 sha256 = "bdc0a89179d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff"
 
+[images.l6]
+path = "images-display-stripes/boot-l6.img"
+sha256 = "8ca3af879b4c9d87ff98f8d269282557131ca8eef5d39bc42d5a97eb5e587bad"   # the late-probe kernel, display drivers as modules, the full display dtb, /bin/walleye-stripes
+
 [images.wdt1-a]
 path = "images-wdt1-sysfsless/boot-wdt1-a.img"
 sha256 = "9dfea09637a813fa677449780ac475a3b859e81135a056fadd8811dadc2f40b4"
@@ -155,3 +159,7 @@ min_window = 40                     # the shortest window worth asking the autho
 [procedures.pmic-watchdog-v1-on-the-pixel-2]
 stay = 180                          # seconds Android must stay up after the clean reboot with no restart (the test's PASS: three minutes)
 bite_wait = 150                     # seconds to see the phone restart by itself after the bite is armed (20 s timeout)
+
+[procedures.display-stripes-on-the-pixel-2]
+hold = 60                           # seconds the drawer holds the four stripes on the glass (the author looks for this long)
+module_pause = 5                    # seconds between two display modules' loads (the shell is asked if it lives after each)

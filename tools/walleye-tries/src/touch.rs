@@ -130,15 +130,7 @@ impl Touch {
     /// UFS is off in the image (the gate every image passes before a boot, decision 2026-11-19-walleye-ufs-off-by-a-gate).
     pub fn ufs_is_off(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
-        move || {
-            let image = t.s.image.to_string_lossy().into_owned();
-            let line = t.lab.script("ufs-off-image.sh", &[&image], &[])?;
-            if line.starts_with("pass ") {
-                Ok(())
-            } else {
-                Err(line)
-            }
-        }
+        move || t.lab.ufs_is_off(&t.s.image)
     }
 
     /// The phone is in fastboot: from Android `adb reboot bootloader` takes it there; when fastboot lists it already,
@@ -151,19 +143,7 @@ impl Touch {
     /// Boot the image from the phone's fastboot, from memory: nothing is written to it.
     pub fn boot_image(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
-        move || {
-            let mut c = std::process::Command::new(&t.s.lpoco);
-            c.args(["lab", "--device"])
-                .arg(t.s.device_toml())
-                .args(["fastboot", "boot", "now"])
-                .arg(&t.s.image);
-            let said = host::run(c)?;
-            if said.ok {
-                Ok(())
-            } else {
-                Err(format!("the boot did not go: {}", said.text))
-            }
-        }
+        move || t.lab.boot_image(&t.s.image)
     }
 
     /// The gadget is up on USB, the shell answers, and the phone's dmesg is saved.
