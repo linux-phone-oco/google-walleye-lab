@@ -3613,3 +3613,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-walleye-builder-display-late-probe-l-images"></a>
+### walleye-builder: late-probe images L1 and L2
+
+Entry date
+: 2026-11-19
+
+Done
+: Built L1 (late image + iommu.passthrough=1) and L2 (late image, mdss iommus removed) with lpoco-bringup image bisect; build-display-late-l-dtb.sh, display-late-l.toml, check-display-late-l.sh; all checks pass, rebuild identical; try item walleye-try-display-late-probe now unblocked.
+
+Considered
+: Deriving from f3 (z21's dtb plus display nodes): rejected, f3 lacks the panel node the late probe needs.
+
+About
+: walleye-display-s6e3fa5

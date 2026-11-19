@@ -6375,10 +6375,10 @@ Rank
 ### The late-probe image with the full display dtb and the iommu fix: L1 with iommu.passthrough=1, L2 without the mdss iommus property
 
 Status
-: open
+: done
 
 Note
-: Research walleye-display-f3-split-tried (PR 440): g1 (f3 + iommu.passthrough=1) and g2 (f3 without the mdss iommus property) boot a shell, gadget at 18 s; g3 (mdss alone) loses it, Android back at 63 s. So the mdss node's iommus property kills the boot (decision 2026-11-19-walleye-display-iommu-reading: confirmed by the three images, not yet by a log). The late-probe try (modules loaded by hand, log streamed) needs one of them with the panel and the rest of the display dtb on. L1 first (no dts surgery, reversible); L2 is the second image if L1 fails.
+: Built 2026-11-19: boot-l1.img 7a45100c..., boot-l2.img 700809f5... in ~/Projects/walleye-build/images-display-late-l (research walleye-display-late-probe-l-images-built); checks pass, rebuild identical.
 
 About
 : walleye-display-s6e3fa5
@@ -6403,7 +6403,7 @@ Status
 : open
 
 Note
-: UNBLOCKED BY f3-split (research walleye-display-f3-split-tried): g1 and g2 boot a shell. A builder piece: late-probe image on the g2 dtb (no mdss iommus) or g1 cmdline, then this try reads the probe. Still not tried again. 2026-11-19 after PR 440: runs on L1 (iommu.passthrough=1) first, L2 if L1 fails; both unattended. Console first, then the author is asked to look for the stripes alone.
+: UNBLOCKED BY f3-split (research walleye-display-f3-split-tried): g1 and g2 boot a shell. 2026-11-19 after PR 440: runs on L1 (iommu.passthrough=1) first, L2 if L1 fails; both unattended. Console first, then the author is asked to look for the stripes alone. IMAGES READY: boot-l1.img and boot-l2.img in ~/Projects/walleye-build/images-display-late-l, sums in SHA256SUMS-display-late-l.
 
 Blocked by
 : walleye-display-late-probe-l-images
