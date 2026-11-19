@@ -2026,3 +2026,31 @@ Research
 
 Tracked by
 : walleye-try-display-f3-split
+
+
+<a id="2026-11-19-walleye-ufs-no-sync-length-quirk"></a>
+### 2026-11-19-walleye-ufs-no-sync-length-quirk
+
+Date
+: 2026-11-19
+
+Brief
+: The matched image does not carry Sony's Hynix EXTEND_SYNC_LENGTH (0x48) or AVAILTXDATALANES: Android writes neither on this card
+
+Decision
+: Keep the matched image's quirk set at HOST_PA_SAVECONFIGTIME and the NO_PURGE guard. Do not add EXTEND_SYNC_LENGTH or AVAILTXDATALANES; the existing check (tests/host/ufs-match-android.sh) keeps them out. If the try's link fails at HS-G3, read link state and fall back as decision 2026-11-19-walleye-ufs-linkstartup-do-not-carry says; do not reach for the Sony quirk first.
+
+Why
+: Google's wahoo vendor driver never writes PA_TxHsG1-3SyncLength or AvailTxDataLanes and runs this card at HS-G3, 2 lanes; Sony's values are workarounds for other Hynix cards, and the erase mechanism is unpublished, so a Sony-only write is an untested difference and a risk without evidence it helps.
+
+Rejected
+: Carry Sony's 0x48 as a precaution: it differs from the only proven Android link and its link to the erase is a contributor's belief, not a trace. Carry only AVAILTXDATALANES: Android uses both TX lanes, forcing one moves away from it.
+
+About
+: walleye-ufs-match-android-z
+
+Research
+: walleye-ufs-hynix-sync-length-verdict
+
+Tracked by
+: walleye-ufs-match-prints
