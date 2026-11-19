@@ -5928,34 +5928,6 @@ Rank
 : 12
 
 
-<a id="walleye-ufs-solution-extracted"></a>
-### The working solution extracted from Android: one table of Android's UFS path against the matched image after the gaps, ending in the refreshed go note
-
-Status
-: open
-
-Note
-: The lane's own work, not parked on the author (his words, 2026-11-19: "im not holding it back, im waiting until we have all we can from android and a working solution that is extracted from that as we were discussing before"). When this is done the go note goes to him and his word opens walleye-try-ufs-match.
-
-Blocked by
-: walleye-ufs-gap-version,walleye-ufs-gap-link-startup,walleye-ufs-gap-ice,walleye-ufs-gap-abl-handover,walleye-ufs-gap-lane1,walleye-ufs-gap-sony-mechanism,walleye-ufs-gap-perf
-
-About
-: walleye-ufs-match-android-z
-
-Opened
-: 2026-11-19
-
-Needs
-: research
-
-Proof
-: a research row: every step of Android's bring-up of this card against the image, each equal / carried / judged harmless with the source / unknown with the question the try answers; the matched image rebuilt if a gap item changed it; the go note (research walleye-ufs-go-note) refreshed in plain words, ready for the Top Coordinator to bring to the author
-
-Rank
-: 13
-
-
 <a id="walleye-try-z13"></a>
 ### Try z13 once from slot b: the UFS read-only try with the Hynix quirks and the purge guard at the send (replaces walleye-try-z12)
 
@@ -6168,31 +6140,6 @@ Rank
 : 99
 
 
-<a id="walleye-ufs-hynix-sync-length-quirk"></a>
-### Decide whether the matched image carries Sony's Hynix EXTEND_SYNC_LENGTH (PA_TxHsG1/2/3SyncLength 0x48) and AVAILTXDATALANES before the UFS try
-
-Status
-: open
-
-Note
-: From research walleye-ufs-gap-sony-mechanism-public-record: a SODP contributor ties the sync-length quirk to the erase; our tree lacks it for Hynix; Android's own value on this card is the evidence to read.
-
-Blocked by
-: walleye-ufs-gap-perf
-
-About
-: walleye-ufs-match-android-z
-
-Opened
-: 2026-11-19
-
-Needs
-: research
-
-Proof
-: a research row: Android's PA_TxHsG1SyncLength on the Pixel 2 Hynix card against Sony's 0x48, and the verdict carry or not
-
-
 <a id="walleye-try-display-late-probe"></a>
 ### Try the display late-probe image once: stream the kernel log, load the display modules by hand, read the last step
 
@@ -6288,3 +6235,84 @@ About
 
 Opened
 : 2026-11-19
+
+
+<a id="walleye-ufs-hynix-sync-length-quirk"></a>
+### Decide whether the matched image carries Sony's Hynix EXTEND_SYNC_LENGTH (PA_TxHsG1/2/3SyncLength 0x48) and AVAILTXDATALANES before the UFS try
+
+Status
+: open
+
+Note
+: From research walleye-ufs-gap-sony-mechanism-public-record: a SODP contributor ties the sync-length quirk to the erase; our tree lacks it for Hynix; Android's own value on this card is the evidence to read. Unblocked 2026-11-19: walleye-ufs-gap-perf is done (PR 430); it runs before the extraction.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row: Android's PA_TxHsG1SyncLength on the Pixel 2 Hynix card against Sony's 0x48, and the verdict carry or not
+
+Rank
+: 12
+
+
+<a id="walleye-ufs-match-prints"></a>
+### The matched image prints what the gaps left as questions, read-only, beside the version read
+
+Status
+: open
+
+Note
+: Read-only prints only; reads of a powered, clocked host at the point where the version register is read anyway. The bus-hang risk of the 0x30/0x34 reads is not measured (research walleye-ufs-gap-abl-handover-read): the builder says whether they sit at the same point and clock state as the version read, and the programmer's review decides. If the PHY read can fault, leave it out and say so. Local branch topic/ufs-match-android in ~/Projects/walleye-build/wt-k-ufsm. No try: the try waits for the Android-derived solution and the go note.
+
+Blocked by
+: walleye-ufs-hynix-sync-length-quirk
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the matched image rebuilt (gate: the matched image is the one UFS-on image; it stays NOT-TO-BOOT; the check that it still matches its tests), whose probe prints, with the UFS_HW_VERSION read at 0xE4 and before the host reset: the host registers 0x30 and 0x34 (what abl left running: research walleye-ufs-gap-abl-handover-read) and, after PHY init, PHY+0x130 (RX LineCfg, research walleye-ufs-gap-link-startup-read); nothing is written; programmer review of the patch and of the register list; sha256 line; the tests of the matched image still pass
+
+Rank
+: 13
+
+
+<a id="walleye-ufs-solution-extracted"></a>
+### The working solution extracted from Android: one table of Android's UFS path against the matched image after the gaps, ending in the refreshed go note
+
+Status
+: open
+
+Note
+: The lane's own work, not parked on the author (his words, 2026-11-19: "im not holding it back, im waiting until we have all we can from android and a working solution that is extracted from that as we were discussing before"). When this is done the go note goes to him and his word opens walleye-try-ufs-match. All seven gap items are done (PRs 414, 416, 417, 420, 423, 425, 430). Findings to carry into the table: version still 3.0.0 or 3.1.0 (read by the image); link-startup pre-change not carried; ICE skipped; abl leaves host and card running and the RST_n pulse is the one step no capture covers; lane 1 only risks speed; Sony's mechanism unpublished; perf items need nothing for a probe. The perf research says it can drop four rows from the gap table.
+
+Blocked by
+: walleye-ufs-hynix-sync-length-quirk,walleye-ufs-match-prints
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row: every step of Android's bring-up of this card against the image, each equal / carried / judged harmless with the source / unknown with the question the try answers; the matched image rebuilt if a gap item changed it; the go note (research walleye-ufs-go-note) refreshed in plain words, ready for the Top Coordinator to bring to the author
+
+Rank
+: 14
