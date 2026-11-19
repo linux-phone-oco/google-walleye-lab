@@ -36,8 +36,8 @@ ck "the purge guard is on the flag path and where the UPIU is sent" "$(grep -c '
 
 # 2. the host reads UFS_HW_VERSION in its own init, prints it and hands it to the PHY before power on
 ck "ufs-qcom prints UFS_HW_VERSION where it reads it" "$(grep -c 'UFS_HW_VERSION %u.%u.%u' "$Q")" 1
-ck "ufs-qcom passes the version to the phy (phy_configure) after the mode and before power on" "$(sed -n '/^static int ufs_qcom_power_up_sequence/,/^}/p' "$Q" | grep -n -e 'phy_set_mode_ext(' -e 'phy_configure(' -e 'phy_power_on(' | cut -d'(' -f1 | sed 's/^[0-9]*://' | tr -d '\t ' | tr '\n' ' ')" "ret=phy_set_mode_ext ret=phy_configure ret=phy_power_on "
-ck "ufs-qcom does not stop on a phy without configure (-EOPNOTSUPP)" "$(sed -n '/^static int ufs_qcom_power_up_sequence/,/^}/p' "$Q" | grep -c 'ret != -EOPNOTSUPP')" 1
+ck "ufs-qcom power-up hands the version to the phy after the mode and before power on" "$(sed -n '/^static int ufs_qcom_power_up_sequence/,/^}/p' "$Q" | grep -n -e 'phy_set_mode_ext(' -e 'ufs_qcom_phy_configure(' -e 'phy_power_on(' | cut -d'(' -f1 | sed 's/^[0-9]*://' | tr -d '\t ' | tr '\n' ' ')" "ret=phy_set_mode_ext ret=ufs_qcom_phy_configure ret=phy_power_on "
+ck "ufs-qcom does not stop on a phy without configure (-EOPNOTSUPP)" "$(sed -n '/^static int ufs_qcom_phy_configure/,/^}/p' "$Q" | grep -c 'ret != -EOPNOTSUPP')" 1
 CONF=$(sed -n '/^static int qmp_ufs_configure/,/^}/p' "$P")
 ck "the phy accepts 3.0.0 and 3.1.0 and refuses any other version with -ENODEV" "$(printf '%s\n' "$CONF" | tr -d '\n\t ' | grep -c 'hw_ver_major==3&&ver->hw_ver_minor==0&&ver->hw_ver_step==0.*hw_ver_major==3&&ver->hw_ver_minor==1&&ver->hw_ver_step==0.*return-ENODEV')" 1
 ck "the msm8998 phy compatible starts on the 3.1.0 config" "$(grep -A1 'qcom,msm8998-qmp-ufs-phy' "$P" | grep -c 'msm8998_ufsphy_cfg_3_1_0')" 1
@@ -67,6 +67,15 @@ if cc -w -o "$W/t" "$W/t.c" 2> "$W/cc.err"; then
 else
   ck "the msm8998 phy tables compile against the v3 register headers" "no: $(head -n1 "$W/cc.err")" yes
 fi
+
+# 3b. the checks that bind the driver itself (a mutant of the driver must fail them: ufs-match-android-selftest.sh)
+flat() { tr -d '\n\t ' ; }
+ck "the lane loop skips lane 1 when the config says lane 0 only" "$(sed -n '/^static void qmp_ufs_lanes_init/,/^}/p' "$P" | flat | grep -c 'cfg->lanes>=2&&!cfg->lane0_tbls_only')" 1
+ck "version 3.0.0 selects the 3.0.0 config and 3.1.0 the 3.1.0 config" "$(printf '%s\n' "$CONF" | flat | grep -c 'minor==0&&ver->hw_ver_step==0){qmp->cfg=&msm8998_ufsphy_cfg_3_0_0;}elseif.*minor==1&&ver->hw_ver_step==0){qmp->cfg=&msm8998_ufsphy_cfg_3_1_0;}else')" 1
+ck "the purge helper returns true after the three write opcodes and false for the rest" "$(sed -n '/^static bool ufshcd_purge_refused/,/^}/p' "$KT/drivers/ufs/core/ufshcd.c" | flat | grep -c 'returnfalse;switch(opcode){caseUPIU_QUERY_OPCODE_SET_FLAG:caseUPIU_QUERY_OPCODE_CLEAR_FLAG:caseUPIU_QUERY_OPCODE_TOGGLE_FLAG:dev_warn_ratelimited([^;]*;returntrue;default:returnfalse;')" 1
+ck "the refused UPIU gives its device management command back (no leaked tag)" "$(sed -n '/^static int ufshcd_issue_devman_upiu_cmd/,/^}/p' "$KT/drivers/ufs/core/ufshcd.c" | flat | grep -c 'ufshcd_purge_refused(hba,req_upiu->qr.opcode,req_upiu->qr.idn)){err=-EPERM;gotoput_dev_mgmt_cmd;}')" 1
+ck "the core table gives SK hynix any-model nothing but HOST_PA_SAVECONFIGTIME" "$(sed -n '/ufs_dev_quirk ufs_fixups\[\]/,/^};/p' "$KT/drivers/ufs/core/ufshcd.c" | flat | sed 's/},{/}\n{/g' | grep 'UFS_VENDOR_SKHYNIX' | grep 'UFS_ANY_MODEL' | grep -o 'UFS_DEVICE_QUIRK_[A-Z_0-9]*' | sort -u | tr '\n' ' ')" "UFS_DEVICE_QUIRK_HOST_PA_SAVECONFIGTIME "
+ck "ufs-qcom hands the version to the phy at init, so a refused version stops the probe before the card reset and the host enable" "$(sed -n '/^static int ufs_qcom_init(/,/^}/p' "$Q" | flat | grep -c 'UFS_HW_VERSION%u.%u.%u.*err=ufs_qcom_phy_configure(host);if(err)gotoout_variant_clear;')" 1
 
 # 4. the card's RST_n pad (pin 153) can be named as a gpio
 ck "pinctrl-msm8998 counts 154 gpios (the UFS_RESET pad is pin 153)" "$(sed -n 's/^[[:space:]]*\.ngpios = \([0-9]*\),/\1/p' "$KT/drivers/pinctrl/qcom/pinctrl-msm8998.c")" 154

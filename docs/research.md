@@ -3552,3 +3552,28 @@ About
 
 Material
 : research/walleye-ufs-regs-reader/2026-11-19/
+
+
+<a id="walleye-ufs-match-built"></a>
+### walleye-ufs-match-built
+
+Date
+: 2026-11-19
+
+Brief
+: Matched UFS image built, never booted: z21 + kernel topic/ufs-match-android + UFS overlay; quirks, PHY table by version, RST_n pin 153; checks ok, rebuild identical, reviewed
+
+Question
+: Can a z image carry Android's UFS path for the H28U74301AMR (SAVECONFIGTIME only, version read at 0xE4, table by it, card RST_n pulse), built and reviewed, not tried?
+
+Found
+: NOT-TO-BOOT-ufs-on-ufs-match.img (sha256 f8f6215e60787b63cda7f332cc0ca7a6dc8452009a0bc86ddc54351d36aa4f45) = z21's header, command line, ramdisk and AVB footer, z21's dtb plus dt/msm8998-google-walleye-ufs-match.dtso (10 changed lines, checked exactly), and the Image of ~/Projects/walleye-build/wt-k-ufsm (topic/ufs-match-android, v7.3 + pmic wdt + fuel gauge RFC, diag config). Kernel: the SK hynix H28U74301AMR entry carries SAVECONFIGTIME + NO_PURGE only (ONE_TX_LANE, EXTEND_SYNC_LENGTH, DELAY_BEFORE_LPM gone); ufs-qcom prints UFS_HW_VERSION where it reads it (0xE4) and hands it to the QMP PHY by the new phy_configure_opts_ufs at init and before power on; the MSM8998 PHY has the vendor's 3.0.0 (lane 0 only) and 3.1.0 value lists, equal to the research lists by a compile test, and refuses any other version with -ENODEV (probe stops at init); pinctrl-msm8998 ngpios 154 so reset-gpios <tlmm 153> pulses the card (10-15 us, before HCE, as mainline's ufs_qcom_device_reset). Proof: tests/host/ufs-match-android.sh (source and dtb), its selftest (8 mutants fail), build/build-ufs-match.sh (all checks, rebuild byte-identical), and the UFS-off gate FAILS the image by design. Programmer review found 7 points: the refusal was not a stop (fixed: configure at init), the purge guard leaked the only device-management tag (fixed), weak tests (fixed, mutants), a dirty Image could ship (Image strings checked), the image could land where the inventory looks (named NOT-TO-BOOT-, OUT_DIR must be NOT-TO-BOOT-*), and two comment/scope points (order of the pulse differs from Android's; link-startup pre-change, clock scaling and host caps are NOT matched). Not matched: ICE, bus votes, PM-QoS, hw-gated clocks, pad drive/pull of ufs_reset, link-startup pre-change. Not known: whether the host is 3.0.0 or 3.1.0 (first read is in the try), whether the 3.0.0 lane-0-only table leaves lane 1 usable.
+
+Sources
+: src-google-wahoo-msm44-android11
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-18-ufs-android-way/

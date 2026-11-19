@@ -9,7 +9,7 @@
 # that waits for the author's explicit go on UFS (decision 2026-11-18-walleye-ufs-wait).
 #   build-ufs-match.sh Z21_BOOT_IMG KERNEL_TREE KERNEL_OUT_DIR OUT_DIR
 # KERNEL_TREE is the tree KERNEL_OUT_DIR was built from (build-kernel.sh, run with EXTRA_CONFIG=build/walleye-diag.config, z21's kernel config).
-# Writes OUT_DIR/{boot-ufs-match-ufs-on.img,msm8998-google-walleye-ufs-match.dtb,NOT-TO-BOOT.txt,SHA256SUMS-ufs-match}; checks (ok/FAIL, exit 1, nothing written).
+# Writes OUT_DIR/{NOT-TO-BOOT-ufs-on-ufs-match.img,msm8998-google-walleye-ufs-match.dtb,NOT-TO-BOOT.txt,SHA256SUMS-ufs-match}; checks (ok/FAIL, exit 1, nothing written).
 # Environment: DTBO (default ~/Projects/walleye-build/control/dtbo.img).
 set -eu
 Z21=${1:?usage: build-ufs-match.sh Z21_BOOT_IMG KERNEL_TREE KERNEL_OUT_DIR OUT_DIR}
@@ -17,6 +17,7 @@ KT=${2:?}
 KO=${3:?}
 OUT=${4:?}
 HERE=$(cd "$(dirname "$0")/.." && pwd)
+case $(basename "$OUT") in NOT-TO-BOOT-*) ;; *) echo "build-ufs-match: OUT_DIR must be named NOT-TO-BOOT-... (a UFS-on image is never written where a queue or the inventory looks)" >&2; exit 1 ;; esac
 export DTBO=${DTBO:-$HOME/Projects/walleye-build/control/dtbo.img}
 total=0
 ck() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1: got '$2', want '$3'"; total=$((total+1)); fi; }
@@ -42,6 +43,7 @@ ck "the ufs, phy and pinctrl files of the tree are committed (clean against HEAD
 HEADHASH=$(git -C "$KT" rev-parse --short=12 HEAD)
 BANNERS=$(zcat "$KO/Image.gz" | LC_ALL=C grep -a -o "Linux version [^ ]*" | sort -u)
 ck "the Image's banner names the tree's HEAD commit g$HEADHASH, and only it" "$(printf '%s\n' "$BANNERS" | grep -c -E -e "-g$HEADHASH(-dirty)?$")/$(printf '%s\n' "$BANNERS" | grep -c .)" 1/1
+ck "the Image carries the code of the tree (strings of the purge guard, the version print, the phy refusal), whatever the tree looks like now" "$(zcat "$KO/Image.gz" | LC_ALL=C grep -a -c -e 'purge refused on this device' -e 'UFS_HW_VERSION %u.%u.%u' -e 'unknown UFS host version')" 3
 ck "the kernel config builds UFS, its phy and the msm8998 pinctrl in" "$(grep -c -e '^CONFIG_SCSI_UFS_QCOM=y$' -e '^CONFIG_PHY_QCOM_QMP_UFS=y$' -e '^CONFIG_PINCTRL_MSM8998=y$' "$KO/.config")" 3
 ck "the kernel config is z21's (the diagnostic one: dynamic debug and gpio debug)" "$(grep -c -e '^CONFIG_DYNAMIC_DEBUG=y$' -e '^CONFIG_DEBUG_GPIO=y$' "$KO/.config")" 2
 ck "the new Image.gz is not z21's (the kernel change)" "$(cmp -s "$KO/Image.gz" "$T/k.gz" && echo same || echo differs)" differs
@@ -68,7 +70,7 @@ set --
 while IFS= read -r pr; do if [ -n "$pr" ]; then set -- "$@" --prop "$pr"; fi; done <<EOP
 $(printf '%s\n' "$AV" | sed -n "s/^ *Prop: \([^ ]*\) -> '\(.*\)'$/\1:\2/p")
 EOP
-IMG=$T/boot-ufs-match-ufs-on.img
+IMG=$T/NOT-TO-BOOT-ufs-on-ufs-match.img
 mkbootimg --header_version 0 --base 0x0 --kernel_offset "$(field 'kernel load address')" --ramdisk_offset "$(field 'ramdisk load address')" \
   --second_offset 0x0 --tags_offset "$(field 'kernel tags load address')" --pagesize "$(field 'page size')" \
   --os_version "$(field 'os version')" --os_patch_level "$(field 'os patch level')" --cmdline "$(field 'command line args')" \
@@ -89,13 +91,13 @@ ck "the image's AVB footer verifies" "$(avbtool verify_image --image "$T/v/boot.
 KS=$(stat -c %s "$T/blob"); KO_=$(printf %d "$(field 'kernel load address')"); RO=$(printf %d "$(field 'ramdisk load address')")
 ck "the kernel blob ends before the ramdisk loads (headroom in bytes > 524288)" "$([ $((RO - KO_ - KS)) -gt 524288 ] && echo yes || echo "no: $((RO - KO_ - KS))")" yes
 # the gate refuses it, by design: the image stays out of every queue
-ck "the UFS-off gate FAILS this image (UFS is on in it; the gate is not weakened, it is the proof the image cannot be booted by the lab's tools)" "$(sh "$HERE/tests/host/ufs-off-image.sh" "$IMG" | cut -d' ' -f1 || true)" fail
+ck "the UFS-off gate FAILS this image because UFS is on in it (the gate is not weakened: it is the proof the lab's tools refuse the image)" "$(sh "$HERE/tests/host/ufs-off-image.sh" "$IMG" | cut -c1-30)" "fail walleye-ufs-off UFS is on"
 [ $total -eq 0 ] || { echo "build-ufs-match: $total checks failed, nothing written" >&2; exit 1; }
 mkdir -p "$OUT"
-cp "$IMG" "$OUT/boot-ufs-match-ufs-on.img"; cp "$NEWDTB" "$OUT/msm8998-google-walleye-ufs-match.dtb"
+cp "$IMG" "$OUT/NOT-TO-BOOT-ufs-on-ufs-match.img"; cp "$NEWDTB" "$OUT/msm8998-google-walleye-ufs-match.dtb"
 cat > "$OUT/NOT-TO-BOOT.txt" <<EON
-boot-ufs-match-ufs-on.img has UFS ON. It is built and reviewed and was never booted. It is not to be booted, and not to be put in a keeper's queue, until the author says go on UFS
+NOT-TO-BOOT-ufs-on-ufs-match.img has UFS ON. It is built and reviewed and was never booted. It is not to be booted, and not to be put in a keeper's queue, until the author says go on UFS
 (decision 2026-11-18-walleye-ufs-wait; backlog walleye-ufs-match-android-z is the build, the try is a separate item). tests/host/ufs-off-image.sh refuses it by design.
 No way back from an erased Pixel 2 bootloader is known (research walleye-edl-way-back).
 EON
-(cd "$OUT" && sha256sum boot-ufs-match-ufs-on.img msm8998-google-walleye-ufs-match.dtb | tee SHA256SUMS-ufs-match)
+(cd "$OUT" && sha256sum NOT-TO-BOOT-ufs-on-ufs-match.img msm8998-google-walleye-ufs-match.dtb | tee SHA256SUMS-ufs-match)
