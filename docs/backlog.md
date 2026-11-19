@@ -7166,10 +7166,10 @@ Rank
 ### Name why the gpiolib_shared proxy for the panel reset (tlmm 94) is missing, and make an L5 image that fixes it
 
 Status
-: open
+: done
 
 Note
-: From research walleye-display-late-probe-l4-tried-dsi-binds-panel-defers-on-reset. Host first: who else references tlmm 94 in dtb+overlay, and the kernel's gpiolib-shared config.
+: L5 built (research walleye-display-late-probe-l5-built); try queued as walleye-try-display-late-probe-l5
 
 About
 : walleye-display-s6e3fa5
@@ -7288,3 +7288,31 @@ Proof
 
 Rank
 : 6
+
+
+<a id="walleye-try-display-late-probe-l5"></a>
+### Try L5 once: the reset-gpio claimant moved off the dsi node; read whether the panel binds and a DRM card appears
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images-display-late-l5/boot-l5.img (sha256 fb813a9a702e11a2b3d6bd0b981dceecfb21fe0ca7947a03ebe45d62ed6c2ef5), slot b, nothing flashed. One try.
+
+Blocked by
+: walleye-display-late-probe-l5-gpio-shared-proxy
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the gate passes right before the boot; shell up; the host script loads the modules; a research row with devices_deferred, /sys/class/drm and the dmesg lines of the dsi and panel probe; the line 'cannot find GPIO chip gpiolib_shared.proxy' gone; if a DRM card appears: connector status to the coordinator
+
+Rank
+: 1

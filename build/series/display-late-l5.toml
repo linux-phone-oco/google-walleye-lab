@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# L5 (backlog walleye-display-late-probe-l5-gpio-shared-proxy; research walleye-display-late-probe-l4-tried-dsi-binds-panel-defers-on-reset): image L4 with the label mdss_dsi0 on a disabled stub, so the vendor overlay's qcom,platform-reset-gpio <tlmm 94> no longer lands on the real dsi node and the panel's reset gpio has one claimant (no shared-gpio proxy to wait for).
+# l5.dtb is build/build-display-late-l5-dtb.sh's. Run: lpoco-bringup image bisect build/series/display-late-l5.toml --out OUT; the image passes tests/host/ufs-off-image.sh (build/check-display-late-l5.sh).
+control = "../../../../walleye-build/images-display-late-l4/boot-l4.img"
+
+[[image]]   # L4 with mdss_dsi0 on a disabled stub
+name = "l5"
+dtb = "../../../../walleye-build/images-display-late-l5/l5.dtb"

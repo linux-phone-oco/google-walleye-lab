@@ -3952,3 +3952,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-20-walleye-builder-display-late-probe-l5-image"></a>
+### walleye-builder: late-probe image L5 (tlmm 94 reset gpio single claimant)
+
+Entry date
+: 2026-11-19
+
+Done
+: Found the second claimant of tlmm 94 (the vendor overlay's qcom,platform-reset-gpio on dsi0), wrote tests/host/display-reset-gpio-single-claimant.sh (fails on L4, passes on L5), built L5 by moving the mdss_dsi0 label onto a disabled stub; gate and AVB pass, rebuild identical, programmer review applied. sha256 fb813a9a702e11a2b3d6bd0b981dceecfb21fe0ca7947a03ebe45d62ed6c2ef5.
+
+Considered
+: Loading gpio-shared-proxy.ko from the shell: would work around, not remove, the second claimant.
+
+Rejected
+: Disabling dsi0: the panel is its child. Editing the overlay: the bootloader merges the phone's own.
+
+About
+: walleye-display-s6e3fa5
