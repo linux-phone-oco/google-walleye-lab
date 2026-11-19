@@ -6745,34 +6745,6 @@ Rank
 : 9
 
 
-<a id="walleye-procedures-one-shape"></a>
-### Move the attended programs to procedures/NAME.rs and tools/walleye-tries to procedures/steps, dropping what lab-tools' step library takes
-
-Status
-: open
-
-Note
-: PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. Today's #448 (tests/attended/touch-try.rs, tools/walleye-tries) is the closest to it. Move it when lab-tools' scaffold has landed; until then new programs follow the shape already. LIBRARY STEPS (orchestration, 2026-11-19, lab-tools tag lpoco-attended-v0.29.2, #250 #251): dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb are in the library; boot_once and back_to_known_good come next, then lpoco attended new|run|check. Write the PMIC, display and UFS programs against v0.29.2 and these steps, not walleye-tries copies; where the library lacks a step, write it in procedures/steps and name it as wanted. With it: walleye-try-settings-into-device-toml (the WALLEYE_TRY_* settings become device.toml keys).
-
-Waits
-: orchestration: lab-tools attended-scaffold (lpoco attended new|run|check and the step library: boot_once, wait_for_usb, back_to_known_good, read_dmesg)
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: tests/attended/*.rs now in procedures/*.rs (touch-try, and the PMIC program when it has landed), tools/walleye-tries now procedures/steps with only the steps the library does not have (boot_once, wait_for_usb, back_to_known_good, read_dmesg removed in favour of the library's), lpoco attended check passes on each, the stand-in tests still pass, the entry files still read as a checklist on one screen (decision 2026-11-19-walleye-attended-tries-one-command); paths in the backlog notes and the README updated; the PMIC and touch programs use the library's dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb (v0.29.2 or later) in place of their walleye-tries copies
-
-Rank
-: 9
-
-
 <a id="walleye-touch-program-enter-fastboot"></a>
 ### touch-try.rs enters fastboot itself from Android (as pmic-try's back_to_fastboot does) before the boot step
 
@@ -6937,3 +6909,31 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-procedures-one-shape"></a>
+### Move the attended programs to procedures/NAME.rs and tools/walleye-tries to procedures/steps, dropping what lab-tools' step library takes
+
+Status
+: open
+
+Note
+: PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. Today's #448 (tests/attended/touch-try.rs, tools/walleye-tries) is the closest to it. Move it when lab-tools' scaffold has landed; until then new programs follow the shape already. LIBRARY STEPS (orchestration, 2026-11-19, lab-tools tag lpoco-attended-v0.29.2, #250 #251): dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb are in the library; boot_once and back_to_known_good come next, then lpoco attended new|run|check. Write the PMIC, display and UFS programs against v0.29.2 and these steps, not walleye-tries copies; where the library lacks a step, write it in procedures/steps and name it as wanted. With it: walleye-try-settings-into-device-toml (the WALLEYE_TRY_* settings become device.toml keys). PHYSICAL ACTS (orchestration, decision 2026-11-19-attended-steps-name-the-physical-act): ask_author is replaced by steps naming the act (press_power(secs), hold_button(name, secs), unplug_usb, replug_usb, touch, swipe, look_for(..), listen_for(..), confirm(..)), done by a person now and by a rig later; no change needed before lpoco-attended releases them.
+
+Waits
+: orchestration: lab-tools attended-scaffold (lpoco attended new|run|check and the step library: boot_once, wait_for_usb, back_to_known_good, read_dmesg)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: tests/attended/*.rs now in procedures/*.rs (touch-try, and the PMIC program when it has landed), tools/walleye-tries now procedures/steps with only the steps the library does not have (boot_once, wait_for_usb, back_to_known_good, read_dmesg removed in favour of the library's), lpoco attended check passes on each, the stand-in tests still pass, the entry files still read as a checklist on one screen (decision 2026-11-19-walleye-attended-tries-one-command); paths in the backlog notes and the README updated; the PMIC and touch programs use the library's dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb (v0.29.2 or later) in place of their walleye-tries copies; the person steps use the library's physical-act steps once released (touch: swipe and touch; PMIC: press_power for the 15 s fallback and confirm; display: look_for("the four stripes")) in place of ask_author, which stays as confirm for one release
+
+Rank
+: 9
