@@ -7262,6 +7262,9 @@ Status
 Note
 : Orchestration, 2026-11-19: the procedure names its device and its values come from that device.toml, not from environment variables. Do it with the procedures/ move (walleye-procedures-one-shape): same change or the one just before it. Until then the existing programs keep their settings. LPOCO-ATTENDED v0.31.0 (orchestration, lab-tools #266, 2026-11-19): physical steps over a Bench (press_power, hold_button, unplug_usb, replug_usb, touch, swipe, look_for, listen_for, confirm; a person by default, --dry-run lists the doer; ask_author is confirm); boot_once and back_to_known_good read device.toml [kernels] test and kept, a missing key or an unlisted name exits 2 naming it, dry run too. Declare [kernels] and [[host.gadget]] usb_id in this lab's device.toml; programs pinned to v0.29.x keep working until moved. NOW READY (the wait is gone). Order: this item first, then walleye-procedures-one-shape.
 
+Waits
+: orchestration: lab-tools manifest keys for the attended settings (port, images folder and paths, timings window/min_window/device_wait/back_wait/stay/bite_wait, battery floor, adb/fastboot/lpoco paths): lpoco-manifest is deny_unknown_fields and refuses them; note walleye-to-orchestration-manifest-keys.md in the shared notes folder; then a lpoco-attended release that reads them. The builder's attempt (2026-11-19) landed nothing.
+
 About
 : walleye-first-fastboot-boot
 
@@ -7286,6 +7289,9 @@ Status
 
 Note
 : PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. Today's #448 (tests/attended/touch-try.rs, tools/walleye-tries) is the closest to it. Move it when lab-tools' scaffold has landed; until then new programs follow the shape already. LIBRARY STEPS (orchestration, 2026-11-19, lab-tools tag lpoco-attended-v0.29.2, #250 #251): dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb are in the library; boot_once and back_to_known_good come next, then lpoco attended new|run|check. Write the PMIC, display and UFS programs against v0.29.2 and these steps, not walleye-tries copies; where the library lacks a step, write it in procedures/steps and name it as wanted. With it: walleye-try-settings-into-device-toml (the WALLEYE_TRY_* settings become device.toml keys). PHYSICAL ACTS (orchestration, decision 2026-11-19-attended-steps-name-the-physical-act): ask_author is replaced by steps naming the act (press_power(secs), hold_button(name, secs), unplug_usb, replug_usb, touch, swipe, look_for(..), listen_for(..), confirm(..)), done by a person now and by a rig later; no change needed before lpoco-attended releases them. LPOCO-ATTENDED v0.31.0 (orchestration, lab-tools #266, 2026-11-19): physical steps over a Bench (press_power, hold_button, unplug_usb, replug_usb, touch, swipe, look_for, listen_for, confirm; a person by default, --dry-run lists the doer; ask_author is confirm); boot_once and back_to_known_good read device.toml [kernels] test and kept, a missing key or an unlisted name exits 2 naming it, dry run too. Declare [kernels] and [[host.gadget]] usb_id in this lab's device.toml; programs pinned to v0.29.x keep working until moved. NOW READY after walleye-try-settings-into-device-toml.
+
+Waits
+: orchestration: lab-tools manifest keys for the attended settings (port, images folder and paths, timings window/min_window/device_wait/back_wait/stay/bite_wait, battery floor, adb/fastboot/lpoco paths): lpoco-manifest is deny_unknown_fields and refuses them; note walleye-to-orchestration-manifest-keys.md in the shared notes folder; then a lpoco-attended release that reads them. The builder's attempt (2026-11-19) landed nothing.
 
 Blocked by
 : walleye-try-settings-into-device-toml
