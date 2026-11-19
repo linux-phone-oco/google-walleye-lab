@@ -4633,3 +4633,21 @@ Considered
 
 About
 : walleye-attend-program-pmic
+
+---
+
+
+<a id="2026-11-19-1957-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Nothing changed: Android on slot b, stock kernel, nothing flashed, in Android per phone-state (adb device). Top ready item walleye-display-at-boot waits only on the author's look (attended, no go open); walleye-try-ufs-match's go window not read as open and it is risk-unknown, so not run; the sysfs-backlight item has no prepared program. Suite and phone root still unavailable (no phone password file).
+
+Considered
+: next: author's look at B1 (one command procedures/display-at-boot-on-the-pixel-2.rs); a prepared B1 backlight-write program for walleye-display-backlight-sysfs-write; phone password file at ~/.config/devlab/google-walleye/password
+
+About
+: walleye-display-at-boot
