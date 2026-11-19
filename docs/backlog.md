@@ -5618,10 +5618,10 @@ Witness
 ### A short note for the author before the UFS go: how close the matched image is to Android's bring-up of this card, what is unknown, the remaining risk
 
 Status
-: open
+: done
 
 Note
-: Opened 2026-11-19 on the author's second path ("or we can figure out how its done in android exactly and be atmost sure we understan the intricacies", relayed by the Top Coordinator). Starts when walleye-ufs-match-android-z is built and reviewed. The note goes to the author through the Top Coordinator; the go stays his.
+: Note recorded as research walleye-ufs-go-note; goes to the author through the Top Coordinator; the go stays his.
 
 Blocked by
 : walleye-ufs-match-android-z
