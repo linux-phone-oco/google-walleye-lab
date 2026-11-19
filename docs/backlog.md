@@ -6293,31 +6293,6 @@ Rank
 : 14
 
 
-<a id="walleye-haptics-i2c-answers"></a>
-### Phone: i2c_6 shows 0x5a and the DRV2624 id register reads back
-
-Status
-: open
-
-Note
-: Keeper reads only; failing test haptics-chip-present in tests/health/base/amp-present.sh.
-
-Blocked by
-: walleye-ufs-readonly
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: haptics-chip-present
-
-
 <a id="walleye-tone-heard"></a>
 ### A tone is heard from both speakers at low level
 
@@ -6396,100 +6371,6 @@ Rank
 : 20
 
 
-<a id="walleye-drv2624-driver"></a>
-### Take porthole's DRV2624 driver (patch 0018) and its dts node onto our kernel
-
-Status
-: open
-
-Note
-: Replaces clean-room writing (decision 2026-11-19-walleye-audio-from-porthole). Source: porthole-pmaports-taimen, patch 0018, taimen dts node ti,drv2624. Walleye's i2c_6 0x5a, reset gpio95 to be checked against it.
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: walleye-haptics-driver-builds, then walleye-haptics-felt (a person)
-
-
-<a id="walleye-tas2557-firmware-source"></a>
-### Where the TAS2557 firmware blob comes from for walleye, and whether the lab may ship it
-
-Status
-: open
-
-Note
-: Porthole takes tas2557s_PG21_uCDSP.bin from TheMuppets' mirror; the phone's own vendor partition holds it too. Read it from the phone by the keeper, hash against porthole's; the licence and shipping are the author's call.
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: tas2557-firmware-hash-matches
-
-Witness
-: person
-
-
-<a id="walleye-tas2557-driver"></a>
-### Take porthole's TAS2557 driver (0024, 0162, 0171-0174) and tas2557s_uCDSP.bin onto our kernel
-
-Status
-: open
-
-Note
-: Replaces the bypass plan: the part stays mute without its firmware (research walleye-audio-haptics-porthole-has-it). The blob is a vendor file: the author decides whether the lab ships it, see walleye-tas2557-firmware-source.
-
-Blocked by
-: walleye-adsp-q6-mi2s,walleye-tas2557-firmware-source
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: walleye-tas2557-driver-builds, then amp-present-0x4c/0x4d
-
-
-<a id="walleye-adsp-q6-mi2s"></a>
-### Take porthole's ADSP remoteproc, q6 and sound card patches (0084, 0085, 0159) onto our kernel
-
-Status
-: open
-
-Note
-: ADSP firmware from the vendor partition by the keeper's provisioning; the sound card defers until the amp probes, so tried together with the TAS2557 group.
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: sound-card in /proc/asound/cards (needs sound_cards in device.toml)
-
-
 <a id="walleye-display-late-probe-l-images"></a>
 ### The late-probe image with the full display dtb and the iommu fix: L1 with iommu.passthrough=1, L2 without the mdss iommus property
 
@@ -6541,3 +6422,131 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-tas2557-firmware-source"></a>
+### Where the TAS2557 firmware blob comes from for walleye, and whether the lab may ship it
+
+Status
+: open
+
+Note
+: Porthole takes tas2557s_PG21_uCDSP.bin from TheMuppets' mirror; the phone's own vendor partition holds it too. Read it from the phone by the keeper, hash against porthole's; the licence and shipping are the author's call. 2026-11-19 coordinator: UNATTENDED, no person: a read-only pull from the phone's vendor partition into ~/lab-material/walleye (never git), sha256 against porthole's copy, nothing else; shipping is not on the table (decision 2026-11-19-walleye-tas2557-firmware-stays-on-the-phone).
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: tas2557-firmware-hash-matches
+
+Rank
+: 6
+
+
+<a id="walleye-drv2624-driver"></a>
+### Take porthole's DRV2624 driver (patch 0018) and its dts node onto our kernel
+
+Status
+: open
+
+Note
+: Replaces clean-room writing (decision 2026-11-19-walleye-audio-from-porthole). Source: porthole-pmaports-taimen, patch 0018, taimen dts node ti,drv2624. Walleye's i2c_6 0x5a, reset gpio95 to be checked against it.
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: walleye-haptics-driver-builds, then walleye-haptics-felt (a person)
+
+Rank
+: 6
+
+
+<a id="walleye-adsp-q6-mi2s"></a>
+### Take porthole's ADSP remoteproc, q6 and sound card patches (0084, 0085, 0159) onto our kernel
+
+Status
+: open
+
+Note
+: ADSP firmware from the vendor partition by the keeper's provisioning; the sound card defers until the amp probes, so tried together with the TAS2557 group.
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: sound-card in /proc/asound/cards (needs sound_cards in device.toml)
+
+Rank
+: 7
+
+
+<a id="walleye-tas2557-driver"></a>
+### Take porthole's TAS2557 driver (0024, 0162, 0171-0174) and tas2557s_uCDSP.bin onto our kernel
+
+Status
+: open
+
+Note
+: Replaces the bypass plan: the part stays mute without its firmware (research walleye-audio-haptics-porthole-has-it). The blob is a vendor file: the author decides whether the lab ships it, see walleye-tas2557-firmware-source.
+
+Blocked by
+: walleye-adsp-q6-mi2s,walleye-tas2557-firmware-source
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: walleye-tas2557-driver-builds, then amp-present-0x4c/0x4d
+
+Rank
+: 8
+
+
+<a id="walleye-haptics-i2c-answers"></a>
+### Phone: i2c_6 shows 0x5a and the DRV2624 id register reads back
+
+Status
+: open
+
+Note
+: Keeper reads only; failing test haptics-chip-present in tests/health/base/amp-present.sh.
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: haptics-chip-present
+
+Rank
+: 7
