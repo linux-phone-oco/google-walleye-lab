@@ -7791,31 +7791,6 @@ Proof
 : the display, touch and PMIC procedures run with the library's answer file: a person step reads its answer from a named file (written by whoever relays it) as well as from stdin; a stand-in test writes the file during the wait; the keeper's orders say 'write the answer file' instead of 'feed the FIFO'
 
 
-<a id="walleye-tries-text-file-busy-flake"></a>
-### Fix the flaky 'Text file busy' in tools/walleye-tries host.rs's fake-fastboot test
-
-Status
-: open
-
-Note
-: Seen once in the attended-tries CI job by the builder of PR 525; it passed on rerun. A shell-script fixture executed right after being written races exec against the write handle (ETXTBSY). Fix in the fixture (sync and close before exec, unique path per test), not by a retry. SECOND FLAKE 2026-11-19 (CI of lab PR 564): pmic::the_way_back::when_reboot_f_does_nothing_the_sysrq_trigger_is_sent failed once ('the sysrq command was not sent', 101 passed 1 failed), passed on rerun: a stand-in script or a log read racing the test's own assertion; fix the fixture (wait for the stand-in's log line with a bounded poll, or run the stand-in synchronously), not by a retry.
-
-About
-: walleye-attend-program-touch
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: the fake-fastboot test of host.rs passes 50 runs in a row (cargo test in a loop) with the CI job's parallelism: the fake script is written, closed and made executable before it is run, with a name unique per test; no shared file between tests; also pmic::the_way_back::when_reboot_f_does_nothing_the_sysrq_trigger_is_sent passes 50 runs in a row with the CI job's parallelism
-
-Rank
-: 7
-
-
 <a id="walleye-display-backlight-timeout"></a>
 ### Why the panel's brightness write fails with -110 ('failed to enable backlight') on B1, and whether the glass is affected
 
@@ -8162,31 +8137,6 @@ Rank
 : 2
 
 
-<a id="walleye-display-delay-bisect"></a>
-### Load msm at 5, 15, 25, 35 and 50 s after boot and read the three signs (SMMU faults, pclk0 rcg warning, DSI -110) per load
-
-Status
-: open
-
-Note
-: From research walleye-display-b2-dsi-clock-warning: the flip point between 2 s (fails) and 66 s (clean) names the cleanup that matters (30 s regulators, 12 s sync_state, 1.3 s genpd). One RAM boot per delay, nothing written. Also read before loading, read-only: mmcc pclk0/byte0 RCG state and the mdss autorefresh register.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: display-boot-clean
-
-Rank
-: 1
-
-
 <a id="walleye-display-splash-region-dts"></a>
 ### Reserve the bootloader splash (memory@9d400000, no-map) in the walleye dts and add a simple-framebuffer with the mmcc clocks and MDSS_GDSC, the OnePlus way
 
@@ -8266,3 +8216,81 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-display-delay-bisect-build"></a>
+### Build the delay bisect: five images (or one image and a baked delay) that load msm at 5, 15, 25, 35 and 50 s of uptime, and ONE procedure that runs the five RAM boots in a row and reads the three signs of each
+
+Status
+: open
+
+Note
+: From research walleye-display-b2-dsi-clock-warning (PR 597, decision 2026-11-19-walleye-display-early-load-splash-handover): the same kernel, dtb and modules fail when msm loads at about 2 s and are clean at 66 s; the delay bisect finds where the bootloader's scan-out stops mattering. The keeper found (2026-11-19, local_b687d991) that walleye-display-delay-bisect has no image and no procedure: this item is that missing build. Tell the Top Coordinator nothing is needed from the author.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: images B-d5, B-d15, B-d25, B-d35, B-d50 (UFS-off gate, AVB, rebuild identical, review): B2's ramdisk whose init-display waits a delay baked into the image (a file /display-delay, a number of seconds of uptime) before it loads the display modules, so the load time does not depend on the shell (the gadget only comes up at about 18 s); procedures/display-delay-bisect-on-the-pixel-2.rs on lpoco-attended 0.35 or newer (keys read at the top of main, [images.*] in device.toml): for each image the phone to fastboot, boot once, wait for the gadget, read dmesg and score the three signs (SMMU translation faults, pclk0 rcg warnings, DSI -110), the way back after any stop; it has NO person step; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; the result table (delay, faults, warnings, -110) is written to a file and the log; a keeper's unattended run for real is the bar
+
+Rank
+: 1
+
+
+<a id="walleye-display-delay-bisect"></a>
+### Load msm at 5, 15, 25, 35 and 50 s after boot and read the three signs (SMMU faults, pclk0 rcg warning, DSI -110) per load
+
+Status
+: open
+
+Note
+: From research walleye-display-b2-dsi-clock-warning: the flip point between 2 s (fails) and 66 s (clean) names the cleanup that matters (30 s regulators, 12 s sync_state, 1.3 s genpd). One RAM boot per delay, nothing written. Also read before loading, read-only: mmcc pclk0/byte0 RCG state and the mdss autorefresh register. Blocked 2026-11-19 by walleye-display-delay-bisect-build: the keeper found no image and no procedure.
+
+Blocked by
+: walleye-display-delay-bisect-build
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: display-boot-clean
+
+Rank
+: 1
+
+
+<a id="walleye-tries-text-file-busy-flake"></a>
+### Fix the flaky 'Text file busy' in tools/walleye-tries host.rs's fake-fastboot test
+
+Status
+: open
+
+Note
+: Seen once in the attended-tries CI job by the builder of PR 525; it passed on rerun. A shell-script fixture executed right after being written races exec against the write handle (ETXTBSY). Fix in the fixture (sync and close before exec, unique path per test), not by a retry. SECOND FLAKE 2026-11-19 (CI of lab PR 564): pmic::the_way_back::when_reboot_f_does_nothing_the_sysrq_trigger_is_sent failed once ('the sysrq command was not sent', 101 passed 1 failed), passed on rerun: a stand-in script or a log read racing the test's own assertion; fix the fixture (wait for the stand-in's log line with a bounded poll, or run the stand-in synchronously), not by a retry. RANK 1 (2026-11-19, lab PR 609): pmic::the_way_back::when_reboot_f_does_nothing_the_sysrq_trigger_is_sent (src/pmic.rs:1087) now fails in CI on about every third run, on data-only PRs too (4 reruns today); it blocks every landing. Fix it before more builds.
+
+About
+: walleye-attend-program-touch
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the fake-fastboot test of host.rs passes 50 runs in a row (cargo test in a loop) with the CI job's parallelism: the fake script is written, closed and made executable before it is run, with a name unique per test; no shared file between tests; also pmic::the_way_back::when_reboot_f_does_nothing_the_sysrq_trigger_is_sent passes 50 runs in a row with the CI job's parallelism
+
+Rank
+: 1
