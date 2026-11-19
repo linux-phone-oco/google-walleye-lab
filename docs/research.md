@@ -3363,3 +3363,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-upstream-dts-series"></a>
+### walleye-upstream-dts-series
+
+Date
+: 2026-11-19
+
+Brief
+: Pixel 2 board dts as a two-patch upstream series on v7.3: dt_binding_check, W=1 dtbs, relaxed style clean; strict 76 findings to 2; checkpatch 0 errors
+
+Question
+: Can the candidate dts of docs #573 become a clean upstream series, UFS off, and what is left
+
+Found
+: Yes: binding patch plus board dts, reviewed. APSS wdt dropped, adreno_smmu kept disabled, UFS off. Open before mailing: author and SoB, carve-out and ramoops provenance, one boot of this exact dtb.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-19-upstream-dts/
