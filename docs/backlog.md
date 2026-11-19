@@ -8410,7 +8410,7 @@ Status
 : done
 
 Note
-: RUN 2026-11-20 00:15-00:30 (walleye-keeper, lpoco-attended run pmic-watchdog-v1-on-the-pixel-2 --answer-limit 300, all 26 steps passed, image A next-based). First attempt without --answer-limit stopped at ask 8 'nobody answered' (stdin closed). REBOOT TEST PASS: armed type 0x07 (s2 before=no, after=yes), clean reboot, Android back and up 180 s, uptime 46->219 s, S2 reads OFF after it. BITE PASS: shell quiet 20 s after arming, Android back by itself at 112 s uptime 9 s, boot reason [reboot], stayed up 60 s after, no loop. Not read: bootstatus CARDRESET. Probe: firmware S2 type 0x1, driver sets 0x7. Log ~/lab-material/walleye/pmic-wdt-v1-run-*.log. Next: send result to the upstreams coordinator.
+: RUN 2026-11-20 00:15-00:30 (walleye-keeper, lpoco-attended run pmic-watchdog-v1-on-the-pixel-2 --answer-limit 300, all 26 steps passed, image A next-based; first attempt without --answer-limit stopped at ask 8 'nobody answered', stdin closed). REBOOT TEST PASS: armed type 0x07 (s2 before=no, after=yes), clean reboot, Android back by itself and up 180 s (uptime 46->219 s), S2 reads OFF after it. BITE PASS as a reset: the shell went quiet 20 s after arming (unpetted), the phone reset by itself. CORRECTION to the run's own text 'Android is back by itself at 112 s': it did NOT come back to Android by itself. The author's words: 'it did restart into charging, it showed charging icon, now the screen is black', then 'i pressed powerbutton, it boots android now'. So the reset landed in the bootloader's off-mode charger screen (USB in), Android started only after his short power press; the run's check 20/22 read the later Android, the reset itself happened. Android after: boot reason [reboot] / sys.boot.reason bootloader, slot b, up 60 s with no loop; PON registers and CARDRESET bootstatus not read. Follow-up: walleye-wdt-reset-boots-charger-mode. Log ~/lab-material/walleye/pmic-wdt-v1-run-*.log. Next: result to the upstreams coordinator.
 
 About
 : walleye-pmic-wdt-proof
@@ -8432,3 +8432,22 @@ Witness
 
 Go until
 : 2026-11-20T00:54:53+01:00
+
+
+<a id="walleye-wdt-reset-boots-charger-mode"></a>
+### A PMIC-watchdog bite with USB in boots the bootloader's charger screen, not Android: why, and should PON or the reset type make it warm-boot
+
+Status
+: open
+
+Note
+: From the bite test of walleye-try-pmic-wdt-v1 (2026-11-20): reset by itself 20 s after arming, phone came up in off-mode charger (charging icon, black screen), Android only after a short power press (author's words, verbatim: 'it did restart into charging, it showed charging icon, now the screen is black'). Questions: which PON/reset reason the bite leaves (read PON registers from Android, debugfs regmap as root, and the bootloader's view), why the bootloader takes charger mode (S2 hard reset type 7 looks like a power-off to it, with USB in), whether a different S2 type or a PON bit makes it warm-boot, and what the upstreams series should say. Does it block the series? Not as a bite proof; it matters for the user-visible behaviour.
+
+About
+: walleye-pmic-wdt-proof
+
+Opened
+: 2026-11-19
+
+Needs
+: research
