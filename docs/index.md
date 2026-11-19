@@ -8,7 +8,7 @@
 - [Hardware](hardware.md): 4
 - [Parts](parts.md): 21
 - [Research](research.md): 196
-- [Session Log](session_log.md): 198
+- [Session Log](session_log.md): 199
 - [Sources](sources.md): 62
 - [Steps](steps.md): 113
 - [Summaries](summaries.md): 0

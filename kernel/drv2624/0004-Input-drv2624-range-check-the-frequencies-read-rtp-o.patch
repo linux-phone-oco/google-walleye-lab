@@ -1,0 +1,78 @@
+From 51274968ec39e8b46f095e08423e71175ddb54ee Mon Sep 17 00:00:00 2001
+From: "walleye-builder.4c25be" <idunerg+walleye-builder.4c25be@gmail.com>
+Date: Thu, 19 Nov 2026 14:44:05 +0100
+Subject: [PATCH] Input: drv2624 - range-check the frequencies, read rtp once,
+ depend on GPIOLIB
+
+The drive time and the open-loop period are written through masks, so a
+value that does not fit was silently cut: refuse it at probe. The play
+work read the amplitude twice while play() may change it: read it once.
+Like drv260x, depend on GPIOLIB || COMPILE_TEST for the reset gpio.
+
+Signed-off-by: grenudi <idunerg@gmail.com>
+---
+ drivers/input/misc/Kconfig   |  1 +
+ drivers/input/misc/drv2624.c | 15 +++++++++++----
+ 2 files changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index dd1df6b11..76359502c 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -932,6 +932,7 @@ config INPUT_AMD_SFH_TABLETMODE
+ config INPUT_DRV2624_HAPTICS
+ 	tristate "TI DRV2624 haptics support"
+ 	depends on INPUT && I2C
++	depends on GPIOLIB || COMPILE_TEST
+ 	select INPUT_FF_MEMLESS
+ 	select REGMAP_I2C
+ 	help
+diff --git a/drivers/input/misc/drv2624.c b/drivers/input/misc/drv2624.c
+index c86433dba..0d871525a 100644
+--- a/drivers/input/misc/drv2624.c
++++ b/drivers/input/misc/drv2624.c
+@@ -78,10 +78,10 @@ static const struct regmap_config drv2624_regmap_config = {
+ static void drv2624_play_work(struct work_struct *work)
+ {
+ 	struct drv2624 *haptics = container_of(work, struct drv2624, play_work);
++	u8 rtp = READ_ONCE(haptics->rtp);
+ 
+-	if (haptics->rtp) {
+-		regmap_write(haptics->regmap, DRV2624_REG_RTP_INPUT,
+-			     haptics->rtp);
++	if (rtp) {
++		regmap_write(haptics->regmap, DRV2624_REG_RTP_INPUT, rtp);
+ 		regmap_write(haptics->regmap, DRV2624_REG_GO, DRV2624_GO);
+ 	} else {
+ 		regmap_write(haptics->regmap, DRV2624_REG_GO, 0);
+@@ -98,7 +98,7 @@ static int drv2624_play(struct input_dev *input, void *data,
+ 	magnitude = max(effect->u.rumble.strong_magnitude,
+ 			effect->u.rumble.weak_magnitude);
+ 
+-	haptics->rtp = (u8)(magnitude * DRV2624_RTP_MAX / 0xffff);
++	WRITE_ONCE(haptics->rtp, (u8)(magnitude * DRV2624_RTP_MAX / 0xffff));
+ 	schedule_work(&haptics->play_work);
+ 
+ 	return 0;
+@@ -178,7 +178,12 @@ static int drv2624_init_actuator(struct device *dev, struct drv2624 *haptics)
+ 	if (actuator != DRV2624_ACTUATOR_LRA || !lra_freq)
+ 		return 0;
+ 
++	if (lra_freq > 1000)
++		return dev_err_probe(dev, -EINVAL, "ti,lra-frequency %u out of range\n", lra_freq);
++
+ 	drive_time = 5 * (1000 - lra_freq) / lra_freq;
++	if (drive_time > DRV2624_DRIVE_TIME_MASK)
++		return dev_err_probe(dev, -EINVAL, "ti,lra-frequency %u gives a drive time the register cannot hold\n", lra_freq);
+ 	if (lra_freq < 125)
+ 		drive_time |= DRV2624_MINFREQ_SEL_MASK;
+ 
+@@ -189,6 +194,8 @@ static int drv2624_init_actuator(struct device *dev, struct drv2624 *haptics)
+ 		return ret;
+ 
+ 	ol_period = 1000000000u / (24619u * ol_freq);
++	if (ol_period > 0x3ff)
++		return dev_err_probe(dev, -EINVAL, "ti,ol-lra-frequency %u out of range\n", ol_freq);
+ 	ret = regmap_update_bits(haptics->regmap, DRV2624_REG_OL_PERIOD_H,
+ 				 0x03, (ol_period >> 8) & 0x03);
+ 	if (ret)

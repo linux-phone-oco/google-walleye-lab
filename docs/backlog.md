@@ -6422,10 +6422,10 @@ Rank
 ### Take porthole's DRV2624 driver (patch 0018) and its dts node onto our kernel
 
 Status
-: open
+: done
 
 Note
-: Replaces clean-room writing (decision 2026-11-19-walleye-audio-from-porthole). Source: porthole-pmaports-taimen, patch 0018, taimen dts node ti,drv2624. Walleye's i2c_6 0x5a, reset gpio95 to be checked against it. SHAPE OF THE PORT (the author's ask, relayed by the Top Coordinator 2026-11-19, decision 2026-11-19-walleye-audio-port-shape): one series per chip, binding, driver and walleye dts as separate patches, each upstreamable on its own, porthole's authorship and sign-offs kept and our changes as separate commits; per chip a record of what any phone would need: the part number, where the driver stands (mainline, porthole, ours), the firmware (the phone's own, never in git), quirks, the proof test and the bring-up steps it covers; the proof steps are small library steps with walleye's values in device.toml (docs #638), not walleye-only scripts.
+: Series kernel/drv2624/ (0001 binding, 0002 porthole's driver with authorship kept, 0003-0004 our fixes, 0005 walleye dts node), per-chip record in kernel/drv2624/README.md; proof tests/host/drv2624-builds.sh passes (patches apply to v7.3, drv2624.o builds W=1 without warning, dtb has vibrator@5a, reset gpio95). Not in a boot image yet. Next: walleye-haptics-i2c-answers (read-only from Android: also read which rail powers the part), then an image with the series and walleye-haptics-felt (a person). Open: binding not schema-validated (no dt-validate here); device.toml keys for library proof steps wait for docs #638.
 
 About
 : walleye-audio-haptics

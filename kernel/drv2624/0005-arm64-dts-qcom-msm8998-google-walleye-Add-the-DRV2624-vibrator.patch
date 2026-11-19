@@ -1,0 +1,45 @@
+From: grenudi <idunerg@gmail.com>
+Subject: [PATCH 5/5] arm64: dts: qcom: msm8998-google-walleye: Add the DRV2624 vibrator
+
+The Pixel 2 has a TI DRV2624 at 0x5a on QUP6 (blsp1_i2c6), its nRESET on gpio95,
+driving an LRA of 155 Hz. The values are the stock overlay's own; porthole's
+taimen node has the same ones. The supply of the part is not read yet.
+
+Signed-off-by: grenudi <idunerg@gmail.com>
+---
+diff --git a/arch/arm64/boot/dts/qcom/msm8998-google-walleye.dts b/arch/arm64/boot/dts/qcom/msm8998-google-walleye.dts
+index 49229df..ee654f1 100644
+--- a/arch/arm64/boot/dts/qcom/msm8998-google-walleye.dts
++++ b/arch/arm64/boot/dts/qcom/msm8998-google-walleye.dts
+@@ -440,6 +440,31 @@
+ 	};
+ };
+ 
++/*
++ * The vibration motor (item walleye-drv2624-driver): a TI DRV2624 on QUP6's i2c at 0x5a, its nRESET on gpio95, an LRA of 155 Hz. The values are the stock
++ * overlay's own (fragment i2c_6: ti,rated-voltage 0x4d = 77, ti,odclamp-voltage 0xa5 = 165, ti,lra-frequency 0x9b = 155, closed loop, square wave), the same
++ * as porthole's taimen node. The overlay's fragments target the label i2c_6, which is a stub here, so its drv2624@5a lands in the stub and not on this node.
++ * The driver is not in mainline (kernel/drv2624/, with its binding).
++ */
++&blsp1_i2c6 {
++	status = "okay";
++
++	vibrator@5a {
++		compatible = "ti,drv2624";
++		reg = <0x5a>;
++
++		reset-gpios = <&tlmm 95 GPIO_ACTIVE_LOW>;
++
++		ti,actuator = <1>;		/* LRA */
++		ti,smart-loop = <0>;		/* closed loop */
++		ti,rated-voltage = <77>;
++		ti,odclamp-voltage = <165>;
++		ti,lra-frequency = <155>;	/* f0 = 155 Hz */
++		ti,ol-lra-frequency = <155>;
++		ti,lra-wave-shape = <0>;	/* square */
++	};
++};
++
+ /*
+  * The fuel gauge (item walleye-fuel-gauge): pmi8998's FG gen3 reads the cell's charge level, voltage and current; the driver (power: supply: pmi8998_fg,
+  * RFC v1 of 2025-11-24 by David Heidelberg, driver by Joel Selvaraj, node by Casey Connolly: not in mainline) is carried as patch files in this build only.
