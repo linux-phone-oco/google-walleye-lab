@@ -7266,10 +7266,10 @@ Proof
 ### Try L5 once: the reset-gpio claimant moved off the dsi node; read whether the panel binds and a DRM card appears
 
 Status
-: open
+: done
 
 Note
-: Image ~/Projects/walleye-build/images-display-late-l5/boot-l5.img (sha256 fb813a9a702e11a2b3d6bd0b981dceecfb21fe0ca7947a03ebe45d62ed6c2ef5), slot b, nothing flashed. One try.
+: proven by: L5 tried once from slot b; no gpiolib_shared line, DRM card0, DSI-1 connected 1080x1920 (research walleye-display-late-probe-l5-tried-dsi-connected-1080x1920)
 
 Blocked by
 : walleye-display-late-probe-l5-gpio-shared-proxy

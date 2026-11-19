@@ -4566,3 +4566,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-late-probe-l5-tried-dsi-connected-1080x1920"></a>
+### walleye-display-late-probe-l5-tried-dsi-connected-1080x1920
+
+Date
+: 2026-11-19
+
+Brief
+: L5 tried once from slot b: the panel binds, DRM card0 appears, connector DSI-1 connected 1080x1920; shell alive, 13 modules load
+
+Question
+: With the mdss_dsi0 label moved off the dsi node (L5), does the panel's reset gpio resolve, does the panel bind and a DRM card appear?
+
+Found
+: Gates: sha256 fb813a9a..., ufs-off-image pass, battery 4376 mV, slot b. fastboot boot of boot-l5.img (nothing flashed): gadget 1d6b:0104 after 18 s, shell 2 s later; display-late-probe.sh pass: all 13 modules load, shell alive; stream carried the marker, netconsole did not. The line 'cannot find GPIO chip gpiolib_shared.proxy' is gone (0 mentions in dmesg). dsi probed, Dsi Host 0 initialized, the panel c994000.dsi.0 found its reset-gpios, msm_dpu bound c994000.dsi, DRM card0 and renderD128 exist (/dev/dri), /sys/class/drm/card0-DSI-1 status connected, modes 1080x1920; the DPU atomic commit for the 1080x1920 mode was in the stream. devices_deferred empty. Not read: whether the glass lit (no eyes; the author not asked), the panel's own init sequence replies. Phone back on Android slot b by itself after /tmp/hold removed; idle-android pass. Material: /home/mll/Projects/walleye-build/runs/l5-1795100051 (not in git). Next: read the panel prepare/enable lines and a modetest or fbcon frame; ask the author to look only once the console and DRM state are read.
+
+About
+: walleye-display-s6e3fa5

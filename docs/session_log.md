@@ -3994,3 +3994,21 @@ Rejected
 
 About
 : walleye-attend-program-pmic
+
+---
+
+
+<a id="2026-11-20-0100-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, idle-android pass. L5 tried once from memory: panel binds, DRM card0 with DSI-1 connected 1080x1920, shell alive, 13 modules load. Item walleye-try-display-late-probe-l5 done; lease released. Suite latest not read: password file missing.
+
+Considered
+: next: builder/coordinator - panel enable and a frame (modetest or fbcon) one try, then ask the author to look; keeper next: walleye-modem-mss-proof, walleye-attend-pmic-unattended-run, walleye-tas2557-firmware-source, walleye-haptics-i2c-answers
+
+About
+: walleye-display-s6e3fa5
