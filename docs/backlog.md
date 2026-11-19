@@ -7187,34 +7187,6 @@ Rank
 : 1
 
 
-<a id="walleye-tas2557-firmware-source"></a>
-### Where the TAS2557 firmware blob comes from for walleye, and whether the lab may ship it
-
-Status
-: open
-
-Note
-: 2026-11-19 keeper try: adb shell (uid 2000) cannot read /vendor/firmware/tas2557s_PG21_uCDSP.bin or tas2557s_uCDSP.bin: ls/stat and adb pull give Permission denied (the files exist; find lists them). Stopped as told, no root sought. Next: a decision from the coordinator on another unattended way to read it (a test image that mounts the vendor partition read-only, or the factory image's vendor.img on the host) - the factory image route needs no phone. 2026-11-19 keeper run (PR 488): the adb shell user (uid 2000) gets Permission denied on /vendor/firmware/tas2557s_PG21_uCDSP.bin; the keeper stopped without looking for root, as ordered. No vendor.img or factory image is on the lab host (checked: ~/Projects/walleye-build/dl, control, ~/lab-material). The routes are listed in the waits; the coordinator asks the author one line through the Top Coordinator. The TAS2557 driver series does NOT wait for the file (only its try does).
-
-Waits
-: a route to the file: (a) root on the phone's Android (Developer options, Root access, ADB only: a tap by the author), or (b) Google's factory image for walleye downloaded to the host and vendor.img read there with debugfs (a download from Google's page that needs the author's yes), or (c) a UFS-on test image of the Android-derived solution reading the vendor partition (the lane's own work, later)
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: tas2557-firmware-hash-matches
-
-Rank
-: 6
-
-
 <a id="walleye-tas2557-upstream-v3-first"></a>
 ### TAS2557: weigh Boiano's v3 on the list (binding + driver) against porthole's port before walleye-tas2557-driver is built
 
@@ -7288,3 +7260,31 @@ Opened
 
 Proof
 : an upstream item for the reply, state sent
+
+
+<a id="walleye-tas2557-firmware-source"></a>
+### Where the TAS2557 firmware blob comes from for walleye, and whether the lab may ship it
+
+Status
+: open
+
+Note
+: 2026-11-19 keeper try: adb shell (uid 2000) cannot read /vendor/firmware/tas2557s_PG21_uCDSP.bin or tas2557s_uCDSP.bin: ls/stat and adb pull give Permission denied (the files exist; find lists them). Stopped as told, no root sought. Next: a decision from the coordinator on another unattended way to read it (a test image that mounts the vendor partition read-only, or the factory image's vendor.img on the host) - the factory image route needs no phone. 2026-11-19 keeper run (PR 488): the adb shell user (uid 2000) gets Permission denied on /vendor/firmware/tas2557s_PG21_uCDSP.bin; the keeper stopped without looking for root, as ordered. No vendor.img or factory image is on the lab host (checked: ~/Projects/walleye-build/dl, control, ~/lab-material). The routes are listed in the waits; the coordinator asks the author one line through the Top Coordinator. The TAS2557 driver series does NOT wait for the file (only its try does). 2026-11-19 THE AUTHOR'S CHOICE, his word verbatim, relayed by the Top Coordinator: "Root tap i think(about pixel question)". KEEPER ORDERS after 'done' is relayed (this note, landed, is the line to start from): adb root; read /vendor/firmware/tas2557s_PG21_uCDSP.bin with adb pull into ~/lab-material/walleye (mode 600, never git, the phone's own firmware); record its sha256 against porthole's if the host has porthole's copy; READ ONLY: change nothing else on Android, set no property, install nothing; the root setting stays as the author left it; stop if adb root is refused and say so.
+
+Waits
+: the author's root tap: Developer options, Root access, ADB only on the Pixel 2 (he does it himself; the Top Coordinator relays 'done'); the keeper starts after that line
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: tas2557-firmware-hash-matches
+
+Rank
+: 6
