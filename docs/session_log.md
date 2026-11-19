@@ -3784,3 +3784,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-touch-program-enters-fastboot-itself"></a>
+### touch program enters fastboot itself
+
+Entry date
+: 2026-11-19
+
+Done
+: Added host::to_fastboot and Touch::phone_is_in_fastboot and the step in touch-try.rs; after programmer review: no serial fails fast, adb state is checked before the reboot, the timeout and no-serial cases have tests.
+
+Considered
+: Reusing pmic.rs back_to_fastboot directly (it is private to Pmic; the shared-plumbing item will move both onto host.rs).
+
+Rejected
+: Reading the serial with unwrap_or_default: an empty serial reboots whatever adb sees.
+
+About
+: walleye-attend-program-touch

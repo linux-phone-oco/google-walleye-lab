@@ -84,6 +84,61 @@ pub fn image_is_the_built_one(image: &Path) -> Result<(), String> {
     }
 }
 
+/// Fastboot lists the phone with this serial.
+pub fn in_fastboot(fastboot: &str, serial: &str) -> bool {
+    let mut c = Command::new(fastboot);
+    c.arg("devices");
+    run(c)
+        .map(|s| !serial.is_empty() && s.text.contains(serial))
+        .unwrap_or(false)
+}
+
+/// The phone is in fastboot: already, or after `adb reboot bootloader` from Android (the phone named by its serial),
+/// listed by fastboot within `wait`. Nothing is written to the phone; a phone that answers neither says so.
+pub fn to_fastboot(
+    adb: &str,
+    fastboot: &str,
+    serial: &str,
+    wait: std::time::Duration,
+) -> Result<(), String> {
+    if serial.is_empty() {
+        return Err("no serial for the phone: it could not be told from another one".into());
+    }
+    if in_fastboot(fastboot, serial) {
+        return Ok(());
+    }
+    let mut st = Command::new(adb);
+    st.args(["-s", serial, "get-state"]);
+    let state = run(st)?;
+    if !state.ok || state.text.trim() != "device" {
+        return Err(format!(
+            "the phone is not in fastboot and adb does not see it on Android (adb: '{}'): it may be on the mainline gadget, unauthorized or offline",
+            state.text.trim()
+        ));
+    }
+    let mut c = Command::new(adb);
+    c.args(["-s", serial]);
+    c.args(["reboot", "bootloader"]);
+    let said = run(c)?;
+    if !said.ok {
+        return Err(format!(
+            "the phone is not in fastboot and adb cannot reboot it to the bootloader: {}",
+            said.text
+        ));
+    }
+    let until = std::time::Instant::now() + wait;
+    while std::time::Instant::now() < until {
+        if in_fastboot(fastboot, serial) {
+            return Ok(());
+        }
+        std::thread::sleep(std::time::Duration::from_secs(2));
+    }
+    Err(format!(
+        "the phone is not in fastboot within {} s of adb reboot bootloader",
+        wait.as_secs()
+    ))
+}
+
 pub fn last_line(text: &str) -> String {
     text.lines().last().unwrap_or("").to_string()
 }
@@ -105,6 +160,73 @@ mod tests {
             "pass x a me"
         );
         assert_eq!(script(&bad, &[], &[]).unwrap_err(), "fail x nope");
+        std::fs::remove_dir_all(d).ok();
+    }
+
+    fn stand_in(d: &std::path::Path, adb: &str, fastboot: &str) -> (String, String) {
+        std::fs::create_dir_all(d).unwrap();
+        let mut out = vec![];
+        for (n, body) in [("adb", adb), ("fastboot", fastboot)] {
+            let p = d.join(n);
+            std::fs::write(&p, format!("#!/bin/sh\n{body}\n")).unwrap();
+            std::fs::set_permissions(&p, std::os::unix::fs::PermissionsExt::from_mode(0o755))
+                .unwrap();
+            out.push(p.to_string_lossy().into_owned());
+        }
+        (out[0].clone(), out[1].clone())
+    }
+
+    #[test]
+    fn a_phone_in_fastboot_is_left_alone_and_one_on_android_is_sent_there() {
+        let d = std::env::temp_dir().join(format!("wt-fb-{}", std::process::id()));
+        let w = std::time::Duration::from_secs(5);
+        // already listed: adb must not be called (this adb fails)
+        let (adb, fb) = stand_in(
+            &d,
+            "echo called >> \"$0.calls\"; exit 1",
+            "echo 'SER1 fastboot'",
+        );
+        to_fastboot(&adb, &fb, "SER1", w).unwrap();
+        assert!(!d.join("adb.calls").exists());
+        // on Android: `reboot bootloader` is sent for that serial, then fastboot lists the phone
+        let m = d.join("bootloader");
+        let (adb, fb) = stand_in(
+            &d,
+            &format!("case \"$*\" in *get-state*) echo device; exit 0;; esac; echo \"$*\" > \"{0}.args\"; : > \"{0}\"", m.display()),
+            &format!("[ -e \"{}\" ] && echo 'SER1 fastboot'; exit 0", m.display()),
+        );
+        to_fastboot(&adb, &fb, "SER1", w).unwrap();
+        assert_eq!(
+            std::fs::read_to_string(d.join("bootloader.args"))
+                .unwrap()
+                .trim(),
+            "-s SER1 reboot bootloader"
+        );
+        // adb sees no phone (the gadget, unauthorized, offline): the error says so
+        std::fs::remove_file(&m).unwrap();
+        let (adb, fb) = stand_in(&d, "echo 'error: device offline'; exit 1", "exit 0");
+        let e = to_fastboot(&adb, &fb, "SER1", w).unwrap_err();
+        assert!(
+            e.contains("does not see it on Android") && e.contains("device offline"),
+            "{e}"
+        );
+        // another phone's serial in fastboot is not this phone
+        let (adb, fb) = stand_in(&d, "exit 1", "echo 'OTHER fastboot'");
+        assert!(!in_fastboot(&fb, "SER1") && to_fastboot(&adb, &fb, "SER1", w).is_err());
+        // adb reboots it but fastboot never lists it: the wait ends with that said
+        let (adb, fb) = stand_in(
+            &d,
+            "case \"$*\" in *get-state*) echo device;; esac; exit 0",
+            "exit 0",
+        );
+        let e = to_fastboot(&adb, &fb, "SER1", std::time::Duration::from_secs(1)).unwrap_err();
+        assert!(e.contains("not in fastboot within 1 s"), "{e}");
+        // no serial: nothing is asked of any phone
+        let (adb, fb) = stand_in(&d, "echo called >> \"$0.calls2\"", "exit 0");
+        assert!(to_fastboot(&adb, &fb, "", w)
+            .unwrap_err()
+            .contains("no serial"));
+        assert!(!d.join("adb.calls2").exists());
         std::fs::remove_dir_all(d).ok();
     }
 }
