@@ -5330,7 +5330,7 @@ Status
 : open
 
 Note
-: Image ~/Projects/walleye-build/images-display/boot-display.img, sha256 21a1134ebf99aca90fb77042697e40fa7a7b032734d706b8d2328c5b08bd09b0 (SHA256SUMS-display-img beside it). KEEPER: battery rule, tests/host/ufs-off-image.sh on the image first (passes), try once from slot b, read dmesg for the s6e3fa5 probe, the DSI host and /sys/class/drm/*/status BEFORE the person looks; the pattern needs the person's go (witness). Built by build/build-display.sh and build/build-display-image.sh. Programmer review done.
+: Image ~/Projects/walleye-build/images-display/boot-display.img, sha256 b70feabf44a81fc3ad17c9905305b3c8379197d4d824581de2272acec2515cc8 (SHA256SUMS-display-img beside it; rebuilt 2026-11-19 with clock_gcc at the real gcc; the old hash 21a1134e is retired, its dtb failed overlay-clock-gcc). KEEPER: battery rule, tests/host/ufs-off-image.sh on the image first (passes), try once from slot b, read dmesg for the s6e3fa5 probe, the DSI host and /sys/class/drm/*/status BEFORE the person looks; the pattern needs the person's go (witness). Built by build/build-display.sh and build/build-display-image.sh. Programmer review done.
 
 Blocked by
 : walleye-display-s6e3fa5
@@ -5447,10 +5447,10 @@ Rank
 ### Rebuild the display image with /__symbols__/clock_gcc at the real gcc (tests/host/overlay-clock-gcc.sh fails on boot-display.img's dtb)
 
 Status
-: open
+: done
 
 Note
-: Found by walleye-builder while building the PMIC v1 images (research walleye-pmic-wdt-v1-images-built): build-display-image.sh takes the dtb from build-display.sh and never runs z3's fdtput of clock_gcc; on images-display/msm8998-google-walleye-display.dtb the test says clocks[0]=321 want 36 for i2c@c179000, serial@c16f000, bt_wcn3990 and mnh-sm, so the touch i2c and the serial may wait on the empty stub as before z3. Change build-display-image.sh (or build-display.sh) the way build-pmic-wdt-v1.sh does (copy the dtb, fdtput, check before and after) and add overlay-clock-gcc to its checks. The display try waits for the attended visit anyway: say the new hash in walleye-try-display.
+: Done 2026-11-19: build-display-image.sh runs fdtput clock_gcc (checked before and after) on a copy of the dtb and adds overlay-clock-gcc to its checks (seen failing on the old dtb: clocks[0]=321 want 36; now ok). New boot-display.img sha256 b70feabf44a81fc3ad17c9905305b3c8379197d4d824581de2272acec2515cc8, UFS-off gate passes; walleye-try-display notes it.
 
 About
 : walleye-first-fastboot-boot

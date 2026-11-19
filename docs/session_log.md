@@ -3136,3 +3136,24 @@ Rejected
 
 About
 : walleye-pmic-wdt-proof
+
+---
+
+
+<a id="2026-11-19-display-image-rebuilt-with-the-real-gcc"></a>
+### Display image rebuilt with the real gcc
+
+Entry date
+: 2026-11-19
+
+Done
+: build-display-image.sh now sets /__symbols__/clock_gcc to /soc@0/clock-controller@100000 on the dtb it packs, as build-pmic-wdt-v1.sh does, checked before (the empty stub) and after, and runs overlay-clock-gcc.sh on it; the test was seen failing on the old image's dtb first. New hash b70feabf44a81fc3ad17c9905305b3c8379197d4d824581de2272acec2515cc8 (old 21a1134e retired); walleye-try-display note updated. No phone touched.
+
+Considered
+: fixing in build-display.sh (the dtb is built there): the image script already owns the packing and the checks, and the pmic script does it the same way
+
+Rejected
+: none
+
+About
+: walleye-first-fastboot-boot
