@@ -5,6 +5,7 @@
 
 pub mod display;
 pub mod display_boot;
+pub mod display_delay;
 pub mod host;
 pub mod lab;
 pub mod phone;

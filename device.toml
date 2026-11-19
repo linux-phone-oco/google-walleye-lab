@@ -188,3 +188,29 @@ sha256 = "461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5"   # 
 dtb = "NOT-TO-BOOT-ufs-on-images-ufs-match2/msm8998-google-walleye-ufs-match.dtb"   # the dtb in that image (a path under [images] dir), for tests/host/ufs-match-android.sh
 kernel_tree = "~/Projects/walleye-build/wt-k-ufsm"   # the tree the image was built from (topic/ufs-match-android), for tests/host/ufs-match-android.sh
 go_item = "walleye-try-ufs-match"                    # the item whose go_until holds the author's go: the UFS-on boot runs only while it is in the future
+
+# The delay bisect (item walleye-display-delay-bisect-build): B2 whose init waits the number of seconds of uptime in its own /display-delay before it loads the
+# display modules (build/build-display-delay-images.sh; kernel, dtb, modules, header and size are B2's). One RAM boot per image; the signs are read from the kernel log.
+[images.b-d5]
+path = "images-display-delay/boot-b-d5.img"
+sha256 = "0c285abb05d5d001c58adc9f33d79654fd541e056bd68cbc2c5577f061099973"
+
+[images.b-d15]
+path = "images-display-delay/boot-b-d15.img"
+sha256 = "d678b2d5a07dbc5796091e868d8c3fbd55d959f387912e83a96fa84b5f573e72"
+
+[images.b-d25]
+path = "images-display-delay/boot-b-d25.img"
+sha256 = "76976e0bb88ef0ad46f4639fc11de5f71e872480fa65c331d7a5da83ccc6f445"
+
+[images.b-d35]
+path = "images-display-delay/boot-b-d35.img"
+sha256 = "d10f607691aa8c8d892008878b5069a06692aef9a627cc6335798dc4e527cbfa"
+
+[images.b-d50]
+path = "images-display-delay/boot-b-d50.img"
+sha256 = "f6ea1d15fd149ab886c086db4ef24fcd77e5a6517737aa22388fa161a62b88b2"
+
+[procedures.display-delay-bisect-on-the-pixel-2]
+delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of uptime at which each image's init loads the display modules; an image b-dN must exist for each
+modules = 13                        # the display modules each init loads, each said "walleye-display: ok": a row with fewer says nothing about the signs (the ramdisk's /display-modules.list has this many lines)

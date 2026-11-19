@@ -8222,10 +8222,10 @@ Rank
 ### Build the delay bisect: five images (or one image and a baked delay) that load msm at 5, 15, 25, 35 and 50 s of uptime, and ONE procedure that runs the five RAM boots in a row and reads the three signs of each
 
 Status
-: open
+: done
 
 Note
-: From research walleye-display-b2-dsi-clock-warning (PR 597, decision 2026-11-19-walleye-display-early-load-splash-handover): the same kernel, dtb and modules fail when msm loads at about 2 s and are clean at 66 s; the delay bisect finds where the bootloader's scan-out stops mattering. The keeper found (2026-11-19, local_b687d991) that walleye-display-delay-bisect has no image and no procedure: this item is that missing build. Tell the Top Coordinator nothing is needed from the author.
+: Built 2026-11-19 (walleye-builder): images B-d5,15,25,35,50 in ~/Projects/walleye-build/images-display-delay (SHA256SUMS-display-delay, sha256 in device.toml): UFS-off gate, AVB, rebuild identical, B2 control byte for byte; procedures/display-delay-bisect-on-the-pixel-2.rs (dry-run, check --host, 15 stand-in tests, clippy, fmt). Real run is walleye-display-delay-bisect (keeper). Not measured: the mmcc RCG and autorefresh read-only registers (backlog note part a), not part of this build.
 
 About
 : walleye-display-s6e3fa5
@@ -8250,10 +8250,7 @@ Status
 : open
 
 Note
-: From research walleye-display-b2-dsi-clock-warning: the flip point between 2 s (fails) and 66 s (clean) names the cleanup that matters (30 s regulators, 12 s sync_state, 1.3 s genpd). One RAM boot per delay, nothing written. Also read before loading, read-only: mmcc pclk0/byte0 RCG state and the mdss autorefresh register. Blocked 2026-11-19 by walleye-display-delay-bisect-build: the keeper found no image and no procedure.
-
-Blocked by
-: walleye-display-delay-bisect-build
+: READY 2026-11-19: run procedures/display-delay-bisect-on-the-pixel-2.rs unattended (no person step; five RAM boots, about 15 min); the table is ~/lab-material/walleye/display-delay-DAY/table.txt; record the flip point against research walleye-display-b2-dsi-clock-warning.
 
 About
 : walleye-display-s6e3fa5
