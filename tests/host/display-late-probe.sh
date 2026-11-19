@@ -10,6 +10,7 @@
 # Environment: PHONE_ADDR (172.16.43.1), HOST_ADDR (172.16.43.2, this host's side of the usb0 network), HOST_MAC (02:42:ac:10:2b:02, the host_addr init-late gives the ECM function),
 # SHELL_WAIT seconds to wait for the shell (150), PAUSE seconds between steps (5), LOAD_WAIT seconds a load may take before it counts as no answer (20), SETTLE seconds to wait after the last step before the final check (30).
 # STRIPES_SECONDS (20): when the phone has /bin/walleye-stripes (image L6), it is started after the settle and holds the four stripes that many seconds (0 leaves it out); its lines go to OUT_DIR/stripes.log and a nonzero exit fails the run.
+# STRIPES_GRACE (40) real seconds after the hold to poll (every STRIPES_POLL, 3) for the drawer's stripes-rc line before it counts as no answer.
 set -u
 ADDR=${PHONE_ADDR:-172.16.43.1}
 HOSTIP=${HOST_ADDR:-172.16.43.2}
@@ -19,6 +20,8 @@ PAUSE=${PAUSE:-5}
 LOAD_WAIT=${LOAD_WAIT:-20}
 SETTLE=${SETTLE:-30}
 STRIPES_SECONDS=${STRIPES_SECONDS:-20}
+STRIPES_GRACE=${STRIPES_GRACE:-40}
+STRIPES_POLL=${STRIPES_POLL:-3}
 OUT=${1:?usage: display-late-probe.sh OUT_DIR}
 mkdir -p "$OUT" || exit 1
 : > "$OUT/steps.log"; : > "$OUT/run.log"; : > "$OUT/netconsole.log"; : > "$OUT/dmesg-stream.log"
@@ -92,8 +95,14 @@ DRAWN=
 if [ "$STRIPES_SECONDS" -gt 0 ] && ph "test -x /bin/walleye-stripes && echo drawer-is-\$((6*7))" 2 | grep -q drawer-is-42; then
   # detached: a telnet session that ends early must not end the drawer; its log and exit code are read after the hold
   ph "rm -f /tmp/stripes.log; setsid sh -c '/bin/walleye-stripes --seconds $STRIPES_SECONDS > /tmp/stripes.log 2>&1; r=\$?; echo stripes-rc=\$r-end >> /tmp/stripes.log'</dev/null >/dev/null 2>&1 & echo started-\$((6*7))" 2 | grep -q started-42 || end fail "the stripe drawer did not start"
-  sleep "$((STRIPES_SECONDS + 10))"
-  ph 'cat /tmp/stripes.log' 3 | tr -d "\r" > "$OUT/stripes.log"
+  # the drawer needs about 12 s after the settle to reach its hold: wait the hold, then poll for its rc line, bounded by STRIPES_GRACE
+  sleep "$STRIPES_SECONDS"; T1=$(date +%s)
+  while :; do
+    ph 'cat /tmp/stripes.log' 3 | tr -d "\r" > "$OUT/stripes.log"
+    grep -q "stripes-rc=[0-9]*-end" "$OUT/stripes.log" && break
+    [ "$(( $(date +%s) - T1 ))" -lt "$STRIPES_GRACE" ] || break
+    sleep "$STRIPES_POLL"
+  done
   log "the stripe drawer ran: $(grep -c walleye-stripes: "$OUT/stripes.log") lines in $OUT/stripes.log"
   grep -q "stripes-rc=0-end" "$OUT/stripes.log" || end fail "the stripe drawer did not end with 0; last line: [$(last "$OUT/stripes.log")]; see $OUT/stripes.log"
   DRAWN="; the stripes were drawn and held $STRIPES_SECONDS s"
