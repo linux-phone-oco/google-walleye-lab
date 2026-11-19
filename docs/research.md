@@ -3262,3 +3262,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z21-touch-events-nobody-swiped"></a>
+### walleye-z21-touch-events-nobody-swiped
+
+Date
+: 2026-11-19
+
+Brief
+: z21 third try: Synaptics up at 107 s, reader ran 20 s, nobody swiped; touch events not known
+
+Question
+: On z21, does the RMI4 node give EV_ABS events when a person touches the glass?
+
+Found
+: ufs-off gate passed; booted from Android slot b; Synaptics S3708AR (event1) listed at uptime 107 s; init reboots at 180 s. touch-read NOREBOOT=1 read 20 s: 1 line; touch-check skip (not known). My ready line went through SendMessage, which cannot reach another session, so no swipe. Phone back on Android slot b, adb up, nothing flashed. Next: send ready at once via send_message with the author already watching, or SECONDS_TO_READ=40.
+
+About
+: walleye-first-fastboot-boot
