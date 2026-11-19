@@ -3731,24 +3731,6 @@ About
 ---
 
 
-<a id="2026-11-20-0300-walleye-keeper-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: Android on slot b, stock kernel, nothing flashed, adb up (idle-android pass). Touch program's unattended run done (z21 booted once from memory, EVENTS-READY, no author, phone back on Android). Gap: touch-try.rs lacks an enter-fastboot step (item walleye-touch-program-enter-fastboot). lpoco lab suite latest needs the password file.
-
-Considered
-: next: builder - touch-program-enter-fastboot, L3 dsi vdd-supply, z21-hold-init; keeper next: walleye-attend-pmic-unattended-run, walleye-tas2557-firmware-source, walleye-haptics-i2c-answers
-
-About
-: walleye-first-fastboot-boot
-
----
-
-
 <a id="2026-11-19-drv2624-ported-from-porthole"></a>
 ### DRV2624 ported from porthole
 
@@ -3830,42 +3812,6 @@ About
 ---
 
 
-<a id="2026-11-20-0400-walleye-keeper-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: Android on slot b, stock kernel, nothing flashed, adb up, idle-android pass. Touch program unattended run 2 clean (no hand step). Suite latest not read: password file missing.
-
-Considered
-: next: keeper walleye-attend-pmic-unattended-run, walleye-tas2557-firmware-source, walleye-haptics-i2c-answers; builder z21-hold-init, L3 dsi vdd-supply; password file for lpoco lab suite
-
-About
-: walleye-attend-program-touch
-
----
-
-
-<a id="2026-11-19-1600-walleye-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: L4 tried once from slot b, nothing flashed: dsi binds, panel defers on reset-gpios (shared-GPIO proxy), no DRM card. Phone on Android slot b, stock kernel, idle-android pass.
-
-Considered
-: next: touch try (go open 2026-11-19); an L5 for the tlmm 94 proxy (walleye-display-late-probe-l5-gpio-shared-proxy); then walleye-attend-pmic-unattended-run. Suite latest not read: password file missing.
-
-About
-: walleye-display-s6e3fa5
-
----
-
-
 <a id="2026-11-19-1535-walleye-keeper-pmic-unattended-run"></a>
 ### PMIC program unattended run
 
@@ -3902,21 +3848,6 @@ About
 ---
 
 
-<a id="2026-11-19-1540-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: Android on slot b, stock kernel, nothing flashed, adb up. Touch try on z21 attended run passed (3593 EV_ABS events, Synaptics S3708AR). Suite latest not read: password file ~/.config/devlab/google-walleye/password missing, so lpoco lab phone sh/suite cannot run.
-
-Considered
-: next: keeper walleye-attend-pmic-unattended-run (needs builder to move the TWO_TESTS ask), walleye-tas2557-firmware-source and walleye-haptics-i2c-answers (need the password file for lpoco lab phone); builder z21-hold-init; password file for lpoco lab
-
----
-
-
 <a id="2026-11-19-adsp-q6-and-quaternary-mi2s-ported-from-porthole"></a>
 ### ADSP, q6 and Quaternary MI2S ported from porthole
 
@@ -3934,24 +3865,6 @@ Rejected
 
 About
 : walleye-audio-haptics
-
----
-
-
-<a id="2026-11-19-2000-walleye-keeper-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: Android on slot b, stock kernel, nothing flashed, adb up. Tried walleye-tas2557-firmware-source: shell user cannot read the vendor firmware (permission denied); stopped, recorded on the item. Suite latest not run: password file missing (by design, Android).
-
-Considered
-: next: tas2557 firmware from the factory image's vendor.img on the host (no phone); keeper walleye-attend-pmic-unattended-run; walleye-haptics-i2c-answers
-
-About
-: walleye-first-fastboot-boot
 
 ---
 
@@ -3998,42 +3911,6 @@ About
 ---
 
 
-<a id="2026-11-20-0100-walleye-keeper-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: Android on slot b, stock kernel, nothing flashed, idle-android pass. L5 tried once from memory: panel binds, DRM card0 with DSI-1 connected 1080x1920, shell alive, 13 modules load. Item walleye-try-display-late-probe-l5 done; lease released. Suite latest not read: password file missing.
-
-Considered
-: next: builder/coordinator - panel enable and a frame (modetest or fbcon) one try, then ask the author to look; keeper next: walleye-modem-mss-proof, walleye-attend-pmic-unattended-run, walleye-tas2557-firmware-source, walleye-haptics-i2c-answers
-
-About
-: walleye-display-s6e3fa5
-
----
-
-
-<a id="2026-11-19-1610-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: Android on slot b, stock kernel, nothing flashed, adb up and now left rooted-debugging as the author set it. TAS2557 PG21 firmware pulled read-only to ~/lab-material/walleye/tas2557 (mode 600, never git). Suite latest not read: password file missing.
-
-Considered
-: next: walleye-attend-pmic-unattended-run, walleye-haptics-i2c-answers, walleye-tas2557-driver; builder z21-hold-init; password file for lpoco lab suite
-
-About
-: walleye-audio-haptics
-
----
-
-
 <a id="2026-11-19-walleye-builder-image-l6-stripe-drawer"></a>
 ### walleye-builder: image L6 (stripe drawer)
 
@@ -4048,42 +3925,6 @@ Considered
 
 Rejected
 : modetest: no aarch64 build; libdrm program: a library to cross-build where fbdev needs only ioctls
-
-About
-: walleye-display-s6e3fa5
-
----
-
-
-<a id="2026-11-19-2330-walleye-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: Re-read the TAS2557 firmware pull on the host: sha256 ffadec7e...b8107b0 and 101481 bytes still match the 2026-11-19 note; no porthole copy exists on this host, so the hash-match proof of walleye-tas2557-firmware-source still has nothing to compare to. Phone not touched this run: lpoco lab cannot reach it, ~/.config/devlab/google-walleye/password is missing (suite and phone sh refuse). Phone as the last hand-over left it: Android on slot b, stock kernel, nothing flashed.
-
-Considered
-: next: author or coordinator puts the password file (mode 600) in place; then walleye-try-display-stripes-unattended (rank 2, unattended) and walleye-attend-pmic-unattended-run; the firmware item waits on a porthole hash to compare
-
-About
-: walleye-audio-haptics
-
----
-
-
-<a id="2026-11-20-0430-walleye-keeper-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: Android on slot b, stock kernel, nothing flashed, adb up (idle-android pass), battery 4333 mV; L6 tried once: stripes drawn by fbdev, connector connected/enabled, panel init commands sent without error; item walleye-try-display-stripes-unattended done in part (glass, drawer exit code unread). Suite latest not read: password file missing.
-
-Considered
-: next: builder walleye-display-stripes-script-detach, then rerun the L6 try for the exit code and hold; attended look only after; keeper walleye-attend-pmic-unattended-run waits on the builder's ask move
 
 About
 : walleye-display-s6e3fa5
@@ -4130,42 +3971,6 @@ About
 ---
 
 
-<a id="2026-11-20-0110-walleye-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: Android on slot b, stock kernel, nothing flashed, adb up (boot_completed 1). PMIC try run 2 booted image A from memory and ended by its self-reboot; no arming. Suite latest not read: password file missing.
-
-Considered
-: next: builder walleye-wdt-state-without-sysfs-identity (and walleye-display-stripes-script-detach), then keeper reruns walleye-attend-pmic-unattended-run; L6 stripes exit code still unread
-
-About
-: walleye-first-fastboot-boot
-
----
-
-
-<a id="2026-11-19-2000-walleye-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: Android on slot b, stock kernel, nothing flashed, adb up, battery 4376 mV. drv1 tried once: DRV2624 answers at 0-005a (i2c-0), id 0x03, input registered. Item walleye-haptics-i2c-answers in progress (test itself not run). Suite latest not read: password file still missing.
-
-Considered
-: next: close the haptics item on the dmesg evidence or one more try that lists 0-005a/driver and the supply; then the next ready row is walleye-modem-mss-proof. The drv1 init restarts at 180 s even with /tmp/hold touched.
-
-About
-: walleye-audio-haptics
-
----
-
-
 <a id="2026-11-19-walleye-tries-one-lab-type-for-the-shared"></a>
 ### walleye-tries: one Lab type for the shared plumbing
 
@@ -4183,24 +3988,6 @@ Rejected
 
 About
 : walleye-attend-program-pmic
-
----
-
-
-<a id="2026-11-20-0600-walleye-keeper-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: Android on slot b, stock kernel, nothing flashed, adb up, 4370 mV. drv1 tried a second time: DRV2624 bound at 0-005a, id 0x03; item walleye-haptics-i2c-answers done. Suite latest not read: password file missing.
-
-Considered
-: next: builder walleye-display-stripes-script-detach, then L6 rerun (walleye-try-display-stripes-unattended-2, unattended); the haptics effect try (play an effect, rail unmeasured) wants a builder row; the password file for suite latest is missing and needs the author
-
-About
-: walleye-audio-haptics
 
 ---
 
@@ -4241,24 +4028,6 @@ About
 ---
 
 
-<a id="2026-11-19-1830-walleye-keeper-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-19
-
-Done
-: Android on slot b, stock kernel, nothing flashed, adb up, 4383 mV, idle-android pass. Took walleye-try-display-stripes-unattended-2: L6 booted by fastboot from memory, drawer detached ran 60.3 s, exit 0, done. Suite latest not read: password file missing.
-
-Considered
-: next: builder walleye-display-late-probe-poll-stripes-rc; then walleye-attend-program-display (attended look); the PMIC unattended run (walleye-attend-pmic-unattended-run) is ready; the devlab password file for suite latest needs the author
-
-About
-: walleye-first-fastboot-boot
-
----
-
-
 <a id="2026-11-19-battery-floor-into-device-toml"></a>
 ### Battery floor into device.toml
 
@@ -4273,3 +4042,234 @@ Rejected
 
 About
 : walleye-attend-program-touch
+
+---
+
+
+<a id="2026-11-20-0300-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up (idle-android pass). Touch program's unattended run done (z21 booted once from memory, EVENTS-READY, no author, phone back on Android). Gap: touch-try.rs lacks an enter-fastboot step (item walleye-touch-program-enter-fastboot). lpoco lab suite latest does not apply: this phone has no login.
+
+Considered
+: next: builder - touch-program-enter-fastboot, L3 dsi vdd-supply, z21-hold-init; keeper next: walleye-attend-pmic-unattended-run, walleye-tas2557-firmware-source, walleye-haptics-i2c-answers
+
+About
+: walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-1600-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: L4 tried once from slot b, nothing flashed: dsi binds, panel defers on reset-gpios (shared-GPIO proxy), no DRM card. Phone on Android slot b, stock kernel, idle-android pass.
+
+Considered
+: next: touch try (go open 2026-11-19); an L5 for the tlmm 94 proxy (walleye-display-late-probe-l5-gpio-shared-proxy); then walleye-attend-pmic-unattended-run. Suite not read: no login (no Linux userland on this phone, so no password file is needed).
+
+About
+: walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-2000-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up. Tried walleye-tas2557-firmware-source: shell user cannot read the vendor firmware (permission denied); stopped, recorded on the item. Suite not read: no login (no Linux userland on this phone, so no password file is needed).
+
+Considered
+: next: tas2557 firmware from the factory image's vendor.img on the host (no phone); keeper walleye-attend-pmic-unattended-run; walleye-haptics-i2c-answers
+
+About
+: walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-20-0100-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, idle-android pass. L5 tried once from memory: panel binds, DRM card0 with DSI-1 connected 1080x1920, shell alive, 13 modules load. Item walleye-try-display-late-probe-l5 done; lease released. Suite not read: no login (no Linux userland on this phone, so no password file is needed).
+
+Considered
+: next: builder/coordinator - panel enable and a frame (modetest or fbcon) one try, then ask the author to look; keeper next: walleye-modem-mss-proof, walleye-attend-pmic-unattended-run, walleye-tas2557-firmware-source, walleye-haptics-i2c-answers
+
+About
+: walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-2330-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Re-read the TAS2557 firmware pull on the host: sha256 ffadec7e...b8107b0 and 101481 bytes still match the 2026-11-19 note; no porthole copy exists on this host, so the hash-match proof of walleye-tas2557-firmware-source still has nothing to compare to. Phone not touched this run: lpoco lab phone and suite do not apply (this phone has no login, no password file is needed). Phone as the last hand-over left it: Android on slot b, stock kernel, nothing flashed.
+
+Considered
+: next: walleye-try-display-stripes-unattended (rank 2, unattended) and walleye-attend-pmic-unattended-run; the firmware item waits on a porthole hash to compare
+
+About
+: walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-20-0430-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up (idle-android pass), battery 4333 mV; L6 tried once: stripes drawn by fbdev, connector connected/enabled, panel init commands sent without error; item walleye-try-display-stripes-unattended done in part (glass, drawer exit code unread). Suite not read: no login (no Linux userland on this phone, so no password file is needed).
+
+Considered
+: next: builder walleye-display-stripes-script-detach, then rerun the L6 try for the exit code and hold; attended look only after; keeper walleye-attend-pmic-unattended-run waits on the builder's ask move
+
+About
+: walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-0110-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up (boot_completed 1). PMIC try run 2 booted image A from memory and ended by its self-reboot; no arming. Suite not read: no login (no Linux userland on this phone, so no password file is needed).
+
+Considered
+: next: builder walleye-wdt-state-without-sysfs-identity (and walleye-display-stripes-script-detach), then keeper reruns walleye-attend-pmic-unattended-run; L6 stripes exit code still unread
+
+About
+: walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-20-0400-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up, idle-android pass. Touch program unattended run 2 clean (no hand step). Suite not read: no login (no Linux userland on this phone, so no password file is needed).
+
+Considered
+: next: keeper walleye-attend-pmic-unattended-run, walleye-tas2557-firmware-source, walleye-haptics-i2c-answers; builder z21-hold-init, L3 dsi vdd-supply; no password file is needed: this phone has no login for lpoco lab suite or phone (AGENTS.md, lab PR 505)
+
+About
+: walleye-attend-program-touch
+
+---
+
+
+<a id="2026-11-19-1540-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up. Touch try on z21 attended run passed (3593 EV_ABS events, Synaptics S3708AR). Suite not read: no login (no Linux userland on this phone, so no password file is needed).
+
+Considered
+: next: keeper walleye-attend-pmic-unattended-run (needs builder to move the TWO_TESTS ask), walleye-tas2557-firmware-source and walleye-haptics-i2c-answers (read over adb and the mainline shell, no password file); builder z21-hold-init; password file for lpoco lab
+
+---
+
+
+<a id="2026-11-19-1610-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up and now left rooted-debugging as the author set it. TAS2557 PG21 firmware pulled read-only to ~/lab-material/walleye/tas2557 (mode 600, never git). Suite not read: no login (no Linux userland on this phone, so no password file is needed).
+
+Considered
+: next: walleye-attend-pmic-unattended-run, walleye-haptics-i2c-answers, walleye-tas2557-driver; builder z21-hold-init; no password file is needed: this phone has no login for lpoco lab suite or phone (AGENTS.md, lab PR 505)
+
+About
+: walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-20-0600-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up, 4370 mV. drv1 tried a second time: DRV2624 bound at 0-005a, id 0x03; item walleye-haptics-i2c-answers done. Suite not read: no login (no Linux userland on this phone, so no password file is needed).
+
+Considered
+: next: builder walleye-display-stripes-script-detach, then L6 rerun (walleye-try-display-stripes-unattended-2, unattended); the haptics effect try (play an effect, rail unmeasured) wants a builder row; no password file is needed: this phone has no login for lpoco lab suite or phone (AGENTS.md, lab PR 505)
+
+About
+: walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-19-1830-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up, 4383 mV, idle-android pass. Took walleye-try-display-stripes-unattended-2: L6 booted by fastboot from memory, drawer detached ran 60.3 s, exit 0, done. Suite not read: no login (no Linux userland on this phone, so no password file is needed).
+
+Considered
+: next: builder walleye-display-late-probe-poll-stripes-rc; then walleye-attend-program-display (attended look); the PMIC unattended run (walleye-attend-pmic-unattended-run) is ready; no password file is needed: this phone has no login for lpoco lab suite or phone (AGENTS.md, lab PR 505)
+
+About
+: walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-2000-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up, battery 4376 mV. drv1 tried once: DRV2624 answers at 0-005a (i2c-0), id 0x03, input registered. Item walleye-haptics-i2c-answers in progress (test itself not run). Suite not read: no login (no Linux userland on this phone, so no password file is needed).
+
+Considered
+: next: close the haptics item on the dmesg evidence or one more try that lists 0-005a/driver and the supply; then the next ready row is walleye-modem-mss-proof. The drv1 init restarts at 180 s even with /tmp/hold touched.
+
+About
+: walleye-audio-haptics
