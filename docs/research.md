@@ -4041,3 +4041,22 @@ About
 
 Material
 : research/walleye-audio-haptics/2026-11-19/
+
+
+<a id="walleye-display-f3-split-tried"></a>
+### walleye-display-f3-split-tried
+
+Date
+: 2026-11-19
+
+Brief
+: g1 (iommu.passthrough=1) and g2 (no mdss iommus) boot a shell; g3 (mdss alone) loses the gadget: the mdss node's iommus through the SMMU kills the boot
+
+Question
+: Which of g1, g2, g3 keeps the gadget with the display nodes on, and what does that say about the iommu reading?
+
+Found
+: Each once from slot b, g1 first; UFS-off gate and battery (4375-4385 mV) passed, nothing flashed. g1 (f3 + iommu.passthrough=1): left fastboot 15 s, gadget 1d6b:0104 at 18 s, shell read 16 answers, dmesg 624 lines. g2 (f3 without mdss iommus): same, gadget at 18 s, 624 lines. g3 (mdss alone, display controller disabled, iommus kept): no gadget, Android back after 63 s, the dead-kernel path. No mdss/dpu/drm lines and no /sys/class/drm in g1/g2: the display drivers are modules, not loaded. Reading (not yet proven): the death is the mdss iommus property probed early through the SMMU; passthrough or dropping the property avoids it. g3 dying alone says the display controller and DSI are not needed for it. Next: late-probe modules on the g1 or g2 dtb (walleye-try-display-late-probe), then choose passthrough or a fixed iommus entry. Material in ~/lab-material/walleye/display-f3-split-g1 and -g2 (g3 has none).
+
+About
+: walleye-display-s6e3fa5
