@@ -7072,22 +7072,6 @@ Rank
 : 95
 
 
-<a id="walleye-display-late-probe-l5-gpio-shared-proxy"></a>
-### Name why the gpiolib_shared proxy for the panel reset (tlmm 94) is missing, and make an L5 image that fixes it
-
-Status
-: open
-
-Note
-: From research walleye-display-late-probe-l4-tried-dsi-binds-panel-defers-on-reset. Host first: who else references tlmm 94 in dtb+overlay, and the kernel's gpiolib-shared config.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-
 <a id="walleye-try-z21-touch-events"></a>
 ### Touch events on z21: a person touches the panel while the reader reads the RMI4 input device
 
@@ -7248,3 +7232,28 @@ Proof
 
 Rank
 : 7
+
+
+<a id="walleye-display-late-probe-l5-gpio-shared-proxy"></a>
+### Name why the gpiolib_shared proxy for the panel reset (tlmm 94) is missing, and make an L5 image that fixes it
+
+Status
+: open
+
+Note
+: From research walleye-display-late-probe-l4-tried-dsi-binds-panel-defers-on-reset. Host first: who else references tlmm 94 in dtb+overlay, and the kernel's gpiolib-shared config.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: null
+
+Rank
+: 1
