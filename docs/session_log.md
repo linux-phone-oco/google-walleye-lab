@@ -3862,3 +3862,39 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-1535-walleye-keeper-pmic-unattended-run"></a>
+### PMIC program unattended run
+
+Entry date
+: 2026-11-19
+
+Done
+: Ran tests/attended/pmic-try.rs --log with stdin /dev/null on the lab machine: checks 1-3 (battery good, both images are the built ones, UFS off in both) pass; the run stopped at ask 4 (TWO_TESTS words) with 'nobody answered' before any boot, arming or bite. Phone untouched; idle-android passes afterwards (Android, adb device).
+
+Considered
+: Finding: the program asks the author BEFORE booting image A, so the shell, S2 type read and /tmp/hold steps (the item's 'must pass') do not run unattended; only the gates do. To exercise them unattended the program needs the first ask moved after the boot-A/shell/S2 checks, or a --no-ask-until-arm mode: builder work (tools/walleye-tries). Touch item walleye-try-z21-touch-events skipped: attended, its go expired (04:04 on 2026-11-19), author not present on this scheduled run.
+
+About
+: walleye-attend-program-pmic
+
+---
+
+
+<a id="2026-11-19-1540-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up, idle-android pass. Only the PMIC program's gates ran (no boot).
+
+Considered
+: next: builder reorders pmic-try asks (boot A before the first ask) then keeper reruns walleye-attend-pmic-unattended-run; walleye-tas2557-firmware-source, walleye-haptics-i2c-answers; touch needs a fresh go
+
+About
+: walleye-first-fastboot-boot
