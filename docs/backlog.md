@@ -6970,10 +6970,10 @@ Rank
 ### Phone: i2c_6 shows 0x5a and the DRV2624 id register reads back
 
 Status
-: open
+: in-progress
 
 Note
-: Keeper reads only; failing test haptics-chip-present in tests/health/base/amp-present.sh. NO PASSWORD NEEDED: the reads are made over the mainline shell of the DRV2624 test image (telnet 172.16.43.1, no login): i2c-6 shows 0x5a, the drv2624 driver is bound or the dmesg says why not, the id register through the driver's probe, which rail powers the part (not yet read). Blocked by walleye-drv2624-image.
+: drv1 tried once 2026-11-19 (research walleye-drv1-tried-drv2624-probes): DRV2624 at 0-005a on i2c-0 (c17a000.i2c), id 0x03 read by the driver's probe, input drv2624:haptics registered. amp-present.sh's haptics-chip-present globs *-005a so its condition holds, but the test itself was not run on the phone (the test image has no devlab lib) and the driver symlink was not listed. Not read: the rail. Next: a builder/coordinator call whether the dmesg evidence closes it, else one more try listing 0-005a/driver and the supply.
 
 Blocked by
 : walleye-drv2624-image

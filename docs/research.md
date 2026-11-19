@@ -4642,3 +4642,22 @@ Found
 
 About
 : walleye-audio-haptics
+
+
+<a id="walleye-drv1-tried-drv2624-probes"></a>
+### walleye-drv1-tried-drv2624-probes
+
+Date
+: 2026-11-19
+
+Brief
+: drv1 once from slot b: DRV2624 answers at 0-005a (c17a000.i2c, i2c-0), id 0x03, input drv2624:haptics registered; phone back on Android slot b
+
+Question
+: Does the DRV2624 on the Pixel 2 answer on I2C with the drv1 image, and does the driver bind?
+
+Found
+: Gates passed right before (battery 4376 mV, sha256 of boot-drv1.img, ufs-off-image.sh, idle-android). adb reboot bootloader, lpoco lab fastboot boot now: left fastboot 15 s, gadget 1d6b:0104 at 18 s, telnet 172.16.43.1 shell, kernel 7.3.0-00011-g25cc4008afc3-dirty. dmesg: 'drv2624 0-005a: DRV2624 id 0x03' at 1.069 s, then 'input: drv2624:haptics' at .../c17a000.i2c/i2c-0/0-005a/input/input1; Synaptics rmi4 1-0020 also up. So the part is on the bus numbered i2c-0 (the dts label i2c_6 is not the Linux number): the item's 6-005a path does not exist, 0-005a does. Id register reads back 0x03 through the driver's probe. Not read: which rail powers it (the dts reset gpio 95 and the vibrator@5a node are the only supplies named), and no vibration was commanded (no force-feedback effect played). Material ~/lab-material/walleye/drv1-try1 (answers.txt). The init's 180 s timer restarted the phone though /tmp/hold was touched (as z21); Android back on slot b, adb up, 4376 mV, nothing flashed.
+
+About
+: walleye-audio-haptics
