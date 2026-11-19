@@ -22,6 +22,8 @@ fn main() {
     check("both images are the ones built", wdt.images_are_the_built_ones());
     check("UFS is off in both images", wdt.ufs_is_off_in_both());
 
+    step("take the phone to fastboot", wdt.phone_is_in_fastboot());
+
     // first test: the reboot; the phone is started and read first, the author is asked after
     step("boot image A from memory (B if A shows no banner)", wdt.boot_image());
     check("the shell answers", wdt.shell_answers());
@@ -33,7 +35,7 @@ fn main() {
     check("Android stays up, no restart loop", wdt.android_stays_up());
 
     // second test: the bite, last
-    step("back to fastboot", wdt.back_to_fastboot());
+    step("back to fastboot", wdt.phone_is_in_fastboot());
     step("boot the same image again", wdt.boot_image());
     check("the shell answers", wdt.shell_answers());
     check("the watchdog probed and S2 is type 7", wdt.s2_type_is_seven());

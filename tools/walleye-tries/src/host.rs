@@ -84,13 +84,20 @@ pub fn image_is_the_built_one(image: &Path) -> Result<(), String> {
     }
 }
 
-/// Fastboot lists the phone with this serial.
-pub fn in_fastboot(fastboot: &str, serial: &str) -> bool {
+/// Fastboot lists the phone with this serial; a fastboot that cannot be run is an error, not "not listed".
+pub fn in_fastboot(fastboot: &str, serial: &str) -> Result<bool, String> {
     let mut c = Command::new(fastboot);
     c.arg("devices");
-    run(c)
-        .map(|s| !serial.is_empty() && s.text.contains(serial))
-        .unwrap_or(false)
+    Ok(!serial.is_empty() && run(c)?.text.contains(serial))
+}
+
+/// The first `serial = "..."` of the manifest, as the host scripts read it.
+pub fn serial_of(manifest: &str) -> Option<String> {
+    manifest.lines().find_map(|l| {
+        let rest = l.strip_prefix("serial")?.trim_start().strip_prefix('=')?;
+        let rest = rest.trim_start().strip_prefix('"')?;
+        Some(rest.split_once('"')?.0.to_string())
+    })
 }
 
 /// The phone is in fastboot: already, or after `adb reboot bootloader` from Android (the phone named by its serial),
@@ -104,7 +111,7 @@ pub fn to_fastboot(
     if serial.is_empty() {
         return Err("no serial for the phone: it could not be told from another one".into());
     }
-    if in_fastboot(fastboot, serial) {
+    if in_fastboot(fastboot, serial)? {
         return Ok(());
     }
     let mut st = Command::new(adb);
@@ -128,7 +135,7 @@ pub fn to_fastboot(
     }
     let until = std::time::Instant::now() + wait;
     while std::time::Instant::now() < until {
-        if in_fastboot(fastboot, serial) {
+        if in_fastboot(fastboot, serial)? {
             return Ok(());
         }
         std::thread::sleep(std::time::Duration::from_secs(2));
@@ -146,6 +153,14 @@ pub fn last_line(text: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_serial_is_the_first_of_the_manifest() {
+        let toml =
+            "[connection]\nserial = \"FA81\"   # fastboot\n[x]\nserial = \"walleye-first-boot\"\n";
+        assert_eq!(serial_of(toml).as_deref(), Some("FA81"));
+        assert_eq!(serial_of("[x]\n"), None);
+    }
 
     #[test]
     fn a_passing_script_gives_its_last_line_and_a_failing_one_what_it_said() {
@@ -212,7 +227,7 @@ mod tests {
         );
         // another phone's serial in fastboot is not this phone
         let (adb, fb) = stand_in(&d, "exit 1", "echo 'OTHER fastboot'");
-        assert!(!in_fastboot(&fb, "SER1") && to_fastboot(&adb, &fb, "SER1", w).is_err());
+        assert!(!in_fastboot(&fb, "SER1").unwrap() && to_fastboot(&adb, &fb, "SER1", w).is_err());
         // adb reboots it but fastboot never lists it: the wait ends with that said
         let (adb, fb) = stand_in(
             &d,
@@ -221,6 +236,14 @@ mod tests {
         );
         let e = to_fastboot(&adb, &fb, "SER1", std::time::Duration::from_secs(1)).unwrap_err();
         assert!(e.contains("not in fastboot within 1 s"), "{e}");
+        // a fastboot that cannot be run errors at once, not after the wait
+        let (adb, _) = stand_in(&d, "echo device", "exit 0");
+        let t0 = std::time::Instant::now();
+        let e = to_fastboot(&adb, "/nonexistent/fastboot", "SER1", w).unwrap_err();
+        assert!(
+            e.contains("cannot run") && t0.elapsed().as_secs() < 2,
+            "{e}"
+        );
         // no serial: nothing is asked of any phone
         let (adb, fb) = stand_in(&d, "echo called >> \"$0.calls2\"", "exit 0");
         assert!(to_fastboot(&adb, &fb, "", w)

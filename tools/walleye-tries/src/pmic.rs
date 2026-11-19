@@ -6,7 +6,7 @@
 //! written to the phone's storage: the init's commands (wdt-state, wdt-reboot, wdt-bite) only read and arm.
 
 use crate::host;
-use crate::phone::Shell;
+use crate::lab::Lab;
 use crate::settings::Settings;
 use crate::touch::{parse_uptime, redact};
 use std::cell::RefCell;
@@ -113,15 +113,6 @@ pub fn fresh_boot(uptime: u64, since_arming: u64) -> bool {
     uptime <= since_arming + 5
 }
 
-/// The first `serial = "..."` of the manifest, as the host scripts read it.
-pub fn serial_of(manifest: &str) -> Option<String> {
-    manifest.lines().find_map(|l| {
-        let rest = l.strip_prefix("serial")?.trim_start().strip_prefix('=')?;
-        let rest = rest.trim_start().strip_prefix('"')?;
-        Some(rest.split_once('"')?.0.to_string())
-    })
-}
-
 #[derive(Default)]
 struct Facts {
     /// boots of the image so far: the files of each boot are kept apart (b1-, b2-)
@@ -138,6 +129,7 @@ struct Facts {
 #[derive(Clone)]
 pub struct Pmic {
     s: Rc<Settings>,
+    lab: Lab,
     out: Rc<PathBuf>,
     facts: Rc<RefCell<Facts>>,
 }
@@ -145,21 +137,26 @@ pub struct Pmic {
 type Done = Result<(), String>;
 
 impl Pmic {
-    pub fn new(s: Settings) -> Pmic {
-        let out = s.out_dir("pmic-wdt");
+    /// The same try (its facts too) on other settings: the lab follows them.
+    #[cfg(test)]
+    fn with(&self, s: Settings) -> Pmic {
+        let s = Rc::new(s);
         Pmic {
-            s: Rc::new(s),
-            out: Rc::new(out),
-            facts: Rc::default(),
+            lab: Lab::new(s.clone()),
+            s,
+            ..self.clone()
         }
     }
 
-    fn shell(&self, wait: u64) -> Result<Shell, String> {
-        Shell::open(&self.s.address, self.s.port, Duration::from_secs(wait))
-    }
-
-    fn script(&self, name: &str, args: &[&str], env: &[(&str, &str)]) -> Result<String, String> {
-        host::script(&self.s.host_script(name), args, env)
+    pub fn new(s: Settings) -> Pmic {
+        let out = s.out_dir("pmic-wdt");
+        let s = Rc::new(s);
+        Pmic {
+            lab: Lab::new(s.clone()),
+            s,
+            out: Rc::new(out),
+            facts: Rc::default(),
+        }
     }
 
     fn save(&self, name: &str, text: &str) -> Done {
@@ -185,20 +182,15 @@ impl Pmic {
 
     /// The phone's shell answers a command now (a connection alone is not an answer).
     fn answers(&self) -> bool {
-        self.shell(2)
+        self.lab
+            .shell(2)
             .and_then(|mut sh| sh.run("cat /proc/uptime", Duration::from_secs(4)))
             .is_ok()
     }
 
-    fn serial(&self) -> Option<String> {
-        serial_of(&std::fs::read_to_string(self.s.device_toml()).unwrap_or_default())
-    }
-
     fn tool(&self, program: &str, args: &[&str]) -> Result<host::Said, String> {
         let mut c = std::process::Command::new(program);
-        if let Some(sn) = self.serial() {
-            c.args(["-s", &sn]);
-        }
+        c.args(["-s", &self.lab.serial()?]);
         c.args(args);
         host::run(c)
     }
@@ -215,32 +207,11 @@ impl Pmic {
         }
     }
 
-    fn in_fastboot(&self) -> bool {
-        let sn = self.serial().unwrap_or_default();
-        host::run({
-            let mut c = std::process::Command::new(&self.s.fastboot);
-            c.arg("devices");
-            c
-        })
-        .map(|s| !sn.is_empty() && s.text.contains(&sn))
-        .unwrap_or(false)
-    }
-
     fn image(&self, which: &str) -> PathBuf {
         if which == "A" {
             self.s.image_a.clone()
         } else {
             self.s.image_b.clone()
-        }
-    }
-
-    /// The battery is above the lab's minimum (a skip - nothing answers - stops the run too: not known yet).
-    pub fn battery_is_good(&self) -> impl FnOnce() -> Done + 'static {
-        let t = self.clone();
-        move || {
-            let toml = t.s.device_toml();
-            t.script("battery-ok.sh", &[&toml.to_string_lossy()], &[])
-                .map(|_| ())
         }
     }
 
@@ -261,7 +232,7 @@ impl Pmic {
         move || {
             for w in ["A", "B"] {
                 let image = t.image(w).to_string_lossy().into_owned();
-                let line = t.script("ufs-off-image.sh", &[&image], &[])?;
+                let line = t.lab.script("ufs-off-image.sh", &[&image], &[])?;
                 if !line.starts_with("pass ") {
                     return Err(format!("image {w}: {line}"));
                 }
@@ -284,23 +255,22 @@ impl Pmic {
         }
     }
 
-    /// Back to fastboot from Android: `adb reboot bootloader`, then the phone is listed by fastboot.
-    pub fn back_to_fastboot(&self) -> impl FnOnce() -> Done + 'static {
-        let t = self.clone();
-        move || {
-            let said = t.tool(&t.s.adb, &["reboot", "bootloader"])?;
-            if !said.ok {
-                return Err(format!("adb reboot bootloader: {}", said.text));
-            }
-            let until = Instant::now() + Duration::from_secs(90);
-            while Instant::now() < until {
-                if t.in_fastboot() {
-                    return Ok(());
-                }
-                std::thread::sleep(Duration::from_secs(2));
-            }
-            Err("the phone is not in fastboot within 90 s".into())
-        }
+    /// The battery is above the lab's minimum (the shared step).
+    pub fn battery_is_good(&self) -> impl FnOnce() -> Done + 'static {
+        let lab = self.lab.clone();
+        move || lab.battery_is_good()
+    }
+
+    /// The phone is back on Android (the shared step).
+    pub fn android_is_back(&self) -> impl FnOnce() -> Done + 'static {
+        let lab = self.lab.clone();
+        move || lab.android_is_back()
+    }
+
+    /// The phone is in fastboot: already, or taken there from Android (the shared step).
+    pub fn phone_is_in_fastboot(&self) -> impl FnOnce() -> Done + 'static {
+        let lab = self.lab.clone();
+        move || lab.phone_is_in_fastboot()
     }
 
     /// Boot image A from fastboot, from memory (never flashed); the banner's gadget is up. When A shows no
@@ -318,7 +288,7 @@ impl Pmic {
             for (i, w) in which.iter().enumerate() {
                 let image = t.image(w);
                 t.boot(&image)?;
-                let up = t.script(
+                let up = t.lab.script(
                     "gadget-up.sh",
                     &[&toml.to_string_lossy()],
                     &[("GADGET_WAIT", "120")],
@@ -342,7 +312,7 @@ impl Pmic {
                     "image {w} shows no banner within 120 s: next does not boot walleye; B is used for both tests"
                 ));
                 t.android_is_back()()?; // the phone's own restart brings Android back
-                t.back_to_fastboot()()?;
+                t.phone_is_in_fastboot()()?;
             }
             Ok(())
         }
@@ -353,12 +323,12 @@ impl Pmic {
         let t = self.clone();
         move || {
             let toml = t.s.device_toml();
-            t.script(
+            t.lab.script(
                 "gadget-up.sh",
                 &[&toml.to_string_lossy()],
                 &[("GADGET_WAIT", "60")],
             )?;
-            let mut sh = t.shell(10)?;
+            let mut sh = t.lab.shell(10)?;
             let dmesg = sh.run("dmesg", Duration::from_secs(20))?;
             if dmesg.trim().is_empty() {
                 return Err("the shell answers, but dmesg is empty".into());
@@ -368,7 +338,7 @@ impl Pmic {
     }
 
     fn read_state(&self) -> Result<State, String> {
-        let mut sh = self.shell(10)?;
+        let mut sh = self.lab.shell(10)?;
         let text = sh.run("wdt-state", Duration::from_secs(20))?;
         self.save("wdt-state.txt", &text)?;
         parse_state(&text).ok_or_else(|| format!("no wdt-state line; the phone said: {text:?}"))
@@ -382,7 +352,8 @@ impl Pmic {
             let know = judge_type(&s)?;
             t.facts.borrow_mut().know = Some(know);
             // hold the init's own 180 s restart (it waits while /tmp/hold exists) while the author reads the next prompt
-            t.shell(10)?
+            t.lab
+                .shell(10)?
                 .run("touch /tmp/hold", Duration::from_secs(10))?;
             t.note(format!(
                 "{} watchdog probed; S2 type {} ({}); firmware type {}",
@@ -436,7 +407,7 @@ impl Pmic {
     pub fn arm_and_reboot(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
         move || {
-            let mut sh = t.shell(10)?;
+            let mut sh = t.lab.shell(10)?;
             let (lines, _) =
                 sh.run_partial(&format!("wdt-reboot {}", t.arg()?), Duration::from_secs(60))?;
             let armed = arming_said(&lines, "rebooting cleanly now")?;
@@ -449,27 +420,6 @@ impl Pmic {
                 std::thread::sleep(Duration::from_secs(2));
             }
             Ok(())
-        }
-    }
-
-    /// The phone is back on Android (adb device, boot completed, not parked in fastboot).
-    pub fn android_is_back(&self) -> impl FnOnce() -> Done + 'static {
-        let t = self.clone();
-        move || {
-            let until = Instant::now() + Duration::from_secs(t.s.back_wait);
-            let toml = t.s.device_toml();
-            loop {
-                match t.script("idle-android.sh", &[&toml.to_string_lossy()], &[]) {
-                    Ok(_) => return Ok(()),
-                    Err(e) if Instant::now() >= until => {
-                        return Err(format!(
-                            "not back on Android within {} s: {e}",
-                            t.s.back_wait
-                        ))
-                    }
-                    Err(_) => std::thread::sleep(Duration::from_secs(5)),
-                }
-            }
         }
     }
 
@@ -513,7 +463,7 @@ impl Pmic {
     pub fn arm_and_bite(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
         move || {
-            let mut sh = t.shell(10)?;
+            let mut sh = t.lab.shell(10)?;
             let (lines, _) =
                 sh.run_partial(&format!("wdt-bite {}", t.arg()?), Duration::from_secs(60))?;
             let armed = arming_said(&lines, "the bite is due in 20 s")?;
@@ -534,6 +484,7 @@ impl Pmic {
                 Instant::now() + Duration::from_secs((BITE_S + BITE_SLACK_S).min(t.s.bite_wait));
             let lost = loop {
                 let answer = t
+                    .lab
                     .shell(2)
                     .and_then(|mut sh| sh.run("cat /proc/uptime", Duration::from_secs(5)));
                 match answer {
@@ -568,7 +519,7 @@ impl Pmic {
                         ));
                         return Ok(());
                     }
-                } else if t.in_fastboot() {
+                } else if t.lab.in_fastboot()? {
                     t.save("bite.txt", &format!("lost {lost} s, fastboot at {now} s"))?;
                     t.note(format!(
                         "BITE: the shell went quiet {lost} s after the arming; the phone is in fastboot by itself at {now} s"
@@ -666,14 +617,6 @@ mod tests {
             .contains("110 s to 12 s"));
         assert!(fresh_boot(30, 60));
         assert!(!fresh_boot(900, 60));
-    }
-
-    #[test]
-    fn the_serial_is_the_first_of_the_manifest() {
-        let toml =
-            "[connection]\nserial = \"FA81\"   # fastboot\n[x]\nserial = \"walleye-first-boot\"\n";
-        assert_eq!(serial_of(toml).as_deref(), Some("FA81"));
-        assert_eq!(serial_of("[x]\n"), None);
     }
 }
 
@@ -805,15 +748,12 @@ mod walkthrough {
         t.arm_and_reboot()().unwrap();
         t.android_is_back()().unwrap();
         t.android_stays_up()().unwrap();
-        t.back_to_fastboot()().unwrap();
+        t.phone_is_in_fastboot()().unwrap();
         // the second boot: a new stand-in phone (the first one has restarted), the same image
-        let t2 = Pmic {
-            s: Rc::new(Settings {
-                port: phone(STATE_OK, BITE_OK),
-                ..(*t.s).clone()
-            }),
-            ..t.clone()
-        };
+        let t2 = t.with(Settings {
+            port: phone(STATE_OK, BITE_OK),
+            ..(*t.s).clone()
+        });
         t2.boot_image()().unwrap();
         t2.s2_is_off_after_the_reboot()().unwrap();
         std::fs::write(d.join("n"), "3").unwrap(); // the bite restarts the phone: a new boot
