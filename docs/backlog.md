@@ -8137,34 +8137,6 @@ Rank
 : 2
 
 
-<a id="walleye-display-splash-region-dts"></a>
-### Reserve the bootloader splash (memory@9d400000, no-map) in the walleye dts and add a simple-framebuffer with the mmcc clocks and MDSS_GDSC, the OnePlus way
-
-Status
-: open
-
-Note
-: Mainline-proper step of the chosen vector. Size and address from the GPL wahoo dts. Build only the dtb and image; the keeper tries it at 2 s with the init loading modules in any order.
-
-Blocked by
-: walleye-display-delay-bisect
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: display-boot-clean
-
-Rank
-: 2
-
-
 <a id="walleye-display-handover-driver"></a>
 ### If the dts alone leaves the SMMU faults at 2 s: dpu disables pingpong autorefresh and waits idle before msm attaches its domain; send upstream
 
@@ -8291,3 +8263,53 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-display-flip-15-25"></a>
+### What happens between 15 s and 25 s that ends the SMMU faults: read the five delay-bisect boots against the bootloader's display timeline
+
+Status
+: open
+
+Note
+: Keeper result 2026-11-19 (research walleye-display-delay-bisect-flips-at-25s, lab PR 611): delay 5 s: SMMU faults 10, rcg warnings 4, DSI -110 5 times; 15 s: faults 10, rcg 0, -110 0; 25, 35 and 50 s: all zero, 13 of 13 modules ok. Desk only.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row from the five boots' dmesg (~/lab-material/walleye/display-delay-DAY): per boot the timeline of the three signs against the kernel's own events (deferred-probe timeout, regulator and clk late init, genpd), what the bootloader's display does and when (fastboot's screen and backlight timeout, the command-mode panel's refresh), why the pixel clock rcg warning and the DSI -110 are gone at 15 s while the SMMU faults (10 at 5 s and at 15 s) last until 25 s; whether reserving the splash region with simple-framebuffer in the dts (item walleye-display-splash-region-dts) removes the faults at any delay, or the load must wait for an event (and which); the cheapest narrowing experiment (images at 17, 19, 21, 23 s) if the answer is not in the logs
+
+Rank
+: 1
+
+
+<a id="walleye-display-splash-region-dts"></a>
+### Reserve the bootloader splash (memory@9d400000, no-map) in the walleye dts and add a simple-framebuffer with the mmcc clocks and MDSS_GDSC, the OnePlus way
+
+Status
+: open
+
+Note
+: Mainline-proper step of the chosen vector. Size and address from the GPL wahoo dts. Build only the dtb and image; the keeper tries it at 2 s with the init loading modules in any order. UNBLOCKED 2026-11-19: the delay bisect is done (faults persist at 15 s, gone at 25 s; rcg and DSI clear from 15 s). Build the reserved splash region (no-map at 0x9d400000, like OnePlus 5/5T and Fxtec Pro1) plus simple-framebuffer, then the proof is the same bisect on it (an image with the dts change and the 5 s delay: do the faults and warnings vanish?).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: display-boot-clean
+
+Rank
+: 2
