@@ -92,7 +92,7 @@ must_fail "check on a DIR with a missing name" sh "$CHECK" "$T/r3"
 # the reader is read only: every adb call it made is a get-state, ls, ls -l, cat /proc/partitions, dumpsys, or a dd with if= and no of= or redirect
 cp "$T/names.keep" "$T/phone/names"
 [ -s "$T/phone/calls" ] || fail "no adb calls were logged"
-bad=$(grep -v -e 'get-state$' -e 'dumpsys battery$' -e 'shell ls /dev/block/by-name$' -e 'shell ls -l /dev/block/by-name$' -e 'shell cat /proc/partitions$' -e '^-s [^ ]* exec-out su -c dd if=/dev/block/by-name/[a-z0-9_]* bs=4096 2>/dev/null$' "$T/phone/calls" | head -n 3)
+bad=$(grep -v -e 'get-state$' -e 'dumpsys battery$' -e 'shell ls /dev/block/by-name$' -e 'shell ls -l /dev/block/by-name$' -e 'shell cat /proc/partitions$' -e 'shell id -u$' -e '^-s [^ ]* exec-out su -c dd if=/dev/block/by-name/[a-z0-9_]* bs=4096 2>/dev/null$' "$T/phone/calls" | head -n 3)
 [ -z "$bad" ] || fail "the reader made a call that is not a read: $bad"
 # an su that fails writes its error into the image: the reader must not say pass
 mkadb device 4000; sed -i 's|^  \*"dd if=.*|  *"dd if=/dev/block/by-name/"*) echo "su: not found";;|' "$T/bin/adb"

@@ -36,12 +36,14 @@ names=$(adbq shell ls /dev/block/by-name | tr -d '\r') || say fail "ls /dev/bloc
 adbq shell ls -l /dev/block/by-name | tr -d '\r' > "$DIR/partition-table.txt" && [ -s "$DIR/partition-table.txt" ] || say fail "ls -l of by-name failed"
 adbq shell cat /proc/partitions | tr -d '\r' > "$DIR/proc-partitions.txt" && [ -s "$DIR/proc-partitions.txt" ] || say fail "cat /proc/partitions failed"
 
+# adbd as root (adb root) has no su: read directly; as shell, through su
+if [ "$(adbq shell id -u 2>/dev/null | tr -d "\r")" = 0 ]; then SU=""; else SU="su -c"; fi
 bad=0
 : > "$DIR/sha256sums"
 for n in $(cat "$LIST"); do
   if ! printf '%s\n' "$names" | grep -qx "$n"; then echo "missing $n: not in /dev/block/by-name"; echo "$n" >> "$DIR/missing"; bad=$((bad + 1)); continue; fi
   # dd's own report goes to /dev/null on the phone: exec-out would mix stderr into the image
-  if ! timeout -k 1 600 adb -s "$SER" exec-out su -c "dd if=/dev/block/by-name/$n bs=4096 2>/dev/null" > "$DIR/$n.img"; then
+  if ! timeout -k 1 600 adb -s "$SER" exec-out $SU "dd if=/dev/block/by-name/$n bs=4096 2>/dev/null" > "$DIR/$n.img"; then
     echo "failed $n: the read did not finish"; rm -f "$DIR/$n.img"; bad=$((bad + 1)); continue; fi
   (cd "$DIR" && sha256sum "$n.img") >> "$DIR/sha256sums"
   echo "read $n $(stat -c %s "$DIR/$n.img") bytes"

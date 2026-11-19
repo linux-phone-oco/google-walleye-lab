@@ -5593,10 +5593,10 @@ Rank
 ### Read back the Pixel 2's boot chain as files with sha256 (a restore source, kept on the lab machine)
 
 Status
-: open
+: done
 
 Note
-: Keeper, Android up, adb root, battery rule passing: sh tests/host/bootchain-readback.sh   (default DIR ~/lab-material/walleye/bootchain-DATE/), then a second read: sh tests/host/bootchain-readback.sh DIR2 and sh tests/host/bootchain-readback-check.sh DIR DIR2. The reader runs the check itself. Optional XBL_SECTORS=8104 (SECTOR_BYTES default 512) asserts xbl; the sector size of that 8104 is not known yet, the phone's own measured sizes bind.
+: proven by tests/host/bootchain-readback.sh twice + bootchain-readback-check.sh: 32 partitions, same sha256; files in ~/lab-material/walleye/bootchain-2026-11-19{,-2}; reader fixed to read directly under adb root (no su)
 
 About
 : walleye-first-fastboot-boot
