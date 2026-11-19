@@ -8438,10 +8438,10 @@ Go until
 ### A PMIC-watchdog bite with USB in boots the bootloader's charger screen, not Android: why, and should PON or the reset type make it warm-boot
 
 Status
-: open
+: done
 
 Note
-: From the bite test of walleye-try-pmic-wdt-v1 (2026-11-20): reset by itself 20 s after arming, phone came up in off-mode charger (charging icon, black screen), Android only after a short power press (author's words, verbatim: 'it did restart into charging, it showed charging icon, now the screen is black'). Questions: which PON/reset reason the bite leaves (read PON registers from Android, debugfs regmap as root, and the bootloader's view), why the bootloader takes charger mode (S2 hard reset type 7 looks like a power-off to it, with USB in), whether a different S2 type or a PON bit makes it warm-boot, and what the upstreams series should say. Does it block the series? Not as a bite proof; it matters for the user-visible behaviour. Rank 3 and a proof added 2026-11-20 by the walleye coordinator at the Top Coordinator's ask (his words in research walleye-pmic-wdt-v1-try-result). From the upstreams coordinator (docs #723): the v1 cover letter already says the bite reset the phone and that with USB in the bootloader stopped at its off-mode charging screen; if a warm-reset type (0x01) turns out to boot Android with USB in, that is its own later patch, not a v1 change (the driver sets hard reset on every PMIC it supports; a change needs a reason that holds for all of them or a DT property). Optional cable-out bite: walleye-wdt-bite-cable-out.
+: Answered by research walleye-wdt-reset-boots-charger-mode-how-it-stands; the experiment is item walleye-wdt-bite-pon-reasons-read (needs phone).
 
 About
 : walleye-pmic-wdt-v1-image
@@ -8488,3 +8488,28 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-wdt-bite-pon-reasons-read"></a>
+### Read the PON registers after a bite, cable in and cable out, with S2 type 0x07 then 0x01
+
+Status
+: open
+
+Note
+: From research walleye-wdt-reset-boots-charger-mode-how-it-stands. Includes the optional item walleye-wdt-bite-cable-out (its 0x07 cable-out bite is one of the four; close that one when this is done). Keeper: four bites, one at a time, battery rule first: 0x07 cable in (reproduce: charger screen), 0x07 cable out, 0x01 cable in, 0x01 cable out; read the PON registers in the next boot's first line before anything resets them; the author is needed only for the cable-in view of the screen (the PON registers and adb's boot reason answer the rest). 0x01 may power the phone off as z9 did: then it needs its power press; never leave it parked.
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: a research row superseding walleye-wdt-reset-boots-charger-mode-how-it-stands with PON_REASON1, PON_ON_REASON, POFF_REASON1 and WARM_RESET_REASON1 read after each bite (pmic-watchdog-v1 procedure plus tests/host/pmic-wdt-pon-regs-banner.sh), and whether Android came up by itself with the cable in for type 0x01
+
+Rank
+: 3
