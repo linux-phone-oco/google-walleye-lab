@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# g1, g2, g3 (backlog walleye-display-f3-split-images; decision 2026-11-19-walleye-display-iommu-reading): f3 (late-probe kernel and ramdisk, z21's dtb + mdss, display controller, DSI host and PHY okay; it loses the gadget) split three ways.
+# The dtbs are build/build-display-f3-split-dtbs.sh's. Run: lpoco-bringup image bisect build/series/display-f3-split.toml --out OUT; every image passes tests/host/ufs-off-image.sh (build/check-display-f3-split.sh).
+control = "../../../../walleye-build/images-display-dtb-bisect/boot-f3.img"
+
+[[image]]   # f3 unchanged but for iommu.passthrough=1 on the command line
+name = "g1"
+cmdline = 'clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3 dyndbg="file drivers/gpio/gpiolib.c +p; file drivers/gpio/gpiolib-of.c +p; file drivers/pinctrl/core.c +p; file drivers/pinctrl/devicetree.c +p; file drivers/pinctrl/qcom/pinctrl-spmi-gpio.c +p" iommu.passthrough=1'
+
+[[image]]   # f3 without the iommus property of the mdss node
+name = "g2"
+dtb = "../../../../walleye-build/images-display-f3-split/g2.dtb"
+
+[[image]]   # only the mdss node okay (display controller, DSI host and PHY disabled)
+name = "g3"
+dtb = "../../../../walleye-build/images-display-f3-split/g3.dtb"
