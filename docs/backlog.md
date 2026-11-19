@@ -7769,37 +7769,6 @@ Rank
 : 1
 
 
-<a id="walleye-try-ufs-match"></a>
-### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
-
-Status
-: open
-
-Note
-: Image: ~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-match2/NOT-TO-BOOT-ufs-on-ufs-match.img, sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 (rebuilt with the read-only prints, PR 555; it replaces the earlier image f8f6215e, which is retired). The UFS-off gate refuses it by design and is not weakened. RUN IT ONLY THROUGH the procedure procedures/ufs-matched-image-on-the-pixel-2.rs (item walleye-attend-program-ufs, PR 562): it takes the go from this item's go_until and accepts a go only on an item whose note names the sha above. A keeper runs it after the author's go is recorded here with ikb backlog-go; before that the procedure's unattended mode stops at the go step.
-
-Waits
-: the author's word on the go note (research walleye-ufs-go-note, PR 559, brought to him by the Top Coordinator): his go opens it; the lane's Android-derived solution is done (research walleye-ufs-solution-table)
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: the image's own dmesg: UFS_HW_VERSION line, PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge
-
-Rank
-: 4
-
-Witness
-: person
-
-
 <a id="walleye-procedures-on-v0-34"></a>
 ### Pin the walleye procedures to lpoco-attended 0.34 (prompt and answer files, run --from, skip-when-in-state) and give the attended keeper orders their new form
 
@@ -7948,3 +7917,31 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-try-ufs-match"></a>
+### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
+
+Status
+: open
+
+Note
+: Image: ~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-match2/NOT-TO-BOOT-ufs-on-ufs-match.img, sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 (rebuilt with the read-only prints, PR 555; it replaces the earlier image f8f6215e, which is retired). The UFS-off gate refuses it by design and is not weakened. RUN IT ONLY THROUGH the procedure procedures/ufs-matched-image-on-the-pixel-2.rs (item walleye-attend-program-ufs, PR 562): it takes the go from this item's go_until and accepts a go only on an item whose note names the sha above. A keeper runs it after the author's go is recorded here with ikb backlog-go; before that the procedure's unattended mode stops at the go step. THE AUTHOR'S GO, recorded 2026-11-19 before the go window: his word, verbatim, "Go" (about 20:55 UTC), in answer to 'Go on the Pixel's read-only storage try?', relayed by the Top Coordinator (local_12b18c70-1b6d-4783-bb6f-50113ab63250). He had the go note in front of him: research walleye-ufs-go-note (18 steps against Android, card SK hynix H28U74301AMR firmware D003, risk not known, no EDL way back). KEEPER ORDERS (from the Top Coordinator): start only when the go window is open (field go_until, set after this note, 45 minutes) and PMIC run 4's keeper has released the lease; from a FRESH worktree at origin/main (git fetch first; ln -s ~/Projects/walleye-build build/images); load SendMessage (ToolSearch select:SendMessage); run ONE try: lpoco-attended run ufs-matched-image-on-the-pixel-2 --log in ~/lab-material/walleye, read only, nothing written to the card; send the Top Coordinator directly: 'ufs: booting' when the boot step starts and the result line at the end (UFS version, host state, link, LUNs listed, no purge; or what stopped it); one try only, no retry; IF ANYTHING IS UNEXPECTED BEFORE THE BOOT (a gate fails, the image sha differs, the phone is not on Android, the go is not read), STOP, tell the Top Coordinator in one line and do not improvise; no gate edit, no flag to get past a refusal; after the try check idle-android, record the result as a research row and release the lease.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the image's own dmesg: UFS_HW_VERSION line, PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge
+
+Rank
+: 1
+
+Witness
+: person
