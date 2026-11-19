@@ -5120,3 +5120,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-pmic-wdt-v1-try-result"></a>
+### walleye-pmic-wdt-v1-try-result
+
+Date
+: 2026-11-19
+
+Brief
+: PMIC watchdog v1 try on the Pixel 2: the reboot test passed; the bite reset the phone by itself in 20 s, but it came up in off-mode charging and Android started only after the author's power press
+
+Question
+: Does the PMIC watchdog v1 restart the Pixel 2 after a bite, and does the phone come back to Android by itself?
+
+Found
+: One real run, 2026-11-20 00:15 to 00:30 CET, procedure pmic-watchdog-v1-on-the-pixel-2 with --answer-limit 300, image A (next-based, the six v1 patches), the author at the phone, his answers written by the Top Coordinator. REBOOT TEST PASS: armed with reset type 0x07 (S2 off before, on after), a clean reboot, Android up and stayed up 180 s, S2 read OFF after it: patch 2 (stop on reboot) works. BITE PASS as a reset: 20 s after arming, unpetted, the shell went quiet and the phone restarted by itself: patch 1 (the reset type set with S2 off, read back) makes the bite a RESTART where z9, before the patch, powered the phone off. NOT as first recorded: the phone did not come back to Android by itself. The author, verbatim, about 00:31 CET: "it did restart into charging, it showed charging icon, now the screen is black", then "i pressed powerbutton, it boots android now". After the bite with the USB cable in, the bootloader boots off-mode charging and Android needs a short power press. The run's own check read the later Android. Open: item walleye-wdt-reset-boots-charger-mode.
+
+About
+: walleye-pmic-wdt-v1-image
