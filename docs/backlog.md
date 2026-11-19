@@ -7281,37 +7281,6 @@ Rank
 : 4
 
 
-<a id="walleye-procedures-one-shape"></a>
-### Move the attended programs to procedures/NAME.rs and tools/walleye-tries to procedures/steps, dropping what lab-tools' step library takes
-
-Status
-: open
-
-Note
-: PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. Today's #448 (tests/attended/touch-try.rs, tools/walleye-tries) is the closest to it. Move it when lab-tools' scaffold has landed; until then new programs follow the shape already. LIBRARY STEPS (orchestration, 2026-11-19, lab-tools tag lpoco-attended-v0.29.2, #250 #251): dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb are in the library; boot_once and back_to_known_good come next, then lpoco attended new|run|check. Write the PMIC, display and UFS programs against v0.29.2 and these steps, not walleye-tries copies; where the library lacks a step, write it in procedures/steps and name it as wanted. With it: walleye-try-settings-into-device-toml (the WALLEYE_TRY_* settings become device.toml keys). PHYSICAL ACTS (orchestration, decision 2026-11-19-attended-steps-name-the-physical-act): ask_author is replaced by steps naming the act (press_power(secs), hold_button(name, secs), unplug_usb, replug_usb, touch, swipe, look_for(..), listen_for(..), confirm(..)), done by a person now and by a rig later; no change needed before lpoco-attended releases them. LPOCO-ATTENDED v0.31.0 (orchestration, lab-tools #266, 2026-11-19): physical steps over a Bench (press_power, hold_button, unplug_usb, replug_usb, touch, swipe, look_for, listen_for, confirm; a person by default, --dry-run lists the doer; ask_author is confirm); boot_once and back_to_known_good read device.toml [kernels] test and kept, a missing key or an unlisted name exits 2 naming it, dry run too. Declare [kernels] and [[host.gadget]] usb_id in this lab's device.toml; programs pinned to v0.29.x keep working until moved. NOW READY after walleye-try-settings-into-device-toml.
-
-Waits
-: orchestration: lab-tools manifest keys for the attended settings (port, images folder and paths, timings window/min_window/device_wait/back_wait/stay/bite_wait, battery floor, adb/fastboot/lpoco paths): lpoco-manifest is deny_unknown_fields and refuses them; note walleye-to-orchestration-manifest-keys.md in the shared notes folder; then a lpoco-attended release that reads them. The builder's attempt (2026-11-19) landed nothing.
-
-Blocked by
-: walleye-try-settings-into-device-toml
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: tests/attended/*.rs now in procedures/*.rs (touch-try, and the PMIC program when it has landed), tools/walleye-tries now procedures/steps with only the steps the library does not have (boot_once, wait_for_usb, back_to_known_good, read_dmesg removed in favour of the library's), lpoco attended check passes on each, the stand-in tests still pass, the entry files still read as a checklist on one screen (decision 2026-11-19-walleye-attended-tries-one-command); paths in the backlog notes and the README updated; the PMIC and touch programs use the library's dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb (v0.29.2 or later) in place of their walleye-tries copies; the person steps use the library's physical-act steps once released (touch: swipe and touch; PMIC: press_power for the 15 s fallback and confirm; display: look_for("the four stripes")) in place of ask_author, which stays as confirm for one release; the person steps of the touch and PMIC programs use the physical steps (swipe, touch, press_power, look_for, confirm) of v0.31.0 or later
-
-Rank
-: 5
-
-
 <a id="walleye-attend-program-display"></a>
 ### One command for the display try: a Rust program that boots the display image, reads the console and the DRM connector, shows the stripes, prompts the author and returns the phone to Android
 
@@ -7369,3 +7338,28 @@ Proof
 
 Rank
 : 99
+
+
+<a id="walleye-procedures-one-shape"></a>
+### Move the attended programs to procedures/NAME.rs and tools/walleye-tries to procedures/steps, dropping what lab-tools' step library takes
+
+Status
+: open
+
+Note
+: PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. Today's #448 (tests/attended/touch-try.rs, tools/walleye-tries) is the closest to it. Move it when lab-tools' scaffold has landed; until then new programs follow the shape already. LIBRARY STEPS (orchestration, 2026-11-19, lab-tools tag lpoco-attended-v0.29.2, #250 #251): dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb are in the library; boot_once and back_to_known_good come next, then lpoco attended new|run|check. Write the PMIC, display and UFS programs against v0.29.2 and these steps, not walleye-tries copies; where the library lacks a step, write it in procedures/steps and name it as wanted. With it: walleye-try-settings-into-device-toml (the WALLEYE_TRY_* settings become device.toml keys). PHYSICAL ACTS (orchestration, decision 2026-11-19-attended-steps-name-the-physical-act): ask_author is replaced by steps naming the act (press_power(secs), hold_button(name, secs), unplug_usb, replug_usb, touch, swipe, look_for(..), listen_for(..), confirm(..)), done by a person now and by a rig later; no change needed before lpoco-attended releases them. LPOCO-ATTENDED v0.31.0 (orchestration, lab-tools #266, 2026-11-19): physical steps over a Bench (press_power, hold_button, unplug_usb, replug_usb, touch, swipe, look_for, listen_for, confirm; a person by default, --dry-run lists the doer; ask_author is confirm); boot_once and back_to_known_good read device.toml [kernels] test and kept, a missing key or an unlisted name exits 2 naming it, dry run too. Declare [kernels] and [[host.gadget]] usb_id in this lab's device.toml; programs pinned to v0.29.x keep working until moved. NOW READY after walleye-try-settings-into-device-toml. 2026-11-19 READY (orchestration, lpoco-attended v0.31.1, lab-tools #269): 'lpoco-attended new NAME' writes procedures/NAME.rs, 'run NAME [--dry-run] [--log FILE]', 'check' dry-runs them all (for CI). Until the binary ships with the lab tools: cargo install --git https://github.com/linux-phone-oco/lab-tools --tag lpoco-attended-v0.31.1 lpoco-attended. This move no longer waits for the manifest keys: it keeps the WALLEYE_TRY_* settings as they are; the settings move follows when lab-tools has the keys. CI: add 'lpoco-attended check' to the attended-tries job.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: tests/attended/*.rs now in procedures/*.rs (touch-try, and the PMIC program when it has landed), tools/walleye-tries now procedures/steps with only the steps the library does not have (boot_once, wait_for_usb, back_to_known_good, read_dmesg removed in favour of the library's), lpoco attended check passes on each, the stand-in tests still pass, the entry files still read as a checklist on one screen (decision 2026-11-19-walleye-attended-tries-one-command); paths in the backlog notes and the README updated; the PMIC and touch programs use the library's dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb (v0.29.2 or later) in place of their walleye-tries copies; the person steps use the library's physical-act steps once released (touch: swipe and touch; PMIC: press_power for the 15 s fallback and confirm; display: look_for("the four stripes")) in place of ask_author, which stays as confirm for one release; the person steps of the touch and PMIC programs use the physical steps (swipe, touch, press_power, look_for, confirm) of v0.31.0 or later; pinned to lpoco-attended v0.31.1 or later, 'lpoco-attended check' passes on every procedure; the settings stay read from WALLEYE_TRY_* until walleye-try-settings-into-device-toml (waiting for manifest keys) moves them
+
+Rank
+: 5
