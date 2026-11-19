@@ -3992,3 +3992,22 @@ Sources
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-display-f3-split-images-built"></a>
+### walleye-display-f3-split-images-built
+
+Date
+: 2026-11-19
+
+Brief
+: g1, g2, g3 built from f3 (passthrough on the command line; no mdss iommus; mdss alone), all pass the UFS-off gate and AVB; rebuild identical; not tried
+
+Question
+: Can f3 be split three ways to test the iommu reading?
+
+Found
+: build/series/display-f3-split.toml, build/build-display-f3-split-dtbs.sh, build/check-display-f3-split.sh; images in walleye-build/images-display-f3-split. sha256: boot-g1 b64f487f..., boot-g2 171470d1..., boot-g3 f1d4ee01... (SHA256SUMS-display-f3-split has all six with the diffs against f3). z21's display controller node has no status (absent = enabled), so g3 sets it disabled explicitly. Programmer review: two check defects found and fixed. Not tried on the phone.
+
+About
+: walleye-display-s6e3fa5
