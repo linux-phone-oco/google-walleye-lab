@@ -6996,7 +6996,7 @@ Status
 : open
 
 Note
-: From walleye-modem-way. Host first: find modem blobs and rmtfs partitions in the factory image. Keep rmtfs read-only.
+: From walleye-modem-way. Host first: find modem blobs and rmtfs partitions in the factory image. Keep rmtfs read-only. Rank 20 set 2026-11-19 by the coordinator, after the display and the attended tries. Its firmware (the phone's own) reaches the test ramdisk from ~/lab-material, never git; no UFS-on image (the gate stays).
 
 Blocked by
 : walleye-ufs-readonly
@@ -7013,6 +7013,9 @@ Needs
 Proof
 : dmesg shows the MSS ready and qrtr-lookup lists services (a modem check in the suite passes)
 
+Rank
+: 20
+
 
 <a id="walleye-slpi-boot-qrtr"></a>
 ### Sensors: enable remoteproc_slpi with the phone's own firmware and read qrtr services
@@ -7021,7 +7024,7 @@ Status
 : open
 
 Note
-: From walleye-sensors-way. Host first: settle the SLPI carve-out (0x94b00000/7 MiB vs 0x94c00000/15 MiB) from the vendor dtb and the slpi header.
+: From walleye-sensors-way. Host first: settle the SLPI carve-out (0x94b00000/7 MiB vs 0x94c00000/15 MiB) from the vendor dtb and the slpi header. Rank 21 set 2026-11-19 by the coordinator, after the display and the attended tries. Its firmware (the phone's own) reaches the test ramdisk from ~/lab-material, never git; no UFS-on image (the gate stays).
 
 Blocked by
 : walleye-ufs-readonly
@@ -7038,6 +7041,9 @@ Needs
 Proof
 : tests/health/base/slpi-sensor-service.sh passes; then libssc reads accelerometer samples while tilted
 
+Rank
+: 21
+
 
 <a id="walleye-nfc-nxp-nci-node"></a>
 ### NFC: nxp-nci node for the PN553 from the Android dtb
@@ -7046,7 +7052,7 @@ Status
 : open
 
 Note
-: From walleye-nfc-way. Host first: read I2C address, enable/IRQ GPIOs, supplies from the Android dtb.
+: From walleye-nfc-way. Host first: read I2C address, enable/IRQ GPIOs, supplies from the Android dtb. Rank 22 set 2026-11-19 by the coordinator, after the display and the attended tries. Its firmware (the phone's own) reaches the test ramdisk from ~/lab-material, never git; no UFS-on image (the gate stays).
 
 Blocked by
 : walleye-ufs-readonly
@@ -7063,6 +7069,9 @@ Needs
 Proof
 : tests/health/base/nfc-present.sh passes, then a tag poll
 
+Rank
+: 22
+
 
 <a id="walleye-deep-sleep-baseline"></a>
 ### Deep sleep: measure Android's suspend current, then enable PSCI cpuidle + s2idle
@@ -7071,7 +7080,7 @@ Status
 : open
 
 Note
-: From walleye-deep-sleep-way. Needs a meter and the author's hands for the baseline; after the PMIC watchdog proof.
+: From walleye-deep-sleep-way. Needs a meter and the author's hands for the baseline; after the PMIC watchdog proof. Rank 23 set 2026-11-19 by the coordinator, after the display and the attended tries. Its firmware (the phone's own) reaches the test ramdisk from ~/lab-material, never git; no UFS-on image (the gate stays).
 
 Blocked by
 : walleye-ufs-readonly
@@ -7088,6 +7097,9 @@ Needs
 Proof
 : tests/health/base/suspend-residency.sh passes and a 10-minute suspend current is measured against idle
 
+Rank
+: 23
+
 
 <a id="walleye-fingerprint-identify"></a>
 ### Fingerprint: identify the sensor and its bus from the vendor dtb (host only), then decide
@@ -7096,7 +7108,7 @@ Status
 : open
 
 Note
-: From walleye-fingerprint-way. No phone change.
+: From walleye-fingerprint-way. No phone change. Rank 24 set 2026-11-19 by the coordinator, after the display and the attended tries. Its firmware (the phone's own) reaches the test ramdisk from ~/lab-material, never git; no UFS-on image (the gate stays).
 
 Blocked by
 : walleye-ufs-readonly
@@ -7113,6 +7125,9 @@ Needs
 Proof
 : a named compatible string recorded in a part row
 
+Rank
+: 24
+
 
 <a id="walleye-camera-camss-diff"></a>
 ### Camera: diff wahoo downstream camera dtsi against sdm660 camss tables (host only), then port
@@ -7121,7 +7136,7 @@ Status
 : open
 
 Note
-: From walleye-camera-way. 40-80 h port after UFS, modem, sensors.
+: From walleye-camera-way. 40-80 h port after UFS, modem, sensors. Rank 90 set 2026-11-19 by the coordinator, after the display and the attended tries. Its firmware (the phone's own) reaches the test ramdisk from ~/lab-material, never git; no UFS-on image (the gate stays).
 
 Blocked by
 : walleye-ufs-readonly
@@ -7137,3 +7152,6 @@ Needs
 
 Proof
 : a research row with the diff and a go or no-go for a camss msm8998 port; test camera-sensor-present.sh stays failing until a frame
+
+Rank
+: 90
