@@ -875,3 +875,29 @@ Year
 
 Takes
 : tas2557.c, drv2624.c, ADSP/q6/MI2S/SLIMbus/wcd934x patches 0018-0175, taimen dts audio nodes, firmware package (tas2557s_PG21_uCDSP.bin)
+
+
+<a id="linux-v7-3-pinctrl-devicetree"></a>
+### Linux v7.3 drivers/pinctrl/devicetree.c (dt_to_map_one_config)
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/pinctrl/devicetree.c?h=v7.3
+
+By
+: Linux kernel
+
+Takes
+: A pinctrl-N phandle whose node has no pin controller among its parents returns -EPROBE_DEFER (modules enabled), silently
+
+
+<a id="linux-v7-3-driver-core-dd"></a>
+### Linux v7.3 drivers/base/dd.c and drivers/base/pinctrl.c (really_probe, pinctrl_bind_pins)
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/base/dd.c?h=v7.3
+
+By
+: Linux kernel
+
+Takes
+: pinctrl_bind_pins runs before the bus probe (platform_probe) and the driver's probe; its failure defers with no message
