@@ -49,6 +49,13 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq device-tree-compiler xxd mkbootimg
       - name: the gate fails a dtb or image with UFS on, with no status, or enabled by the overlay, and passes UFS off (decision 2026-11-19-walleye-ufs-off-by-a-gate)
         run: sh tests/host/ufs-off-image-selftest.sh
+  bootchain-readback:
+    name: boot-chain read-back proves itself
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: the check fails on an empty, short, wrong-hash, wrong-mode or differing read-back and passes a complete one twice; the reader refuses without adb device, battery or a clean DIR (no phone)
+        run: sh tests/host/bootchain-readback-selftest.sh
   licence-coverage:
     name: every tracked file is covered by a licence
     runs-on: ubuntu-latest

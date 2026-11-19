@@ -3256,3 +3256,24 @@ Done
 
 Considered
 : next: z19 try, bootchain-readback (read only), c4; read z21 gpio diff; z21 dmesg capture was truncated - recapture if a probe diff is wanted
+
+---
+
+
+<a id="2026-11-19-walleye-builder-bootchain-readback-scripts"></a>
+### walleye-builder: boot-chain read-back reader, check and selftest
+
+Entry date
+: 2026-11-19
+
+Done
+: Wrote bootchain-readback.sh (read only, refuses without adb device, battery rule, clean DIR outside repositories, then runs its check), bootchain-readback-check.sh (32 names, measured size, sha256, modes, second read equal), bootchain-readback-selftest.sh with a fake adb that logs every call; CI job. Programmer review: five findings fixed (repository below a missing parent, reader trusting a failed su, call log, same DIR twice, echo of phone text).
+
+Considered
+: Sizes from the phone's own by-name and /proc/partitions rather than a hard-coded table; xbl 8104 sectors optional because its sector size is not recorded.
+
+Rejected
+: Hard-coded sizes: only xbl is measured. Plain adb exec-out dd: the brief names su -c.
+
+About
+: walleye-first-fastboot-boot
