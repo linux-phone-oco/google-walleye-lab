@@ -5966,10 +5966,10 @@ Rank
 ### What the bootloader leaves the UFS host and card in when it hands over to a RAM-booted kernel
 
 Status
-: open
+: done
 
 Note
-: Missing from Android's side: Android starts from its own ABL path; a fastboot-booted kernel inherits what abl left. Next step: the research row from existing dmesg first.
+: Research walleye-ufs-gap-abl-handover-read: abl leaves host+card running, kernel HCE-resets the host, matched image adds the RST_n pulse the 4 accidental probes lacked; remaining unknown (host state before reset) is the try's to read.
 
 About
 : walleye-ufs-match-android-z
