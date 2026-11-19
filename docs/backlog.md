@@ -7535,3 +7535,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-tries-text-file-busy-flake"></a>
+### Fix the flaky 'Text file busy' in tools/walleye-tries host.rs's fake-fastboot test
+
+Status
+: open
+
+Note
+: Seen once in the attended-tries CI job by the builder of PR 525; it passed on rerun. A shell-script fixture executed right after being written races exec against the write handle (ETXTBSY). Fix in the fixture (sync and close before exec, unique path per test), not by a retry.
+
+About
+: walleye-attend-program-touch
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the fake-fastboot test of host.rs passes 50 runs in a row (cargo test in a loop) with the CI job's parallelism: the fake script is written, closed and made executable before it is run, with a name unique per test; no shared file between tests
+
+Rank
+: 7
