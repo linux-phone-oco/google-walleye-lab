@@ -4914,3 +4914,22 @@ Sources
 
 About
 : walleye-display-at-boot
+
+
+<a id="walleye-ufs-match-tried-version-ok-link-stays-gear1"></a>
+### walleye-ufs-match-tried-version-ok-link-stays-gear1
+
+Date
+: 2026-11-19
+
+Brief
+: Matched UFS image tried once, read only: UFS_HW_VERSION 3.1.0, PHY table 3.1.0, host enabled; link stays HS_GEAR1 2 lanes HIBERN8 for 170 s, no HS-G3
+
+Question
+: Does the matched UFS image read the version, load the PHY table and reach HS-G3 on 2 lanes, probe only?
+
+Found
+: One try from slot b, nothing written, go on the item until 21:39. Kernel log: ufshcd-qcom UFS_HW_VERSION 3.1.0, HCS 0x10f HCE 1, qmp-ufs-phy MSM8998 PHY table 3.1.0, LINECFG_DISABLE 0. Check 10 failed after 170 s: gear HS_GEAR1, lanes 2, FAST_MODE, state HIBERN8, so no gear change to G3 yet; LUN listing and purge checks not reached. Phone returned to Android (adb up). No retry, no gate edit. Log: ~/lab-material/walleye/ufs-match-try.log
+
+About
+: walleye-first-fastboot-boot

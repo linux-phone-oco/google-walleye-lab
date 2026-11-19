@@ -4651,3 +4651,21 @@ Considered
 
 About
 : walleye-display-at-boot
+
+---
+
+
+<a id="2026-11-19-2140-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed. Matched UFS image tried once read only: version 3.1.0, PHY table ok, link stuck HS_GEAR1 HIBERN8; phone back on Android by itself. B1 display still waits on the author's look.
+
+Considered
+: next: why the link stays in HS_GEAR1/HIBERN8 (research); walleye-display-at-boot author's look; the coordinator decides a second UFS try
+
+About
+: walleye-first-fastboot-boot
