@@ -698,31 +698,22 @@ mod walkthrough {
             std::fs::write(hosts.join(script), format!("echo '{says}'\n")).unwrap();
         }
         // an adb whose uptime grows by 1 s a call (`up-now`: a fresh boot at 5 s), a fastboot that lists the phone
-        std::fs::write(
-            d.join("adb"),
-            format!(
+        crate::fixture::executable(
+            &d.join("adb"),
+            &format!(
                 "#!/bin/sh\ncase \"$*\" in\n *uptime*) n=$(cat \"{0}/n\" 2>/dev/null || echo {1}); echo $((n+1)) > \"{0}/n\"; echo \"$n.0 1.0\";;\n *bootreason*) echo watchdog;;\n *slot_suffix*) echo _b;;\n *reboot*) : > \"{0}/bootloader\";;\n *) echo device;;\nesac\n",
                 d.display(),
                 adb_state
             ),
-        )
-        .unwrap();
-        std::fs::write(
-            d.join("fastboot"),
-            format!(
+        );
+        crate::fixture::executable(
+            &d.join("fastboot"),
+            &format!(
                 "#!/bin/sh\n[ -e \"{}/bootloader\" ] && echo 'SER1 fastboot'\nexit 0\n",
                 d.display()
             ),
-        )
-        .unwrap();
-        std::fs::write(d.join("lpoco"), "#!/bin/sh\necho \"$@\" >> \"$0.calls\"\n").unwrap();
-        for p in ["adb", "fastboot", "lpoco"] {
-            std::fs::set_permissions(
-                d.join(p),
-                std::os::unix::fs::PermissionsExt::from_mode(0o755),
-            )
-            .unwrap();
-        }
+        );
+        crate::fixture::executable(&d.join("lpoco"), "#!/bin/sh\necho \"$@\" >> \"$0.calls\"\n");
         for w in ["a", "b"] {
             std::fs::write(d.join(format!("boot-wdt1-{w}.img")), w).unwrap();
         }
@@ -1006,33 +997,43 @@ mod the_way_back {
     use super::*;
     use crate::phone::fake;
 
-    /// A lab whose idle-android check passes only `after` seconds after its first look (never when 999): Android
-    /// returns when the stand-in phone has been told to restart, which a script cannot see - time stands for it.
-    fn lab(name: &str, after: u64) -> (PathBuf, Pmic) {
+    /// A lab whose idle-android check always passes: the phone is on Android.
+    fn lab_android_already(name: &str) -> (PathBuf, Pmic) {
+        lab_with(name, |_| {
+            "echo 'pass walleye-idle-android host back'\n".into()
+        })
+    }
+
+    /// A lab whose idle-android check never passes: Android does not come back.
+    fn lab_never_back(name: &str) -> (PathBuf, Pmic) {
+        lab_with(name, |_| {
+            "echo 'fail walleye-idle-android not yet'; exit 1\n".into()
+        })
+    }
+
+    /// A lab whose idle-android check passes once the stand-in phone has been told to restart (the file `marker`
+    /// is in the lab's folder): no clock decides it.
+    fn lab_back_after(name: &str, marker: &str) -> (PathBuf, Pmic) {
+        lab_with(name, |d| {
+            format!(
+                "[ -e \"{0}/{1}\" ] && echo 'pass walleye-idle-android host back' && exit 0\necho 'fail walleye-idle-android not yet'; exit 1\n",
+                d.display(),
+                marker
+            )
+        })
+    }
+
+    fn lab_with(name: &str, check: impl Fn(&std::path::Path) -> String) -> (PathBuf, Pmic) {
         let d = std::env::temp_dir().join(format!("wt-back-{name}-{}", std::process::id()));
         let hosts = d.join("tests/host");
         std::fs::create_dir_all(&hosts).unwrap();
         std::fs::write(d.join("device.toml"), "[connection]\nserial = \"SER1\"\n").unwrap();
-        std::fs::write(
-            hosts.join("idle-android.sh"),
-            format!(
-                "t=\"{0}/first\"\n[ -e \"$t\" ] || date +%s > \"$t\"\n[ $(( $(date +%s) - $(cat \"$t\") )) -ge {1} ] && echo 'pass walleye-idle-android host back' && exit 0\necho 'fail walleye-idle-android not yet'; exit 1\n",
-                d.display(),
-                after
-            ),
-        )
-        .unwrap();
+        std::fs::write(hosts.join("idle-android.sh"), check(&d)).unwrap();
         let fastboot = d.join("fastboot");
-        std::fs::write(
+        crate::fixture::executable(
             &fastboot,
             "#!/bin/sh\nif [ \"$3\" = reboot ]; then : > \"$0.rebooted\"; exit 0; fi; [ -e \"$0.listed\" ] && echo 'SER1 fastboot'\nexit 0\n",
-        )
-        .unwrap();
-        std::fs::set_permissions(
-            &fastboot,
-            std::os::unix::fs::PermissionsExt::from_mode(0o755),
-        )
-        .unwrap();
+        );
         let mut s = Settings::stand_in(crate::settings::Try::Pmic);
         s.lab = d.clone();
         s.address = "127.0.0.1".into();
@@ -1050,7 +1051,7 @@ mod the_way_back {
 
     #[test]
     fn a_phone_on_android_is_left_alone() {
-        let (d, t) = lab("android", 0);
+        let (d, t) = lab_android_already("android");
         // a shell that would hang up on a command: nothing may be sent to it
         let t = on_port(&t, fake::phone(vec![("reboot", "!x")], vec![]));
         t.way_back()().unwrap();
@@ -1064,8 +1065,15 @@ mod the_way_back {
 
     #[test]
     fn a_test_image_is_sent_reboot_f_over_its_shell() {
-        let (d, t) = lab("reboot", 1);
-        let t = on_port(&t, fake::phone(vec![("reboot -f", "!going")], vec![]));
+        let (d, t) = lab_back_after("reboot", "restarted");
+        let t = on_port(
+            &t,
+            fake::phone_marking(
+                vec![("reboot -f", "!going")],
+                vec![],
+                Some(d.join("restarted")),
+            ),
+        );
         t.way_back()().unwrap();
         // the phone hung up on the reboot: the shell is gone
         assert!(!t.answers());
@@ -1074,13 +1082,14 @@ mod the_way_back {
 
     #[test]
     fn when_reboot_f_does_nothing_the_sysrq_trigger_is_sent() {
-        // android returns 4 s after the first look, after the 3 s wait of the first way
-        let (d, t) = lab("sysrq", 4);
+        // android returns when the phone restarts, which only the sysrq command makes it do: no clock decides
+        let (d, t) = lab_back_after("sysrq", "restarted");
         let t = on_port(
             &t,
-            fake::phone(
+            fake::phone_marking(
                 vec![("reboot -f", "ignored"), ("sysrq-trigger", "!going")],
                 vec![],
+                Some(d.join("restarted")),
             ),
         );
         t.way_back()().unwrap();
@@ -1090,7 +1099,7 @@ mod the_way_back {
 
     #[test]
     fn a_phone_in_fastboot_is_rebooted_by_fastboot() {
-        let (d, t) = lab("fastboot", 1);
+        let (d, t) = lab_back_after("fastboot", "fastboot.rebooted");
         std::fs::write(d.join("fastboot.listed"), "").unwrap();
         let t = on_port(&t, fake::closed());
         t.way_back()().unwrap();
@@ -1100,7 +1109,7 @@ mod the_way_back {
 
     #[test]
     fn a_silent_shell_and_no_android_says_the_power_hold_sentence() {
-        let (d, t) = lab("silent", 999);
+        let (d, t) = lab_never_back("silent");
         let t = on_port(&t, fake::closed());
         let e = t.way_back()().unwrap_err();
         assert!(e.contains("hold the power button about 15 seconds"), "{e}");
@@ -1109,7 +1118,7 @@ mod the_way_back {
 
     #[test]
     fn a_shell_that_answers_and_a_phone_that_stays_away_says_it_after_both_ways() {
-        let (d, t) = lab("stays", 999);
+        let (d, t) = lab_never_back("stays");
         let t = on_port(&t, fake::phone(vec![("reboot -f", "!x")], vec![]));
         let t0 = std::time::Instant::now();
         let e = t.way_back()().unwrap_err();

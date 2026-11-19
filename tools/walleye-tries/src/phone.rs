@@ -185,6 +185,16 @@ pub(crate) mod fake {
     /// Answers `cmd` lines. A line `echo WT-BEGIN-''N; CMD; echo WT-END-''N` answers with its markers around
     /// the answer of the first table row whose key `CMD` contains; a line with `od -An` streams `events`.
     pub fn phone(table: Vec<(&'static str, &'static str)>, events: Vec<String>) -> u16 {
+        phone_marking(table, events, None)
+    }
+
+    /// A stand-in phone that, when it restarts, creates the file `restarted`: a check can wait for the restart
+    /// itself, not for a time that a loaded machine overruns.
+    pub fn phone_marking(
+        table: Vec<(&'static str, &'static str)>,
+        events: Vec<String>,
+        restarted: Option<std::path::PathBuf>,
+    ) -> u16 {
         let l = TcpListener::bind("127.0.0.1:0").unwrap();
         let port = l.local_addr().unwrap().port();
         let gone = Arc::new(AtomicBool::new(false));
@@ -195,6 +205,7 @@ pub(crate) mod fake {
                     continue; // the phone has restarted: nobody answers
                 }
                 let gone = gone.clone();
+                let restarted = restarted.clone();
                 let table = table.clone();
                 let events = events.clone();
                 std::thread::spawn(move || {
@@ -223,6 +234,11 @@ pub(crate) mod fake {
                             }
                             if restarts {
                                 gone.store(true, Ordering::SeqCst);
+                                if let Some(m) = &restarted {
+                                    if let Err(e) = std::fs::write(m, "") {
+                                        eprintln!("stand-in phone: {}: {e}", m.display());
+                                    }
+                                }
                                 return;
                             }
                             let _ = write!(c, "WT-END-{n}\r\n");

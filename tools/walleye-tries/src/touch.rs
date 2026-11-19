@@ -456,9 +456,7 @@ mod walkthrough {
             ),
         ] {
             let p = d.join(n);
-            std::fs::write(&p, format!("#!/bin/sh\n{body}\n")).unwrap();
-            std::fs::set_permissions(&p, std::os::unix::fs::PermissionsExt::from_mode(0o755))
-                .unwrap();
+            crate::fixture::executable(&p, &format!("#!/bin/sh\n{body}\n"));
         }
         let t = t.with(Settings {
             adb: d.join("adb").to_string_lossy().into_owned(),

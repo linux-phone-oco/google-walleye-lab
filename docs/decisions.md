@@ -2530,3 +2530,31 @@ Research
 
 Tracked by
 : walleye-display-splash-region-dts
+
+
+<a id="2026-11-20-walleye-tries-fixtures-wait-on-the-phone-not-the-clock"></a>
+### 2026-11-20-walleye-tries-fixtures-wait-on-the-phone-not-the-clock
+
+Date
+: 2026-11-19
+
+Brief
+: walleye-tries tests: stand-in programs are written whole and unheld, and a stand-in phone's restart is a marker file, not a clock
+
+Decision
+: Test fixtures that are executed go through fixture::executable (new file, mode set at creation, synced, closed, then a bounded wait until no process holds it open); the way-back tests' idle-android check passes on a marker the stand-in phone writes when it restarts (fake::phone_marking), never after a number of seconds.
+
+Why
+: Seen failing: under 12 busy loops the sysrq test failed 2 of 12 runs, the fastboot host test failed 2 of 6 with Text file busy (a forking thread copies the open write handle into its child until exec), the reboot test failed once in 50. After the fix: 50 of 50 full-suite runs pass under the same load.
+
+Rejected
+: A retry around the exec or the test (hides the race, forbidden by the item); a process-wide lock around every Command spawn (about 15 production sites, changes production code for tests); longer clock margins (still a race on a loaded CI machine).
+
+About
+: walleye-attend-program-touch
+
+Scope
+: tools/walleye-tries tests
+
+Tracked by
+: walleye-tries-text-file-busy-flake

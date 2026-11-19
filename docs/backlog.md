@@ -8170,10 +8170,10 @@ Rank
 ### Fix the flaky 'Text file busy' in tools/walleye-tries host.rs's fake-fastboot test
 
 Status
-: open
+: done
 
 Note
-: Seen once in the attended-tries CI job by the builder of PR 525; it passed on rerun. A shell-script fixture executed right after being written races exec against the write handle (ETXTBSY). Fix in the fixture (sync and close before exec, unique path per test), not by a retry. SECOND FLAKE 2026-11-19 (CI of lab PR 564): pmic::the_way_back::when_reboot_f_does_nothing_the_sysrq_trigger_is_sent failed once ('the sysrq command was not sent', 101 passed 1 failed), passed on rerun: a stand-in script or a log read racing the test's own assertion; fix the fixture (wait for the stand-in's log line with a bounded poll, or run the stand-in synchronously), not by a retry. RANK 1 (2026-11-19, lab PR 609): pmic::the_way_back::when_reboot_f_does_nothing_the_sysrq_trigger_is_sent (src/pmic.rs:1087) now fails in CI on about every third run, on data-only PRs too (4 reruns today); it blocks every landing. Fix it before more builds.
+: Done 2026-11-20: 50 of 50 full-suite runs of walleye-tries under 12 busy loops pass (before: sysrq 2/12, host fastboot 2/6, reboot 1/50 failed). Decision 2026-11-20-walleye-tries-fixtures-wait-on-the-phone-not-the-clock.
 
 About
 : walleye-attend-program-touch

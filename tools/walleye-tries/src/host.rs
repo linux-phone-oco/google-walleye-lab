@@ -206,9 +206,7 @@ mod tests {
         let mut out = vec![];
         for (n, body) in [("adb", adb), ("fastboot", fastboot)] {
             let p = d.join(n);
-            std::fs::write(&p, format!("#!/bin/sh\n{body}\n")).unwrap();
-            std::fs::set_permissions(&p, std::os::unix::fs::PermissionsExt::from_mode(0o755))
-                .unwrap();
+            crate::fixture::executable(&p, &format!("#!/bin/sh\n{body}\n"));
             out.push(p.to_string_lossy().into_owned());
         }
         (out[0].clone(), out[1].clone())
