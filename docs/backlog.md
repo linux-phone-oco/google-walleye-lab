@@ -7105,10 +7105,10 @@ Rank
 ### Fingerprint: identify the sensor and its bus from the vendor dtb (host only), then decide
 
 Status
-: open
+: done
 
 Note
-: From walleye-fingerprint-way. No phone change. Rank 24 set 2026-11-19 by the coordinator, after the display and the attended tries. Its firmware (the phone's own) reaches the test ramdisk from ~/lab-material, never git; no UFS-on image (the gate stays).
+: Done 2026-11-19: fpc,fpc1020, irq86 reset128 vdd_io S4, no SPI in dtb. Next: walleye-fingerprint-spi-hwid.
 
 Blocked by
 : walleye-ufs-readonly
@@ -7155,3 +7155,31 @@ Proof
 
 Rank
 : 90
+
+
+<a id="walleye-fingerprint-spi-hwid"></a>
+### Fingerprint: read the sensor's HWID over SPI from a test kernel (one try), find the QUP and whether TrustZone blocks it
+
+Status
+: open
+
+Note
+: From walleye-fingerprint-identify-dtb. Host first: find which BLSP SPI the sensor wires to (try each BLSP SPI with a dts node, irq 86 / reset 128, vdd_io S4 on). One test-ramdisk try, no UFS-on image. Bounded: if every QUP faults or reads 0xff, record TZ-locked and stop.
+
+Blocked by
+: walleye-fingerprint-identify
+
+About
+: fingerprint
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: tests/health/base/fingerprint-hwid-read.sh (fails until the chip id is read)
+
+Rank
+: 95

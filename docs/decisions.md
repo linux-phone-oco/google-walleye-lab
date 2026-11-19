@@ -2247,3 +2247,31 @@ About
 
 Research
 : walleye-modem-way
+
+
+<a id="2026-11-19-walleye-fingerprint-probe-hwid-first"></a>
+### 2026-11-19-walleye-fingerprint-probe-hwid-first
+
+Date
+: 2026-11-19
+
+Brief
+: Walleye fingerprint: probe the FPC sensor's HWID over SPI from a test kernel first; no userspace driver until that answers
+
+Decision
+: After identification, queue one phone try (walleye-fingerprint-spi-hwid, rank 95, after UFS, modem, sensors) that reads the HWID over SPI. Build a libfprint/userspace driver only if it reads; if TrustZone blocks the bus, record fingerprint as not possible on mainline for now.
+
+Why
+: The dtb gives irq, reset and supply but not the bus; the biggest unknown is bus and TZ lock, and it is settled in one cheap try. emainline shows the approach works on a sibling SoC.
+
+Rejected
+: B full libfprint driver now: protocol and image capture unknown, large work resting on an unsettled lock. C defer with no step: loses the cheap answer. Treating the press report (CrucialTec) as the chip: it is the module maker; the dtb says FPC.
+
+About
+: fingerprint
+
+Research
+: walleye-fingerprint-identify-dtb
+
+Tracked by
+: walleye-fingerprint-spi-hwid

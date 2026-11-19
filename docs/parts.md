@@ -185,7 +185,7 @@ Judged
 ### Row 11
 
 Component
-: fingerprint
+: haptics
 
 Status
 : unknown
@@ -203,24 +203,6 @@ Judged
 ### Row 12
 
 Component
-: haptics
-
-Status
-: unknown
-
-Notes
-: No source found reporting this on this phone (surveyed 2026-11-17: the Nura wiki, pmaports, the mainline tree, kcxt/linux-wahoo). Nobody here has measured it. Settles with: the phone's own test on a booted Linux kernel.
-
-Updated
-: 2026-11-17
-
-Judged
-: unknown
-
-
-### Row 13
-
-Component
 : kernel
 
 Status
@@ -236,7 +218,7 @@ Judged
 : unknown
 
 
-### Row 14
+### Row 13
 
 Component
 : modem-calls
@@ -254,7 +236,7 @@ Judged
 : unknown
 
 
-### Row 15
+### Row 14
 
 Component
 : modem-data
@@ -272,7 +254,7 @@ Judged
 : unknown
 
 
-### Row 16
+### Row 15
 
 Component
 : modem-sms
@@ -290,7 +272,7 @@ Judged
 : unknown
 
 
-### Row 17
+### Row 16
 
 Component
 : nfc
@@ -308,7 +290,7 @@ Judged
 : unknown
 
 
-### Row 18
+### Row 17
 
 Component
 : sensors
@@ -326,7 +308,7 @@ Judged
 : unknown
 
 
-### Row 19
+### Row 18
 
 Component
 : touchscreen
@@ -344,7 +326,7 @@ Judged
 : unknown
 
 
-### Row 20
+### Row 19
 
 Component
 : usb-otg
@@ -362,7 +344,7 @@ Judged
 : unknown
 
 
-### Row 21
+### Row 20
 
 Component
 : wifi
@@ -378,3 +360,21 @@ Updated
 
 Judged
 : unknown
+
+
+### Row 21
+
+Component
+: fingerprint
+
+Status
+: unknown
+
+Evidence
+: research/walleye-fingerprint/2026-11-19/README.md
+
+Notes
+: Identified from the vendor dtb 2026-11-19: FPC (compatible fpc,fpc1020), irq GPIO86, reset GPIO128, vdd_io PM8998 S4, SPI bus not named (TrustZone side). Exact chip and bus settle with an SPI HWID read; no driver on mainline or libfprint.
+
+Updated
+: 2026-11-19

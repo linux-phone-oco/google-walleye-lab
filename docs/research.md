@@ -4435,3 +4435,31 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-fingerprint-identify-dtb"></a>
+### walleye-fingerprint-identify-dtb
+
+Date
+: 2026-11-19
+
+Brief
+: Fingerprint: vendor dtb names fpc,fpc1020, irq GPIO86, reset GPIO128, vdd_io S4, no SPI node; CrucialTec is the module, FPC the chip
+
+Question
+: Which sensor and which bus is the Pixel 2 fingerprint reader, from the vendor dtb?
+
+Found
+: Vendor dtbo (all walleye/taimen entries): fp_fpc1020, compatible fpc,fpc1020, irq tlmm86, reset tlmm128, vdd_io-supply pm8998_s4. No SPI bus in the node: the vendor driver (fpc1020_platform_tee.c) only does gpio and wakelock, the data path is a TrustZone trustlet. CrucialTec (press) = module maker, FPC = chip. Exact chip and SPI controller unknown: found by an SPI read of HWID. Precedent: emainline read HWID of an FPC1140C on msm8996 with a small SPI driver. libfprint has no phone-SPI FPC driver. Vectors: A SPI HWID probe from a test kernel (cheap, answers bus + chip + TZ lock); B full userspace driver on libfprint (protocol/image capture proprietary, large, after A); C defer. See research/walleye-fingerprint/2026-11-19/README.md.
+
+Sources
+: biometricupdate-pixel2-crucialtec,emainline-fingerprint-p1,fpc1020-tee-android-kernel,libfprint-supported-devices
+
+About
+: fingerprint
+
+Material
+: research/walleye-fingerprint/2026-11-19/
+
+Supersedes
+: walleye-fingerprint-way
