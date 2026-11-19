@@ -1441,3 +1441,28 @@ Rejected
 
 About
 : walleye-pmic-wdt-proof
+
+
+<a id="2026-11-19-walleye-pmic-wdt-v1-reboot-and-next"></a>
+### 2026-11-19-walleye-pmic-wdt-v1-reboot-and-next
+
+Date
+: 2026-11-19
+
+Brief
+: PMIC watchdog v1 test: also the stop-on-reboot path, and an image from the next-based tree, in the one attended session
+
+Decision
+: Add to the attended session (the upstreams lane's list of what is unproven, docs 607, relayed by the top coordinator): (1) the bite with patch 1 restarts; (2) arm, then a clean reboot, and the next boot shows S2 off and no loop; (3) build image A from the next-based v1 tree itself so what is mailed is what booted, and image B (v7.3 plus six patches) as the fallback if next does not boot walleye, both built before the visit. The reboot test goes before the bite.
+
+Why
+: Patch 2 (stop on reboot) has a hardware-found reason on another phone and no test on this one; two proofs in one visit keep the author's attention cost to one session; building both images ahead means a failed next boot costs no second visit.
+
+Rejected
+: One image only, the v7.3 backport: what boots would not be what is mailed. A second visit for the reboot path: more of the author's time.
+
+About
+: walleye-pmic-wdt-proof
+
+Amends
+: 2026-11-19-walleye-pmic-wdt-v1-test-first
