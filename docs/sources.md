@@ -730,3 +730,16 @@ Year
 
 Takes
 : downstream v3 tables follow mainline sdm845 values with minuscule exceptions
+
+
+<a id="wahoo-4-4-ufs-qcom-c"></a>
+### Google wahoo 4.4 kernel: drivers/scsi/ufs/ufs-qcom.c, ufs-qcom.h, phy-qcom-ufs-qmp-v3.h (android-msm-wahoo-4.4-android11)
+
+Url
+: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-wahoo-4.4-android11/drivers/scsi/ufs/ufs-qcom.c
+
+By
+: Google
+
+Takes
+: link_startup_pre_change steps, register addresses and masks

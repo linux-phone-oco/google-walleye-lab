@@ -1914,3 +1914,31 @@ Amends
 
 Tracked by
 : walleye-ufs-solution-extracted
+
+
+<a id="2026-11-19-walleye-ufs-linkstartup-do-not-carry"></a>
+### 2026-11-19-walleye-ufs-linkstartup-do-not-carry
+
+Date
+: 2026-11-19
+
+Brief
+: Do not carry Android's RX linecfg and PA_VS_CONFIG_REG1 mask into the matched image; mainline's link startup stands; fallback is one reviewed PHY write if the try's link fails
+
+Decision
+: The matched image keeps mainline's link-startup path. The try's reader also prints PHY+0x130 (RX LineCfg disable bit) to answer the one unknown.
+
+Why
+: Mainline Qualcomm hosts incl. the sdm845 PHY table MSM8998 uses boot UFS without these steps; the two are not needed for link-up; decision no-ice-no-linkstartup bars new unreviewed hardware code.
+
+Rejected
+: Carry both steps now: new hardware writes on a phone with a known bricking record, no evidence they are needed. Carry RX linecfg alone: same, with an unknown default that one read settles first.
+
+About
+: walleye-ufs-match-android-z
+
+Research
+: walleye-ufs-gap-link-startup-read
+
+Tracked by
+: walleye-ufs-gap-link-startup
