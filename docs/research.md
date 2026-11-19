@@ -3928,3 +3928,37 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ufs-gap-perf"></a>
+### walleye-ufs-gap-perf
+
+Date
+: 2026-11-19
+
+Brief
+: Bus votes, PM-QoS, hardware clock gating and the ufs_reset pad drive are performance or power only; a read-only probe needs none of them, the pad drive rides with the RST_n pulse
+
+Question
+: What do Android's bus votes, PM-QoS groups, hardware-gated clocks and ufs_reset pad drive do, what breaks without them (performance, power or the link), and does a read-only probe need any?
+
+Found
+: Read 2026-11-19 from Google's GPL wahoo 4.4 (android-msm-wahoo-4.4-android11, head 52750b8f; fetched with the earlier research's scripts/fetch-vendor.sh into a scratch dir) against Linux v7.3 (drivers/ufs/host/ufs-qcom.c, drivers/pinctrl/qcom/pinctrl-msm8998.c, msm8998.dtsi) and our overlay dt/msm8998-google-walleye-ufs-match.dtso. Nothing run on the phone.
+
+ANSWER FOR A READ-ONLY PROBE: none of the four items is needed. Each is performance or power; none can reach the link startup, the card's identity or a write.
+
+1. BUS VOTES. Vendor: msm_bus client "ufs1" (ufs-qcom.c ufs_qcom_update_bus_bw_vote, set after every power-mode change; dts qcom,msm-bus,vectors-KBps, 22 cases on two paths: 95->512 to DDR, 1->650 config). MIN = no vote; PWM G1 L1 = 922 KB/s; HS G3 RA/RB L1 = 2097152 KB/s DDR + 102400 CNOC; HS G3 L2 = 4194304 + 204800; MAX 7643136 + 307200. The dts comment says why: at HS-G3 UFS runs at nominal voltage corner, so the vote pushes BIMC and CNOC to nominal to reach full throughput. Without a vote: the buses stay at whatever abl/RPM left, so HS-G3 throughput may be capped (a performance loss, not a failure; effect size unmeasured, inference only). Mainline v7.3: ufs_qcom_icc_init gets paths "ufs-ddr" and "cpu-ufs" through devm_of_icc_get; with no interconnects property in the node (msm8998.dtsi has none) of_icc_get returns NULL and icc_set_bw(NULL) returns 0 - no vote, no error; v7.3 has no msm8998 interconnect driver at all. A read-only probe runs the link startup and first link at PWM-G1 one lane (vendor vote 922 KB/s, effectively MIN): needs nothing. Later work, not the probe: HS speed wants an interconnect provider for msm8998 (not in mainline) - a backlog item when HS throughput matters.
+
+2. PM-QOS. Vendor: qcom,pm-qos-cpu-groups <0x0F 0xF0>, latency 70 us, default cpu 0; per request a vote_work does pm_qos_update_request(70 us) on the cpu group of the request and an unvote_work drops it after 10 ms (UFS_QCOM_PM_QOS_UNVOTE_TIMEOUT_US). It keeps the issuing cluster out of deep idle while I/O is in flight, to cut completion-interrupt latency. Performance (I/O latency under cpuidle) only; sysfs pm_qos_enable switches it off. Mainline v7.3 has no such code in ufs-qcom.c and no walleye cpuidle states yet; a probe with a few reads is unaffected. Not carried; no backlog item until cpuidle exists on this lane.
+
+3. HARDWARE-GATED CLOCKS. Vendor ufs_qcom_enable_hw_clk_gating (ufs-qcom.c, after link startup): REG_UFS_CFG2 |= CGC_EN_ALL, then for host version >= 3 the DL_VS/PA_VS clock-config masks and DME_VS_CORE_CLK_CTRL DME_HW_CGC_EN; saves leakage, no function. Mainline v7.3 has ufs_qcom_enable_hw_clk_gating called at hce_enable POST_CHANGE (CGC_EN_ALL, DME_HW_CGC_EN): same register effect, a little earlier. The one real difference (the DL/PA mask writes, with RX line config and the PA_VS_CONFIG_REG1 mask) is decided: research walleye-ufs-gap-link-startup-read and decision 2026-11-19-walleye-ufs-linkstartup-do-not-carry. Power only. Not needed.
+
+4. UFS_RESET PAD DRIVE. Vendor pinctrl states ufs_dev_reset_assert / ufs_dev_reset_deassert (pin ufs_reset): output-low then output-high, 10-15 us each, bias-pull-down, drive-strength 8 (the dts comment: HDRV 3 = 3.1 mA, the power-on value, so the vendor sets the default, not a stronger drive). Mainline pad (UFS_RESET macro: pull_bit 3, drv_bit 0, out_bit 0, no oe, no mux; pin 153 on msm8998, outside ngpios = 150) is reachable only after a kernel change: our overlay sets gpio-ranges to 154 and reset-gpios <&tlmm 153 GPIO_ACTIVE_LOW> - mainline's ufs_qcom_device_reset then pulses the same pin (assert, delay, deassert). It drives the out bit and leaves pull and drive at the power-on value, which is what the vendor ends up with. So the pad drive belongs with the RST_n pulse the image already carries, and needs nothing beyond it. Open, unchanged: the order around the pulse differs (Android: core reset, pulse, host enable; ours: pulse, core reset in the host-enable pre-change, PHY, enable) and its effect on the card is not known (overlay header; walleye-ufs-gap-abl-handover-read).
+
+VERDICT: bus votes - not needed (performance only at HS-G3; no provider exists); PM-QoS - not needed (latency under idle only); hardware-gated clocks - not needed (power only; mainline already enables the same gating, the mask difference is decided elsewhere); ufs_reset pad drive - already carried by the reset-gpios pulse, nothing more to add. The gap list for the solution table (walleye-ufs-solution-extracted) therefore loses these four rows as harmless-judged-and-now-read; the claim stays "read from source", not "proven on the phone": the probe's own read at PWM-G1 is what proves it.
+
+Sources
+: src-google-wahoo-msm44-android11,wahoo-4-4-ufs-qcom-c,src-mainline-v73-ufs-qcom-ice
+
+About
+: walleye-ufs-match-android-z
