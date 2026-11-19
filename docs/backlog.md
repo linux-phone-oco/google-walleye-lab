@@ -6966,34 +6966,6 @@ Rank
 : 4
 
 
-<a id="walleye-attend-pmic-unattended-run"></a>
-### Keeper: the PMIC program's unattended parts run for real
-
-Status
-: open
-
-Note
-: 2026-11-19 run: gates 1-3 pass unattended; program stops at ask 4 before booting A, so boot/shell/S2-type steps untested. Next: builder moves the TWO_TESTS ask after the boot-A, shell and S2 checks (or adds a flag), then rerun. Run 1 (PR 481) stopped at an ask before the boot; repeat after walleye-pmic-program-first-ask-after-boot.
-
-Blocked by
-: walleye-pmic-program-first-ask-after-boot
-
-About
-: walleye-attend-program-pmic
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: the log shows the steps up to the first ask pass; idle-android passes
-
-Rank
-: 5
-
-
 <a id="walleye-drv2624-image"></a>
 ### A test image with the DRV2624 series, so the haptics chip can be probed on the phone
 
@@ -7385,3 +7357,56 @@ Needs
 
 Rank
 : 3
+
+
+<a id="walleye-wdt-state-without-sysfs-identity"></a>
+### wdt-state finds the PMIC watchdog without sysfs identity (the test kernel has no WATCHDOG_SYSFS attributes)
+
+Status
+: open
+
+Note
+: Found 2026-11-19 by the keeper's run 2: image A boots, shell answers, dmesg shows pm8916-wdt probed (POFF reason, S2 reset control was 0x1), /dev/watchdog0 and /dev/watchdog1 exist, but /sys/class/watchdog/watchdogN has only dev, device, power, subsystem, uevent: no identity file. build/initramfs-mainline/init-wdt1 wdt-state (and the SoC petter) match on identity, so pmic=none and the program stops at check 6. Fix: either match by the device link (readlink device: ...:pon@800:watchdog = PMIC, 17c10000.watchdog = qcom_wdt) in init-wdt1 and rebuild the ramdisk, or enable CONFIG_WATCHDOG_SYSFS in the kernel. The petter's by-identity pick has the same flaw (it found no qcom_wdt after 10 s: banner step 3).
+
+About
+: walleye-attend-program-pmic
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: pmic-try.rs passes checks 5-6 on image A (wdt-state pmic=watchdogN)
+
+Rank
+: 5
+
+
+<a id="walleye-attend-pmic-unattended-run"></a>
+### Keeper: the PMIC program's unattended parts run for real
+
+Status
+: open
+
+Note
+: run 2 (2026-11-19): gates, boot A, shell pass; check 6 fails on missing sysfs identity; see walleye-wdt-state-without-sysfs-identity. Rerun after it.
+
+Blocked by
+: walleye-wdt-state-without-sysfs-identity
+
+About
+: walleye-attend-program-pmic
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the log shows the steps up to the first ask pass; idle-android passes
+
+Rank
+: 5

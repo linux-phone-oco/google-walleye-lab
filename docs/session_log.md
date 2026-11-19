@@ -4108,3 +4108,39 @@ Rejected
 
 About
 : walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-20-0100-walleye-keeper-pmic-run-two"></a>
+### PMIC program run 2: boot A and shell pass, check 6 fails
+
+Entry date
+: 2026-11-19
+
+Done
+: Ran tests/attended/pmic-try.rs unattended (stdin /dev/null) after the builder moved the first ask. First attempt stopped at step 4: phone idle on Android, not in fastboot; I ran adb reboot bootloader and reran. Gates 1-3, boot image A, shell answers pass; check 6 stopped: wdt-state pmic=none. Read from the shell: pm8916-wdt probed, /dev/watchdog0/1 exist, but the watchdog class devices have no identity attribute (no WATCHDOG_SYSFS), so the identity match fails. Nothing armed, nothing flashed. The image's own 180 s self-reboot returned the phone to Android slot b, boot_completed 1, adb up.
+
+Considered
+: next: builder walleye-wdt-state-without-sysfs-identity, then rerun; program could enter fastboot itself from Android
+
+About
+: walleye-attend-program-pmic
+
+---
+
+
+<a id="2026-11-20-0110-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up (boot_completed 1). PMIC try run 2 booted image A from memory and ended by its self-reboot; no arming. Suite latest not read: password file missing.
+
+Considered
+: next: builder walleye-wdt-state-without-sysfs-identity (and walleye-display-stripes-script-detach), then keeper reruns walleye-attend-pmic-unattended-run; L6 stripes exit code still unread
+
+About
+: walleye-first-fastboot-boot
