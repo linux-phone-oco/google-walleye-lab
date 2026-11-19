@@ -4051,3 +4051,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-2330-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Re-read the TAS2557 firmware pull on the host: sha256 ffadec7e...b8107b0 and 101481 bytes still match the 2026-11-19 note; no porthole copy exists on this host, so the hash-match proof of walleye-tas2557-firmware-source still has nothing to compare to. Phone not touched this run: lpoco lab cannot reach it, ~/.config/devlab/google-walleye/password is missing (suite and phone sh refuse). Phone as the last hand-over left it: Android on slot b, stock kernel, nothing flashed.
+
+Considered
+: next: author or coordinator puts the password file (mode 600) in place; then walleye-try-display-stripes-unattended (rank 2, unattended) and walleye-attend-pmic-unattended-run; the firmware item waits on a porthole hash to compare
+
+About
+: walleye-audio-haptics
