@@ -6818,7 +6818,7 @@ Status
 : open
 
 Note
-: Found by the keeper's unattended run: step 4 fails 'not in fastboot now' when the phone idles on Android; keeper entered fastboot by adb reboot bootloader. Code for tools/walleye-tries/src/touch.rs.
+: Found by the keeper's unattended run: step 4 fails 'not in fastboot now' when the phone idles on Android; keeper entered fastboot by adb reboot bootloader. Code for tools/walleye-tries/src/touch.rs. Rank 2 (2026-11-19 coordinator): before the touch attended try and the audio ports; the PMIC program already has back_to_fastboot, so only touch needs it; after the fix a keeper repeats the touch unattended run from Android with no hand step.
 
 About
 : walleye-attend-program-touch
@@ -6831,3 +6831,6 @@ Needs
 
 Proof
 : touch-try.rs --dry-run and a stand-in test pass starting from Android
+
+Rank
+: 2
