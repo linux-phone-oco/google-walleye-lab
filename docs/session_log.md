@@ -4465,3 +4465,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-walleye-builder-ufs-match-prints"></a>
+### walleye-builder: the matched UFS image prints the host and PHY registers, read-only
+
+Entry date
+: 2026-11-19
+
+Done
+: walleye-ufs-match-prints: HCS/HCE at the version read, PCS+0x130 after PCS ready; image rebuilt (sha256 in the backlog note), identical rebuild, build-ufs-match.sh counts the two new strings (5). Programmer review clean; its one point (the PHY value is post-init, not a leftover) is in the commit message and the note. Never booted.
+
+Considered
+: reading the PHY before phy_init (clocks are off there: a fault risk)
+
+Rejected
+: none beyond that
+
+About
+: walleye-ufs-match-android-z
