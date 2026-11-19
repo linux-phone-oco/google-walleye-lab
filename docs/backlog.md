@@ -6968,10 +6968,10 @@ Rank
 ### Read every overlay fragment that targets one of our real nodes for phandles into our stubs (the same silent defer elsewhere)
 
 Status
-: open
+: done
 
 Note
-: From research walleye-display-dsi-defer-pinctrl-stubs item 8: fragment 89 hung pinctrl-0/1 on the dsi, pointing at stubs. The other 11 labels of ours the overlay targets may carry the same (pinctrl, supplies, clocks, gpios). Host only: fdtoverlay of the built dtb with entry.3, then list properties of our nodes whose phandles land under /vendor-overlay-stubs.
+: Researched 2026-11-19, research walleye-overlay-stub-refs-other-nodes: only dsi@c994000 (and disabled dsi@c996000) of our nodes point at stubs; check tests/host/dtb-overlay-stub-refs.sh fails on l3.dtb, to be run on L4's dtb. Supplies vci/wqhd-vddio on the dsi stay stubs: for the panel's probe item.
 
 About
 : walleye-first-fastboot-boot

@@ -1,0 +1,140 @@
+# overlay 3 merged into l3.dtb (host, fdtoverlay): every property of the merged dtb whose cell equals the phandle of a node under /vendor-overlay-stubs
+# columns: node path (labels kept) | property | cell | stub node. Before the merge: 0 hits. After: 93 raw, 40 in phandle-bearing properties, the rest are numbers that equal a phandle (interrupts, opp-level, reg, qcom,smem).
+/rpm: remoteproc/glink-edge/rpm_requests: rpm-requests/rpmpd: power-controller/rpmpd_opp_table: opp-table/rpmpd_opp_nom_plus: opp8	opp-level	0x140	/vendor-overlay-stubs/cci: cci
+/rpm: remoteproc/glink-edge/rpm_requests: rpm-requests/rpmpd: power-controller/rpmpd_opp_table: opp-table/rpmpd_opp_turbo: opp9	opp-level	0x180	/vendor-overlay-stubs/pm8998_l22: pm8998_l22
+/smp2p-lpass	qcom,smem	0x1ad	/vendor-overlay-stubs/ufsphy1: ufsphy1
+/smp2p-mpss	qcom,smem	0x1b3	/vendor-overlay-stubs/cci: cci/ois0: qcom,ois@0
+/smp2p-mpss	qcom,smem	0x1ac	/vendor-overlay-stubs/ufs_ice: ufs_ice
+/smp2p-slpi	qcom,smem	0x1ae	/vendor-overlay-stubs/wcd_usbc_analog_en1_gpio: wcd_usbc_analog_en1_gpio
+/soc: soc@0/i2c@c179000	pinctrl-2	0x149	/vendor-overlay-stubs/i2c_5_bitbang: i2c_5_bitbang
+/soc: soc@0/i2c@c179000	pinctrl-1	0x14a	/vendor-overlay-stubs/i2c_5_sleep: i2c_5_sleep
+/soc: soc@0/i2c@c179000	pinctrl-0	0x148	/vendor-overlay-stubs/i2c_5_active: i2c_5_active
+/soc: soc@0/i2c@c179000	dmas	0x144	/vendor-overlay-stubs/dma_blsp1: dma_blsp1
+/soc: soc@0/i2c@c179000	dmas	0x144	/vendor-overlay-stubs/dma_blsp1: dma_blsp1
+/soc: soc@0/led_flash10: qcom,camera-flash@10	qcom,switch-source	0x190	/vendor-overlay-stubs/pmi8998_switch0: pmi8998_switch0
+/soc: soc@0/led_flash10: qcom,camera-flash@10	qcom,torch-source	0x191	/vendor-overlay-stubs/pmi8998_torch0: pmi8998_torch0
+/soc: soc@0/led_flash10: qcom,camera-flash@10	qcom,torch-source	0x192	/vendor-overlay-stubs/pmi8998_torch1: pmi8998_torch1
+/soc: soc@0/led_flash10: qcom,camera-flash@10	qcom,flash-source	0x18c	/vendor-overlay-stubs/pmi8998_flash0: pmi8998_flash0
+/soc: soc@0/led_flash10: qcom,camera-flash@10	qcom,flash-source	0x18d	/vendor-overlay-stubs/pmi8998_flash1: pmi8998_flash1
+/soc: soc@0/mnh-sm	ddr-pad-iso-n-gpio	0x1e5	/vendor-overlay-stubs/i2c_9: i2c_9/bcm15602@8/bcm15602_gpio: gpio
+/soc: soc@0/mnh-sm	soc-pwr-good-gpio	0x1e5	/vendor-overlay-stubs/i2c_9: i2c_9/bcm15602@8/bcm15602_gpio: gpio
+/soc: soc@0/ptn36241g	extcon	0x18f	/vendor-overlay-stubs/pmi8998_pdphy: pmi8998_pdphy
+/soc: soc@0/qcom,ion/qcom,ion-heap@30	memory-region	0x1cc	/vendor-overlay-stubs/reserved_memory: reserved_memory/easel_mem: easel_mem@95c00000
+/soc: soc@0/qcom,rmtfs_rtel_sharedmem@0	memory-region	0x1cb	/vendor-overlay-stubs/reserved_memory: reserved_memory/htc_rtel_mem: htc_rtel_region@0
+/soc: soc@0/access_ramoops@1	memory-region	0x1c9	/vendor-overlay-stubs/reserved_memory: reserved_memory/alt_ramoops_mem: alt_ramoops_region
+/soc: soc@0/access_ramoops@0	memory-region	0x1ca	/vendor-overlay-stubs/reserved_memory: reserved_memory/ramoops_meta_mem: ramoops_meta_region@affff000
+/soc: soc@0/qcom,msm-dai-mi2s/qcom,msm-dai-q6-mi2s-quat	pinctrl-1	0x198	/vendor-overlay-stubs/quat_mi2s_sleep: quat_mi2s_sleep
+/soc: soc@0/qcom,msm-dai-mi2s/qcom,msm-dai-q6-mi2s-quat	pinctrl-1	0x195	/vendor-overlay-stubs/quat_mi2s_sd0_sleep: quat_mi2s_sd0_sleep
+/soc: soc@0/qcom,msm-dai-mi2s/qcom,msm-dai-q6-mi2s-quat	pinctrl-1	0x197	/vendor-overlay-stubs/quat_mi2s_sd1_sleep: quat_mi2s_sd1_sleep
+/soc: soc@0/qcom,msm-dai-mi2s/qcom,msm-dai-q6-mi2s-quat	pinctrl-0	0x193	/vendor-overlay-stubs/quat_mi2s_active: quat_mi2s_active
+/soc: soc@0/qcom,msm-dai-mi2s/qcom,msm-dai-q6-mi2s-quat	pinctrl-0	0x194	/vendor-overlay-stubs/quat_mi2s_sd0_active: quat_mi2s_sd0_active
+/soc: soc@0/qcom,msm-dai-mi2s/qcom,msm-dai-q6-mi2s-quat	pinctrl-0	0x196	/vendor-overlay-stubs/quat_mi2s_sd1_active: quat_mi2s_sd1_active
+/soc: soc@0/bluetooth: bt_wcn3990	qca,bt-chip-pwd-supply	0x18b	/vendor-overlay-stubs/pmi8998_bob_pin1: pmi8998_bob_pin1
+/soc: soc@0/bluetooth: bt_wcn3990	qca,bt-vdd-ldo-supply	0x181	/vendor-overlay-stubs/pm8998_l25: pm8998_l25
+/soc: soc@0/bluetooth: bt_wcn3990	qca,bt-vdd-pa-supply	0x17b	/vendor-overlay-stubs/pm8998_l17: pm8998_l17
+/soc: soc@0/bluetooth: bt_wcn3990	qca,bt-vdd-core-supply	0x184	/vendor-overlay-stubs/pm8998_l7: pm8998_l7
+/soc: soc@0/bluetooth: bt_wcn3990	qca,bt-vdd-xtal-supply	0x188	/vendor-overlay-stubs/pm8998_s5: pm8998_s5
+/soc: soc@0/bluetooth: bt_wcn3990	qca,bt-vdd-io-supply	0x186	/vendor-overlay-stubs/pm8998_s3: pm8998_s3
+/soc: soc@0/tsens0: thermal@10ab000	interrupts	0x1ca	/vendor-overlay-stubs/reserved_memory: reserved_memory/ramoops_meta_mem: ramoops_meta_region@affff000
+/soc: soc@0/tsens1: thermal@10ae000	interrupts	0x1ae	/vendor-overlay-stubs/wcd_usbc_analog_en1_gpio: wcd_usbc_analog_en1_gpio
+/soc: soc@0/anoc1_smmu: iommu@1680000	interrupts	0x16c	/vendor-overlay-stubs/modem_mem: modem_mem
+/soc: soc@0/anoc1_smmu: iommu@1680000	interrupts	0x16d	/vendor-overlay-stubs/nfc_enable_active: nfc_enable_active
+/soc: soc@0/anoc1_smmu: iommu@1680000	interrupts	0x16e	/vendor-overlay-stubs/nfc_enable_suspend: nfc_enable_suspend
+/soc: soc@0/anoc1_smmu: iommu@1680000	interrupts	0x16f	/vendor-overlay-stubs/nfc_int_active: nfc_int_active
+/soc: soc@0/anoc1_smmu: iommu@1680000	interrupts	0x170	/vendor-overlay-stubs/nfc_int_suspend: nfc_int_suspend
+/soc: soc@0/anoc1_smmu: iommu@1680000	interrupts	0x171	/vendor-overlay-stubs/pcie0: pcie0
+/soc: soc@0/anoc2_smmu: iommu@16c0000	interrupts	0x175	/vendor-overlay-stubs/pil_mba_mem: pil_mba_mem
+/soc: soc@0/anoc2_smmu: iommu@16c0000	interrupts	0x176	/vendor-overlay-stubs/pil_slpi_mem: pil_slpi_mem
+/soc: soc@0/anoc2_smmu: iommu@16c0000	interrupts	0x177	/vendor-overlay-stubs/pil_video_mem: pil_video_mem
+/soc: soc@0/anoc2_smmu: iommu@16c0000	interrupts	0x178	/vendor-overlay-stubs/pm8998_l1: pm8998_l1
+/soc: soc@0/anoc2_smmu: iommu@16c0000	interrupts	0x179	/vendor-overlay-stubs/pm8998_l13: pm8998_l13
+/soc: soc@0/anoc2_smmu: iommu@16c0000	interrupts	0x17a	/vendor-overlay-stubs/pm8998_l14: pm8998_l14
+/soc: soc@0/adreno_gpu: gpu@5000000/gpu_opp_table: opp-table/opp-710000097	opp-level	0x180	/vendor-overlay-stubs/pm8998_l22: pm8998_l22
+/soc: soc@0/adreno_gpu: gpu@5000000/gpu_opp_table: opp-table/opp-670000048	opp-level	0x140	/vendor-overlay-stubs/cci: cci
+/soc: soc@0/adreno_smmu: iommu@5040000	interrupts	0x149	/vendor-overlay-stubs/i2c_5_bitbang: i2c_5_bitbang
+/soc: soc@0/adreno_smmu: iommu@5040000	interrupts	0x14a	/vendor-overlay-stubs/i2c_5_sleep: i2c_5_sleep
+/soc: soc@0/adreno_smmu: iommu@5040000	interrupts	0x14b	/vendor-overlay-stubs/i2c_6: i2c_6
+/soc: soc@0/lpass_q6_smmu: iommu@5100000	interrupts	0x189	/vendor-overlay-stubs/pm8998_vadc: pm8998_vadc
+/soc: soc@0/lpass_q6_smmu: iommu@5100000	interrupts	0x18a	/vendor-overlay-stubs/pmi8998_bob: pmi8998_bob
+/soc: soc@0/lpass_q6_smmu: iommu@5100000	interrupts	0x18b	/vendor-overlay-stubs/pmi8998_bob_pin1: pmi8998_bob_pin1
+/soc: soc@0/lpass_q6_smmu: iommu@5100000	interrupts	0x18c	/vendor-overlay-stubs/pmi8998_flash0: pmi8998_flash0
+/soc: soc@0/lpass_q6_smmu: iommu@5100000	interrupts	0x18d	/vendor-overlay-stubs/pmi8998_flash1: pmi8998_flash1
+/soc: soc@0/lpass_q6_smmu: iommu@5100000	interrupts	0x18e	/vendor-overlay-stubs/pmi8998_haptics: pmi8998_haptics
+/soc: soc@0/lpass_q6_smmu: iommu@5100000	interrupts	0x18f	/vendor-overlay-stubs/pmi8998_pdphy: pmi8998_pdphy
+/soc: soc@0/lpass_q6_smmu: iommu@5100000	interrupts	0x190	/vendor-overlay-stubs/pmi8998_switch0: pmi8998_switch0
+/soc: soc@0/lpass_q6_smmu: iommu@5100000	interrupts	0x191	/vendor-overlay-stubs/pmi8998_torch0: pmi8998_torch0
+/soc: soc@0/lpass_q6_smmu: iommu@5100000	interrupts	0x192	/vendor-overlay-stubs/pmi8998_torch1: pmi8998_torch1
+/soc: soc@0/lpass_q6_smmu: iommu@5100000	interrupts	0x193	/vendor-overlay-stubs/quat_mi2s_active: quat_mi2s_active
+/soc: soc@0/remoteproc_slpi: remoteproc@5800000	interrupts-extended	0x186	/vendor-overlay-stubs/pm8998_s3: pm8998_s3
+/soc: soc@0/spmi_bus: spmi@800f000	interrupts	0x146	/vendor-overlay-stubs/gdsc_ufs: gdsc_ufs
+/soc: soc@0/usb3: usb@a8f8800	interrupts	0x15b	/vendor-overlay-stubs/mdss_dsi: mdss_dsi
+/soc: soc@0/mdss: display-subsystem@c900000/mdss_dsi0: dsi@c994000	vci-supply	0x180	/vendor-overlay-stubs/pm8998_l22: pm8998_l22
+/soc: soc@0/mdss: display-subsystem@c900000/mdss_dsi0: dsi@c994000	wqhd-vddio-supply	0x17a	/vendor-overlay-stubs/pm8998_l14: pm8998_l14
+/soc: soc@0/mdss: display-subsystem@c900000/mdss_dsi0: dsi@c994000	pinctrl-1	0x15d	/vendor-overlay-stubs/mdss_dsi_suspend: mdss_dsi_suspend
+/soc: soc@0/mdss: display-subsystem@c900000/mdss_dsi0: dsi@c994000	pinctrl-1	0x16a	/vendor-overlay-stubs/mdss_te_suspend: mdss_te_suspend
+/soc: soc@0/mdss: display-subsystem@c900000/mdss_dsi0: dsi@c994000	pinctrl-0	0x15c	/vendor-overlay-stubs/mdss_dsi_active: mdss_dsi_active
+/soc: soc@0/mdss: display-subsystem@c900000/mdss_dsi0: dsi@c994000	pinctrl-0	0x169	/vendor-overlay-stubs/mdss_te_active: mdss_te_active
+/soc: soc@0/mdss: display-subsystem@c900000/mdss_dsi1: dsi@c996000	vci-supply	0x180	/vendor-overlay-stubs/pm8998_l22: pm8998_l22
+/soc: soc@0/mdss: display-subsystem@c900000/mdss_dsi1: dsi@c996000	wqhd-vddio-supply	0x17a	/vendor-overlay-stubs/pm8998_l14: pm8998_l14
+/soc: soc@0/mdss: display-subsystem@c900000/mdss_dsi1: dsi@c996000	pinctrl-1	0x15d	/vendor-overlay-stubs/mdss_dsi_suspend: mdss_dsi_suspend
+/soc: soc@0/mdss: display-subsystem@c900000/mdss_dsi1: dsi@c996000	pinctrl-1	0x16a	/vendor-overlay-stubs/mdss_te_suspend: mdss_te_suspend
+/soc: soc@0/mdss: display-subsystem@c900000/mdss_dsi1: dsi@c996000	pinctrl-0	0x15c	/vendor-overlay-stubs/mdss_dsi_active: mdss_dsi_active
+/soc: soc@0/mdss: display-subsystem@c900000/mdss_dsi1: dsi@c996000	pinctrl-0	0x169	/vendor-overlay-stubs/mdss_te_active: mdss_te_active
+/soc: soc@0/mdss: display-subsystem@c900000/mdss_hdmi_phy: hdmi-phy@c9a0600	reg	0x18b	/vendor-overlay-stubs/pmi8998_bob_pin1: pmi8998_bob_pin1
+/soc: soc@0/wifi: wifi@18800000	interrupts	0x19d	/vendor-overlay-stubs/sdc2_cd_on: sdc2_cd_on
+/soc: soc@0/wifi: wifi@18800000	interrupts	0x19e	/vendor-overlay-stubs/sdc2_clk_off: sdc2_clk_off
+/soc: soc@0/wifi: wifi@18800000	interrupts	0x19f	/vendor-overlay-stubs/sdc2_clk_on: sdc2_clk_on
+/soc: soc@0/wifi: wifi@18800000	interrupts	0x1a0	/vendor-overlay-stubs/sdc2_cmd_off: sdc2_cmd_off
+/soc: soc@0/wifi: wifi@18800000	interrupts	0x1a1	/vendor-overlay-stubs/sdc2_cmd_on: sdc2_cmd_on
+/soc: soc@0/wifi: wifi@18800000	interrupts	0x1a2	/vendor-overlay-stubs/sdc2_data_off: sdc2_data_off
+/soc: soc@0/wifi: wifi@18800000	interrupts	0x1a4	/vendor-overlay-stubs/sdhc_2: sdhc_2
+/soc: soc@0/wifi: wifi@18800000	interrupts	0x1a5	/vendor-overlay-stubs/slim_aud: slim_aud
+/soc: soc@0/wifi: wifi@18800000	interrupts	0x1a6	/vendor-overlay-stubs/spi_1: spi_1
+/soc: soc@0/wifi: wifi@18800000	interrupts	0x1a7	/vendor-overlay-stubs/spi_10: spi_10
+/soc: soc@0/wifi: wifi@18800000	interrupts	0x1a8	/vendor-overlay-stubs/spi_2: spi_2
+/soc: soc@0/wifi: wifi@18800000	interrupts	0x1a9	/vendor-overlay-stubs/uartblsp2dm1: uartblsp2dm1
+
+# the 40 in phandle-bearing properties (pinctrl-N, *-supply, dmas, memory-region, *-source, extcon, *-gpio), labels stripped
+/soc/access_ramoops@0	memory-region	/vendor-overlay-stubs/reserved_memory/ramoops_meta_mem
+/soc/access_ramoops@1	memory-region	/vendor-overlay-stubs/reserved_memory/alt_ramoops_mem
+/soc/bluetooth	qca,bt-chip-pwd-supply	/vendor-overlay-stubs/pmi8998_bob_pin1
+/soc/bluetooth	qca,bt-vdd-core-supply	/vendor-overlay-stubs/pm8998_l7
+/soc/bluetooth	qca,bt-vdd-io-supply	/vendor-overlay-stubs/pm8998_s3
+/soc/bluetooth	qca,bt-vdd-ldo-supply	/vendor-overlay-stubs/pm8998_l25
+/soc/bluetooth	qca,bt-vdd-pa-supply	/vendor-overlay-stubs/pm8998_l17
+/soc/bluetooth	qca,bt-vdd-xtal-supply	/vendor-overlay-stubs/pm8998_s5
+/soc/i2c@c179000	dmas	/vendor-overlay-stubs/dma_blsp1
+/soc/i2c@c179000	pinctrl-0	/vendor-overlay-stubs/i2c_5_active
+/soc/i2c@c179000	pinctrl-1	/vendor-overlay-stubs/i2c_5_sleep
+/soc/i2c@c179000	pinctrl-2	/vendor-overlay-stubs/i2c_5_bitbang
+/soc/led_flash10	qcom,flash-source	/vendor-overlay-stubs/pmi8998_flash0
+/soc/led_flash10	qcom,flash-source	/vendor-overlay-stubs/pmi8998_flash1
+/soc/led_flash10	qcom,switch-source	/vendor-overlay-stubs/pmi8998_switch0
+/soc/led_flash10	qcom,torch-source	/vendor-overlay-stubs/pmi8998_torch0
+/soc/led_flash10	qcom,torch-source	/vendor-overlay-stubs/pmi8998_torch1
+/soc/mdss/mdss_dsi0	pinctrl-0	/vendor-overlay-stubs/mdss_dsi_active
+/soc/mdss/mdss_dsi0	pinctrl-0	/vendor-overlay-stubs/mdss_te_active
+/soc/mdss/mdss_dsi0	pinctrl-1	/vendor-overlay-stubs/mdss_dsi_suspend
+/soc/mdss/mdss_dsi0	pinctrl-1	/vendor-overlay-stubs/mdss_te_suspend
+/soc/mdss/mdss_dsi0	vci-supply	/vendor-overlay-stubs/pm8998_l22
+/soc/mdss/mdss_dsi0	wqhd-vddio-supply	/vendor-overlay-stubs/pm8998_l14
+/soc/mdss/mdss_dsi1	pinctrl-0	/vendor-overlay-stubs/mdss_dsi_active
+/soc/mdss/mdss_dsi1	pinctrl-0	/vendor-overlay-stubs/mdss_te_active
+/soc/mdss/mdss_dsi1	pinctrl-1	/vendor-overlay-stubs/mdss_dsi_suspend
+/soc/mdss/mdss_dsi1	pinctrl-1	/vendor-overlay-stubs/mdss_te_suspend
+/soc/mdss/mdss_dsi1	vci-supply	/vendor-overlay-stubs/pm8998_l22
+/soc/mdss/mdss_dsi1	wqhd-vddio-supply	/vendor-overlay-stubs/pm8998_l14
+/soc/mnh-sm	ddr-pad-iso-n-gpio	/vendor-overlay-stubs/i2c_9/bcm15602@8/bcm15602_gpio
+/soc/mnh-sm	soc-pwr-good-gpio	/vendor-overlay-stubs/i2c_9/bcm15602@8/bcm15602_gpio
+/soc/ptn36241g	extcon	/vendor-overlay-stubs/pmi8998_pdphy
+/soc/qcom,ion/qcom,ion-heap@30	memory-region	/vendor-overlay-stubs/reserved_memory/easel_mem
+/soc/qcom,msm-dai-mi2s/qcom,msm-dai-q6-mi2s-quat	pinctrl-0	/vendor-overlay-stubs/quat_mi2s_active
+/soc/qcom,msm-dai-mi2s/qcom,msm-dai-q6-mi2s-quat	pinctrl-0	/vendor-overlay-stubs/quat_mi2s_sd0_active
+/soc/qcom,msm-dai-mi2s/qcom,msm-dai-q6-mi2s-quat	pinctrl-0	/vendor-overlay-stubs/quat_mi2s_sd1_active
+/soc/qcom,msm-dai-mi2s/qcom,msm-dai-q6-mi2s-quat	pinctrl-1	/vendor-overlay-stubs/quat_mi2s_sd0_sleep
+/soc/qcom,msm-dai-mi2s/qcom,msm-dai-q6-mi2s-quat	pinctrl-1	/vendor-overlay-stubs/quat_mi2s_sd1_sleep
+/soc/qcom,msm-dai-mi2s/qcom,msm-dai-q6-mi2s-quat	pinctrl-1	/vendor-overlay-stubs/quat_mi2s_sleep
+/soc/qcom,rmtfs_rtel_sharedmem@0	memory-region	/vendor-overlay-stubs/reserved_memory/htc_rtel_mem
+
+# the check:
+fail walleye-dtb-overlay-stub-refs kernel l3.dtb merged with overlay 3: our enabled node(s) point at stubs: dsi@c994000:pinctrl-0->mdss_dsi_active dsi@c994000:pinctrl-0->mdss_te_active dsi@c994000:pinctrl-1->mdss_dsi_suspend dsi@c994000:pinctrl-1->mdss_te_suspend (supply notes: dsi@c994000:vci-supply dsi@c994000:wqhd-vddio-supply)

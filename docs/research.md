@@ -4259,3 +4259,28 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-19/
+
+
+<a id="walleye-overlay-stub-refs-other-nodes"></a>
+### walleye-overlay-stub-refs-other-nodes
+
+Date
+: 2026-11-19
+
+Brief
+: Overlay 3 hangs stub references on one of our nodes only (dsi@c994000, dsi@c996000 disabled); the other 10 targets are overlay-made nodes no driver binds
+
+Question
+: Does the vendor overlay point pinctrl, supplies, clocks or gpios of any other node of ours at /vendor-overlay-stubs, the same silent defer as the dsi?
+
+Found
+: Host only: fdtoverlay of l3.dtb with dtbo entry 3, then every cell of the merged dts equal to a phandle under /vendor-overlay-stubs (list in the material). Before the merge: 0 references. After: 93 raw hits; 40 in phandle-bearing properties (pinctrl-N, *-supply, dmas, memory-region, *-source, extcon, *-gpio); the rest are numbers that equal a phandle (interrupts, opp-level, reg, qcom,smem, one interrupts-extended irq 0x186). 1. Of our nodes (they exist in l3.dtb) only the two dsi hosts carry any: dsi@c994000 pinctrl-0/1 = the four mdss_* stubs (the known defer) and vci-supply, wqhd-vddio-supply = stubs pm8998_l22, pm8998_l14; dsi@c996000 the same, status disabled so nothing binds it. msm's dsi driver asks for vdd and vdda, not vci or wqhd-vddio, so those two supplies defer nothing today; the panel driver will ask for its own. 2. The other 10 nodes with references exist only in the overlay: i2c@c179000 (qcom,i2c-msm-v2, apart from our qup node, tests/host/i2c-qup-after-merge.sh), bt_wcn3990, camera-flash@10, mnh-sm, ptn36241g, access_ramoops@0/1, qcom,ion-heap@30, mi2s-quat, rmtfs_rtel_sharedmem. Their compatibles have no mainline driver in our kernel, so nothing probes them and a stub reference defers nothing; when one of them is wanted (bluetooth wcn3990 supplies pm8998_l7/l17/l25/s3/s5 and pmi8998_bob_pin1; i2c_5 pinctrl) its references must be made real then. 3. So the silent-defer class is closed by L4's four labels: no other node of ours has it. 4. tests/host/dtb-overlay-stub-refs.sh is the generic check: our enabled nodes, pre-probe properties (pinctrl-N, clocks, power-domains, phys, resets, iommus) at stubs fail; supplies are listed as notes. It fails today on l3.dtb (dsi@c994000 four pinctrl, notes vci/wqhd-vddio) and passes once L4's labels name real groups (not run on an L4 dtb yet: not known yet).
+
+Sources
+: linux-v7-3-pinctrl-devicetree
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-19/
