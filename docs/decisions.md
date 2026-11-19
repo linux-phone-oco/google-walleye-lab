@@ -1886,3 +1886,31 @@ Scope
 
 Tracked by
 : walleye-attend-program-display
+
+
+<a id="2026-11-19-walleye-ufs-android-derived-solution"></a>
+### 2026-11-19-walleye-ufs-android-derived-solution
+
+Date
+: 2026-11-19
+
+Brief
+: UFS is the lane's own work: get all Android can give, extract a working solution, then bring the author the go note; nothing waits on him holding it back
+
+Decision
+: The UFS try waits on the Android-derived solution, which is the lane's work: the gap items walleye-ufs-gap-* (version, link-startup pre-change, ICE, the bootloader hand-over, lane 1, Sony's mechanism, bus votes and pad drive) and then walleye-ufs-solution-extracted, which refreshes the go note. When that exists the note goes to the author, and his word opens walleye-try-ufs-match. Until then no UFS-on image is booted (the gate stays). Items, waits and reports say 'waits on the Android-derived solution (the lane's work)', not 'the author holds it'.
+
+Why
+: The author, 2026-11-19, relayed by the Top Coordinator, verbatim: "im not holding it back, im waiting until we have all we can from android and a working solution that is extracted from that as we were discussing before". The earlier wording (waits on his go, parked) made the work look held by him; it is waiting on us. The parts behind UFS (audio, haptics, radios, Wi-Fi) keep moving on research while it does.
+
+Rejected
+: Leaving UFS parked until he asks (the lane would idle on what is its own work); starting the try now on the matched image because he is not holding it back (the solution and the go note are not there yet, and the gate is the lane's safety)
+
+About
+: walleye-ufs-match-android-z
+
+Amends
+: 2026-11-19-walleye-ufs-hold-second-path
+
+Tracked by
+: walleye-ufs-solution-extracted
