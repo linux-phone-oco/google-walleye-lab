@@ -8059,31 +8059,6 @@ Rank
 : 1
 
 
-<a id="walleye-display-b2-dsi-clock-warning"></a>
-### Why B2 (display at boot) warns 'pclk0_clk_src: rcg didn't update its configuration', times out every DSI command (-110) and floods SMMU translation faults, when hand-loaded L5 and L6 do not
-
-Status
-: open
-
-Note
-: Evidence from the B2 run: [2.237] the SMMU faults start right after 'dpu hardware revision 0x30000000'; [2.304] WARNING clk-rcg2.c:136 update_config: 'pclk0_clk_src: rcg didn't update its configuration', call trace clk_pixel_set_rate, dsi_link_clk_set_rate_6g, msm_dsi_host_power_on, dsi_mgr_bridge_pre_enable, dsi_dev_attach, dsi_host_attach, mipi_dsi_attach, s6e3fa5_probe; the sysfs backlight write returned 0 but 'panel init and the 0x51 command still -110'. Related: research walleye-display-backlight-timeout (decision 2026-11-19-backlight-first-write-after-first-frame), whose reading (first DMA command after the first frame, MDP underflow) may be the same fault seen from the other side.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: research
-
-Proof
-: a research row comparing the dmesg of B2 (~/lab-material/walleye/display-boot-20261119-214918) with the L6 try's (display-stripes-*, late-probe-l5-*): the order and the seconds of every module load, when the DSI PHY PLL is enabled and locked, why dsi_link_clk_set_rate_6g runs inside the panel's probe via mipi_dsi_attach (dsi_mgr_bridge_pre_enable in a deferred probe), whether the pixel clock parent (the PHY PLL) is running at that moment, the SMMU faults (the display scan-out of the bootloader's splash at iova 0x9d6f.. while msm attaches its own domain), the effect of the init loading everything at 2.2 s (before the clock late init) against the hand load; ranked hypotheses and the cheapest experiment images (for example the init waiting N seconds, or loading msm, the phy and the panel in L6's order with pauses); which readings tell them apart
-
-Rank
-: 1
-
-
 <a id="walleye-display-look-b2"></a>
 ### The author's look at the Pixel's screen as one command: B2 (display at boot plus the held stripes) and display-at-boot-on-the-pixel-2.rs on lpoco-attended 0.34 with the answer file
 
@@ -8132,3 +8107,56 @@ Proof
 
 Rank
 : 6
+
+
+<a id="walleye-display-b2-dsi-clock-warning"></a>
+### Why B2 (display at boot) warns 'pclk0_clk_src: rcg didn't update its configuration', times out every DSI command (-110) and floods SMMU translation faults, when hand-loaded L5 and L6 do not
+
+Status
+: open
+
+Note
+: Evidence from the B2 run: [2.237] the SMMU faults start right after 'dpu hardware revision 0x30000000'; [2.304] WARNING clk-rcg2.c:136 update_config: 'pclk0_clk_src: rcg didn't update its configuration', call trace clk_pixel_set_rate, dsi_link_clk_set_rate_6g, msm_dsi_host_power_on, dsi_mgr_bridge_pre_enable, dsi_dev_attach, dsi_host_attach, mipi_dsi_attach, s6e3fa5_probe; the sysfs backlight write returned 0 but 'panel init and the 0x51 command still -110'. Related: research walleye-display-backlight-timeout (decision 2026-11-19-backlight-first-write-after-first-frame), whose reading (first DMA command after the first frame, MDP underflow) may be the same fault seen from the other side. 2026-11-19 SCOPE ADDED by the Top Coordinator (told the author in plain words): B2's failures mean the board dts is missing a dependency, so the display works only in a hand-picked load order. The aim is the dts fix that also goes upstream: no ordering list in the init, modules autoloaded, deferred probe in any order. The build follows as item walleye-display-dts-any-order.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row comparing the dmesg of B2 (~/lab-material/walleye/display-boot-20261119-214918) with the L6 try's (display-stripes-*, late-probe-l5-*): the order and the seconds of every module load, when the DSI PHY PLL is enabled and locked, why dsi_link_clk_set_rate_6g runs inside the panel's probe via mipi_dsi_attach (dsi_mgr_bridge_pre_enable in a deferred probe), whether the pixel clock parent (the PHY PLL) is running at that moment, the SMMU faults (the display scan-out of the bootloader's splash at iova 0x9d6f.. while msm attaches its own domain), the effect of the init loading everything at 2.2 s (before the clock late init) against the hand load; ranked hypotheses and the cheapest experiment images (for example the init waiting N seconds, or loading msm, the phy and the panel in L6's order with pauses); which readings tell them apart; AND the mainline-proper answer: which dependency the board dts lacks so that the display works only in a hand-picked load order: check each of iommus on mdss and the dpu (and the iommu.passthrough that hides it), the mmcc and gcc clocks and their parents for the pixel and byte clocks (assigned-clocks, assigned-clock-parents, the DSI PHY PLL as the pclk0 parent), the regulator supplies of the dsi, the phy and the panel, the panel's reset and enable, and the bootloader splash handover (a reserved-memory region for the splash and a simple-framebuffer node, or the msm driver taking over, and the SMMU stream left running); compared with how the other msm8998 boards upstream describe the display (OnePlus 5 cheeseburger and dumpling, Xperia XZ1 yoshino, the Pixel 2 XL taimen work in porthole) and with the mainline msm8998.dtsi; the result is the list of dts changes that make the display come up by deferred probe in ANY order with modules autoloaded
+
+Rank
+: 1
+
+
+<a id="walleye-display-dts-any-order"></a>
+### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
+
+Status
+: open
+
+Note
+: Follows the research (rank 1). The mainline-proper fix, not a script: the stub and overlay workarounds of the RAM boot (the pinctrl labels, the reset-gpio claimant) stay local to the RAM boot; what the dts lacks goes into the board dts and upstream.
+
+Blocked by
+: walleye-display-b2-dsi-clock-warning
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: an image (UFS-off gate, AVB, rebuild identical, review) whose init loads the display modules in an order other than the hand-picked one (for example alphabetical, or all at once by udev-less modprobe of the alias set), and still shows: no pclk0 rcg warning, no -110 on a DSI command, no SMMU fault flood, card0 and DSI-1 connected, the glass lit; the dts changes as separate patches in the upstream board dts series (research walleye-upstream-dts-series, item walleye-upstream-board-dts-next) with dtbs_check where the container allows; an unattended try for real; the author's look through the answer file only after that
+
+Rank
+: 2
