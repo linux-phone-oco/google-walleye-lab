@@ -29,7 +29,11 @@ fn pixel(g: &Geometry, (r, gr, b): (u8, u8, u8)) -> u32 {
         if c.length == 0 {
             return 0;
         }
-        let top = if c.length >= 8 { u32::from(v) << (c.length - 8) } else { u32::from(v) >> (8 - c.length) };
+        let top = if c.length >= 8 {
+            u32::from(v) << (c.length - 8)
+        } else {
+            u32::from(v) >> (8 - c.length)
+        };
         top << c.offset
     };
     put(r, g.red) | put(gr, g.green) | put(b, g.blue)
@@ -39,11 +43,17 @@ fn pixel(g: &Geometry, (r, gr, b): (u8, u8, u8)) -> u32 {
 /// (the last takes the remainder), or all black.
 pub fn frame(g: &Geometry, stripes: bool) -> Result<Vec<u8>, String> {
     if g.bits_per_pixel != 32 && g.bits_per_pixel != 16 {
-        return Err(format!("{} bits per pixel: only 32 and 16 are drawn", g.bits_per_pixel));
+        return Err(format!(
+            "{} bits per pixel: only 32 and 16 are drawn",
+            g.bits_per_pixel
+        ));
     }
     let bytes = (g.bits_per_pixel / 8) as usize;
     if (g.line_length as usize) < g.xres as usize * bytes {
-        return Err(format!("line_length {} is shorter than {} pixels of {} bytes", g.line_length, g.xres, bytes));
+        return Err(format!(
+            "line_length {} is shorter than {} pixels of {} bytes",
+            g.line_length, g.xres, bytes
+        ));
     }
     let mut line = vec![0u8; g.line_length as usize];
     if stripes {
@@ -67,9 +77,18 @@ mod tests {
             yres,
             bits_per_pixel: 32,
             line_length: xres * 4,
-            red: Channel { offset: 16, length: 8 },
-            green: Channel { offset: 8, length: 8 },
-            blue: Channel { offset: 0, length: 8 },
+            red: Channel {
+                offset: 16,
+                length: 8,
+            },
+            green: Channel {
+                offset: 8,
+                length: 8,
+            },
+            blue: Channel {
+                offset: 0,
+                length: 8,
+            },
         }
     }
 
@@ -98,8 +117,14 @@ mod tests {
     #[test]
     fn the_channel_offsets_decide_the_order_of_the_bytes() {
         let mut g = xrgb(8, 2);
-        g.red = Channel { offset: 0, length: 8 };
-        g.blue = Channel { offset: 16, length: 8 };
+        g.red = Channel {
+            offset: 0,
+            length: 8,
+        };
+        g.blue = Channel {
+            offset: 16,
+            length: 8,
+        };
         let f = frame(&g, true).unwrap();
         assert_eq!(at(&f, &g, 0, 0), 0x0000ff);
         assert_eq!(at(&f, &g, 2, 0), 0x00ff00);
@@ -123,9 +148,18 @@ mod tests {
             yres: 1,
             bits_per_pixel: 16,
             line_length: 16,
-            red: Channel { offset: 11, length: 5 },
-            green: Channel { offset: 5, length: 6 },
-            blue: Channel { offset: 0, length: 5 },
+            red: Channel {
+                offset: 11,
+                length: 5,
+            },
+            green: Channel {
+                offset: 5,
+                length: 6,
+            },
+            blue: Channel {
+                offset: 0,
+                length: 5,
+            },
         };
         let f = frame(&g, true).unwrap();
         assert_eq!(u16::from_le_bytes([f[0], f[1]]), 0xf800);

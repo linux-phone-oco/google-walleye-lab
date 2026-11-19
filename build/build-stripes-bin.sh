@@ -9,7 +9,7 @@ HERE=$(cd "$(dirname "$0")/.." && pwd)
 C=$HERE/tools/walleye-stripes
 command -v aarch64-linux-gnu-gcc >/dev/null || { echo "build-stripes-bin: no aarch64-linux-gnu-gcc" >&2; exit 1; }
 export RUSTC_BOOTSTRAP=1   # build-std is a nightly flag; the stable compiler takes it with this
-cargo test --locked --quiet --manifest-path "$C/Cargo.toml" --lib >&2
+cargo test --locked --quiet --manifest-path "$C/Cargo.toml" >&2
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc \
 RUSTFLAGS="-C target-feature=+crt-static --remap-path-prefix=$HERE=/src --remap-path-prefix=$HOME/.cargo=/cargo --remap-path-prefix=$(rustc --print sysroot)=/rustc" \

@@ -56,7 +56,10 @@ pub fn usage() -> String {
     for r in &Contract::records() {
         let sig = r.usage();
         if !sig.is_empty() {
-            out.push_str(&format!("  {sig:<24} {}\n", r.summary.clone().unwrap_or_default()));
+            out.push_str(&format!(
+                "  {sig:<24} {}\n",
+                r.summary.clone().unwrap_or_default()
+            ));
         }
     }
     out

@@ -67,3 +67,9 @@ jobs:
           cargo test --locked
           cargo fmt --check
           cargo clippy --locked --all-targets -- -D warnings
+      - name: the stripe drawer (frame, struct sizes), clippy clean (no phone)
+        run: |
+          cd tools/walleye-stripes
+          cargo test --locked
+          cargo fmt --check
+          cargo clippy --locked --all-targets -- -D warnings
