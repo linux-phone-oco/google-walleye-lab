@@ -7549,10 +7549,10 @@ Rank
 ### Repeat the PMIC program's unattended run with the way back and the A/B Image type in, from Android with no hand step
 
 Status
-: open
+: done
 
 Note
-: Run 3 (PR 534) needed 'reboot -f; echo b > /proc/sysrq-trigger' by hand after the stop. The way back (PR 540) and the Image type with witnesses (PR 543) are now in. After a clean run the PMIC attended try (walleye-try-pmic-wdt-v1) is one command away.
+: proven by run 4 (2026-11-19, from Android, stdin /dev/null): checks 1-3, fastboot, image A booted with banner, shell answers, S2 type 7; stopped at ask 8 'nobody answered'; way back left phone on Android slot b with no hand step (idle-android passes). Needed the build/images link to ~/Projects/walleye-build itself (not its images/ dir). A-to-B fallback not exercised. Next: walleye-try-pmic-wdt-v1 is one command for the author.
 
 About
 : walleye-attend-program-pmic
