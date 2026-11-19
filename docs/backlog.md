@@ -5700,112 +5700,6 @@ Rank
 : 2
 
 
-<a id="walleye-attend-program-display"></a>
-### One command for the display try: a Rust program that boots the display image, reads the console and the DRM connector, shows the stripes, prompts the author and returns the phone to Android
-
-Status
-: open
-
-Note
-: Decision 2026-11-19-walleye-attended-tries-one-command (the author's words in it). The display plan is first because it is the next try; it waits for the late-probe try to name the stage (the image the program boots is the one that boots with a console and has the panel). The framework grows out of this plan and the touch plan, not before it.
-
-Blocked by
-: walleye-try-display-late-probe
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: a Rust program (rust-script or a crate of this lab, argenv-declared, a first look at what lab-tools already offers recorded) with: dry-run (prints and checks the whole sequence, boots nothing), an unattended mode that runs for real everything that needs no person (gate, battery, boot, shell, dmesg probe lines, DRM connector status, the way back) and the person steps (what to expect, what to check, 'look now', the stripes) in the attended mode; unit tests; programmer review; a keeper's record of the unattended mode run for real
-
-Rank
-: 3
-
-
-<a id="walleye-attend-program-touch"></a>
-### One command for the touch try on z21: the reader first, the 'ready' to the author at once, a long window, the way back
-
-Status
-: open
-
-Note
-: The retry recipe of item walleye-try-z21-touch-events (research walleye-z21-touch-events-window-missed): the reader first, 'ready' at once, go window at least 90 min. Decision 2026-11-19-walleye-attended-tries-one-command.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: the same shape as the display program (dry-run, unattended mode run for real, argenv, tests, review): gate, boot z21, /tmp/hold, the touch reader (tests/host/touch-read.sh logic in Rust with NOREBOOT=1) started and showing events-ready for at least 90 s BEFORE the prompt, the prompt to the author at once ('swipe across the whole glass, tap each corner, for 20 s' - printed where he reads it), the window long enough, the event counts, hold released, the way back; a keeper's record of the unattended parts run for real (reader running, a synthetic count)
-
-Rank
-: 4
-
-
-<a id="walleye-attend-program-pmic"></a>
-### One command for the PMIC watchdog v1 try: reboot test first, then the bite, the plain-words prompts built in, the way back
-
-Status
-: open
-
-Note
-: Safety order of the item walleye-try-pmic-wdt-v1 stays: reboot test first, bite last, nothing written to storage; if the phone powers off or loops, hold power about 15 s. Decision 2026-11-19-walleye-attended-tries-one-command.
-
-About
-: walleye-pmic-wdt-v1-image
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: the same shape (dry-run, unattended mode for real, argenv, tests, review): images A then B fallback (wdt1-a, wdt1-b) behind the gate; test 1 reboot: wdt-state, arm, a clean reboot, PASS is Android up and no loop; test 2 bite last: wdt-bite, PASS is a restart by itself; the author's plain-words text of item walleye-try-pmic-wdt-v1 printed as the prompts; the power-hold fallback said; results to the upstreams coordinator's research row; a keeper's record of the unattended parts run for real (state reads, arming without the bite)
-
-Rank
-: 5
-
-
-<a id="walleye-attend-program-ufs"></a>
-### One command for the UFS try, when the author says go: gate-exempt boot of the matched image, version read, the card read, the way back
-
-Status
-: open
-
-Note
-: Parked. Decision 2026-11-19-walleye-attended-tries-one-command.
-
-Waits
-: the author's go on UFS (decisions 2026-11-18-walleye-ufs-wait, 2026-11-19-walleye-ufs-hold-second-path); not started before
-
-About
-: walleye-ufs-match-android-z
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: the same shape; and the UFS-off gate is NOT bypassed by the program: the matched image is booted only through the explicit step the author's go opens
-
-Rank
-: 99
-
-
 <a id="walleye-try-z21-touch-events"></a>
 ### Touch events on z21: a person touches the panel while the reader reads the RMI4 input device
 
@@ -5919,3 +5813,109 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-attend-program-display"></a>
+### One command for the display try: a Rust program that boots the display image, reads the console and the DRM connector, shows the stripes, prompts the author and returns the phone to Android
+
+Status
+: open
+
+Note
+: Decision 2026-11-19-walleye-attended-tries-one-command (the author's words in it). The display plan is first because it is the next try; it waits for the late-probe try to name the stage (the image the program boots is the one that boots with a console and has the panel). The framework grows out of this plan and the touch plan, not before it. ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone.
+
+Blocked by
+: walleye-try-display-late-probe
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: a Rust program (rust-script or a crate of this lab, argenv-declared, a first look at what lab-tools already offers recorded) with: dry-run (prints and checks the whole sequence, boots nothing), an unattended mode that runs for real everything that needs no person (gate, battery, boot, shell, dmesg probe lines, DRM connector status, the way back) and the person steps (what to expect, what to check, 'look now', the stripes) in the attended mode; unit tests; programmer review; a keeper's record of the unattended mode run for real; ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone.
+
+Rank
+: 3
+
+
+<a id="walleye-attend-program-touch"></a>
+### One command for the touch try on z21: the reader first, the 'ready' to the author at once, a long window, the way back
+
+Status
+: open
+
+Note
+: The retry recipe of item walleye-try-z21-touch-events (research walleye-z21-touch-events-window-missed): the reader first, 'ready' at once, go window at least 90 min. Decision 2026-11-19-walleye-attended-tries-one-command. ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the same shape as the display program (dry-run, unattended mode run for real, argenv, tests, review): gate, boot z21, /tmp/hold, the touch reader (tests/host/touch-read.sh logic in Rust with NOREBOOT=1) started and showing events-ready for at least 90 s BEFORE the prompt, the prompt to the author at once ('swipe across the whole glass, tap each corner, for 20 s' - printed where he reads it), the window long enough, the event counts, hold released, the way back; a keeper's record of the unattended parts run for real (reader running, a synthetic count); ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone.
+
+Rank
+: 4
+
+
+<a id="walleye-attend-program-pmic"></a>
+### One command for the PMIC watchdog v1 try: reboot test first, then the bite, the plain-words prompts built in, the way back
+
+Status
+: open
+
+Note
+: Safety order of the item walleye-try-pmic-wdt-v1 stays: reboot test first, bite last, nothing written to storage; if the phone powers off or loops, hold power about 15 s. Decision 2026-11-19-walleye-attended-tries-one-command. ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone.
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the same shape (dry-run, unattended mode for real, argenv, tests, review): images A then B fallback (wdt1-a, wdt1-b) behind the gate; test 1 reboot: wdt-state, arm, a clean reboot, PASS is Android up and no loop; test 2 bite last: wdt-bite, PASS is a restart by itself; the author's plain-words text of item walleye-try-pmic-wdt-v1 printed as the prompts; the power-hold fallback said; results to the upstreams coordinator's research row; a keeper's record of the unattended parts run for real (state reads, arming without the bite); ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone.
+
+Rank
+: 5
+
+
+<a id="walleye-attend-program-ufs"></a>
+### One command for the UFS try, when the author says go: gate-exempt boot of the matched image, version read, the card read, the way back
+
+Status
+: open
+
+Note
+: Parked. Decision 2026-11-19-walleye-attended-tries-one-command. ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone.
+
+Waits
+: the author's go on UFS (decisions 2026-11-18-walleye-ufs-wait, 2026-11-19-walleye-ufs-hold-second-path); not started before
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the same shape; and the UFS-off gate is NOT bypassed by the program: the matched image is booted only through the explicit step the author's go opens; ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone.
+
+Rank
+: 99
