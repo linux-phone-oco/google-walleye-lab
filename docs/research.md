@@ -3508,3 +3508,47 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ufs-regs-reader-verdict"></a>
+### walleye-ufs-regs-reader-verdict
+
+Date
+: 2026-11-19
+
+Brief
+: UFS_HW_VERSION is at 0xE4 (not 0xE0), is 3.0.0 or 3.1.0 for certain, and has no read-only path on live Android: no module, read it in our own driver at the matched try
+
+Question
+: How do we read UFS_HW_VERSION and the PHY registers on live Android without /dev/mem: debugfs, a read-only module, or skip?
+
+Found
+: How to learn the UFS host's hardware version (and so the PHY table) for the Pixel 2 without /dev/mem on its live Android: the options, read from Google's published wahoo 4.4 kernel (branch android-msm-wahoo-4.4-android11, head 52750b8f, facts only, nothing kept). 2026-11-19, walleye-research. Nothing was run on the phone.
+
+## Facts from the vendor source
+- **The register is at 0xE4, not 0xE0.** `REG_UFS_HW_VERSION = 0xE4` in the host's vendor block (0xC0-0xFC: SYS1CLK_1US C0, TX_SYMBOL_CLK C4, LOCAL_PORT_ID C8, PA_ERR_CODE CC, RETRY_TIMER D0, PA_LINK_STARTUP_TIMER D8, CFG1 DC, CFG2 E0, HW_VERSION E4, TEST_BUS E8..., UNIPRO_CFG F8, AH8_CFG FC). Earlier rows (walleye-ufs-android-regs-read2, walleye-ufs-android-way-compared, the backlog proof) say 0xe0: that is CFG2. Format: major bits 31:28, minor 27:16, step 15:0.
+- **The vendor PHY driver accepts only two versions.** `ufs_qcom_phy_qmp_v3_phy_calibrate` picks the rate-A table by (major, minor, step) = 3.0.0 or 3.1.0; any other value returns -ENODEV ("Unknown UFS-PHY version ... no calibration values") and the UFS would not come up. Live Android's UFS works with `ufs_qcom_phy_qmp_v3` bound, so the host is 3.0.0 or 3.1.0 - known, not guessed. Which one is one word of the register.
+- **Where the vendor prints the vendor block.** debugfs `ufshcd0/host_regs` dumps only the UFSHCI space (UFSHCI_REG_SPACE_SIZE, 0x00-0x9c). The vendor block (16 words from 0xC0, so 0xE4 is inside) is dumped by `ufs_qcom_dump_dbg_regs`, called only from `ufshcd_print_host_regs` on error paths (timeouts, resets, fatal errors). `qcom/dbg_regs` (debugfs) prints the HW debug registers, not 0xC0-0xFC (measured: all zero). No debugfs file reads an arbitrary register. `dme_local_read` reads UniPro attributes, not the host block.
+- **The only debugfs path that makes the dump appear is `ufshcd0/reset_controller`**: it fakes a fatal error and resets the host controller. That writes, resets the link of the disk Android runs on, and is not read-only.
+- The version is not printed at boot (no dev_info), and Lineage's 4.4.302 fork was not read: a Lineage-only knob is not known.
+- `androidboot.msm.hw_ver_id=2005E0E1` on the command line is the SoC id, not the UFS host version.
+- Addresses from the running fdt: host `ufshc@1da4000`, PHY `phy@1da7000`.
+
+## The options
+1. **Vendor debugfs / sysfs knobs** - exhausted. host_regs and qcom/dbg_regs are read (research walleye-ufs-android-regs-read2); neither reaches 0xE4; reset_controller is a write. Result: cannot read the version this way.
+2. **A read-only GPL kernel module** (insmod by adb root, ioremap 0x1da4000+0xE4 and a fixed list of PHY offsets, print, rmmod). Reads of the powered, clocked UFS host by software that runs at the same time as Android's own driver are what Android itself does; but the host's clocks are gated when the disk is idle (clock gating with hibern8 is on), and a read of a gated block does not return: the bus hangs and the phone restarts. Writes nothing; the way back is a reboot; bricking is not at stake. Costs: Lineage 4.4.302 source and config matching the running kernel (vermagic, CONFIG_MODULES and module loading unknown - `/proc/config.gz` not read), a toolchain, SELinux for insmod, and keeping the disk busy so clocks are on (or taking the driver's own ufshcd_hold, if exported - not known). Result: possible; a day of build for one word.
+3. **The vendor kernel as instrument (vf)** - no: the same /dev/mem gap, and its UFS host is unclocked until its own driver runs.
+4. **Skip the read.** What is lost: only which of two PHY rate-A tables to give our driver (3.1.0: 10 lines differ from mainline's; 3.0.0: 35 lines differ). The version is not needed for the erase question (it is not about analog tuning), not for the RST_n or quirk work, and not for the author's "wait".
+5. **Read it in our own driver, at the UFS-on try** (new): the vendor reads it in ufs_qcom_init, after clocks are on and before the PHY is initialised; our driver can do the same read at the same place (a pr_info of REG_UFS_HW_VERSION, and the PHY table chosen by it as the vendor does), so the version is read where Android reads it, by the code that needs it, and no separate try. That is the way the matched image (item walleye-ufs-match-android-z) should carry, and it is why nothing needs to be read before the try.
+
+## Verdict
+Do not build a module (2) and do not pulse reset_controller: the loss of skipping (4) is small, and (5) closes it inside work that is queued anyway. The unreadable-now facts are bounded: version in {3.0.0, 3.1.0} (certain), the table choice (open, closed by the first read in our driver), the PHY registers after init (unread; they would show whether silicon matches the table, but a wrong table shows as a failed link startup, not an erase). The safe-before-any-try argument of research walleye-ufs-android-way-compared (a read first) stands for what it can read: host registers 0x00-0x9c (done) and pad state; the version moves into the matched image's own boot.
+
+Sources
+: src-google-wahoo-msm44-android11
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-ufs-regs-reader/2026-11-19/

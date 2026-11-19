@@ -4576,10 +4576,10 @@ Rank
 ### How to read UFS_HW_VERSION and the PHY registers on live Android (no /dev/mem): debugfs, a read-only module, or skip
 
 Status
-: open
+: done
 
 Note
-: From the keeper (lab PR 309): host regs read through sysfs/debugfs (UFSHCI 2.1, HS G3 x2 rate B, Hynix 64GB); HW version and PHY registers need a reader. Low rank: the UFS probe waits anyway (the author's 'Yes, wait'); this only sharpens the later verdict.
+: Decided 2026-11-19 (research walleye-ufs-regs-reader-verdict): no module; version read in the matched image's own probe.
 
 About
 : walleye-first-fastboot-boot
@@ -5353,10 +5353,10 @@ Rank
 ### Read the UFS host and PHY registers of live Android (UFS_HW_VERSION, host regs 0x00-0x2500, PHY after init, ufs_reset pad state), read-only as root
 
 Status
-: open
+: done
 
 Note
-: keeper 2026-11-19: read what debugfs gives (research walleye-ufs-android-regs-read2); HW_VERSION and PHY regs need a mem reader (no /dev/mem, no kcore): to the walleye coordinator
+: keeper read 0x00-0x9c, PHY driver bound, pad unclaimed; the version (register is 0xE4, not 0xE0) and PHY registers are NOT read on Android by decision 2026-11-19-walleye-ufs-version-read-in-our-driver; they move into walleye-ufs-match-android-z's probe
 
 Waits
 : a memory reader for live Android (research walleye-ufs-regs-reader); nothing a keeper can do first
@@ -5509,7 +5509,7 @@ Status
 : open
 
 Note
-: From research walleye-ufs-android-way-compared. The RST_n pulse needs a kernel change (tlmm ngpios or pinctrl states): decide which first. Drop ONE_TX_LANE, EXTEND_SYNC_LENGTH, DELAY_BEFORE_LPM for this card; keep the NO_PURGE guard.
+: From research walleye-ufs-android-way-compared and decision 2026-11-19-walleye-ufs-version-read-in-our-driver. The RST_n pulse needs a kernel change (tlmm ngpios or pinctrl states): decide which first. Drop ONE_TX_LANE, EXTEND_SYNC_LENGTH, DELAY_BEFORE_LPM for this card; keep the NO_PURGE guard. NEW: the image reads UFS_HW_VERSION (0xE4, before PHY init, as the vendor does), prints it, selects the PHY rate-A table by it (3.0.0/3.1.0, else stop). Build only; try waits for the author's go.
 
 Waits
 : the author's go on UFS (decision 2026-11-18-walleye-ufs-wait) and the Android register read; a UFS-on image is never built for a try without it
