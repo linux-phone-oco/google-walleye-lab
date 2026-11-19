@@ -95,20 +95,7 @@ mod tests {
         if let Some(t) = device_toml {
             std::fs::write(d.join("device.toml"), t).unwrap();
         }
-        struct NoEnv;
-        impl argenv_resolve::EnvSource for NoEnv {
-            fn get(&self, _: &str) -> Option<String> {
-                None
-            }
-            fn names(&self) -> Vec<String> {
-                vec![]
-            }
-        }
-        let mut s = Settings::from_resolution(
-            &argenv_resolve::Invocation::from_env(&NoEnv)
-                .resolve(&crate::settings::Contract::records()),
-            "t",
-        );
+        let mut s = Settings::stand_in(crate::settings::Try::Touch);
         s.lab = d;
         Lab::new(Rc::new(s))
     }

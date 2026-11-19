@@ -388,16 +388,9 @@ mod walkthrough {
         d
     }
 
-    fn the_try(name: &str, port: u16, extra: &[(&str, &str)]) -> (Touch, std::path::PathBuf) {
+    fn the_try(name: &str, port: u16) -> (Touch, std::path::PathBuf) {
         let d = lab(name);
-        let mut s = Settings::from_resolution(
-            &argenv_resolve::Invocation::from_env(&Env(extra
-                .iter()
-                .map(|(k, v)| (k.to_string(), v.to_string()))
-                .collect()))
-            .resolve(&crate::settings::Contract::records()),
-            "t",
-        );
+        let mut s = Settings::stand_in(crate::settings::Try::Touch);
         s.lab = d.clone();
         s.out = d.join("out");
         s.address = "127.0.0.1".into();
@@ -410,16 +403,6 @@ mod walkthrough {
         std::fs::write(&image, "image").unwrap();
         s.image = image;
         (Touch::new(s), d)
-    }
-
-    struct Env(std::collections::BTreeMap<String, String>);
-    impl argenv_resolve::EnvSource for Env {
-        fn get(&self, n: &str) -> Option<String> {
-            self.0.get(n).cloned()
-        }
-        fn names(&self) -> Vec<String> {
-            self.0.keys().cloned().collect()
-        }
     }
 
     fn phone(uptime: &'static str, events: Vec<String>) -> u16 {
@@ -449,7 +432,6 @@ mod walkthrough {
         let (t, d) = the_try(
             "pass",
             phone("107.4 5.0", vec![event("03"), event("03"), event("00")]),
-            &[],
         );
         t.ufs_is_off()().unwrap();
         t.battery_is_good()().unwrap();
@@ -468,7 +450,7 @@ mod walkthrough {
 
     #[test]
     fn nobody_touching_is_not_known_yet_not_a_pass() {
-        let (t, d) = the_try("nobody", phone("107.4 5.0", vec![]), &[]);
+        let (t, d) = the_try("nobody", phone("107.4 5.0", vec![]));
         let e = all_steps(&t).unwrap_err();
         assert!(e.starts_with("skip walleye-touch-events"), "{e}");
         std::fs::remove_dir_all(d).ok();
@@ -476,7 +458,7 @@ mod walkthrough {
 
     #[test]
     fn the_try_starts_from_android_and_takes_the_phone_to_fastboot_itself() {
-        let (t, d) = the_try("fb", 1, &[]);
+        let (t, d) = the_try("fb", 1);
         std::fs::write(
             d.join("device.toml"),
             "[connection]\naddresses = [\"127.0.0.1\"]\nserial = \"SER1\"\n",
@@ -515,7 +497,7 @@ mod walkthrough {
 
     #[test]
     fn a_window_the_restart_would_cut_short_stops_before_the_author_is_asked() {
-        let (t, d) = the_try("short", phone("170.0 5.0", vec![]), &[]);
+        let (t, d) = the_try("short", phone("170.0 5.0", vec![]));
         t.shell_answers()().unwrap();
         t.touch_device_is_listed()().unwrap();
         let e = t.window_is_long_enough()().unwrap_err();

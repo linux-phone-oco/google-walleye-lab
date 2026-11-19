@@ -627,16 +627,6 @@ mod walkthrough {
     use super::*;
     use crate::phone::fake;
 
-    struct Env(std::collections::BTreeMap<String, String>);
-    impl argenv_resolve::EnvSource for Env {
-        fn get(&self, n: &str) -> Option<String> {
-            self.0.get(n).cloned()
-        }
-        fn names(&self) -> Vec<String> {
-            self.0.keys().cloned().collect()
-        }
-    }
-
     fn lab(name: &str, adb_state: &str) -> PathBuf {
         let d = std::env::temp_dir().join(format!("wt-pmic-{name}-{}", std::process::id()));
         let hosts = d.join("tests/host");
@@ -696,12 +686,7 @@ mod walkthrough {
     }
 
     fn the_try(d: &std::path::Path, port: u16) -> Pmic {
-        let env = Env(std::collections::BTreeMap::new());
-        let mut s = Settings::from_resolution(
-            &argenv_resolve::Invocation::from_env(&env)
-                .resolve(&crate::settings::Contract::records()),
-            "t",
-        );
+        let mut s = Settings::stand_in(crate::settings::Try::Pmic);
         s.lab = d.to_path_buf();
         s.address = "127.0.0.1".into();
         s.port = port;

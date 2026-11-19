@@ -4219,3 +4219,21 @@ Rejected
 
 About
 : walleye-attend-program-pmic
+
+---
+
+
+<a id="2026-11-19-tries-read-device-toml"></a>
+### Tries read device.toml
+
+Entry date
+: 2026-11-19
+
+Done
+: walleye-try-settings-into-device-toml: settings.rs rewritten over dev()/proc(), entry files on lpoco-attended v0.32.0, device.toml keys added, stand-in tests on Settings::stand_in; 31 tests, clippy, fmt, both --dry-run pass, a missing key fails the dry run naming it. The real run needs build/images linked to ~/Projects/walleye-build in the lab clone.
+
+Considered
+: Checking the declared sha256 in code too: the SHA256SUMS check already verifies; left.
+
+About
+: walleye-first-fastboot-boot
