@@ -4990,3 +4990,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-l7-looks-seen"></a>
+### walleye-display-l7-looks-seen
+
+Date
+: 2026-11-19
+
+Brief
+: L7, both looks seen by the author: the kernel log on the glass and four held vertical stripes: the display passes on mainline
+
+Question
+: Does the author see the kernel log and the four stripes on the Pixel's glass through the L7 procedure?
+
+Found
+: The author, verbatim, relayed by the Top Coordinator, about 22:24 CET 2026-11-19: look 1 (prompt id 2717062-0): "i see the console output on pixel again"; look 2 (prompt id 2717062-1): "nice, i olso see 4 vertical color stripes !". Both answered by the Top Coordinator writing ok into ~/.cache/lpoco-attended/google-walleye/answer. So with L7 (the late-probe kernel, modules loaded by the procedure in L6's order, the held-stripes drawer in KD_GRAPHICS) the glass shows the kernel log and four vertical colour stripes that HOLD: the console repaint question (research walleye-display-stripes-brief) is answered by the KD_GRAPHICS fix. The first picture of ours on this phone. NOT yet true: the display at boot without a load order (B2 fails: pixel clock rcg warning, DSI -110, SMMU faults; research walleye-display-b2-dsi-clock-warning and item walleye-display-dts-any-order carry it).
+
+About
+: walleye-display-s6e3fa5
