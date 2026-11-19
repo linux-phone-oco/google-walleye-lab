@@ -6271,6 +6271,9 @@ Status
 Note
 : The lane's own work, not parked on the author (his words, 2026-11-19: "im not holding it back, im waiting until we have all we can from android and a working solution that is extracted from that as we were discussing before"). When this is done the go note goes to him and his word opens walleye-try-ufs-match. All seven gap items are done (PRs 414, 416, 417, 420, 423, 425, 430). Findings to carry into the table: version still 3.0.0 or 3.1.0 (read by the image); link-startup pre-change not carried; ICE skipped; abl leaves host and card running and the RST_n pulse is the one step no capture covers; lane 1 only risks speed; Sony's mechanism unpublished; perf items need nothing for a probe. The perf research says it can drop four rows from the gap table.
 
+Waits
+: walleye-ufs-match-prints (build, the matched image rebuilt with its read-only prints); the lane's own work, then the go note goes to the author
+
 Blocked by
 : walleye-ufs-hynix-sync-length-quirk,walleye-ufs-match-prints
 
