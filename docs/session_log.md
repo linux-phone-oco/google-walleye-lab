@@ -4504,3 +4504,24 @@ Considered
 
 About
 : walleye-ufs-match-android-z
+
+---
+
+
+<a id="2026-11-19-walleye-builder-the-ufs-try-as-one-rust"></a>
+### walleye-builder: the UFS try as one Rust procedure
+
+Entry date
+: 2026-11-19
+
+Done
+: walleye-attend-program-ufs: procedures/ufs-matched-image-on-the-pixel-2.rs over lpoco-attended v0.32.1, steps in tools/walleye-tries/src/ufs.rs, values in device.toml ([images.ufs-match], [procedures.ufs-matched-image-on-the-pixel-2]). The UFS-on boot step holds its own gate (sha256 and go rechecked right before the boot); the go is read from the item's row and must name the image's sha256; read only, watcher runs the way back. Not yet run for real: queued for the keeper without a go.
+
+Considered
+: go read by tad row parsing; a watcher parent for the way back (as the PMIC try)
+
+Rejected
+: date -d on go_until (reads 'tomorrow' as a go that never ends: strict date shape only); weakening or skipping tests/host/ufs-off-image.sh (untouched); the go check only as an earlier step (the boot step rechecks)
+
+About
+: walleye-ufs-match-android-z

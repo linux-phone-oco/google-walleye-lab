@@ -14,6 +14,7 @@
 //! | the touch try's values | `[procedures.touch-events-on-z21] window`, `min_window` |
 //! | the PMIC try's values | `[procedures.pmic-watchdog-v1-on-the-pixel-2] stay`, `bite_wait` |
 //! | the display try's values | `[images.l6]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
+//! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item` |
 //! | the display-at-boot try's values | `[images.b1]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules` |
 
 use lpoco_attended::prelude::{dev, proc};
@@ -25,6 +26,7 @@ pub const TOUCH_PROCEDURE: &str = "touch events on z21";
 pub const PMIC_PROCEDURE: &str = "PMIC watchdog v1 on the Pixel 2";
 pub const DISPLAY_PROCEDURE: &str = "display stripes on the Pixel 2";
 pub const DISPLAY_BOOT_PROCEDURE: &str = "display at boot on the Pixel 2";
+pub const UFS_PROCEDURE: &str = "UFS matched image on the Pixel 2";
 
 /// Which try the settings are read for: each reads only its own procedure's values and images.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -33,6 +35,7 @@ pub enum Try {
     Pmic,
     Display,
     DisplayBoot,
+    Ufs,
 }
 
 /// The settings of one try. The fields of the other try stay empty (zero, no path).
@@ -63,6 +66,10 @@ pub struct Settings {
     /// the display-at-boot try: how many display modules the init must say ok for, and the sha256 its image must have
     pub modules: u64,
     pub image_sha256: String,
+    /// the UFS try: the dtb the matched image was built with, the kernel tree it was built from, the item the author's go is recorded on
+    pub dtb: PathBuf,
+    pub kernel_tree: PathBuf,
+    pub go_item: String,
     /// where a try saves what it reads when a test named one, by the try's name
     pub out_given: Option<PathBuf>,
     pub day: String,
@@ -88,6 +95,11 @@ impl Settings {
         Settings::read(Try::DisplayBoot, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
+    }
+
+    /// The UFS try's settings, read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_ufs() -> Settings {
+        Settings::read(Try::Ufs, &|k| dev(k).to_string(), &|k| proc(k).to_string())
     }
 
     /// The PMIC try's settings, read from the device's `device.toml` (call after `procedure(...)`).
@@ -139,6 +151,9 @@ impl Settings {
             module_pause: 0,
             modules: 0,
             image_sha256: String::new(),
+            dtb: PathBuf::new(),
+            kernel_tree: PathBuf::new(),
+            go_item: String::new(),
             out_given: None,
             day: today(),
         };
@@ -160,6 +175,14 @@ impl Settings {
                 s.hold = number("hold", proc("hold"));
                 s.module_pause = number("module_pause", proc("module_pause"));
                 s.out = s.out_dir("display");
+            }
+            Try::Ufs => {
+                s.image = image("ufs-match");
+                s.image_sha256 = dev("images.ufs-match.sha256");
+                s.dtb = lab.join(&image_dir).join(proc("dtb"));
+                s.kernel_tree = home_path(&proc("kernel_tree"));
+                s.go_item = proc("go_item");
+                s.out = s.out_dir("ufs");
             }
             Try::DisplayBoot => {
                 s.image = image("b1");
@@ -212,11 +235,24 @@ impl Settings {
             ("images.b1.path", "boot-b1.img"),
             ("images.b1.sha256", "57ab"),
             ("modules", "13"),
+            ("images.ufs-match.path", "NOT-TO-BOOT-x/NOT-TO-BOOT-ufs.img"),
+            ("images.ufs-match.sha256", "4610"),
+            ("dtb", "NOT-TO-BOOT-x/ufs-match.dtb"),
+            ("kernel_tree", "~/tree"),
+            ("go_item", "walleye-try-ufs-match"),
         ]
         .into_iter()
         .collect();
         let get = |k: &str| keys[k].to_string();
         Settings::read(which, &get, &get)
+    }
+}
+
+/// A path with a leading `~/` taken from the home folder.
+fn home_path(text: &str) -> PathBuf {
+    match text.strip_prefix("~/") {
+        Some(rest) => home().join(rest),
+        None => PathBuf::from(text),
     }
 }
 
@@ -280,6 +316,7 @@ mod tests {
             (Try::Pmic, PMIC_PROCEDURE),
             (Try::Display, DISPLAY_PROCEDURE),
             (Try::DisplayBoot, DISPLAY_BOOT_PROCEDURE),
+            (Try::Ufs, UFS_PROCEDURE),
         ] {
             let name: Vec<String> = table
                 .split(|c: char| !c.is_ascii_alphanumeric())

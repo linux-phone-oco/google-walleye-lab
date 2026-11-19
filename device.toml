@@ -170,3 +170,12 @@ module_pause = 5                    # seconds between two display modules' loads
 
 [procedures.display-at-boot-on-the-pixel-2]
 modules = 13                        # the display modules the init loads by itself, each said "walleye-display: ok" in the kernel log (the ramdisk's /display-modules.list has this many lines)
+
+[images.ufs-match]
+path = "NOT-TO-BOOT-ufs-on-images-ufs-match2/NOT-TO-BOOT-ufs-on-ufs-match.img"
+sha256 = "461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5"   # the matched UFS-ON image (PR 555): NOT to boot without the author's go; tests/host/ufs-off-image.sh refuses it by design
+
+[procedures.ufs-matched-image-on-the-pixel-2]
+dtb = "NOT-TO-BOOT-ufs-on-images-ufs-match2/msm8998-google-walleye-ufs-match.dtb"   # the dtb in that image (a path under [images] dir), for tests/host/ufs-match-android.sh
+kernel_tree = "~/Projects/walleye-build/wt-k-ufsm"   # the tree the image was built from (topic/ufs-match-android), for tests/host/ufs-match-android.sh
+go_item = "walleye-try-ufs-match"                    # the item whose go_until holds the author's go: the UFS-on boot runs only while it is in the future

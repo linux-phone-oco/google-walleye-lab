@@ -7804,20 +7804,10 @@ Rank
 ### One command for the UFS try, when the author says go: gate-exempt boot of the matched image, version read, the card read, the way back
 
 Status
-: open
+: in-progress
 
 Note
-: CURRENT INSTRUCTION (rewritten 2026-11-19; it replaces every earlier runner, path and wait line of this item, which were history).
-
-WHAT: the UFS try as one Rust procedure, procedures/ufs-matched-image-on-the-pixel-2.rs, modelled on procedures/display-stripes-on-the-pixel-2.rs (lab PR 538) on lpoco-attended v0.32.x (cargo git dependency on linux-phone-oco/lab-tools; lpoco-attended new NAME scaffolds, run NAME --dry-run, check; copy attended/examples/attended.rs). Entry file: use lpoco_attended::prelude::*; let _run = procedure(NAME, "google-walleye"); every device value read at the top of main with dev(..) and proc(..) from device.toml (declare [images.ufs-match] path and sha256, and [procedures.ufs-matched-image-on-the-pixel-2] values); one plainly named step per line, each stops the run on failure, the whole procedure on one screen. Our own steps are helpers in tools/walleye-tries (a ufs.rs beside display.rs).
-
-IMAGE: ~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-match2/NOT-TO-BOOT-ufs-on-ufs-match.img, sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 (rebuilt with read-only prints, PR 555). It prints UFS_HW_VERSION, HCS/HCE (0x30/0x34) and PCS+0x130, then reads the card's identity and partitions. The gate tests/host/ufs-off-image.sh REFUSES it by design and is not weakened or bypassed: the procedure's UFS-on boot is the one step that names this image, and it checks instead the sha256 and tests/host/ufs-match-android.sh.
-
-THE GO: the UFS-on boot step runs only when the author's go is recorded on item walleye-try-ufs-match (go_until in the future; the procedure reads it from the data, not from an argument). Without it the step stops with 'no go' and the phone is left on Android. Decisions: 2026-11-18-walleye-ufs-wait, 2026-11-19-walleye-ufs-hold-second-path, 2026-11-19-walleye-ufs-android-derived-solution. The go note for the author is research walleye-ufs-go-note (PR 559).
-
-STEPS: battery and phone-state; the phone to fastboot itself; the image's sha256; [the go step]; boot once from slot b; wait for the gadget; read dmesg: the version line, HCS/HCE, the PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge, PCS+0x130; list the partitions read-only (lsblk, nothing mounted read-write, no dd to the card, no fstrim, no reset_controller); the way back (the image's self-reboot, then reboot -f and the sysrq b fallback over the shell, the power-hold sentence); idle-android passes. READ ONLY: nothing is written to the card.
-
-UNATTENDED MODE: with the go absent the procedure runs every step before the UFS-on boot for real (gates, battery, fastboot step, image sha256, dry-run listing of the rest) and stops at the go step. A keeper runs that mode once for real on the installed lpoco (0.32.1); that record is the bar for 'one command away'. A fresh worktree needs ln -s ~/Projects/walleye-build build/images first (AGENTS.md). Keepers wait by short polls.
+: BUILT 2026-11-19 (builder): procedures/ufs-matched-image-on-the-pixel-2.rs + tools/walleye-tries/src/ufs.rs on lpoco-attended v0.32.1; dry-run, lpoco-attended check, 102 stand-in tests, clippy, fmt pass; programmer review answered (strict go date; the boot step re-checks sha256 and the go itself; the go must be on an item whose row NAMES the image's sha256). The UFS-off gate is untouched and not run on this image. NEXT: a keeper runs 'lpoco-attended run ufs-matched-image-on-the-pixel-2' once for real without a go (it takes the phone to fastboot, stops at the go step with 'no go', the way back returns it to Android); that record is the bar for 'one command away'. NOTE FOR THE GO: item walleye-try-ufs-match's note still names the OLD image (ufs-match, sha f8f6215e...4f45); until its note names sha 461077869fb2...97df5 the go step says 'no go' even with go_until open - update that note when the go note goes to the author. Fresh worktree: ln -s ~/Projects/walleye-build build/images.
 
 About
 : walleye-ufs-match-android-z
@@ -7826,10 +7816,10 @@ Opened
 : 2026-11-19
 
 Needs
-: build
+: phone
 
 Proof
-: procedures/ufs-matched-image-on-the-pixel-2.rs on lpoco-attended v0.32.x (dry-run, check, stand-in tests, review): the gate and battery, the phone to fastboot, the matched image checked against its sha256, then ONE explicit step that boots the UFS-on image and only runs with the author's go recorded in the item (the gate tests/host/ufs-off-image.sh is not weakened: the matched image is refused by it by design; the step is the one place that names it), the console and dmesg read (UFS_HW_VERSION, PHY table line, link HS-G3 2 lanes, LUNs listed, no purge, host regs 0x30/0x34, PHY+0x130), the way back; READ ONLY: nothing is written to the card; an unattended mode that runs every step before the UFS-on boot for real and stops there with 'no go'; a keeper's run of that mode landed
+: lpoco-attended run ufs-matched-image-on-the-pixel-2 (no go recorded): battery, matched-image tests and fastboot step pass for real, the run stops at the go step with 'no go', and the phone ends on Android (tests/host/idle-android.sh)
 
 Rank
 : 2
