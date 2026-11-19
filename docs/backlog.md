@@ -5559,10 +5559,10 @@ Rank
 ### Build a z image whose UFS path matches Android's for this card: SAVECONFIGTIME only, the PHY table of the version read, ICE and rail loads, a card RST_n pulse (built and reviewed, NOT tried)
 
 Status
-: open
+: done
 
 Note
-: Build and review only. Research walleye-ufs-regs-reader-verdict: version read at 0xE4 in the image's own ufs-qcom init, table by it (3.0.0/3.1.0, else stop). The RST_n pulse needs a kernel change (tlmm ngpios or pinctrl states): the builder decides which first and records it. Drop ONE_TX_LANE, EXTEND_SYNC_LENGTH, DELAY_BEFORE_LPM for this card; keep the NO_PURGE guard. The image is never booted or put in a keeper's queue; tests/host/ufs-off-image.sh refuses it by design. The try is a separate item that waits for the author's go on UFS (decision 2026-11-18-walleye-ufs-wait); this item is the build and the review only (decision 2026-11-19-walleye-ufs-image-builds-before-the-go).
+: Built and reviewed, never booted: research walleye-ufs-match-built; proof tests/host/ufs-match-android.sh, its selftest and build/build-ufs-match.sh (checks ok, rebuild identical, gate fails the image by design). Not matched, by decision 2026-11-19-walleye-ufs-match-no-ice-no-linkstartup: ICE, link-startup pre-change. The try is walleye-try-ufs-match, waiting for the author's go.
 
 About
 : walleye-first-fastboot-boot
@@ -5672,3 +5672,31 @@ Witness
 
 Go until
 : 2026-11-19T13:30:00+01:00
+
+
+<a id="walleye-try-ufs-match"></a>
+### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
+
+Status
+: open
+
+Note
+: Image: ~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-match/NOT-TO-BOOT-ufs-on-ufs-match.img (sha256 f8f6215e...4f45). The UFS-off gate refuses it by design: a keeper needs the author's go before any gate exception. Not queued (no needs) until the go.
+
+Waits
+: the author's explicit go on UFS (decision 2026-11-18-walleye-ufs-wait); no keeper queue until it
+
+Blocked by
+: walleye-ufs-match-android-z
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Proof
+: the image's own dmesg: UFS_HW_VERSION line, PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge
+
+Witness
+: person
