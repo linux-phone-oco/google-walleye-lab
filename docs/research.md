@@ -4011,3 +4011,33 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-audio-haptics-ways"></a>
+### walleye-audio-haptics-ways
+
+Date
+: 2026-11-19
+
+Brief
+: Walleye audio: no sibling has it working; speaker needs Q6/ADSP + MI2S + new TAS2557 driver, not the WCD934x; haptics needs a new small DRV2624 driver
+
+Question
+: What is the way to drivers for the Pixel 2's haptics (DRV2624), speaker amps (TAS2557) and codec (WCD934x)?
+
+Found
+: What is (read, nothing changed): mainline 7.1 has no DRV2624 (drv260x/2665/2667 are other register maps) and no TAS2557 (tas2552/2562/2764/2770/2780/2781/2783 and tfa989x are other chips). It has wcd934x.c, but msm8998.dtsi carries no slimbus, lpass, q6 or sound nodes, and no mainline msm8998 phone has audio. The sibling Pixel 2 XL (nura wiki, calebccff linux-wahoo) boots with USB net; audio untested. Sunfish (sm7150) only has `ti,drv2624 haptic@5a` as a comment. So nobody has done either chip.
+Hardware (vendor-kernel-hardware-inventory): DRV2624 at 0x5a on i2c_6, LRA, reset gpio95, PMI8998's own haptics disabled. TAS2557 stereo at 0x4c/0x4d on i2c_7, audio over quaternary MI2S (not SLIMbus), reset PM8998 gpio6, IRQs gpio7/8. WCD934x on SLIMbus carries the digital mics; the jack is disabled.
+Finding that shapes the order: speaker playback does not need the WCD934x (inferred from the amps' MI2S wiring; the vendor routing read confirms it). It needs the ADSP (remoteproc, firmware from the vendor partition), APR/q6afe/q6asm, the MI2S dai, a machine driver, and a TAS2557 driver. The codec (SLIMbus NGD, mics) is the long part and comes after.
+Ways: (1) new clean-room DRV2624 input force-feedback driver, structured like drv2667; (2) TAS2557 driver in bypass mode first (class-D on, DSP SmartAmp off), DSP firmware later; (3) port the vendor tas2557 driver whole with its firmware loader - rejected: large, tied to Android firmware, not upstreamable; (4) the sdm845 route (q6 sound card) as the pattern for ADSP + MI2S + machine driver; (5) wcd934x on SLIMbus: needs an msm8998 NGD node, no sibling has done it.
+Unknowns, each settled by reading only: whether TAS2557 makes sound without DSP firmware and its minimum register sequence; the MI2S clock the amp needs; which ADSP firmware loads on mainline remoteproc for msm8998.
+Risk to the reference phone: none for reading and drivers; each try is a second boot entry by the keeper.
+
+Sources
+: ti-drv2624-datasheet,ti-tas2557-datasheet,aosp-msm-marlin-codecs,nura-taimen-wiki,mainline-7-1-tree-read
+
+About
+: walleye-audio-haptics
+
+Material
+: research/walleye-audio-haptics/2026-11-19/
