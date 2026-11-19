@@ -3224,3 +3224,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-z21-tried-touch-binds"></a>
+### walleye-z21-tried-touch-binds
+
+Date
+: 2026-11-19
+
+Brief
+: z21 once from slot b: no gpiolib_shared proxy deferral; rmi4 0-0020 binds, Synaptics S3708AR input registered; UFS off; phone back on Android slot b
+
+Question
+: With UFS off and the stub container disabled, does regulator-touch-power probe and rmi4 0-0020 bind?
+
+Found
+: ufs-off-image.sh passed on boot-z21.img right before the boot (sha256 matched SHA256SUMS-z21); battery 4375 mV. lpoco lab fastboot boot now: left fastboot 15 s, gadget 1d6b:0104 at 18 s, shell read by mainline-shell-read.sh (16 answers, dmesg 622 lines; material ~/lab-material/walleye/z21-try1). dmesg: 0 lines 'cannot find GPIO chip gpiolib_shared'; regulator-touch-power parses gpios status 0 at 1.017; rmi4_i2c 0-0020 registers at 1.206, 'found RMI device, manufacturer: Synaptics, product: S3708AR, fw id: 2520908', input: Synaptics S3708AR as .../0-0020/rmi4-00/input/input1. So the single-claimant fix (stub container disabled) is the cause fix for the touch power defer. Not done: tests/host/part-compare.sh capture touch ours (the reader's reboot -f ended the shell; needs a try with NOREBOOT=1 - a second z21 try, left to the coordinator) and touch-check.sh events (nobody touched the panel; skip). Phone returned to Android slot b by the reader's reboot -f; adb up, 4381 mV, nothing flashed.
+
+About
+: walleye-first-fastboot-boot

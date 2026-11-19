@@ -5297,12 +5297,10 @@ Rank
 ### Try z21 once from slot b (probe only): UFS off, stub container disabled; read whether regulator-touch-power probes and rmi4 0-0020 binds
 
 Status
-: open
+: done
 
 Note
-: null
-
-GO from the top coordinator 2026-11-19 (read back PR 338 merged, ufs-off-gate CI passing): boot z21; an ordinary unattended try, no author needed. RIGHT BEFORE the boot, run tests/host/ufs-off-image.sh on ~/Projects/walleye-build/images-z21/boot-z21.img once more, per the recipe: it must pass (and say so in the record); if it fails, do not boot. Then the z20 recipe: gadget up, network shell, the touch probe (rmi4 / input devices), the gpio diagnostics lines (dyndbg), the part-compare capture for touch over the shell (tests/host/part-compare.sh capture touch ours), then the diff against the Android capture of walleye-touch-android-compare.
+: proven by z21 dmesg: no gpiolib_shared.proxy deferral, rmi4 0-0020 binds (research walleye-z21-tried-touch-binds); part-compare capture not taken
 
 About
 : walleye-first-fastboot-boot
