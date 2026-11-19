@@ -7923,10 +7923,10 @@ Rank
 ### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
 
 Status
-: open
+: done
 
 Note
-: Tried once 2026-11-19 under the author's go: UFS_HW_VERSION 3.1.0, PHY table 3.1.0, host enabled; check 10 (HS-G3 2 lanes) failed, LUNs and purge not reached; phone back on Android. Proof NOT met.
+: DONE 2026-11-19 (about 21:05 CET): the author's go bought ONE try and it ran: the card is readable on mainline. Result: research walleye-ufs-try1-card-readable. The go is spent: a second try needs the author's word again (through the Top Coordinator), after the fix and the questions of items walleye-ufs-link-check-works-slow and walleye-ufs-why-gear1.
 
 Waits
 : the lane coordinator's decision on a second try: the one try is spent (research walleye-ufs-match-tried-version-ok-link-stays-gear1); the link stayed HS_GEAR1/HIBERN8; no retry without a new go and a reason
@@ -7976,3 +7976,84 @@ Proof
 
 Rank
 : 6
+
+
+<a id="walleye-ufs-link-check-works-slow"></a>
+### The UFS procedure reads the link, it does not fail on a gear below HS-G3: 'works, slow' is a result
+
+Status
+: open
+
+Note
+: Research walleye-ufs-try1-card-readable: the procedure's only FAIL was this check; the card read fine at HS gear 1, 2 lanes, rate B, in HIBERN8.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: procedures/ufs-matched-image-on-the-pixel-2.rs: the check 'the link is HS-G3 on two lanes' becomes a reading step that records gear, lanes, rate, mode, link_state and dev_pm and says 'works at full speed' (HS-G3, 2 lanes) or 'works, slow' (a lower gear, link up, LUNs read) or fails only when the link is down or a LUN is unreadable; stand-in tests for gear 1, gear 3 and link down; dry-run, lpoco-attended check pass; the real files of try 1 (link.txt) read through it as 'works, slow'
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-why-gear1"></a>
+### Why the link idles at HS gear 1 and the change to HS-G3 is not seen: clock scaling at idle, the power-mode change not made, or the PHY table
+
+Status
+: open
+
+Note
+: Top Coordinator's questions after try 1: why is the G3 power-mode change not made (lane 1, the PHY table 3.1.0 against the sdm845 table, or a mainline gear cap)? A reading of the link at hibern8 may also just be the clock-scaled idle state: check before assuming a fault.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row from the try's dmesg and link files and the v7.3 source (ufshcd_config_pwr_mode and ufshcd_init_pwr_info, ufs_qcom_pwr_change_notify and its gear capabilities for this host version, the devicetree limits for the gear and lanes of the msm8998 ufshc node, ufshcd clock scaling and devfreq at idle, the PHY table 3.1.0 against the vendor's): the hypotheses ranked, which one the files already exclude, and the READ-ONLY readings a second try would add to tell them apart (clkscale_enable and the devfreq state, power_info after a bounded read load of the first sectors, the power-mode lines of dmesg)
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-try-2"></a>
+### UFS try 2: the same read-only boot again, with the questions of try 1 added, and the proof that the card is unharmed
+
+Status
+: open
+
+Note
+: A second boot of the same image confirms the first was no fluke and that the card is unharmed. NOT started without the author's word.
+
+Waits
+: the author's word for a second try (his go bought one try, spent 2026-11-19 21:05 CET), brought by the Top Coordinator; and walleye-ufs-link-check-works-slow, walleye-ufs-why-gear1 done
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: through procedures/ufs-matched-image-on-the-pixel-2.rs: the same boot read only, the card's identity and LUNs again, the readings that walleye-ufs-why-gear1 names; and the unharmed proof: the partition tables (GPT) read by Android as root before and after, and by the mainline boot, hash-equal; Android boots normally afterwards (idle-android), both slots' flags unchanged; nothing is written
+
+Rank
+: 3
+
+Witness
+: person

@@ -4933,3 +4933,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ufs-try1-card-readable"></a>
+### walleye-ufs-try1-card-readable
+
+Date
+: 2026-11-19
+
+Brief
+: UFS try 1 on the matched image: the card is readable on mainline: version 3.1.0, six LUNs SKhynix H28U74301AMR D003, partition tables read, no UFS errors; the link idles at HS gear 1 on 2 lanes
+
+Question
+: What did the matched image read from the Pixel 2's UFS card, and was anything wrong?
+
+Found
+: Read from the keeper's own files (~/lab-material/walleye/ufs-20261119-210513: dmesg.txt, link.txt) by the Top Coordinator and the walleye coordinator, 2026-11-19 about 21:05 CET, one boot of boot image sha256 461077869fb2 from slot b, read only. dmesg: UFS_HW_VERSION 3.1.0 (so the 3.0.0 questions are closed); UFS_HOST_LEFT HCS 0x0000010f HCE 0x00000001 (what the bootloader left); qcom-qmp-ufs-phy: MSM8998 PHY table 3.1.0; UFS_PHY_LINECFG_DISABLE 0x00000000 (the RX line config bit is clear); inline encryption disabled as designed; scsi host0 with the well-known LUNs and six LUNs 0 to 5, each SKhynix H28U74301AMR firmware D003; the partition tables read (sda with 30 or more partitions, sdb to sdf); no UFS error lines. link.txt: gear HS_GEAR1, lanes 2, mode FAST_MODE, rate HS_RATE_B, link_state HIBERN8, dev_pm SLEEP: the link is up and works but idles at gear 1; the power-mode change to HS-G3 (Android's gear) is not seen. The phone is back on Android (adb device) after the try; nothing was written. The procedure marked FAIL only at its check 'the link is HS-G3 on two lanes', which is speed, not a fault of the card (the gap research already said so: research walleye-ufs-gap-lane1). Unknown-1 (host version) and the reset-pulse unknown are closed by this: the version is 3.1.0 and the card answered after the matched image's reset pulse.
+
+About
+: walleye-ufs-match-android-z
