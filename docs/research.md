@@ -4820,45 +4820,6 @@ About
 : walleye-ufs-match-android-z
 
 
-<a id="walleye-ufs-go-note"></a>
-### walleye-ufs-go-note
-
-Date
-: 2026-11-19
-
-Brief
-: Go note for the author, refreshed after the gaps: 18 steps against Android, 7 equal, 1 carried, 7 harmless, 2 unknown; erase cause unpublished, no EDL; the go is his
-
-Question
-: How close is the matched image to Android's bring-up of H28U74301AMR now, what is unknown, what could a failure cost?
-
-Found
-: NOTE FOR THE AUTHOR, refreshed 2026-11-19 after the seven gap items (plain words; the go is yours, no session lifts the hold - decision 2026-11-19-walleye-ufs-hold-second-path). The full step table is research walleye-ufs-solution-table.
-
-WHAT THE TRY IS: boot one image (NOT-TO-BOOT-ufs-on-ufs-match.img, sha256 461077869fb2..., rebuilt with read-only prints, identical rebuild, never booted) from slot b whose kernel brings up the phone's UFS card (SK hynix H28U74301AMR, 64 GB). Nothing is written to the card by us. It prints the UFS version, the host state (HCS/HCE) and one PHY register, then reads the card's identity and partitions.
-
-THE ANSWER FROM ANDROID, in 18 steps: 7 equal, 1 carried by mainline with the same effect, 7 differ but are judged harmless (each with its source), 2 unknown.
-- Equal to Android: host reset, the card's reset pulse, the voltages, the card quirks (only SAVECONFIGTIME; our purge guard on top), Sony's three erase-related fixes absent (Android never uses them on this card), purge never sent, HS gear 3 / 2 lanes negotiated by mainline.
-- Differs, harmless: clocks without hardware gating, no inline encryption (cannot touch link or card), no bus votes or PM-QoS (speed only), Android's RX-line and one timing-mask step at link start (no mainline Qualcomm host that boots from UFS does them), lane 1's table entries (a down lane 1 costs speed, not the card), mainline's extras.
-- Unknown 1: the host version (3.0.0 or 3.1.0). Android cannot show it; the image prints it first thing.
-- Unknown 2: the card's reset pulse on this card. Four earlier accidental probes read the card fine WITHOUT a pulse; the matched image is the first to pulse it, as Android does. Short, standard on other UFS phones, but not seen here.
-So: the image matches everything that touches the card's identity, reset and link rules; it leaves out Android's speed and power tuning on purpose.
-
-STILL NOT KNOWN AND NOT KNOWABLE FROM ANDROID: why Sony's yoshino phone (a similar Hynix card) lost its bootloader with a probe lacking quirks. Nobody has published the mechanism. Our sequence sends no write, no unmap and no purge on any path we can read, and holds none of Sony's fixes because Android's own does not. Whether this phone's card firmware is a risky revision cannot be read without root.
-
-RISK AND COST: chance not zero, not measured. If the bootloader were erased, fastboot goes with it; no EDL way back for the Pixel 2 is known (research 2026-11-18-walleye-edl-way-back): the phone would be a brick for us and this lane would end. Lowering it: the four accidental probes read the card, nothing written, the phone still boots Android from both slots.
-
-WHAT HAPPENS WHEN YOU SAY GO: one command (item walleye-attend-program-ufs, being made now: read-only, dry-run first) boots the image once, reads the version and the card, and takes the way back. The try itself is item walleye-try-ufs-match.
-
-YOUR OPTIONS: (a) go on the matched image, one try, read-only; (b) wait for an EDL way back first; (c) no go.
-
-Sources
-: src-sony-ufs-quirks-forward-port,src-oneplus5-ufs-mainline,src-google-wahoo-msm44-android11
-
-About
-: walleye-first-fastboot-boot
-
-
 <a id="walleye-display-at-boot-b1-tried-unattended-ok-backlight-fails"></a>
 ### walleye-display-at-boot-b1-tried-unattended-ok-backlight-fails
 
@@ -4895,3 +4856,39 @@ Found
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-ufs-go-note"></a>
+### walleye-ufs-go-note
+
+Date
+: 2026-11-19
+
+Brief
+: Go note for the author, refreshed after the gaps: 18 steps against Android, 7 equal, 1 carried, 7 harmless, 2 unknown; erase cause unpublished, no EDL; the go is his
+
+Question
+: How close is the matched image to Android's bring-up of H28U74301AMR now, what is unknown, what could a failure cost?
+
+Found
+: NOTE FOR THE AUTHOR, refreshed 2026-11-19 after the seven gap items (plain words; the go is yours, no session lifts the hold - decision 2026-11-19-walleye-ufs-hold-second-path). The full step table is research walleye-ufs-solution-table.
+
+WHAT THE TRY IS: boot one image (NOT-TO-BOOT-ufs-on-ufs-match.img, sha256 461077869fb2..., rebuilt with read-only prints, identical rebuild, never booted) from slot b whose kernel brings up the phone's UFS card (SK hynix H28U74301AMR, 64 GB). Nothing is written to the card by us. It prints the UFS version, the host state (HCS/HCE) and one PHY register, then reads the card's identity and partitions.
+
+THE ANSWER FROM ANDROID, in 18 steps: 7 equal, 1 carried by mainline with the same effect, 7 differ but are judged harmless (each with its source), 2 unknown.
+- Equal to Android: host reset, the card's reset pulse, the voltages, the card quirks (only SAVECONFIGTIME; our purge guard on top), Sony's three erase-related fixes absent (Android never uses them on this card), purge never sent, HS gear 3 / 2 lanes negotiated by mainline.
+- Differs, harmless: clocks without hardware gating, no inline encryption (cannot touch link or card), no bus votes or PM-QoS (speed only), Android's RX-line and one timing-mask step at link start (no mainline Qualcomm host that boots from UFS does them), lane 1's table entries (a down lane 1 costs speed, not the card), mainline's extras.
+- Unknown 1: the host version (3.0.0 or 3.1.0). Android cannot show it; the image prints it first thing.
+- Unknown 2: the card's reset pulse on this card. Four earlier accidental probes read the card fine WITHOUT a pulse; the matched image is the first to pulse it, as Android does. Short, standard on other UFS phones, but not seen here.
+So: the image matches everything that touches the card's identity, reset and link rules; it leaves out Android's speed and power tuning on purpose.
+
+STILL NOT KNOWN AND NOT KNOWABLE FROM ANDROID: why Sony's yoshino phone (a similar Hynix card) lost its bootloader with a probe lacking quirks. Nobody has published the mechanism. Our sequence sends no write, no unmap and no purge on any path we can read, and holds none of Sony's fixes because Android's own does not. READ NOW (2026-11-19, read-only on live Android as root, nothing written; research walleye-ufs-card-revision): the card is SK hynix H28U74301AMR, firmware revision D003 on all six units. Whether D003 is a risky revision is NOT KNOWN: Sony's yoshino XZ1 that was probed without an erase carries a different maker and revision (Samsung, 0200), and no public report ties SK hynix D003 to an erase; the matched image sends no purge, the one mechanism suspected.
+
+RISK AND COST: chance not zero, not measured. If the bootloader were erased, fastboot goes with it; no EDL way back for the Pixel 2 is known (research 2026-11-18-walleye-edl-way-back): the phone would be a brick for us and this lane would end. Lowering it: the four accidental probes read the card, nothing written, the phone still boots Android from both slots.
+
+WHAT HAPPENS WHEN YOU SAY GO: one command (item walleye-attend-program-ufs, being made now: read-only, dry-run first) boots the image once, reads the version and the card, and takes the way back. The try itself is item walleye-try-ufs-match.
+
+YOUR OPTIONS: (a) go on the matched image, one try, read-only; (b) wait for an EDL way back first; (c) no go.
+
+About
+: walleye-first-fastboot-boot
