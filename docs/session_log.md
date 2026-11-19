@@ -4348,3 +4348,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-display-procedure"></a>
+### Display try as one Rust procedure
+
+Entry date
+: 2026-11-19
+
+Done
+: procedures/display-stripes-on-the-pixel-2.rs on lpoco-attended v0.32.1 with steps in tools/walleye-tries/src/display.rs: gate, fastboot, boot L6, wait_for_gadget (library), shell polled and hold set with an on-phone deadman, modules loaded in list order with rc and liveness each, connector poll, expectation said, detached drawer polled to 'drew', look_for, drawer end rc 0 (60 s grace before the hold is released), Android back. Phone not touched. 48 stand-in tests, clippy, fmt, lpoco-attended check and --dry-run pass; programmer review found 5 defects, fixed.
+
+Considered
+: library boot_once/back_to_known_good/read_dmesg/check_probe go through devlab phone, which needs a login this phone lacks: used wait_for_gadget and look_for only
+
+Rejected
+: tests/host/display-late-probe.sh (reads the drawer result too early); a fixed sleep for the hold
+
+About
+: walleye-display-s6e3fa5

@@ -13,6 +13,7 @@
 //! | the images | `[images] dir`, `[images.z21]`, `[images.wdt1-a]`, `[images.wdt1-b]` (`path`, `sha256`) |
 //! | the touch try's values | `[procedures.touch-events-on-z21] window`, `min_window` |
 //! | the PMIC try's values | `[procedures.pmic-watchdog-v1-on-the-pixel-2] stay`, `bite_wait` |
+//! | the display try's values | `[images.l6]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
 
 use lpoco_attended::prelude::{dev, proc};
 use std::path::PathBuf;
@@ -21,12 +22,14 @@ use std::process::Command;
 /// The procedure names of the two tries: the entry files and the `[procedures.NAME]` tables agree on them.
 pub const TOUCH_PROCEDURE: &str = "touch events on z21";
 pub const PMIC_PROCEDURE: &str = "PMIC watchdog v1 on the Pixel 2";
+pub const DISPLAY_PROCEDURE: &str = "display stripes on the Pixel 2";
 
 /// Which try the settings are read for: each reads only its own procedure's values and images.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Try {
     Touch,
     Pmic,
+    Display,
 }
 
 /// The settings of one try. The fields of the other try stay empty (zero, no path).
@@ -51,6 +54,9 @@ pub struct Settings {
     pub image_b: PathBuf,
     pub stay: u64,
     pub bite_wait: u64,
+    /// the display try: seconds the drawer holds the stripes, seconds between two module loads
+    pub hold: u64,
+    pub module_pause: u64,
     /// where a try saves what it reads when a test named one, by the try's name
     pub out_given: Option<PathBuf>,
     pub day: String,
@@ -60,6 +66,13 @@ impl Settings {
     /// The touch try's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_touch() -> Settings {
         Settings::read(Try::Touch, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
+    /// The display try's settings, read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_display() -> Settings {
+        Settings::read(Try::Display, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
@@ -109,6 +122,8 @@ impl Settings {
             image_b: PathBuf::new(),
             stay: 0,
             bite_wait: 0,
+            hold: 0,
+            module_pause: 0,
             out_given: None,
             day: today(),
         };
@@ -124,6 +139,12 @@ impl Settings {
                 s.image_b = image("wdt1-b");
                 s.stay = number("stay", proc("stay"));
                 s.bite_wait = number("bite_wait", proc("bite_wait"));
+            }
+            Try::Display => {
+                s.image = image("l6");
+                s.hold = number("hold", proc("hold"));
+                s.module_pause = number("module_pause", proc("module_pause"));
+                s.out = s.out_dir("display");
             }
         }
         s
@@ -164,6 +185,9 @@ impl Settings {
             ("min_window", "40"),
             ("stay", "180"),
             ("bite_wait", "150"),
+            ("images.l6.path", "boot-l6.img"),
+            ("hold", "60"),
+            ("module_pause", "5"),
         ]
         .into_iter()
         .collect();
@@ -218,7 +242,11 @@ mod tests {
                 .map(str::to_string)
                 .unwrap_or_else(|| v.to_string())
         };
-        for (which, table) in [(Try::Touch, TOUCH_PROCEDURE), (Try::Pmic, PMIC_PROCEDURE)] {
+        for (which, table) in [
+            (Try::Touch, TOUCH_PROCEDURE),
+            (Try::Pmic, PMIC_PROCEDURE),
+            (Try::Display, DISPLAY_PROCEDURE),
+        ] {
             let name: Vec<String> = table
                 .split(|c: char| !c.is_ascii_alphanumeric())
                 .filter(|w| !w.is_empty())
