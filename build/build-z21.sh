@@ -1,11 +1,10 @@
 #!/bin/sh
-# NOT TO BOOT AS IS: z20 has UFS on (decision 2026-11-19-walleye-ufs-off-by-a-gate); this repack keeps it. The z21 to try is built by walleye-ufs-off-gate (z20 with UFS off) and carries the same stub change from the dtsi.
-# z21 (backlog walleye-touch-gpio-shared-proxy): z20 with ONE change in the dtb: the container of the overlay stubs, /vendor-overlay-stubs, is status = "disabled".
+# z21 (backlog walleye-touch-gpio-shared-proxy and walleye-ufs-off-gate): z20 with TWO changes in the dtb: (1) the container of the overlay stubs, /vendor-overlay-stubs, is status = "disabled"; (2) UFS is OFF: ufshc@1da4000 and the phy@1da7000 are status = "disabled" (decision 2026-11-19-walleye-ufs-off-by-a-gate: z20 and every image since z11 had UFS on and are NOT TO BOOT; tests/host/ufs-off-image.sh is the gate, checked below on z20 (fails) and on z21 (passes)).
 # Why: z20's dmesg (research walleye-z20-tried-touch-gpio-leaf) says regulator-touch-power waits on a shared GPIO, served by gpiolib_shared.proxy.0, which never registers. The kernel makes a gpio
 # "shared" when two available nodes name it by a *-gpio(s) property (drivers/gpio/gpiolib-shared.c, gpio_shared_of_traverse; it skips a node that is not available and does not enter its children). The
 # second claimant is not ours: the phone's own dtbo overlay (entry 3) adds synaptics_dsx@20 with synaptics,power-gpio <pmi8998 gpio 2> under the label i2c_5, which our dtb holds as an empty stub. The overlay
 # cannot be edited (the bootloader merges the phone's own), but where the stub sits can: disabled, the container and everything the overlay puts in it is not scanned. tests/host/touch-gpio-single-claimant.sh
-# merges the overlay and counts the available claimants (z20: 2, z21: 1). Nothing else changes: kernel (the diagnostic one), ramdisk, header, command line (dyndbg) and AVB footer are z20's, byte for byte.
+# merges the overlay and counts the available claimants (z20: 2, z21: 1). Nothing else changes (change 2 is a status of two nodes the dts of the tree now holds disabled, so a rebuilt dtb has it too): kernel (the diagnostic one), ramdisk, header, command line (dyndbg) and AVB footer are z20's, byte for byte.
 # Built only - no phone run; the keeper tries it once from slot b (walleye-try-z21).
 #   build-z21.sh Z20_BOOT_IMG OUT_DIR
 # Writes OUT_DIR/{boot-z21.img,msm8998-google-walleye-z21.dtb,SHA256SUMS-z21}; checks (ok/FAIL, exit 1 on a FAIL, nothing written then). Environment: DTBO (default ~/Projects/walleye-build/control/dtbo.img).
@@ -35,17 +34,25 @@ split "$T/z20/kernel" "$T/k"
 PSIZE=$(stat -c %s "$Z20")
 AV=$(avbtool info_image --image "$Z20")
 C=/vendor-overlay-stubs
+UFS=/soc@0/ufshc@1da4000
+PHY=/soc@0/phy@1da7000
 cp "$T/k.dtb" "$T/z21.dtb"
 ck "z20 dtb: the stub container has no status" "$(fdtget "$T/k.dtb" "$C" status 2>/dev/null || echo none)" none
 ck "z20 dtb: the claimant test fails (two available claimants)" "$(DTB="$T/k.dtb" sh "$HERE/tests/host/touch-gpio-single-claimant.sh" | sed 's/ walleye.*kernel \([0-9]*\) available.*/ \1/')" "fail 2"
+ck "z20 dtb: UFS is on (the accident the gate exists for)" "$(fdtget "$T/k.dtb" "$UFS" status) $(fdtget "$T/k.dtb" "$PHY" status)" "okay okay"
+ck "the gate fails z20 (tests/host/ufs-off-image.sh)" "$(sh "$HERE/tests/host/ufs-off-image.sh" "$Z20" | cut -d" " -f1 || true)" fail
 fdtput -t s "$T/z21.dtb" "$C" status disabled
+fdtput -t s "$T/z21.dtb" "$UFS" status disabled
+fdtput -t s "$T/z21.dtb" "$PHY" status disabled
 cat "$T/k.gz" "$T/z21.dtb" > "$T/blob"
 hdr() { printf "%s\n" "$1" | grep -v -e '^kernel_size' -e '^ramdisk size' -e '^kernel size'; }
 # the dtb
 ck "z21 dtb: the stub container is disabled" "$(fdtget "$T/z21.dtb" "$C" status)" disabled
 dtc -I dtb -O dts "$T/k.dtb" 2>/dev/null > "$T/k.dts"
 dtc -I dtb -O dts "$T/z21.dtb" 2>/dev/null > "$T/z21.dts"
-ck "z21 dtb adds one line to z20's decompiled dts (the status), removes none" "$(diff "$T/k.dts" "$T/z21.dts" | grep -c '^>') $(diff "$T/k.dts" "$T/z21.dts" | grep -c '^<')" "1 0"
+ck "z21 dtb: ufshc and its phy are disabled" "$(fdtget "$T/z21.dtb" "$UFS" status) $(fdtget "$T/z21.dtb" "$PHY" status)" "disabled disabled"
+ck "z21 dtb differs from z20's decompiled dts by the stub container status (one line added) and the two UFS statuses (two lines changed), nothing else" "$(diff "$T/k.dts" "$T/z21.dts" | grep -c "^>") $(diff "$T/k.dts" "$T/z21.dts" | grep -c "^<")" "3 2"
+ck "the changed lines are the two UFS statuses and the stub status" "$(diff "$T/k.dts" "$T/z21.dts" | grep "^[<>]" | sed "s/^\([<>]\)[[:space:]]*/\1 /" | sort | tr "\n" "|")" "$(printf "%s\n" "< status = \"okay\";" "< status = \"okay\";" "> status = \"disabled\";" "> status = \"disabled\";" "> status = \"disabled\";" | sort | tr "\n" "|")"
 ck "z21 dtb keeps the touch power regulator, gpios <pmi8998 gpio 2>" "$(fdtget -t u "$T/z21.dtb" /regulator-touch-power gpios | cut -d' ' -f2)" 2
 ck "z21 dtb keeps the stub i2c_5 the overlay targets" "$(fdtget "$T/z21.dtb" /__symbols__ i2c_5)" /vendor-overlay-stubs/i2c_5
 ck "z21 dtb keeps /__symbols__/clock_gcc at the real gcc" "$(fdtget "$T/z21.dtb" /__symbols__ clock_gcc)" /soc@0/clock-controller@100000
@@ -83,6 +90,7 @@ mkdir "$T/v" && cp "$IMG" "$T/v/boot.img"
 KS=$(stat -c %s "$T/blob"); KO_=$(printf %d "$(field "kernel load address")"); RO=$(printf %d "$(field "ramdisk load address")")
 ck "the kernel blob ends before the ramdisk loads (headroom in bytes > 524288)" "$([ $((RO - KO_ - KS)) -gt 524288 ] && echo yes || echo "no: $((RO - KO_ - KS))")" yes
 ck "z21 AVB footer verifies" "$(avbtool verify_image --image "$T/v/boot.img" >/dev/null 2>&1 && echo yes || echo no)" yes
+ck "the gate passes z21: UFS is off in every dtb of the image, merged with the phone's own overlay too, and the command line names no ufs" "$(sh "$HERE/tests/host/ufs-off-image.sh" "$IMG" | cut -d" " -f1 || true)" pass
 ck "the host test passes on z21 (tests/host/gpio-diag-boot.sh)" "$(IMG="$IMG" sh "$HERE/tests/host/gpio-diag-boot.sh" | cut -d' ' -f1)" pass
 [ $total -eq 0 ] || { echo "build-z21: $total checks failed, nothing written" >&2; exit 1; }
 mkdir -p "$OUT"

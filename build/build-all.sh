@@ -20,5 +20,6 @@ r=$(DTB="$W/out/msm8998-google-walleye.dtb" sh "$OC" || true); case $r in *"fail
 "$HERE/build-initramfs.sh" phone "$W" "$W/initramfs-phone.cpio.gz"
 NET=43 "$HERE/build-initramfs.sh" phone "$W" "$W/initramfs-phone-43.cpio.gz"
 "$HERE/build-bootimg.sh" "$W/out/Image.gz" "$W/out/msm8998-google-walleye.dtb" "$W/initramfs-phone.cpio.gz" "$W/images" "$W/out/msm8998-google-walleye-f.dtb" "$W/initramfs-phone-43.cpio.gz"
+"$HERE/ufs-gate.sh" "$W/images"/boot-*.img || exit 1   # UFS off in every image (decision 2026-11-19-walleye-ufs-off-by-a-gate)
 ls -l "$W/images"/boot-*.img
 sha256sum "$W/images"/boot-*.img

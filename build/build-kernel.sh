@@ -4,20 +4,23 @@
 #
 #   [EXTRA_CONFIG="FRAGMENT ..."] build-kernel.sh KERNEL_TREE OUT_DIR   (EXTRA_CONFIG: config fragments, paths as given - relative to the current directory - merged after walleye.config, e.g. $PWD/build/walleye-diag.config)
 #
-# Writes OUT_DIR/{Image.gz,msm8998-google-walleye.dtb,.config}. Same ways as surya's kernel builds:
+# Writes OUT_DIR/{Image.gz,msm8998-google-walleye.dtb (UFS off),msm8998-google-walleye-f.dtb,msm8998-google-walleye-ufs.dtb (the UFS-on variant of the z11-z13 experiments, not for any new image),.config}. Same ways as surya's kernel builds:
 # a git worktree of the shared kernel clone, out-of-tree O=, clang (LLVM=1). Needs no phone.
 set -eu
 K=${1:?usage: build-kernel.sh KERNEL_TREE OUT_DIR}
 OUT=${2:?usage: build-kernel.sh KERNEL_TREE OUT_DIR}
 HERE=$(cd "$(dirname "$0")/.." && pwd)
 QCOM=$K/arch/arm64/boot/dts/qcom
-cp "$HERE/dt/msm8998-google-walleye-overlay-stubs.dtsi" "$HERE/dt/msm8998-google-walleye.dts" "$HERE/dt/msm8998-google-walleye-f.dts" "$QCOM/"
+cp "$HERE/dt/msm8998-google-walleye-overlay-stubs.dtsi" "$HERE/dt/msm8998-google-walleye.dts" "$HERE/dt/msm8998-google-walleye-f.dts" "$HERE/dt/msm8998-google-walleye-ufs.dts" "$QCOM/"
 grep -q 'msm8998-google-walleye.dtb' "$QCOM/Makefile" ||
   sed -i 's/^dtb-\$(CONFIG_ARCH_QCOM)\t+= msm8998-asus-novago-tp370ql.dtb$/&\ndtb-$(CONFIG_ARCH_QCOM)\t+= msm8998-google-walleye.dtb/' "$QCOM/Makefile"
 grep -q 'msm8998-google-walleye.dtb' "$QCOM/Makefile" || { echo "build-kernel: Makefile line not added" >&2; exit 1; }
 grep -q 'msm8998-google-walleye-f.dtb' "$QCOM/Makefile" ||
   sed -i 's/^dtb-\$(CONFIG_ARCH_QCOM)\t+= msm8998-google-walleye.dtb$/&\ndtb-$(CONFIG_ARCH_QCOM)\t+= msm8998-google-walleye-f.dtb/' "$QCOM/Makefile"
 grep -q 'msm8998-google-walleye-f.dtb' "$QCOM/Makefile" || { echo "build-kernel: f Makefile line not added" >&2; exit 1; }
+grep -q 'msm8998-google-walleye-ufs.dtb' "$QCOM/Makefile" ||
+  sed -i 's/^dtb-\$(CONFIG_ARCH_QCOM)\t+= msm8998-google-walleye-f.dtb$/&\ndtb-$(CONFIG_ARCH_QCOM)\t+= msm8998-google-walleye-ufs.dtb/' "$QCOM/Makefile"
+grep -q 'msm8998-google-walleye-ufs.dtb' "$QCOM/Makefile" || { echo "build-kernel: ufs Makefile line not added" >&2; exit 1; }
 grep -q pm8998_wdt "$QCOM/pm8998.dtsi" || { echo "build-kernel: the tree lacks the pmic-wdt series (no pm8998_wdt in pm8998.dtsi)" >&2; exit 1; }
 mkdir -p "$OUT/b"
 M="make -C $K ARCH=arm64 LLVM=1 O=$OUT/b"
@@ -29,6 +32,6 @@ for s in QCOM_WDT USB_CONFIGFS_MASS_STORAGE RD_XZ PHY_QCOM_QUSB2 USB_DWC3_QCOM U
   grep -q "^CONFIG_$s=y" "$OUT/b/.config" || { echo "build-kernel: CONFIG_$s is not =y" >&2; exit 1; }
 done
 # -@: our dtb carries /__symbols__ and the stub nodes, so the bootloader's dtbo overlay merge can succeed (build/gen-overlay-stubs.sh)
-DTC_FLAGS=-@ $M -j"$(nproc)" Image.gz qcom/msm8998-google-walleye.dtb qcom/msm8998-google-walleye-f.dtb
-cp "$OUT/b/arch/arm64/boot/Image.gz" "$OUT/b/arch/arm64/boot/dts/qcom/msm8998-google-walleye.dtb" "$OUT/b/arch/arm64/boot/dts/qcom/msm8998-google-walleye-f.dtb" "$OUT/b/.config" "$OUT/"
+DTC_FLAGS=-@ $M -j"$(nproc)" Image.gz qcom/msm8998-google-walleye.dtb qcom/msm8998-google-walleye-f.dtb qcom/msm8998-google-walleye-ufs.dtb
+cp "$OUT/b/arch/arm64/boot/Image.gz" "$OUT/b/arch/arm64/boot/dts/qcom/msm8998-google-walleye.dtb" "$OUT/b/arch/arm64/boot/dts/qcom/msm8998-google-walleye-f.dtb" "$OUT/b/arch/arm64/boot/dts/qcom/msm8998-google-walleye-ufs.dtb" "$OUT/b/.config" "$OUT/"
 ls -l "$OUT/Image.gz" "$OUT/msm8998-google-walleye.dtb"

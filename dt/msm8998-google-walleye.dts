@@ -4,7 +4,7 @@
  *
  * It brings up the SoC, its reserved memory, the RPM regulators the USB 2.0 PHY stands on, the USB
  * controller as a high-speed peripheral (the gadget is the first sign of life), pstore/ramoops and the
- * debug UART, and (from z11) the UFS storage, read-only. Display, touch, GPU, Wi-Fi and remote processors stay off
+ * debug UART. Storage (UFS), display, GPU, Wi-Fi and remote processors stay off
  * until a part is brought up on purpose. The PMICs' SPMI nodes (mainline's pm8998.dtsi and pmi8998.dtsi) are in: their children bind or defer on their own.
  *
  * No /chosen/bootargs and no stdout-path: the bootloader appends the boot image's command line to the
@@ -321,14 +321,14 @@
 };
 
 /*
- * The UFS storage (item walleye-ufs-readonly): host controller and QMP phy with the rails of the OnePlus 5 (same SoC, same RPM
- * regulators: l20 2.96 V vcc, l26 1.2 V vccq and hba, s4 1.8 V vccq2; phy l1 and l2). The init only lists the LUNs and reads the
- * partition names and one header page; nothing is mounted and nothing is written. Sony's yoshino keeps UFS off for a card that
- * needs quirks before it is probed (msm8998-sony-xperia-yoshino.dtsi): which card is in the phone is not known yet (the sysfs
- * vendor/model of the LUN tells), and the image does no write, discard or unmap.
+ * The UFS storage is OFF (decision 2026-11-19-walleye-ufs-off-by-a-gate; research walleye-ufs-on-by-accident): it was on in every image from z11 and was probed
+ * against the author's word. No image of ours boots with it on: tests/host/ufs-off-image.sh gates every boot image. The nodes keep the OnePlus 5's rails (same SoC,
+ * same RPM regulators: l20 2.96 V vcc, l26 1.2 V vccq and hba, s4 1.8 V vccq2; phy l1 and l2), so dt/msm8998-google-walleye-ufs.dts, the variant of the z11-z13
+ * experiments, only flips the status. Sony's yoshino keeps UFS off for a card that needs quirks before it is probed (msm8998-sony-xperia-yoshino.dtsi); which card is
+ * in the phone is not known yet.
  */
 &ufshc {
-	status = "okay";
+	status = "disabled";
 
 	vcc-supply = <&vreg_l20a_2p95>;
 	vccq-supply = <&vreg_l26a_1p2>;
@@ -340,7 +340,7 @@
 };
 
 &ufsphy {
-	status = "okay";
+	status = "disabled";
 
 	vdda-phy-supply = <&vreg_l1a_0p875>;
 	vdda-pll-supply = <&vreg_l2a_1p2>;

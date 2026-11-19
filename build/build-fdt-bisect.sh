@@ -144,6 +144,7 @@ for W in $GROUPS_ xa; do
     --second_offset 0x0 --tags_offset "$(field 'kernel tags load address')" --pagesize "$(field 'page size')" \
     --os_version "$(field 'os version')" --os_patch_level "$(field 'os patch level')" --cmdline "$CMD" \
     --kernel "$T/blob-$W" --ramdisk "$T/wpa/ramdisk" -o "$IMG"
+sh "$(dirname "$0")/ufs-gate.sh" "$IMG" || exit 1
   avbtool add_hash_footer --image "$IMG" --partition_size "$PSIZE" --partition_name boot --algorithm NONE \
     --salt "$(echo "$AV" | sed -n 's/^ *Salt: *//p' | head -n1)" "$@"
   cp "$T/$W.dtb" "$STG/$W.dtb"
