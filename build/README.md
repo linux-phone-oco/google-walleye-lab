@@ -263,3 +263,11 @@ z21's boot.img with the display kernel (`d0`), then the display dtb in stages: `
 `build/build-display-bisect-dtbs.sh images-display/boot-display.img images-display-bisect` cuts Image.gz, `d1.dtb` and `d2.dtb` from that image (counting what differs),
 `lpoco-bringup image bisect build/series/display-bisect.toml --out images-display-bisect` packs the three, `build/check-display-bisect.sh IMAGES Z21 PARTS BOOT_DISPLAY_IMG` counts each against z21 (and the parts against the display image)'s (ramdisk, header, size, footer, UFS-off gate) and writes `SHA256SUMS`.
 Built only; the try is walleye-try-display-bisect.
+
+## The display late probe (item walleye-display-late-probe-image)
+
+d1 (the display nodes on, the driver built in) loses the shell and no log survives, so the display path is built as modules and loaded by hand from the shell, with the kernel log already going to the host.
+`build/build-display-late.sh ~/Projects/walleye-build/wt-k-fg OUT` builds the kernel (`build/walleye-display-late.config`: DRM, DRM_MSM and the panel driver `=m`, NETCONSOLE and NETCONSOLE_DYNAMIC `=y`, DYNAMIC_DEBUG) and the display dtb, stages `msm.ko`, the panel driver and every module they need under `OUT/modroot` with depmod run, and writes `OUT/display-modules.list` (insmod lines, dependency order).
+The kernel tree is the fuel-gauge worktree, not the older display one: the shared dts now names the label `pmi8998_fg`, which only the fuel-gauge dtsi patch defines (the driver stays off, the node unbound).
+`build/build-display-late-image.sh Z21_BOOT_IMG OUT IMAGES` packs `build/initramfs-mainline/init-late` (z14's init; its self-reboot is held while `/tmp/hold` exists) with the modules, their depmod output and the list into z21's header, command line and footer, and counts the image (37 checks, the UFS-off gate among them). Set `TMPDIR` on a disk with room: /tmp is a 16 GB tmpfs.
+`tests/host/display-late-probe.sh OUT_DIR` is the try: shell up, `/tmp/hold`, netconsole by configfs to 172.16.43.2:6666 and a TCP stream of /dev/kmsg on 6667 (each proved by a marker), then every list line loaded with its step written to the host first; its fail line names the step and the last line of each channel. `tests/host/display-late-probe-selftest.sh` proves it against a fake phone.

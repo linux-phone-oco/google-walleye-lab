@@ -1942,3 +1942,31 @@ Research
 
 Tracked by
 : walleye-ufs-gap-link-startup
+
+
+<a id="2026-11-19-walleye-late-probe-init-hold"></a>
+### 2026-11-19-walleye-late-probe-init-hold
+
+Date
+: 2026-11-19
+
+Brief
+: The late-probe ramdisk is z14's init with one change: its 180 s self-reboot is held while /tmp/hold exists
+
+Decision
+: init-late = init-z14 whose petter loop reads 'while [ $n -lt 90 ] || [ -e /tmp/hold ]'; the host script touches /tmp/hold the moment the shell answers. The kernel tree for the late-probe build is the fuel-gauge worktree (wt-k-fg), the fuel-gauge driver left off.
+
+Why
+: The display modules, loaded one at a time with a pause between, outlast z14's fixed 90 beats; without the hold the init reboots the phone mid-probe and the log would end at the timer, not at the fault. The shared dts names the label pmi8998_fg, defined only by the fuel-gauge dtsi patch, so the older display worktree no longer compiles it.
+
+Rejected
+: A new init beside z14's with the loader inside it (the host script drives each step, so the init stays dumb and the steps stay in a host file written before each load); lengthening the 90 beats (still a timer the probe can outrun); patching the pmi8998_fg label out of the dts (a second dts for one try)
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-bisect-d1-loses-the-shell
+
+Tracked by
+: walleye-display-late-probe-image
