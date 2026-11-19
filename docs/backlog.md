@@ -7262,34 +7262,6 @@ Proof
 : an upstream item for the reply, state sent
 
 
-<a id="walleye-tas2557-firmware-source"></a>
-### Where the TAS2557 firmware blob comes from for walleye, and whether the lab may ship it
-
-Status
-: open
-
-Note
-: 2026-11-19 keeper try: adb shell (uid 2000) cannot read /vendor/firmware/tas2557s_PG21_uCDSP.bin or tas2557s_uCDSP.bin: ls/stat and adb pull give Permission denied (the files exist; find lists them). Stopped as told, no root sought. Next: a decision from the coordinator on another unattended way to read it (a test image that mounts the vendor partition read-only, or the factory image's vendor.img on the host) - the factory image route needs no phone. 2026-11-19 keeper run (PR 488): the adb shell user (uid 2000) gets Permission denied on /vendor/firmware/tas2557s_PG21_uCDSP.bin; the keeper stopped without looking for root, as ordered. No vendor.img or factory image is on the lab host (checked: ~/Projects/walleye-build/dl, control, ~/lab-material). The routes are listed in the waits; the coordinator asks the author one line through the Top Coordinator. The TAS2557 driver series does NOT wait for the file (only its try does). 2026-11-19 THE AUTHOR'S CHOICE, his word verbatim, relayed by the Top Coordinator: "Root tap i think(about pixel question)". KEEPER ORDERS after 'done' is relayed (this note, landed, is the line to start from): adb root; read /vendor/firmware/tas2557s_PG21_uCDSP.bin with adb pull into ~/lab-material/walleye (mode 600, never git, the phone's own firmware); record its sha256 against porthole's if the host has porthole's copy; READ ONLY: change nothing else on Android, set no property, install nothing; the root setting stays as the author left it; stop if adb root is refused and say so.
-
-Waits
-: the author's root tap: Developer options, Root access, ADB only on the Pixel 2 (he does it himself; the Top Coordinator relays 'done'); the keeper starts after that line
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: tas2557-firmware-hash-matches
-
-Rank
-: 6
-
-
 <a id="walleye-try-display-late-probe-l5"></a>
 ### Try L5 once: the reset-gpio claimant moved off the dsi node; read whether the panel binds and a DRM card appears
 
@@ -7313,6 +7285,31 @@ Needs
 
 Proof
 : the gate passes right before the boot; shell up; the host script loads the modules; a research row with devices_deferred, /sys/class/drm and the dmesg lines of the dsi and panel probe; the line 'cannot find GPIO chip gpiolib_shared.proxy' gone; if a DRM card appears: connector status to the coordinator
+
+Rank
+: 1
+
+
+<a id="walleye-tas2557-firmware-source"></a>
+### Where the TAS2557 firmware blob comes from for walleye, and whether the lab may ship it
+
+Status
+: open
+
+Note
+: 2026-11-19 keeper try: adb shell (uid 2000) cannot read /vendor/firmware/tas2557s_PG21_uCDSP.bin or tas2557s_uCDSP.bin: ls/stat and adb pull give Permission denied (the files exist; find lists them). Stopped as told, no root sought. Next: a decision from the coordinator on another unattended way to read it (a test image that mounts the vendor partition read-only, or the factory image's vendor.img on the host) - the factory image route needs no phone. 2026-11-19 keeper run (PR 488): the adb shell user (uid 2000) gets Permission denied on /vendor/firmware/tas2557s_PG21_uCDSP.bin; the keeper stopped without looking for root, as ordered. No vendor.img or factory image is on the lab host (checked: ~/Projects/walleye-build/dl, control, ~/lab-material). The routes are listed in the waits; the coordinator asks the author one line through the Top Coordinator. The TAS2557 driver series does NOT wait for the file (only its try does). 2026-11-19 THE AUTHOR'S CHOICE, his word verbatim, relayed by the Top Coordinator: "Root tap i think(about pixel question)". KEEPER ORDERS after 'done' is relayed (this note, landed, is the line to start from): adb root; read /vendor/firmware/tas2557s_PG21_uCDSP.bin with adb pull into ~/lab-material/walleye (mode 600, never git, the phone's own firmware); record its sha256 against porthole's if the host has porthole's copy; READ ONLY: change nothing else on Android, set no property, install nothing; the root setting stays as the author left it; stop if adb root is refused and say so. 2026-11-19 'DONE' RELAYED: the author, verbatim: "it has "rooted debugging" enabled" (LineageOS's Developer options switch for adb root). START NOW. When finished send the Top Coordinator (local_12b18c70-1b6d-4783-bb6f-50113ab63250) ONE line with SendMessage yourself: 'tas2557 firmware: <sha256 or refused>, file <path>, mode 600'.
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: tas2557-firmware-hash-matches
 
 Rank
 : 1
