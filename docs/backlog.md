@@ -5571,10 +5571,10 @@ Rank
 ### Fuel gauge: test the PMI8998 FG gen3 driver (RFC series of 2025-11-24) on walleye; an upstream candidate
 
 Status
-: in-progress
+: done
 
 Note
-: Built 2026-11-19: image fg1 (research walleye-fuel-gauge-built, decision 2026-11-19-walleye-fuel-gauge-three-patches); try queued as walleye-try-fuel-gauge. Done when that passes; then the reading goes upstream as a Tested-by (ikb upstream-item).
+: Proven 2026-11-19: image fg1 booted once from slot b: capacity 99 percent, voltage_now 4374 mV = fastboot 4374 mV, fuel-gauge-check pass (research walleye-fg1-tried-capacity-matches, try walleye-try-fuel-gauge). The Tested-by to the RFC series is NOT sent: nothing goes upstream without the author's word; the upstreams lane has the reading. Ask for upstream: the series puts the soc-delta irq at type 3 in the dtsi and 4 in its binding example.
 
 About
 : walleye-first-fastboot-boot
