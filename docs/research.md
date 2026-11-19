@@ -4585,3 +4585,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-stripes-l6-built"></a>
+### walleye-display-stripes-l6-built
+
+Date
+: 2026-11-19
+
+Brief
+: L6 built: L5 plus a static stripe drawer (fbdev write, pan, forced commit); ramdisk control equals L5's, gate and AVB pass, rebuild identical, reviewed; not tried
+
+Question
+: Which image draws four stripes on the panel, unattended, with the connector read back?
+
+Found
+: L6 = L5 plus /bin/walleye-stripes in the ramdisk; kernel, dtb, command line, header words and size are L5's. The drawer (tools/walleye-stripes, Rust, argenv) writes four stripes (red, green, blue, white) to /dev/fb0 (fbdev emulation of card0), then pans, forces a set_par commit and unblanks (each result logged; a command-mode panel needs a commit), holds --seconds, clears to black (release runs even if the draw failed); log lines at draw and release go to stdout and /dev/kmsg; connector status/enabled/modes and fb0 name/modes are read before and after. Chosen over modetest (no aarch64 build) and a libdrm dumb-buffer program (needs libdrm; fbdev needs only ioctls). Started by tests/host/display-late-probe.sh after the settle (STRIPES_SECONDS, default 20; the try's proof asks for at least 60, so set STRIPES_SECONDS=60); selftest extended (drawer present, absent, 0 s, nonzero exit) and passes. Checks: cargo test (frame; kernel struct sizes 160/80), fmt, clippy clean; drawer rebuilt twice identical; image: ramdisk without the drawer equals L5's byte for byte, file list gains only bin/walleye-stripes, AVB verifies, UFS-off gate and tests pass, image rebuilt identical. Programmer review found a wrong fb_var_screeninfo size (152, not 160: a stack overrun), the unlogged pan, kmsg double writes, a draw left standing on failure: all fixed. Not known: whether the fbdev write reaches the glass; the try says. sha256 boot-l6.img 8ca3af879b4c9d87ff98f8d269282557131ca8eef5d39bc42d5a97eb5e587bad; walleye-stripes 7a4648a96352abf0bff4787c733e5606711e52b8c94fb4555fc999a9677e0f16.
+
+About
+: walleye-display-s6e3fa5

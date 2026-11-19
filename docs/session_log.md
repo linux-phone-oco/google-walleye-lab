@@ -4030,3 +4030,24 @@ Considered
 
 About
 : walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-19-walleye-builder-image-l6-stripe-drawer"></a>
+### walleye-builder: image L6 (stripe drawer)
+
+Entry date
+: 2026-11-19
+
+Done
+: Built the stripe drawer and image L6 from L5; programmer review fixed a struct size, logging and release; selftest, gate, rebuild identical.
+
+Considered
+: modetest; a libdrm dumb-buffer program
+
+Rejected
+: modetest: no aarch64 build; libdrm program: a library to cross-build where fbdev needs only ioctls
+
+About
+: walleye-display-s6e3fa5
