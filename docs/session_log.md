@@ -4855,3 +4855,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-0005-walleye-keeper-how-the-phone-stands-pmic-run5"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: PMIC program unattended run 5 (answer limit 120) passed: stopped at the first ask, phone back on Android slot b, stock kernel, nothing flashed or armed. Top ready row walleye-display-backlight-sysfs-write was already tried on B2 (waits on the author's look), so the rank-1 item was taken. Tooling: build/images needs a link to ~/Projects/walleye-build; phone password file still absent.
+
+Considered
+: next: author's one command for the PMIC attended try (walleye-try-pmic-wdt-v1); display look via walleye-display-look-l7; next ready after: walleye-ufs-card-fw-rev-read
+
+About
+: walleye-attend-program-pmic
