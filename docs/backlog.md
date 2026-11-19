@@ -5243,31 +5243,6 @@ Rank
 : 6
 
 
-<a id="walleye-licences"></a>
-### Licences for google-walleye-lab: LICENSE files, SPDX headers or REUSE.toml, a README line, a CI coverage check
-
-Status
-: open
-
-Note
-: The author's word 'Yes, as suggested', docs decision 2026-11-19-licences-for-our-repositories (via orchestration). Small; after the UFS-off gate.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: Licences for google-walleye-lab, by the author's word 'Yes, as suggested' (docs decision 2026-11-19-licences-for-our-repositories): (1) LICENSE-MIT and LICENSE-APACHE at the root (the standard texts, copyright holder as the other lpoco repositories name it: copy lab-tools' files); our scripts and code (build/, tests/host, selftests, any Rust of ours): MIT OR Apache-2.0; our data, docs and research (data/, docs/, research rows, README prose, material notes): CC-BY-SA-4.0 (a LICENSE-CC-BY-SA-4.0 text); the walleye dts and the dts patches we wrote (dt/*.dts, dtsi, kernel patches of ours): GPL-2.0-only OR BSD-2-Clause with SPDX headers (kernel style: // SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)), leaving any header of an upstream-derived file untouched (the derived-from lines already in the dts keep their authors and licences: Copyright lines for the wahoo and OnePlus 5 derivations stay; if a file mixes, the SPDX line reflects the derived file's own licence: say it); third-party code keeps its own licence and is NOT relicensed: porthole's pmaports pieces, the LineageOS images in control/ (not in git), firmware, kernel patches based on upstream files; (2) SPDX headers on code files, or REUSE.toml annotations per path for what takes no header (data, json, generated docs, images' hash lists); a README line pointing at the scheme; (3) a CI shell check (tests/host/licence-coverage.sh in .github/workflows/check.yml) that every TRACKED file is covered by an SPDX header, a REUSE.toml annotation or an explicit third-party list: it FAILS on today's main (list the uncovered files) and PASSES after; reuse orchestration's licence builder's check for docs/template once it lands (check docs for a reuse script before writing a new one); (4) build/ffs-acm-rs, if it is still there when this lands, carries MIT OR Apache-2.0 (it is replaced by the shared crate under walleye-use-lpoco-ffs-acm / walleye-init-from-roof); tell the coordinator when it lands (orchestration waits for it); programmer review
-
-Rank
-: 3
-
-
 <a id="walleye-shell-past-glue-into-rust"></a>
 ### Move shell with logic into Rust as each file is touched (practice 21): the rule, the debt count, the first moves
 
@@ -5344,3 +5319,30 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-licences"></a>
+### Licences for google-walleye-lab: LICENSE files, SPDX headers or REUSE.toml, a README line, a CI coverage check
+
+Status
+: open
+
+Note
+: The author's word 'Yes, as suggested', docs decision 2026-11-19-licences-for-our-repositories (via orchestration). Small; after the UFS-off gate.
+
+MODEL FROM ORCHESTRATION 2026-11-19: copy device-template #33 (linux-phone-oco/device-template): LICENSE (CC-BY-SA-4.0 for data and docs), LICENSE-MIT and LICENSE-APACHE for scripts, LICENSES/ (the texts), a REUSE.toml annotating each path (adjust to this lab paths), a README line, and bin/licence-check = ideal-agent script BYTE FOR BYTE (run from make verify and check.yml): this replaces writing our own coverage check. Dts patches against upstream files carry the licence of the file they change: docs #590 tagged the msm8998 and pm8998 ones BSD-3-Clause, or BSD-3-Clause AND MIT (read docs #590); our own new dts files: GPL-2.0-only OR BSD-2-Clause. The LineageOS images (control/, not in git), firmware and porthole pieces keep their own licences. Docs device layer carries no licence files, so this one is landed here.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: Licences for google-walleye-lab, by the author's word 'Yes, as suggested' (docs decision 2026-11-19-licences-for-our-repositories): (1) LICENSE-MIT and LICENSE-APACHE at the root (the standard texts, copyright holder as the other lpoco repositories name it: copy lab-tools' files); our scripts and code (build/, tests/host, selftests, any Rust of ours): MIT OR Apache-2.0; our data, docs and research (data/, docs/, research rows, README prose, material notes): CC-BY-SA-4.0 (a LICENSE-CC-BY-SA-4.0 text); the walleye dts and the dts patches we wrote (dt/*.dts, dtsi, kernel patches of ours): GPL-2.0-only OR BSD-2-Clause with SPDX headers (kernel style: // SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)), leaving any header of an upstream-derived file untouched (the derived-from lines already in the dts keep their authors and licences: Copyright lines for the wahoo and OnePlus 5 derivations stay; if a file mixes, the SPDX line reflects the derived file's own licence: say it); third-party code keeps its own licence and is NOT relicensed: porthole's pmaports pieces, the LineageOS images in control/ (not in git), firmware, kernel patches based on upstream files; (2) SPDX headers on code files, or REUSE.toml annotations per path for what takes no header (data, json, generated docs, images' hash lists); a README line pointing at the scheme; (3) a CI shell check (tests/host/licence-coverage.sh in .github/workflows/check.yml) that every TRACKED file is covered by an SPDX header, a REUSE.toml annotation or an explicit third-party list: it FAILS on today's main (list the uncovered files) and PASSES after; reuse orchestration's licence builder's check for docs/template once it lands (check docs for a reuse script before writing a new one); (4) build/ffs-acm-rs, if it is still there when this lands, carries MIT OR Apache-2.0 (it is replaced by the shared crate under walleye-use-lpoco-ffs-acm / walleye-init-from-roof); tell the coordinator when it lands (orchestration waits for it); programmer review
+
+Rank
+: 3
