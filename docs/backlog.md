@@ -7769,31 +7769,6 @@ Rank
 : 1
 
 
-<a id="walleye-procedures-on-v0-34"></a>
-### Pin the walleye procedures to lpoco-attended 0.34 (prompt and answer files, run --from, skip-when-in-state) and give the attended keeper orders their new form
-
-Status
-: in-progress
-
-Note
-: Pin moved 2026-11-19 (walleye-builder): procedures/*.rs, tests/attended/*.rs, tools/walleye-tries and the CI install are all on lpoco-attended v0.35.1 (the shared walleye-tries crate must match the entry files' pin, else the library's state is two copies and the first step panics 'call procedure() before the first step'); check --host passes. Still open: the keeper orders (walleye-try-pmic-wdt-v1, display held try, walleye-try-ufs-match) in their new form, the AGENTS.md short-poll rule dropped, skip-when-in-state where it fits.
-
-About
-: walleye-attend-program-display
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: procedures/ and tests/attended (display, touch, PMIC, UFS) depend on lpoco-attended tag v0.34.1 or the newest 0.34.x (cargo git dependency on linux-phone-oco/lab-tools; check the tag in lab-tools), lpoco-attended check and --dry-run pass for each, the stand-in tests pass; each person step shows its prompt in ~/.cache/lpoco-attended/<device>/prompt and takes its answer from .../answer (the Top Coordinator writes it), so no program or keeper needs a relay; steps that are already in their state use skip-when-in-state where it fits (the phone already in fastboot, the image already checked); the attended items' orders (walleye-try-pmic-wdt-v1, the display held try, walleye-try-ufs-match) say: the keeper tells the Top Coordinator the device dir and the line 'prompt waiting' and polls nothing else; the short-poll rule of AGENTS.md is dropped once the procedures are moved; 'run --from' is noted for restarting after a stop
-
-Rank
-: 2
-
-
 <a id="walleye-person-answer-file"></a>
 ### A person step's answer must not depend on a message to a blocked keeper: the person backend takes the answer from a file the procedure polls
 
@@ -8034,31 +8009,6 @@ Witness
 : person
 
 
-<a id="walleye-display-look-b2"></a>
-### The author's look at the Pixel's screen as one command: B2 (display at boot plus the held stripes) and display-at-boot-on-the-pixel-2.rs on lpoco-attended 0.34 with the answer file
-
-Status
-: in-progress
-
-Note
-: KEEPER'S UNATTENDED RUN FOR REAL 2026-11-19 (walleye-keeper): procedures/display-at-boot-on-the-pixel-2.rs on lpoco-attended 0.35.1, dry-run 19 steps ok first. Checks 1-3 ok (sha b9dbd162, UFS off, battery), B2 booted from fastboot, gadget up, 13/13 modules ok, card0+DSI-1 connected, 249 display lines kept, backlight sysfs write rc=0 (value 127) yet dmesg still shows 'EXIT_SLEEP_MODE failed -110', 'Failed to initialize panel -110' and the 0x51 backlight cmd dma tx -110 at ~2.8 s; stopped at ask 13 (look 1) with 'nobody answered' as the bar wants. NOT as the bar says: the run does not send the phone back itself when it stops at an ask - the phone stayed on B2's gadget and returned to Android only by the init's 600 s deadman (~10 min), slot b, fastboot reachable afterwards. Needs: the run's way-back on a failed ask (or the author told the phone self-returns in 10 min); the programmer review; then 'ready, one command' to the Top Coordinator. Answer file dir ~/.cache/lpoco-attended/google-walleye/ (created at the first ask; prompt file was not present after the stop). Tooling: worktree needs build/images -> ~/Projects/walleye-build; phone password file ~/.config/devlab/google-walleye/password still missing (lpoco lab phone sh/suite unavailable).
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: a keeper's unattended 'lpoco-attended run display-at-boot-on-the-pixel-2' for real: passes steps 1-12, stops at look_for 1 with 'nobody answered', the phone back on Android; then the author's two looks answered through the answer file
-
-Rank
-: 1
-
-
 <a id="walleye-ufs-link-check-works-slow"></a>
 ### The UFS procedure reads the link, it does not fail on a gear below HS-G3: 'works, slow' is a result
 
@@ -8082,3 +8032,103 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-display-look-l7"></a>
+### The author's look as one command on the known-good load order: L7 = L6 with the held-stripes drawer, display-stripes-on-the-pixel-2.rs on lpoco-attended 0.35 with the answer file and a way back
+
+Status
+: open
+
+Note
+: WHY (2026-11-19, from the B2 run PR 588 and its dmesg ~/lab-material/walleye/display-boot-20261119-214918): B2, the display at boot, is NOT yet a good look: the DSI commands and the brightness write time out (-110), arm-smmu logs a flood of translation faults (SID 0, iova 0x9d6f.. the bootloader's splash memory) at 2.24 s, and clk-rcg2 warns 'pclk0_clk_src: rcg didn't update its configuration' from dsi_link_clk_set_rate_6g in the panel's probe: the pixel clock does not run, the glass may be dark or garbage. The hand-loaded L5 and L6 had none of that (the author SAW the console on them). So the near-term look uses L6's load order with the held stripes. B2 and 'display at boot' wait for research walleye-display-b2-dsi-clock-warning. A look at B2 is NOT asked of the author until that is understood. Priority over walleye-display-look-way-back and the UFS link check.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: image L7 (UFS-off gate and AVB pass, rebuild identical, review): L6 (images-display-stripes/boot-l6.img, modules loaded by the host procedure in order with pauses) with /bin/walleye-stripes replaced by B2's KD_GRAPHICS version (KDSETMODE while held, KD_TEXT after, also after a failed draw); procedures/display-stripes-on-the-pixel-2.rs pinned to lpoco-attended 0.35.1 or newer (cargo block, device.toml [images.l7]), its person step is look_for #1 the kernel log text on the glass and look_for #2 four stripes HELD; the way back after ANY stop, including an unanswered look (reboot -f over the shell, then the sysrq b fallback, the power-hold sentence), as the PMIC parent watcher does; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; then a keeper's unattended run for real that stops at look #1 with 'nobody answered' and leaves the phone on Android BY ITS OWN WAY BACK (not the 600 s deadman); the answer file path ~/.cache/lpoco-attended/google-walleye/answer is confirmed from the run (the prompt file appears beside it)
+
+Rank
+: 1
+
+
+<a id="walleye-display-b2-dsi-clock-warning"></a>
+### Why B2 (display at boot) warns 'pclk0_clk_src: rcg didn't update its configuration', times out every DSI command (-110) and floods SMMU translation faults, when hand-loaded L5 and L6 do not
+
+Status
+: open
+
+Note
+: Evidence from the B2 run: [2.237] the SMMU faults start right after 'dpu hardware revision 0x30000000'; [2.304] WARNING clk-rcg2.c:136 update_config: 'pclk0_clk_src: rcg didn't update its configuration', call trace clk_pixel_set_rate, dsi_link_clk_set_rate_6g, msm_dsi_host_power_on, dsi_mgr_bridge_pre_enable, dsi_dev_attach, dsi_host_attach, mipi_dsi_attach, s6e3fa5_probe; the sysfs backlight write returned 0 but 'panel init and the 0x51 command still -110'. Related: research walleye-display-backlight-timeout (decision 2026-11-19-backlight-first-write-after-first-frame), whose reading (first DMA command after the first frame, MDP underflow) may be the same fault seen from the other side.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row comparing the dmesg of B2 (~/lab-material/walleye/display-boot-20261119-214918) with the L6 try's (display-stripes-*, late-probe-l5-*): the order and the seconds of every module load, when the DSI PHY PLL is enabled and locked, why dsi_link_clk_set_rate_6g runs inside the panel's probe via mipi_dsi_attach (dsi_mgr_bridge_pre_enable in a deferred probe), whether the pixel clock parent (the PHY PLL) is running at that moment, the SMMU faults (the display scan-out of the bootloader's splash at iova 0x9d6f.. while msm attaches its own domain), the effect of the init loading everything at 2.2 s (before the clock late init) against the hand load; ranked hypotheses and the cheapest experiment images (for example the init waiting N seconds, or loading msm, the phy and the panel in L6's order with pauses); which readings tell them apart
+
+Rank
+: 1
+
+
+<a id="walleye-display-look-b2"></a>
+### The author's look at the Pixel's screen as one command: B2 (display at boot plus the held stripes) and display-at-boot-on-the-pixel-2.rs on lpoco-attended 0.34 with the answer file
+
+Status
+: open
+
+Note
+: KEEPER'S UNATTENDED RUN FOR REAL 2026-11-19 (walleye-keeper): procedures/display-at-boot-on-the-pixel-2.rs on lpoco-attended 0.35.1, dry-run 19 steps ok first. Checks 1-3 ok (sha b9dbd162, UFS off, battery), B2 booted from fastboot, gadget up, 13/13 modules ok, card0+DSI-1 connected, 249 display lines kept, backlight sysfs write rc=0 (value 127) yet dmesg still shows 'EXIT_SLEEP_MODE failed -110', 'Failed to initialize panel -110' and the 0x51 backlight cmd dma tx -110 at ~2.8 s; stopped at ask 13 (look 1) with 'nobody answered' as the bar wants. NOT as the bar says: the run does not send the phone back itself when it stops at an ask - the phone stayed on B2's gadget and returned to Android only by the init's 600 s deadman (~10 min), slot b, fastboot reachable afterwards. Needs: the run's way-back on a failed ask (or the author told the phone self-returns in 10 min); the programmer review; then 'ready, one command' to the Top Coordinator. Answer file dir ~/.cache/lpoco-attended/google-walleye/ (created at the first ask; prompt file was not present after the stop). Tooling: worktree needs build/images -> ~/Projects/walleye-build; phone password file ~/.config/devlab/google-walleye/password still missing (lpoco lab phone sh/suite unavailable). 2026-11-19 PARKED behind research walleye-display-b2-dsi-clock-warning: the unattended run (PR 588) shows -110 on every DSI command, SMMU faults and a pixel-clock warning, and the run does not send the phone back on an unanswered ask. Not offered to the author. The near-term look is walleye-display-look-l7.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: a keeper's unattended 'lpoco-attended run display-at-boot-on-the-pixel-2' for real: passes steps 1-12, stops at look_for 1 with 'nobody answered', the phone back on Android; then the author's two looks answered through the answer file
+
+Rank
+: 3
+
+
+<a id="walleye-procedures-on-v0-34"></a>
+### Pin the walleye procedures to lpoco-attended 0.34 (prompt and answer files, run --from, skip-when-in-state) and give the attended keeper orders their new form
+
+Status
+: open
+
+Note
+: Pin moved 2026-11-19 (walleye-builder): procedures/*.rs, tests/attended/*.rs, tools/walleye-tries and the CI install are all on lpoco-attended v0.35.1 (the shared walleye-tries crate must match the entry files' pin, else the library's state is two copies and the first step panics 'call procedure() before the first step'); check --host passes. Still open: the keeper orders (walleye-try-pmic-wdt-v1, display held try, walleye-try-ufs-match) in their new form, the AGENTS.md short-poll rule dropped, skip-when-in-state where it fits. Rank 6 (2026-11-19): the display procedures are pinned to 0.35.1 inside walleye-display-look-l7 and -b2; the touch, PMIC and UFS pins remain, after the look.
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: procedures/ and tests/attended (display, touch, PMIC, UFS) depend on lpoco-attended tag v0.34.1 or the newest 0.34.x (cargo git dependency on linux-phone-oco/lab-tools; check the tag in lab-tools), lpoco-attended check and --dry-run pass for each, the stand-in tests pass; each person step shows its prompt in ~/.cache/lpoco-attended/<device>/prompt and takes its answer from .../answer (the Top Coordinator writes it), so no program or keeper needs a relay; steps that are already in their state use skip-when-in-state where it fits (the phone already in fastboot, the image already checked); the attended items' orders (walleye-try-pmic-wdt-v1, the display held try, walleye-try-ufs-match) say: the keeper tells the Top Coordinator the device dir and the line 'prompt waiting' and polls nothing else; the short-poll rule of AGENTS.md is dropped once the procedures are moved; 'run --from' is noted for restarting after a stop
+
+Rank
+: 6
