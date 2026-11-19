@@ -3426,3 +3426,25 @@ Found
 
 About
 : walleye-upstream-dts-polish
+
+
+<a id="walleye-boot-image-align-is-the-bootloaders"></a>
+### walleye-boot-image-align-is-the-bootloaders
+
+Date
+: 2026-11-19
+
+Brief
+: Kernel image misaligned warning: every walleye boot image uses the stock kernel offset 0x8000; the bootloader places the Image, not our header - recorded as the bootloader's, not changed
+
+Question
+: Is the '[Firmware Bug] Kernel image misaligned at boot' line in z6/z7 dmesg ours to fix through the boot image kernel offset?
+
+Found
+: All our boot images (build-bootimg.sh a-i, build-*.sh) set base 0 and kernel_offset 0x8000, the value of taimen's deviceinfo, LineageOS wahoo's default and the stock boot.img (research walleye-bootimage-header-public, how-others-booted-wahoo). The Android bootloader loads the kernel at RAM base + offset = 0x80008000, 32 KiB past a 2 MiB boundary, which arm64 reports once at line 7 of dmesg. The kernel then boots, KASLR is on and nothing downstream warns (z7: dmesg-clean-check passes). A 2 MiB-aligned offset (0x200000) would move the load address on a bootloader that is not read and could overlap the ramdisk at 0x81000000 with a 17 MiB Image: a change that risks the only booting path to silence one cosmetic line. So: recorded as the bootloader's; no image change; if ever wanted it is one keeper try (kernel_offset 0x200000, ramdisk offset moved clear of the Image).
+
+Sources
+: walleye-bootimage-header-public
+
+About
+: walleye-first-fastboot-boot

@@ -3295,3 +3295,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-boot-image-align"></a>
+### walleye-builder: the misaligned-image line is the bootloader's
+
+Entry date
+: 2026-11-19
+
+Done
+: Took walleye-boot-image-align (rank 9). Read the z7 dmesg and build-bootimg.sh: our kernel offset 0x8000 is the stock/taimen/LineageOS value, so the warning comes from where the bootloader loads the Image. Item closed as recorded-as-the-bootloader's; no phone touched, no image built. Left for the next builder: ffs-acm retirement, bisect series, fuel gauge, wifi.
+
+Considered
+: Whether a 2 MiB-aligned kernel offset is worth one keeper try.
+
+Rejected
+: Moving the offset to 0x200000: changes the load address on an unread bootloader and may overlap the ramdisk at 0x81000000, to silence one cosmetic line.
+
+About
+: walleye-first-fastboot-boot
