@@ -1,0 +1,67 @@
+Trying 172.16.43.1...
+Connected to 172.16.43.1.
+Escape character is '^]'.
+
+~ # mount -t debugfs none /sys/kernel/debug 2>&1; echo ==DEF; cat /sys/kernel/de
+bug/devices_deferred; echo ==COMP; ls /sys/kernel/debug/device_component 2>&1; f
+or f in /sys/kernel/debug/device_component/*; do echo $f; cat $f; done; echo ==D
+SI; ls /sys/bus/mipi-dsi/devices 2>&1; echo ==DRV; ls /sys/bus/platform/drivers 
+| grep -iE "msm|dpu|mdss|dsi|mdp"; echo ==DEVS; ls /sys/bus/platform/devices | g
+rep -iE "c90|c99|c994|c996|mdss|dsi|dpu|disp|panel"
+==DEF
+c994000.dsi     
+==COMP
+[0;0mc901000.display-controller[m
+/sys/kernel/debug/device_component/c901000.display-controller
+aggregate_device name                                            status
+-----------------------------------------------------------------------
+c901000.display-controller                                    not bound
+
+device name                                                      status
+-----------------------------------------------------------------------
+(unknown)                                                not registered
+==DSI
+==DRV
+clk-mt8186-mdp
+clk-mt8192-mdp
+clk-mt8196-mdpsys
+gcc-msm8916
+gcc-msm8953
+gcc-msm8994
+gcc-msm8996
+gcc-msm8998
+gpucc-msm8998
+hdmi_msm
+mdp4
+mmcc-msm8998
+msm-dp-display
+msm-mdss
+msm-restart
+msm8916-pinctrl
+msm8953-pinctrl
+msm8976-pinctrl
+msm8994-pinctrl
+msm8996-pinctrl
+msm8998-pinctrl
+msm_dpu
+msm_dsi
+msm_dsi_phy
+msm_hdmi_phy
+msm_hsusb
+msm_mdp
+msm_serial
+qcom,gcc-msm8976
+qcom-apcs-msm8916-clk
+qcom-apcs-msm8996-clk
+qcom-msm8996-apcc
+qcom-msm8996-cbf
+qcom-smsm
+qnoc-msm8953
+qnoc-msm8996
+sdhci_msm
+==DEVS
+c900000.display-subsystem
+c901000.display-controller
+c994000.dsi
+c994400.phy
+~ # 

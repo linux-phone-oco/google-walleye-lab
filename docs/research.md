@@ -4145,3 +4145,25 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-19/
+
+
+<a id="walleye-display-why-dsi-defers-silently"></a>
+### walleye-display-why-dsi-defers-silently
+
+Date
+: 2026-11-19
+
+Brief
+: L1: the DRM master waits for c994000.dsi, deferred with no reason; its node has vdda-supply but no vdd-supply, which msm8998's dsi config needs
+
+Question
+: On L1 after the display modules load, what does the msm component master wait on?
+
+Found
+: L1 (boot-l1.img, slot b, nothing flashed, gates pass, display-late-probe.sh pass: 13 modules, shell alive) with debugfs mounted by hand. device_component: aggregate c901000.display-controller 'not bound', its one component 'not registered'. devices_deferred: only 'c994000.dsi' with an EMPTY reason (dev_err_probe would have given one). The dsi device has no driver; its suppliers (pinctrl, pmic gpio, clock-controller, display-controller, phy c994400, glink-edge) are all 'available', waiting_for_supplier 0, no 'phy driver is not ready' line; the phy c994400 is bound (msm_dsi_phy). So the defer is a bare return: in msm_dsi_host_init (drivers/gpu/drm/msm/dsi/dsi_host.c) devm_regulator_bulk_get_const returns its error without dev_err_probe, and msm8998_dsi_cfg asks for 'vdd' and 'vdda'. The dsi node on the phone has vdda-supply, vci-supply, wqhd-vddio-supply and NO vdd-supply; a missing supply the core cannot give a dummy for defers silently. The mipi-dsi bus has no device (the panel registers only after the host), which is why no panel line appears. Not proven: the regulator error code was not read; the proof is an image whose dsi node has vdd-supply (the 0.9 V rail; vreg_l1a_0p875 on other msm8998 boards, to be read for the Pixel 2) and a dsi device that binds. Phone back on Android slot b (idle-android pass). Next: builder - L3 with vdd-supply on the dsi node, then walleye-try-display-late-probe again.
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-19/

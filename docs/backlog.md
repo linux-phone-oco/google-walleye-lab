@@ -6550,10 +6550,10 @@ Rank
 ### Find why the DRM master does not assemble on L1: read the component state, the panel's dsi device, supplies and reset gpio
 
 Status
-: open
+: done
 
 Note
-: From research walleye-display-late-probe-l1-modules-load-no-drm-card: msm probes to dpu mmap, then nothing; no card, no panel line. Reuse boot-l1.img and the host script (timeout 400+); read-only reads after the loads. Unattended.
+: proven by research walleye-display-why-dsi-defers-silently: the component master waits for c994000.dsi, deferred silently; cause named, fix not yet tried
 
 About
 : walleye-display-s6e3fa5

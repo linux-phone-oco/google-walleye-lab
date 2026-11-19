@@ -1,0 +1,94 @@
+Trying 172.16.43.1...
+Connected to 172.16.43.1.
+Escape character is '^]'.
+
+D=$(ls -d /sys/devices/platform/soc@0/*/c994000.dsi); echo D=$D; ls $D; echo ==SUP; ls $D | grep -E "supplier|consumer"; for s in $D/supplier:*; do echo $s $(cat $s/status) $(readlink $s/supplier); done; echo ==WFS; cat $D/waiting_for_supplier; cat $D/uevent; echo ==PHYD; P=$(ls -d /sys/devices/platform/soc@0/*/c994400.phy); ls $P; cat $P/uevent; echo ==DSIDRV; ls -l $D/driver 2>&1; echo ==PANEL; ls $D; ls /sys/bus/mipi-dsi; echo ==LOG; dmesg | grep -iE "msm_dsi|dsi_host|dsi.*(fail|defer|error|-517|probe)|phy.*(fail|defer|-517)|vdd|vdda|disp_|panel" | grep -v "drm:dsi_pll" | tail -20
+~ # D=$(ls -d /sys/devices/platform/soc@0/*/c994000.dsi); echo D=$D; ls $D; echo
+ ==SUP; ls $D | grep -E "supplier|consumer"; for s in $D/supplier:*; do echo $s 
+$(cat $s/status) $(readlink $s/supplier); done; echo ==WFS; cat $D/waiting_for_s
+upplier; cat $D/uevent; echo ==PHYD; P=$(ls -d /sys/devices/platform/soc@0/*/c99
+4400.phy); ls $P; cat $P/uevent; echo ==DSIDRV; ls -l $D/driver 2>&1; echo ==PAN
+EL; ls $D; ls /sys/bus/mipi-dsi; echo ==LOG; dmesg | grep -iE "msm_dsi|dsi_host|
+dsi.*(fail|defer|error|-517|probe)|phy.*(fail|defer|-517)|vdd|vdda|disp_|panel" 
+| grep -v "drm:dsi_pll" | tail -20
+D=/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi
+[0;0mdriver_override[m
+[0;0mmodalias[m
+[1;36mof_node[m
+[1;34mpower[m
+[1;36msubsystem[m
+[1;36msupplier:platform:3400000.pinctrl[m
+[1;36msupplier:platform:800f000.spmi:pmic@2:gpio@c000[m
+[1;36msupplier:platform:c8c0000.clock-controller[m
+[1;36msupplier:platform:c900000.display-subsystem[m
+[1;36msupplier:platform:c901000.display-controller[m
+[1;36msupplier:platform:c994400.phy[m
+[1;36msupplier:platform:remoteproc:glink-edge[m
+[0;0muevent[m
+[0;0mwaiting_for_supplier[m
+==SUP
+supplier:platform:3400000.pinctrl
+supplier:platform:800f000.spmi:pmic@2:gpio@c000
+supplier:platform:c8c0000.clock-controller
+supplier:platform:c900000.display-subsystem
+supplier:platform:c901000.display-controller
+supplier:platform:c994400.phy
+supplier:platform:remoteproc:glink-edge
+waiting_for_supplier
+/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/supplier:platform:3400000.pinctrl available ../../../platform/soc@0/3400000.pinctrl
+/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/supplier:platform:800f000.spmi:pmic@2:gpio@c000 available ../../../platform/soc@0/800f000.spmi/spmi-0/0-02/800f000.spmi:pmic@2:gpio@c000
+/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/supplier:platform:c8c0000.clock-controller available ../../../platform/soc@0/c8c0000.clock-controller
+/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/supplier:platform:c900000.display-subsystem available ../../../platform/soc@0/c900000.display-subsystem
+/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/supplier:platform:c901000.display-controller available ../../../platform/soc@0/c900000.display-subsystem/c901000.display-controller
+/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/supplier:platform:c994400.phy available ../../../platform/soc@0/c900000.display-subsystem/c994400.phy
+/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/supplier:platform:remoteproc:glink-edge available ../../../platform/remoteproc/remoteproc:glink-edge
+==WFS
+0
+OF_NAME=dsi
+OF_FULLNAME=/soc@0/display-subsystem@c900000/dsi@c994000
+OF_COMPATIBLE_0=qcom,msm8998-dsi-ctrl
+OF_COMPATIBLE_1=qcom,mdss-dsi-ctrl
+OF_COMPATIBLE_N=2
+MODALIAS=of:NdsiT(null)Cqcom,msm8998-dsi-ctrlCqcom,mdss-dsi-ctrl
+==PHYD
+[1;36mconsumer:platform:c994000.dsi[m
+[1;36mdriver[m
+[0;0mdriver_override[m
+[0;0mmodalias[m
+[1;36mof_node[m
+[1;34mpower[m
+[1;36msubsystem[m
+[1;36msupplier:platform:remoteproc:glink-edge[m
+[1;36msupplier:regulator:regulator.7[m
+[0;0muevent[m
+DRIVER=msm_dsi_phy
+OF_NAME=phy
+OF_FULLNAME=/soc@0/display-subsystem@c900000/phy@c994400
+OF_COMPATIBLE_0=qcom,dsi-phy-10nm-8998
+OF_COMPATIBLE_N=1
+MODALIAS=of:NphyT(null)Cqcom,dsi-phy-10nm-8998
+==DSIDRV
+ls: /sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/driver: No such file or directory
+==PANEL
+[0;0mdriver_override[m
+[0;0mmodalias[m
+[1;36mof_node[m
+[1;34mpower[m
+[1;36msubsystem[m
+[1;36msupplier:platform:3400000.pinctrl[m
+[1;36msupplier:platform:800f000.spmi:pmic@2:gpio@c000[m
+[1;36msupplier:platform:c8c0000.clock-controller[m
+[1;36msupplier:platform:c900000.display-subsystem[m
+[1;36msupplier:platform:c901000.display-controller[m
+[1;36msupplier:platform:c994400.phy[m
+[1;36msupplier:platform:remoteproc:glink-edge[m
+[0;0muevent[m
+[0;0mwaiting_for_supplier[m
+[1;34mdevices[m            [0;0mdrivers_autoprobe[m  [0;0muevent[m
+[1;34mdrivers[m            [0;0mdrivers_probe[m
+==LOG
+[    0.000000] Kernel command line: clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3 dyndbg="file drivers/gpio/gpiolib.c +p; file drivers/gpio/gpiolib-of.c +p; file drivers/pinctrl/core.c +p; file drivers/pinctrl/devicetree.c +p; file drivers/pinctrl/qcom/pinctrl-spmi-gpio.c +p" iommu.passthrough=1 androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=0000002b-0000-0000-0000-000000000000 androidboot.bootdevice=1da4000.ufshc androidboot.serialno=FA81N1A00790 androidboot.wificountrycode=00 androidboot.boottime=1BLL:221,1BLE:756,2BLL:870,2BLE:8967,SW:10017,KL:0,KD:2334,ODT:75,AVB:39 androidboot.baseband=msm mdss_mdp.panel=1:dsi:0:htc,mdss_dsi_samsung_s6e3fa5_1080p_cmd:1:none:cfg:single_dsi androidboot.fpsensor=fpc1075 androidboot.fpmodule=ofilm androidboot.usbradioflag=0 androidboot.temp_protect_ignore=0 androidboot.hardware.ufs=64GB,Hynix androidboot.mid=G011A androidboot.hardware.sku=G011A androidboot.revision=MP1 \
+[    0.166182] /soc@0/display-subsystem@c900000/dsi@c994000/panel@0: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/dsi@c994000
+[    0.166299] /soc@0/display-subsystem@c900000/dsi@c994000: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/dsi@c994000/panel@0
+[  333.921761] [drm:msm_dsi_register [msm]] 
+~ # 

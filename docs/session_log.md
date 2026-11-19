@@ -3691,3 +3691,21 @@ Rejected
 
 About
 : walleye-attend-program-pmic
+
+---
+
+
+<a id="2026-11-20-0230-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up (idle-android pass); L1 tried once (nothing flashed): the DRM master waits for c994000.dsi, deferred silently, its node has no vdd-supply; item walleye-display-why-no-drm-card done
+
+Considered
+: next: builder - L3 = L1 + vdd-supply on the dsi node (the 0.9 V rail read from the phone), then walleye-try-display-late-probe; touch gpio z21 section; walleye-ufs-android-regs needs a mem reader; pmic-wdt parked; ready for a keeper: walleye-attend-touch-unattended-run, walleye-tas2557-firmware-source, walleye-haptics-i2c-answers
+
+About
+: walleye-display-s6e3fa5

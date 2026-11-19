@@ -1,0 +1,59 @@
+Trying 172.16.43.1...
+Connected to 172.16.43.1.
+Escape character is '^]'.
+
+N=/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/of_node; ls $N; for p in $N/vdd* $N/vdda* $N/vddio*; do echo $p; cat $p; echo; done; echo ==PHYN; ls /sys/devices/platform/soc@0/c900000.display-subsystem/c994400.phy/of_node; echo ==REG; for r in /sys/class/regulator/regulator.*; do echo $(basename $r) $(cat $r/name) $(cat $r/state 2>/dev/null); done
+~ # N=/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/of_node;
+ ls $N; for p in $N/vdd* $N/vdda* $N/vddio*; do echo $p; cat $p; echo; done; ech
+o ==PHYN; ls /sys/devices/platform/soc@0/c900000.display-subsystem/c994400.phy/o
+f_node; echo ==REG; for r in /sys/class/regulator/regulator.*; do echo $(basenam
+e $r) $(cat $r/name) $(cat $r/state 2>/dev/null); done
+[0;0m#address-cells[m             [0;0mphys[m
+[0;0m#size-cells[m                [0;0mpinctrl-0[m
+[0;0massigned-clock-parents[m     [0;0mpinctrl-1[m
+[0;0massigned-clocks[m            [0;0mpinctrl-names[m
+[0;0mclock-names[m                [1;34mports[m
+[0;0mclocks[m                     [0;0mpower-domains[m
+[0;0mcompatible[m                 [0;0mqcom,dsi-pref-prim-pan[m
+[0;0mibb-supply[m                 [0;0mqcom,platform-err_fg-gpio[m
+[0;0minterrupt-parent[m           [0;0mqcom,platform-reset-gpio[m
+[0;0minterrupts[m                 [0;0mqcom,platform-te-gpio[m
+[0;0mlab-supply[m                 [0;0mreg[m
+[0;0mname[m                       [0;0mreg-names[m
+[0;0moperating-points-v2[m        [0;0mstatus[m
+[1;34mpanel@0[m                    [0;0mvci-supply[m
+[0;0mphandle[m                    [0;0mvdda-supply[m
+[0;0mphy-names[m                  [0;0mwqhd-vddio-supply[m
+/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/of_node/vdda-supply
+&
+/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/of_node/vdda-supply
+&
+/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/of_node/vddio*
+cat: can't open '/sys/devices/platform/soc@0/c900000.display-subsystem/c994000.dsi/of_node/vddio*': No such file or directory
+
+==PHYN
+[0;0m#clock-cells[m  [0;0mclocks[m        [0;0mphandle[m       [0;0mstatus[m
+[0;0m#phy-cells[m    [0;0mcompatible[m    [0;0mreg[m           [0;0mvdds-supply[m
+[0;0mclock-names[m   [0;0mname[m          [0;0mreg-names[m
+==REG
+regulator.0 regulator-dummy
+regulator.1 vph_pwr
+regulator.10 l12 enabled
+regulator.11 l6 enabled
+regulator.12 l28 enabled
+regulator.13 l20 disabled
+regulator.14 l26 disabled
+regulator.15 l24 enabled
+regulator.16 l14 disabled
+regulator.17 l22 disabled
+regulator.18 tps61099-vbus disabled
+regulator.19 touch-power enabled
+regulator.2 s3 disabled
+regulator.3 s4 disabled
+regulator.4 bob enabled
+regulator.5 s5 enabled
+regulator.6 s7 enabled
+regulator.7 l1 enabled
+regulator.8 l2 disabled
+regulator.9 lvs2 disabled
+~ # 
