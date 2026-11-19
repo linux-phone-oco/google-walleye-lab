@@ -3577,3 +3577,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-walleye-builder-display-f3-split-images"></a>
+### walleye-builder: the f3 split images g1..g3
+
+Entry date
+: 2026-11-19
+
+Done
+: Series display-f3-split.toml, parts script and check; g1 cmdline +iommu.passthrough=1, g2 f3 without mdss iommus, g3 mdss alone (display controller explicitly disabled); gate and AVB pass, rebuild identical, programmer review fixed two check gaps
+
+Considered
+: g3 from f0 not f3 so only mdss changes
+
+Rejected
+: leaving the display controller without status in g3: absent means enabled, which would not be mdss alone
+
+About
+: walleye-display-s6e3fa5
