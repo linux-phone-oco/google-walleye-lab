@@ -32,7 +32,7 @@ dts() { dtc -I dtb -O dts -q "$1" 2>/dev/null; }
 dts "$T/l4/appended.dtb" > "$T/l4.dts"; dts "$T/l5/appended.dtb" > "$T/l5.dts"
 ck "against L4's dtb (re-diffed from the images) the change is the one l5.diff records" "$(diff -u "$T/l4.dts" "$T/l5.dts" | sed 1,2d | cmp -s - "$P/l5.diff" && echo same || echo differs)" same
 ck "the panel reset gpio has one claimant in the image's dtb (tests/host/display-reset-gpio-single-claimant.sh)" "$(DTB="$T/l5/appended.dtb" sh "$HERE/tests/host/display-reset-gpio-single-claimant.sh" | cut -d' ' -f1 || true)" pass
-ck "the same test fails on L4's dtb in L4's image (control)" "$(DTB="$T/l4/appended.dtb" sh "$HERE/tests/host/display-reset-gpio-single-claimant.sh" | cut -d' ' -f1 || true)" fail
+ck "the same test fails on L4's dtb in L4's image (control)" "$(DTB="$T/l4/appended.dtb" sh "$HERE/tests/host/display-reset-gpio-single-claimant.sh" | grep -c " 2 available nodes name tlmm" || true)" 1
 (cd "$P" && sha256sum -c SHA256SUMS-display-late-l5-parts >/dev/null 2>&1) || { echo "check-display-late-l5: the parts do not match their sums" >&2; exit 1; }
 [ $total -eq 0 ] || { echo "check-display-late-l5: $total checks failed, no sums written" >&2; exit 1; }
 (cd "$D" && sha256sum boot-l5.img | tee SHA256SUMS-display-late-l5)

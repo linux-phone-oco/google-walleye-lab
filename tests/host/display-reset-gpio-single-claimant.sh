@@ -21,7 +21,8 @@ size=$((0x$(echo "$e" | cut -c1-8))); off=$((0x$(echo "$e" | cut -c9-16)))
 tail -c +$((off+1)) "$DTBO" | head -c "$size" > "$T/ov"
 out=$(fdtoverlay -i "$DTB" -o "$T/m" "$T/ov" 2>&1) || say fail "overlay does not merge: $(echo "$out" | tr '\n' ' ' | cut -c1-120)"
 TL=$(fdtget "$T/m" /__symbols__ tlmm 2>/dev/null) || say fail "no tlmm label in the merged dtb"
-P=$(printf '0x%x' "$(fdtget -t u "$T/m" "$TL" phandle 2>/dev/null)") || say fail "tlmm has no phandle"
+PH=$(fdtget -t u "$T/m" "$TL" phandle 2>/dev/null) || say fail "tlmm has no phandle"
+P=$(printf "0x%x" "$PH")
 dtc -I dtb -O dts "$T/m" 2>/dev/null > "$T/m.dts" || say fail "cannot decompile the merged dtb"
 # Walk the decompiled tree: a property named gpio(s) or *-gpio(s) whose first two cells are <P LINE> is a claimant, named by its node path.
 awk -v p="$P" -v line="$(printf "0x%02x" "$LINE")" '
@@ -47,5 +48,5 @@ while IFS= read -r w; do
   done
   [ "$ok" = 1 ] && { cnt=$((cnt+1)); list="$list $w"; }
 done < "$T/all"
-[ "$cnt" -eq 1 ] || say fail "$cnt available nodes name tlmm gpio $LINE (a shared gpio, served by a proxy that never registers):$list"
+[ "$cnt" -eq 1 ] || say fail "$cnt available nodes name tlmm gpio $LINE$([ "$cnt" -gt 1 ] && echo " (a shared gpio, served by a proxy that never registers)"):$list"
 say pass "one available node names tlmm gpio $LINE:$list"

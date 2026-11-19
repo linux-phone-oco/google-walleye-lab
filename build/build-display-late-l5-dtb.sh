@@ -22,7 +22,7 @@ L4=$T/l4/appended.dtb
 dts() { dtc -I dtb -O dts -q "$1" 2>/dev/null; }
 C=/vendor-overlay-stubs
 TEST=$HERE/tests/host/display-reset-gpio-single-claimant.sh
-ck "the test fails on L4's dtb (control: two available nodes name tlmm 94)" "$(DTB="$L4" sh "$TEST" | cut -d' ' -f1 || true)" fail
+ck "the test fails on L4's dtb (control: two available nodes name tlmm 94)" "$(DTB="$L4" sh "$TEST" | grep -c " 2 available nodes name tlmm" || true)" 1
 REAL=$(fdtget "$L4" /__symbols__ mdss_dsi0)
 ck "L4's dtb: mdss_dsi0 names the real dsi node" "$REAL" /soc@0/display-subsystem@c900000/dsi@c994000
 ck "L4's dtb: the stub container is disabled" "$(fdtget "$L4" "$C" status)" disabled
