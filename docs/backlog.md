@@ -6069,10 +6069,10 @@ Rank
 ### One command for the touch try on z21: the reader first, the 'ready' to the author at once, a long window, the way back
 
 Status
-: open
+: done
 
 Note
-: The retry recipe of item walleye-try-z21-touch-events (research walleye-z21-touch-events-window-missed): the reader first, 'ready' at once, go window at least 90 min. Decision 2026-11-19-walleye-attended-tries-one-command. ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone. SHARED RUNNER (orchestration, 2026-11-19): write the program against lpoco-attended, the crate of lab-tools (dir attended/, example in attended/examples/), used from a rust-script entry file with a cargo git dependency on linux-phone-oco/lab-tools at tag lpoco-attended-vX.Y.Z (orchestration sends the tag; until then a path dependency on the lab-tools builder's worktree or branch). Entry file: use lpoco_attended::prelude::*; then in order procedure("name", "google-walleye"); step("what", || ...); check("what must hold", || ...); ask_author("what to do, what to check"); each stops the run on failure; phone() reaches the device through devlab; --dry-run and the log come from the library. Our own plumbing (readers, parsing, retries) goes in helper modules of this lab, not in the entry file and not in a copy of the runner. Anything the runner lacks: write it in a note in the shared notes folder for orchestration (what is missing, which step needed it); do not work around it with your own runner. CORRECTION (orchestration, 2026-11-19, lab-tools tag lpoco-v0.28.3, #243): the runner is released and lives in lpoco-bringup, NOT in a crate of its own: dependency lpoco-bringup = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-v0.28.3" }; use lpoco_bringup::attended::*; entry = procedure("name").run(|p| { p.step("..", phone("..").retry(3,1))?; p.ask_author("what to do", "what to check")?; p.check("..", phone("..").expect(".."))?; Ok(()) }); phone(..) runs as the phone user, phone_root(..) as root, sh(..) on the host; --dry-run, --log FILE, --help come from the library; copy bringup/examples/attended.rs. Where this paragraph and the older 'lpoco-attended' wording differ, this one holds. Device-agnostic steps keyed to bring-up step ids (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) are coming in lab-tools: write ours inline for now and name the ones we would want in the library (note in the shared notes folder for orchestration). FINAL CORRECTION (orchestration, 2026-11-19, lab-tools #247, tag lpoco-attended-v0.29.0): the attended runner is its own crate again and the lpoco_bringup::attended module is removed; this paragraph replaces the earlier two (lpoco-attended vX.Y.Z, then lpoco-v0.28.3). Dependency: lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.29.0" }; use lpoco_attended::prelude::*; let _run = procedure("name", "google-walleye"); (keep it bound) then step("what", || ..), check("what", || ..) (returns (), bool or Result; false or Err stops and names the step), ask_author("what to do / what to check"), phone().sh(..) / phone().root(..), retry(tries, secs, || ..); --dry-run runs no closure; --log FILE; copy attended/examples/attended.rs. Library steps (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) come next in lab-tools: write ours inline for now and tell orchestration which are needed (note walleye-to-orchestration-attended-steps-wanted.md).
+: Built: tests/attended/touch-try.rs on tools/walleye-tries; dry-run, 17 stand-in tests (a synthetic touch counted by the real touch-check.sh), clippy and fmt clean, programmer review answered. Keeper's unattended run: item walleye-attend-touch-unattended-run; attended run: walleye-try-z21-touch-events (author's go).
 
 About
 : walleye-display-s6e3fa5
@@ -6553,3 +6553,53 @@ Proof
 
 Rank
 : 8
+
+
+<a id="walleye-z21-hold-init"></a>
+### z21's ramdisk with init-late's hold, so the touch window is 90 s or more
+
+Status
+: open
+
+Note
+: One change on z21: the petter loop of init-late (while n -lt 90 or /tmp/hold exists), nothing else; the UFS-off gate and the tests of the image pass; sha256 line. Only if the 65 s window of the program on z21 as built proves too short (research walleye-z21-init-has-no-hold). The program would then also need a hold step.
+
+About
+: walleye-attend-program-touch
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the image's init has the hold line (grep), gate passes, rebuild identical
+
+Rank
+: 8
+
+
+<a id="walleye-attend-touch-unattended-run"></a>
+### Keeper: the touch program's unattended parts run for real
+
+Status
+: open
+
+Note
+: Run tests/attended/touch-try.rs (rust-script, from this lab's folder) once with standard input from /dev/null: the ufs gate, boot of z21, shell, device listed and EVENTS-READY must pass, and the run stops at the ask with 'nobody answered'; the phone then restarts by itself at 180 s; check tests/host/idle-android.sh; record the program's log and the window it printed. No author needed; the real attended run is walleye-try-z21-touch-events with the author's go.
+
+About
+: walleye-attend-program-touch
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the run's log: EVENTS-READY shown, 'nobody answered' at the ask, phone back on Android
+
+Rank
+: 4

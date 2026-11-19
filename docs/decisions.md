@@ -2163,3 +2163,34 @@ Research
 
 Tracked by
 : walleye-drv2624-driver
+
+
+<a id="2026-11-19-walleye-touch-try-window-by-the-init"></a>
+### 2026-11-19-walleye-touch-try-window-by-the-init
+
+Date
+: 2026-11-19
+
+Brief
+: The touch try opens its reader first, shows EVENTS-READY, then asks the author; its window is what the phone's own restart leaves
+
+Decision
+: One Rust program per try: tests/attended/touch-try.rs (13 named steps on the shared lpoco-attended runner) over the crate tools/walleye-tries (settings declared once with argenv as WALLEYE_TRY_* variables, telnet shell, reader thread, steps, stand-in phone tests). Order: battery, image hash, UFS-off gate, boot, shell, touch device listed (dmesg saved again after the probe), window checked, reader started, EVENTS-READY shown, then the author is asked; Android is awaited BEFORE the events are counted. The window is WALLEYE_TRY_WINDOW (120 s) cut to what z21's 180 s restart leaves after the device is listed (about 65 s at 107 s); under 40 s the author is not asked. No hold step: z21's init has none.
+
+Why
+: The author's words: ask him only when one command is away; the entry file reads like a checklist. The third z21 try missed its window because the reader closed before 'ready' reached him. z21's init does not hold (research walleye-z21-init-has-no-hold). The programmer's review found the first hold and deadman code was a shell syntax error and unneeded on z21, so it was removed.
+
+Rejected
+: A hold and a phone-side deadman: dead code on z21 and wrong as first written (item walleye-z21-hold-init if 90 s is wanted). Porting touch-read.sh with a fixed 90 s window: the phone restarts before it ends. Sending 'ready' to the coordinator as a message: the program prints the prompt where the author reads it. A cleanup in the runner: it ends the process on a failing step. An unattended switch: stdin from /dev/null does it.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-z21-init-has-no-hold
+
+Scope
+: walleye lane builders and keeper
+
+Tracked by
+: walleye-attend-program-touch

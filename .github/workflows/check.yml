@@ -56,3 +56,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: bin/licence-check (decision 2026-11-19-licences-for-our-repositories)
         run: sh bin/licence-check
+  attended-tries:
+    name: the attended tries prove themselves
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: the try's plumbing against a stand-in phone, clippy clean (no phone)
+        run: |
+          cd tools/walleye-tries
+          cargo test --locked
+          cargo fmt --check
+          cargo clippy --locked --all-targets -- -D warnings

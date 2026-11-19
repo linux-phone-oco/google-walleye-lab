@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+[package]
+name = "walleye-tries"
+version = "0.1.0"
+edition = "2021"
+description = "The Pixel 2 lab's attended tries: the plumbing behind each try's entry file (tests/attended/*.rs)"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[lib]
+name = "walleye_tries"
+
+[dependencies]
+# the runner every attended procedure shares; its release is the tag
+lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.29.0" }
+# the variables this lab's tries read are declared once (argenv), not read by hand
+argenv-resolve = "0.4"
