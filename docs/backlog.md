@@ -7435,3 +7435,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-pmic-program-ab-and-witnesses"></a>
+### PMIC program: an Image type for A and B, the A-to-B fallback's witnesses with a stand-in test, and bootreason and slot read in the bite pass
+
+Status
+: open
+
+Note
+: Left open by the builder of walleye-tries-shared-lab-plumbing (PR 517): not in that item's proof. The A to B fallback had no stand-in test since the program was built (PR 453). Do after walleye-wdt-state-without-sysfs-identity and before the PMIC attended try is asked.
+
+About
+: walleye-attend-program-pmic
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: pmic-try.rs and tools/walleye-tries/src/pmic.rs: one Image type (A, B) replacing loose paths; a stand-in test that A not booting leads to B and says so in the log; the bite pass reads the boot reason and the active slot from Android afterwards and records them; 32 stand-in tests plus the new ones pass, clippy and fmt clean, --dry-run passes
+
+Rank
+: 8
