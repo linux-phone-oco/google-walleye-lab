@@ -4162,3 +4162,24 @@ Considered
 
 About
 : walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-19-walleye-tries-one-lab-type-for-the-shared"></a>
+### walleye-tries: one Lab type for the shared plumbing
+
+Entry date
+: 2026-11-19
+
+Done
+: Moved shell, script, serial, battery, android-back and to-fastboot into walleye_tries::lab::Lab; touch and pmic hold one. host::in_fastboot returns Result so an unrunnable fastboot fails at once; serial_of moved to host; unreadable device.toml named. pmic-try.rs starts with a phone-is-in-fastboot step (no adb reboot bootloader by hand). 32 tests pass, clippy clean.
+
+Considered
+: Closure-returning methods on Lab itself (would change both entry files)
+
+Rejected
+: Kept thin delegating step methods on Pmic and Touch so entry files stay unchanged
+
+About
+: walleye-attend-program-pmic

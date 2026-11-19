@@ -7279,10 +7279,10 @@ Rank
 ### walleye-tries: one shared Lab type for the plumbing touch and pmic both copy
 
 Status
-: open
+: done
 
 Note
-: Programmer review of the PMIC program: shell, script, save, battery_is_good, boot, shell_answers, android_is_back are copied between touch.rs and pmic.rs; move into host.rs or a Lab type. Also: an Image enum for A/B; the A->B fallback has no stand-in test and decides on gadget-up.sh alone (item says several witnesses, phone-state.sh); the bite pass could also check bootreason and the slot; arming_said needs 'rebooting cleanly now' though reboot -f follows at once. Review notes from the second builder that dropped its duplicate of #465: check #465's host::to_fastboot for an empty serial (fail fast), an unrunnable fastboot (error at once) and an unreadable device.toml (name the file). 2026-11-19 keeper run 2 of the PMIC program (PR 511): the program needs the phone in fastboot and the keeper ran adb reboot bootloader by hand; pmic.rs back_to_fastboot is not an enter-fastboot step from Android. Rank 4: before the PMIC unattended run repeats.
+: Landed: tools/walleye-tries/src/lab.rs holds the plumbing both tries shared (shell, script, serial, battery_is_good, android_is_back, phone_is_in_fastboot); pmic back_to_fastboot is host::to_fastboot; host::in_fastboot errors on an unrunnable fastboot; an unreadable device.toml is named; pmic-try.rs has a 'phone is in fastboot' step. Left for later: an Image enum for A/B, the A->B fallback's witnesses, bootreason/slot in the bite pass (not in this item's proof).
 
 About
 : walleye-attend-program-pmic

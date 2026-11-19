@@ -5,7 +5,7 @@
 //! what it saw, and the entry file's runner stops the run there. Nothing is written to the phone beyond /tmp.
 
 use crate::host;
-use crate::phone::Shell;
+use crate::lab::Lab;
 use crate::reader::Reader;
 use crate::settings::Settings;
 use std::cell::RefCell;
@@ -28,6 +28,7 @@ struct Facts {
 #[derive(Clone)]
 pub struct Touch {
     s: Rc<Settings>,
+    lab: Lab,
     facts: Rc<RefCell<Facts>>,
     reader: Rc<RefCell<Option<Reader>>>,
 }
@@ -88,20 +89,25 @@ pub fn redact(text: &str) -> String {
 }
 
 impl Touch {
-    pub fn new(s: Settings) -> Touch {
+    /// The same try on other settings: the lab follows them.
+    #[cfg(test)]
+    fn with(&self, s: Settings) -> Touch {
+        let s = Rc::new(s);
         Touch {
-            s: Rc::new(s),
-            facts: Rc::default(),
-            reader: Rc::default(),
+            lab: Lab::new(s.clone()),
+            s,
+            ..self.clone()
         }
     }
 
-    fn shell(&self, wait: u64) -> Result<Shell, String> {
-        Shell::open(&self.s.address, self.s.port, Duration::from_secs(wait))
-    }
-
-    fn script(&self, name: &str, args: &[&str], env: &[(&str, &str)]) -> Result<String, String> {
-        host::script(&self.s.host_script(name), args, env)
+    pub fn new(s: Settings) -> Touch {
+        let s = Rc::new(s);
+        Touch {
+            lab: Lab::new(s.clone()),
+            s,
+            facts: Rc::default(),
+            reader: Rc::default(),
+        }
     }
 
     fn save(&self, name: &str, text: &str) -> Done {
@@ -109,14 +115,10 @@ impl Touch {
             .map_err(|e| format!("{name}: {e}"))
     }
 
-    /// The battery is above the lab's minimum (a skip - nothing answers - stops the run too: not known yet).
+    /// The battery is above the lab's minimum (the shared step).
     pub fn battery_is_good(&self) -> impl FnOnce() -> Done + 'static {
-        let t = self.clone();
-        move || {
-            let toml = t.s.device_toml();
-            t.script("battery-ok.sh", &[&toml.to_string_lossy()], &[])
-                .map(|_| ())
-        }
+        let lab = self.lab.clone();
+        move || lab.battery_is_good()
     }
 
     /// The image is the one built: its sha256 is the one its SHA256SUMS line records.
@@ -130,7 +132,7 @@ impl Touch {
         let t = self.clone();
         move || {
             let image = t.s.image.to_string_lossy().into_owned();
-            let line = t.script("ufs-off-image.sh", &[&image], &[])?;
+            let line = t.lab.script("ufs-off-image.sh", &[&image], &[])?;
             if line.starts_with("pass ") {
                 Ok(())
             } else {
@@ -139,16 +141,11 @@ impl Touch {
         }
     }
 
-    /// The phone is in fastboot: when it idles on Android (where an unattended run leaves it) `adb reboot bootloader` takes it
-    /// there, as the PMIC try does; when fastboot lists it already, nothing is done. Nothing is written to the phone.
+    /// The phone is in fastboot: from Android `adb reboot bootloader` takes it there; when fastboot lists it already,
+    /// nothing is done (the shared step). Nothing is written to the phone.
     pub fn phone_is_in_fastboot(&self) -> impl FnOnce() -> Done + 'static {
-        let t = self.clone();
-        move || {
-            let toml = std::fs::read_to_string(t.s.device_toml()).unwrap_or_default();
-            let serial = crate::pmic::serial_of(&toml)
-                .ok_or_else(|| format!("no serial in {}", t.s.device_toml().display()))?;
-            host::to_fastboot(&t.s.adb, &t.s.fastboot, &serial, Duration::from_secs(90))
-        }
+        let lab = self.lab.clone();
+        move || lab.phone_is_in_fastboot()
     }
 
     /// Boot the image from the phone's fastboot, from memory: nothing is written to it.
@@ -179,12 +176,12 @@ impl Touch {
                 std::os::unix::fs::PermissionsExt::from_mode(0o700),
             );
             let toml = t.s.device_toml();
-            t.script(
+            t.lab.script(
                 "gadget-up.sh",
                 &[&toml.to_string_lossy()],
                 &[("GADGET_WAIT", "60")],
             )?;
-            let mut sh = t.shell(10)?;
+            let mut sh = t.lab.shell(10)?;
             let dmesg = sh.run("dmesg", Duration::from_secs(20))?;
             if dmesg.trim().is_empty() {
                 return Err("the shell answered, but dmesg is empty".into());
@@ -198,7 +195,7 @@ impl Touch {
         let t = self.clone();
         move || {
             let until = Instant::now() + Duration::from_secs(t.s.device_wait);
-            let mut sh = t.shell(10)?;
+            let mut sh = t.lab.shell(10)?;
             loop {
                 let devices = sh.run("cat /proc/bus/input/devices", Duration::from_secs(10))?;
                 if let Some(node) = touch_node(&devices) {
@@ -300,25 +297,10 @@ impl Touch {
         }
     }
 
-    /// The phone is back on Android (adb device, boot completed, not parked in fastboot).
+    /// The phone is back on Android (the shared step).
     pub fn android_is_back(&self) -> impl FnOnce() -> Done + 'static {
-        let t = self.clone();
-        move || {
-            let until = Instant::now() + Duration::from_secs(t.s.back_wait);
-            let toml = t.s.device_toml();
-            loop {
-                match t.script("idle-android.sh", &[&toml.to_string_lossy()], &[]) {
-                    Ok(_) => return Ok(()),
-                    Err(e) if Instant::now() >= until => {
-                        return Err(format!(
-                            "not back on Android within {} s: {e}",
-                            t.s.back_wait
-                        ))
-                    }
-                    Err(_) => std::thread::sleep(Duration::from_secs(5)),
-                }
-            }
-        }
+        let lab = self.lab.clone();
+        move || lab.android_is_back()
     }
 
     /// The saved files say the touch probed and a touch made events (the lab's touch-check: a `skip` - nobody
@@ -327,7 +309,7 @@ impl Touch {
         let t = self.clone();
         move || {
             let out = t.s.out.to_string_lossy().into_owned();
-            let line = t.script("touch-check.sh", &[&out], &[])?;
+            let line = t.lab.script("touch-check.sh", &[&out], &[])?;
             println!("  {line}");
             Ok(())
         }
@@ -494,7 +476,7 @@ mod walkthrough {
 
     #[test]
     fn the_try_starts_from_android_and_takes_the_phone_to_fastboot_itself() {
-        let (mut t, d) = the_try("fb", 1, &[]);
+        let (t, d) = the_try("fb", 1, &[]);
         std::fs::write(
             d.join("device.toml"),
             "[connection]\naddresses = [\"127.0.0.1\"]\nserial = \"SER1\"\n",
@@ -516,9 +498,11 @@ mod walkthrough {
             std::fs::set_permissions(&p, std::os::unix::fs::PermissionsExt::from_mode(0o755))
                 .unwrap();
         }
-        let s = Rc::get_mut(&mut t.s).unwrap();
-        s.adb = d.join("adb").to_string_lossy().into_owned();
-        s.fastboot = d.join("fastboot").to_string_lossy().into_owned();
+        let t = t.with(Settings {
+            adb: d.join("adb").to_string_lossy().into_owned(),
+            fastboot: d.join("fastboot").to_string_lossy().into_owned(),
+            ..(*t.s).clone()
+        });
         t.phone_is_in_fastboot()().unwrap();
         assert_eq!(
             std::fs::read_to_string(d.join("bootloader.args"))
