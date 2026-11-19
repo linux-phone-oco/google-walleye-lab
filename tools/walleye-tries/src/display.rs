@@ -7,7 +7,6 @@
 //! gives the phone back: it removes /tmp/hold, and the ramdisk's init then restarts the phone by itself.
 
 use crate::lab::Lab;
-use crate::phone::Shell;
 use crate::settings::Settings;
 use crate::touch::redact;
 use std::rc::Rc;
@@ -40,10 +39,15 @@ pub fn module_lines(list: &str) -> Vec<String> {
         .collect()
 }
 
+/// The file name of the module an `insmod` line loads (`msm.ko` of `insmod /lib/.../msm.ko`).
+pub fn module_file(line: &str) -> &str {
+    let path = line.split_whitespace().last().unwrap_or("");
+    path.rsplit('/').next().unwrap_or("")
+}
+
 /// The command that loads one module: msm and the panel are loaded with dynamic debug on, to show their probe.
 pub fn module_command(line: &str) -> String {
-    let path = line.split_whitespace().last().unwrap_or("");
-    let name = path.rsplit('/').next().unwrap_or("");
+    let name = module_file(line);
     if name == "msm.ko" || name.starts_with("panel-") {
         format!("{line} dyndbg=+p")
     } else {
@@ -143,42 +147,9 @@ impl Display {
         }
     }
 
-    /// The phone's shell, tried until it answers or `device_wait` is over: the gadget on the bus is not yet telnetd.
-    fn shell_when_up(&self) -> Result<Shell, String> {
-        let until = Instant::now() + Duration::from_secs(self.s.device_wait);
-        loop {
-            let up = self.lab.shell(5).and_then(|mut sh| {
-                let said = sh.run("echo up-$((6*7))", Duration::from_secs(5))?;
-                if said.contains("up-42") {
-                    Ok(sh)
-                } else {
-                    Err(format!("the shell said: {said}"))
-                }
-            });
-            match up {
-                Ok(sh) => return Ok(sh),
-                Err(e) if Instant::now() >= until => {
-                    return Err(format!("no shell within {} s: {e}", self.s.device_wait))
-                }
-                Err(_) => std::thread::sleep(Duration::from_secs(2)),
-            }
-        }
-    }
-
     /// What the hold may last at most if nothing releases it: past every wait of the steps, the draw and its hold.
     fn deadman_s(&self) -> u64 {
         self.s.device_wait * 2 + self.s.hold + DRAW_WAIT_S + GRACE_S + 200
-    }
-
-    fn save(&self, name: &str, text: &str) -> Done {
-        std::fs::create_dir_all(&self.s.out)
-            .map_err(|e| format!("{}: {e}", self.s.out.display()))?;
-        let _ = std::fs::set_permissions(
-            &self.s.out,
-            std::os::unix::fs::PermissionsExt::from_mode(0o700),
-        );
-        std::fs::write(self.s.out.join(name), format!("{text}\n"))
-            .map_err(|e| format!("{name}: {e}"))
     }
 
     fn read_log(&self) -> Result<String, String> {
@@ -221,7 +192,7 @@ impl Display {
     pub fn shell_answers_and_holds(&self) -> impl FnOnce() -> Done + 'static {
         let d = self.clone();
         move || {
-            let mut sh = d.shell_when_up()?;
+            let mut sh = d.lab.shell_when_up()?;
             let said = sh.run(&hold_command(d.deadman_s()), Duration::from_secs(10))?;
             for (word, what) in [
                 ("hold-is-42", "the hold file could not be set"),
@@ -257,7 +228,7 @@ impl Display {
                     )
                     .map_err(|e| format!("step {n} ({line}) was not answered: {e}"))?;
                 if rc_of(&said, n) != Some(0) {
-                    let _ = d.save("modules.txt", &steps);
+                    let _ = d.lab.save("modules.txt", &steps);
                     return Err(format!("step {n} did not return 0: {line}: {said}"));
                 }
                 std::thread::sleep(Duration::from_secs(d.s.module_pause));
@@ -276,7 +247,7 @@ impl Display {
                 }
             }
             println!("  {} modules loaded, the shell lives", lines.len());
-            d.save("modules.txt", &steps)
+            d.lab.save("modules.txt", &steps)
         }
     }
 
@@ -293,7 +264,7 @@ impl Display {
                     .lines()
                     .any(|l| l.split_whitespace().nth(1) == Some("connected"))
                 {
-                    d.save("connector.txt", &said)?;
+                    d.lab.save("connector.txt", &said)?;
                     println!("  {}", said.lines().next().unwrap_or(""));
                     return Ok(());
                 }
@@ -301,7 +272,7 @@ impl Display {
                     let dm = sh
                         .run("dmesg | tail -n 40", Duration::from_secs(20))
                         .unwrap_or_default();
-                    let _ = d.save("dmesg-tail.txt", &redact(&dm));
+                    let _ = d.lab.save("dmesg-tail.txt", &redact(&dm));
                     return Err(format!(
                         "no DSI connector says connected within {} s (it says: {})",
                         d.s.device_wait,
@@ -340,7 +311,7 @@ impl Display {
                 }
                 std::thread::sleep(Duration::from_secs(1));
             };
-            d.save("stripes.log", &log)?;
+            d.lab.save("stripes.log", &log)?;
             if !drawer_has_drawn(&log) {
                 return Err(format!(
                     "the drawer did not draw within {DRAW_WAIT_S} s; its log's last line: {}",
@@ -355,7 +326,7 @@ impl Display {
             let mut sh = d.lab.shell(10)?;
             let said = sh.run("dmesg | grep -i s6e3fa5", Duration::from_secs(20))?;
             let panel = panel_lines(&said);
-            d.save("panel-lines.txt", &redact(&panel.join("\n")))?;
+            d.lab.save("panel-lines.txt", &redact(&panel.join("\n")))?;
             for l in panel.iter().take(6) {
                 println!("  {l}");
             }
@@ -385,11 +356,11 @@ impl Display {
             loop {
                 let log = d.read_log()?;
                 if let Some(rc) = drawer_rc(&log) {
-                    d.save("stripes.log", &log)?;
+                    d.lab.save("stripes.log", &log)?;
                     // best effort: the whole kernel log, while the grace keeps the phone up
                     if let Ok(mut sh) = d.lab.shell(5) {
                         if let Ok(dm) = sh.run("dmesg", Duration::from_secs(20)) {
-                            let _ = d.save("dmesg.txt", &redact(&dm));
+                            let _ = d.lab.save("dmesg.txt", &redact(&dm));
                         }
                     }
                     return if rc == 0 {

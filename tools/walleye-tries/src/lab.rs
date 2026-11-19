@@ -34,6 +34,40 @@ impl Lab {
         Shell::open(&self.s.address, self.s.port, Duration::from_secs(wait))
     }
 
+    /// The phone's shell, tried until it answers or `device_wait` is over: the gadget on the bus is not yet telnetd.
+    pub fn shell_when_up(&self) -> Result<Shell, String> {
+        let until = Instant::now() + Duration::from_secs(self.s.device_wait);
+        loop {
+            let up = self.shell(5).and_then(|mut sh| {
+                let said = sh.run("echo up-$((6*7))", Duration::from_secs(5))?;
+                if said.contains("up-42") {
+                    Ok(sh)
+                } else {
+                    Err(format!("the shell said: {said}"))
+                }
+            });
+            match up {
+                Ok(sh) => return Ok(sh),
+                Err(e) if Instant::now() >= until => {
+                    return Err(format!("no shell within {} s: {e}", self.s.device_wait))
+                }
+                Err(_) => std::thread::sleep(Duration::from_secs(2)),
+            }
+        }
+    }
+
+    /// Keep what a try read in its folder of the lab's material (mode 700, never in git).
+    pub fn save(&self, name: &str, text: &str) -> Done {
+        std::fs::create_dir_all(&self.s.out)
+            .map_err(|e| format!("{}: {e}", self.s.out.display()))?;
+        let _ = std::fs::set_permissions(
+            &self.s.out,
+            std::os::unix::fs::PermissionsExt::from_mode(0o700),
+        );
+        std::fs::write(self.s.out.join(name), format!("{text}\n"))
+            .map_err(|e| format!("{name}: {e}"))
+    }
+
     pub fn script(
         &self,
         name: &str,

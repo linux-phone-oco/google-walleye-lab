@@ -14,15 +14,17 @@
 //! | the touch try's values | `[procedures.touch-events-on-z21] window`, `min_window` |
 //! | the PMIC try's values | `[procedures.pmic-watchdog-v1-on-the-pixel-2] stay`, `bite_wait` |
 //! | the display try's values | `[images.l6]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
+//! | the display-at-boot try's values | `[images.b1]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules` |
 
 use lpoco_attended::prelude::{dev, proc};
 use std::path::PathBuf;
 use std::process::Command;
 
-/// The procedure names of the two tries: the entry files and the `[procedures.NAME]` tables agree on them.
+/// The procedure names of the tries: the entry files and the `[procedures.NAME]` tables agree on them.
 pub const TOUCH_PROCEDURE: &str = "touch events on z21";
 pub const PMIC_PROCEDURE: &str = "PMIC watchdog v1 on the Pixel 2";
 pub const DISPLAY_PROCEDURE: &str = "display stripes on the Pixel 2";
+pub const DISPLAY_BOOT_PROCEDURE: &str = "display at boot on the Pixel 2";
 
 /// Which try the settings are read for: each reads only its own procedure's values and images.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -30,6 +32,7 @@ pub enum Try {
     Touch,
     Pmic,
     Display,
+    DisplayBoot,
 }
 
 /// The settings of one try. The fields of the other try stay empty (zero, no path).
@@ -57,6 +60,9 @@ pub struct Settings {
     /// the display try: seconds the drawer holds the stripes, seconds between two module loads
     pub hold: u64,
     pub module_pause: u64,
+    /// the display-at-boot try: how many display modules the init must say ok for, and the sha256 its image must have
+    pub modules: u64,
+    pub image_sha256: String,
     /// where a try saves what it reads when a test named one, by the try's name
     pub out_given: Option<PathBuf>,
     pub day: String,
@@ -73,6 +79,13 @@ impl Settings {
     /// The display try's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_display() -> Settings {
         Settings::read(Try::Display, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
+    /// The display-at-boot try's settings, read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_display_boot() -> Settings {
+        Settings::read(Try::DisplayBoot, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
@@ -124,6 +137,8 @@ impl Settings {
             bite_wait: 0,
             hold: 0,
             module_pause: 0,
+            modules: 0,
+            image_sha256: String::new(),
             out_given: None,
             day: today(),
         };
@@ -145,6 +160,12 @@ impl Settings {
                 s.hold = number("hold", proc("hold"));
                 s.module_pause = number("module_pause", proc("module_pause"));
                 s.out = s.out_dir("display");
+            }
+            Try::DisplayBoot => {
+                s.image = image("b1");
+                s.image_sha256 = dev("images.b1.sha256");
+                s.modules = number("modules", proc("modules"));
+                s.out = s.out_dir("display-boot");
             }
         }
         s
@@ -188,6 +209,9 @@ impl Settings {
             ("images.l6.path", "boot-l6.img"),
             ("hold", "60"),
             ("module_pause", "5"),
+            ("images.b1.path", "boot-b1.img"),
+            ("images.b1.sha256", "57ab"),
+            ("modules", "13"),
         ]
         .into_iter()
         .collect();
@@ -225,6 +249,15 @@ mod tests {
         assert_eq!((p.address.as_str(), p.adb.as_str()), ("127.0.0.1", "adb"));
     }
 
+    #[test]
+    fn the_display_at_boot_try_reads_its_image_its_sha256_and_its_module_count() {
+        let b = Settings::stand_in(Try::DisplayBoot);
+        assert_eq!(b.image, b.lab.join("images/boot-b1.img"));
+        assert_eq!((b.modules, b.image_sha256.as_str()), (13, "57ab"));
+        assert!(b.out.ends_with(format!("display-boot-{}", b.day)));
+        assert_eq!((b.hold, b.module_pause), (0, 0));
+    }
+
     /// Every key the program reads is in this lab's real device.toml (a renamed key fails here, not at the author's dry run).
     #[test]
     fn this_labs_device_toml_has_every_key() {
@@ -246,6 +279,7 @@ mod tests {
             (Try::Touch, TOUCH_PROCEDURE),
             (Try::Pmic, PMIC_PROCEDURE),
             (Try::Display, DISPLAY_PROCEDURE),
+            (Try::DisplayBoot, DISPLAY_BOOT_PROCEDURE),
         ] {
             let name: Vec<String> = table
                 .split(|c: char| !c.is_ascii_alphanumeric())
