@@ -4894,3 +4894,24 @@ Rejected
 
 About
 : walleye-attend-program-touch
+
+---
+
+
+<a id="2026-11-20-walleye-builder-splash-region-dts"></a>
+### Splash region dts and image B-s5
+
+Entry date
+: 2026-11-19
+
+Done
+: Built B-s5: B-d5 with the splash region reserved and a simple-framebuffer in its dtb; source dts, build script and dtb test written, checks ok, rebuild identical, reviewed; try queued behind a small procedure change (image name).
+
+Considered
+: Compiling the new dts in the display kernel tree: refused by missing fuel-gauge labels, so B-d5's dtb is edited as L4 was from L3. Changing the Rust delay procedure here: left as its own item.
+
+Rejected
+: Putting the try on the keeper's queue now: the delay procedure only knows b-dN images.
+
+About
+: walleye-display-s6e3fa5
