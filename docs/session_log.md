@@ -3934,3 +3934,21 @@ Rejected
 
 About
 : walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-19-2000-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up. Tried walleye-tas2557-firmware-source: shell user cannot read the vendor firmware (permission denied); stopped, recorded on the item. Suite latest not run: password file missing (by design, Android).
+
+Considered
+: next: tas2557 firmware from the factory image's vendor.img on the host (no phone); keeper walleye-attend-pmic-unattended-run; walleye-haptics-i2c-answers
+
+About
+: walleye-first-fastboot-boot
