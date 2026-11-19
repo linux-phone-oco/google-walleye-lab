@@ -6555,31 +6555,6 @@ Proof
 : a research row naming which driver walleye builds and why, and walleye's dts written to the binding chosen
 
 
-<a id="walleye-attend-pmic-unattended-run"></a>
-### Keeper: the PMIC program's unattended parts run for real
-
-Status
-: open
-
-Note
-: 2026-11-19 run: gates 1-3 pass unattended; program stops at ask 4 before booting A, so boot/shell/S2-type steps untested. Next: builder moves the TWO_TESTS ask after the boot-A, shell and S2 checks (or adds a flag), then rerun.
-
-About
-: walleye-attend-program-pmic
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: the log shows the steps up to the first ask pass; idle-android passes
-
-Rank
-: 5
-
-
 <a id="walleye-display-late-probe-l3-image"></a>
 ### L3: the late-probe image L1 plus the vdd-supply on the dsi node, the rail read from the phone's own dtbo
 
@@ -7192,3 +7167,56 @@ Witness
 
 Go until
 : 2026-11-19T16:18:02+01:00
+
+
+<a id="walleye-pmic-program-first-ask-after-boot"></a>
+### pmic-try.rs asks the author only after boot A, the shell and the S2-type read, so the unattended run proves those steps
+
+Status
+: open
+
+Note
+: Keeper run 2026-11-19 (PR 481): the first ask (ask 4) comes BEFORE the boot of A, so the unattended run proved only the gates. The author's plain words say the phone is started first and 'ready' comes after the shell is up: move that ask after the boot, shell and S2 checks. Then the keeper repeats walleye-attend-pmic-unattended-run.
+
+About
+: walleye-attend-program-pmic
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: pmic-try.rs run with stdin from /dev/null on the phone gets through the gates, the boot of image A, the shell, the S2 type read and the hold, and stops at the first ask ('nobody answered') with nothing armed and no bite; its --dry-run still passes; the stand-in tests still pass; the plain-words ask and the safety order (reboot test first, bite last) are unchanged for the attended run
+
+Rank
+: 4
+
+
+<a id="walleye-attend-pmic-unattended-run"></a>
+### Keeper: the PMIC program's unattended parts run for real
+
+Status
+: open
+
+Note
+: 2026-11-19 run: gates 1-3 pass unattended; program stops at ask 4 before booting A, so boot/shell/S2-type steps untested. Next: builder moves the TWO_TESTS ask after the boot-A, shell and S2 checks (or adds a flag), then rerun. Run 1 (PR 481) stopped at an ask before the boot; repeat after walleye-pmic-program-first-ask-after-boot.
+
+Blocked by
+: walleye-pmic-program-first-ask-after-boot
+
+About
+: walleye-attend-program-pmic
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the log shows the steps up to the first ask pass; idle-android passes
+
+Rank
+: 5
