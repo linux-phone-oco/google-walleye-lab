@@ -8410,7 +8410,7 @@ Status
 : done
 
 Note
-: RUN 2026-11-20 00:15-00:30 (walleye-keeper, lpoco-attended run pmic-watchdog-v1-on-the-pixel-2 --answer-limit 300, all 26 steps passed, image A next-based). First attempt without --answer-limit stopped at ask 8 'nobody answered' (stdin closed). REBOOT TEST PASS: armed type 0x07 (s2 before=no, after=yes), clean reboot, Android back and up 180 s, uptime 46->219 s, S2 reads OFF after it. BITE PASS: shell quiet 20 s after arming, Android back by itself at 112 s uptime 9 s, boot reason [reboot], stayed up 60 s after, no loop. Not read: bootstatus CARDRESET. Probe: firmware S2 type 0x1, driver sets 0x7. Log ~/lab-material/walleye/pmic-wdt-v1-run-*.log. Next: send result to the upstreams coordinator.
+: RUN 2026-11-20 00:15-00:30 (walleye-keeper, lpoco-attended run pmic-watchdog-v1-on-the-pixel-2 --answer-limit 300, all 26 steps passed, image A next-based). First attempt without --answer-limit stopped at ask 8 'nobody answered' (stdin closed). REBOOT TEST PASS: armed type 0x07 (s2 before=no, after=yes), clean reboot, Android back and up 180 s, uptime 46->219 s, S2 reads OFF after it. BITE PASS (the reset itself): the shell went quiet 20 s after arming, unpetted, and the phone restarted by itself. CORRECTION 2026-11-20, from the author: the phone did NOT come back to Android by itself. It came up in OFF-MODE CHARGING (the USB cable was in) and Android started only after his short power press. His words, verbatim, about 00:31 CET, relayed by the Top Coordinator: "it did restart into charging, it showed charging icon, now the screen is black", then "i pressed powerbutton, it boots android now". The keeper line "Android back by itself at 112 s uptime 9 s, boot reason [reboot], stayed up 60 s after, no loop" is withdrawn: what it read is not settled (item walleye-pmic-wdt-charger-after-bite). Reboot test: unchanged PASS. Not read: bootstatus CARDRESET. Probe: firmware S2 type 0x1, driver sets 0x7. Log ~/lab-material/walleye/pmic-wdt-v1-run-*.log. Next: send result to the upstreams coordinator.
 
 About
 : walleye-pmic-wdt-proof
@@ -8430,5 +8430,27 @@ Rank
 Witness
 : person
 
-Go until
-: 2026-11-20T00:54:53+01:00
+
+<a id="walleye-pmic-wdt-charger-after-bite"></a>
+### Why a PMIC watchdog reset with USB in boots to the off-mode charger screen, and what makes the bootloader boot Android after a bite
+
+Status
+: open
+
+Note
+: The author, 2026-11-20 about 00:31 CET: "it did restart into charging, it showed charging icon, now the screen is black", then "i pressed powerbutton, it boots android now". The reset itself works (bite PASS); the way back is not unattended with USB in: Android needs a short power press. This is the item's open half and matters for 'a hung kernel comes back by itself' (step watchdog-way-back, partial).
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row: the PON reason registers after the bite (what the bootloader reads: WARM_RESET, hard reset, S2 reset type 7 versus the warm-reset types), the reason Android reported ([reboot]) and why it differs from the author's charger screen, the bootloader's rule for the charger boot (USB present and a power reason that is not a key press), what a vendor-kernel watchdog bite does on this phone (the stock reset type) and what the mainline driver's type 7 changes, the options (a different reset type, a PON reason written before the bite, a pstore/boot-reason handover), and the cheapest read-only experiment on the phone (the same bite with the cable out, then in, the PON registers read before and after)
+
+Rank
+: 3
