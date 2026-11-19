@@ -5638,34 +5638,6 @@ Rank
 : 1
 
 
-<a id="walleye-try-display-late-probe"></a>
-### Try the display late-probe image once: stream the kernel log, load the display modules by hand, read the last step
-
-Status
-: open
-
-Note
-: UNATTENDED, no person (the author's words: first the console, then ask him to look; decision 2026-11-19-walleye-display-console-before-eyes). If the modules load without a hang: read the DRM connector status and the dmesg probe lines of mdss, dpu, dsi, panel; only an image that carries the panel and has them read may ask the author to look, for the stripes alone. If the phone dies at a module load: the netconsole and TCP stream files hold the last lines. One try; the init returns the phone to Android by itself.
-
-Blocked by
-: walleye-display-late-probe-image
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: the gate passes right before the boot; the shell answers (gadget 1d6b:0104); the host script display-late-probe.sh runs with its files kept in ~/lab-material/walleye; a research row naming the last logged line before the shell or the phone died (or, if nothing died, the dmesg of the probe, the DRM connector status); Android back by itself within the 180 s timer or the fallback
-
-Rank
-: 2
-
-
 <a id="walleye-try-z21-touch-events"></a>
 ### Touch events on z21: a person touches the panel while the reader reads the RMI4 input device
 
@@ -6194,3 +6166,31 @@ Proof
 
 Rank
 : 99
+
+
+<a id="walleye-try-display-late-probe"></a>
+### Try the display late-probe image once: stream the kernel log, load the display modules by hand, read the last step
+
+Status
+: open
+
+Note
+: UNATTENDED, no person (the author's words: first the console, then ask him to look; decision 2026-11-19-walleye-display-console-before-eyes). If the modules load without a hang: read the DRM connector status and the dmesg probe lines of mdss, dpu, dsi, panel; only an image that carries the panel and has them read may ask the author to look, for the stripes alone. If the phone dies at a module load: the netconsole and TCP stream files hold the last lines. One try; the init returns the phone to Android by itself. TRY 1 2026-11-19 (research walleye-display-late-probe-try1-no-gadget, PR 418): no gadget, Android back after 57 s; the display dtb's additions kill the boot even with the drivers as modules (d0 boots with DRM built in). Not tried again until the dtb bisect (walleye-try-display-dtb-bisect, decision 2026-11-19-walleye-display-dtb-bisect) names the group; then the late-probe image gets the fixed dtb and this try reads the probe.
+
+Blocked by
+: walleye-try-display-dtb-bisect
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the gate passes right before the boot; the shell answers (gadget 1d6b:0104); the host script display-late-probe.sh runs with its files kept in ~/lab-material/walleye; a research row naming the last logged line before the shell or the phone died (or, if nothing died, the dmesg of the probe, the DRM connector status); Android back by itself within the 180 s timer or the fallback
+
+Rank
+: 4
