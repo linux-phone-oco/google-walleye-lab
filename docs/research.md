@@ -4876,3 +4876,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ufs-card-revision"></a>
+### walleye-ufs-card-revision
+
+Date
+: 2026-11-19
+
+Brief
+: Pixel 2 UFS card: SK hynix H28U74301AMR, firmware rev D003, six LUNs alike; vendor kernel exposes no descriptor files; risk of this revision: not known
+
+Question
+: What vendor, model and firmware revision is the Pixel 2's UFS card, and is that revision a risky one (Sony yoshino erasure)?
+
+Found
+: Read only on live Android with adb root, 2026-11-19: /sys/block/sda..sdf/device vendor 'SKhynix', model 'H28U74301AMR', rev 'D003' (all six LUNs). The vendor kernel's ufshc sysfs (/sys/devices/soc/1da4000.ufshc) holds only clkgate, rpm/spm_lvl, slowio, latency_hist: no device, string, geometry or health descriptors, no ufs_bsg touched. No writes, resets, fstrim. Raw text in ~/lab-material/walleye/ufs-card-2026-11-19/sysfs.txt (600, never git). Compared with the Sony record (XZ1 Samsung KLUCG4J1 fw 0200 probed without erase; SODP purge-flag suspicion, mechanism unpublished): this is a different maker and revision, and no public report of erasure on SK hynix D003 was found in our records, so it is NOT KNOWN to be risky and NOT KNOWN to be fine; the matched image sends no purge, which is the one mechanism suspected.
+
+About
+: walleye-ufs-match-android-z
