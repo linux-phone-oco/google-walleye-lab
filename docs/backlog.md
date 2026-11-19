@@ -7923,10 +7923,10 @@ Rank
 ### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
 
 Status
-: open
+: done
 
 Note
-: Image: ~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-match2/NOT-TO-BOOT-ufs-on-ufs-match.img, sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 (rebuilt with the read-only prints, PR 555; it replaces the earlier image f8f6215e, which is retired). The UFS-off gate refuses it by design and is not weakened. RUN IT ONLY THROUGH the procedure procedures/ufs-matched-image-on-the-pixel-2.rs (item walleye-attend-program-ufs, PR 562): it takes the go from this item's go_until and accepts a go only on an item whose note names the sha above. A keeper runs it after the author's go is recorded here with ikb backlog-go; before that the procedure's unattended mode stops at the go step. THE AUTHOR'S GO, recorded 2026-11-19 before the go window: his word, verbatim, "Go" (about 20:55 UTC), in answer to 'Go on the Pixel's read-only storage try?', relayed by the Top Coordinator (local_12b18c70-1b6d-4783-bb6f-50113ab63250). He had the go note in front of him: research walleye-ufs-go-note (18 steps against Android, card SK hynix H28U74301AMR firmware D003, risk not known, no EDL way back). KEEPER ORDERS (from the Top Coordinator): start only when the go window is open (field go_until, set after this note, 45 minutes) and PMIC run 4's keeper has released the lease; from a FRESH worktree at origin/main (git fetch first; ln -s ~/Projects/walleye-build build/images); load SendMessage (ToolSearch select:SendMessage); run ONE try: lpoco-attended run ufs-matched-image-on-the-pixel-2 --log in ~/lab-material/walleye, read only, nothing written to the card; send the Top Coordinator directly: 'ufs: booting' when the boot step starts and the result line at the end (UFS version, host state, link, LUNs listed, no purge; or what stopped it); one try only, no retry; IF ANYTHING IS UNEXPECTED BEFORE THE BOOT (a gate fails, the image sha differs, the phone is not on Android, the go is not read), STOP, tell the Top Coordinator in one line and do not improvise; no gate edit, no flag to get past a refusal; after the try check idle-android, record the result as a research row and release the lease.
+: DONE 2026-11-19 (about 21:05 CET): the author's go bought ONE try and it ran: the card is readable on mainline. Result: research walleye-ufs-try1-card-readable. The go is spent: a second try needs the author's word again (through the Top Coordinator), after the fix and the questions of items walleye-ufs-link-check-works-slow and walleye-ufs-why-gear1.
 
 About
 : walleye-first-fastboot-boot
@@ -7973,3 +7973,84 @@ Proof
 
 Rank
 : 6
+
+
+<a id="walleye-ufs-link-check-works-slow"></a>
+### The UFS procedure reads the link, it does not fail on a gear below HS-G3: 'works, slow' is a result
+
+Status
+: open
+
+Note
+: Research walleye-ufs-try1-card-readable: the procedure's only FAIL was this check; the card read fine at HS gear 1, 2 lanes, rate B, in HIBERN8.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: procedures/ufs-matched-image-on-the-pixel-2.rs: the check 'the link is HS-G3 on two lanes' becomes a reading step that records gear, lanes, rate, mode, link_state and dev_pm and says 'works at full speed' (HS-G3, 2 lanes) or 'works, slow' (a lower gear, link up, LUNs read) or fails only when the link is down or a LUN is unreadable; stand-in tests for gear 1, gear 3 and link down; dry-run, lpoco-attended check pass; the real files of try 1 (link.txt) read through it as 'works, slow'
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-why-gear1"></a>
+### Why the link idles at HS gear 1 and the change to HS-G3 is not seen: clock scaling at idle, the power-mode change not made, or the PHY table
+
+Status
+: open
+
+Note
+: Top Coordinator's questions after try 1: why is the G3 power-mode change not made (lane 1, the PHY table 3.1.0 against the sdm845 table, or a mainline gear cap)? A reading of the link at hibern8 may also just be the clock-scaled idle state: check before assuming a fault.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row from the try's dmesg and link files and the v7.3 source (ufshcd_config_pwr_mode and ufshcd_init_pwr_info, ufs_qcom_pwr_change_notify and its gear capabilities for this host version, the devicetree limits for the gear and lanes of the msm8998 ufshc node, ufshcd clock scaling and devfreq at idle, the PHY table 3.1.0 against the vendor's): the hypotheses ranked, which one the files already exclude, and the READ-ONLY readings a second try would add to tell them apart (clkscale_enable and the devfreq state, power_info after a bounded read load of the first sectors, the power-mode lines of dmesg)
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-try-2"></a>
+### UFS try 2: the same read-only boot again, with the questions of try 1 added, and the proof that the card is unharmed
+
+Status
+: open
+
+Note
+: A second boot of the same image confirms the first was no fluke and that the card is unharmed. NOT started without the author's word.
+
+Waits
+: the author's word for a second try (his go bought one try, spent 2026-11-19 21:05 CET), brought by the Top Coordinator; and walleye-ufs-link-check-works-slow, walleye-ufs-why-gear1 done
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: through procedures/ufs-matched-image-on-the-pixel-2.rs: the same boot read only, the card's identity and LUNs again, the readings that walleye-ufs-why-gear1 names; and the unharmed proof: the partition tables (GPT) read by Android as root before and after, and by the mainline boot, hash-equal; Android boots normally afterwards (idle-android), both slots' flags unchanged; nothing is written
+
+Rank
+: 3
+
+Witness
+: person
