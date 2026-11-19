@@ -8338,3 +8338,31 @@ Proof
 
 Rank
 : 6
+
+
+<a id="walleye-verified-boot-own-key"></a>
+### Much later, optional: verified boot with our own key, so the unlocked-bootloader warning goes away (the GrapheneOS way): avb_custom_key, images signed with avbtool, the bootloader relocked
+
+Status
+: open
+
+Note
+: The author's question, relayed by the Top Coordinator 2026-11-19: "can much later on we do the signing or something like grapheneos does so that that warning doesnt shows up ?" Answer for now: yes in principle, much later. It needs his go, only once Linux runs installed from storage, and never during bring-up: relocking ends the fastboot-boot tries this lane runs on and risks a brick if OEM unlocking is not reachable. Look around at GrapheneOS's install guide when it comes due. Ranked last (999) on purpose; nothing is started.
+
+Waits
+: the author's go, and only once Linux runs installed from storage (item walleye-install-stage-decision and the storage and userland steps before it); never during bring-up
+
+About
+: walleye-install-stage-decision
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row and a proposed decision (nothing is written to the phone): what GrapheneOS's install guide does on the Pixel 2 (the avb_custom_key partition, signing the images with avbtool, relocking with fastboot flashing lock, the yellow notice instead of the orange one), what ours would need (our own key, a signed boot image, vbmeta), the way back and the brick risks (relocking ends fastboot boot tries; 'OEM unlocking' must stay reachable in Android before relocking or a failed boot cannot be recovered), and what the author must say yes to
+
+Rank
+: 999
