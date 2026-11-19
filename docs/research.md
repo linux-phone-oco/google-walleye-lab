@@ -4916,25 +4916,6 @@ About
 : walleye-display-at-boot
 
 
-<a id="walleye-ufs-match-tried-version-ok-link-stays-gear1"></a>
-### walleye-ufs-match-tried-version-ok-link-stays-gear1
-
-Date
-: 2026-11-19
-
-Brief
-: Matched UFS image tried once, read only: UFS_HW_VERSION 3.1.0, PHY table 3.1.0, host enabled; link stays HS_GEAR1 2 lanes HIBERN8 for 170 s, no HS-G3
-
-Question
-: Does the matched UFS image read the version, load the PHY table and reach HS-G3 on 2 lanes, probe only?
-
-Found
-: One try from slot b, nothing written, go on the item until 21:39. Kernel log: ufshcd-qcom UFS_HW_VERSION 3.1.0, HCS 0x10f HCE 1, qmp-ufs-phy MSM8998 PHY table 3.1.0, LINECFG_DISABLE 0. Check 10 failed after 170 s: gear HS_GEAR1, lanes 2, FAST_MODE, state HIBERN8, so no gear change to G3 yet; LUN listing and purge checks not reached. Phone returned to Android (adb up). No retry, no gate edit. Log: ~/lab-material/walleye/ufs-match-try.log
-
-About
-: walleye-first-fastboot-boot
-
-
 <a id="walleye-ufs-try1-card-readable"></a>
 ### walleye-ufs-try1-card-readable
 
@@ -4952,3 +4933,22 @@ Found
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-ufs-match-tried-version-ok-link-stays-gear1"></a>
+### walleye-ufs-match-tried-version-ok-link-stays-gear1
+
+Date
+: 2026-11-19
+
+Brief
+: Matched UFS image tried once, read only: UFS_HW_VERSION 3.1.0, PHY table 3.1.0, host enabled; link stays HS_GEAR1 2 lanes HIBERN8 for 170 s, no HS-G3
+
+Question
+: Does the matched UFS image read the version, load the PHY table and reach HS-G3 on 2 lanes, probe only?
+
+Found
+: One try from slot b, nothing written, go on the item until 21:39. Kernel log: ufshcd-qcom UFS_HW_VERSION 3.1.0, HCS 0x10f HCE 1, qmp-ufs-phy MSM8998 PHY table 3.1.0, LINECFG_DISABLE 0. Check 10 failed after 170 s: gear HS_GEAR1, lanes 2, FAST_MODE, state HIBERN8, so no gear change to G3 yet; LUN listing and purge checks of the PROCEDURE not reached (it stopped at check 10). CORRECTION 2026-11-19 (from dmesg.txt of the try, ~/lab-material/walleye/ufs-20261119-210513): the KERNEL enumerated all six LUNs (sda 15584256 4096-byte blocks, 59.4 GiB, sdb to sdf) as SKhynix H28U74301AMR D003 and read their partition tables by 1.64 s (sda1 to sda22 and beyond, sdb1, sdd1 and on, sdf1 to sdf5); no UFS error line; nothing written; Android booted afterwards. See research walleye-ufs-try1-card-readable. The one try the author's go bought is spent; a second try or anything that writes needs a new go from him. Phone returned to Android (adb up). No retry, no gate edit. Log: ~/lab-material/walleye/ufs-match-try.log
+
+About
+: walleye-first-fastboot-boot
