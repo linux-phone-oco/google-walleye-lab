@@ -3909,3 +3909,22 @@ Sources
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-display-dtb-bisect-tried"></a>
+### walleye-display-dtb-bisect-tried
+
+Date
+: 2026-11-19
+
+Brief
+: f0, f1, f2 boot a shell (gadget at 18 s, 619-625 dmesg lines); f3 (mdss, display controller, DSI host and PHY okay) loses the gadget: Android back at 54 s
+
+Question
+: Which group of the display dtb's additions stops the gadget?
+
+Found
+: Each of f0..f3 once from slot b, f0 first, ufs-off gate and battery rule passed each time (4348-4381 mV), nothing flashed. f0 (z21 dtb, control), f1 (regulators only) and f2 (pinctrl states only): left fastboot 15 s, gadget 1d6b:0104 at 18 s, mainline-shell-read 16 answers, dmesg 619, 625, 619 lines, then reboot -f, Android back on slot b. f3 (mdss, display controller, dsi host and phy set okay, no panel node, no regulators, no pinctrl): no gadget, Android back after 54 s, the dead-kernel path. So the loss is the display controller group alone, not the regulators or pinctrl states, and with the display modules not loaded (late-probe kernel): the node enable itself, probed by built-in or early drivers (clocks, power domains, iommu), kills the kernel. Next: split f3 by node (mdss, dpu, dsi, phy), a builder piece. Material ~/lab-material/walleye/display-dtb-bisect-f0..f2 (f3 has none).
+
+About
+: walleye-display-s6e3fa5

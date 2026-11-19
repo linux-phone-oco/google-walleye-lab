@@ -3559,3 +3559,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-0100-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adbd up (idle-android pass); display dtb bisect tried once each: f0,f1,f2 shell up, f3 no gadget; item walleye-try-display-dtb-bisect done
+
+Considered
+: next: walleye-display-f3-node-split (builder), then its tries; z21 touch gpio section; walleye-ufs-android-regs needs a mem reader (coordinator); pmic-wdt items parked; upstream the fuel gauge result is the author's
+
+About
+: walleye-display-s6e3fa5
