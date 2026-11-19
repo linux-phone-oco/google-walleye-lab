@@ -8041,7 +8041,7 @@ Status
 : open
 
 Note
-: WHY (2026-11-19, from the B2 run PR 588 and its dmesg ~/lab-material/walleye/display-boot-20261119-214918): B2, the display at boot, is NOT yet a good look: the DSI commands and the brightness write time out (-110), arm-smmu logs a flood of translation faults (SID 0, iova 0x9d6f.. the bootloader's splash memory) at 2.24 s, and clk-rcg2 warns 'pclk0_clk_src: rcg didn't update its configuration' from dsi_link_clk_set_rate_6g in the panel's probe: the pixel clock does not run, the glass may be dark or garbage. The hand-loaded L5 and L6 had none of that (the author SAW the console on them). So the near-term look uses L6's load order with the held stripes. B2 and 'display at boot' wait for research walleye-display-b2-dsi-clock-warning. A look at B2 is NOT asked of the author until that is understood. Priority over walleye-display-look-way-back and the UFS link check.
+: BUILT 2026-11-19, not tried: image L7 landed (research walleye-display-l7-built, decision 2026-11-19-walleye-l7-way-back-by-the-watcher); the procedure is the watched one on lpoco-attended 0.35.1 with look 1 (kernel log text) and look 2 (four stripes held). Open: the keeper's unattended run for real (the proof; pass --answer-limit 120), then the author's look as the one command procedures/display-stripes-on-the-pixel-2.rs. Needs the images link: ln -s ~/Projects/walleye-build build/images.
 
 About
 : walleye-display-s6e3fa5
@@ -8050,10 +8050,10 @@ Opened
 : 2026-11-19
 
 Needs
-: build
+: phone
 
 Proof
-: image L7 (UFS-off gate and AVB pass, rebuild identical, review): L6 (images-display-stripes/boot-l6.img, modules loaded by the host procedure in order with pauses) with /bin/walleye-stripes replaced by B2's KD_GRAPHICS version (KDSETMODE while held, KD_TEXT after, also after a failed draw); procedures/display-stripes-on-the-pixel-2.rs pinned to lpoco-attended 0.35.1 or newer (cargo block, device.toml [images.l7]), its person step is look_for #1 the kernel log text on the glass and look_for #2 four stripes HELD; the way back after ANY stop, including an unanswered look (reboot -f over the shell, then the sysrq b fallback, the power-hold sentence), as the PMIC parent watcher does; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; then a keeper's unattended run for real that stops at look #1 with 'nobody answered' and leaves the phone on Android BY ITS OWN WAY BACK (not the 600 s deadman); the answer file path ~/.cache/lpoco-attended/google-walleye/answer is confirmed from the run (the prompt file appears beside it)
+: the keeper's unattended run for real of procedures/display-stripes-on-the-pixel-2.rs on image L7 (build/images/images-display-l7/boot-l7.img, sha256 643d1f83c6ae... in device.toml [images.l7]), started with --answer-limit 120 and nobody answering: it stops at look 1 with 'nobody answered within 120 s', the way back (reboot -f over the shell, not the init's deadman) leaves the phone on Android, and the log shows the prompt and answer files beside ~/.cache/lpoco-attended/google-walleye/answer; the exit code and the end state (tests/host/idle-android.sh) recorded
 
 Rank
 : 1

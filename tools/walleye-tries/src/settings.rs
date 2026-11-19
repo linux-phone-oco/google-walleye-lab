@@ -13,7 +13,7 @@
 //! | the images | `[images] dir`, `[images.z21]`, `[images.wdt1-a]`, `[images.wdt1-b]` (`path`, `sha256`) |
 //! | the touch try's values | `[procedures.touch-events-on-z21] window`, `min_window` |
 //! | the PMIC try's values | `[procedures.pmic-watchdog-v1-on-the-pixel-2] stay`, `bite_wait` |
-//! | the display try's values | `[images.l6]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
+//! | the display try's values | `[images.l7]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
 //! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item` |
 //! | the display-at-boot try's values | `[images.b2]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules, hold` |
 
@@ -171,7 +171,7 @@ impl Settings {
                 s.bite_wait = number("bite_wait", proc("bite_wait"));
             }
             Try::Display => {
-                s.image = image("l6");
+                s.image = image("l7");
                 s.hold = number("hold", proc("hold"));
                 s.module_pause = number("module_pause", proc("module_pause"));
                 s.out = s.out_dir("display");
@@ -230,7 +230,7 @@ impl Settings {
             ("min_window", "40"),
             ("stay", "180"),
             ("bite_wait", "150"),
-            ("images.l6.path", "boot-l6.img"),
+            ("images.l7.path", "boot-l7.img"),
             ("hold", "60"),
             ("module_pause", "5"),
             ("images.b2.path", "boot-b2.img"),

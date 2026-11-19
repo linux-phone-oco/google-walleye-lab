@@ -2415,3 +2415,34 @@ About
 
 Scope
 : walleye lane, procedures, tools/walleye-tries
+
+
+<a id="2026-11-19-walleye-l7-way-back-by-the-watcher"></a>
+### 2026-11-19-walleye-l7-way-back-by-the-watcher
+
+Date
+: 2026-11-19
+
+Brief
+: L7's way back after any stop is the watching parent's reboot -f / sysrq, not the init's 600 s deadman or the drawer's own release
+
+Decision
+: The display look procedure is run as a watched child (walleye_tries::watch, as the UFS and PMIC tries): whatever ends it - an unanswered look, a failed check, Ctrl-C - the parent sends the phone back (reboot -f over the shell, then sysrq b, then the power-hold sentence). The shell hold's deadman is lengthened to outlast two answers (2 x 600 s).
+
+Why
+: B2's unattended run for real stopped at look 1 and the phone came back only by the init's deadman after ~10 minutes (PR 588): a person who answers late, or nobody, must not leave the phone on the test image. The watcher is the shared, tested way back.
+
+Rejected
+: Lengthening or shortening the init's own self-reboot: the image is L6's init-late, which must stay byte for byte (control); the deadman only covers a dead host. Relying on the drawer's end to release the hold: it never runs when look 1 is unanswered. A new way back in the procedure: the shared Lab::way_back already does it.
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-l7-built
+
+Scope
+: google-walleye-lab display look; keeper's run
+
+Tracked by
+: walleye-display-look-l7
