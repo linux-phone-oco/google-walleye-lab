@@ -143,6 +143,10 @@ sha256 = "bdc0a89179d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff"
 path = "images-display-stripes/boot-l6.img"
 sha256 = "8ca3af879b4c9d87ff98f8d269282557131ca8eef5d39bc42d5a97eb5e587bad"   # the late-probe kernel, display drivers as modules, the full display dtb, /bin/walleye-stripes
 
+[images.b1]
+path = "images-display-at-boot/boot-b1.img"
+sha256 = "57ab1b69de78a304e0fba1b2576a1781de2b9cbc41a02c2d73b5328c67b8ebd7"   # L5's kernel and dtb, init-display as /init: the init loads the 13 display modules itself (item walleye-display-at-boot)
+
 [images.wdt1-a]
 path = "images-wdt1-sysfsless/boot-wdt1-a.img"
 sha256 = "9dfea09637a813fa677449780ac475a3b859e81135a056fadd8811dadc2f40b4"
@@ -163,3 +167,6 @@ bite_wait = 150                     # seconds to see the phone restart by itself
 [procedures.display-stripes-on-the-pixel-2]
 hold = 60                           # seconds the drawer holds the four stripes on the glass (the author looks for this long)
 module_pause = 5                    # seconds between two display modules' loads (the shell is asked if it lives after each)
+
+[procedures.display-at-boot-on-the-pixel-2]
+modules = 13                        # the display modules the init loads by itself, each said "walleye-display: ok" in the kernel log (the ramdisk's /display-modules.list has this many lines)

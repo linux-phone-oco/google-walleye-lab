@@ -43,6 +43,22 @@ pub fn script(path: &Path, args: &[&str], env: &[(&str, &str)]) -> Result<String
     }
 }
 
+/// The sha256 of a file, as `sha256sum` prints it.
+fn sha256_of(file: &Path) -> Result<String, String> {
+    let mut c = Command::new("sha256sum");
+    c.arg(file);
+    let said = run(c)?;
+    if !said.ok {
+        return Err(format!("sha256sum {}: {}", file.display(), said.text));
+    }
+    Ok(said
+        .text
+        .split_whitespace()
+        .next()
+        .unwrap_or("")
+        .to_string())
+}
+
 /// The image is the one built: its sha256 is the one its SHA256SUMS line (any SHA256SUMS* file beside it) records.
 pub fn image_is_the_built_one(image: &Path) -> Result<(), String> {
     let dir = image.parent().unwrap_or(Path::new("."));
@@ -68,19 +84,26 @@ pub fn image_is_the_built_one(image: &Path) -> Result<(), String> {
             dir.display()
         ))?
         .to_string();
-    let mut c = Command::new("sha256sum");
-    c.arg(image);
-    let said = run(c)?;
-    let got = said
-        .text
-        .split_whitespace()
-        .next()
-        .unwrap_or("")
-        .to_string();
+    let got = sha256_of(image)?;
     if got == want {
         Ok(())
     } else {
         Err(format!("{name} is {got}, its SHA256SUMS line says {want}"))
+    }
+}
+
+/// The image's sha256 is the one the manifest records.
+pub fn image_has_sha256(image: &Path, want: &str) -> Result<(), String> {
+    let name = image.file_name().and_then(|n| n.to_str()).unwrap_or("");
+    let want = want.trim().to_lowercase();
+    if want.is_empty() {
+        return Err(format!("no sha256 recorded for {name} in device.toml"));
+    }
+    let got = sha256_of(image)?;
+    if got == want {
+        Ok(())
+    } else {
+        Err(format!("{name} is {got}, device.toml records {want}"))
     }
 }
 
@@ -250,6 +273,24 @@ mod tests {
             .unwrap_err()
             .contains("no serial"));
         assert!(!d.join("adb.calls2").exists());
+        std::fs::remove_dir_all(d).ok();
+    }
+
+    #[test]
+    fn an_image_is_the_one_whose_sha256_the_manifest_records() {
+        let d = std::env::temp_dir().join(format!("wt-sha-{}", std::process::id()));
+        std::fs::create_dir_all(&d).unwrap();
+        let img = d.join("boot-x.img");
+        std::fs::write(&img, "abc").unwrap();
+        // sha256 of "abc"
+        let abc = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
+        image_has_sha256(&img, abc).unwrap();
+        image_has_sha256(&img, &abc.to_uppercase()).unwrap();
+        let e = image_has_sha256(&img, "57ab").unwrap_err();
+        assert!(e.contains(abc) && e.contains("57ab"), "{e}");
+        assert!(image_has_sha256(&img, "")
+            .unwrap_err()
+            .contains("no sha256"));
         std::fs::remove_dir_all(d).ok();
     }
 }

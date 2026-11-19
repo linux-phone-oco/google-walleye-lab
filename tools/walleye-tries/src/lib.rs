@@ -4,6 +4,7 @@
 //! this phone's steps. What a step does, parses and retries lives here, tested without a phone.
 
 pub mod display;
+pub mod display_boot;
 pub mod host;
 pub mod lab;
 pub mod phone;
