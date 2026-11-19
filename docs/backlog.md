@@ -5532,34 +5532,6 @@ Rank
 : 6
 
 
-<a id="walleye-try-ufs-match"></a>
-### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
-
-Status
-: open
-
-Note
-: Image: ~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-match/NOT-TO-BOOT-ufs-on-ufs-match.img (sha256 f8f6215e...4f45). The UFS-off gate refuses it by design: a keeper needs the author's go before any gate exception. Not queued (no needs) until the go.
-
-Waits
-: the Android-derived solution (the lane's work: items walleye-ufs-gap-*, then walleye-ufs-solution-extracted); then the go note goes to the author (research walleye-ufs-go-note, refreshed) and his word opens the try (decisions 2026-11-19-walleye-ufs-android-derived-solution, 2026-11-19-walleye-ufs-hold-second-path)
-
-Blocked by
-: walleye-ufs-match-android-z
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Proof
-: the image's own dmesg: UFS_HW_VERSION line, PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge
-
-Witness
-: person
-
-
 <a id="walleye-display-bisect-images"></a>
 ### Bisect images for the display try: the display kernel with z21's dtb (d0), then mdss+DPU only (d1), then DSI and its PHY without the panel (d2)
 
@@ -7848,3 +7820,34 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-try-ufs-match"></a>
+### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
+
+Status
+: open
+
+Note
+: Image: ~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-match2/NOT-TO-BOOT-ufs-on-ufs-match.img, sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 (rebuilt with the read-only prints, PR 555; it replaces the earlier image f8f6215e, which is retired). The UFS-off gate refuses it by design and is not weakened. RUN IT ONLY THROUGH the procedure procedures/ufs-matched-image-on-the-pixel-2.rs (item walleye-attend-program-ufs, PR 562): it takes the go from this item's go_until and accepts a go only on an item whose note names the sha above. A keeper runs it after the author's go is recorded here with ikb backlog-go; before that the procedure's unattended mode stops at the go step.
+
+Waits
+: the author's word on the go note (research walleye-ufs-go-note, PR 559, brought to him by the Top Coordinator): his go opens it; the lane's Android-derived solution is done (research walleye-ufs-solution-table)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the image's own dmesg: UFS_HW_VERSION line, PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge
+
+Rank
+: 4
+
+Witness
+: person
