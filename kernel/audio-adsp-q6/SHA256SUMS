@@ -1,0 +1,9 @@
+7f8091b1d4743573dbf1733ac2008868becc8c10239eed05fc573c388746ad16  0001-dt-bindings-sound-qcom-sm8250-add-the-msm8998-sound-.patch
+cb96f14a01cdcab49a2c967a5ca6e950670187c9f620f99fe8c17ba8dfdbb16b  0002-ASoC-qcom-add-msm8998-machine-driver.patch
+7196110e004b4b34325cc626185edf8483110f38d57483b82979c36dadfaaaf9  0003-ASoC-qcom-lpass-msm8998-add-missing-const-on-variant.patch
+36885f982c9742e5e38347abfa0681c81ef3e8a3bff42644bd220c7e003b9458  0004-ASoC-q6afe-fix-the-inverted-I2S-word-clock-source.patch
+52a9e0c8248e47dc85bd0f4cbc88e90c4d84334bbe627006e025e8e992a9f5e1  0005-ASoC-qcom-msm8998-drop-the-bring-up-module-parameters.patch
+823a995b9b02b8017effa5a2698d0776efdf3b77f2cda5dff1761a1f2e82eabd  0006-arm64-dts-qcom-msm8998-Add-APR-services-configuration.patch
+c5caf038e573ef513152869f0d16503d6ab6bf72adbaa6863cfa4cc6e4d15e4f  0007-arm64-dts-qcom-msm8998-Add-disabled-slimbus-support.patch
+767d9ed8bff42999b03483b6139a975def8bb0514f9b6fffd75606e0b8e04359  0008-arm64-dts-qcom-msm8998-Add-the-ADSP-voice-services.patch
+e20601613f647f387c24ac15277f829ca5458fe2291557dcab0337b7943aa6c6  0009-arm64-dts-qcom-msm8998-google-walleye-Enable-the-ADSP-and-audio-services.patch

@@ -6409,10 +6409,10 @@ Rank
 ### Take porthole's ADSP remoteproc, q6 and sound card patches (0084, 0085, 0159) onto our kernel
 
 Status
-: open
+: in-progress
 
 Note
-: ADSP firmware from the vendor partition by the keeper's provisioning; the sound card defers until the amp probes, so tried together with the TAS2557 group. SHAPE OF THE PORT (the author's ask, relayed by the Top Coordinator 2026-11-19, decision 2026-11-19-walleye-audio-port-shape): one series per chip, binding, driver and walleye dts as separate patches, each upstreamable on its own, porthole's authorship and sign-offs kept and our changes as separate commits; per chip a record of what any phone would need: the part number, where the driver stands (mainline, porthole, ours), the firmware (the phone's own, never in git), quirks, the proof test and the bring-up steps it covers; the proof steps are small library steps with walleye's values in device.toml (docs #638), not walleye-only scripts.
+: Series and host proof done (kernel/audio-adsp-q6, tests/host/audio-adsp-q6-builds.sh). Next: an image with 0001-0009 for a try (ADSP boots, APR services register) with the firmware provisioned by the keeper; the card comes with the TAS2557 and codec items.
 
 About
 : walleye-audio-haptics
