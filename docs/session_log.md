@@ -4373,6 +4373,24 @@ About
 ---
 
 
+<a id="2026-11-19-2130-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Real unattended run of procedures/display-stripes-on-the-pixel-2.rs: steps 1-12 passed, stopped at look_for with 'nobody answered'; phone restarted by the image's deadman into Android on slot b (adb device up). Stock kernel, nothing flashed or written. Log: ~/Projects/walleye-build/display-real.log (first try failed at once on a --log path with AGENT_BUILD unset; nothing ran).
+
+Considered
+: next: the program's stop at look_for leaves the phone in the test image until the deadman - it should reboot itself back when nobody answers (for the lane coordinator); suite latest needs ~/.config/devlab/google-walleye/password; next ready: walleye-slpi-boot-qrtr (21)
+
+About
+: walleye-display-s6e3fa5
+
+---
+
+
 <a id="2026-11-19-pmic-program-the-way-back-as-the-last-act"></a>
 ### PMIC program: the way back as the last act
 
@@ -4637,7 +4655,7 @@ About
 ---
 
 
-<a id="2026-11-19-2130-how-the-phone-stands"></a>
+<a id="2026-11-19-2140-how-the-phone-stands"></a>
 ### How the phone stands
 
 Entry date
@@ -4647,7 +4665,7 @@ Done
 : Android on slot b, stock kernel, nothing flashed. Matched UFS image tried once read only: version 3.1.0, PHY table ok, link stuck HS_GEAR1 HIBERN8; phone back on Android by itself. B1 display still waits on the author's look.
 
 Considered
-: next: why the link stays in HS_GEAR1/HIBERN8 (gear change after link startup, research), walleye-display-at-boot author's look; coordinator to decide a second try
+: next: why the link stays in HS_GEAR1/HIBERN8 (research); walleye-display-at-boot author's look; the coordinator decides a second UFS try
 
 About
 : walleye-first-fastboot-boot
