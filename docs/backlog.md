@@ -5642,38 +5642,6 @@ Rank
 : 6
 
 
-<a id="walleye-try-display"></a>
-### Try the display image once from slot b: boot-display.img, read the DRM connector, show a test pattern a person sees
-
-Status
-: open
-
-Note
-: ATTENDED, FIRST IN THE QUEUE 2026-11-19 11:35: the author is at the phones ("im ready for the display test", relayed by the Top Coordinator) and has not said go yet. Image ~/Projects/walleye-build/images-display/boot-display.img, sha256 b70feabf44a81fc3ad17c9905305b3c8379197d4d824581de2272acec2515cc8 (SHA256SUMS-display-img beside it; rebuilt 2026-11-19 with clock_gcc at the real gcc; the old hash 21a1134e is retired, its dtb failed overlay-clock-gcc). KEEPER: battery rule, tests/host/ufs-off-image.sh on the image first (passes), try once from slot b, read dmesg for the s6e3fa5 probe, the DSI host and /sys/class/drm/*/status BEFORE the person looks; the pattern needs the person's go (witness). Built by build/build-display.sh and build/build-display-image.sh. Programmer review done.
-KEEPER ORDER: (1) battery rule, device state (tests/host/phone-state.sh must say android), the gate on boot-display.img and its sha256 against the line above; (2) do NOT boot yet: send the walleye coordinator (local_7fb92f70-cce3-4da1-8c0c-64d61faab677) one line 'display ready to boot' and wait; (3) the go window on this item is open only so that you are started: the BOOT waits for a message from the Top Coordinator (local_12b18c70-1b6d-4783-bb6f-50113ab63250) saying go (his relay of the author's word); nothing else counts, not go_until; give up after 30 min without it and say so; (4) after go: fastboot boot once, read dmesg (s6e3fa5 probe, DSI host, /sys/class/drm/*/status) BEFORE asking the person to look, then touch /tmp/hold, draw the pattern (red, green, blue, white bars on /dev/fb0 or the DRM test pattern), send the coordinator 'look now' at once, hold at least 120 s, remove /tmp/hold, the init returns the phone to Android by itself within 180 s; report connector status, what the person says, dmesg lines. The person-facing words are in the shared notes folder: walleye-display-test-for-author.md. Touch z21 is the NEXT attended try, a separate keeper run, never in this one.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: walleye-display-pattern (to write: connector connected in /sys/class/drm, then a pattern written to /dev/fb0 or the DRM test pattern; a person says seen)
-
-Rank
-: 1
-
-Witness
-: person
-
-Go until
-: 2026-11-19T13:30:00+01:00
-
-
 <a id="walleye-try-ufs-match"></a>
 ### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
 
@@ -5753,3 +5721,36 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-try-display"></a>
+### Try the display image once from slot b: boot-display.img, read the DRM connector, show a test pattern a person sees
+
+Status
+: open
+
+Note
+: ATTENDED, FIRST IN THE QUEUE 2026-11-19 11:35: the author is at the phones ("im ready for the display test", relayed by the Top Coordinator) and has not said go yet. Image ~/Projects/walleye-build/images-display/boot-display.img, sha256 b70feabf44a81fc3ad17c9905305b3c8379197d4d824581de2272acec2515cc8 (SHA256SUMS-display-img beside it; rebuilt 2026-11-19 with clock_gcc at the real gcc; the old hash 21a1134e is retired, its dtb failed overlay-clock-gcc). KEEPER: battery rule, tests/host/ufs-off-image.sh on the image first (passes), try once from slot b, read dmesg for the s6e3fa5 probe, the DSI host and /sys/class/drm/*/status BEFORE the person looks; the pattern needs the person's go (witness). Built by build/build-display.sh and build/build-display-image.sh. Programmer review done.
+KEEPER ORDER: (1) battery rule, device state (tests/host/phone-state.sh must say android), the gate on boot-display.img and its sha256 against the line above; (2) do NOT boot yet: send the walleye coordinator (local_7fb92f70-cce3-4da1-8c0c-64d61faab677) one line 'display ready to boot' and wait; (3) the go window on this item is open only so that you are started: the BOOT waits for a message from the Top Coordinator (local_12b18c70-1b6d-4783-bb6f-50113ab63250) saying go (his relay of the author's word); nothing else counts, not go_until; give up after 30 min without it and say so; (4) after go: fastboot boot once, read dmesg (s6e3fa5 probe, DSI host, /sys/class/drm/*/status) BEFORE asking the person to look, then touch /tmp/hold, draw the pattern (red, green, blue, white bars on /dev/fb0 or the DRM test pattern), send the coordinator 'look now' at once, hold at least 120 s, remove /tmp/hold, the init returns the phone to Android by itself within 180 s; report connector status, what the person says, dmesg lines. The person-facing words are in the shared notes folder: walleye-display-test-for-author.md. Touch z21 is the NEXT attended try, a separate keeper run, never in this one.
+TRY 1 2026-11-19 11:40 (go from the Top Coordinator): no shell, no pattern: gadget never enumerated, Android back 49 s after leaving fastboot; the author saw logo, black, Lineage (research walleye-display-try1-author-saw, walleye-display-try1-no-shell-what-is-known). DO NOT RE-TRY boot-display.img: the stage is found first by walleye-try-display-bisect (decision 2026-11-19-walleye-display-console-before-eyes); the author's words 'can they first make sure it boots and they have console then ask me to look ?'. The go window is closed.
+
+Blocked by
+: walleye-try-display-bisect
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: walleye-display-pattern (to write: connector connected in /sys/class/drm, then a pattern written to /dev/fb0 or the DRM test pattern; a person says seen)
+
+Rank
+: 3
+
+Witness
+: person
