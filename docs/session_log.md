@@ -4437,7 +4437,7 @@ Entry date
 : 2026-11-19
 
 Done
-: Android on slot b, stock kernel, nothing flashed. Ran the display stripes procedure once under the go; stripes drawn, no witness answer came back, so the look is still unmeasured (research walleye-display-stripes-try2-no-answer). The item stays open.
+: Android on slot b, stock kernel, nothing flashed. Ran the display stripes procedure once under the go; stripes drawn, no witness answer came back, so the procedure itself timed out waiting for the relay (research walleye-display-stripes-try2-no-answer); the author did look and answered at once, his words in research walleye-display-stripes-look-result: the glass lights, fbcon text visible, the stripes flashed briefly.
 
 Considered
 : next: re-run when the author is confirmed at the glass and a relay is live (ask him to answer straight to the keeper); else walleye-slpi-boot-qrtr (21)
