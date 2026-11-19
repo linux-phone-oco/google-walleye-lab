@@ -5057,3 +5057,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ufs-why-gear1-ranked"></a>
+### walleye-ufs-why-gear1-ranked
+
+Date
+: 2026-11-19
+
+Brief
+: Gear 1 at idle is most likely clock-scale-down (legacy path, no OPP table), not a missed G3: the link is already HS rate B, so the power-mode change was made
+
+Question
+: Why does the link idle at HS gear 1 and the change to HS-G3 is not seen: clock scaling at idle, the power-mode change not made, or the PHY table?
+
+Found
+: From try 1 files (link.txt: dev_pm=SLEEP gear=HS_GEAR1 lane=2 mode=FAST_MODE rate=HS_RATE_B state=HIBERN8; dmesg: PHY table 3.1.0, no UFS error, six LUNs read by 1.64 s) and v7.3 source (wt-k-ufsm). EXCLUDED by the files: 'power-mode change not made'. ufshcd_init_pwr_info leaves PWM G1, 1 lane, SLOWAUTO, hs_rate 0; the try shows FAST_MODE, rate B, 2 lanes, so ufshcd_config_pwr_mode ran and reached HS on both lanes; lane 1 and the PHY table (3.1.0 loaded, link up, partition tables read) are not what holds it. RANKED: (1) clock scale-down at idle, most likely: ufs-qcom sets CAP_CLK_SCALING, msm8998.dtsi has freq-table-hz (50/200 MHz core, 37.5/150 MHz unipro) and no operating-points table, so hba->use_pm_opp is false and ufs_qcom_freq_to_gear_speed returns UFS_HS_DONT_CHANGE (0); ufshcd_scale_gear then takes the legacy path and drops the gear to clk_scaling.min_gear = G1 when devfreq (polling 60 ms, down below load threshold) scales down after the boot-time partition reads; the sysfs gear is hba->pwr_info, which holds the scaled-down value; 170 s idle is long enough. (2) Gear capped below G3 by the host side: ufs_qcom_get_hs_gear returns G3 for host major <4 (3.1.0 here), so no mainline cap; a DT limit would show only if the board file sets a limit property (none seen in the match overlay): unlikely. (3) PHY table 3.1.0 against the vendor's: would show as link or read errors, not a quiet G1; unlikely, and G3 never attempted so also not proven. (4) Reading at hibern8 with dev_pm=SLEEP is only the sampling state, not a fault. Not yet known: clkscale_enable and devfreq state, power_info after a bounded read load, whether a scale-up to G3 happens under load. READ-ONLY readings for try 2: cat clkscale_enable and the devfreq node (cur_freq, available_frequencies, governor) of 1da4000.ufshc; power_info right after dd of the first MiB of sda (O_DIRECT, read only) and again after 2 s idle; a count of ufshcd power-mode / scale lines in dmesg with dyndbg on drivers/ufs/core/ufshcd.c (+p) for the try. If gear reaches 3 under load and falls back at idle: works, as Android does; if it never leaves 1 under load: look at devfreq and a missing opp (a DT operating-points-v2 table with the 150/37.5 MHz pairs mapped to gear in ufs_qcom_freq_to_gear_speed would then be the fix, an upstream-able DT change).
+
+Sources
+: src-mainline-v73-ufs-qcom-ice,src-google-wahoo-msm44-android11
+
+About
+: walleye-ufs-match-android-z
