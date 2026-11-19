@@ -7300,59 +7300,6 @@ Rank
 : 4
 
 
-<a id="walleye-attend-pmic-unattended-run"></a>
-### Keeper: the PMIC program's unattended parts run for real
-
-Status
-: open
-
-Note
-: run 2 (2026-11-19): gates, boot A, shell pass; check 6 fails on missing sysfs identity; see walleye-wdt-state-without-sysfs-identity. Rerun after it. Run 2 (PR 511) stopped at check 6 (wdt-state without sysfs identity) and needed adb reboot bootloader by hand; repeat after walleye-wdt-state-without-sysfs-identity and the fastboot step of walleye-tries-shared-lab-plumbing.
-
-Blocked by
-: walleye-wdt-state-without-sysfs-identity,walleye-tries-shared-lab-plumbing
-
-About
-: walleye-attend-program-pmic
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: the log shows the steps up to the first ask pass; idle-android passes
-
-Rank
-: 5
-
-
-<a id="walleye-try-settings-into-device-toml"></a>
-### Move the WALLEYE_TRY_* settings into device.toml, under the tables that already hold those facts
-
-Status
-: open
-
-Note
-: Orchestration, 2026-11-19: the procedure names its device and its values come from that device.toml, not from environment variables. Do it with the procedures/ move (walleye-procedures-one-shape): same change or the one just before it. Until then the existing programs keep their settings. LPOCO-ATTENDED v0.31.0 (orchestration, lab-tools #266, 2026-11-19): physical steps over a Bench (press_power, hold_button, unplug_usb, replug_usb, touch, swipe, look_for, listen_for, confirm; a person by default, --dry-run lists the doer; ask_author is confirm); boot_once and back_to_known_good read device.toml [kernels] test and kept, a missing key or an unlisted name exits 2 naming it, dry run too. Declare [kernels] and [[host.gadget]] usb_id in this lab's device.toml; programs pinned to v0.29.x keep working until moved. NOW READY (the wait is gone). Order: this item first, then walleye-procedures-one-shape. THE MAP (orchestration, docs #662): [connection] shell port and address; [tools] adb, fastboot beside lpoco; [health] battery floor in mV and how it is read; [boot] device_wait, back_wait; [images] dir and [images.NAME] path and sha256 (z21, pmic A and B, the L-images); [procedures.NAME] for window, min_window, stay, bite_wait and the other one-procedure values. Each WALLEYE_TRY_* setting goes to the key that names it; none stays an environment variable. UNBLOCKED (orchestration, lpoco-manifest-v0.32.0 and lpoco-attended-v0.32.0, lab-tools #270, 2026-11-19): device.toml accepts [connection] port/address, [tools] adb/fastboot, [health] battery_floor_mv, [boot] device_wait/back_wait, [images] dir and [images.NAME] path/sha256, [procedures.NAME]; read them with dev("health.battery_floor_mv") and proc("window"). ONE RULE: read every key at the top of main (let floor = dev(...);), not inside a step closure: only reads outside closures are checked by --dry-run, so a missing key fails before any act. Order: walleye-try-settings-into-device-toml, then walleye-procedures-one-shape (scaffold in v0.31.1+); both after the PMIC fixes in flight (walleye-wdt-state-without-sysfs-identity, walleye-tries-shared-lab-plumbing), which touch the same files.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: every WALLEYE_TRY_* setting of tools/walleye-tries/src/settings.rs is a key of this lab's device.toml, in the table that already holds that fact ([boot], [boot.gadget], the network address and port, the images folder, the battery floor and so on); a new key only where no table holds the fact; settings.rs and the programs read them through the library's named-key reads and no device fact is read from an environment variable; a missing key fails the program's --dry-run; the stand-in tests still pass; the README and the program notes name the keys; [kernels] test and kept and [[host.gadget]] usb_id declared in device.toml; every key read at the top of main, none inside a step closure
-
-Rank
-: 6
-
-
 <a id="walleye-procedures-one-shape"></a>
 ### Move the attended programs to procedures/NAME.rs and tools/walleye-tries to procedures/steps, dropping what lab-tools' step library takes
 
@@ -7437,6 +7384,31 @@ Rank
 : 3
 
 
+<a id="walleye-attend-pmic-unattended-run"></a>
+### Keeper: the PMIC program's unattended parts run for real
+
+Status
+: open
+
+Note
+: run 2 (2026-11-19): gates, boot A, shell pass; check 6 fails on missing sysfs identity; see walleye-wdt-state-without-sysfs-identity. Rerun after it. Run 2 (PR 511) stopped at check 6 (wdt-state without sysfs identity) and needed adb reboot bootloader by hand; repeat after walleye-wdt-state-without-sysfs-identity and the fastboot step of walleye-tries-shared-lab-plumbing. NEW IMAGES (builder, PR 520): the sysfs-less reader fix is in the ramdisk init, so the program must boot the rebuilt pair: A ~/Projects/walleye-build/images-wdt1-sysfsless/boot-wdt1-a.img (sha256 9dfea096...), B .../boot-wdt1-b.img (15f5e97d...), checked against SHA256SUMS-wdt1 beside them. The defaults in tools/walleye-tries/src/settings.rs still point to images-wdt1 (old). FOR THIS RUN set WALLEYE_TRY_IMAGE_A and WALLEYE_TRY_IMAGE_B to the new pair; confirm on the phone the device links the fix assumes (*:watchdog = PMIC, *.watchdog = SoC) from the dmesg or sysfs and record the readlink.
+
+About
+: walleye-attend-program-pmic
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the log shows the steps up to the first ask pass; idle-android passes
+
+Rank
+: 5
+
+
 <a id="walleye-pmic-program-ab-and-witnesses"></a>
 ### PMIC program: an Image type for A and B, the A-to-B fallback's witnesses with a stand-in test, and bootreason and slot read in the bite pass
 
@@ -7444,7 +7416,7 @@ Status
 : open
 
 Note
-: Left open by the builder of walleye-tries-shared-lab-plumbing (PR 517): not in that item's proof. The A to B fallback had no stand-in test since the program was built (PR 453). Do after walleye-wdt-state-without-sysfs-identity and before the PMIC attended try is asked.
+: Left open by the builder of walleye-tries-shared-lab-plumbing (PR 517): not in that item's proof. The A to B fallback had no stand-in test since the program was built (PR 453). Do after walleye-wdt-state-without-sysfs-identity and before the PMIC attended try is asked. NEW IMAGES (builder, PR 520): the sysfs-less reader fix is in the ramdisk init, so the program must boot the rebuilt pair: A ~/Projects/walleye-build/images-wdt1-sysfsless/boot-wdt1-a.img (sha256 9dfea096...), B .../boot-wdt1-b.img (15f5e97d...), checked against SHA256SUMS-wdt1 beside them. The defaults in tools/walleye-tries/src/settings.rs still point to images-wdt1 (old).
 
 About
 : walleye-attend-program-pmic
@@ -7456,7 +7428,32 @@ Needs
 : build
 
 Proof
-: pmic-try.rs and tools/walleye-tries/src/pmic.rs: one Image type (A, B) replacing loose paths; a stand-in test that A not booting leads to B and says so in the log; the bite pass reads the boot reason and the active slot from Android afterwards and records them; 32 stand-in tests plus the new ones pass, clippy and fmt clean, --dry-run passes
+: pmic-try.rs and tools/walleye-tries/src/pmic.rs: one Image type (A, B) replacing loose paths; a stand-in test that A not booting leads to B and says so in the log; the bite pass reads the boot reason and the active slot from Android afterwards and records them; 32 stand-in tests plus the new ones pass, clippy and fmt clean, --dry-run passes; the program's default images are the rebuilt pair images-wdt1-sysfsless (A and B), not images-wdt1
 
 Rank
 : 8
+
+
+<a id="walleye-try-settings-into-device-toml"></a>
+### Move the WALLEYE_TRY_* settings into device.toml, under the tables that already hold those facts
+
+Status
+: open
+
+Note
+: Orchestration, 2026-11-19: the procedure names its device and its values come from that device.toml, not from environment variables. Do it with the procedures/ move (walleye-procedures-one-shape): same change or the one just before it. Until then the existing programs keep their settings. LPOCO-ATTENDED v0.31.0 (orchestration, lab-tools #266, 2026-11-19): physical steps over a Bench (press_power, hold_button, unplug_usb, replug_usb, touch, swipe, look_for, listen_for, confirm; a person by default, --dry-run lists the doer; ask_author is confirm); boot_once and back_to_known_good read device.toml [kernels] test and kept, a missing key or an unlisted name exits 2 naming it, dry run too. Declare [kernels] and [[host.gadget]] usb_id in this lab's device.toml; programs pinned to v0.29.x keep working until moved. NOW READY (the wait is gone). Order: this item first, then walleye-procedures-one-shape. THE MAP (orchestration, docs #662): [connection] shell port and address; [tools] adb, fastboot beside lpoco; [health] battery floor in mV and how it is read; [boot] device_wait, back_wait; [images] dir and [images.NAME] path and sha256 (z21, pmic A and B, the L-images); [procedures.NAME] for window, min_window, stay, bite_wait and the other one-procedure values. Each WALLEYE_TRY_* setting goes to the key that names it; none stays an environment variable. UNBLOCKED (orchestration, lpoco-manifest-v0.32.0 and lpoco-attended-v0.32.0, lab-tools #270, 2026-11-19): device.toml accepts [connection] port/address, [tools] adb/fastboot, [health] battery_floor_mv, [boot] device_wait/back_wait, [images] dir and [images.NAME] path/sha256, [procedures.NAME]; read them with dev("health.battery_floor_mv") and proc("window"). ONE RULE: read every key at the top of main (let floor = dev(...);), not inside a step closure: only reads outside closures are checked by --dry-run, so a missing key fails before any act. Order: walleye-try-settings-into-device-toml, then walleye-procedures-one-shape (scaffold in v0.31.1+); both after the PMIC fixes in flight (walleye-wdt-state-without-sysfs-identity, walleye-tries-shared-lab-plumbing), which touch the same files. NEW IMAGES (builder, PR 520): the sysfs-less reader fix is in the ramdisk init, so the program must boot the rebuilt pair: A ~/Projects/walleye-build/images-wdt1-sysfsless/boot-wdt1-a.img (sha256 9dfea096...), B .../boot-wdt1-b.img (15f5e97d...), checked against SHA256SUMS-wdt1 beside them. The defaults in tools/walleye-tries/src/settings.rs still point to images-wdt1 (old).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: every WALLEYE_TRY_* setting of tools/walleye-tries/src/settings.rs is a key of this lab's device.toml, in the table that already holds that fact ([boot], [boot.gadget], the network address and port, the images folder, the battery floor and so on); a new key only where no table holds the fact; settings.rs and the programs read them through the library's named-key reads and no device fact is read from an environment variable; a missing key fails the program's --dry-run; the stand-in tests still pass; the README and the program notes name the keys; [kernels] test and kept and [[host.gadget]] usb_id declared in device.toml; every key read at the top of main, none inside a step closure; [images.wdt1_a] and [images.wdt1_b] name the rebuilt pair with their sha256
+
+Rank
+: 6
