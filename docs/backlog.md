@@ -6562,7 +6562,7 @@ Status
 : open
 
 Note
-: Run tests/attended/pmic-try.rs from this lab's folder with standard input from /dev/null: gates, boot of A, shell, S2 type read (and /tmp/hold set) must pass; the run stops at the first ask with 'nobody answered' (arms nothing, no bite). Then reboot to Android by adb reboot, check tests/host/idle-android.sh. Record the program's log and the wdt-state line (is S2 type read or only by probe?). The A->B fallback is not exercised by stand-ins.
+: 2026-11-19 run: gates 1-3 pass unattended; program stops at ask 4 before booting A, so boot/shell/S2-type steps untested. Next: builder moves the TWO_TESTS ask after the boot-A, shell and S2 checks (or adds a flag), then rerun.
 
 About
 : walleye-attend-program-pmic
