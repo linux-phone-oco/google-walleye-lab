@@ -6571,93 +6571,6 @@ Rank
 : 2
 
 
-<a id="walleye-procedures-one-shape"></a>
-### Move the attended programs to procedures/NAME.rs and tools/walleye-tries to procedures/steps, dropping what lab-tools' step library takes
-
-Status
-: open
-
-Note
-: PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. Today's #448 (tests/attended/touch-try.rs, tools/walleye-tries) is the closest to it. Move it when lab-tools' scaffold has landed; until then new programs follow the shape already.
-
-Waits
-: orchestration: lab-tools attended-scaffold (lpoco attended new|run|check and the step library: boot_once, wait_for_usb, back_to_known_good, read_dmesg)
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: tests/attended/*.rs now in procedures/*.rs (touch-try, and the PMIC program when it has landed), tools/walleye-tries now procedures/steps with only the steps the library does not have (boot_once, wait_for_usb, back_to_known_good, read_dmesg removed in favour of the library's), lpoco attended check passes on each, the stand-in tests still pass, the entry files still read as a checklist on one screen (decision 2026-11-19-walleye-attended-tries-one-command); paths in the backlog notes and the README updated
-
-Rank
-: 9
-
-
-<a id="walleye-attend-program-display"></a>
-### One command for the display try: a Rust program that boots the display image, reads the console and the DRM connector, shows the stripes, prompts the author and returns the phone to Android
-
-Status
-: open
-
-Note
-: Decision 2026-11-19-walleye-attended-tries-one-command (the author's words in it). The display plan is first because it is the next try; it waits for the late-probe try to name the stage (the image the program boots is the one that boots with a console and has the panel). The framework grows out of this plan and the touch plan, not before it. ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone. SHARED RUNNER (orchestration, 2026-11-19): write the program against lpoco-attended, the crate of lab-tools (dir attended/, example in attended/examples/), used from a rust-script entry file with a cargo git dependency on linux-phone-oco/lab-tools at tag lpoco-attended-vX.Y.Z (orchestration sends the tag; until then a path dependency on the lab-tools builder's worktree or branch). Entry file: use lpoco_attended::prelude::*; then in order procedure("name", "google-walleye"); step("what", || ...); check("what must hold", || ...); ask_author("what to do, what to check"); each stops the run on failure; phone() reaches the device through devlab; --dry-run and the log come from the library. Our own plumbing (readers, parsing, retries) goes in helper modules of this lab, not in the entry file and not in a copy of the runner. Anything the runner lacks: write it in a note in the shared notes folder for orchestration (what is missing, which step needed it); do not work around it with your own runner. CORRECTION (orchestration, 2026-11-19, lab-tools tag lpoco-v0.28.3, #243): the runner is released and lives in lpoco-bringup, NOT in a crate of its own: dependency lpoco-bringup = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-v0.28.3" }; use lpoco_bringup::attended::*; entry = procedure("name").run(|p| { p.step("..", phone("..").retry(3,1))?; p.ask_author("what to do", "what to check")?; p.check("..", phone("..").expect(".."))?; Ok(()) }); phone(..) runs as the phone user, phone_root(..) as root, sh(..) on the host; --dry-run, --log FILE, --help come from the library; copy bringup/examples/attended.rs. Where this paragraph and the older 'lpoco-attended' wording differ, this one holds. Device-agnostic steps keyed to bring-up step ids (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) are coming in lab-tools: write ours inline for now and name the ones we would want in the library (note in the shared notes folder for orchestration). FINAL CORRECTION (orchestration, 2026-11-19, lab-tools #247, tag lpoco-attended-v0.29.0): the attended runner is its own crate again and the lpoco_bringup::attended module is removed; this paragraph replaces the earlier two (lpoco-attended vX.Y.Z, then lpoco-v0.28.3). Dependency: lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.29.0" }; use lpoco_attended::prelude::*; let _run = procedure("name", "google-walleye"); (keep it bound) then step("what", || ..), check("what", || ..) (returns (), bool or Result; false or Err stops and names the step), ask_author("what to do / what to check"), phone().sh(..) / phone().root(..), retry(tries, secs, || ..); --dry-run runs no closure; --log FILE; copy attended/examples/attended.rs. Library steps (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) come next in lab-tools: write ours inline for now and tell orchestration which are needed (note walleye-to-orchestration-attended-steps-wanted.md). PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on.
-
-Waits
-: walleye-display-why-no-drm-card (L1 boots with the display on and the modules load, but no DRM card yet: the program is written when there is a card to draw on)
-
-Blocked by
-: walleye-try-display-late-probe
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: a Rust program (rust-script or a crate of this lab, argenv-declared, a first look at what lab-tools already offers recorded) with: dry-run (prints and checks the whole sequence, boots nothing), an unattended mode that runs for real everything that needs no person (gate, battery, boot, shell, dmesg probe lines, DRM connector status, the way back) and the person steps (what to expect, what to check, 'look now', the stripes) in the attended mode; unit tests; programmer review; a keeper's record of the unattended mode run for real; ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone.; runner: lpoco-attended (tag lpoco-attended-v0.29.0), use lpoco_attended::prelude::*
-
-Rank
-: 3
-
-
-<a id="walleye-attend-program-ufs"></a>
-### One command for the UFS try, when the author says go: gate-exempt boot of the matched image, version read, the card read, the way back
-
-Status
-: open
-
-Note
-: Parked. Decision 2026-11-19-walleye-attended-tries-one-command. ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone. SHARED RUNNER (orchestration, 2026-11-19): write the program against lpoco-attended, the crate of lab-tools (dir attended/, example in attended/examples/), used from a rust-script entry file with a cargo git dependency on linux-phone-oco/lab-tools at tag lpoco-attended-vX.Y.Z (orchestration sends the tag; until then a path dependency on the lab-tools builder's worktree or branch). Entry file: use lpoco_attended::prelude::*; then in order procedure("name", "google-walleye"); step("what", || ...); check("what must hold", || ...); ask_author("what to do, what to check"); each stops the run on failure; phone() reaches the device through devlab; --dry-run and the log come from the library. Our own plumbing (readers, parsing, retries) goes in helper modules of this lab, not in the entry file and not in a copy of the runner. Anything the runner lacks: write it in a note in the shared notes folder for orchestration (what is missing, which step needed it); do not work around it with your own runner. CORRECTION (orchestration, 2026-11-19, lab-tools tag lpoco-v0.28.3, #243): the runner is released and lives in lpoco-bringup, NOT in a crate of its own: dependency lpoco-bringup = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-v0.28.3" }; use lpoco_bringup::attended::*; entry = procedure("name").run(|p| { p.step("..", phone("..").retry(3,1))?; p.ask_author("what to do", "what to check")?; p.check("..", phone("..").expect(".."))?; Ok(()) }); phone(..) runs as the phone user, phone_root(..) as root, sh(..) on the host; --dry-run, --log FILE, --help come from the library; copy bringup/examples/attended.rs. Where this paragraph and the older 'lpoco-attended' wording differ, this one holds. Device-agnostic steps keyed to bring-up step ids (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) are coming in lab-tools: write ours inline for now and name the ones we would want in the library (note in the shared notes folder for orchestration). FINAL CORRECTION (orchestration, 2026-11-19, lab-tools #247, tag lpoco-attended-v0.29.0): the attended runner is its own crate again and the lpoco_bringup::attended module is removed; this paragraph replaces the earlier two (lpoco-attended vX.Y.Z, then lpoco-v0.28.3). Dependency: lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.29.0" }; use lpoco_attended::prelude::*; let _run = procedure("name", "google-walleye"); (keep it bound) then step("what", || ..), check("what", || ..) (returns (), bool or Result; false or Err stops and names the step), ask_author("what to do / what to check"), phone().sh(..) / phone().root(..), retry(tries, secs, || ..); --dry-run runs no closure; --log FILE; copy attended/examples/attended.rs. Library steps (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) come next in lab-tools: write ours inline for now and tell orchestration which are needed (note walleye-to-orchestration-attended-steps-wanted.md). PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on.
-
-Waits
-: the Android-derived solution (the lane's work: items walleye-ufs-gap-*, then walleye-ufs-solution-extracted); then the go note goes to the author (research walleye-ufs-go-note, refreshed) and his word opens the try (decisions 2026-11-19-walleye-ufs-android-derived-solution, 2026-11-19-walleye-ufs-hold-second-path)
-
-About
-: walleye-ufs-match-android-z
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: the same shape; and the UFS-off gate is NOT bypassed by the program: the matched image is booted only through the explicit step the author's go opens; ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone.; runner: lpoco-attended (tag lpoco-attended-v0.29.0), use lpoco_attended::prelude::*
-
-Rank
-: 99
-
-
 <a id="walleye-tas2557-upstream-v3-first"></a>
 ### TAS2557: weigh Boiano's v3 on the list (binding + driver) against porthole's port before walleye-tas2557-driver is built
 
@@ -6781,3 +6694,90 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-procedures-one-shape"></a>
+### Move the attended programs to procedures/NAME.rs and tools/walleye-tries to procedures/steps, dropping what lab-tools' step library takes
+
+Status
+: open
+
+Note
+: PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. Today's #448 (tests/attended/touch-try.rs, tools/walleye-tries) is the closest to it. Move it when lab-tools' scaffold has landed; until then new programs follow the shape already. LIBRARY STEPS (orchestration, 2026-11-19, lab-tools tag lpoco-attended-v0.29.2, #250 #251): dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb are in the library; boot_once and back_to_known_good come next, then lpoco attended new|run|check. Write the PMIC, display and UFS programs against v0.29.2 and these steps, not walleye-tries copies; where the library lacks a step, write it in procedures/steps and name it as wanted.
+
+Waits
+: orchestration: lab-tools attended-scaffold (lpoco attended new|run|check and the step library: boot_once, wait_for_usb, back_to_known_good, read_dmesg)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: tests/attended/*.rs now in procedures/*.rs (touch-try, and the PMIC program when it has landed), tools/walleye-tries now procedures/steps with only the steps the library does not have (boot_once, wait_for_usb, back_to_known_good, read_dmesg removed in favour of the library's), lpoco attended check passes on each, the stand-in tests still pass, the entry files still read as a checklist on one screen (decision 2026-11-19-walleye-attended-tries-one-command); paths in the backlog notes and the README updated; the PMIC and touch programs use the library's dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb (v0.29.2 or later) in place of their walleye-tries copies
+
+Rank
+: 9
+
+
+<a id="walleye-attend-program-display"></a>
+### One command for the display try: a Rust program that boots the display image, reads the console and the DRM connector, shows the stripes, prompts the author and returns the phone to Android
+
+Status
+: open
+
+Note
+: Decision 2026-11-19-walleye-attended-tries-one-command (the author's words in it). The display plan is first because it is the next try; it waits for the late-probe try to name the stage (the image the program boots is the one that boots with a console and has the panel). The framework grows out of this plan and the touch plan, not before it. ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone. SHARED RUNNER (orchestration, 2026-11-19): write the program against lpoco-attended, the crate of lab-tools (dir attended/, example in attended/examples/), used from a rust-script entry file with a cargo git dependency on linux-phone-oco/lab-tools at tag lpoco-attended-vX.Y.Z (orchestration sends the tag; until then a path dependency on the lab-tools builder's worktree or branch). Entry file: use lpoco_attended::prelude::*; then in order procedure("name", "google-walleye"); step("what", || ...); check("what must hold", || ...); ask_author("what to do, what to check"); each stops the run on failure; phone() reaches the device through devlab; --dry-run and the log come from the library. Our own plumbing (readers, parsing, retries) goes in helper modules of this lab, not in the entry file and not in a copy of the runner. Anything the runner lacks: write it in a note in the shared notes folder for orchestration (what is missing, which step needed it); do not work around it with your own runner. CORRECTION (orchestration, 2026-11-19, lab-tools tag lpoco-v0.28.3, #243): the runner is released and lives in lpoco-bringup, NOT in a crate of its own: dependency lpoco-bringup = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-v0.28.3" }; use lpoco_bringup::attended::*; entry = procedure("name").run(|p| { p.step("..", phone("..").retry(3,1))?; p.ask_author("what to do", "what to check")?; p.check("..", phone("..").expect(".."))?; Ok(()) }); phone(..) runs as the phone user, phone_root(..) as root, sh(..) on the host; --dry-run, --log FILE, --help come from the library; copy bringup/examples/attended.rs. Where this paragraph and the older 'lpoco-attended' wording differ, this one holds. Device-agnostic steps keyed to bring-up step ids (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) are coming in lab-tools: write ours inline for now and name the ones we would want in the library (note in the shared notes folder for orchestration). FINAL CORRECTION (orchestration, 2026-11-19, lab-tools #247, tag lpoco-attended-v0.29.0): the attended runner is its own crate again and the lpoco_bringup::attended module is removed; this paragraph replaces the earlier two (lpoco-attended vX.Y.Z, then lpoco-v0.28.3). Dependency: lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.29.0" }; use lpoco_attended::prelude::*; let _run = procedure("name", "google-walleye"); (keep it bound) then step("what", || ..), check("what", || ..) (returns (), bool or Result; false or Err stops and names the step), ask_author("what to do / what to check"), phone().sh(..) / phone().root(..), retry(tries, secs, || ..); --dry-run runs no closure; --log FILE; copy attended/examples/attended.rs. Library steps (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) come next in lab-tools: write ours inline for now and tell orchestration which are needed (note walleye-to-orchestration-attended-steps-wanted.md). PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. LIBRARY STEPS (orchestration, 2026-11-19, lab-tools tag lpoco-attended-v0.29.2, #250 #251): dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb are in the library; boot_once and back_to_known_good come next, then lpoco attended new|run|check. Write the PMIC, display and UFS programs against v0.29.2 and these steps, not walleye-tries copies; where the library lacks a step, write it in procedures/steps and name it as wanted.
+
+Waits
+: walleye-display-why-no-drm-card (L1 boots with the display on and the modules load, but no DRM card yet: the program is written when there is a card to draw on)
+
+Blocked by
+: walleye-try-display-late-probe
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: a Rust program (rust-script or a crate of this lab, argenv-declared, a first look at what lab-tools already offers recorded) with: dry-run (prints and checks the whole sequence, boots nothing), an unattended mode that runs for real everything that needs no person (gate, battery, boot, shell, dmesg probe lines, DRM connector status, the way back) and the person steps (what to expect, what to check, 'look now', the stripes) in the attended mode; unit tests; programmer review; a keeper's record of the unattended mode run for real; ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone.; runner: lpoco-attended (tag lpoco-attended-v0.29.0), use lpoco_attended::prelude::*
+
+Rank
+: 3
+
+
+<a id="walleye-attend-program-ufs"></a>
+### One command for the UFS try, when the author says go: gate-exempt boot of the matched image, version read, the card read, the way back
+
+Status
+: open
+
+Note
+: Parked. Decision 2026-11-19-walleye-attended-tries-one-command. ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone. SHARED RUNNER (orchestration, 2026-11-19): write the program against lpoco-attended, the crate of lab-tools (dir attended/, example in attended/examples/), used from a rust-script entry file with a cargo git dependency on linux-phone-oco/lab-tools at tag lpoco-attended-vX.Y.Z (orchestration sends the tag; until then a path dependency on the lab-tools builder's worktree or branch). Entry file: use lpoco_attended::prelude::*; then in order procedure("name", "google-walleye"); step("what", || ...); check("what must hold", || ...); ask_author("what to do, what to check"); each stops the run on failure; phone() reaches the device through devlab; --dry-run and the log come from the library. Our own plumbing (readers, parsing, retries) goes in helper modules of this lab, not in the entry file and not in a copy of the runner. Anything the runner lacks: write it in a note in the shared notes folder for orchestration (what is missing, which step needed it); do not work around it with your own runner. CORRECTION (orchestration, 2026-11-19, lab-tools tag lpoco-v0.28.3, #243): the runner is released and lives in lpoco-bringup, NOT in a crate of its own: dependency lpoco-bringup = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-v0.28.3" }; use lpoco_bringup::attended::*; entry = procedure("name").run(|p| { p.step("..", phone("..").retry(3,1))?; p.ask_author("what to do", "what to check")?; p.check("..", phone("..").expect(".."))?; Ok(()) }); phone(..) runs as the phone user, phone_root(..) as root, sh(..) on the host; --dry-run, --log FILE, --help come from the library; copy bringup/examples/attended.rs. Where this paragraph and the older 'lpoco-attended' wording differ, this one holds. Device-agnostic steps keyed to bring-up step ids (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) are coming in lab-tools: write ours inline for now and name the ones we would want in the library (note in the shared notes folder for orchestration). FINAL CORRECTION (orchestration, 2026-11-19, lab-tools #247, tag lpoco-attended-v0.29.0): the attended runner is its own crate again and the lpoco_bringup::attended module is removed; this paragraph replaces the earlier two (lpoco-attended vX.Y.Z, then lpoco-v0.28.3). Dependency: lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.29.0" }; use lpoco_attended::prelude::*; let _run = procedure("name", "google-walleye"); (keep it bound) then step("what", || ..), check("what", || ..) (returns (), bool or Result; false or Err stops and names the step), ask_author("what to do / what to check"), phone().sh(..) / phone().root(..), retry(tries, secs, || ..); --dry-run runs no closure; --log FILE; copy attended/examples/attended.rs. Library steps (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) come next in lab-tools: write ours inline for now and tell orchestration which are needed (note walleye-to-orchestration-attended-steps-wanted.md). PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. LIBRARY STEPS (orchestration, 2026-11-19, lab-tools tag lpoco-attended-v0.29.2, #250 #251): dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb are in the library; boot_once and back_to_known_good come next, then lpoco attended new|run|check. Write the PMIC, display and UFS programs against v0.29.2 and these steps, not walleye-tries copies; where the library lacks a step, write it in procedures/steps and name it as wanted.
+
+Waits
+: the Android-derived solution (the lane's work: items walleye-ufs-gap-*, then walleye-ufs-solution-extracted); then the go note goes to the author (research walleye-ufs-go-note, refreshed) and his word opens the try (decisions 2026-11-19-walleye-ufs-android-derived-solution, 2026-11-19-walleye-ufs-hold-second-path)
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the same shape; and the UFS-off gate is NOT bypassed by the program: the matched image is booted only through the explicit step the author's go opens; ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone.; runner: lpoco-attended (tag lpoco-attended-v0.29.0), use lpoco_attended::prelude::*
+
+Rank
+: 99
