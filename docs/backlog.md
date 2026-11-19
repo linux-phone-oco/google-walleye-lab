@@ -8038,10 +8038,10 @@ Rank
 ### The author's look as one command on the known-good load order: L7 = L6 with the held-stripes drawer, display-stripes-on-the-pixel-2.rs on lpoco-attended 0.35 with the answer file and a way back
 
 Status
-: in-progress
+: done
 
 Note
-: KEEPER RUN FOR REAL 2026-11-19 (walleye-keeper), procedures/display-stripes-on-the-pixel-2.rs on lpoco-attended 0.35.1 with --answer-limit 120, dry-run 18 steps ok first: all 18 steps passed, rc 0; 13 modules loaded, DSI-1 connected enabled 1080x1920, drawer drew stripes (KD_GRAPHICS set), drawer ended ok, way back ran, tests/host/idle-android.sh passes (Android, adb, not fastboot). NOT the bar's 'nobody answered' stop: both asks were answered ok by a file 'written by user 1000' (23 s and 15 s after asking), not by this keeper - so someone (the author?) may have answered, and the glass was not looked at by the keeper; the unanswered-stop path stays unproven. Next: re-run when nobody can answer (or the author says it was he who answered and what he saw). Tooling: build/images link needed; phone password file still missing.
+: DONE 2026-11-19: the procedure ran for real (keeper PR 593): dry-run 18/18, real run 18/18, 13 modules, DSI-1 connected 1080x1920, stripes drawn in KD_GRAPHICS, the way back ran, idle-android passes; BOTH looks were answered by the author through the answer file (research walleye-display-l7-looks-seen). The unanswered-ask path of the way back is not proven by that run: item walleye-display-look-l7-unanswered-run.
 
 Waits
 : none
@@ -8160,6 +8160,31 @@ Needs
 
 Proof
 : an image (UFS-off gate, AVB, rebuild identical, review) whose init loads the display modules in an order other than the hand-picked one (for example alphabetical, or all at once by udev-less modprobe of the alias set), and still shows: no pclk0 rcg warning, no -110 on a DSI command, no SMMU fault flood, card0 and DSI-1 connected, the glass lit; the dts changes as separate patches in the upstream board dts series (research walleye-upstream-dts-series, item walleye-upstream-board-dts-next) with dtbs_check where the container allows; an unattended try for real; the author's look through the answer file only after that
+
+Rank
+: 2
+
+
+<a id="walleye-display-look-l7-unanswered-run"></a>
+### Prove the display look's way back when nobody answers: run the L7 procedure for real with --answer-limit 120 and write no answer
+
+Status
+: open
+
+Note
+: The author's looks were answered in the first real run, so the unanswered path (the one that failed on B2, PR 588) has not run for L7. A short run, about 4 minutes, nobody needed at the phone. The Top Coordinator must NOT write an answer while it runs (the keeper tells him when it starts).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: lpoco-attended run display-stripes-on-the-pixel-2 --answer-limit 120 with NO answer written to ~/.cache/lpoco-attended/google-walleye/answer: it stops at look 1 with 'nobody answered' and leaves the phone on Android by its OWN way back (not the 600 s deadman) within the answer limit plus a few seconds; idle-android passes; the log recorded
 
 Rank
 : 2
