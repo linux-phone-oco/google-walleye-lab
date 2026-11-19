@@ -3489,3 +3489,22 @@ Sources
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-fg1-tried-capacity-matches"></a>
+### walleye-fg1-tried-capacity-matches
+
+Date
+: 2026-11-19
+
+Brief
+: fg1 once from slot b: pmi8998-fg probes, qcom-battery capacity 99 %, voltage_now 4374 mV = fastboot's 4374 mV; phone back on Android slot b
+
+Question
+: Does the RFC's PMI8998 fuel gauge probe on the Pixel 2 and read the battery as fastboot does?
+
+Found
+: Battery rule passed (4373 mV adb, 4374 fastboot, cable in both); ufs-off-image.sh passed on boot-fg1.img, sha256 matched SHA256SUMS-fg1. fastboot boot now: left fastboot 15 s, gadget 1d6b:0104 at 18 s, mainline-shell-read.sh NOREBOOT=1 16 answers, dmesg 367 lines (material ~/lab-material/walleye/fg1-try1). fuel-gauge-check.sh: pass, qcom-battery type Battery, capacity 99, voltage_now 4374500 uV, 0 mV from fastboot, status Full, current_now 9765, temp 298. dmesg: pmi8998-fg fuel-gauge@4000 probed, no failures. Same cable state for both readings. Then reboot -f over the tty; Android back on slot b, adb up. Nothing flashed. Noted: online/health/usb_type files absent on qcom-battery (not the gauge's).
+
+About
+: walleye-first-fastboot-boot
