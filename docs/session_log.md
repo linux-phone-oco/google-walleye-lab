@@ -4273,3 +4273,24 @@ Considered
 
 About
 : walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-19-late-probe-poll-stripes-rc"></a>
+### display-late-probe polls for stripes-rc
+
+Entry date
+: 2026-11-19
+
+Done
+: display-late-probe.sh waits STRIPES_SECONDS then polls the drawer log every STRIPES_POLL (3) s for up to STRIPES_GRACE (40) real s for stripes-rc; selftest has a late drawer (seen failing before the change) and a never-reporting one (bounded fail). Real L6 run queued for the keeper.
+
+Considered
+: a longer fixed sleep
+
+Rejected
+: a longer fixed sleep: still a guess, and slow on every pass
+
+About
+: walleye-display-s6e3fa5

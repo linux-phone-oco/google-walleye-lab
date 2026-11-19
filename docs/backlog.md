@@ -7557,10 +7557,10 @@ Opened
 : 2026-11-19
 
 Needs
-: build
+: phone
 
 Proof
-: tests/host/display-late-probe-selftest.sh passes with a drawer that ends late; a real L6 run reports pass
+: tests/host/display-late-probe-selftest.sh passes with a drawer that ends late (done, PR); a real L6 run reports pass
 
 Rank
 : 8

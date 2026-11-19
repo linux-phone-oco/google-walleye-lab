@@ -29,7 +29,7 @@ case $IN in
   *"echo up-"*) echo up-42;;
   *"test -x /bin/walleye-stripes"*) [ -n "${FAKE_DRAWER:-}" ] && echo drawer-is-42;;
   *"setsid sh -c '/bin/walleye-stripes --seconds"*) echo "$IN" | grep -o -e "--seconds [0-9]*" >> "$FAKE/calls"; { echo "walleye-stripes: draw: four stripes"; echo "walleye-stripes: release: the screen is cleared to black"; echo "stripes-rc=${FAKE_DRAWER_RC:-0}-end"; } > "$FAKE/drawerlog"; echo started-42;;
-  *"cat /tmp/stripes.log"*) cat "$FAKE/drawerlog" 2>/dev/null;;
+  *"cat /tmp/stripes.log"*) k=$(( $(cat "$FAKE/reads" 2>/dev/null || echo 0) + 1 )); echo $k > "$FAKE/reads"; if [ "$k" -le "${FAKE_DRAWER_LATE:-0}" ]; then grep -v stripes-rc "$FAKE/drawerlog" 2>/dev/null; else cat "$FAKE/drawerlog" 2>/dev/null; fi;;
   *"echo alive-"*) printf "%s\n" "$IN"; [ -e "$FAKE/held" ] && echo alive-42;;
   *"stream-ok"*) printf "%s\n" "$IN"; echo stream-ok-42;;
   *"nc-rc"*) echo nc-rc=0-end;;
@@ -88,6 +88,10 @@ run drawer FAKE_DRAWER=1 STRIPES_SECONDS=7
 ck "a phone with the drawer (L6): passes, asks it for the seconds, keeps its lines, says the stripes were drawn" "$(cat "$T/drawer.rc") $(grep -c -e "^--seconds 7$" "$T/drawer.fake/calls") $(grep -c "walleye-stripes: draw" "$T/drawer.fake/out/stripes.log") $(grep -c "stripes were drawn and held 7 s" "$T/drawer.stdout")" "0 1 1 1"
 run drawerzero FAKE_DRAWER=1 STRIPES_SECONDS=0
 ck "STRIPES_SECONDS=0 leaves the drawer out" "$(cat "$T/drawerzero.rc") $(grep -c "walleye-stripes --seconds" "$T/drawerzero.fake/calls")" "0 0"
+run drawerlate FAKE_DRAWER=1 STRIPES_SECONDS=1 STRIPES_POLL=0 STRIPES_GRACE=20 FAKE_DRAWER_LATE=3
+ck "a drawer whose rc line comes after the first reads (it needs time after the settle): the run polls and passes, after more than one read" "$(cat "$T/drawerlate.rc") $(grep -c "stripes were drawn and held 1 s" "$T/drawerlate.stdout") $([ "$(cat "$T/drawerlate.fake/reads")" -eq 4 ] && echo polled)" "0 1 polled"
+run drawernever FAKE_DRAWER=1 STRIPES_SECONDS=1 STRIPES_POLL=1 STRIPES_GRACE=5 FAKE_DRAWER_LATE=99
+ck "a drawer that never reports its rc: the poll is bounded, the run fails naming the log" "$(cat "$T/drawernever.rc") $(grep -c "the stripe drawer did not end with 0" "$T/drawernever.stdout") $([ "$(cat "$T/drawernever.fake/reads")" -ge 2 ] && echo polled)" "1 1 polled"
 run drawerbad FAKE_DRAWER=1 FAKE_DRAWER_RC=1
 ck "a drawer that ends with 1 fails the run and names its log" "$(cat "$T/drawerbad.rc") $(grep -c "the stripe drawer did not end with 0" "$T/drawerbad.stdout")" "1 1"
 ck "the script is plain sh (sh -n)" "$(sh -n "$S" 2>&1 && echo ok)" ok
