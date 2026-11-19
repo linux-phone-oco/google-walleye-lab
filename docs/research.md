@@ -4085,3 +4085,22 @@ About
 
 Supersedes
 : walleye-audio-haptics-ways
+
+
+<a id="walleye-display-late-probe-l-images-built"></a>
+### walleye-display-late-probe-l-images-built
+
+Date
+: 2026-11-19
+
+Brief
+: L1 and L2 built: the late-probe image with iommu.passthrough=1 (L1) and without the mdss iommus property (L2); checks pass, rebuild identical
+
+Question
+: Can the late-probe image carry the g1 and g2 iommu fixes, each with exactly one change?
+
+Found
+: boot-l1.img (cmdline + ' iommu.passthrough=1', sha256 7a45100ca471e5406693b366999021afbcf2ed8dc8d4aa55931e8bc76f010171) and boot-l2.img (iommus <142 0> removed from mdss in the late image's full display dtb, sha256 700809f53df331f58566d9f3646514a202b8e4cbf604ddbac1143da81e4b10ba) in ~/Projects/walleye-build/images-display-late-l. Each has the late image's kernel, ramdisk and header words; AVB verifies; ufs-off-image.sh passes; the panel node stays. Scripts: build/build-display-late-l-dtb.sh, build/series/display-late-l.toml, build/check-display-late-l.sh. Note: the late dtb's mdss iommus is 142 0 (f3's is 149 0, different phandle numbering, same property); the late dtb is the full display dtb (panel node, regulators) and lacks z21's touch regulator, as the late image always did.
+
+About
+: walleye-display-s6e3fa5
