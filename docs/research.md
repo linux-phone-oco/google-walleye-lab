@@ -4756,3 +4756,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-display-stripes-try2-author-saw"></a>
+### walleye-display-stripes-try2-author-saw
+
+Date
+: 2026-11-19
+
+Brief
+: Display try 2: the author saw the console text with a percentage and a brief red, blue, green flash; no steady stripes (relayed late, after the run)
+
+Question
+: What did the author see on the glass during the display stripes try of 2026-11-19 18:49?
+
+Found
+: The author's words, relayed by the Top Coordinator after the run had ended: 'oh whit, i see the console output some persentage, also i saw it brifly blimp with red blue and green'. So the glass lights (the panel, DSI and fb0 path works) and shows the fbcon text console; the stripes appeared only briefly, not for the 60 s hold. Answer as it would have been fed: not ok - console text with a percentage and a brief flash of red, blue, green, not a steady stripe pattern. Likely cause, from the source and not measured: tools/walleye-stripes writes /dev/fb0 once then sleeps; the kernel has CONFIG_FRAMEBUFFER_CONSOLE=y and DRM_FBDEV_EMULATION=y, ignore_loglevel and dyndbg on the cmdline, and the drawer's own kmsg lines, so fbcon repaints text over the stripes as messages print. The log of this run holds no dmesg from the hold, so fbcon vs pan/unblank is NOT yet read. To measure: bring the stripes up with fbcon unbound (echo 0 > /sys/class/vtconsole/vtcon1/bind, or console loglevel 1 and no kmsg lines during the hold) and capture dmesg during the hold.
+
+About
+: walleye-first-fastboot-boot
+
+Supersedes
+: walleye-display-stripes-try2-no-answer
