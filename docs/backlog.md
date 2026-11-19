@@ -7263,10 +7263,10 @@ Rank
 ### display-late-probe.sh runs the stripe drawer detached and reads its log and exit code after the hold
 
 Status
-: open
+: done
 
 Note
-: L6 try: the telnet session for the drawer ended before its 60 s hold, so the script said fail with no exit code. Run it with setsid into /tmp/stripes.log, sleep the hold plus margin, read the log and rc.
+: display-late-probe.sh starts the drawer with setsid into /tmp/stripes.log on the phone, sleeps the hold plus 10 s, reads the log and stripes-rc; selftest fake phone updated, all checks pass. Not yet run on the phone: the next L6 try is the real proof.
 
 About
 : walleye-display-s6e3fa5
