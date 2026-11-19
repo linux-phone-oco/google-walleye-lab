@@ -7254,10 +7254,10 @@ Rank
 ### wdt-state finds the PMIC watchdog without sysfs identity (the test kernel has no WATCHDOG_SYSFS attributes)
 
 Status
-: open
+: done
 
 Note
-: Built 2026-11-19 by walleye-builder: init-wdt1 matches by device link when identity is absent; selftest +4 cases pass; images in ~/Projects/walleye-build/images-wdt1-sysfsless (A 9dfea096..., B 15f5e97d...). Next: keeper runs pmic-try.rs on image A from that dir.
+: proven by run 3: wdt-state pmic=watchdog1 soc=watchdog0 in image A without sysfs identity (checks 5-6 pass)
 
 About
 : walleye-attend-program-pmic
@@ -7357,10 +7357,10 @@ Rank
 ### Keeper: the PMIC program's unattended parts run for real
 
 Status
-: open
+: done
 
 Note
-: run 2 (2026-11-19): gates, boot A, shell pass; check 6 fails on missing sysfs identity; see walleye-wdt-state-without-sysfs-identity. Rerun after it. Run 2 (PR 511) stopped at check 6 (wdt-state without sysfs identity) and needed adb reboot bootloader by hand; repeat after walleye-wdt-state-without-sysfs-identity and the fastboot step of walleye-tries-shared-lab-plumbing. NEW IMAGES (builder, PR 520): the sysfs-less reader fix is in the ramdisk init, so the program must boot the rebuilt pair: A ~/Projects/walleye-build/images-wdt1-sysfsless/boot-wdt1-a.img (sha256 9dfea096...), B .../boot-wdt1-b.img (15f5e97d...), checked against SHA256SUMS-wdt1 beside them. The defaults in tools/walleye-tries/src/settings.rs still point to images-wdt1 (old). FOR THIS RUN set WALLEYE_TRY_IMAGE_A and WALLEYE_TRY_IMAGE_B to the new pair; confirm on the phone the device links the fix assumes (*:watchdog = PMIC, *.watchdog = SoC) from the dmesg or sysfs and record the readlink.
+: proven by run 3 (2026-11-19): steps 1-7 pass on the sysfsless pair, stopped at the first ask; idle-android: adb up on slot b, 4385 mV. The attended tests (reboot, bite) are the author's one command: tests/attended/pmic-try.rs
 
 About
 : walleye-attend-program-pmic

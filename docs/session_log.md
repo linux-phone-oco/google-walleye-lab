@@ -4294,3 +4294,39 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-walleye-keeper-pmic-run-three"></a>
+### PMIC program run 3: steps 1-7 pass on the rebuilt pair
+
+Entry date
+: 2026-11-19
+
+Done
+: Ran tests/attended/pmic-try.rs for real with the rebuilt images (images-wdt1-sysfsless, sha256 checked; a build/images link to ~/Projects/walleye-build made in the worktree, untracked). Checks 1-3 pass; step 4 fastboot, step 5 image A booted with its banner, check 6 shell answers, check 7 pass: watchdog1 probed, S2 type 0x07, firmware type 0x1. Run stopped at ask 8 (nobody answered), as designed. wdt-state in the ramdisk read pmic=watchdog1 soc=watchdog0 s2-enabled=no without sysfs identity: the fix works on the phone. Way back: the ramdisk has no self-reboot and plain reboot did not leave it; reboot -f then sysrq b over the telnet shell took the phone to Android slot b.
+
+Considered
+: Image A's ramdisk stays up until told: the program's end after an unanswered ask leaves the phone in the test ramdisk, off adb and fastboot; a way back (reboot -f / sysrq b via the shell) is not in the program: a builder row. lpoco lab suite has no password file (no login on this phone).
+
+About
+: walleye-attend-program-pmic
+
+---
+
+
+<a id="2026-11-20-1200-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up, 4385 mV, boot completed. PMIC program run 3: steps 1-7 pass on the rebuilt images; items walleye-attend-pmic-unattended-run and walleye-wdt-state-without-sysfs-identity done.
+
+Considered
+: next: the author's one command tests/attended/pmic-try.rs (reboot and bite tests); a builder row so the program takes the phone out of the test ramdisk when an ask goes unanswered (reboot -f then sysrq b over the shell); then the display stripes poll and L6 rerun; next ready: walleye-modem-mss-proof (20), walleye-slpi-boot-qrtr (21)
+
+About
+: walleye-first-fastboot-boot
