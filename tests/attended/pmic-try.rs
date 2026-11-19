@@ -21,12 +21,12 @@ fn main() {
     check("the battery is good enough", wdt.battery_is_good());
     check("both images are the ones built", wdt.images_are_the_built_ones());
     check("UFS is off in both images", wdt.ufs_is_off_in_both());
-    ask_author(words::TWO_TESTS);
 
-    // first test: the reboot
+    // first test: the reboot; the phone is started and read first, the author is asked after
     step("boot image A from memory (B if A shows no banner)", wdt.boot_image());
     check("the shell answers", wdt.shell_answers());
     check("the watchdog probed and S2 is type 7", wdt.s2_type_is_seven());
+    ask_author(words::TWO_TESTS);
     ask_author(words::REBOOT);
     step("arm the watchdog and reboot cleanly", wdt.arm_and_reboot());
     check("Android is back", wdt.android_is_back());

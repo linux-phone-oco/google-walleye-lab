@@ -7060,10 +7060,10 @@ Go until
 ### pmic-try.rs asks the author only after boot A, the shell and the S2-type read, so the unattended run proves those steps
 
 Status
-: open
+: done
 
 Note
-: Keeper run 2026-11-19 (PR 481): the first ask (ask 4) comes BEFORE the boot of A, so the unattended run proved only the gates. The author's plain words say the phone is started first and 'ready' comes after the shell is up: move that ask after the boot, shell and S2 checks. Then the keeper repeats walleye-attend-pmic-unattended-run.
+: Built 2026-11-19: ask 7 (TWO_TESTS) now follows boot A, the shell and the S2-type read; the gates still come first. cargo test 31 pass, fmt and clippy clean, --dry-run passes (23 steps). The unattended run on the phone is the keeper's: repeat walleye-attend-pmic-unattended-run.
 
 About
 : walleye-attend-program-pmic
