@@ -2,7 +2,7 @@
 # The boot image of the display try (item walleye-display-s6e3fa5): z21's image with the display kernel (Image.gz with the S6E3FA5 panel driver, DPU and DSI built in) and the display dtb in place of z21's pair; ramdisk, header,
 # command line and AVB footer are z21's. UFS is off in the dtb (the gate, decision 2026-11-19-walleye-ufs-off-by-a-gate, checked here on the finished image). Built only - no phone run; the keeper tries it once from slot b (walleye-try-display).
 #   build-display-image.sh Z21_BOOT_IMG DISPLAY_DIR OUT_DIR      (DISPLAY_DIR: build-display.sh's OUT_DIR)
-# Writes OUT_DIR/{boot-display.img,SHA256SUMS-display-img}; every check stops the build (ok/FAIL, exit 1, nothing written).
+# The dtb in the image gets clock_gcc at the real gcc (fdtput), checked before and after. Writes OUT_DIR/{boot-display.img,SHA256SUMS-display-img}; every check stops the build (ok/FAIL, exit 1, nothing written).
 set -eu
 Z21=${1:?usage: build-display-image.sh Z21_BOOT_IMG DISPLAY_DIR OUT_DIR}
 D=${2:?}
@@ -16,7 +16,14 @@ INFO=$(unpack_bootimg --boot_img "$Z21" --out "$T/z21")
 field() { printf "%s\n" "$INFO" | sed -n "s/^$1: *//p" | head -n1; }
 PSIZE=$(stat -c %s "$Z21")
 AV=$(avbtool info_image --image "$Z21")
-cat "$D/Image.gz" "$D/msm8998-google-walleye-display.dtb" > "$T/blob"
+# as z3 and every image since (build-pmic-wdt-v1.sh): the dtb as built has clock_gcc at the empty stub; the overlay's clock users must name the real gcc
+GCC=/soc@0/clock-controller@100000
+DTB=$T/display.dtb
+cp "$D/msm8998-google-walleye-display.dtb" "$DTB"
+ck "the built display dtb has clock_gcc at the empty stub (the fix is needed)" "$(fdtget "$DTB" /__symbols__ clock_gcc)" /vendor-overlay-stubs/clock_gcc
+fdtput -t s "$DTB" /__symbols__ clock_gcc "$GCC"
+ck "clock_gcc is the real gcc in the image dtb" "$(fdtget "$DTB" /__symbols__ clock_gcc)" "$GCC"
+cat "$D/Image.gz" "$DTB" > "$T/blob"
 set --
 while IFS= read -r pr; do [ -n "$pr" ] && set -- "$@" --prop "$pr"; done <<EOP
 $(printf "%s\n" "$AV" | sed -n "s/^ *Prop: \([^ ]*\) -> '\(.*\)'$/\1:\2/p")
@@ -39,8 +46,9 @@ ck "the kernel blob ends before the ramdisk loads (headroom in bytes > 524288)" 
 mkdir "$T/v" && cp "$IMG" "$T/v/boot.img"
 ck "the AVB footer verifies" "$(avbtool verify_image --image "$T/v/boot.img" >/dev/null 2>&1 && echo yes || echo no)" yes
 ck "the UFS-off gate passes the image (tests/host/ufs-off-image.sh)" "$(sh "$HERE/tests/host/ufs-off-image.sh" "$IMG" | cut -d" " -f1 || true)" pass
-ck "the display dtb keeps the touch power gpio single-claimant after the overlay merge" "$(DTB="$D/msm8998-google-walleye-display.dtb" sh "$HERE/tests/host/touch-gpio-single-claimant.sh" | cut -d' ' -f1)" pass
-ck "the overlay still merges into the display dtb" "$(DTB="$D/msm8998-google-walleye-display.dtb" sh "$HERE/tests/host/dtbo-overlay-merges.sh" | cut -d' ' -f1)" pass
+ck "the display dtb keeps the touch power gpio single-claimant after the overlay merge" "$(DTB="$DTB" sh "$HERE/tests/host/touch-gpio-single-claimant.sh" | cut -d' ' -f1)" pass
+ck "the overlay still merges into the display dtb" "$(DTB="$DTB" sh "$HERE/tests/host/dtbo-overlay-merges.sh" | cut -d' ' -f1)" pass
+ck "after the overlay merge the overlay's clock users name gcc (tests/host/overlay-clock-gcc.sh)" "$(DTB="$DTB" sh "$HERE/tests/host/overlay-clock-gcc.sh" | cut -d' ' -f1)" pass
 [ $total -eq 0 ] || { echo "build-display-image: $total checks failed, nothing written" >&2; exit 1; }
 mkdir -p "$OUT"
 cp "$IMG" "$OUT/boot-display.img"
