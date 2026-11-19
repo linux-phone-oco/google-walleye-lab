@@ -4087,3 +4087,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-walleye-drv2624-image-built"></a>
+### DRV2624 test image built
+
+Entry date
+: 2026-11-19
+
+Done
+: build/build-drv2624.sh and walleye-drv2624.config; boot-drv1.img built from z21 with the series applied in a new kernel tree, checks and review done, no phone touched.
+
+Considered
+: Driver as a module in the ramdisk.
+
+Rejected
+: A module: the initramfs carries no modules, so built in as for every image.
+
+About
+: walleye-audio-haptics

@@ -4623,3 +4623,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-drv2624-image-built"></a>
+### walleye-drv2624-image-built
+
+Date
+: 2026-11-19
+
+Brief
+: drv1 built: z21 with the DRV2624 series (driver built in) and vibrator@5a; 36 checks ok, rebuild identical, reviewed; not tried
+
+Question
+: Can the lane's test kernel carry the DRV2624 series in a UFS-off boot image?
+
+Found
+: boot-drv1.img sha256 96e85804db5478aae4525266997dfcf65f6990493cbb00ac3398114cc3501e8b: z21's ramdisk/header/size, kernel v7.3 + pmic-wdt + fuel gauge RFC + kernel/drv2624 0001-0004 as commits (tree walleye-build/wt-k-drv), dts vibrator@5a (reset gpio 95, motor values) from dt/. UFS-off gate and AVB pass, rebuild identical, tests/host/drv2624-builds.sh passes with the dtb. Programmer review: added checks for patch 0004 in the kernel and the motor values. Not booted. The keeper reads ls /sys/bus/i2c/devices, the 6-005a driver link and dmesg over the mainline shell.
+
+About
+: walleye-audio-haptics

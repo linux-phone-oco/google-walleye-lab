@@ -6998,10 +6998,10 @@ Rank
 ### A test image with the DRV2624 series, so the haptics chip can be probed on the phone
 
 Status
-: open
+: done
 
 Note
-: Decision 2026-11-19-walleye-audio-port-shape: one series per chip, the image is a second boot entry. haptics-chip-present (tests/health/base/amp-present.sh) runs on a phone with a Linux userland; on our test images the same reads (ls /sys/bus/i2c/devices, the driver link, dmesg) are made over the mainline shell by the keeper, no login and no password.
+: boot-drv1.img sha256 96e85804db5478aae4525266997dfcf65f6990493cbb00ac3398114cc3501e8b built, not tried; the i2c read is walleye-haptics-i2c-answers
 
 About
 : walleye-audio-haptics
