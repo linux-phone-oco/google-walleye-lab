@@ -2054,3 +2054,28 @@ Research
 
 Tracked by
 : walleye-ufs-match-prints
+
+
+<a id="2026-11-19-walleye-audio-haptics-way"></a>
+### 2026-11-19-walleye-audio-haptics-way
+
+Date
+: 2026-11-19
+
+Brief
+: Walleye haptics and speaker: write DRV2624 and a bypass-mode TAS2557 as small clean-room mainline drivers; speaker over ADSP/q6/MI2S first, WCD934x later
+
+Decision
+: Read first, no phone: the exact vendor audio routing and the minimal TAS2557 bring-up sequence. Then DRV2624 (input force-feedback, regmap, structured like drv2667) and TAS2557 (ASoC codec, DSP bypass, no firmware) as new clean-room drivers from datasheets and the GPL register use, each sent upstream. Speaker sound goes through ADSP remoteproc + q6 APR + quaternary MI2S + a machine driver on the sdm845 pattern; the WCD934x/SLIMbus codec (microphones) waits until the speaker is heard.
+
+Why
+: Mainline has neither chip's driver and no sibling has one, so something new is unavoidable; the smallest honest piece first gives certain progress. The speaker does not touch the WCD934x (amps sit on MI2S), so the codec, the longest and least known part, is not on the path to a first sound. Bypass mode needs no Android firmware, which keeps it upstreamable (mainline-first) and clean-room. Sources: research walleye-audio-haptics-ways.
+
+Rejected
+: Port the vendor tas2557 driver whole with its DSP firmware loader: large, needs Android firmware files, cannot go upstream. DRV2624 through drv260x/drv2667 by adding a compatible: register maps differ, a patch would pretend otherwise. PMI8998's built-in haptics: disabled on walleye, the actuator is on the DRV2624. WCD934x/SLIMbus first: longest unknown, and not needed for the speaker. Tfa989x for the amp: the chip on walleye is TAS2557 (tfa98xx is in the vendor tree but disabled).
+
+About
+: walleye-audio-haptics
+
+Research
+: walleye-audio-haptics-ways

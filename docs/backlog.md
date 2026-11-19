@@ -2807,10 +2807,10 @@ Proof
 ### Haptics (DRV2624) and speaker amps (TAS2557) with the WCD934x codec: drivers to write or port
 
 Status
-: open
+: done
 
 Note
-: Mainline has drv260x/drv2665/drv2667 (not DRV2624) and tas2552/2562/2764/2770/2780 (not TAS2557); porthole's patches 0018 and the audio ones are GPL starting points. The codec and the DSP firmware are the long part.
+: Research done 2026-11-19: decision 2026-11-19-walleye-audio-haptics-way; steps are walleye-audio-haptics-read onward.
 
 Blocked by
 : walleye-ufs-readonly
@@ -6316,3 +6316,178 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-audio-haptics-read"></a>
+### Read the vendor audio dts and the vendor TAS2557 driver: MI2S clocks, ADSP firmware, minimal amp register sequence
+
+Status
+: open
+
+Note
+: First step; settles the unknowns of research walleye-audio-haptics-ways. Reading only.
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: research row walleye-audio-routing-and-amp-sequence naming clocks, firmware, register sequence
+
+
+<a id="walleye-drv2624-driver"></a>
+### Write the DRV2624 haptics driver (input FF, regmap) and its dts node
+
+Status
+: open
+
+Note
+: Clean-room from datasheet; structure of drv2667. i2c_6 0x5a, reset gpio95.
+
+Blocked by
+: walleye-audio-haptics-read
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: walleye-haptics-driver-builds, then walleye-haptics-felt (a person)
+
+
+<a id="walleye-haptics-i2c-answers"></a>
+### Phone: i2c_6 shows 0x5a and the DRV2624 id register reads back
+
+Status
+: open
+
+Note
+: Keeper reads only; failing test haptics-chip-present in tests/health/base/amp-present.sh.
+
+Blocked by
+: walleye-ufs-readonly
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: haptics-chip-present
+
+
+<a id="walleye-tas2557-driver"></a>
+### Write the TAS2557 ASoC codec driver in DSP-bypass mode, with dts
+
+Status
+: open
+
+Note
+: Clean-room; no firmware. i2c_7 0x4c/0x4d, reset pm8998 gpio6.
+
+Blocked by
+: walleye-audio-haptics-read
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: walleye-tas2557-driver-builds, then amp-present-0x4c/0x4d
+
+
+<a id="walleye-adsp-q6-mi2s"></a>
+### ADSP remoteproc, q6 APR and quaternary MI2S sound card on msm8998 (sdm845 pattern)
+
+Status
+: open
+
+Note
+: Firmware from the vendor partition by the keeper's provisioning.
+
+Blocked by
+: walleye-tas2557-driver
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: sound-card in /proc/asound/cards (needs sound_cards in device.toml)
+
+
+<a id="walleye-tone-heard"></a>
+### A tone is heard from both speakers at low level
+
+Status
+: open
+
+Note
+: Quiet tone only; needs a witness.
+
+Blocked by
+: walleye-adsp-q6-mi2s,walleye-tas2557-driver
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: walleye-tone-heard (a person)
+
+Witness
+: person
+
+
+<a id="walleye-wcd934x-slimbus"></a>
+### WCD934x on SLIMbus: microphones (after the speaker is heard)
+
+Status
+: open
+
+Note
+: The long part; no sibling has it.
+
+Blocked by
+: walleye-tone-heard
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: research row for the SLIMbus NGD path, then a mic test

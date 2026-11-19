@@ -788,3 +788,74 @@ By
 
 Takes
 : a yoshino XZ1 with Samsung fw 0200 probed UFS on mainline several times with no erasure; he found no wipe path in the probe and asks the origin question nobody answers; no reply on record
+
+
+<a id="ti-drv2624-datasheet"></a>
+### DRV2624 haptic driver product page and datasheet
+
+Url
+: https://www.ti.com/product/DRV2624
+
+By
+: Texas Instruments
+
+Takes
+: register-level behaviour of the haptic chip (public datasheet, clean-room basis for a driver)
+
+
+<a id="ti-tas2557-datasheet"></a>
+### TAS2557 5.7-W Class-D mono audio amplifier with class-H boost and DSP
+
+Url
+: https://www.ti.com/lit/ds/symlink/tas2557.pdf
+
+By
+: Texas Instruments
+
+Takes
+: the amp has an on-chip DSP (SmartAmp); public datasheet is the clean-room basis for a bypass-mode driver
+
+
+<a id="aosp-msm-marlin-codecs"></a>
+### kernel/msm android-msm-marlin-3.18-oreo sound/soc/codecs
+
+Url
+: https://android.googlesource.com/kernel/msm/+/android-msm-marlin-3.18-oreo/sound/soc/codecs
+
+By
+: Google, Qualcomm, TI
+
+Takes
+: GPL vendor starting point: tas2557 and wcd934x sources of the wahoo/marlin-family kernels (read for register sequences, not copied wholesale)
+
+
+<a id="nura-taimen-wiki"></a>
+### Google Pixel 2 XL (google-taimen) - Nura Wiki
+
+Url
+: https://wiki.nura.eco/wiki/Google_Pixel_2_XL_(google-taimen)
+
+Year
+: 2026
+
+By
+: Casey (Kcxt)
+
+Takes
+: sibling Pixel 2 XL mainline status: boots, USB net, audio untested
+
+
+<a id="mainline-7-1-tree-read"></a>
+### Mainline 7.1 tree read for msm8998 audio, wcd934x, tas255x/tas27xx, drv26xx
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+
+Year
+: 2026
+
+By
+: kernel community
+
+Takes
+: what mainline has: wcd934x.c, tas2552/2562/2764/2770/2780/2781/2783, tfa989x, drv260x/2665/2667; no tas2557, no drv2624; msm8998.dtsi has no slimbus/audio/q6 nodes
