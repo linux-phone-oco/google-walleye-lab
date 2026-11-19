@@ -5328,6 +5328,8 @@ Note
 
 GO 2026-11-19: the author said "yes im next to both phones" (relayed by the top coordinator); the witnessed go is open for 30 minutes. KEEPER: run tests/host/ufs-off-image.sh on the z21 image first as always (do not boot if it fails); boot z21; AS SOON AS the host sees the input device (rmi4 / Synaptics in /proc/bus/input/devices over the network shell), SEND THE COORDINATOR ONE LINE: "ready" (the author then swipes for 20 s: drags across the whole glass and taps each corner); then start touch-read.sh with NOREBOOT=1 on the go; report pass or fail with the event counts; the init returns the phone to Android by itself.
 
+ATTENDED RUN 2026-11-19T02:34:19+01:00: THE AUTHOR IS AT THE PHONE NOW ("Yes, still here", relayed by the top coordinator; the go is open until 2026-11-19T04:04:19+01:00). A keeper launched by the coordinator after this line IS the attended run: do not wait for more proof of attendance, run it now: gate, boot z21, send the coordinator "ready" when the host sees the input device. No password file is needed (walleye has no ssh userland; do not use lpoco lab phone/suite/health): use lpoco lab keeper/fastboot, adb, tests/host scripts and telnet 172.16.43.1.
+
 About
 : walleye-first-fastboot-boot
 
@@ -5347,4 +5349,4 @@ Witness
 : person
 
 Go until
-: 2026-11-19T04:01:43+01:00
+: 2026-11-19T04:04:20+01:00
