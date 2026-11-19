@@ -3783,7 +3783,10 @@ Status
 : open
 
 Note
-: c4 probes the charger at boot, so by research walleye-c3-hang-how-it-stands it is expected to hang as c3 did: it waits for c5/c6 (restart gate) or is folded into the bisect; never the first try after c3.
+: WAITS, not for the keeper now: see the waits. Coordinator 2026-11-19: moved out of the keeper's order.
+
+Waits
+: the c5/c6 restart gate (research walleye-c3-hang-how-it-stands): c4 probes the charger at boot and is expected to hang as c3 did; never a first try; its image has UFS on
 
 Blocked by
 : walleye-ufs-off-gate
@@ -4882,10 +4885,10 @@ Rank
 ### Try z19 once from slot b (probe only): z17 with the overlay's last collision (pcie0) removed; does anything change versus z17?
 
 Status
-: open
+: done
 
 Note
-: Built by walleye-overlay-collisions. Expected: no visible change from z17 (pcie was disabled); proves the class is closed, not a touch fix.
+: NOT RUN, superseded: z21 booted with the overlay-collision class closed and the UFS-off gate (lab PR 343), which is what z19 would have shown; z19's image has UFS on and is on the NOT-TO-BOOT list. Recorded 2026-11-19 by the coordinator.
 
 Blocked by
 : walleye-ufs-off-gate
@@ -5581,6 +5584,31 @@ Needs
 
 Proof
 : the image boots to the usb0 shell seen by several witnesses with a clean dmesg, or the finding of what the series dts lacks; the result is a research row for the cover letter
+
+Rank
+: 1
+
+
+<a id="walleye-bootchain-readback-scripts"></a>
+### Write the boot-chain read-back reader and its check, test first, host selftest only
+
+Status
+: open
+
+Note
+: Build item, test first, for walleye-bootchain-readback (a keeper reads the phone afterwards; this item touches no phone). Write (1) tests/host/bootchain-readback-check.sh DIR: fails until DIR holds every expected file (the partition list in walleye-bootchain-readback's note: xbl_a xbl_b abl_a abl_b tz hyp rpm pmic devcfg keymaster cmnlib cmnlib64 storsec lockbooter apdp msadp both slots, plus ddr cdt sec devinfo, as .img), each with its measured size (xbl 8104 sectors) and a matching line in sha256sums, plus the partition table listing; and passes on a second read-back of the same bytes (compare the two sha256sums files); (2) tests/host/bootchain-readback.sh DIR: the reader, run by the keeper with adb root (Android is throw-away, root is allowed): for each partition `adb exec-out su -c 'dd if=/dev/block/by-name/NAME bs=4096'` (read only, never a write; the name list comes from `ls /dev/block/by-name` and a name missing there is reported, not guessed), the directory created mode 700 and the files mode 600, outside every repository (default ~/lab-material/walleye/bootchain-DATE/), sha256sums written, the table listing from `ls -l /dev/block/by-name` and `cat /proc/partitions`; it refuses to run when adb does not show the phone as device or battery is below the lab's rule. (3) a host selftest on a fake DIR (no phone) that makes the check fail first and pass after, with every edit and expectation stopping the job on failure. No proprietary file goes into git, nothing from the phone is committed: only the scripts. Never anything that writes to the phone. Land, then update walleye-bootchain-readback's note with the exact command.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: tests/host/bootchain-readback-check.sh fails on an empty DIR and on a missing or mismatched file and passes on a complete fake DIR twice; the reader script refuses without adb device; both shellcheck-clean as the lab's other scripts
 
 Rank
 : 1
