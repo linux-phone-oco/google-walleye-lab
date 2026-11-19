@@ -3076,3 +3076,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-night-pause"></a>
+### walleye lane: paused for the night, touch events still not known
+
+Entry date
+: 2026-11-19
+
+Done
+: The author paused for the night (relayed by the top coordinator): no new keeper, builder or research session until he or the top coordinator says resume; scheduled runs are disabled; no builder was running. Pixel 2 left on Android slot b, nothing flashed. Touch events on z21: Synaptics S3708AR bound (event1); the author swiped after the 20 s reader had closed; record corrected (research walleye-z21-touch-events-window-missed); go closed; the retry recipe sits in the item walleye-try-z21-touch-events (reader first and 90 s or more, /tmp/hold, ready at once, go of 90 minutes or more).
+
+Considered
+: Briefing a keeper directly as a subagent for the retry: held, since the author is away.
+
+Rejected
+: Reopening the go tonight: the author is not at the phone.
+
+About
+: walleye-first-fastboot-boot
