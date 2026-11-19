@@ -42,11 +42,3 @@ path = ["dt/msm8998-google-walleye-f.dts", "dt/msm8998-google-walleye-ufs.dts", 
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 grenudi"
 SPDX-License-Identifier = "GPL-2.0-only OR BSD-2-Clause"
-
-# The C probe says of itself "based on the idea of the kernel's tools/usb/ffs-test.c (GPL-2.0); this file is GPL-2.0 too":
-# its own word stands. The Rust helper (build/ffs-acm-rs) is our own code, MIT OR Apache-2.0 by the author's word.
-[[annotations]]
-path = ["build/ffs-acm/**"]
-precedence = "aggregate"
-SPDX-FileCopyrightText = "2026 grenudi"
-SPDX-License-Identifier = "GPL-2.0-only"

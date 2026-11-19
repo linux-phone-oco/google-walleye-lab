@@ -3316,3 +3316,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-retire-ffs-acm"></a>
+### walleye-builder: the lab's own FunctionFS helpers retired
+
+Entry date
+: 2026-11-19
+
+Done
+: Removed the C probe, the Rust helper, their build scripts, the n3/n3r image scripts and init-n3, the rust CI job and the GPL-2.0 REUSE annotation for the probe; README licence line now has no exception. Checks pass.
+
+Considered
+: Taking the helper from the lpoco-ffs-acm crate for some image: no current image needs one (mainline uses native configfs ACM/NCM/ECM). Keeping tests/host/ffs-acm-up.sh.
+
+Rejected
+: Keeping init-n3 without its scripts: nothing builds from it; git history holds it. Removing ffs-acm-up.sh: it is the proof of a done row.
+
+About
+: walleye-first-fastboot-boot

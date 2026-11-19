@@ -3267,10 +3267,10 @@ Rank
 ### Remove the C probe of the ffs helper (build/ffs-acm/ffs-acm.c and what only builds n3 from it) once n3r is tried
 
 Status
-: open
+: done
 
 Note
-: CI half split off as walleye-rust-ci-ffs-acm-rs (done). This half waits by the coordinator's order until the keeper has tried n3r (walleye-ffs-rust-try), so the C probe stays buildable until the Rust helper is shown on the phone.
+: Done with walleye-use-lpoco-ffs-acm: the C probe and its n3-only scripts are removed; n3r was tried (walleye-ffs-rust-try) and the route is parked.
 
 About
 : walleye-first-fastboot-boot
@@ -5044,10 +5044,10 @@ Rank
 ### Retire the lab's own ffs-acm helpers (Rust and C probe) for the shared lpoco-ffs-acm crate
 
 Status
-: open
+: done
 
 Note
-: Request from orchestration (2026-11-19). It also settles walleye-code-hygiene-rust-ci (the C probe removal).
+: Removed build/ffs-acm (C probe), build/ffs-acm-rs, build-ffs-acm-rs.sh, build-vendor-gadget-n3.sh, build-vendor-gadget-n3r.sh, initramfs-vendor5/init-n3, the rust CI job, the REUSE.toml GPL annotation and the README exception. No current build needs a FunctionFS helper (mainline images use native configfs ACM/NCM/ECM; the FunctionFS route is parked by 2026-11-17-walleye-ffs-console-parked), so nothing is taken from lpoco-ffs-acm. tests/host/ffs-acm-up.sh kept: it is the recorded proof of the done try row walleye-ffs-rust-try and touches no removed code. n3/n3r hashes stay in research and the log as history; the sources stay in git history. grep shows no reference left outside data/docs history. Checks: licence-check, shell syntax, check-init-serials, every host selftest pass.
 
 About
 : walleye-first-fastboot-boot

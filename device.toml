@@ -57,7 +57,7 @@ modules = ["usb_storage", "cdc_acm"]
 
 [[host.gadget]]
 serial = "walleye-first-boot"
-access = ["block", "tty"]          # /dev/sdX (mass_storage window m1) and /dev/ttyACM* (FunctionFS console n3)
+access = ["block", "tty"]          # /dev/sdX (mass_storage window m1) and /dev/ttyACM*
 
 # The device layer, declared once (decision 2026-11-19-device-layer-declared-once): each package format is generated
 # from it. Checked against lab-tools' manifest/device.schema.json by `lpoco-manifest check`. Facts only: no
