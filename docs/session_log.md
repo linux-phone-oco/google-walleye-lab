@@ -3418,3 +3418,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-research-ufs-reader"></a>
+### walleye-research: how to read UFS_HW_VERSION on live Android
+
+Entry date
+: 2026-11-19
+
+Done
+: Read the vendor wahoo 4.4 UFS source: register is 0xE4 (earlier rows said 0xE0), version is 3.0.0 or 3.1.0 for certain, no read-only path on Android. Decided: no module; the matched image reads it in its own probe. Closed items walleye-ufs-regs-reader and walleye-ufs-android-regs.
+
+Considered
+: A read-only module, debugfs reset_controller, vendor kernel as instrument, skipping
+
+Rejected
+: module and reset_controller (cost, bus-hang, write)
+
+About
+: walleye-first-fastboot-boot

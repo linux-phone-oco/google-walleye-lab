@@ -1603,3 +1603,31 @@ Research
 
 Tracked by
 : walleye-try-fuel-gauge
+
+
+<a id="2026-11-19-walleye-ufs-version-read-in-our-driver"></a>
+### 2026-11-19-walleye-ufs-version-read-in-our-driver
+
+Date
+: 2026-11-19
+
+Brief
+: No kernel module and no reset_controller to read UFS_HW_VERSION: the matched UFS image reads it (0xE4) in its own probe and picks the PHY table by it
+
+Decision
+: UFS_HW_VERSION (register 0xE4) and the PHY registers are not read on live Android. The matched image (item walleye-ufs-match-android-z) reads 0xE4 in its own ufs-qcom init, where the vendor driver reads it (clocks on, PHY not yet initialised), prints it, and selects the PHY rate-A table by it (3.0.0 or 3.1.0, as the vendor does; any other value: no PHY init and a stop, as the vendor's -ENODEV).
+
+Why
+: The vendor driver accepts only 3.0.0 and 3.1.0 and live Android's UFS works, so the version is one of two for certain; debugfs reaches only 0x00-0x9c, and the one debugfs path that dumps the vendor block (reset_controller) resets the host: not read-only. A module is a day of build against the unread Lineage 4.4.302 tree for one word, with a bus-hang risk on a clock-gated host. The author's wait holds the UFS probe anyway.
+
+Rejected
+: Read-only kernel module on live Android (cost and a bus-hang restart for one word; kept as a fallback only if a read before the try is asked for); debugfs reset_controller (writes, resets the disk's host); vendor kernel as instrument (same /dev/mem gap, host unclocked); guessing the table from mainline's equal-to-3.1.0 lines (not a reading)
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-ufs-regs-reader-verdict
+
+Tracked by
+: walleye-ufs-match-android-z
