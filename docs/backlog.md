@@ -7698,10 +7698,10 @@ Witness
 ### Stripe drawer: KD_GRAPHICS on /dev/tty0 while held, KD_TEXT after, console state in its log
 
 Status
-: open
+: done
 
 Note
-: From research walleye-display-stripes-brief-fbcon-repaints-the-stripes (decision 2026-11-19-walleye-stripes-text-mode-off-while-held). KDSETMODE = 0x4B3A, KD_TEXT 0, KD_GRAPHICS 1. Host only; no phone. Rank 5: after the UFS procedure.
+: Done 2026-11-19 (walleye-builder): tools/walleye-stripes plan() = ConsoleGraphics, Write, Pan, SetPar, Unblank, Hold, Clear, ConsoleText (no Hold when the draw failed; KD_TEXT always), tests green; main.rs does KDSETMODE on --tty (default /dev/tty0), logs /proc/consoles and vtcon name/bind. Carried by image B2 (build-display-look-image.sh, sha256 b9dbd162...), not by an L7: B2 is B1 plus this drawer. Seen on the glass only at the B2 look.
 
 About
 : walleye-display-s6e3fa5
@@ -7773,10 +7773,10 @@ Rank
 ### Pin the walleye procedures to lpoco-attended 0.34 (prompt and answer files, run --from, skip-when-in-state) and give the attended keeper orders their new form
 
 Status
-: open
+: in-progress
 
 Note
-: From the Top Coordinator, 2026-11-19: the lab runs lpoco 0.34.1 with attended prompt and answer files (~/.cache/lpoco-attended/<device>/prompt and answer), run --from and skip-when-in-state. For every attended walleye try from now on (the display look, the PMIC attended, UFS) pin the procedures to it; the keeper tells the Top Coordinator the device dir; the Top Coordinator reads the prompt and writes the author's words to the answer file. Supersedes walleye-person-answer-file (the library has it). This item also finishes walleye-try-settings-into-device-toml's follow-on: walleye-procedures-one-shape (the procedures/ move) can be done in the same change if it is still open.
+: Pin moved 2026-11-19 (walleye-builder): procedures/*.rs, tests/attended/*.rs, tools/walleye-tries and the CI install are all on lpoco-attended v0.35.1 (the shared walleye-tries crate must match the entry files' pin, else the library's state is two copies and the first step panics 'call procedure() before the first step'); check --host passes. Still open: the keeper orders (walleye-try-pmic-wdt-v1, display held try, walleye-try-ufs-match) in their new form, the AGENTS.md short-poll rule dropped, skip-when-in-state where it fits.
 
 About
 : walleye-attend-program-display
@@ -7870,10 +7870,10 @@ Rank
 ### B1: write the backlight through sysfs after boot and read the dsi errors
 
 Status
-: open
+: in-progress
 
 Note
-: From research walleye-backlight-write-minus-110-source-read; settles A vs B/C. Reads and one brightness write only, nothing flashed.
+: Program side done 2026-11-19 (walleye-builder): display-boot step backlight_is_written writes half of max_brightness to the first /sys/class/backlight/*/brightness, reads dmesg again, keeps backlight-lines.txt (the -110 line if it comes); in procedures/display-at-boot-on-the-pixel-2.rs on B2. Waits for the keeper's real run (walleye-display-look-b2).
 
 About
 : walleye-display-at-boot
@@ -8038,16 +8038,10 @@ Witness
 ### The author's look at the Pixel's screen as one command: B2 (display at boot plus the held stripes) and display-at-boot-on-the-pixel-2.rs on lpoco-attended 0.34 with the answer file
 
 Status
-: open
+: in-progress
 
 Note
-: CURRENT INSTRUCTION (2026-11-19, Top Coordinator after the RAM crash: the author is back and wants to SEE the screen; at most 3 sessions at once, the machine is short on RAM).
-
-WHAT: one image B2 and ONE procedure for the author's look at the Pixel: procedures/display-at-boot-on-the-pixel-2.rs (exists, PR 554) pinned to lpoco-attended 0.34 or newer (check the tag in lab-tools; dependency in its cargo block) with the prompt and answer files: ~/.cache/lpoco-attended/<device>/prompt and answer (the Top Coordinator reads the prompt and writes the author's words into the answer file; the keeper tells him the device dir). B2 = B1 (images-display-at-boot/boot-b1.img, the init loads the 13 display modules itself) PLUS the stripe drawer /bin/walleye-stripes of L6 with the fix of item walleye-stripes-kd-graphics (put /dev/tty0 in KD_GRAPHICS with KDSETMODE while the stripes are held, KD_TEXT after, also after a failed draw; log /proc/consoles and the vtcon name and bind; decision 2026-11-19-walleye-stripes-text-mode-off-while-held), if it is cheap; if the drawer part is not cheap, ship B1's look first and the stripes after.
-
-STEPS, entry file one screen, keys at the top of main (device.toml [images.b2], [procedures.display-at-boot-on-the-pixel-2]), UFS-off gate on B2 (it passes: no UFS node), the library's steps where they exist: battery and phone-state; the phone to fastboot; boot B2 once; wait for the gadget; read dmesg (13 modules, card0 and DSI-1 connected, the -110 backlight line if it comes: research walleye-display-backlight-timeout, decision 2026-11-19-backlight-first-write-after-first-frame); write the backlight once through sysfs (/sys/class/backlight/*/brightness, one value, item walleye-display-backlight-sysfs-write) and read dmesg again; look_for #1: the kernel log text on the glass from boot (the author saw it on L5 and L6); draw the stripes held in KD_GRAPHICS for 60 s; look_for #2: four vertical stripes red, green, blue, white, HELD; the way back; idle-android. Both look_for prompts say what to expect first.
-
-BAR before 'ready, one command' to the Top Coordinator: dry-run and lpoco-attended check --host pass; stand-in tests, clippy and fmt clean; programmer review; the answer file path is printed by --dry-run; then a keeper's unattended run for real that stops at look_for #1 ('nobody answered') with the phone back on Android; the record landed. A fresh worktree needs ln -s ~/Projects/walleye-build build/images first. Items done by this one when it lands: walleye-stripes-kd-graphics, walleye-display-backlight-sysfs-write (its program side), walleye-procedures-on-v0-34 (for this procedure).
+: BUILT 2026-11-19 (walleye-builder, branch walleye-display-look-b2): image B2 = B1 + /bin/walleye-stripes (new drawer: /dev/tty0 in KD_GRAPHICS while held, KD_TEXT after also on a failed draw, /proc/consoles and vtcon name/bind logged), sha256 b9dbd16290e7cbfe2a9550b80d5673b7bb5499be4f492f0a09b1508570038915, rebuilt identical, all build checks ok (control: ramdisk without the drawer is B1's byte for byte; UFS-off gate, AVB, one reset-gpio claimant). procedures/display-at-boot-on-the-pixel-2.rs now: gate, fastboot, boot B2, 13 modules, connector, display lines, backlight written once via sysfs + dmesg read again, look_for 1 (kernel log text), stripes held 60 s, look_for 2 (four stripes), drawer rc 0 + console back in KD_TEXT, way back. Pinned to lpoco-attended v0.35.1 (all procedures and the walleye-tries crate together). lpoco-attended check --host, --dry-run (19 steps), 111 stand-in tests, clippy, fmt pass. NOT DONE (the BAR): a keeper's unattended run for real that stops at look_for 1 ('nobody answered') with the phone back on Android; the programmer review. The answer file is ~/.cache/lpoco-attended/google-walleye/answer (prompt beside it); 0.35.1's --dry-run does not print that path, a real run does at the first ask.  --- ORIGINAL SPEC: CURRENT INSTRUCTION (2026-11-19, Top Coordinator after the RAM crash: the author is back and wants to SEE the screen; at most 3 sessions at once, the machine is short on RAM). WHAT: one image B2 and ONE procedure for the author's look at the Pixel: procedures/display-at-boot-on-the-pixel-2.rs (exists, PR 554) pinned to lpoco-attended 0.34 or newer with the prompt and answer files: ~/.cache/lpoco-attended/<device>/prompt and answer (the Top Coordinator reads the prompt and writes the author's words into the answer file; the keeper tells him the device dir). B2 = B1 (images-display-at-boot/boot-b1.img, the init loads the 13 display modules itself) PLUS the stripe drawer /bin/walleye-stripes of L6 with the fix of item walleye-stripes-kd-graphics (put /dev/tty0 in KD_GRAPHICS with KDSETMODE while the stripes are held, KD_TEXT after, also after a failed draw; log /proc/consoles and the vtcon name and bind; decision 2026-11-19-walleye-stripes-text-mode-off-while-held), if it is cheap; if the drawer part is not cheap, ship B1's look first and the stripes after. STEPS, entry file one screen, keys at the top of main (device.toml [images.b2], [procedures.display-at-boot-on-the-pixel-2]), UFS-off gate on B2, the library's steps where they exist: battery and phone-state; the phone to fastboot; boot B2 once; wait for the gadget; read dmesg (13 modules, card0 and DSI-1 connected, the -110 backlight line if it comes: research walleye-display-backlight-timeout, decision 2026-11-19-backlight-first-write-after-first-frame); write the backlight once through sysfs and read dmesg again; look_for #1: the kernel log text on the glass from boot; draw the stripes held in KD_GRAPHICS for 60 s; look_for #2: four vertical stripes red, green, blue, white, HELD; the way back; idle-android. Both look_for prompts say what to expect first. BAR before 'ready, one command' to the Top Coordinator: dry-run and lpoco-attended check --host pass; stand-in tests, clippy and fmt clean; programmer review; the answer file path is printed by --dry-run; then a keeper's unattended run for real that stops at look_for #1 ('nobody answered') with the phone back on Android; the record landed. A fresh worktree needs ln -s ~/Projects/walleye-build build/images first. Items done by this one when it lands: walleye-stripes-kd-graphics, walleye-display-backlight-sysfs-write (its program side), walleye-procedures-on-v0-34 (for this procedure).  --- REVIEW 2026-11-19 (programmer): fixed a rejected brightness write (kept as rc, run goes on), O_NOCTTY on tty0, an unopenable tty named; image rebuilt (sha b9dbd162). OPEN: the init's 600 s hold is the only deadman, so an author answering look 1 late loses the phone before the stripes (a longer deadman needs a new image); plan() in tools/walleye-stripes pins the order but run() is not driven by it.
 
 About
 : walleye-display-s6e3fa5
@@ -8056,10 +8050,10 @@ Opened
 : 2026-11-19
 
 Needs
-: build
+: phone
 
 Proof
-: image B2 (gate, AVB, rebuild identical, review) and the procedure: dry-run and 'lpoco-attended check --host' pass, the answer file path printed, a keeper's unattended run for real stops at the first look_for with the phone on Android; see the note's BAR
+: a keeper's unattended 'lpoco-attended run display-at-boot-on-the-pixel-2' for real: passes steps 1-12, stops at look_for 1 with 'nobody answered', the phone back on Android; then the author's two looks answered through the answer file
 
 Rank
 : 1

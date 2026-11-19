@@ -67,9 +67,71 @@ pub fn frame(g: &Geometry, stripes: bool) -> Result<Vec<u8>, String> {
     Ok(line.repeat(g.yres as usize))
 }
 
+/// One act of the drawer on the console and the framebuffer, in the order it is done.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Act {
+    /// KDSETMODE KD_GRAPHICS on /dev/tty0: fbcon stops repainting the text over the stripes
+    ConsoleGraphics,
+    Write,
+    Pan,
+    SetPar,
+    Unblank,
+    Hold,
+    Clear,
+    /// KDSETMODE KD_TEXT on /dev/tty0: the kernel log text comes back
+    ConsoleText,
+}
+
+/// The acts of one run (decision 2026-11-19-walleye-stripes-text-mode-off-while-held): the console is in
+/// KD_GRAPHICS before the draw and in KD_TEXT after the release, also when the draw failed (then nothing is held).
+pub fn plan(draw_failed: bool) -> Vec<Act> {
+    use Act::*;
+    let mut acts = vec![ConsoleGraphics, Write, Pan, SetPar, Unblank];
+    if !draw_failed {
+        acts.push(Hold);
+    }
+    acts.extend([Clear, ConsoleText]);
+    acts
+}
+
+/// KDSETMODE (linux/kd.h) and its two modes.
+pub const KDSETMODE: u64 = 0x4B3A;
+pub const KD_TEXT: u64 = 0;
+pub const KD_GRAPHICS: u64 = 1;
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_console_is_in_graphics_while_the_stripes_are_held_and_in_text_after() {
+        use Act::*;
+        assert_eq!(
+            plan(false),
+            [
+                ConsoleGraphics,
+                Write,
+                Pan,
+                SetPar,
+                Unblank,
+                Hold,
+                Clear,
+                ConsoleText
+            ]
+        );
+    }
+
+    #[test]
+    fn the_console_goes_back_to_text_also_when_the_draw_failed() {
+        let p = plan(true);
+        assert_eq!(p.last(), Some(&Act::ConsoleText));
+        assert!(!p.contains(&Act::Hold));
+    }
+
+    #[test]
+    fn the_kd_constants_are_the_kernels() {
+        assert_eq!((KDSETMODE, KD_TEXT, KD_GRAPHICS), (0x4B3A, 0, 1));
+    }
 
     fn xrgb(xres: u32, yres: u32) -> Geometry {
         Geometry {

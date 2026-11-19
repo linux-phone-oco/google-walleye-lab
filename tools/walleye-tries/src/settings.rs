@@ -15,7 +15,7 @@
 //! | the PMIC try's values | `[procedures.pmic-watchdog-v1-on-the-pixel-2] stay`, `bite_wait` |
 //! | the display try's values | `[images.l6]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
 //! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item` |
-//! | the display-at-boot try's values | `[images.b1]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules` |
+//! | the display-at-boot try's values | `[images.b2]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules, hold` |
 
 use lpoco_attended::prelude::{dev, proc};
 use std::path::PathBuf;
@@ -185,8 +185,9 @@ impl Settings {
                 s.out = s.out_dir("ufs");
             }
             Try::DisplayBoot => {
-                s.image = image("b1");
-                s.image_sha256 = dev("images.b1.sha256");
+                s.image = image("b2");
+                s.image_sha256 = dev("images.b2.sha256");
+                s.hold = number("hold", proc("hold"));
                 s.modules = number("modules", proc("modules"));
                 s.out = s.out_dir("display-boot");
             }
@@ -232,8 +233,8 @@ impl Settings {
             ("images.l6.path", "boot-l6.img"),
             ("hold", "60"),
             ("module_pause", "5"),
-            ("images.b1.path", "boot-b1.img"),
-            ("images.b1.sha256", "57ab"),
+            ("images.b2.path", "boot-b2.img"),
+            ("images.b2.sha256", "e4c8"),
             ("modules", "13"),
             ("images.ufs-match.path", "NOT-TO-BOOT-x/NOT-TO-BOOT-ufs.img"),
             ("images.ufs-match.sha256", "4610"),
@@ -288,10 +289,10 @@ mod tests {
     #[test]
     fn the_display_at_boot_try_reads_its_image_its_sha256_and_its_module_count() {
         let b = Settings::stand_in(Try::DisplayBoot);
-        assert_eq!(b.image, b.lab.join("images/boot-b1.img"));
-        assert_eq!((b.modules, b.image_sha256.as_str()), (13, "57ab"));
+        assert_eq!(b.image, b.lab.join("images/boot-b2.img"));
+        assert_eq!((b.modules, b.image_sha256.as_str()), (13, "e4c8"));
         assert!(b.out.ends_with(format!("display-boot-{}", b.day)));
-        assert_eq!((b.hold, b.module_pause), (0, 0));
+        assert_eq!((b.hold, b.module_pause), (60, 0));
     }
 
     /// Every key the program reads is in this lab's real device.toml (a renamed key fails here, not at the author's dry run).

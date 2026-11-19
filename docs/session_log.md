@@ -4669,3 +4669,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-display-look-b2"></a>
+### Display look image B2 and the procedure built
+
+Entry date
+: 2026-11-19
+
+Done
+: tools/walleye-stripes: plan() and KDSETMODE on /dev/tty0 (KD_GRAPHICS while held, KD_TEXT after, also after a failed draw), console state in its log; build/build-display-look-image.sh builds B2 = B1 + the drawer (control byte-for-byte, AVB, UFS-off gate, rebuild identical, b9dbd162...); walleye-tries display_boot: backlight write, stripes held, console checks, 5 new tests; procedures/display-at-boot-on-the-pixel-2.rs on B2 with two look_for; all pins to lpoco-attended v0.35.1
+
+Considered
+: shipping B1's look first and the stripes after: the drawer part was cheap (one plan function, one ioctl)
+
+Rejected
+: a separate L7 image for the KD fix: B2 carries it and is what the author looks at; running the aarch64 drawer on the host to test: not possible, its logic is the plan tests and the strings check in the image build
+
+About
+: walleye-display-s6e3fa5
