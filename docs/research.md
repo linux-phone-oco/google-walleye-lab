@@ -4720,6 +4720,25 @@ About
 : modem-calls
 
 
+<a id="walleye-display-stripes-look-result"></a>
+### walleye-display-stripes-look-result
+
+Date
+: 2026-11-19
+
+Brief
+: The author's look at the display procedure: the glass lights on mainline, fbcon text is visible, the stripes flashed briefly but did not hold
+
+Question
+: What did the author see on the Pixel 2's glass during the display stripes procedure?
+
+Found
+: The author's words, about 17:50 UTC 2026-11-19, relayed by the Top Coordinator, verbatim: "oh whit, i see the console output some persentage, also i saw it brifly blimp with red blue and green". Reading: (1) the glass LIGHTS on mainline, the first picture of ours on this phone; (2) fbcon text is visible on it (the console output, with a percentage, that is the kernel log on the glass); (3) the stripes showed red, blue and green (white not named) only briefly and did not hold for the 60 s the drawer held (exit 0, all ioctls 0). OPEN QUESTION: what took the framebuffer back from the drawer: fbcon repainting the console over fb0, or the drawer's own hold (item walleye-display-stripes-brief). The procedure's 'no answer' (research walleye-display-stripes-try2-no-answer) is a timing fault of the relay, not of the glass or the author: he answered at once, the Top Coordinator's relay sat queued while the keeper was blocked in its wait command and arrived after the timeout.
+
+About
+: walleye-display-s6e3fa5
+
+
 <a id="walleye-display-stripes-try2-no-answer"></a>
 ### walleye-display-stripes-try2-no-answer
 
@@ -4727,13 +4746,13 @@ Date
 : 2026-11-19
 
 Brief
-: Display stripes procedure ran for real: DSI-1 connected, drawer drew, but no witness answer reached it in 120 s; look_for FAILed on 'no', not on a seen-dark report
+: Display stripes procedure ran for real, the drawer drew; the author's answer reached it after the timeout, not unmeasured: see walleye-display-stripes-look-result
 
 Question
 : Does the Pixel 2 show four vertical stripes (red, green, blue, white) from procedures/display-stripes-on-the-pixel-2.rs?
 
 Found
-: 2026-11-19 18:47-18:53: battery 100, image sha b70feabf, UFS-off check ok, fastboot, shell answered, 13 modules loaded, DSI connector connected, drawer drew. LOOK NOW sent to the Top Coordinator (local_12b18c70) at 18:49:30; no relayed answer by the hold plus 30 s, so 'no' was fed per the item's orders. The FAIL therefore means NO ANSWER, not that the author saw dark glass: unmeasured, not broken (measured-not-claimed). Phone back on Android (phone-state android). Log: ~/lab-material/walleye/display-stripes-1795110464.log.
+: 2026-11-19 18:47-18:53: battery 100, image sha b70feabf, UFS-off check ok, fastboot, shell answered, 13 modules loaded, DSI connector connected, drawer drew. LOOK NOW sent to the Top Coordinator (local_12b18c70) at 18:49:30; no relayed answer by the hold plus 30 s, so 'no' was fed per the item's orders. The FAIL therefore means NO ANSWER, not that the author saw dark glass: unmeasured, not broken (measured-not-claimed). Phone back on Android (phone-state android). Log: ~/lab-material/walleye/display-stripes-1795110464.log. CORRECTION 2026-11-19: the look is NOT unmeasured. The author answered at once (about 17:50 UTC); the relay reached the keeper after its timeout because the keeper was blocked in a long wait command and a message reaches a session only at a tool round. His words and the result are in research walleye-display-stripes-look-result: the glass lights, fbcon text visible, the stripes flashed briefly.
 
 About
 : walleye-first-fastboot-boot
