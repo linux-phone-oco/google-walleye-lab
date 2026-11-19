@@ -5,6 +5,7 @@
 
 pub mod host;
 pub mod phone;
+pub mod pmic;
 pub mod reader;
 pub mod settings;
 pub mod touch;

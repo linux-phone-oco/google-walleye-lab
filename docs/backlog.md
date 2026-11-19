@@ -6063,10 +6063,10 @@ Rank
 ### One command for the PMIC watchdog v1 try: reboot test first, then the bite, the plain-words prompts built in, the way back
 
 Status
-: open
+: done
 
 Note
-: Safety order of the item walleye-try-pmic-wdt-v1 stays: reboot test first, bite last, nothing written to storage; if the phone powers off or loops, hold power about 15 s. Decision 2026-11-19-walleye-attended-tries-one-command. ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone. SHARED RUNNER (orchestration, 2026-11-19): write the program against lpoco-attended, the crate of lab-tools (dir attended/, example in attended/examples/), used from a rust-script entry file with a cargo git dependency on linux-phone-oco/lab-tools at tag lpoco-attended-vX.Y.Z (orchestration sends the tag; until then a path dependency on the lab-tools builder's worktree or branch). Entry file: use lpoco_attended::prelude::*; then in order procedure("name", "google-walleye"); step("what", || ...); check("what must hold", || ...); ask_author("what to do, what to check"); each stops the run on failure; phone() reaches the device through devlab; --dry-run and the log come from the library. Our own plumbing (readers, parsing, retries) goes in helper modules of this lab, not in the entry file and not in a copy of the runner. Anything the runner lacks: write it in a note in the shared notes folder for orchestration (what is missing, which step needed it); do not work around it with your own runner. CORRECTION (orchestration, 2026-11-19, lab-tools tag lpoco-v0.28.3, #243): the runner is released and lives in lpoco-bringup, NOT in a crate of its own: dependency lpoco-bringup = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-v0.28.3" }; use lpoco_bringup::attended::*; entry = procedure("name").run(|p| { p.step("..", phone("..").retry(3,1))?; p.ask_author("what to do", "what to check")?; p.check("..", phone("..").expect(".."))?; Ok(()) }); phone(..) runs as the phone user, phone_root(..) as root, sh(..) on the host; --dry-run, --log FILE, --help come from the library; copy bringup/examples/attended.rs. Where this paragraph and the older 'lpoco-attended' wording differ, this one holds. Device-agnostic steps keyed to bring-up step ids (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) are coming in lab-tools: write ours inline for now and name the ones we would want in the library (note in the shared notes folder for orchestration). FINAL CORRECTION (orchestration, 2026-11-19, lab-tools #247, tag lpoco-attended-v0.29.0): the attended runner is its own crate again and the lpoco_bringup::attended module is removed; this paragraph replaces the earlier two (lpoco-attended vX.Y.Z, then lpoco-v0.28.3). Dependency: lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.29.0" }; use lpoco_attended::prelude::*; let _run = procedure("name", "google-walleye"); (keep it bound) then step("what", || ..), check("what", || ..) (returns (), bool or Result; false or Err stops and names the step), ask_author("what to do / what to check"), phone().sh(..) / phone().root(..), retry(tries, secs, || ..); --dry-run runs no closure; --log FILE; copy attended/examples/attended.rs. Library steps (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) come next in lab-tools: write ours inline for now and tell orchestration which are needed (note walleye-to-orchestration-attended-steps-wanted.md).
+: Built: tests/attended/pmic-try.rs (23 named steps, shared runner lpoco-attended-v0.29.0) over tools/walleye-tries/src/pmic.rs; dry-run lists all steps; 29 stand-in tests (reboot test then bite; type-not-7 stops; no arming without the S2 check; bite needs two witnesses; refused arming), clippy and fmt clean; images A and B hash-checked and pass the UFS-off gate on the host; programmer review answered (self-reboot held by /tmp/hold while the author reads; per-boot file names; guard carried by arg()). No phone touched. Keeper's unattended run: walleye-attend-pmic-unattended-run; attended try walleye-try-pmic-wdt-v1.
 
 About
 : walleye-pmic-wdt-v1-image
@@ -6678,3 +6678,53 @@ Needs
 
 Proof
 : a research row naming which driver walleye builds and why, and walleye's dts written to the binding chosen
+
+
+<a id="walleye-attend-pmic-unattended-run"></a>
+### Keeper: the PMIC program's unattended parts run for real
+
+Status
+: open
+
+Note
+: Run tests/attended/pmic-try.rs from this lab's folder with standard input from /dev/null: gates, boot of A, shell, S2 type read (and /tmp/hold set) must pass; the run stops at the first ask with 'nobody answered' (arms nothing, no bite). Then reboot to Android by adb reboot, check tests/host/idle-android.sh. Record the program's log and the wdt-state line (is S2 type read or only by probe?). The A->B fallback is not exercised by stand-ins.
+
+About
+: walleye-attend-program-pmic
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the log shows the steps up to the first ask pass; idle-android passes
+
+Rank
+: 5
+
+
+<a id="walleye-tries-shared-lab-plumbing"></a>
+### walleye-tries: one shared Lab type for the plumbing touch and pmic both copy
+
+Status
+: open
+
+Note
+: Programmer review of the PMIC program: shell, script, save, battery_is_good, boot, shell_answers, android_is_back are copied between touch.rs and pmic.rs; move into host.rs or a Lab type. Also: an Image enum for A/B; the A->B fallback has no stand-in test and decides on gadget-up.sh alone (item says several witnesses, phone-state.sh); the bite pass could also check bootreason and the slot; arming_said needs 'rebooting cleanly now' though reboot -f follows at once.
+
+About
+: walleye-attend-program-pmic
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: both tries on one Lab type, tests pass
+
+Rank
+: 20

@@ -91,6 +91,56 @@ contract! {
         summary: "This lab's folder, where device.toml and tests/host are (default: the folder the program runs in).",
         ..Input::EMPTY
     };
+
+    IMAGE_A: String = Input {
+        key: "image_a",
+        ty: Type::String,
+        env: Some(Env::new("WALLEYE_TRY_IMAGE_A")),
+        summary: "PMIC watchdog try, image A (next + the six patches; default: images-wdt1/boot-wdt1-a.img of ~/Projects/walleye-build).",
+        ..Input::EMPTY
+    };
+
+    IMAGE_B: String = Input {
+        key: "image_b",
+        ty: Type::String,
+        env: Some(Env::new("WALLEYE_TRY_IMAGE_B")),
+        summary: "PMIC watchdog try, image B, the fallback when A shows no banner (v7.3 + the patches; default: images-wdt1/boot-wdt1-b.img).",
+        ..Input::EMPTY
+    };
+
+    STAY: u64 = Input {
+        key: "stay",
+        ty: Type::Uint,
+        default: Some(180),
+        env: Some(Env::new("WALLEYE_TRY_STAY")),
+        summary: "Seconds Android must stay up after the clean reboot with no restart (the test's PASS: three minutes).",
+        ..Input::EMPTY
+    };
+
+    BITE_WAIT: u64 = Input {
+        key: "bite_wait",
+        ty: Type::Uint,
+        default: Some(150),
+        env: Some(Env::new("WALLEYE_TRY_BITE_WAIT")),
+        summary: "Seconds to see the phone restart by itself after the bite is armed (20 s timeout; a restart loop of about 20 s is expected after).",
+        ..Input::EMPTY
+    };
+
+    ADB: String = Input {
+        key: "adb",
+        ty: Type::String,
+        env: Some(Env::new("WALLEYE_TRY_ADB")),
+        summary: "The adb program (adb when none is given); a test points it at a stand-in.",
+        ..Input::EMPTY
+    };
+
+    FASTBOOT: String = Input {
+        key: "fastboot",
+        ty: Type::String,
+        env: Some(Env::new("WALLEYE_TRY_FASTBOOT")),
+        summary: "The fastboot program (fastboot when none is given); a test points it at a stand-in.",
+        ..Input::EMPTY
+    };
 }
 
 /// The settings of one try, every default filled in.
@@ -106,6 +156,16 @@ pub struct Settings {
     pub address: String,
     pub port: u16,
     pub lpoco: String,
+    pub adb: String,
+    pub fastboot: String,
+    /// the PMIC watchdog try: image A, image B, how long Android stays up, how long the bite may take
+    pub image_a: PathBuf,
+    pub image_b: PathBuf,
+    pub stay: u64,
+    pub bite_wait: u64,
+    /// where a try saves what it reads when the author named none (OUT), by the try's name
+    pub out_given: Option<PathBuf>,
+    pub day: String,
 }
 
 impl Settings {
@@ -151,8 +211,32 @@ impl Settings {
             lpoco: Contract::LPOCO
                 .get_from(r)
                 .unwrap_or_else(|| "lpoco".into()),
+            adb: Contract::ADB.get_from(r).unwrap_or_else(|| "adb".into()),
+            fastboot: Contract::FASTBOOT
+                .get_from(r)
+                .unwrap_or_else(|| "fastboot".into()),
+            image_a: Contract::IMAGE_A
+                .get_from(r)
+                .map(PathBuf::from)
+                .unwrap_or_else(|| home.join("Projects/walleye-build/images-wdt1/boot-wdt1-a.img")),
+            image_b: Contract::IMAGE_B
+                .get_from(r)
+                .map(PathBuf::from)
+                .unwrap_or_else(|| home.join("Projects/walleye-build/images-wdt1/boot-wdt1-b.img")),
+            stay: Contract::STAY.get_from(r).unwrap_or(180),
+            bite_wait: Contract::BITE_WAIT.get_from(r).unwrap_or(150),
+            out_given: Contract::OUT.get_from(r).map(PathBuf::from),
+            day: day.to_string(),
             lab,
         }
+    }
+
+    /// Where the try called `name` saves what it reads: the author's OUT, else a folder of the lab's material (mode 700, never in git).
+    pub fn out_dir(&self, name: &str) -> PathBuf {
+        self.out_given.clone().unwrap_or_else(|| {
+            let home = PathBuf::from(std::env::var("HOME").unwrap_or_else(|_| ".".into()));
+            home.join(format!("lab-material/walleye/{name}-{}", self.day))
+        })
     }
 
     pub fn device_toml(&self) -> PathBuf {
