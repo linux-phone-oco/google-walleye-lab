@@ -82,7 +82,7 @@ method = "extract-from-partitions"
 
 # No UCM files and no udev files yet: walleye has no sound card and no udev userland of ours. Not invented.
 
-# The boot glue for [layer.boot]: header v0 as the recorded boot images carry it (z21; its diagnostic dyndbg words left out of the cmdline); [boot.gadget] comes with walleye-init-from-roof.
+# The boot glue for [layer.boot]: header v0 as the recorded boot images carry it (z21; its diagnostic dyndbg words left out of the cmdline).
 [boot]
 header_version = 0
 base = 0x0
@@ -100,3 +100,13 @@ dtb = "qcom/msm8998-google-walleye.dtb"   # appended to the kernel
 kernel_compression = "gzip"
 ramdisk_compression = "xz"
 avb_footer = true
+
+# The USB gadget our init raises, declared for `lpoco-bringup initramfs init` (item walleye-init-from-roof): the names are the ones every
+# init of ours already sets (check-init-serials.sh). Declared only: no build of ours uses the generated init yet, because it still lacks
+# the 180 s hold, the watchdog petter, the raw command loop and the banner (research walleye-generated-init-gaps). console is the default acm
+# (configfs ACM beside ECM); rndis false: none of our images has the second configuration.
+[boot.gadget]
+serial = "walleye-first-boot"
+product = "Pixel 2 walleye (mainline banner shell)"
+label = "walleye-init"
+rndis = false

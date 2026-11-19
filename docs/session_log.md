@@ -3178,3 +3178,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-init-gaps"></a>
+### walleye-builder: the generated init compared with ours
+
+Entry date
+: 2026-11-19
+
+Done
+: Declared [boot.gadget] in device.toml; generated the init and files with lpoco-bringup 0.24.0 and compared them with init-z14 and init-wdt1; recorded the gaps (research walleye-generated-init-gaps); sent them to the coordinator for orchestration
+
+Considered
+: Switching build/ to the generated init with the missing parts bolted on in walleye's own scripts
+
+Rejected
+: Retiring the init variants now: the generated init has no petter, no hold, no raw command loop and no banner, so the phone tries would lose their 180 s self-reboot; item stays open until the roof covers them
+
+About
+: walleye-first-fastboot-boot
