@@ -7253,34 +7253,6 @@ Rank
 : 2
 
 
-<a id="walleye-try-settings-into-device-toml"></a>
-### Move the WALLEYE_TRY_* settings into device.toml, under the tables that already hold those facts
-
-Status
-: open
-
-Note
-: Orchestration, 2026-11-19: the procedure names its device and its values come from that device.toml, not from environment variables. Do it with the procedures/ move (walleye-procedures-one-shape): same change or the one just before it. Until then the existing programs keep their settings. LPOCO-ATTENDED v0.31.0 (orchestration, lab-tools #266, 2026-11-19): physical steps over a Bench (press_power, hold_button, unplug_usb, replug_usb, touch, swipe, look_for, listen_for, confirm; a person by default, --dry-run lists the doer; ask_author is confirm); boot_once and back_to_known_good read device.toml [kernels] test and kept, a missing key or an unlisted name exits 2 naming it, dry run too. Declare [kernels] and [[host.gadget]] usb_id in this lab's device.toml; programs pinned to v0.29.x keep working until moved. NOW READY (the wait is gone). Order: this item first, then walleye-procedures-one-shape.
-
-Waits
-: orchestration: lab-tools manifest keys for the attended settings (port, images folder and paths, timings window/min_window/device_wait/back_wait/stay/bite_wait, battery floor, adb/fastboot/lpoco paths): lpoco-manifest is deny_unknown_fields and refuses them; note walleye-to-orchestration-manifest-keys.md in the shared notes folder; then a lpoco-attended release that reads them. The builder's attempt (2026-11-19) landed nothing.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: every WALLEYE_TRY_* setting of tools/walleye-tries/src/settings.rs is a key of this lab's device.toml, in the table that already holds that fact ([boot], [boot.gadget], the network address and port, the images folder, the battery floor and so on); a new key only where no table holds the fact; settings.rs and the programs read them through the library's named-key reads and no device fact is read from an environment variable; a missing key fails the program's --dry-run; the stand-in tests still pass; the README and the program notes name the keys; [kernels] test and kept and [[host.gadget]] usb_id declared in device.toml
-
-Rank
-: 4
-
-
 <a id="walleye-attend-program-display"></a>
 ### One command for the display try: a Rust program that boots the display image, reads the console and the DRM connector, shows the stripes, prompts the author and returns the phone to Android
 
@@ -7363,3 +7335,31 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-try-settings-into-device-toml"></a>
+### Move the WALLEYE_TRY_* settings into device.toml, under the tables that already hold those facts
+
+Status
+: open
+
+Note
+: Orchestration, 2026-11-19: the procedure names its device and its values come from that device.toml, not from environment variables. Do it with the procedures/ move (walleye-procedures-one-shape): same change or the one just before it. Until then the existing programs keep their settings. LPOCO-ATTENDED v0.31.0 (orchestration, lab-tools #266, 2026-11-19): physical steps over a Bench (press_power, hold_button, unplug_usb, replug_usb, touch, swipe, look_for, listen_for, confirm; a person by default, --dry-run lists the doer; ask_author is confirm); boot_once and back_to_known_good read device.toml [kernels] test and kept, a missing key or an unlisted name exits 2 naming it, dry run too. Declare [kernels] and [[host.gadget]] usb_id in this lab's device.toml; programs pinned to v0.29.x keep working until moved. NOW READY (the wait is gone). Order: this item first, then walleye-procedures-one-shape. THE MAP (orchestration, docs #662): [connection] shell port and address; [tools] adb, fastboot beside lpoco; [health] battery floor in mV and how it is read; [boot] device_wait, back_wait; [images] dir and [images.NAME] path and sha256 (z21, pmic A and B, the L-images); [procedures.NAME] for window, min_window, stay, bite_wait and the other one-procedure values. Each WALLEYE_TRY_* setting goes to the key that names it; none stays an environment variable.
+
+Waits
+: orchestration: lab-tools manifest-attended-keys (rank 3 there; decision 2026-11-19-attended-keys-in-the-manifest, docs #662); orchestration sends the tag when it releases, then this unblocks
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: every WALLEYE_TRY_* setting of tools/walleye-tries/src/settings.rs is a key of this lab's device.toml, in the table that already holds that fact ([boot], [boot.gadget], the network address and port, the images folder, the battery floor and so on); a new key only where no table holds the fact; settings.rs and the programs read them through the library's named-key reads and no device fact is read from an environment variable; a missing key fails the program's --dry-run; the stand-in tests still pass; the README and the program notes name the keys; [kernels] test and kept and [[host.gadget]] usb_id declared in device.toml
+
+Rank
+: 4
