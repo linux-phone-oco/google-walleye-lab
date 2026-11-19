@@ -4012,3 +4012,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-1610-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up and now left rooted-debugging as the author set it. TAS2557 PG21 firmware pulled read-only to ~/lab-material/walleye/tas2557 (mode 600, never git). Suite latest not read: password file missing.
+
+Considered
+: next: walleye-attend-pmic-unattended-run, walleye-haptics-i2c-answers, walleye-tas2557-driver; builder z21-hold-init; password file for lpoco lab suite
+
+About
+: walleye-audio-haptics
