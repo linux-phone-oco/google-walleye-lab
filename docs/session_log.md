@@ -3481,3 +3481,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-2350-how-the-phone-stands"></a>
+### How the phone stands (display bisect)
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up; display bisect: d0 shell ok, d1 loses it (Android in 57 s), d2 not tried; item walleye-try-display-bisect done
+
+Considered
+: next: split d1's mdss vs display controller nodes (builder); z21 touch gpio section; walleye-ufs-android-regs needs a mem reader; pmic-wdt items parked
+
+About
+: walleye-display-s6e3fa5

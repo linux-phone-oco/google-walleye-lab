@@ -5699,10 +5699,10 @@ Rank
 ### Try d0, d1, d2 once each from slot b, in order, and read whether the mainline shell comes up; stop at the first that loses it
 
 Status
-: open
+: done
 
 Note
-: UNATTENDED, NO PERSON, 2026-11-19: the author's words (via the Top Coordinator): "can they first make sure it boots and they have console then ask me to look ?" - decision 2026-11-19-walleye-display-console-before-eyes. Do not ask him to look at the panel for d0, d1 or d2. The mainline shell is telnet 172.16.43.1 without password (tests/host/mainline-shell-read.sh; no root, no ssh, nothing to add): if it does not answer, the kernel did not reach the gadget: say so and read pstore and the boot reason after Android is back. Order d0 (display kernel, z21 dtb: contrast), d1 (mdss + display controller), d2 (+ dsi, phy, no panel). Only when an image WITH the panel boots with a working shell and the dmesg, the probe lines and the connector are already read: send the coordinator 'look now' (stripes alone) and hold /tmp/hold. Earlier line: Research walleye-display-try1-author-saw (try 1: logo, black, Lineage in under a minute).
+: proven by d0 shell up, d1 lost it (57 s to Android), stopped at d1; research walleye-display-bisect-d1-loses-the-shell. Next: split d1's mdss and display-controller nodes to see which loses the shell (a builder piece)
 
 Blocked by
 : walleye-display-bisect-images

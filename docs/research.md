@@ -3662,3 +3662,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-bisect-d1-loses-the-shell"></a>
+### walleye-display-bisect-d1-loses-the-shell
+
+Date
+: 2026-11-19
+
+Brief
+: Display bisect: d0 (display kernel, z21 dtb) boots a shell, 335 dmesg lines, no drm; d1 (mdss + display controller) loses it: Android back after 57 s
+
+Question
+: Which of d0, d1, d2 first loses the mainline shell, from slot b, unattended?
+
+Found
+: d0: left fastboot 15 s, gadget 1d6b:0104 at 18 s, reader 16 answers, dmesg 335 lines, class/drm empty (no display nodes, as built); material ~/lab-material/walleye/d0-try1. d1: gate and battery (4376 mV) passed; left fastboot 15 s, no mainline gadget, Android adb back after 57 s (dead-kernel path), reader found no ttyACM0 in 60 s; Android's boot reason property says bootloader (its own last reboot, not informative), pstore not readable without root; material ~/lab-material/walleye/d1-try1. Stopped at d1 as the item says; d2 not tried. So the mdss and display-controller nodes (d1 over d0) are what lose the shell. Slot b, nothing flashed, phone on Android slot b, adb up. The author was not asked to look.
+
+About
+: walleye-display-s6e3fa5
