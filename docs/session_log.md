@@ -3826,3 +3826,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-0400-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up, idle-android pass. Touch program unattended run 2 clean (no hand step). Suite latest not read: password file missing.
+
+Considered
+: next: keeper walleye-attend-pmic-unattended-run, walleye-tas2557-firmware-source, walleye-haptics-i2c-answers; builder z21-hold-init, L3 dsi vdd-supply; password file for lpoco lab suite
+
+About
+: walleye-attend-program-touch
