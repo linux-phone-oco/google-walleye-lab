@@ -4753,34 +4753,6 @@ Rank
 : 1
 
 
-<a id="walleye-ufs-match-android-z"></a>
-### Build a z image whose UFS path matches Android's for this card: SAVECONFIGTIME only, the PHY table of the version read, ICE and rail loads, a card RST_n pulse (built and reviewed, NOT tried)
-
-Status
-: open
-
-Note
-: From research walleye-ufs-android-way-compared. The RST_n pulse needs a kernel change (tlmm ngpios or pinctrl states): decide which first. Drop ONE_TX_LANE, EXTEND_SYNC_LENGTH, DELAY_BEFORE_LPM for this card; keep the NO_PURGE guard.
-
-Blocked by
-: walleye-ufs-android-regs
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: a built image whose quirks for H28U74301AMR equal the vendor's, with the programmer review; try waits for the author's word
-
-Rank
-: 3
-
-
 <a id="walleye-ufs-regs-reader"></a>
 ### How to read UFS_HW_VERSION and the PHY registers on live Android (no /dev/mem): debugfs, a read-only module, or skip
 
@@ -5471,6 +5443,59 @@ Rank
 : 4
 
 
+<a id="walleye-display-image-clock-gcc"></a>
+### Rebuild the display image with /__symbols__/clock_gcc at the real gcc (tests/host/overlay-clock-gcc.sh fails on boot-display.img's dtb)
+
+Status
+: open
+
+Note
+: Found by walleye-builder while building the PMIC v1 images (research walleye-pmic-wdt-v1-images-built): build-display-image.sh takes the dtb from build-display.sh and never runs z3's fdtput of clock_gcc; on images-display/msm8998-google-walleye-display.dtb the test says clocks[0]=321 want 36 for i2c@c179000, serial@c16f000, bt_wcn3990 and mnh-sm, so the touch i2c and the serial may wait on the empty stub as before z3. Change build-display-image.sh (or build-display.sh) the way build-pmic-wdt-v1.sh does (copy the dtb, fdtput, check before and after) and add overlay-clock-gcc to its checks. The display try waits for the attended visit anyway: say the new hash in walleye-try-display.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: overlay-clock-gcc passes on the display image's dtb (the four overlay clock users name the real gcc), the UFS gate passes, the image rebuilt and hashed; the try item walleye-try-display notes the new hash
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-match-android-z"></a>
+### Build a z image whose UFS path matches Android's for this card: SAVECONFIGTIME only, the PHY table of the version read, ICE and rail loads, a card RST_n pulse (built and reviewed, NOT tried)
+
+Status
+: open
+
+Note
+: From research walleye-ufs-android-way-compared. The RST_n pulse needs a kernel change (tlmm ngpios or pinctrl states): decide which first. Drop ONE_TX_LANE, EXTEND_SYNC_LENGTH, DELAY_BEFORE_LPM for this card; keep the NO_PURGE guard.
+
+Blocked by
+: walleye-ufs-android-regs
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: a built image whose quirks for H28U74301AMR equal the vendor's, with the programmer review; try waits for the author's word
+
+Rank
+: 80
+
+
 <a id="walleye-display-s6e3fa5"></a>
 ### Display: Samsung S6E3FA5 command-mode panel through DPU/DSI
 
@@ -5499,29 +5524,4 @@ Proof
 : the DRM connector is connected and a test pattern is seen by a person (test: walleye-display-pattern)
 
 Rank
-: 3
-
-
-<a id="walleye-display-image-clock-gcc"></a>
-### Rebuild the display image with /__symbols__/clock_gcc at the real gcc (tests/host/overlay-clock-gcc.sh fails on boot-display.img's dtb)
-
-Status
-: open
-
-Note
-: Found by walleye-builder while building the PMIC v1 images (research walleye-pmic-wdt-v1-images-built): build-display-image.sh takes the dtb from build-display.sh and never runs z3's fdtput of clock_gcc; on images-display/msm8998-google-walleye-display.dtb the test says clocks[0]=321 want 36 for i2c@c179000, serial@c16f000, bt_wcn3990 and mnh-sm, so the touch i2c and the serial may wait on the empty stub as before z3. Change build-display-image.sh (or build-display.sh) the way build-pmic-wdt-v1.sh does (copy the dtb, fdtput, check before and after) and add overlay-clock-gcc to its checks. The display try waits for the attended visit anyway: say the new hash in walleye-try-display.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: overlay-clock-gcc passes on the display image's dtb (the four overlay clock users name the real gcc), the UFS gate passes, the image rebuilt and hashed; the try item walleye-try-display notes the new hash
-
-Rank
-: 3
+: 90
