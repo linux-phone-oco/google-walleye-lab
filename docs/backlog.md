@@ -4533,7 +4533,7 @@ Status
 : open
 
 Note
-: From research 2026-11-18-walleye-edl-way-back: adb root, dd each partition to the host: xbl_a xbl_b abl_a abl_b tz hyp rpm pmic devcfg keymaster cmnlib cmnlib64 storsec lockbooter apdp msadp both slots, plus ddr cdt sec devinfo; compare sizes with the measured ones (xbl 8104 sectors). Mode 600, outside every repository; write sha256sums and the partition table listing. Read only: nothing on the phone changes. Restores nothing without a matching programmer.
+: Keeper, Android up, adb root, battery rule passing: sh tests/host/bootchain-readback.sh   (default DIR ~/lab-material/walleye/bootchain-DATE/), then a second read: sh tests/host/bootchain-readback.sh DIR2 and sh tests/host/bootchain-readback-check.sh DIR DIR2. The reader runs the check itself. Optional XBL_SECTORS=8104 (SECTOR_BYTES default 512) asserts xbl; the sector size of that 8104 is not known yet, the phone's own measured sizes bind.
 
 About
 : walleye-first-fastboot-boot
@@ -5593,10 +5593,10 @@ Rank
 ### Write the boot-chain read-back reader and its check, test first, host selftest only
 
 Status
-: open
+: done
 
 Note
-: Build item, test first, for walleye-bootchain-readback (a keeper reads the phone afterwards; this item touches no phone). Write (1) tests/host/bootchain-readback-check.sh DIR: fails until DIR holds every expected file (the partition list in walleye-bootchain-readback's note: xbl_a xbl_b abl_a abl_b tz hyp rpm pmic devcfg keymaster cmnlib cmnlib64 storsec lockbooter apdp msadp both slots, plus ddr cdt sec devinfo, as .img), each with its measured size (xbl 8104 sectors) and a matching line in sha256sums, plus the partition table listing; and passes on a second read-back of the same bytes (compare the two sha256sums files); (2) tests/host/bootchain-readback.sh DIR: the reader, run by the keeper with adb root (Android is throw-away, root is allowed): for each partition `adb exec-out su -c 'dd if=/dev/block/by-name/NAME bs=4096'` (read only, never a write; the name list comes from `ls /dev/block/by-name` and a name missing there is reported, not guessed), the directory created mode 700 and the files mode 600, outside every repository (default ~/lab-material/walleye/bootchain-DATE/), sha256sums written, the table listing from `ls -l /dev/block/by-name` and `cat /proc/partitions`; it refuses to run when adb does not show the phone as device or battery is below the lab's rule. (3) a host selftest on a fake DIR (no phone) that makes the check fail first and pass after, with every edit and expectation stopping the job on failure. No proprietary file goes into git, nothing from the phone is committed: only the scripts. Never anything that writes to the phone. Land, then update walleye-bootchain-readback's note with the exact command.
+: Done: tests/host/bootchain-readback.sh, bootchain-readback-check.sh, bootchain-readback-selftest.sh (CI job bootchain-readback); selftest passes, fails against a stub check. Reviewed by programmer, five findings fixed.
 
 About
 : walleye-first-fastboot-boot
