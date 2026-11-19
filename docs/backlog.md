@@ -7507,3 +7507,31 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-host-lpoco-matches-manifest"></a>
+### The host's installed lpoco (0.24.0) accepts this lab's device.toml (manifest v0.32 keys)
+
+Status
+: open
+
+Note
+: Found 2026-11-19 by the stripes keeper (PR 524) and confirmed here: 'lpoco lab keeper status' in a worktree of main fails reading device.toml at line 14 (shell_address, added by the settings move, PR 522). Every lpoco lab call from main fails until the host's lpoco is as new as the manifest. Not mine to install (the host prepare is orchestration's).
+
+Waits
+: orchestration: a host prepare to an lpoco release whose manifest is v0.32 or later (note walleye-to-orchestration-installed-lpoco-too-old.md in the shared notes folder); they tell the version
+
+About
+: walleye-attend-program-touch
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: lpoco lab keeper status and lpoco lab fastboot state run from a fresh worktree of main without a TOML error; the keeper takes and releases a lease from a fresh worktree
+
+Rank
+: 1
