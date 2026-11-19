@@ -6580,7 +6580,7 @@ Note
 : Orchestration, 2026-11-19: the procedure names its device and its values come from that device.toml, not from environment variables. Do it with the procedures/ move (walleye-procedures-one-shape): same change or the one just before it. Until then the existing programs keep their settings.
 
 Waits
-: orchestration: lab-tools attended-device-values (the procedure names its device, lpoco-attended loads that device.toml, library steps read named keys, a missing key fails --dry-run, devlab gets --device explicitly; decision 2026-11-19-procedure-values-from-the-named-device)
+: orchestration: lpoco-attended v0.30.0 (lab-tools #263) is out (procedure() loads the named device.toml, [[host.gadget]] usb_id, steps::wait_for_gadget, a missing key ends the run, dry run too); still waiting for boot_once and back_to_known_good to read kernel names from device.toml (orchestration's current builder run); then this can start on v0.30.0 or later
 
 About
 : walleye-first-fastboot-boot
@@ -6736,7 +6736,7 @@ Note
 : PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. Today's #448 (tests/attended/touch-try.rs, tools/walleye-tries) is the closest to it. Move it when lab-tools' scaffold has landed; until then new programs follow the shape already. LIBRARY STEPS (orchestration, 2026-11-19, lab-tools tag lpoco-attended-v0.29.2, #250 #251): dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb are in the library; boot_once and back_to_known_good come next, then lpoco attended new|run|check. Write the PMIC, display and UFS programs against v0.29.2 and these steps, not walleye-tries copies; where the library lacks a step, write it in procedures/steps and name it as wanted. With it: walleye-try-settings-into-device-toml (the WALLEYE_TRY_* settings become device.toml keys). PHYSICAL ACTS (orchestration, decision 2026-11-19-attended-steps-name-the-physical-act): ask_author is replaced by steps naming the act (press_power(secs), hold_button(name, secs), unplug_usb, replug_usb, touch, swipe, look_for(..), listen_for(..), confirm(..)), done by a person now and by a rig later; no change needed before lpoco-attended releases them.
 
 Waits
-: orchestration: lab-tools attended-scaffold (lpoco attended new|run|check and the step library: boot_once, wait_for_usb, back_to_known_good, read_dmesg)
+: orchestration: lpoco-attended v0.30.0 (lab-tools #263) is out (procedure() loads the named device.toml, [[host.gadget]] usb_id, steps::wait_for_gadget, a missing key ends the run, dry run too); still waiting for boot_once and back_to_known_good to read kernel names from device.toml (orchestration's current builder run); then this can start on v0.30.0 or later
 
 About
 : walleye-first-fastboot-boot
