@@ -4780,3 +4780,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-2130-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Took the lease, read the queue. Android on slot b, stock kernel, nothing flashed, not in fastboot (lpoco lab fastboot state). Took no item: the first ready row (walleye-display-backlight-sysfs-write) is already recorded and waits on the author's look; the rank-1 walleye-display-delay-bisect has no image, procedure or tad records yet, and lpoco lab phone/suite cannot run: ~/.config/devlab/google-walleye/password is missing (a secret, not made by a keeper). Nothing on the phone changed.
+
+Considered
+: next: someone makes the delay-bisect procedure (one RAM boot per delay 5/15/25/35/50 s, read-only reads first) and a way back by the watcher on an unanswered ask (decision 2026-11-19-walleye-l7-way-back-by-the-watcher); the phone password file written by the author or coordinator; then a keeper takes walleye-display-delay-bisect.
+
+About
+: walleye-display-s6e3fa5
