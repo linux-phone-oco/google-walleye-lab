@@ -1466,3 +1466,31 @@ About
 
 Amends
 : 2026-11-19-walleye-pmic-wdt-v1-test-first
+
+
+<a id="2026-11-19-walleye-pmic-wdt-v1-image-choices"></a>
+### 2026-11-19-walleye-pmic-wdt-v1-image-choices
+
+Date
+: 2026-11-19
+
+Brief
+: PMIC v1 images: the S2-type guard compares with 7 (what the driver sets); the SoC petter is found by identity; image A is the six mailed patches on the next tag
+
+Decision
+: (1) wdt-bite and wdt-reboot refuse unless the PMIC watchdog device exists and the S2 type reads back as 7, the type the driver always sets (RESET_TYPE_HARD); wdt-bite 1 asks for the warm type on purpose. (2) The SoC watchdog petter opens the device whose sysfs identity is qcom_wdt, never /dev/watchdog. (3) Image A is next-20261118 plus the six patches of the upstreams lane's series applied here with git am, not the lane's own tree. (4) The command line replaces z21's gpio dyndbg with the driver's dyndbg; no DEBUG_GPIO. (5) The clock_gcc symbol is pointed at the real gcc after the build, as z3 did, and the image build checks it.
+
+Why
+: (1) driver source of v7.3 topic and of the v1 tree: pm8916_wdt_set_reset_type writes RESET_TYPE_HARD and fails the probe if the read-back differs; the dts has no type property, so 'warm first' in the item cannot be asked of this driver, and a read-back of 1 would mean the firmware's type stayed. (2) With the PMIC watchdog enabled in the dts either device can be watchdog0, and opening a watchdog device starts it: the first image of this kind must not arm by opening the wrong one. (3) the lane's tree is not on this machine; the tag e8017d290 matches the base of its notes and all six patches applied clean, so the content is the mailed one. (4) the diagnostic gpio output would bury the two lines the proof needs. (5) tests/host/overlay-clock-gcc.sh fails on a dtb straight from the kernel build.
+
+Rejected
+: Arming at boot after a delay: the item and the author's 'Yes, test first' want an attended, explicit bite. Using /dev/watchdog as before: may arm the PMIC. A dts property for the type: no such binding. Waiting for the lane's tree: it would block the one attended visit on a copy that is the same patches.
+
+About
+: walleye-pmic-wdt-proof
+
+Research
+: walleye-pmic-wdt-v1-images-built
+
+Tracked by
+: walleye-pmic-wdt-v1-image
