@@ -1070,3 +1070,42 @@ By
 
 Takes
 : the recipe for the SLPI sensor stack; msm8998 not mentioned
+
+
+<a id="emainline-fingerprint-p1"></a>
+### Fingerprint sensors on tuxified Android phones: Impossible?
+
+Url
+: https://emainline.gitlab.io/2021/12/12/fingerprint_P1.html
+
+Author
+: emainline
+
+Year
+: 2021
+
+Takes
+: Linux can read an FPC sensor's HWID over plain SPI on msm8996 once the vendor dts supplies irq, reset, supply; the later steps (image capture, matching) are the hard part
+
+
+<a id="fpc1020-tee-android-kernel"></a>
+### fpc1020_tee.c, Android kernel/msm
+
+Url
+: https://android.googlesource.com/kernel/msm/+/3d0a564505ab8452e7e6f52b972db386cc2f5f69/drivers/input/fingerprint/fpc1020_tee.c
+
+By
+: Google/FingerprintCard
+
+Takes
+: the vendor driver only owns irq, reset and power; the sensor protocol is in the TEE trustlet
+
+
+<a id="libfprint-supported-devices"></a>
+### libfprint supported devices
+
+Url
+: https://fprint.freedesktop.org/supported-devices.html
+
+Takes
+: no FPC SPI (phone-class) driver is listed; FPC entries are USB devices
