@@ -6221,14 +6221,67 @@ Rank
 : 4
 
 
-<a id="walleye-display-f3-node-split"></a>
-### Split f3 by node: mdss, display controller, DSI host, DSI phy okay one at a time on the late-probe kernel
+<a id="walleye-display-f3-split-images"></a>
+### Split f3 and test the iommu reading: f3 with iommu.passthrough=1, f3 without the mdss iommus property, and mdss alone
 
 Status
 : open
 
 Note
-: builder piece: series file for lpoco-bringup image bisect from f3's dtb; then a phone try of each (unattended, f0 control first). Basis: research walleye-display-dtb-bisect-tried
+: Research walleye-display-dtb-bisect-tried (PR 431): f0, f1, f2 boot a shell, f3 (mdss, display-controller, DSI host, DSI phy okay) loses the gadget, Android back after 54 s, with the drivers as modules that never load. Reading (decision 2026-11-19-walleye-display-iommu-reading): the mdss node carries iommus = <&mmss_smmu 0>; with that node enabled the iommu core gives the display stream a translating domain when the SMMU at cd00000 registers (1.06 s in d0's dmesg, 'preserved 0 boot mappings'), while the bootloader's splash scan-out is still reading the framebuffer through that stream: an unending SMMU context-fault storm, the kernel stuck, the SoC watchdog restarting the phone (the 54-57 s return), the panel black (the author saw logo then black). g1 and g2 test that directly; g3 splits the nodes in case it is wrong. This replaces the keeper's walleye-display-f3-node-split.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: three boot images beside f0..f3 (images-display-dtb-bisect or a sibling folder), each passing tests/host/ufs-off-image.sh, built as bisect series files from f3 on the late-probe kernel and ramdisk: g1 = f3 unchanged but with iommu.passthrough=1 added to the command line; g2 = f3 with the iommus property removed from the mdss node (display-subsystem@c900000) and nothing else changed; g3 = only the mdss node okay (display-controller, DSI host and DSI phy left disabled); each with the diff against f3 as a file and sha256 lines; programmer review
+
+Rank
+: 1
+
+
+<a id="walleye-try-display-f3-split"></a>
+### Try g1, g2, g3 once each from slot b: which one keeps the gadget with the display nodes on
+
+Status
+: open
+
+Note
+: UNATTENDED, no person (decision 2026-11-19-walleye-display-console-before-eyes). If g1 or g2 boots with a shell, the next step is the late-probe try (modules loaded by hand with the log streamed) on that image: walleye-try-display-late-probe.
+
+Blocked by
+: walleye-display-f3-split-images
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: per image: the gate passes right before the boot; whether 1d6b:0104 enumerated and when (host kernel log); if up: the shell read with dmesg (smmu, iommu, mdss lines: any 'Unhandled context fault', 'iommu' group and domain lines for the mdss device) and /sys/kernel/iommu_groups; if not: seconds until Android is back; a research row saying which of g1, g2, g3 booted and what that says about the iommu reading; g1 first, all three tried
+
+Rank
+: 2
+
+
+<a id="walleye-display-f3-node-split"></a>
+### Split f3 by node: mdss, display controller, DSI host, DSI phy okay one at a time on the late-probe kernel
+
+Status
+: dropped
+
+Note
+: Superseded 2026-11-19 by walleye-display-f3-split-images (g3 is its mdss-alone image; g1 and g2 test the iommu reading first). Coordinator's word; basis research walleye-display-dtb-bisect-tried.
 
 About
 : walleye-display-s6e3fa5

@@ -1998,3 +1998,31 @@ Scope
 
 Tracked by
 : walleye-attend-program-display
+
+
+<a id="2026-11-19-walleye-display-iommu-reading"></a>
+### 2026-11-19-walleye-display-iommu-reading
+
+Date
+: 2026-11-19
+
+Brief
+: The display nodes kill the boot through the SMMU: test f3 with iommu.passthrough=1 and without the mdss iommus property
+
+Decision
+: Test the reading that enabling the mdss node (which has iommus = <&mmss_smmu 0>) makes the SMMU put the display stream in a translating domain while the bootloader's scan-out is live, so the CPU is stuck in a context-fault storm until the SoC watchdog restarts the phone. Images g1 (f3 + iommu.passthrough=1), g2 (f3 without the mdss iommus property) and g3 (mdss alone) are tried once each, g1 first, unattended. If g1 or g2 keeps the shell, the late-probe try runs on it.
+
+Why
+: Facts: f0, f1, f2 boot (dtb groups regulators, pinctrl are innocent); f3 (mdss, display-controller, DSI host and PHY okay) does not, with every display driver a module that never loads, so the death needs no driver: it is a device existing in the tree. The mdss node has an iommus property; the SMMU at cd00000 probes in d0 with 'preserved 0 boot mappings'; the bootloader's splash is on screen at fastboot boot; the author saw logo then black; Android came back 54-57 s after fastboot, the SoC watchdog's time, not a panic's. This is a reading, not a measurement: g1 and g2 are the test.
+
+Rejected
+: Only splitting the nodes (it says which node, not why; g3 keeps it); the ramoops read (root and unlock, empty every time); more kernel variants (d0 shows the kernel is fine); asking the author to look (his words: console first)
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-dtb-bisect-tried
+
+Tracked by
+: walleye-try-display-f3-split
