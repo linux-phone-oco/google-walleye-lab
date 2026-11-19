@@ -6815,10 +6815,10 @@ Rank
 ### touch-try.rs enters fastboot itself from Android (as pmic-try's back_to_fastboot does) before the boot step
 
 Status
-: open
+: done
 
 Note
-: Found by the keeper's unattended run: step 4 fails 'not in fastboot now' when the phone idles on Android; keeper entered fastboot by adb reboot bootloader. Code for tools/walleye-tries/src/touch.rs. Rank 2 (2026-11-19 coordinator): before the touch attended try and the audio ports; the PMIC program already has back_to_fastboot, so only touch needs it; after the fix a keeper repeats the touch unattended run from Android with no hand step.
+: touch-try.rs now has the step 'take the phone to fastboot' before the boot: host::to_fastboot (fails fast without a serial, checks adb get-state is 'device', sends adb -s SER reboot bootloader, polls fastboot up to 90 s; a phone already in fastboot is left alone). Stand-in tests: already in fastboot, from Android, adb offline/gadget, another phone's serial, timeout, no serial; touch-try.rs --dry-run passes 14 steps. Duplication with pmic.rs back_to_fastboot stays for walleye-tries-shared-lab-plumbing (use host::to_fastboot there too). Next: a keeper repeats the touch unattended run from Android.
 
 About
 : walleye-attend-program-touch

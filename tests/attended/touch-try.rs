@@ -21,6 +21,7 @@ fn main() {
     check("the battery is good enough", z21.battery_is_good());
     check("the image is the one built", z21.image_is_the_built_one());
     check("UFS is off in the image", z21.ufs_is_off());
+    step("take the phone to fastboot", z21.phone_is_in_fastboot());
     step("boot the image from memory", z21.boot_image());
     check("the phone's shell answers and its dmesg is saved", z21.shell_answers());
     check("the touch controller is listed", z21.touch_device_is_listed());

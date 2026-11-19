@@ -139,6 +139,18 @@ impl Touch {
         }
     }
 
+    /// The phone is in fastboot: when it idles on Android (where an unattended run leaves it) `adb reboot bootloader` takes it
+    /// there, as the PMIC try does; when fastboot lists it already, nothing is done. Nothing is written to the phone.
+    pub fn phone_is_in_fastboot(&self) -> impl FnOnce() -> Done + 'static {
+        let t = self.clone();
+        move || {
+            let toml = std::fs::read_to_string(t.s.device_toml()).unwrap_or_default();
+            let serial = crate::pmic::serial_of(&toml)
+                .ok_or_else(|| format!("no serial in {}", t.s.device_toml().display()))?;
+            host::to_fastboot(&t.s.adb, &t.s.fastboot, &serial, Duration::from_secs(90))
+        }
+    }
+
     /// Boot the image from the phone's fastboot, from memory: nothing is written to it.
     pub fn boot_image(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
@@ -477,6 +489,43 @@ mod walkthrough {
         let (t, d) = the_try("nobody", phone("107.4 5.0", vec![]), &[]);
         let e = all_steps(&t).unwrap_err();
         assert!(e.starts_with("skip walleye-touch-events"), "{e}");
+        std::fs::remove_dir_all(d).ok();
+    }
+
+    #[test]
+    fn the_try_starts_from_android_and_takes_the_phone_to_fastboot_itself() {
+        let (mut t, d) = the_try("fb", 1, &[]);
+        std::fs::write(
+            d.join("device.toml"),
+            "[connection]\naddresses = [\"127.0.0.1\"]\nserial = \"SER1\"\n",
+        )
+        .unwrap();
+        let m = d.join("bootloader");
+        for (n, body) in [
+            (
+                "adb",
+                format!("case \"$*\" in *get-state*) echo device; exit 0;; esac; echo \"$*\" > \"{0}.args\"; : > \"{0}\"", m.display()),
+            ),
+            (
+                "fastboot",
+                format!("[ -e \"{}\" ] && echo 'SER1 fastboot'; exit 0", m.display()),
+            ),
+        ] {
+            let p = d.join(n);
+            std::fs::write(&p, format!("#!/bin/sh\n{body}\n")).unwrap();
+            std::fs::set_permissions(&p, std::os::unix::fs::PermissionsExt::from_mode(0o755))
+                .unwrap();
+        }
+        let s = Rc::get_mut(&mut t.s).unwrap();
+        s.adb = d.join("adb").to_string_lossy().into_owned();
+        s.fastboot = d.join("fastboot").to_string_lossy().into_owned();
+        t.phone_is_in_fastboot()().unwrap();
+        assert_eq!(
+            std::fs::read_to_string(d.join("bootloader.args"))
+                .unwrap()
+                .trim(),
+            "-s SER1 reboot bootloader"
+        );
         std::fs::remove_dir_all(d).ok();
     }
 
