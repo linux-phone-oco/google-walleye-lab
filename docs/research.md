@@ -4971,3 +4971,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-l7-look1-console-seen"></a>
+### walleye-display-l7-look1-console-seen
+
+Date
+: 2026-11-19
+
+Brief
+: L7 look 1: the author sees the console output on the Pixel again, on the watched procedure with the answer file
+
+Question
+: Does the author see the kernel log on the Pixel's glass during the L7 look procedure?
+
+Found
+: The author, verbatim, about 22:24 CET 2026-11-19, relayed by the Top Coordinator, who wrote 'ok' into ~/.cache/lpoco-attended/google-walleye/answer for prompt id 2717062-0 (the kernel log look): "i see the console output on pixel again". So: the glass lights again on mainline with the L7 image (L6's load order, hand-loaded by the procedure), the kernel log text is visible, and the answer file path works end to end between the Top Coordinator and the procedure. The second look, four stripes held in graphics mode, is answered the same way if he is still at the phone; its result is a separate row. Not yet known: whether the held stripes show.
+
+About
+: walleye-display-s6e3fa5
