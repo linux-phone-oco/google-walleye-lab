@@ -6943,10 +6943,10 @@ Rank
 ### L4: L3 with the four overlay pinctrl labels on real tlmm groups (the dsi no longer defers on pinctrl)
 
 Status
-: open
+: done
 
 Note
-: From research walleye-display-dsi-defer-pinctrl-stubs and decision 2026-11-19-walleye-display-l4-pinctrl-labels-not-trace. Change dt/msm8998-google-walleye-display.dts (and build/gen-overlay-stubs.sh so the four labels are no stub): mdss_dsi_active on mdss-dsi-active-state, mdss_dsi_suspend on mdss-dsi-suspend-state, mdss_te_active and mdss_te_suspend on mdss-te-state. Keep L3's vdd-supply. Check with fdtoverlay that the merged dsi's pinctrl-0/1 point into tlmm.
+: Built: boot-l4.img sha256 1dfeebe2c1b6867a0f3fb9f18094e3755e9933cee668dbb177d5af27ed1750d9; research walleye-display-late-probe-l4-built. Next: walleye-try-display-late-probe-l4.
 
 About
 : walleye-display-s6e3fa5

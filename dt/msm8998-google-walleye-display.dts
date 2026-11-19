@@ -26,22 +26,34 @@
 	};
 };
 
+/*
+ * The vendor dtbo overlay hangs mdss_dsi_active/_suspend and mdss_te_active/_suspend on the dsi node (pinctrl-0/1).
+ * The generic stubs make them empty nodes with no pin controller above them, which defers the dsi silently in
+ * pinctrl_bind_pins (research walleye-display-dsi-defer-pinctrl-stubs, decision 2026-11-19-walleye-display-l4-pinctrl-labels-not-trace).
+ * Here the four labels name the real tlmm groups instead. The overlay's states are mdss_default/mdss_sleep, not
+ * default, so nothing is applied from them and the panel node's own pinctrl keeps the pins.
+ */
+/delete-node/ &mdss_dsi_active;
+/delete-node/ &mdss_dsi_suspend;
+/delete-node/ &mdss_te_active;
+/delete-node/ &mdss_te_suspend;
+
 &tlmm {
-	mdss_dsi_active_state: mdss-dsi-active-state {
+	mdss_dsi_active: mdss_dsi_active_state: mdss-dsi-active-state {
 		pins = "gpio94";
 		function = "gpio";
 		drive-strength = <8>;
 		bias-disable;
 	};
 
-	mdss_dsi_suspend_state: mdss-dsi-suspend-state {
+	mdss_dsi_suspend: mdss_dsi_suspend_state: mdss-dsi-suspend-state {
 		pins = "gpio94";
 		function = "gpio";
 		drive-strength = <2>;
 		bias-pull-down;
 	};
 
-	mdss_te_state: mdss-te-state {
+	mdss_te_active: mdss_te_suspend: mdss_te_state: mdss-te-state {
 		pins = "gpio10";
 		function = "mdp_vsync_a";
 		drive-strength = <2>;
