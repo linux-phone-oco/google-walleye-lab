@@ -5213,3 +5213,28 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-upstream-dts-polish"></a>
+### Polish the board dts for upstream: lab-id comments, sorting, labels, the APSS wdt and adreno_smmu decisions, UFS disabled
+
+Status
+: open
+
+Note
+: From the upstreams lane via the top coordinator (docs #573): dt_binding_check clean, CHECK_DTBS W=1 has 0 warnings of ours, checkpatch --strict has 76 findings, all style. The result goes back to the upstreams lane for the series; nothing is mailed without the author's word.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: Turn the upstreams lane's candidate (docs #573; the candidate diff is in docs' research folder: the top coordinator names it, find it with `tad q about --subject upstream-forks` / the research row of #573 in docs) into a clean upstream board dts for the Google Pixel 2 (msm8998-google-walleye.dts): (1) rewrite the lab-id comments (no lab-internal ids, decisions or paths in an upstream file: say what the hardware is); (2) sort properties and children as the DT style asks (alphabetical children, properties in the order of the binding style: compatible, reg, ... status last), (3) drop unused labels, (4) decide the APSS wdt node: either its own msm8998.dtsi patch (a separate commit adding the watchdog node to the SoC dtsi with the right reg and interrupts: check against the running fdt and the downstream value, keep the clean-room wall: facts, not vendor code) or drop it from the board file (say which and why), (5) decide the disabled adreno_smmu (keep it disabled as a board-level override if the GPU is not enabled, or drop the node and say why); (6) KEEP UFS DISABLED in the candidate (no &ufshc/&ufsphy enable, per decision 2026-11-19-walleye-ufs-off-by-a-gate): a board dts can land without storage; a comment line says storage is added later with the card quirks; checks: dt_binding_check clean, CHECK_DTBS=y W=1 with 0 warnings of ours, scripts/checkpatch.pl --strict on the diff: findings listed and cut towards zero; the result as a patch series (git format-patch, one board patch, optional wdt patch) in the lab's material path for the upstreams lane; NOTHING is mailed (the author's word is needed): the series goes back to the upstreams lane; programmer review
+
+Rank
+: 6
