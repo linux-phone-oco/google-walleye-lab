@@ -12,6 +12,7 @@ total=0
 ck() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1: got '$2', want '$3'"; total=$((total+1)); fi; }
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 same() { cmp -s "$1" "$2" && echo same || echo differs; }
+rm -f "$D/SHA256SUMS-display-late-l" "$D/l1.diff"   # a failed run leaves no earlier sums standing
 lpoco-bringup image unpack "$L" --out "$T/late" >/dev/null
 hdr() { grep -v '^#' "$1/boot.toml" | grep -v '^cmdline'; }
 cmd() { grep '^cmdline' "$1/boot.toml"; }
@@ -39,8 +40,12 @@ panel() { fdtget -l "$1" "$DSI" | grep -c '^panel@0$' || true; }
 ck "l1 (read back from its image): iommus kept, mdss, controller, DSI host and PHY okay, panel node there" "$(fdtget "$T/l1/appended.dtb" "$MDSS" iommus) $(for n in "$MDSS" "$MDP" "$DSI" "$PHY"; do st "$T/l1/appended.dtb" "$n"; done | tr "\n" " ")$(panel "$T/l1/appended.dtb")" "142 0 okay okay okay okay 1"
 ck "l2 (read back from its image): no iommus on mdss, mdss, controller, DSI host and PHY okay, panel node there" "$(fdtget -p "$T/l2/appended.dtb" "$MDSS" | grep -c "^iommus$" || true) $(for n in "$MDSS" "$MDP" "$DSI" "$PHY"; do st "$T/l2/appended.dtb" "$n"; done | tr "\n" " ")$(panel "$T/l2/appended.dtb")" "0 okay okay okay okay 1"
 (cd "$P" && sha256sum -c SHA256SUMS-display-late-l-parts >/dev/null 2>&1) || { echo "check-display-late-l: the parts do not match their sums" >&2; exit 1; }
-{ echo "--- late command line"; echo "+++ l1 command line"; echo "-$(cmd "$T/late")"; echo "+$(cmd "$T/l1")"; } > "$T/l1.diff"
-ck "l1: the diff has one line out and one in" "$(grep -c '^[-+]cmdline' "$T/l1.diff")" 2
+printf "%s\n" "$(cmd "$T/late")" > "$T/late.cmd"; printf "%s\n" "$(cmd "$T/l1")" > "$T/l1.cmd"
+diff -u "$T/late.cmd" "$T/l1.cmd" | sed "1,2d" > "$T/l1.diff" || true
+ck "l1: the diff against the late image is one command-line line out and one in" "$(grep -c "^[-+]cmdline" "$T/l1.diff")" 2
+dts() { dtc -I dtb -O dts -q "$1" 2>/dev/null; }
+dts "$T/late/appended.dtb" > "$T/late.dts"; dts "$T/l2/appended.dtb" > "$T/l2.dts"
+ck "l2 (re-diffed from its image): against the late dtb only the iommus line goes" "$(diff "$T/late.dts" "$T/l2.dts" | grep "^[<>]" | sed "s/^\([<>]\)[[:space:]]*/\1/" | tr "\n" "|")" "<iommus = <0x8e 0x00>;|"
 [ $total -eq 0 ] || { echo "check-display-late-l: $total checks failed, no sums written" >&2; exit 1; }
 cp "$T/l1.diff" "$D/l1.diff"
 (cd "$D" && sha256sum boot-l1.img boot-l2.img l1.diff l2.diff | tee SHA256SUMS-display-late-l)

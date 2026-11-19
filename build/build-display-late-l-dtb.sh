@@ -10,6 +10,7 @@ HERE=$(cd "$(dirname "$0")/.." && pwd)
 total=0
 ck() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1: got '$2', want '$3'"; total=$((total+1)); fi; }
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
+rm -f "$OUT/l2.dtb" "$OUT/l2.diff" "$OUT/SHA256SUMS-display-late-l-parts"   # a failed run leaves no earlier outputs standing
 [ -s "$IMG" ] || { echo "build-display-late-l-dtb: missing $IMG" >&2; exit 1; }
 lpoco-bringup image unpack "$IMG" --out "$T/late" >/dev/null
 LATE=$T/late/appended.dtb
