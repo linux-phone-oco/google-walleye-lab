@@ -3973,3 +3973,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-walleye-builder-pmic-first-ask"></a>
+### pmic-try: first ask after boot
+
+Entry date
+: 2026-11-19
+
+Done
+: Moved the TWO_TESTS ask in tests/attended/pmic-try.rs to after boot image A, the shell and the S2 type read; the reboot-test-first, bite-last order and the words are unchanged.
+
+Considered
+: Moving the REBOOT ask too: no, it already follows the checks.
+
+Rejected
+: Splitting TWO_TESTS wording: it reads fine after boot.
+
+About
+: walleye-attend-program-pmic
