@@ -4728,31 +4728,6 @@ Rank
 : 1
 
 
-<a id="walleye-ufs-android-regs"></a>
-### Read the UFS host and PHY registers of live Android (UFS_HW_VERSION, host regs 0x00-0x2500, PHY after init, ufs_reset pad state), read-only as root
-
-Status
-: open
-
-Note
-: keeper 2026-11-19: read what debugfs gives (research walleye-ufs-android-regs-read2); HW_VERSION and PHY regs need a mem reader (no /dev/mem, no kcore): to the walleye coordinator
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: research row naming the HW version (3.0.0 or 3.1.0), the PHY registers read against the vendor and our tables, the pad state; no write, no reset, no fstrim
-
-Rank
-: 1
-
-
 <a id="walleye-ufs-regs-reader"></a>
 ### How to read UFS_HW_VERSION and the PHY registers on live Android (no /dev/mem): debugfs, a read-only module, or skip
 
@@ -5558,6 +5533,34 @@ Rank
 : 1
 
 
+<a id="walleye-ufs-android-regs"></a>
+### Read the UFS host and PHY registers of live Android (UFS_HW_VERSION, host regs 0x00-0x2500, PHY after init, ufs_reset pad state), read-only as root
+
+Status
+: open
+
+Note
+: keeper 2026-11-19: read what debugfs gives (research walleye-ufs-android-regs-read2); HW_VERSION and PHY regs need a mem reader (no /dev/mem, no kcore): to the walleye coordinator
+
+Waits
+: a memory reader for live Android (research walleye-ufs-regs-reader); nothing a keeper can do first
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: research row naming the HW version (3.0.0 or 3.1.0), the PHY registers read against the vendor and our tables, the pad state; no write, no reset, no fstrim
+
+Rank
+: 70
+
+
 <a id="walleye-try-upstream-dts"></a>
 ### Try the upstream board dts image once from slot b: does the exact series dtb boot to the network shell
 
@@ -5566,9 +5569,6 @@ Status
 
 Note
 : Image to try: ~/Projects/walleye-build/images-upstream-dts/boot-upstream-dts.img sha256 a8e4364813f3c82a35b9e5edcffb6650eac710e780119b27fa32dc2fa9521377 (research walleye-upstream-dts-image-built). UNATTENDED (no person is needed: it is a boot, nothing to see; witness none). Try the image of walleye-upstream-dts-image once from slot b: the lab's usual way (ufs-off-image.sh and overlay gate on the image first, battery rule, fastboot boot from RAM, never flash; the 180 s self-reboot is the way back, and set-active metadata only if the slot flipped). Expect: the usb0 network shell at 172.16.43.1 (telnet), a clean dmesg in the same classes as z21 (tests/host dmesg-clean check), the PMIC and charger probing as on z21, no touch (the series has none). Judge by several witnesses (tests/host/phone-state.sh), never by lsusb alone. Record: booted yes/no, what is in dmesg that z21's is not and the reverse (a short diff of the probe lines), whether the gadget came up. A hang or no-USB is a finding for the series (the dts as cut lacks something): record which witness said what, and put the one-line result as a research row about walleye-upstream-dts-polish so the upstreams lane can quote it in the cover letter. Phone ends on Android slot b, first state.
-
-Blocked by
-: walleye-upstream-dts-image
 
 About
 : walleye-first-fastboot-boot
