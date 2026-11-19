@@ -34,9 +34,10 @@ SOCWD=
 n=0
 while [ -z "$SOCWD" ] && [ $n -lt 10 ]; do
   for d in /sys/class/watchdog/watchdog*; do
-    [ -e "$d/identity" ] || continue
     [ -e "/dev/${d##*/}" ] || continue
-    [ "$(cat "$d/identity" 2>/dev/null)" = qcom_wdt ] && SOCWD=/dev/${d##*/}
+    id=$(cat "$d/identity" 2>/dev/null)
+    [ -n "$id" ] || case $(readlink "$d/device" 2>/dev/null) in *:watchdog) ;; *.watchdog) id=qcom_wdt;; esac
+    [ "$id" = qcom_wdt ] && SOCWD=/dev/${d##*/}
   done
   [ -n "$SOCWD" ] || { sleep 1; n=$((n+1)); }
 done
@@ -88,8 +89,9 @@ cat > /bin/wdt-state <<'EOS'
 SYS=${SYS:-/sys}
 pm=none; soc=none
 for d in "$SYS"/class/watchdog/watchdog*; do
-  [ -e "$d/identity" ] || continue
-  case $(cat "$d/identity" 2>/dev/null) in
+  id=$(cat "$d/identity" 2>/dev/null)
+  [ -n "$id" ] || case $(readlink "$d/device" 2>/dev/null) in *:watchdog) id="QCOM PM8916 PON WDT";; *.watchdog) id=qcom_wdt;; esac
+  case $id in
     "QCOM PM8916 PON WDT") pm=${d##*/};;
     qcom_wdt) soc=${d##*/};;
   esac

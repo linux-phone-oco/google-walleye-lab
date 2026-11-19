@@ -7257,7 +7257,7 @@ Status
 : open
 
 Note
-: Found 2026-11-19 by the keeper's run 2: image A boots, shell answers, dmesg shows pm8916-wdt probed (POFF reason, S2 reset control was 0x1), /dev/watchdog0 and /dev/watchdog1 exist, but /sys/class/watchdog/watchdogN has only dev, device, power, subsystem, uevent: no identity file. build/initramfs-mainline/init-wdt1 wdt-state (and the SoC petter) match on identity, so pmic=none and the program stops at check 6. Fix: either match by the device link (readlink device: ...:pon@800:watchdog = PMIC, 17c10000.watchdog = qcom_wdt) in init-wdt1 and rebuild the ramdisk, or enable CONFIG_WATCHDOG_SYSFS in the kernel. The petter's by-identity pick has the same flaw (it found no qcom_wdt after 10 s: banner step 3).
+: Built 2026-11-19 by walleye-builder: init-wdt1 matches by device link when identity is absent; selftest +4 cases pass; images in ~/Projects/walleye-build/images-wdt1-sysfsless (A 9dfea096..., B 15f5e97d...). Next: keeper runs pmic-try.rs on image A from that dir.
 
 About
 : walleye-attend-program-pmic
@@ -7266,7 +7266,7 @@ Opened
 : 2026-11-19
 
 Needs
-: build
+: phone
 
 Proof
 : pmic-try.rs passes checks 5-6 on image A (wdt-state pmic=watchdogN)

@@ -108,6 +108,27 @@ ck "petter: SoC at watchdog0, PMIC at watchdog1: the SoC one" "$(petter 0 1 0 1)
 ck "petter: PMIC at watchdog0, SoC at watchdog1: still the SoC one (the PMIC one is never opened)" "$(petter 1 0 0 1)" watchdog1
 ck "petter: the SoC watchdog's /dev node is missing: none chosen (not the PMIC's)" "$(petter 0 1 1)" ""
 ck "petter: only the PMIC watchdog exists: none chosen" "$(petter - 0 0)" ""
+# a kernel without CONFIG_WATCHDOG_SYSFS attributes: no identity file, only the device link names the watchdog
+petter_nid() { # SOC_NUM PMIC_NUM [NODE_NUMBERS...]
+  rm -rf "$T/s2" "$T/dev"; mkdir -p "$T/dev"
+  s=$1; p=$2; shift 2
+  mkdir -p "$T/s2/class/watchdog/watchdog$s" "$T/s2/class/watchdog/watchdog$p"
+  ln -s "../../../../17c10000.watchdog" "$T/s2/class/watchdog/watchdog$s/device"
+  ln -s "../../../../0-0000:pon@800:watchdog" "$T/s2/class/watchdog/watchdog$p/device"
+  for n in "$@"; do : > "$T/dev/watchdog$n"; done
+  FAKE_SLEEP_NOOP=1 $SH -c ". '$T/petter.sh'; printf '%s\n' \"\$SOCWD\"" | sed "s#^$T/dev/##"
+}
+ck "petter without identity files: the SoC one by its device link" "$(petter_nid 0 1 0 1)" watchdog0
+ck "petter without identity files: numbers swapped, still the SoC one" "$(petter_nid 1 0 0 1)" watchdog1
+petter_pmic_only() { # a PMIC link and node, no SoC node: nothing may be chosen
+  rm -rf "$T/s2" "$T/dev"; mkdir -p "$T/dev" "$T/s2/class/watchdog/watchdog0"
+  ln -s "../../../../0-0000:pon@800:watchdog" "$T/s2/class/watchdog/watchdog0/device"; : > "$T/dev/watchdog0"
+  FAKE_SLEEP_NOOP=1 $SH -c ". '$T/petter.sh'; printf '%s\n' \"\$SOCWD\"" | sed "s#^$T/dev/##"
+}
+ck "petter without identity files: only the PMIC watchdog: none chosen (never armed)" "$(petter_pmic_only)" ""
+rm -rf "$T/nid"; mkdir -p "$T/nid/class/watchdog/watchdog0" "$T/nid/class/watchdog/watchdog1"
+ln -s "../../../../17c10000.watchdog" "$T/nid/class/watchdog/watchdog0/device"; ln -s "../../../../0-0000:pon@800:watchdog" "$T/nid/class/watchdog/watchdog1/device"
+ck "wdt-state without identity files: both found by the device link" "$(SYS=$T/nid run "$P7" wdt-state | cut -d' ' -f1-3)" "wdt-state pmic=watchdog1 soc=watchdog0"
 # the boot text: what remains a text check
 awk '/<<.EOS.$/ {h=1} !h {print} /^EOS$/ {h=0}' "$INIT" | grep -v '^[[:space:]]*#' > "$T/boot.sh"
 ck "text: boot never runs wdt-bite, wdt-reboot or wdt-arm (the chmod of the files apart)" "$(grep -v '^chmod' "$T/boot.sh" | grep -c -e 'wdt-bite' -e 'wdt-reboot' -e 'wdt-arm')" 0
