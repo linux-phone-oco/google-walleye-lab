@@ -8269,10 +8269,10 @@ Rank
 ### What happens between 15 s and 25 s that ends the SMMU faults: read the five delay-bisect boots against the bootloader's display timeline
 
 Status
-: open
+: done
 
 Note
-: Keeper result 2026-11-19 (research walleye-display-delay-bisect-flips-at-25s, lab PR 611): delay 5 s: SMMU faults 10, rcg warnings 4, DSI -110 5 times; 15 s: faults 10, rcg 0, -110 0; 25, 35 and 50 s: all zero, 13 of 13 modules ok. Desk only.
+: Read from the logs: no kernel event between 15 and 25 s; faults are splash scanout (0x9d6xxxxx) at dpu_kms_hw_init; decision 2026-11-19-walleye-display-flip-dts-not-timing; next walleye-display-splash-region-dts
 
 About
 : walleye-display-s6e3fa5

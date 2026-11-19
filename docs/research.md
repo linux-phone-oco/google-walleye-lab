@@ -5101,3 +5101,22 @@ Sources
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-flip-15-25-read-from-logs"></a>
+### walleye-display-flip-15-25-read-from-logs
+
+Date
+: 2026-11-19
+
+Brief
+: The five delay boots show no kernel event between 12 s and 25 s: the faults are splash scanout at 0x9d6xxxxx through our new SMMU domain; the flip is the bootloader's display going idle
+
+Question
+: What happens between 15 s and 25 s that ends the SMMU faults?
+
+Found
+: From dmesg-d5/d15/d25 (~/lab-material/walleye/display-delay-20261119-232559): our kernel logs nothing between the 12.0 s sync_state() lines and the display-module load; d15 and d25 reach the same events in the same order, so no kernel event (deferred-probe timeout ~12 s, clk or regulator late init at 1.27-1.39 s, genpd) separates them: the difference is outside the kernel. The 10 faults of d15 come in one burst (15.3125-15.3135 s) right after 'dpu hardware revision' in dpu_kms_hw_init, iova 0x9d608500..0x9d68c200, level-2 translation faults, SID 0 on cd00000.iommu: reads inside the splash region (0x9d400000) by a scanout still running when msm attaches its SMMU domain. d25 binds the same dsi, same dpu init, no fault, fb0 msmdrmfb. The rcg and DSI -110 signs (d5 only) are the bootloader's DSI clocks still driven at 6 s. So two stages: DSI link clocks stop before 15 s, splash scanout before 25 s. Not in the logs: why (fastboot screen idle timeout or panel/DPU idle). Not measured: 17-23 s.
+
+About
+: walleye-display-s6e3fa5
