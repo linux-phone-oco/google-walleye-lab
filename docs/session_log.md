@@ -4762,3 +4762,21 @@ Rejected
 
 About
 : walleye-ufs-match-android-z
+
+---
+
+
+<a id="2026-11-19-2245-keeper-l7-unanswered-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed; L7 unanswered run for real passed (unanswered look 1 -> phone back by the watcher in ~24 s); item walleye-display-look-l7-unanswered-run done
+
+Considered
+: next: walleye-display-backlight-sysfs-write has nothing left to run (record done, look bundled); next ready: walleye-display-look-b2, walleye-slpi-boot-qrtr, walleye-nfc-nxp-nci-node. Tooling: phone password file ~/.config/devlab/google-walleye/password still missing (lpoco lab phone sh / suite unavailable).
+
+About
+: walleye-first-fastboot-boot
