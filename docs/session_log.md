@@ -3898,3 +3898,18 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-1540-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up. Touch try on z21 attended run passed (3593 EV_ABS events, Synaptics S3708AR). Suite latest not read: password file ~/.config/devlab/google-walleye/password missing, so lpoco lab phone sh/suite cannot run.
+
+Considered
+: next: keeper walleye-attend-pmic-unattended-run (needs builder to move the TWO_TESTS ask), walleye-tas2557-firmware-source and walleye-haptics-i2c-answers (need the password file for lpoco lab phone); builder z21-hold-init; password file for lpoco lab

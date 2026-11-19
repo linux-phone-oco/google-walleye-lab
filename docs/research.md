@@ -4501,3 +4501,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-z21-touch-events-pass"></a>
+### walleye-z21-touch-events-pass
+
+Date
+: 2026-11-19
+
+Brief
+: z21 touch on a person's swipe: Synaptics S3708AR probed, 3593 EV_ABS events read (4358 lines); phone back on Android
+
+Question
+: Does the RMI4 touch device on z21 make EV_ABS events when a person touches the glass?
+
+Found
+: Attended run of tests/attended/touch-try.rs once, at the author's Go (relayed by the Top Coordinator, go until 16:18): battery, image and UFS-off checks passed; booted z21 from slot b, reader showed EVENTS-READY for 120 s; the author swiped the whole glass and tapped the corners and said ok (relayed). The reader saw 4358 event lines, touch-check.sh: pass walleye-touch-events, 3593 EV_ABS events from 'Synaptics S3708AR'. Phone returned to Android by itself (adb device). Log: /home/mll/lab-material/walleye/touch-try-1795098876.log (not in git).
+
+About
+: walleye-first-fastboot-boot
