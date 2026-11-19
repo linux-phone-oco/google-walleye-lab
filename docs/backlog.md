@@ -7932,10 +7932,10 @@ Go until
 ### Copy device-template's CI job that checks device.toml with the newest lpoco-lab release, so a device.toml the lab's tools cannot read cannot land
 
 Status
-: open
+: done
 
 Note
-: Orchestration, 2026-11-19, decision 2026-11-19-host-follows-releases (c): the installed lpoco 0.24.0 rejected main's device.toml after the settings move (this lab's own record, PR 526) and nothing in CI caught it. device-template #36 adds the job that checks device.toml with the newest lpoco-lab release. Not urgent; do not touch the CI while the UFS try runs.
+: DONE 2026-11-19 (walleye-builder): bin/check-device-toml.sh, tests/ci/check-device-toml.sh and the device-toml job copied from device-template PR 36 as they are. Seen: the stand-in test passes 6 cases; the real check passes main's device.toml against lpoco-lab-v0.37.1 and fails a copy with an unknown key naming the key; the existing jobs are untouched.
 
 About
 : walleye-attend-program-touch

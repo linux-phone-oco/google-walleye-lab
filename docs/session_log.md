@@ -4798,3 +4798,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-ci-checks-device-toml-with-the-newest-lpoco-lab"></a>
+### CI checks device.toml with the newest lpoco-lab
+
+Entry date
+: 2026-11-19
+
+Done
+: Copied device-template PR 36's check (script, its stand-in test, the device-toml job) into this lab's CI; ran the test, the real check on main's device.toml and on a copy with an unknown key.
+
+Considered
+: Writing it again here; a pinned lpoco version (lab.toml is private, the host follows releases).
+
+Rejected
+: Pinning a version: the host follows each release within minutes, so the newest release is the reader that matters.
+
+About
+: walleye-attend-program-touch
