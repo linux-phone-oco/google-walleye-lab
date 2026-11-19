@@ -8013,10 +8013,10 @@ Witness
 ### The UFS procedure reads the link, it does not fail on a gear below HS-G3: 'works, slow' is a result
 
 Status
-: open
+: done
 
 Note
-: Research walleye-ufs-try1-card-readable: the procedure's only FAIL was this check; the card read fine at HS gear 1, 2 lanes, rate B, in HIBERN8. Rank 2 (2026-11-19): after walleye-display-look-b2, which the author is waiting for.
+: Done 2026-11-19 (walleye-builder): the check is the reading step the_link_is_read in tools/walleye-tries/src/ufs.rs: records gear, lanes, rate, mode, link_state, dev_pm to link.txt; 'works at full speed' (HS-G3, 2 lanes), 'works, slow' (link up, ACTIVE or HIBERN8, lower gear), fails only when the link is down (OFF, BROKEN, nothing read). Tests: unit test on the real try-1 files (HS_GEAR1, 2 lanes, HIBERN8) reads 'slow'; stand-in tests for gear 1, gear 3, link down; 119 pass; lpoco-attended check passes. A slow link polls the full device_wait before it says so. Programmer review: BROKEN read as up, fixed.
 
 About
 : walleye-ufs-match-android-z

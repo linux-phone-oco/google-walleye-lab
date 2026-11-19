@@ -4744,3 +4744,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-walleye-builder-ufs-link-works-slow"></a>
+### walleye-builder: the UFS link check reads, it does not fail on a low gear
+
+Entry date
+: 2026-11-19
+
+Done
+: the_link_is_read replaces the HS-G3 check: three results (full speed, works slow, down); try 1's real link.txt reads as works, slow; stand-in tests for gear 1, gear 3, down and BROKEN; check and dry-run pass
+
+Rejected
+: failing on any gear below 3 (try 1's only FAIL, the card read fine); treating only OFF as down (the reviewer: BROKEN is down too)
+
+About
+: walleye-ufs-match-android-z
