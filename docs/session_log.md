@@ -3538,3 +3538,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-display-dtb-bisect-images"></a>
+### walleye-builder: the display dtb bisect images f0..f3
+
+Entry date
+: 2026-11-19
+
+Done
+: build-display-dtb-bisect-dtbs.sh (Image.gz cut from the late-probe image; f0..f3 dtbs by fdtput on z21's dtb; f1..f3.diff), series build/series/display-dtb-bisect.toml, check-display-dtb-bisect.sh, README section. Programmer review: loose value checks became exact added-line comparisons, parts sums verified by the check, scripts 755. Sums in ~/Projects/walleye-build/images-display-dtb-bisect/SHA256SUMS-display-dtb-bisect. Not run on any phone.
+
+Considered
+: Taking the groups from the late-probe image's own dtb (lacks z21's touch-power regulator, shifted phandles); cutting from z21's dtb keeps f0 byte for byte z21's
+
+Rejected
+: Rebuilding the dtbs from the display dts: phandles shift and f0 would not be z21's bytes
+
+About
+: walleye-display-s6e3fa5

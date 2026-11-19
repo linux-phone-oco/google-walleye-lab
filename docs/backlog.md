@@ -6041,10 +6041,10 @@ Rank
 ### Split the display dtb: the late-probe kernel with z21's dtb (control) and with each group of the display dtb's additions alone
 
 Status
-: open
+: done
 
 Note
-: Research walleye-display-late-probe-try1-no-gadget (PR 418): the late-probe image, whose display drivers are modules that never load, still died before the gadget (Android back after 57 s), like d1. Reading: d0 (display kernel with the DRM drivers BUILT IN, z21's dtb) boots a shell, so the kernel is not the cause; what d1 and the late-probe image share and d0 lacks is the display dtb's additions. The keeper's suggested 'kernel or dtb' is answered by d0: it is the dtb. The late-probe image's kernel is used for all four so any death is the dtb alone; f0 is the control (z21's dtb must still boot there). Decision 2026-11-19-walleye-display-dtb-bisect.
+: Built: boot-f0..f3.img in ~/Projects/walleye-build/images-display-dtb-bisect, SHA256SUMS-display-dtb-bisect; check-display-dtb-bisect.sh all ok (UFS-off gate on each), rebuild identical, reviewed. Research walleye-display-dtb-bisect-built. Not tried: walleye-try-display-dtb-bisect.
 
 About
 : walleye-display-s6e3fa5

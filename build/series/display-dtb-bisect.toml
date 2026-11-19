@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# f0..f3 (backlog walleye-display-dtb-bisect-images): the late-probe image (display drivers as modules, netconsole, init-late) with z21's dtb, then with each group of the display dtb's additions alone.
+# The parts are build/build-display-dtb-bisect-dtbs.sh's. Run: lpoco-bringup image bisect build/series/display-dtb-bisect.toml --out OUT; every image passes tests/host/ufs-off-image.sh (build/check-display-dtb-bisect.sh).
+control = "../../../../walleye-build/images-display-late/boot-display-late.img"
+
+[[image]]   # the control: z21's dtb unchanged
+name = "f0"
+dtb = "../../../../walleye-build/images-display-dtb-bisect/f0.dtb"
+
+[[image]]   # + the regulators only (l14, l22, the vdd_l18_l22-supply line)
+name = "f1"
+dtb = "../../../../walleye-build/images-display-dtb-bisect/f1.dtb"
+
+[[image]]   # + the three pinctrl states only
+name = "f2"
+dtb = "../../../../walleye-build/images-display-dtb-bisect/f2.dtb"
+
+[[image]]   # + mdss, the display controller, the DSI host and its PHY okay only
+name = "f3"
+dtb = "../../../../walleye-build/images-display-dtb-bisect/f3.dtb"
