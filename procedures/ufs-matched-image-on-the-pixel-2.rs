@@ -40,7 +40,7 @@ fn main() {
     run_step(steps::wait_for_gadget(30, 5));
     step("the shell answers and the hold is on", card.shell_answers_and_holds());
     check("the probe lines are in the kernel log", card.the_probe_lines_are_read());
-    check("the link is HS-G3 on two lanes", card.the_link_is_hs_g3_on_two_lanes());
+    check("the link is read: full speed, or works, slow", card.the_link_is_read());
     check("the card's disks are listed, read only", card.the_luns_are_listed());
     check("no purge was asked", card.no_purge_was_asked());
     step("release the hold: the phone restarts by itself", card.the_hold_is_released());

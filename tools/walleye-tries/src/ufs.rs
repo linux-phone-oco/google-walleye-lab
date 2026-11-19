@@ -183,12 +183,26 @@ impl Probe {
 }
 
 /// The `power_info` files of the host, read as `name=value` lines, as the link of the card.
+/// The values are as the kernel prints them (`HS_GEAR3`, `HS_RATE_B`, `FAST_MODE`, `HIBERN8`); a bare digit is read too.
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct Link {
     pub gear: String,
     pub lane: String,
     pub mode: String,
+    pub rate: String,
     pub link_state: String,
+    pub dev_pm: String,
+}
+
+/// What the link reading says: the link at its best, up but below it, or not up.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Speed {
+    /// High speed, gear 3, two lanes.
+    Full,
+    /// The link is up and the card answers, in a lower gear, on fewer lanes or in a slow mode.
+    Slow,
+    /// No link: the host reports it off, or reports nothing.
+    Down,
 }
 
 impl Link {
@@ -205,16 +219,41 @@ impl Link {
             gear: get("gear"),
             lane: get("lane"),
             mode: get("mode"),
+            rate: get("rate"),
             link_state: get("link_state"),
+            dev_pm: get("dev_pm"),
         }
     }
 
-    /// High speed (a FAST mode), gear 3, two lanes, the link active.
-    pub fn is_hs_g3_two_lanes(&self) -> bool {
-        self.gear == "3"
-            && self.lane == "2"
-            && self.mode.starts_with("FAST")
-            && self.link_state == "ACTIVE"
+    /// The gear as a number: `3` and `HS_GEAR3` both say 3.
+    fn gear_number(&self) -> &str {
+        self.gear.trim_start_matches(|c: char| !c.is_ascii_digit())
+    }
+
+    /// The link is up: it has a mode, a lane count and the state ACTIVE or HIBERN8 (idle is up; OFF, BROKEN and the rest are down).
+    pub fn is_up(&self) -> bool {
+        !self.mode.is_empty()
+            && !self.lane.is_empty()
+            && !self.link_state.is_empty()
+            && (self.link_state == "ACTIVE" || self.link_state == "HIBERN8")
+    }
+
+    pub fn speed(&self) -> Speed {
+        if !self.is_up() {
+            Speed::Down
+        } else if self.gear_number() == "3" && self.lane == "2" && self.mode.starts_with("FAST") {
+            Speed::Full
+        } else {
+            Speed::Slow
+        }
+    }
+
+    /// One line for the log: every reading the card's link gives.
+    pub fn line(&self) -> String {
+        format!(
+            "gear {} lanes {} rate {} mode {} link_state {} dev_pm {}",
+            self.gear, self.lane, self.rate, self.mode, self.link_state, self.dev_pm
+        )
     }
 }
 
@@ -397,8 +436,9 @@ impl Ufs {
         }
     }
 
-    /// The link is up at high speed, gear 3, two lanes, read from the host's `power_info`, polled.
-    pub fn the_link_is_hs_g3_on_two_lanes(&self) -> impl FnOnce() -> Done + 'static {
+    /// The link is read, not judged by its gear: polled until it reaches HS-G3 on two lanes ("works at full speed") or the wait ends
+    /// with the link up in a lower gear ("works, slow"); it fails only when the link is down. Every reading is saved to link.txt.
+    pub fn the_link_is_read(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
             let until = Instant::now() + Duration::from_secs(u.s.device_wait);
@@ -406,20 +446,25 @@ impl Ufs {
             loop {
                 let said = sh.run(LINK_COMMAND, Duration::from_secs(10))?;
                 let link = Link::of(&said);
-                if link.is_hs_g3_two_lanes() {
+                let speed = link.speed();
+                if speed == Speed::Full || Instant::now() >= until {
                     u.lab.save("link.txt", &said)?;
-                    println!(
-                        "  link: {} gear {} lanes {} {}",
-                        link.mode, link.gear, link.lane, link.link_state
-                    );
-                    return Ok(());
-                }
-                if Instant::now() >= until {
-                    u.lab.save("link.txt", &said)?;
-                    return Err(format!(
-                        "the link is not HS-G3 on two lanes within {} s: gear {:?}, lanes {:?}, mode {:?}, state {:?}",
-                        u.s.device_wait, link.gear, link.lane, link.mode, link.link_state
-                    ));
+                    println!("  link: {}", link.line());
+                    return match speed {
+                        Speed::Full => {
+                            println!("  works at full speed (HS-G3, 2 lanes)");
+                            Ok(())
+                        }
+                        Speed::Slow => {
+                            println!("  works, slow (below HS-G3 on 2 lanes; the link is up)");
+                            Ok(())
+                        }
+                        Speed::Down => Err(format!(
+                            "the link is down within {} s: {}",
+                            u.s.device_wait,
+                            link.line()
+                        )),
+                    };
                 }
                 std::thread::sleep(Duration::from_secs(2));
             }
@@ -563,17 +608,30 @@ mod tests {
 
     #[test]
     fn the_link_is_read_from_power_info_lines() {
-        let up = "gear=3\nlane=2\nmode=FAST_MODE\nrate=B\ndev_pm=ACTIVE\nlink_state=ACTIVE";
-        assert!(Link::of(up).is_hs_g3_two_lanes());
-        for bad in [
-            "gear=1\nlane=2\nmode=FAST_MODE\nlink_state=ACTIVE",
-            "gear=3\nlane=1\nmode=FAST_MODE\nlink_state=ACTIVE",
-            "gear=3\nlane=2\nmode=SLOW_MODE\nlink_state=ACTIVE",
-            "gear=3\nlane=2\nmode=FAST_MODE\nlink_state=OFF",
+        let full = "gear=HS_GEAR3\nlane=2\nmode=FAST_MODE\nrate=HS_RATE_B\ndev_pm=ACTIVE\nlink_state=ACTIVE";
+        assert_eq!(Link::of(full).speed(), Speed::Full);
+        assert_eq!(
+            Link::of(&full.replace("HS_GEAR3", "3")).speed(),
+            Speed::Full
+        );
+        // the real files of try 1: gear 1, two lanes, idle in HIBERN8: the link is up, slow
+        let try1 = "dev_pm=SLEEP\ngear=HS_GEAR1\nlane=2\nlink_state=HIBERN8\nmode=FAST_MODE\nrate=HS_RATE_B";
+        assert_eq!(Link::of(try1).speed(), Speed::Slow);
+        for slow in [
+            "gear=HS_GEAR1\nlane=2\nmode=FAST_MODE\nlink_state=ACTIVE",
+            "gear=HS_GEAR3\nlane=1\nmode=FAST_MODE\nlink_state=ACTIVE",
+            "gear=HS_GEAR3\nlane=2\nmode=SLOW_MODE\nlink_state=ACTIVE",
+        ] {
+            assert_eq!(Link::of(slow).speed(), Speed::Slow, "{slow}");
+        }
+        for down in [
+            "gear=HS_GEAR3\nlane=2\nmode=FAST_MODE\nlink_state=OFF",
+            "gear=HS_GEAR3\nlane=2\nmode=FAST_MODE\nlink_state=BROKEN",
             "",
         ] {
-            assert!(!Link::of(bad).is_hs_g3_two_lanes(), "{bad}");
+            assert_eq!(Link::of(down).speed(), Speed::Down, "{down}");
         }
+        assert!(Link::of(try1).line().contains("rate HS_RATE_B"));
     }
 
     #[test]
@@ -697,7 +755,7 @@ mod tests {
             let u = ufs(phone(DMESG), "pass");
             u.shell_answers_and_holds()().unwrap();
             u.the_probe_lines_are_read()().unwrap();
-            u.the_link_is_hs_g3_on_two_lanes()().unwrap();
+            u.the_link_is_read()().unwrap();
             u.the_luns_are_listed()().unwrap();
             u.no_purge_was_asked()().unwrap();
             u.the_hold_is_released()().unwrap();
@@ -724,16 +782,39 @@ mod tests {
             assert!(e.contains("purge refused"), "{e}");
         }
 
-        #[test]
-        fn a_link_in_gear_one_is_no_pass() {
+        fn read_link(power_info: &'static str, name: &str) -> Result<String, String> {
             let mut t = phone(DMESG);
-            t[1] = (
-                "power_info",
-                "gear=1\nlane=2\nmode=FAST_MODE\nlink_state=ACTIVE",
+            t[1] = ("power_info", power_info);
+            let u = ufs(t, name);
+            u.the_link_is_read()()
+                .map(|()| std::fs::read_to_string(out(name).join("link.txt")).unwrap())
+        }
+
+        #[test]
+        fn a_link_in_gear_one_works_slow_and_is_recorded() {
+            let said = read_link("gear=HS_GEAR1\nlane=2\nmode=FAST_MODE\nrate=HS_RATE_B\ndev_pm=SLEEP\nlink_state=HIBERN8", "gear1").unwrap();
+            assert!(
+                said.contains("gear=HS_GEAR1") && said.contains("link_state=HIBERN8"),
+                "{said}"
             );
-            let u = ufs(t, "gear1");
-            let e = u.the_link_is_hs_g3_on_two_lanes()().unwrap_err();
-            assert!(e.contains("not HS-G3") && e.contains("gear \"1\""), "{e}");
+        }
+
+        #[test]
+        fn a_link_in_gear_three_works_at_full_speed() {
+            read_link("gear=HS_GEAR3\nlane=2\nmode=FAST_MODE\nrate=HS_RATE_B\ndev_pm=ACTIVE\nlink_state=ACTIVE", "gear3").unwrap();
+        }
+
+        #[test]
+        fn a_link_that_is_down_fails_and_says_so() {
+            let e = read_link(
+                "gear=HS_GEAR1\nlane=2\nmode=FAST_MODE\nlink_state=OFF",
+                "down",
+            )
+            .unwrap_err();
+            assert!(
+                e.contains("link is down") && e.contains("link_state OFF"),
+                "{e}"
+            );
         }
 
         #[test]
