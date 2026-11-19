@@ -2581,28 +2581,6 @@ Proof
 : the script reads the battery from adb (dumpsys battery) when adb shows the phone, from fastboot getvar battery-voltage when fastboot does (each call under timeout 10), prints "not measured" and exits 2 when neither answers within 15 s; run with the phone in Android it ends in under 15 s; selftest with fake adb/fastboot in PATH; programmer review
 
 
-<a id="walleye-use-lpoco-bisect"></a>
-### Retire walleye's own bisect scripts (build-bisect.sh, check-bisect.sh and their kin) for `lpoco-bringup image bisect SERIES`: write walleye's series files
-
-Status
-: open
-
-Note
-: From orchestration (lab-tools PR 123, release v0.4.0): the one command `lpoco-bringup image bisect SERIES --out DIR` counts the swaps against the control and wraps lz4 kernels. Low rank; any builder run after the lab host is on 0.4.0. Keep the old scripts until the reproduction passes.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: walleye's series file(s) declare the swaps of the bisects done so far (pk4/pk5/pk6, d1-d6, w*/wa/wpa, wp*, the fdt compare when it exists) against the control image; `lpoco-bringup image bisect` reproduces at least pk5, wa and one d-image byte for byte (sha256 equal to the recorded ones, or the difference explained); the old scripts removed in the same change; checks and hashes; programmer review
-
-
 <a id="walleye-try-fdt-bisect"></a>
 ### Phone: boot x4, x1, x2, x6, x5, x3, x7, xa twice each from the first state; record the sixteen return times
 
@@ -3283,28 +3261,6 @@ Needs
 
 Proof
 : build/ffs-acm/ffs-acm.c and anything that only builds n3 from it removed (n3's recorded hashes stay as history; n3r is the image to try); the lab's checks pass; read back from main
-
-
-<a id="walleye-fuel-gauge"></a>
-### Fuel gauge: test the PMI8998 FG gen3 driver (RFC series of 2025-11-24) on walleye; an upstream candidate
-
-Status
-: open
-
-Note
-: Not in mainline: lwn.net/Articles/1048226 (driver by Joel Selvaraj, carried by sdm845-next). Take the series as a patch file, test, report upstream (ikb upstream-item). The walleye battery profile is the vendor tree's, read in our own words.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: walleye-battery-capacity: capacity and voltage_now within 100 mV of the fastboot battery reading; the reading sent upstream as a Tested-by
 
 
 <a id="walleye-try-z4"></a>
@@ -5369,34 +5325,6 @@ Rank
 : 1
 
 
-<a id="walleye-ufs-match-android-z"></a>
-### Build a z image whose UFS path matches Android's for this card: SAVECONFIGTIME only, the PHY table of the version read, ICE and rail loads, a card RST_n pulse (built and reviewed, NOT tried)
-
-Status
-: open
-
-Note
-: From research walleye-ufs-android-way-compared. The RST_n pulse needs a kernel change (tlmm ngpios or pinctrl states): decide which first. Drop ONE_TX_LANE, EXTEND_SYNC_LENGTH, DELAY_BEFORE_LPM for this card; keep the NO_PURGE guard.
-
-Blocked by
-: walleye-ufs-android-regs
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: a built image whose quirks for H28U74301AMR equal the vendor's, with the programmer review; try waits for the author's word
-
-Rank
-: 80
-
-
 <a id="walleye-display-s6e3fa5"></a>
 ### Display: Samsung S6E3FA5 command-mode panel through DPU/DSI
 
@@ -5612,3 +5540,84 @@ Proof
 
 Rank
 : 0
+
+
+<a id="walleye-use-lpoco-bisect"></a>
+### Retire walleye's own bisect scripts (build-bisect.sh, check-bisect.sh and their kin) for `lpoco-bringup image bisect SERIES`: write walleye's series files
+
+Status
+: open
+
+Note
+: From orchestration (lab-tools PR 123, release v0.4.0): the one command `lpoco-bringup image bisect SERIES --out DIR` counts the swaps against the control and wraps lz4 kernels. Low rank; any builder run after the lab host is on 0.4.0. Keep the old scripts until the reproduction passes.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: walleye's series file(s) declare the swaps of the bisects done so far (pk4/pk5/pk6, d1-d6, w*/wa/wpa, wp*, the fdt compare when it exists) against the control image; `lpoco-bringup image bisect` reproduces at least pk5, wa and one d-image byte for byte (sha256 equal to the recorded ones, or the difference explained); the old scripts removed in the same change; checks and hashes; programmer review
+
+Rank
+: 10
+
+
+<a id="walleye-fuel-gauge"></a>
+### Fuel gauge: test the PMI8998 FG gen3 driver (RFC series of 2025-11-24) on walleye; an upstream candidate
+
+Status
+: open
+
+Note
+: Not in mainline: lwn.net/Articles/1048226 (driver by Joel Selvaraj, carried by sdm845-next). Take the series as a patch file, test, report upstream (ikb upstream-item). The walleye battery profile is the vendor tree's, read in our own words.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: walleye-battery-capacity: capacity and voltage_now within 100 mV of the fastboot battery reading; the reading sent upstream as a Tested-by
+
+Rank
+: 20
+
+
+<a id="walleye-ufs-match-android-z"></a>
+### Build a z image whose UFS path matches Android's for this card: SAVECONFIGTIME only, the PHY table of the version read, ICE and rail loads, a card RST_n pulse (built and reviewed, NOT tried)
+
+Status
+: open
+
+Note
+: From research walleye-ufs-android-way-compared. The RST_n pulse needs a kernel change (tlmm ngpios or pinctrl states): decide which first. Drop ONE_TX_LANE, EXTEND_SYNC_LENGTH, DELAY_BEFORE_LPM for this card; keep the NO_PURGE guard.
+
+Waits
+: the author's go on UFS (decision 2026-11-18-walleye-ufs-wait) and the Android register read; a UFS-on image is never built for a try without it
+
+Blocked by
+: walleye-ufs-android-regs
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: a built image whose quirks for H28U74301AMR equal the vendor's, with the programmer review; try waits for the author's word
+
+Rank
+: 98
