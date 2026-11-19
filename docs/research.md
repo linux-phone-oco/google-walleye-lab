@@ -4482,3 +4482,22 @@ Found
 
 About
 : walleye-attend-program-touch
+
+
+<a id="walleye-display-late-probe-l4-tried-dsi-binds-panel-defers-on-reset"></a>
+### walleye-display-late-probe-l4-tried-dsi-binds-panel-defers-on-reset
+
+Date
+: 2026-11-19
+
+Brief
+: L4 tried once from slot b: c994000.dsi now probes and binds; the panel defers on reset-gpios (cannot find GPIO chip gpiolib_shared.proxy.6); no DRM card yet
+
+Question
+: With the four overlay pinctrl labels on real tlmm groups (L4), does the dsi probe, does a DRM card appear, does the panel bind?
+
+Found
+: Gates: ufs-off-image pass, sha256 ok, battery 4377 mV, slot b. fastboot boot of boot-l4.img (nothing flashed): gadget 1d6b:0104 after 18 s, shell 2 s later; display-late-probe.sh: all 13 modules load, shell alive (stream carried the marker, netconsole did not). dsi_dev_probe ran, 'dsi probed', msm_dsi_host_init 'Dsi Host 0 initialized': the dsi left the deferred list (the pinctrl stubs were the silent defer). Now devices_deferred lists only 'c994000.dsi.0 panel-samsung-s6e3fa5: Failed to get reset-gpios'; dmesg: 'cannot find GPIO chip gpiolib_shared.proxy.6, deferring', then 'No GPIO consumer reset found'. The panel's reset-gpios is tlmm 94 (dt/msm8998-google-walleye-display.dts:88); the shared-GPIO proxy chip it looks up does not exist. /sys/class/drm has only 'version', no /dev/dri, no connector: no 'console and connector read'. Phone back on Android slot b, idle-android pass. Material: /home/mll/Projects/walleye-build/runs/l4-1795098032. Next: find why the proxy for tlmm 94 never registers (another consumer of pin 94 in dtb or overlay, or gpiolib-shared not built) and fix it in an L5; one try.
+
+About
+: walleye-display-s6e3fa5

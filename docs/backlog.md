@@ -6799,10 +6799,10 @@ Rank
 ### Try L4 once: the pinctrl-labels image; read whether the dsi probes, a DRM card appears and the panel binds
 
 Status
-: open
+: done
 
 Note
-: UNATTENDED, no person (decision 2026-11-19-walleye-display-console-before-eyes). One try; timeout 400 s or more. Retargeted 2026-11-19: L4 is the pinctrl-labels image (decision 2026-11-19-walleye-display-l4-pinctrl-labels-not-trace); read after the modules load: devices_deferred (the dsi should leave it), /sys/class/drm, dmesg for 'dsi probed' and the panel probe; then the connector.
+: tried once; proven by research walleye-display-late-probe-l4-tried-dsi-binds-panel-defers-on-reset: dsi binds, panel defers on reset-gpios (gpiolib_shared proxy), no card. Next: L5 for the shared-GPIO proxy of tlmm 94.
 
 Blocked by
 : walleye-display-late-probe-l4-pinctrl-labels-image
@@ -7183,3 +7183,19 @@ Witness
 
 Go until
 : 2026-11-19T16:07:20+01:00
+
+
+<a id="walleye-display-late-probe-l5-gpio-shared-proxy"></a>
+### Name why the gpiolib_shared proxy for the panel reset (tlmm 94) is missing, and make an L5 image that fixes it
+
+Status
+: open
+
+Note
+: From research walleye-display-late-probe-l4-tried-dsi-binds-panel-defers-on-reset. Host first: who else references tlmm 94 in dtb+overlay, and the kernel's gpiolib-shared config.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19

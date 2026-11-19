@@ -3844,3 +3844,21 @@ Considered
 
 About
 : walleye-attend-program-touch
+
+---
+
+
+<a id="2026-11-19-1600-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: L4 tried once from slot b, nothing flashed: dsi binds, panel defers on reset-gpios (shared-GPIO proxy), no DRM card. Phone on Android slot b, stock kernel, idle-android pass.
+
+Considered
+: next: touch try (go open 2026-11-19); an L5 for the tlmm 94 proxy (walleye-display-late-probe-l5-gpio-shared-proxy); then walleye-attend-pmic-unattended-run. Suite latest not read: password file missing.
+
+About
+: walleye-display-s6e3fa5
