@@ -4201,3 +4201,21 @@ Considered
 
 About
 : walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-19-wdt-state-and-the-petter-find-watchdogs-by"></a>
+### wdt-state and the petter find watchdogs by device link when sysfs has no identity
+
+Entry date
+: 2026-11-19
+
+Done
+: init-wdt1: the petter and wdt-state take the identity file when present, else the device link (*:watchdog = PMIC pon@800, *.watchdog = qcom_wdt SoC). Host selftest +4 cases without identity files, incl. PMIC-only chooses nothing (all pass); target busybox has CONFIG_READLINK. Programmer review: no blocking findings; open risk: the real readlink names are assumed from the item note, to be confirmed on the phone. Images rebuilt into ~/Projects/walleye-build/images-wdt1-sysfsless: A 9dfea09637a813fa677449780ac475a3b859e81135a056fadd8811dadc2f40b4, B 15f5e97d1ac4185fd4a3a5dae3b874cd5ee0267e694a4b454f9889d7efefe933 (earlier images-wdt1 untouched). Item stays open: its proof is the phone try.
+
+Rejected
+: enabling WATCHDOG_SYSFS: a ramdisk change is smaller and keeps the kernel as mailed
+
+About
+: walleye-attend-program-pmic
