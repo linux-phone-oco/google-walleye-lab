@@ -2446,3 +2446,31 @@ Scope
 
 Tracked by
 : walleye-display-look-l7
+
+
+<a id="2026-11-19-walleye-display-early-load-splash-handover"></a>
+### 2026-11-19-walleye-display-early-load-splash-handover
+
+Date
+: 2026-11-19
+
+Brief
+: B2's failures are the bootloader splash still live at 2 s: bisect the delay first, then reserve the splash region with simple-framebuffer in the dts
+
+Decision
+: Chosen vector: (1) bisect by load delay to find which cleanup ends the bootloader scan-out; (2) reserve memory@9d400000 no-map and a simple-framebuffer with the mmcc clocks and MDSS_GDSC in the walleye dts, as OnePlus 5/5T do; (3) only if faults remain, a dpu handover fix (disable autorefresh, wait idle, before the domain attach), upstream. Proof: health check display-boot-clean.
+
+Why
+: Four runs: loads at 2 s fail identically on all three signs, the load at 66 s with the same modules and order has none (research walleye-display-b2-dsi-clock-warning). walleye reserves nothing at 0x9d400000 though the faulting iovas lie there; other msm8998 boards reserve it.
+
+Rejected
+: Init waiting a fixed time: hides it, not mainline, kept only as a fallback. Reordering modules: L6 has the same order and works. Pixel-clock-only fix (H2): does not explain the SMMU faults. Removing iommu.passthrough: not the sole cause, L6 has it too.
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-b2-dsi-clock-warning
+
+Tracked by
+: walleye-display-dts-any-order

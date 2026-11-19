@@ -1167,3 +1167,29 @@ Url
 
 Takes
 : dsi_cmd_dma_tx 200 ms completion wait; dsi_err_worker; status bits FIFO=4, MDP_FIFO_UNDERFLOW=8; BLOCK_DMA_WITHIN_FRAME for DSI 6G >= 1.2; TODO 'make sure dsi_cmd_mdp is idle'; drm_panel_enable only logs the backlight failure
+
+
+<a id="kernel-oneplus-common-dtsi"></a>
+### msm8998-oneplus-common.dtsi (mainline): cont_splash_mem and simple-framebuffer
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/arm64/boot/dts/qcom/msm8998-oneplus-common.dtsi
+
+By
+: Linux kernel, qcom dts maintainers
+
+Takes
+: the splash region reserved no-map at 0x9d400000 and the clocks and GDSC the framebuffer pins
+
+
+<a id="kernel-msm8998-dtsi-mdss"></a>
+### msm8998.dtsi (mainline): mdss, dsi0, dsi0 phy, mmss_smmu nodes
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/arm64/boot/dts/qcom/msm8998.dtsi
+
+By
+: Linux kernel
+
+Takes
+: the SoC-level display description is complete: iommus on mdss, assigned-clock-parents on dsi0
