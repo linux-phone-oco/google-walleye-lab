@@ -4699,3 +4699,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-modem-blobs-found"></a>
+### walleye-modem-blobs-found
+
+Date
+: 2026-11-19
+
+Brief
+: Pixel 2 modem firmware found read-only: modem_b is a FAT image with image/modem.mdt+b00-b27, mba.mbn, qdsp6m.qdb; rmtfs partitions read
+
+Question
+: Where are the modem blobs and rmtfs partitions of the Pixel 2, and can they be read without writing the phone?
+
+Found
+: With Android on slot b, adb root (Android is throw-away; there is no su), dd of /dev/block/by-name to ~/lab-material/walleye/modem-2026-11-19/ (mode 700, outside git), nothing written to the phone: modem_a and modem_b (80 MiB each, identical sha 4ae0e793), fsg 1.5 MiB, fsc 1 MiB, modemst1 and modemst2 2 MiB each. modem_b is a FAT16 image: /image holds modem.mdt (8348 B) with b00-b27, mba.mbn (234152 B), qdsp6m.qdb, modemr.jsn, version.cfg (2020-06-09 build). So the remoteproc_mss firmware set (mba.mbn + modem.mdt/bNN) is on the phone's own partition and reaches the test ramdisk from ~/lab-material, never git. rmtfs reads modemst1/2, fsg, fsc: keep read-only. Still to do: a kernel image with remoteproc_mss, rmtfs memory and the qcom_q6v5_mss node enabled in the dts (research walleye-modem-way), then one test-ramdisk try.
+
+About
+: modem-calls
