@@ -5754,3 +5754,56 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-display-late-probe-image"></a>
+### Display late probe: the display driver built as modules and loaded by hand from the shell, with the kernel log already streamed to the host, so a hang names its last step
+
+Status
+: open
+
+Note
+: WHY (research walleye-display-bisect-d1-loses-the-shell, decision 2026-11-19-walleye-display-late-probe): d0 (display kernel, no display nodes) boots the shell; d1 (mdss + display-controller) does not, Android back after 57 s, no log survives (pstore unreadable without root, no UART). The kernel dies before userspace, so no shell can read why. Loading the driver from the shell with the log already streaming (netconsole from the kernel, which also reaches a panic, plus a TCP stream of dmesg) gives the last printed step, which names the probe that dies. Both channels, since a bus hang may print nothing after its last line. NO access change: the shell is the lane's telnet on usb0. The image carries no UFS (gate). The dtb is d1's so the nodes exist but nothing binds until modprobe. If netconsole over the USB ethernet gadget does not carry (u_ether has no netpoll hook of its own), say so in the record and fall back to d1a (mdss okay alone, display-controller disabled) and d1b as plain images.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: a boot image (gate passes) whose kernel carries the display path as MODULES (DRM_MSM and what it needs, the panel, in the ramdisk with depmod output and a modprobe-able list) and netconsole (NETCONSOLE=y, NETCONSOLE_DYNAMIC=y) plus the d1 dtb (mdss + display-controller okay, dsi, phy, panel as the display dtb), so nothing display-related probes at boot; a host script tests/host/display-late-probe.sh that: waits for the shell (telnet 172.16.43.1), touches /tmp/hold, starts a host UDP listener on 172.16.43.2:6666 (netconsole target set from the shell by configfs, with printk loglevel 8 and drm.debug set), also streams dmesg over TCP from the shell, then loads the modules one at a time in dependency order with a pause, writing every step to a file on the host before each load; programmer review; sha256 lines
+
+Rank
+: 1
+
+
+<a id="walleye-try-display-late-probe"></a>
+### Try the display late-probe image once: stream the kernel log, load the display modules by hand, read the last step
+
+Status
+: open
+
+Note
+: UNATTENDED, no person (the author's words: first the console, then ask him to look; decision 2026-11-19-walleye-display-console-before-eyes). If the modules load without a hang: read the DRM connector status and the dmesg probe lines of mdss, dpu, dsi, panel; only an image that carries the panel and has them read may ask the author to look, for the stripes alone. If the phone dies at a module load: the netconsole and TCP stream files hold the last lines. One try; the init returns the phone to Android by itself.
+
+Blocked by
+: walleye-display-late-probe-image
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the gate passes right before the boot; the shell answers (gadget 1d6b:0104); the host script display-late-probe.sh runs with its files kept in ~/lab-material/walleye; a research row naming the last logged line before the shell or the phone died (or, if nothing died, the dmesg of the probe, the DRM connector status); Android back by itself within the 180 s timer or the fallback
+
+Rank
+: 2

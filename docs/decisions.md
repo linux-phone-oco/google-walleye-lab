@@ -1830,3 +1830,31 @@ Research
 
 Tracked by
 : walleye-try-display-bisect
+
+
+<a id="2026-11-19-walleye-display-late-probe"></a>
+### 2026-11-19-walleye-display-late-probe
+
+Date
+: 2026-11-19
+
+Brief
+: Find why d1 dies by loading the display driver late from the shell with the log streamed, not by more node-split images
+
+Decision
+: Build the display path as modules, keep d1's dtb, add netconsole, and load the modules by hand with the kernel log already going to the host over usb0 (netconsole and a TCP dmesg stream). One try reads the last logged step. Node-split images (mdss alone, display-controller alone) stay as the fallback if the late probe cannot carry a log.
+
+Why
+: Research walleye-display-bisect-d1-loses-the-shell: d0 boots, d1 does not, and the kernel dies before userspace so no log survives; every channel that outlives a hang is closed (pstore needs root and every mainline try left it empty, no UART owned, the vendor kernel as instrument cannot show our probe). A node split says WHERE (one more image per node), not WHY; the late probe says why in one try, and the same image carries later stages (dsi, panel) behind the same hand-loaded steps.
+
+Rejected
+: More node-split images first (two or three tries to learn a node, no mechanism); ramoops/pstore (needs the author's unlock and root; empty after every mainline try); a UART (not owned: walleye-get-uart-setup waits for his purchase); asking the author to watch the panel again (his words: console first)
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-bisect-d1-loses-the-shell
+
+Tracked by
+: walleye-display-late-probe-image
