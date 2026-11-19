@@ -3358,3 +3358,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-fuel-gauge"></a>
+### walleye-builder: the fuel gauge image
+
+Entry date
+: 2026-11-19
+
+Done
+: Fetched the RFC, applied patches 1-3 on v7.3 plus the wdt topic, enabled the node, wrote the check and its selftest, built fg1 (37 checks, rebuild identical), dropped the pmi8998_fg overlay stub, queued the keeper's try (walleye-try-fuel-gauge).
+
+Considered
+: All eight patches; a table of the vendor profile.
+
+Rejected
+: Both, see the decision.
+
+About
+: walleye-first-fastboot-boot

@@ -42,3 +42,23 @@ path = ["dt/msm8998-google-walleye-f.dts", "dt/msm8998-google-walleye-ufs.dts", 
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 grenudi"
 SPDX-License-Identifier = "GPL-2.0-only OR BSD-2-Clause"
+
+# The fuel gauge RFC's patches, as received (item walleye-fuel-gauge): the kernel's own licence; the authors are in each patch.
+[[annotations]]
+path = ["kernel/fuel-gauge-rfc/0002-*.patch", "kernel/fuel-gauge-rfc/0003-*.patch", "kernel/fuel-gauge-rfc/SHA256SUMS"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 the authors named in each patch (Joel Selvaraj, Casey Connolly, David Heidelberg)"
+SPDX-License-Identifier = "GPL-2.0-only"
+
+[[annotations]]
+path = ["kernel/fuel-gauge-rfc/README.md"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 grenudi"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+# The binding patch is dual-licensed by its authors (its own SPDX line).
+[[annotations]]
+path = ["kernel/fuel-gauge-rfc/0001-*.patch"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 Yassine Oudjana, David Heidelberg"
+SPDX-License-Identifier = "GPL-2.0-only OR BSD-3-Clause"

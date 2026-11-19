@@ -1575,3 +1575,31 @@ Research
 
 Tracked by
 : walleye-use-lpoco-bisect
+
+
+<a id="2026-11-19-walleye-fuel-gauge-three-patches"></a>
+### 2026-11-19-walleye-fuel-gauge-three-patches
+
+Date
+: 2026-11-19
+
+Brief
+: Fuel gauge try: carry the RFC's first three patches as files, enable the node in our dts, keep z21's ramdisk
+
+Decision
+: Build fg1 from v7.3 + pmic-wdt topic + RFC patches 1-3 (kept as files in kernel/fuel-gauge-rfc/ with SHA256SUMS), our dts enables &pmi8998_fg with monitored-battery and the charger, z21's ramdisk and command line unchanged but for dyndbg on the driver. Judged by tests/host/fuel-gauge-check.sh against battery-ok.sh's fastboot reading, within 100 mV.
+
+Why
+: Only the binding, driver and node are needed for walleye; z21's init already has the command loop that reads power_supply. One change per try.
+
+Rejected
+: Taking all eight patches: five are other boards' dts. Porting the vendor battery profile into a table of ours: the driver does not load one. Changing the init for the try: a second change in one image.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-fuel-gauge-built
+
+Tracked by
+: walleye-try-fuel-gauge

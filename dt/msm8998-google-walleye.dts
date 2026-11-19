@@ -258,7 +258,7 @@
  * the PMIC's own round-robin ADC (pmi8998.dtsi has both nodes; the charger is disabled there). The driver sets the float
  * voltage from voltage-max-design and refuses to probe without a monitored battery. Cell facts are the vendor GPL tree's
  * (kerneltoast/android_kernel_google_wahoo): 2700 mAh, 4.4 V max, 3.4 V cutoff, 50 mA termination. The charge level
- * stays not known yet: there is no fuel gauge node yet.
+ * level comes from the fuel gauge below (item walleye-fuel-gauge).
  */
 &pmi8998_charger {
 	monitored-battery = <&battery>;
@@ -438,4 +438,16 @@
 			syna,sensor-type = <1>;
 		};
 	};
+};
+
+/*
+ * The fuel gauge (item walleye-fuel-gauge): pmi8998's FG gen3 reads the cell's charge level, voltage and current; the driver (power: supply: pmi8998_fg,
+ * RFC v1 of 2025-11-24 by David Heidelberg, driver by Joel Selvaraj, node by Casey Connolly: not in mainline) is carried as patch files in this build only.
+ * The node is the series' own (pmi8998.dtsi, disabled); here it is enabled with the cell above and the charger as its status source. The driver
+ * reads the charge level the gauge computed (the gauge's firmware profile stays in the PMIC), so the cell's design numbers are the binding's, not a table of ours.
+ */
+&pmi8998_fg {
+	monitored-battery = <&battery>;
+	power-supplies = <&pmi8998_charger>;
+	status = "okay";
 };
