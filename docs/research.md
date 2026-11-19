@@ -4060,3 +4060,28 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-audio-haptics-porthole-has-it"></a>
+### walleye-audio-haptics-porthole-has-it
+
+Date
+: 2026-11-19
+
+Brief
+: Porthole's taimen kernel already has DRV2624, TAS2557, ADSP/q6/MI2S, WCD934x mics and voice; TAS2557 cannot be brought up without its firmware, so the bypass-mode plan fails
+
+Question
+: Is anyone's audio and haptics for the Pixel 2 (MSM8998, DRV2624, TAS2557, WCD934x) working on mainline, and what does the speaker need?
+
+Found
+: Yes: the porthole-dev pmaports tree (the 7.2.2 kernel the lab already boots) carries, for the sibling Pixel 2 XL, a DRV2624 input driver (patch 0018), a TAS2557 ASoC driver (0024, 0162, 0171-0174), ADSP remoteproc, q6 and the sound card (0084, 0085, 0159), SLIMbus NGD and WCD934x microphones (0076-0080, 0083, 0087, 0098-0104), and voice calls (0163-0175); its taimen dts has the drv2624 and tas2557 nodes, and its device package says calls and microphones were measured. So the earlier research row walleye-audio-haptics-ways, that no sibling has either chip, was wrong. Its first unknown is answered by the driver: the TAS2557 cannot be brought up by registers, its PLL setup and DSP program exist only in the firmware blob tas2557s_PG21_uCDSP.bin (loaded as tas2557s_uCDSP.bin), and without it the part stays mute and the sound card defers forever, so a firmware-free bypass driver is not a known way. That blob is a vendor file, shipped in porthole's firmware package from TheMuppets' mirror. Not yet read: whether walleye's amps are the same two as taimen's (same board family wahoo, porthole's own walleye dts has no audio nodes), and the licence of the blob. The porthole drivers are GPL-2.0-only Signed-off-by Giuseppe Maggio marked Assisted-by: LLM, ported from the downstream wahoo driver, so they are not clean-room of the vendor code; the lab's clean-room line for audio must be settled by the author.
+
+Sources
+: porthole-pmaports-taimen,ti-tas2557-datasheet
+
+About
+: walleye-audio-haptics
+
+Supersedes
+: walleye-audio-haptics-ways
