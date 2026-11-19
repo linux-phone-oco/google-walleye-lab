@@ -5632,9 +5632,6 @@ Status
 Note
 : Image ~/Projects/walleye-build/images-fg1/boot-fg1.img, sha256 9f6a7033ae13e532b91874bb90e8a08803172ccfa552bbe6eb53d7f07086b99b (SHA256SUMS-fg1 beside it). KEEPER: battery rule (tests/host/battery-ok.sh, keep its mV from the SAME cable state as the try: a charging phone reads higher than an idle one, so a miss over 100 mV with the cable in is to be repeated, not read as a gauge fault), tests/host/ufs-off-image.sh on the image first, try once from slot b with mainline-shell-read.sh (it now reads capacity, present, temp), then sh tests/host/fuel-gauge-check.sh DIR MV. End on Android.
 
-Blocked by
-: walleye-fuel-gauge
-
 About
 : walleye-first-fastboot-boot
 
@@ -5646,3 +5643,6 @@ Needs
 
 Proof
 : walleye-battery-capacity: tests/host/fuel-gauge-check.sh DIR FASTBOOT_MV passes
+
+Rank
+: 0
