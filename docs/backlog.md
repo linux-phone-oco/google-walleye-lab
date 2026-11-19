@@ -5329,9 +5329,6 @@ Note
 
 ANSWER from orchestration 2026-11-19: lpoco-bringup manifest/src/boot.rs: console = "acm" is the DEFAULT (the kernel configfs ACM function acm.usb0), paired with ECM in configuration c.1 (ACM + ECM) and RNDIS in c.2; the init binds the UDC it waited for; ffs is the opt-in alternative for kernels WITHOUT the ACM function. So for walleye: leave console unset or "acm" (selftest checks /dev/ttyGS0); NO ffs-acm needed: retire build/ffs-acm-rs and the C probe in this item (our kernels have usb_f_acm). Our own init needs that the generic init does not give yet to be checked against it: serial walleye-first-boot (the generated init must set it from the manifest: check-init-serials), the 180 s hold + self-reboot, the command loop on ttyGS0, the banner (WALLEYE-BANNER lines), the watchdog petting, /tmp/hold, telnetd on usb0 172.16.43.1 with DHCP 172.16.43.2: if one is missing in the generated init, list what and ask orchestration; keep our own init until the generated one covers the list.
 
-Blocked by
-: walleye-ufs-off-gate
-
 About
 : walleye-first-fastboot-boot
 
