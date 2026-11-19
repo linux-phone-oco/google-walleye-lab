@@ -6141,3 +6141,56 @@ Proof
 
 Rank
 : 40
+
+
+<a id="walleye-display-dtb-bisect-images"></a>
+### Split the display dtb: the late-probe kernel with z21's dtb (control) and with each group of the display dtb's additions alone
+
+Status
+: open
+
+Note
+: Research walleye-display-late-probe-try1-no-gadget (PR 418): the late-probe image, whose display drivers are modules that never load, still died before the gadget (Android back after 57 s), like d1. Reading: d0 (display kernel with the DRM drivers BUILT IN, z21's dtb) boots a shell, so the kernel is not the cause; what d1 and the late-probe image share and d0 lacks is the display dtb's additions. The keeper's suggested 'kernel or dtb' is answered by d0: it is the dtb. The late-probe image's kernel is used for all four so any death is the dtb alone; f0 is the control (z21's dtb must still boot there). Decision 2026-11-19-walleye-display-dtb-bisect.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: four boot images beside the late-probe image, each passing tests/host/ufs-off-image.sh, built as bisect series files like d0..d2, all with the late-probe kernel (display drivers as modules, netconsole, init-late) and a dtb that is z21's plus: f0 nothing (control); f1 only the regulator additions (vreg_l14a_1p8, vreg_l22a_3p0 under the rpm regulators and the vdd_l18_l22-supply line); f2 only the three pinctrl states (mdss_dsi_active_state, mdss_dsi_suspend_state, mdss_te_state); f3 only mdss, the display-controller, the dsi and its phy set to okay (no panel node, no regulators, no pinctrl states); sha256 lines; the diff of each dtb against z21's as a file, showing only that group
+
+Rank
+: 1
+
+
+<a id="walleye-try-display-dtb-bisect"></a>
+### Try f0, f1, f2, f3 once each from slot b: which group of the display dtb's additions stops the gadget
+
+Status
+: open
+
+Note
+: UNATTENDED, no person (decision 2026-11-19-walleye-display-console-before-eyes). One try each, f0 first: if f0 does not boot, stop, the control is broken and the rest says nothing. Nobody is asked to look.
+
+Blocked by
+: walleye-display-dtb-bisect-images
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: per image: the gate passes right before the boot; the host kernel log says whether 1d6b:0104 enumerated and when; if up: the shell read (mainline-shell-read.sh) with the dmesg (regulator, pinctrl and mdss lines); if not: seconds until Android is back; a research row naming which of f1, f2, f3 lost the gadget and whether f0 (the control) booted; all four are tried even after a failure (they are independent), f0 first
+
+Rank
+: 2

@@ -1970,3 +1970,31 @@ Research
 
 Tracked by
 : walleye-display-late-probe-image
+
+
+<a id="2026-11-19-walleye-display-dtb-bisect"></a>
+### 2026-11-19-walleye-display-dtb-bisect
+
+Date
+: 2026-11-19
+
+Brief
+: The display death is in the dtb, not the kernel (d0 boots with the DRM drivers built in); split the dtb's additions with the late-probe kernel
+
+Decision
+: Four images on the late-probe kernel: f0 z21's dtb (control), f1 the regulator additions only, f2 the pinctrl states only, f3 the display nodes (mdss, display-controller, dsi, phy) okay only; tried once each, f0 first, all four even after a failure. The late-probe kernel-with-nodes-disabled the keeper suggested is f0; a ramoops read stays closed (needs the author's unlock and root; empty after every mainline try).
+
+Why
+: Facts: d0 = display kernel with DRM built in + z21's dtb boots a shell (335 dmesg lines, PR 408); d1 = same kernel + the display dtb with mdss and the display controller okay loses the gadget; the late-probe image (DRM as modules that never load, netconsole, init-late) + d1's dtb also loses it (PR 418). A built-in DRM kernel survives with z21's dtb, so the kernel is not the cause; the dtb's additions are. The author, 2026-11-19: console first, then ask him to look (decision 2026-11-19-walleye-display-console-before-eyes); the black screen he saw (research walleye-display-try1-author-saw) is consistent with a panel rail being cut, which f1 tests, but it is a guess until f1 is tried.
+
+Rejected
+: Another kernel variant first (d0 already shows the kernel is fine); the ramoops read (root and unlock needed, pstore empty every time); asking the author to watch the panel (his words); stopping at the first failing image (the three groups are independent, one run answers all)
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-late-probe-try1-no-gadget
+
+Tracked by
+: walleye-try-display-dtb-bisect
