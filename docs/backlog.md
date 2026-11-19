@@ -5700,3 +5700,56 @@ Proof
 
 Witness
 : person
+
+
+<a id="walleye-display-bisect-images"></a>
+### Bisect images for the display try: the display kernel with z21's dtb (d0), then mdss+DPU only (d1), then DSI and its PHY without the panel (d2)
+
+Status
+: open
+
+Note
+: Research walleye-display-try1-no-shell-what-is-known: the gadget never enumerated; the display dtb differs from z21's only by the display nodes and the kernel only by DRM, so a stage-by-stage image says where the shell is lost. Also: images-display/msm8998-google-walleye-display.dtb is STALE (old clock_gcc on the stub, sha256 84c72763); the dtb inside boot-display.img is ed155326 with clock_gcc on the real gcc: refresh or remove the stale file and say which one the image build script reads. Build only; the try is walleye-try-display-bisect.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: three boot images d0, d1, d2 beside the full display image (d3 = boot-display.img, known: no shell), each passing tests/host/ufs-off-image.sh, built as lpoco-bringup bisect series files like the other bisects, with sha256 lines; d0 = the display kernel (Image.gz of boot-display.img) with z21's dtb unchanged; d1 = the display dtb with only mdss + display-controller okay (no dsi, phy, panel); d2 = d1 plus dsi and its phy okay, panel node absent; every other node as in the display dtb
+
+Rank
+: 1
+
+
+<a id="walleye-try-display-bisect"></a>
+### Try d0, d1, d2 once each from slot b, in order, and read whether the mainline shell comes up; stop at the first that loses it
+
+Status
+: open
+
+Note
+: Unattended-safe like z21's try: RAM boot, the init returns the phone to Android by its own 180 s timer (/tmp/hold only while reading), a dark screen costs nothing. Order d0 (kernel alone), d1, d2; one try each; if d0 loses the shell the kernel build itself is the cause and the rest is skipped. The author need not be there; if the panel lights in d2 or d3 he may be told. Needs walleye-display-bisect-images done.
+
+Blocked by
+: walleye-display-bisect-images
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: per image: the gate passes right before the boot, left fastboot, gadget 1d6b:0104 within 60 s or not (host kernel log), shell read by tests/host/mainline-shell-read.sh with dmesg if up; a research row naming the first image that loses the shell (the stage that kills it) and, where the shell was up, the dmesg lines of the display probe (mdss, dpu, dsi, panel)
+
+Rank
+: 2
