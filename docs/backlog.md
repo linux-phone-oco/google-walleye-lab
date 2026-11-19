@@ -7466,7 +7466,7 @@ Status
 : done
 
 Note
-: Landed by walleye-builder 2026-11-19: device.toml [health] battery_floor_mv = 3700 with battery_source = fastboot-getvar (the manifest requires the pair; it names the only source it knows, battery-ok.sh still tries adb first while Android runs, same voltage); Settings reads health.battery_floor_mv at the top of main; battery-ok.sh takes floor and [tools] adb/fastboot from the manifest (a missing floor is skip); selftest has a manifest case; 32 stand-in tests, clippy, fmt, both --dry-run pass.
+: Landed by walleye-builder 2026-11-19: device.toml [health] battery_floor_mv = 3700 with battery_source = fastboot-getvar (the manifest requires the pair; battery-ok.sh still tries adb first while Android runs, same voltage); Settings reads health.battery_floor_mv at the top of main; battery-ok.sh takes floor and [tools] adb/fastboot from the manifest (a missing or non-numeric floor is skip); selftest has a manifest case; 32 stand-in tests, clippy, fmt, both --dry-run pass.
 
 About
 : walleye-attend-program-touch
