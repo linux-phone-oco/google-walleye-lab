@@ -756,3 +756,35 @@ By
 
 Takes
 : ICE-less path warns and returns 0; no msm8998 ICE compatible or node
+
+
+<a id="src-sony-bugtracker-802"></a>
+### Sony bug tracker 802: Tama XZ3 mainline, dreaded UFS support (bartcubbins, 2023-09 and 2025-06; phodina 2025-05)
+
+Url
+: https://github.com/sonyxperiadev/bug_tracker/issues/802
+
+Year
+: 2025
+
+By
+: Sony Open Devices contributors
+
+Takes
+: a SODP maintainer: one write cycle purges the memory 'sort of'; keep the driver from handling QUERY_FLAG_IDN_PURGE_ENABLE; sync-length quirk may relate; a dump cannot be restored; the SoC is QPROM-locked so EDL needs the UFS-held xbl
+
+
+<a id="src-xda-yoshino-ufs-erasure-origin"></a>
+### XDA: Looking for the origin and scope of the UFS bootloader-erasure warning (XZ1 poplar, Samsung KLUCG4J1 fw 0200)
+
+Url
+: https://xdaforums.com/t/help-looking-for-the-origin-and-scope-of-the-ufs-bootloader-erasure-warning.4800672/
+
+Year
+: 2026
+
+By
+: chendoxiu1
+
+Takes
+: a yoshino XZ1 with Samsung fw 0200 probed UFS on mainline several times with no erasure; he found no wipe path in the probe and asks the origin question nobody answers; no reply on record

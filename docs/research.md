@@ -3874,3 +3874,38 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ufs-gap-sony-mechanism-public-record"></a>
+### walleye-ufs-gap-sony-mechanism-public-record
+
+Date
+: 2026-11-19
+
+Brief
+: Sony's yoshino/tama UFS bootloader loss: mechanism not published; the SODP view is purge via the PURGE_ENABLE flag; one counter-case probed clean; our probe sends no purge
+
+Question
+: Why did Sony's yoshino phone lose its bootloader with a UFS probe lacking quirks, which command, which card, and can the matched image's path send it?
+
+Found
+: Verdict: the mechanism is NOT PUBLISHED. No mailing-list post, commit message or forum record names the command that wiped the bootloader. Sources searched this run: Sony bug tracker 799 and 802, the XDA thread asking exactly this question (no answer on record), the yoshino and tama dtsi warnings, the SODP forward-port commit, the postmarketOS wiki warnings; earlier run: the Kumano series author could not ask Sony.
+
+What is said, by whom:
+- A SODP contributor (bartcubbins, bug tracker 802): the issue is on all OEMs with similar memory chips; "only one write cycle and your memory will be purged (sort of)"; first places to look are UFS_DEVICE_QUIRK_NO_PURGE and EXTEND_SYNC_LENGTH; the main thing is to keep the driver from handling QUERY_FLAG_IDN_PURGE_ENABLE by any means. The sync-length quirk is "likely" about board or data-line faults, and its absence "might" cause false triggering of the purge flag or corruption. These are his beliefs, stated without a trace or log.
+- The quirk list itself (forward port, 2019): NO_PURGE for Hynix hB8aL1/hC8aL1 fw D001, Samsung KLUCG4J1 fw 0101, any card older than UFS 2.1; sync length 0x48 for all Hynix; one TX lane.
+- Recovery: a dump cannot be written back (bartcubbins); the SoC is QPROM-locked, EDL needs the xbl that lived in the wiped UFS, a swapped chip has no initialised RPMB (phodina). So: no way back, as the lane already assumed.
+
+Counter-evidence: a yoshino XZ1 (Samsung KLUCG4J1ED-B0C1, UFS 2.1, fw 0200) enabled UFS on a v6.0-based mainline tree, booted several times, mounted rw, nothing erased. The fw 0200 FFU ships in Sony's image, so 0101 may be the affected revision; unproven. That card is Samsung, not our Hynix.
+
+Can the matched image's path send it? The purge flag is set only by the ufs_bsg RPMB purge path, which the matched image never opens; the probe itself sends host reset, link startup, NOP, fDeviceInit, descriptor reads, power-mode change and the SCSI scan (INQUIRY, TUR, READ CAPACITY), no write, unmap or purge (research walleye-ufs-hazard-verdict). That holds if our tree equals mainline's. It does not explain the Sony loss: the loss happened with the same sort of probe, so either something outside the listed commands acts (a card-firmware reaction to the power-mode or sync-length settings, as the SODP contributor guesses, or a flag set by the abl/xbl image), or a Sony-specific path. Not known which.
+
+Open and honest: what we do not know is whether the Pixel 2's Hynix firmware is a purge-on-fault revision; its model and firmware are not readable without root (hazard research). The matched image still lacks Sony's EXTEND_SYNC_LENGTH (all Hynix) and AVAILTXDATALANES; the SODP contributor ties the first to the mechanism.
+
+Plain answer for the go note: unknown 4 stays unknown, counted as a finding. The matched image cannot send a purge on any path we can read, but the one thing that could differ, the sync-length setting for Hynix, is missing.
+
+Sources
+: src-sony-ufs-quirks-forward-port,src-yoshino-dtsi-ufs-disabled,src-sony-bugtracker-799,src-sony-bugtracker-802,src-xda-yoshino-ufs-erasure-origin
+
+About
+: walleye-ufs-match-android-z

@@ -5910,10 +5910,10 @@ Rank
 ### Why Sony's yoshino phone lost its bootloader with a UFS probe lacking quirks: the public record
 
 Status
-: open
+: done
 
 Note
-: The go note's unknown 4 (research walleye-ufs-go-note). Next step: the research row.
+: Mechanism not published (research walleye-ufs-gap-sony-mechanism-public-record). Feeds the go note: unknown 4 stays unknown; SODP view ties the sync-length quirk to it, which the matched image lacks for Hynix.
 
 About
 : walleye-ufs-match-android-z
@@ -6194,3 +6194,28 @@ Proof
 
 Rank
 : 99
+
+
+<a id="walleye-ufs-hynix-sync-length-quirk"></a>
+### Decide whether the matched image carries Sony's Hynix EXTEND_SYNC_LENGTH (PA_TxHsG1/2/3SyncLength 0x48) and AVAILTXDATALANES before the UFS try
+
+Status
+: open
+
+Note
+: From research walleye-ufs-gap-sony-mechanism-public-record: a SODP contributor ties the sync-length quirk to the erase; our tree lacks it for Hynix; Android's own value on this card is the evidence to read.
+
+Blocked by
+: walleye-ufs-gap-perf
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row: Android's PA_TxHsG1SyncLength on the Pixel 2 Hynix card against Sony's 0x48, and the verdict carry or not
