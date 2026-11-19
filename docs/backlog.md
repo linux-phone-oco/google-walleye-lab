@@ -5349,3 +5349,28 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-claim-test-layer-boots"></a>
+### Claim the bring-up step test-layer-boots when the test layer reports booted=test on walleye
+
+Status
+: open
+
+Note
+: From orchestration (docs 603): the bring-up steps now hold the test layer; the new step test-layer-boots (stage lab, proof test-layer-quiet) comes before the shell, and seven steps moved into the last stage with their ids kept, so no claim needs redoing. walleye's bare init is already a no-shell layer, so this may be close. Claim it only when the check says booted=test on walleye. The check may need the health suite, which wants ssh userland that walleye lacks: first read what the check measures (a builder reads 95-test-layer.sh), then decide whether walleye reports it from the telnet shell, or leaves it not known yet. No phone touch from a builder; a booted-state read belongs to a keeper run, after the init adoption (walleye-init-from-roof).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the step test-layer-boots is claimed in the lab's steps with the health suite's test-layer check (docs 95-test-layer.sh, lab-tools v0.22.2) reporting booted=test on walleye
+
+Rank
+: 6
