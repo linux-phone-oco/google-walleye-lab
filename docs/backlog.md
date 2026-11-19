@@ -7910,37 +7910,6 @@ Rank
 : 1
 
 
-<a id="walleye-ufs-try-2"></a>
-### UFS try 2: the same read-only boot again, with the questions of try 1 added, and the proof that the card is unharmed
-
-Status
-: open
-
-Note
-: A second boot of the same image confirms the first was no fluke and that the card is unharmed. NOT started without the author's word.
-
-Waits
-: the author's word for a second try (his go bought one try, spent 2026-11-19 21:05 CET), brought by the Top Coordinator; and walleye-ufs-link-check-works-slow, walleye-ufs-why-gear1 done
-
-About
-: walleye-ufs-match-android-z
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: through procedures/ufs-matched-image-on-the-pixel-2.rs: the same boot read only, the card's identity and LUNs again, the readings that walleye-ufs-why-gear1 names; and the unharmed proof: the partition tables (GPT) read by Android as root before and after, and by the mainline boot, hash-equal; Android boots normally afterwards (idle-android), both slots' flags unchanged; nothing is written
-
-Rank
-: 3
-
-Witness
-: person
-
-
 <a id="walleye-ufs-link-check-works-slow"></a>
 ### The UFS procedure reads the link, it does not fail on a gear below HS-G3: 'works, slow' is a result
 
@@ -8388,3 +8357,87 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-ufs-try-2"></a>
+### UFS try 2: the same read-only boot again, with the questions of try 1 added, and the proof that the card is unharmed
+
+Status
+: open
+
+Note
+: A second boot of the same image confirms the first was no fluke and that the card is unharmed. NOT started without the author's word. 2026-11-19 ASK from the upstreams coordinator (docs #714): before they take an OPP table for msm8998.dtsi up as a patch, a measurement: the gear under load, or a dtsi with an OPP table holding G3. Both belong to this try or its image (walleye-ufs-opp-table-image). Still needs the author's word for a second try.
+
+Waits
+: the author's word for a second try (his go bought one try, spent 2026-11-19 21:05 CET), brought by the Top Coordinator; and walleye-ufs-link-check-works-slow, walleye-ufs-why-gear1 done
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: through procedures/ufs-matched-image-on-the-pixel-2.rs: the same boot read only, the card's identity and LUNs again, the readings that walleye-ufs-why-gear1 names; and the unharmed proof: the partition tables (GPT) read by Android as root before and after, and by the mainline boot, hash-equal; Android boots normally afterwards (idle-android), both slots' flags unchanged; nothing is written; and the upstreams lane's measurement: the link gear UNDER LOAD (a bounded read-only O_DIRECT read of sda) and again after 2 s idle, from power_info and the devfreq node, so the clock scale-down reading is measured
+
+Rank
+: 3
+
+Witness
+: person
+
+
+<a id="walleye-ufs-opp-table-image"></a>
+### A UFS image with an operating-points table for the ufshc node that holds HS-G3, so the link stays at gear 3 under load: the patch candidate the upstreams lane wants measured
+
+Status
+: open
+
+Note
+: From research walleye-ufs-why-gear1-ranked: msm8998.dtsi has freq-table-hz but no operating-points table, so use_pm_opp is false, ufs_qcom_freq_to_gear_speed returns DONT_CHANGE and the legacy ufshcd_scale_gear path drops to min_gear G1 at idle. The upstreams coordinator (docs #714) will take the OPP table up as a patch once the gear under load or a dtsi with an OPP table holding G3 is measured. A second UFS try needs the author's word.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: an image (the UFS-on gate exception only through the same procedure as the matched image, never a bypass; AVB, rebuild identical, review) = the matched image plus an operating-points-v2 table on the msm8998 ufshc node (the G3 clock and the vendor's freq-table-hz as the vendor kernel's ufshc node lists them), built as a patch of msm8998.dtsi in the form it would go upstream (binding already in mainline for the ufshc: opp-table, required-opps if any); the procedure ufs-matched-image-on-the-pixel-2 reads the gear under load for it; NOT booted without the author's word
+
+Rank
+: 8
+
+
+<a id="walleye-declare-transport-login"></a>
+### Declare [connection] transport and login = none in device.toml and drop our own helpers for what the library then does (read_dmesg, back_to_known_good, phone(), boot_once)
+
+Status
+: open
+
+Note
+: Orchestration's answer to walleye's notes (2026-11-19): it ends the 'password file needed' false claim at its root and the library-steps-need-a-login gap. Until it lands the keepers' start reads phone-state.sh for walleye (phone-keeper.md already says so).
+
+Waits
+: orchestration: lab-tools phone-declared-transport (rank 2 there; decision 2026-11-19-phone-reached-by-its-declared-transport): [connection] transport = ssh|telnet|adb and login = password|none; lpoco lab phone/suite and the library steps go through it; login = none is never asked a password
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: device.toml declares transport (telnet for our test images, adb for Android) and login = none; lpoco lab suite latest says 'not applicable' and exits clean on walleye; the procedures use the library's read_dmesg, back_to_known_good and boot_once where they fit and tools/walleye-tries shrinks accordingly; dry-run, check --host and stand-in tests pass; the keeper brief's 'suite latest' no longer yields a 'password' line in any hand-over
+
+Rank
+: 7
