@@ -7204,10 +7204,10 @@ Rank
 ### L6: L5 plus a stripe drawer, so the booted image draws red, green, blue and white stripes on card0 and holds them
 
 Status
-: open
+: done
 
 Note
-: Research walleye-display-late-probe-l5-tried-dsi-connected-1080x1920 (PR 499): on L5 the gpiolib_shared line is gone, the panel binds, DRM card0 and renderD128 exist, card0-DSI-1 is connected at 1080x1920, devices_deferred is empty, all 13 modules loaded, shell alive. Not read: whether the glass lit. The author's words (console first, then look) are met by those reads; the attended program (item walleye-attend-program-display) is written around this image after an unattended draw has run.
+: L6 built: images-display-stripes/boot-l6.img sha256 8ca3af87...; try is walleye-try-display-stripes-unattended with STRIPES_SECONDS=60
 
 About
 : walleye-display-s6e3fa5
