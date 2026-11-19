@@ -5185,3 +5185,31 @@ Proof
 
 Rank
 : 0
+
+
+<a id="walleye-init-from-roof"></a>
+### Adopt lpoco-bringup's generic init: [boot.gadget], initramfs init/files, retire the init variants and the own ffs-acm
+
+Status
+: open
+
+Note
+: Request from orchestration (lab-tools #195). Contains walleye-use-lpoco-ffs-acm. After the UFS-off gate.
+
+Blocked by
+: walleye-ufs-off-gate
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: Adopt lpoco-bringup's generic init (lab-tools #195, the request of orchestration 2026-11-19): (1) device.toml declares [boot.gadget] (read the shape from docs/lab-tools: console and window keys); BEWARE: our own research found that a FunctionFS ACM console never bound the host's cdc_acm (research walleye-cdc-acm-needs-functional-descriptors: f_fs rejects the CDC functional descriptors; cdc_acm refuses an interface without them) and OUR working console is the mainline kernel's native configfs ACM (init-z14/z6 style: acm.GS0 + ecm, usb0 172.16.43.1, DHCP, telnetd). So console = "ffs" would not give the host a tty: before adopting, check what the generic init offers; if it has only ffs, tell the coordinator so orchestration adds console = "acm" (configfs ACM, with the NCM/ECM network function of z14) and keep our own init until it exists; if it offers acm/ecm, declare that; the init keeps: the serial walleye-first-boot (check-init-serials.sh), the 180 s hold and self-reboot, the command loop, the banner, the watchdog petting, /tmp/hold; (2) build/ calls `lpoco-bringup initramfs init` and `files` (udhcpd.conf, udhcpc.script, selftest.sh) instead of our ~20 init variants; (3) prove with build/selftest-initramfs.sh (QEMU, dummy_hcd) and then on the phone through the keeper, from the UFS-off gate onwards (decision 2026-11-19-walleye-ufs-off-by-a-gate: every image passes tests/host/ufs-off-image.sh first); (4) retire the ~20 init variants and build/ffs-acm-rs (together with walleye-use-lpoco-ffs-acm, which this item contains); old images, hashes and research stay as history; check-init-serials.sh adapts to the generated init; programmer review
+
+Rank
+: 5
