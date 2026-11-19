@@ -145,7 +145,7 @@ pub fn display_lines(dmesg: &str) -> Vec<&str> {
 /// The command that reads the DRM class: what is listed, and what the DSI-1 connector of card0 says.
 pub fn drm_command() -> String {
     format!(
-        "ls /sys/class/drm; echo dsi=$(cat /sys/class/drm/{CARD}-{CONNECTOR}/status 2>/dev/null)"
+        "ls --color=never /sys/class/drm; echo dsi=$(cat /sys/class/drm/{CARD}-{CONNECTOR}/status 2>/dev/null)"
     )
 }
 
@@ -156,7 +156,29 @@ pub struct Drm {
     pub status: String,
 }
 
+/// Drops terminal colour sequences (`ESC [ ... letter`) the phone's `ls` may print.
+fn without_colour(s: &str) -> String {
+    let mut out = String::new();
+    let mut it = s.chars().peekable();
+    while let Some(c) = it.next() {
+        if c == '\x1b' {
+            if it.peek() == Some(&'[') {
+                it.next();
+                for d in it.by_ref() {
+                    if d.is_ascii_alphabetic() {
+                        break;
+                    }
+                }
+            }
+        } else {
+            out.push(c);
+        }
+    }
+    out
+}
+
 pub fn drm_of(said: &str) -> Drm {
+    let said = &without_colour(said);
     let mut d = Drm::default();
     for l in said.lines().map(str::trim) {
         match l.strip_prefix("dsi=") {
@@ -545,6 +567,8 @@ mod tests {
             let p = drm_problem(&drm_of(said)).unwrap();
             assert!(p.contains("DSI-1") && p.contains("connected"), "{p}");
         }
+        let coloured = drm_of("\x1b[1;36mcard0\x1b[m \x1b[1;36mcard0-DSI-1\x1b[m \x1b[0;0mversion\x1b[m\ndsi=connected");
+        assert_eq!(drm_problem(&coloured), None);
         assert_eq!(drm_of(""), Drm::default());
         assert!(drm_problem(&drm_of("")).is_some());
     }
