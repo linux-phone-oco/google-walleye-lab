@@ -1802,3 +1802,31 @@ About
 
 Tracked by
 : walleye-display-bisect-images
+
+
+<a id="2026-11-19-walleye-display-console-before-eyes"></a>
+### 2026-11-19-walleye-display-console-before-eyes
+
+Date
+: 2026-11-19
+
+Brief
+: The display bisect runs unattended and is read from the console and logs; the author is asked to look only once an image boots with a working console and the DRM state read
+
+Decision
+: Images d0, d1, d2 are tried one by one from slot b with no person at the phone. Per image the keeper records, from machine witnesses only: whether the USB gadget (1d6b:0104) enumerated and when (host kernel log), whether the mainline shell (telnet 172.16.43.1, no password, tests/host/mainline-shell-read.sh) answered, its dmesg with the DPU, DSI, PHY and panel probe lines and the DRM connector status, and when Android came back (seconds after leaving fastboot) with /sys/fs/pstore and the boot reason read from Android afterwards. The crashing stage is named from these. Only when an image that carries the panel boots, has the working shell, and its dmesg, probe lines and connector are already read, the keeper asks the coordinator to ask the author to look, for the stripes alone.
+
+Why
+: The author, 2026-11-19, relayed by the Top Coordinator, verbatim: "can they first make sure it boots and they have console then ask me to look ?". After try 1 his eyes gave one fact (logo, then black, then Lineage in under a minute) and the cause could not be read from it; the shell is the witness that works (z21 and upstream-dts: gadget 18 s after fastboot). The mainline shell needs no root and no ssh password (telnet on usb0), so there is no access to add: try 1 had no console because the kernel never got to the gadget.
+
+Rejected
+: Asking him to watch the panel for each of d0, d1, d2 (his time, and his eyes cannot name a probe stage); reading the cause from the logo-then-black alone; adding a root or password route to the image (not needed, and against the lane's rules); another try of the full display image before the stage is known
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-try1-author-saw
+
+Tracked by
+: walleye-try-display-bisect
