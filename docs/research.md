@@ -3855,3 +3855,22 @@ Sources
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-display-dtb-bisect-built"></a>
+### walleye-display-dtb-bisect-built
+
+Date
+: 2026-11-19
+
+Brief
+: f0..f3 built: the late-probe kernel with z21's dtb (control) and with the regulators, the pinctrl states, or mdss/dsi/phy okay alone; checks ok, rebuild identical; not tried
+
+Question
+: Which group of the display dtb's additions can be tried alone on the late-probe kernel, and are the images exactly that?
+
+Found
+: Four images on the late-probe image's kernel, ramdisk (init-late, module list) and header: f0 z21's dtb byte for byte (control), f1 + vreg_l14a_1p8, vreg_l22a_3p0 and vdd_l18_l22-supply (bob), f2 + the three mdss pinctrl states, f3 + mdss, DSI host and PHY okay (no panel, regulators, pinctrl; mdss_mdp has no status in z21, so its okay is a no-op). Each dtb diff against z21's is a file showing only that group; the added lines are compared exactly. Each image passes tests/host/ufs-off-image.sh, AVB footer, header/ramdisk/size equal to the late-probe image's; a run with z21 as the late image fails 6 checks; rebuild byte-identical; programmer review done. f3 does not carry the display dts's DSI vdda-supply, PHY vdds-supply or output endpoint; f1's regulators have no consumer. Sums: f0 57bf4a96, f1 78aeb579, f2 d9c539cc, f3 1ee2edb0. Not run on any phone.
+
+About
+: walleye-display-s6e3fa5
