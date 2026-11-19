@@ -4080,96 +4080,6 @@ Rank
 : 1
 
 
-<a id="walleye-pmic-wdt-z10-read-pon-regs"></a>
-### Try z10 once from slot b: read the PON registers from its banner and command, no bite
-
-Status
-: open
-
-Note
-: Tried once 2026-11-18: banner stayed 'pon-regs not read yet' (research walleye-z10-tried-pon-regs-not-read). Not done. Next: read init-z10 to see why the read never happened; retry with the test started before the boot.
-
-PARKED by the coordinator 2026-11-18: three tries (z9 blank, z10 not read) have not read one register, and this is the deep-sleep line (the upstreams lane) not the bring-up of the phone itself; storage (UFS), USB networking, touch and display come first for the weakest link of the whole. The z10 init finds why it did not read in a later builder run (the banner says "pon-regs not read yet": the source it tried and its error are the lead). Rank 60 until the first parts are up.
-
-Blocked by
-: walleye-ufs-off-gate
-
-About
-: deep-sleep
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: pmic-wdt-pon-regs-banner
-
-Rank
-: 60
-
-
-<a id="walleye-pmic-wdt-read-s2-regs"></a>
-### Read the PMIC PON watchdog registers (0x54-0x57, 0x5a, 0x5b, 0xc5) on z9 without arming
-
-Status
-: open
-
-Note
-: Safe: no bite. Read through the spmi regmap debugfs if z9 has it (else build item walleye-pmic-wdt-readback-image). Record values with the POFF reason (0xc5) and the boot slot. Settles: write took (0x56=7)? what the bootloader had set? did the bite log PMIC_WD?
-
-PARKED by the coordinator 2026-11-18: three tries (z9 blank, z10 not read) have not read one register, and this is the deep-sleep line (the upstreams lane) not the bring-up of the phone itself; storage (UFS), USB networking, touch and display come first for the weakest link of the whole. The z10 init finds why it did not read in a later builder run (the banner says "pon-regs not read yet": the source it tried and its error are the lead). Rank 60 until the first parts are up.
-
-Blocked by
-: walleye-ufs-off-gate
-
-About
-: deep-sleep
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: pmic-wdt-s2-regs-read
-
-Rank
-: 61
-
-
-<a id="walleye-pmic-wdt-bite-try-warm"></a>
-### One PMIC bite with the type read back as warm (0x01) first; hard (0x07) only after warm restarts
-
-Status
-: open
-
-Note
-: Way back with no hands: arm only when the type reads back as 0x01 (hard 0x07 only if warm restarted); the command loop never arms the watchdog on boot (a restart lands in a quiet loop); battery rule first. If the phone does not come back it waits for hands as before - so the read item and the warm choice come first. Expect after the bite: same slot, uptime reset, watchdog bootstatus CARDRESET.
-
-UPSTREAMS LANE 2026-11-18 (FYI): the probable cause of z9 powering off at the bite is fixed on https://github.com/grenudi/linux topic/pmic-wdt-wake-in-suspend at f5bb57d27: the probe wrote the S2 reset type while S2 might be running (firmware-armed on msm8998, by wahoo msm-poweroff.c) with no disable or wait, so the firmware type could stay; patch 5/5 disables S2, waits, updates the type field, re-enables and reads it back (dev_dbg logs the original value). WHEN these PMIC items come back up: build from f5bb57d27 (not e123d3bff). Option C, if 0x07 reads back and it still powers off: DVDD_HARD_RESET 0x08. The bite remains parked (decision 2026-11-18-walleye-no-pmic-bite-until-reset-type) until a build shows the restart in the read-back first.
-
-Blocked by
-: walleye-ufs-off-gate
-
-About
-: deep-sleep
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: pmic-wdt-bites,pmic-wdt-restarts
-
-Rank
-: 62
-
-
 <a id="walleye-ufs-hazard-research"></a>
 ### Can probing the Pixel 2's UFS damage the bootloader (the Sony yoshino failure)? Research before the z11 try
 
@@ -5646,3 +5556,93 @@ Proof
 
 Rank
 : 0
+
+
+<a id="walleye-pmic-wdt-z10-read-pon-regs"></a>
+### Try z10 once from slot b: read the PON registers from its banner and command, no bite
+
+Status
+: open
+
+Note
+: Tried once 2026-11-18: banner stayed 'pon-regs not read yet' (research walleye-z10-tried-pon-regs-not-read). Not done. Next: read init-z10 to see why the read never happened; retry with the test started before the boot.
+
+PARKED by the coordinator 2026-11-18: three tries (z9 blank, z10 not read) have not read one register, and this is the deep-sleep line (the upstreams lane) not the bring-up of the phone itself; storage (UFS), USB networking, touch and display come first for the weakest link of the whole. The z10 init finds why it did not read in a later builder run (the banner says "pon-regs not read yet": the source it tried and its error are the lead). Rank 60 until the first parts are up.
+
+Waits
+: superseded by walleye-try-pmic-wdt-v1 (decision 2026-11-19-walleye-pmic-wdt-v1-type-is-seven): the v1 images read the PON registers and the type in their banner; drop this item when that try has run
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: pmic-wdt-pon-regs-banner
+
+Rank
+: 60
+
+
+<a id="walleye-pmic-wdt-read-s2-regs"></a>
+### Read the PMIC PON watchdog registers (0x54-0x57, 0x5a, 0x5b, 0xc5) on z9 without arming
+
+Status
+: open
+
+Note
+: Safe: no bite. Read through the spmi regmap debugfs if z9 has it (else build item walleye-pmic-wdt-readback-image). Record values with the POFF reason (0xc5) and the boot slot. Settles: write took (0x56=7)? what the bootloader had set? did the bite log PMIC_WD?
+
+PARKED by the coordinator 2026-11-18: three tries (z9 blank, z10 not read) have not read one register, and this is the deep-sleep line (the upstreams lane) not the bring-up of the phone itself; storage (UFS), USB networking, touch and display come first for the weakest link of the whole. The z10 init finds why it did not read in a later builder run (the banner says "pon-regs not read yet": the source it tried and its error are the lead). Rank 60 until the first parts are up.
+
+Waits
+: superseded by walleye-try-pmic-wdt-v1 (decision 2026-11-19-walleye-pmic-wdt-v1-type-is-seven): the v1 images read the PON registers and the type in their banner; drop this item when that try has run
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: pmic-wdt-s2-regs-read
+
+Rank
+: 61
+
+
+<a id="walleye-pmic-wdt-bite-try-warm"></a>
+### One PMIC bite with the type read back as warm (0x01) first; hard (0x07) only after warm restarts
+
+Status
+: open
+
+Note
+: Way back with no hands: arm only when the type reads back as 0x01 (hard 0x07 only if warm restarted); the command loop never arms the watchdog on boot (a restart lands in a quiet loop); battery rule first. If the phone does not come back it waits for hands as before - so the read item and the warm choice come first. Expect after the bite: same slot, uptime reset, watchdog bootstatus CARDRESET.
+
+UPSTREAMS LANE 2026-11-18 (FYI): the probable cause of z9 powering off at the bite is fixed on https://github.com/grenudi/linux topic/pmic-wdt-wake-in-suspend at f5bb57d27: the probe wrote the S2 reset type while S2 might be running (firmware-armed on msm8998, by wahoo msm-poweroff.c) with no disable or wait, so the firmware type could stay; patch 5/5 disables S2, waits, updates the type field, re-enables and reads it back (dev_dbg logs the original value). WHEN these PMIC items come back up: build from f5bb57d27 (not e123d3bff). Option C, if 0x07 reads back and it still powers off: DVDD_HARD_RESET 0x08. The bite remains parked (decision 2026-11-18-walleye-no-pmic-bite-until-reset-type) until a build shows the restart in the read-back first.
+
+Waits
+: superseded by walleye-try-pmic-wdt-v1 (decision 2026-11-19-walleye-pmic-wdt-v1-type-is-seven): the v1 images read the PON registers and the type in their banner; drop this item when that try has run
+
+About
+: deep-sleep
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: pmic-wdt-bites,pmic-wdt-restarts
+
+Rank
+: 62

@@ -3397,3 +3397,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-unattended-night"></a>
+### walleye lane: the unattended night, 2026-11-19
+
+Entry date
+: 2026-11-19
+
+Done
+: Landed with the lane's builders and keepers (lab PRs 357-392): touch record corrected (the author swiped, window missed; retry recipe in the item); PMIC watchdog v1 images A (next) and B (v7.3 + topic 8b2283da3) built and gated, attended try queued with its plain-words ask, type 0x07 as the series sets; display image rebuilt with the clock_gcc fix (try waits for the author); device layer declared in device.toml; own ffs helpers and bisect scripts retired for the shared tools; the exact upstream board dts booted once to the usb0 shell (research walleye-upstream-dts-tried-boots), finding: the series' dtb needs overlay stubs to merge with the phone's dtbo; boot chain read back (32 partitions twice, identical sha256, files outside git); fuel gauge fg1 proven (capacity 99, 4374 mV = fastboot); boot image alignment is the bootloader's; four generated-init gaps written for orchestration (init adoption waits). The phone ended on Android slot b, nothing flashed. Waits for the author: touch retry, display try, PMIC v1 try (reboot test then bite), UFS (his go).
+
+Considered
+: Retrying the touch run at once: the author was gone; the retry has its recipe.
+
+Rejected
+: Booting any UFS-on image or the old z19/c4 tries: gate and decisions say no.
+
+About
+: walleye-first-fastboot-boot
