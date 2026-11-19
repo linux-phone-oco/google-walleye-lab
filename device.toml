@@ -211,6 +211,12 @@ sha256 = "d10f607691aa8c8d892008878b5069a06692aef9a627cc6335798dc4e527cbfa"
 path = "images-display-delay/boot-b-d50.img"
 sha256 = "f6ea1d15fd149ab886c086db4ef24fcd77e5a6517737aa22388fa161a62b88b2"
 
+# The splash image B-s5 (item walleye-display-splash-region-dts): B-d5 whose dtb reserves the bootloader splash (memory@9d400000, no-map) and holds it with a simple-framebuffer
+# (build/build-display-splash-image.sh; kernel, ramdisk with its 5 s delay, header and size are B-d5's). The proof: the delay bisect at 5 s, do the faults and warnings vanish?
+[images.b-s5]
+path = "images-display-splash/boot-b-s5.img"
+sha256 = "b7c827e9a3f55a7ee6e68752430a19bdad2de3262bc22a5cc0379cd3df80df58"
+
 [procedures.display-delay-bisect-on-the-pixel-2]
 delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of uptime at which each image's init loads the display modules; an image b-dN must exist for each
 modules = 13                        # the display modules each init loads, each said "walleye-display: ok": a row with fewer says nothing about the signs (the ramdisk's /display-modules.list has this many lines)

@@ -8220,10 +8220,10 @@ Rank
 ### Reserve the bootloader splash (memory@9d400000, no-map) in the walleye dts and add a simple-framebuffer with the mmcc clocks and MDSS_GDSC, the OnePlus way
 
 Status
-: open
+: done
 
 Note
-: Mainline-proper step of the chosen vector. Size and address from the GPL wahoo dts. Build only the dtb and image; the keeper tries it at 2 s with the init loading modules in any order. UNBLOCKED 2026-11-19: the delay bisect is done (faults persist at 15 s, gone at 25 s; rcg and DSI clear from 15 s). Build the reserved splash region (no-map at 0x9d400000, like OnePlus 5/5T and Fxtec Pro1) plus simple-framebuffer, then the proof is the same bisect on it (an image with the dts change and the 5 s delay: do the faults and warnings vanish?).
+: Done 2026-11-20 (walleye-builder): dt/msm8998-google-walleye-display-splash.dts, build/build-display-splash-image.sh, tests/host/dtb-display-splash.sh (fails on B-d5's dtb, passes on B-s5's), image B-s5 built twice identical. The try is walleye-display-splash-try.
 
 About
 : walleye-display-s6e3fa5
@@ -8513,3 +8513,56 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-display-delay-procedure-image-name"></a>
+### The delay bisect procedure takes the image's name (b-s5), not only b-dN
+
+Status
+: open
+
+Note
+: tools/walleye-tries/src/settings.rs builds image names as b-d{n} (and display_delay.rs words B-d{n}); give [procedures.display-delay-bisect-on-the-pixel-2] an optional image prefix (default b-d) so the keeper runs delays=5 on images.b-s5 with no new program. The image is built: item walleye-display-splash-try.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the stand-in tests of tools/walleye-tries pass for delays 5 with images b-s5 as well as b-dN; check --host passes
+
+Rank
+: 2
+
+
+<a id="walleye-display-splash-try"></a>
+### Try image B-s5 (splash reserved, simple-framebuffer) at 5 s: do the SMMU faults, the pclk0 rcg warning and the DSI -110 vanish?
+
+Status
+: open
+
+Note
+: Built 2026-11-20 (research walleye-display-splash-image-built): device.toml [images.b-s5], sha256 b7c827e9.... Same unattended bisect as the delay bisect, one image at 5 s, signs counted from the kernel log; no person step. The delay procedure names its images b-dN: it needs an image prefix first (item walleye-display-delay-procedure-image-name).
+
+Blocked by
+: walleye-display-delay-procedure-image-name
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: display-boot-clean
+
+Rank
+: 2

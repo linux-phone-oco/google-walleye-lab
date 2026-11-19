@@ -1,0 +1,48 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Variant display-splash of the display board file (item walleye-display-splash-region-dts; research walleye-display-flip-15-25-read-from-logs,
+ * decision 2026-11-19-walleye-display-flip-dts-not-timing): the display tree plus the handover from the bootloader's splash.
+ * The bootloader scans out a 1080x1920 framebuffer at 0x9d400000 (0x2400000 bytes, as the GPL wahoo dts and mainline's OnePlus 5/5T and
+ * Fxtec Pro1 files have it) until the kernel takes the display over. Without a reservation the kernel may hand that memory out and the
+ * display's SMMU domain faults on its scanout; so it is reserved (no-map), and a simple-framebuffer holds the clocks and the MDSS power
+ * domain the splash needs until the display driver takes over.
+ * build/build-display-splash-image.sh makes the same change on the dtb of image B-d5 (the kernel tree of the display image cannot compile
+ * this tree's board file: it lacks the later fuel-gauge labels) and tests/host/dtb-display-splash.sh reads it, in either dtb.
+ * Nodes and values: mainline's msm8998-oneplus-common.dtsi (Copyright (c) 2021, Jami Kettunen <jamipkettunen@gmail.com>).
+ */
+#include "msm8998-google-walleye-display.dts"
+#include <dt-bindings/clock/qcom,mmcc-msm8998.h>
+
+/ {
+	chosen {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		framebuffer0: framebuffer@9d400000 {
+			compatible = "simple-framebuffer";
+			reg = <0x0 0x9d400000 0x0 0x2400000>;
+			width = <1080>;
+			height = <1920>;
+			stride = <(1080 * 4)>;
+			format = "a8r8g8b8";
+			clocks = <&mmcc MDSS_AHB_CLK>,
+				 <&mmcc MDSS_AXI_CLK>,
+				 <&mmcc MDSS_VSYNC_CLK>,
+				 <&mmcc MDSS_MDP_CLK>,
+				 <&mmcc MDSS_BYTE0_CLK>,
+				 <&mmcc MDSS_BYTE0_INTF_CLK>,
+				 <&mmcc MDSS_PCLK0_CLK>,
+				 <&mmcc MDSS_ESC0_CLK>;
+			power-domains = <&mmcc MDSS_GDSC>;
+		};
+	};
+
+	reserved-memory {
+		/* The bootloader's display framebuffer */
+		cont_splash_mem: memory@9d400000 {
+			reg = <0x0 0x9d400000 0x0 0x2400000>;
+			no-map;
+		};
+	};
+};

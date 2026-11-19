@@ -5161,3 +5161,25 @@ Sources
 
 About
 : walleye-pmic-wdt-v1-image
+
+
+<a id="walleye-display-splash-image-built"></a>
+### walleye-display-splash-image-built
+
+Date
+: 2026-11-19
+
+Brief
+: Splash image B-s5 built, never booted: B-d5 plus a no-map reservation at 0x9d400000 and a simple-framebuffer (8 MDSS clocks, MDSS_GDSC) in its dtb; 17 checks ok, rebuild identical
+
+Question
+: Can the splash handover be fixed in the dts, as decision 2026-11-19-walleye-display-flip-dts-not-timing says, and built as an image to try at 5 s?
+
+Found
+: dt/msm8998-google-walleye-display-splash.dts is the source (values of mainline's OnePlus 5/5T common file and the GPL wahoo dts: 0x9d400000, 0x2400000, 1080x1920 a8r8g8b8). Today's board file does not compile in the display kernel's tree (no fuel-gauge labels), so build/build-display-splash-image.sh makes the same change on B-d5's own dtb, as L4 was made from L3: no line removed, two nodes, three /chosen properties and two symbols added. tests/host/dtb-display-splash.sh fails on B-d5's dtb and passes on the new one; the region overlaps no other reserved one. Kernel, ramdisk (init-display-delay, 5 s), header, cmdline and size are B-d5's; AVB, UFS-off gate, overlay merge, touch and panel gpio claimants pass; rebuilt identical. images-display-splash/boot-b-s5.img sha256 b7c827e9a3f55a7ee6e68752430a19bdad2de3262bc22a5cc0379cd3df80df58. Not tried: whether the faults, rcg warning and DSI -110 vanish at 5 s is the keeper's bisect.
+
+Sources
+: kernel-oneplus-common-dtsi
+
+About
+: walleye-display-s6e3fa5
