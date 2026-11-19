@@ -5565,10 +5565,10 @@ Rank
 ### Try the upstream board dts image once from slot b: does the exact series dtb boot to the network shell
 
 Status
-: open
+: done
 
 Note
-: Image to try: ~/Projects/walleye-build/images-upstream-dts/boot-upstream-dts.img sha256 a8e4364813f3c82a35b9e5edcffb6650eac710e780119b27fa32dc2fa9521377 (research walleye-upstream-dts-image-built). UNATTENDED (no person is needed: it is a boot, nothing to see; witness none). Try the image of walleye-upstream-dts-image once from slot b: the lab's usual way (ufs-off-image.sh and overlay gate on the image first, battery rule, fastboot boot from RAM, never flash; the 180 s self-reboot is the way back, and set-active metadata only if the slot flipped). Expect: the usb0 network shell at 172.16.43.1 (telnet), a clean dmesg in the same classes as z21 (tests/host dmesg-clean check), the PMIC and charger probing as on z21, no touch (the series has none). Judge by several witnesses (tests/host/phone-state.sh), never by lsusb alone. Record: booted yes/no, what is in dmesg that z21's is not and the reverse (a short diff of the probe lines), whether the gadget came up. A hang or no-USB is a finding for the series (the dts as cut lacks something): record which witness said what, and put the one-line result as a research row about walleye-upstream-dts-polish so the upstreams lane can quote it in the cover letter. Phone ends on Android slot b, first state.
+: proven by research walleye-upstream-dts-tried-boots: boots to usb0 shell, three witnesses, clean of -110/phandle; no z21 probe diff (z21 dmesg truncated)
 
 About
 : walleye-first-fastboot-boot

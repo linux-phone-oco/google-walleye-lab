@@ -3241,3 +3241,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-0820-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, 4369 mV; upstream board dts image tried once, booted to the usb0 shell, back on Android
+
+Considered
+: next: z19 try, bootchain-readback (read only), c4; read z21 gpio diff; z21 dmesg capture was truncated - recapture if a probe diff is wanted
