@@ -4726,3 +4726,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-2240-keeper-l7-run"></a>
+### Keeper L7 stripes run: 18/18, looks answered by a file
+
+Entry date
+: 2026-11-19
+
+Done
+: Took walleye-display-look-l7 (rank 1): dry-run 18 steps ok, then the real run with --answer-limit 120: 18/18 passed, the way back left the phone on Android (idle-android passes). Both looks were answered ok by a file written by user 1000, not by the keeper, so the unanswered-stop was not exercised. Android on slot b, stock kernel, nothing flashed.
+
+Considered
+: next: re-run with nobody answering, or ask the author whether he answered and what he saw on the glass; then the others by rank. Tooling: build/images -> ~/Projects/walleye-build needed per worktree; phone password file missing.
+
+About
+: walleye-display-s6e3fa5

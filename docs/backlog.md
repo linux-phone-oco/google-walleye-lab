@@ -8038,10 +8038,13 @@ Rank
 ### The author's look as one command on the known-good load order: L7 = L6 with the held-stripes drawer, display-stripes-on-the-pixel-2.rs on lpoco-attended 0.35 with the answer file and a way back
 
 Status
-: open
+: in-progress
 
 Note
-: BUILT 2026-11-19, not tried: image L7 landed (research walleye-display-l7-built, decision 2026-11-19-walleye-l7-way-back-by-the-watcher); the procedure is the watched one on lpoco-attended 0.35.1 with look 1 (kernel log text) and look 2 (four stripes held). Open: the keeper's unattended run for real (the proof; pass --answer-limit 120), then the author's look as the one command procedures/display-stripes-on-the-pixel-2.rs. Needs the images link: ln -s ~/Projects/walleye-build build/images.
+: KEEPER RUN FOR REAL 2026-11-19 (walleye-keeper), procedures/display-stripes-on-the-pixel-2.rs on lpoco-attended 0.35.1 with --answer-limit 120, dry-run 18 steps ok first: all 18 steps passed, rc 0; 13 modules loaded, DSI-1 connected enabled 1080x1920, drawer drew stripes (KD_GRAPHICS set), drawer ended ok, way back ran, tests/host/idle-android.sh passes (Android, adb, not fastboot). NOT the bar's 'nobody answered' stop: both asks were answered ok by a file 'written by user 1000' (23 s and 15 s after asking), not by this keeper - so someone (the author?) may have answered, and the glass was not looked at by the keeper; the unanswered-stop path stays unproven. Next: re-run when nobody can answer (or the author says it was he who answered and what he saw). Tooling: build/images link needed; phone password file still missing.
+
+Waits
+: none
 
 About
 : walleye-display-s6e3fa5
