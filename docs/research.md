@@ -4547,3 +4547,22 @@ Sources
 
 About
 : walleye-audio-haptics
+
+
+<a id="walleye-display-late-probe-l5-built"></a>
+### walleye-display-late-probe-l5-built
+
+Date
+: 2026-11-19
+
+Brief
+: L5 built: L4 with label mdss_dsi0 on a disabled stub, so the overlay's reset-gpio <tlmm 94> no longer makes the panel's gpio shared; test fails on L4, passes on L5
+
+Question
+: Why is the gpiolib_shared proxy for the panel reset (tlmm 94) missing, and what image fixes it?
+
+Found
+: gpiolib-shared.c makes a gpio shared when two available nodes name it; the proxy is a module (GPIO_SHARED_PROXY=m, GPIO_SHARED=y) not loaded in the late-probe image. Claimants of tlmm 94 after the overlay merge on L4: the panel reset-gpios and the vendor overlay's qcom,platform-reset-gpio on dsi@c994000 (fragment 89; dsi1, fragment 90, is disabled so skipped). L5 puts the label mdss_dsi0 on a new stub under the disabled /vendor-overlay-stubs, so the overlay's properties land unscanned (lever of z21). tests/host/display-reset-gpio-single-claimant.sh: 2 claimants on L4, 1 on L5. Programmer review: the overlay's other uses of mdss_dsi0 (fragments 12, 38) are downstream-only and harmless; fixes applied. Proof is host-side fdtoverlay; the bootloader uses libufdt, so the phone try is the witness. Alternative not taken: load gpio-shared-proxy.ko. sha256 boot-l5.img fb813a9a702e11a2b3d6bd0b981dceecfb21fe0ca7947a03ebe45d62ed6c2ef5. The shared dts is not changed (label mdss_dsi0 is the dtsi's); L5 patches L4's dtb like L1..L4.
+
+About
+: walleye-display-s6e3fa5
