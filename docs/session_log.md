@@ -3670,3 +3670,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-walleye-builder-pmic-program"></a>
+### walleye-builder: the PMIC watchdog try as one program
+
+Entry date
+: 2026-11-19
+
+Done
+: tests/attended/pmic-try.rs (23 steps) over tools/walleye-tries/src/pmic.rs: gates, reboot test first, bite last, prompts in the author's plain words, A then B fallback; shared phone/host helpers extended (run_partial, image_is_the_built_one); 29 tests with stand-in phone and host programs.
+
+Considered
+: Holding the init's restart with /tmp/hold at the S2 check (chosen after review); judging the bite by bootreason (recorded only: format unknown).
+
+Rejected
+: Copying touch's plumbing is accepted for now; a shared Lab type is queued (walleye-tries-shared-lab-plumbing).
+
+About
+: walleye-attend-program-pmic

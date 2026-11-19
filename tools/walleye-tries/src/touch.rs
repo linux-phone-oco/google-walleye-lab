@@ -9,7 +9,6 @@ use crate::phone::Shell;
 use crate::reader::Reader;
 use crate::settings::Settings;
 use std::cell::RefCell;
-use std::path::Path;
 use std::rc::Rc;
 use std::time::{Duration, Instant};
 
@@ -123,46 +122,7 @@ impl Touch {
     /// The image is the one built: its sha256 is the one its SHA256SUMS line records.
     pub fn image_is_the_built_one(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
-        move || {
-            let image = &t.s.image;
-            let dir = image.parent().unwrap_or(Path::new("."));
-            let name = image.file_name().and_then(|n| n.to_str()).unwrap_or("");
-            let sums = std::fs::read_dir(dir)
-                .map_err(|e| format!("{}: {e}", dir.display()))?
-                .filter_map(|e| e.ok())
-                .filter(|e| e.file_name().to_string_lossy().starts_with("SHA256SUMS"))
-                .filter_map(|e| std::fs::read_to_string(e.path()).ok())
-                .collect::<Vec<_>>()
-                .join("\n");
-            let want = sums
-                .lines()
-                .find(|l| {
-                    l.split_whitespace()
-                        .last()
-                        .map(|f| f.trim_start_matches('*') == name)
-                        == Some(true)
-                })
-                .and_then(|l| l.split_whitespace().next())
-                .ok_or(format!(
-                    "no SHA256SUMS line for {name} in {}",
-                    dir.display()
-                ))?
-                .to_string();
-            let mut c = std::process::Command::new("sha256sum");
-            c.arg(image);
-            let said = host::run(c)?;
-            let got = said
-                .text
-                .split_whitespace()
-                .next()
-                .unwrap_or("")
-                .to_string();
-            if got == want {
-                Ok(())
-            } else {
-                Err(format!("{name} is {got}, its SHA256SUMS line says {want}"))
-            }
-        }
+        move || host::image_is_the_built_one(&t.s.image)
     }
 
     /// UFS is off in the image (the gate every image passes before a boot, decision 2026-11-19-walleye-ufs-off-by-a-gate).

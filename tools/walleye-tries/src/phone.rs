@@ -105,6 +105,24 @@ impl Shell {
 
     /// Run a command and return what it printed, bounded by `wait`.
     pub fn run(&mut self, command: &str, wait: Duration) -> Result<String, String> {
+        let (lines, ended) = self.run_partial(command, wait)?;
+        if ended {
+            Ok(lines.join("\n"))
+        } else {
+            Err(format!(
+                "`{command}` was not answered within {} s",
+                wait.as_secs()
+            ))
+        }
+    }
+
+    /// Run a command that may end the session (a reboot): the lines it printed before the end marker, the phone's
+    /// hanging up or `wait`, and whether the end marker came.
+    pub fn run_partial(
+        &mut self,
+        command: &str,
+        wait: Duration,
+    ) -> Result<(Vec<String>, bool), String> {
         self.n += 1;
         let (b, e) = (format!("WT-BEGIN-{}", self.n), format!("WT-END-{}", self.n));
         // the markers are built from parts so the shell's echo of this line is not taken for them
@@ -126,14 +144,7 @@ impl Shell {
             },
             |l| l == e,
         );
-        if seen {
-            Ok(lines.join("\n"))
-        } else {
-            Err(format!(
-                "`{command}` was not answered within {} s",
-                wait.as_secs()
-            ))
-        }
+        Ok((lines, seen))
     }
 
     /// Start a command whose output streams (no end marker of its own): `on_line` sees each line, until the
@@ -156,6 +167,8 @@ pub(crate) mod fake {
     //! A stand-in phone: a thread that answers the shell's command lines from a table, and streams lines.
     use std::io::{BufRead, BufReader, Write};
     use std::net::TcpListener;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::Arc;
 
     /// A port where something listens that hangs up at once: the phone is not there, and no other test can take it.
     pub fn closed() -> u16 {
@@ -174,9 +187,14 @@ pub(crate) mod fake {
     pub fn phone(table: Vec<(&'static str, &'static str)>, events: Vec<String>) -> u16 {
         let l = TcpListener::bind("127.0.0.1:0").unwrap();
         let port = l.local_addr().unwrap().port();
+        let gone = Arc::new(AtomicBool::new(false));
         std::thread::spawn(move || {
             for conn in l.incoming() {
                 let Ok(mut c) = conn else { continue };
+                if gone.load(Ordering::SeqCst) {
+                    continue; // the phone has restarted: nobody answers
+                }
+                let gone = gone.clone();
                 let table = table.clone();
                 let events = events.clone();
                 std::thread::spawn(move || {
@@ -195,8 +213,17 @@ pub(crate) mod fake {
                                 .find(|(k, _)| cmd.contains(k))
                                 .map(|(_, v)| *v)
                                 .unwrap_or("");
+                            // an answer starting with ! is the last words of a phone that restarts: it hangs up
+                            let (answer, restarts) = match answer.strip_prefix('!') {
+                                Some(a) => (a, true),
+                                None => (answer, false),
+                            };
                             for a in answer.lines() {
                                 let _ = write!(c, "{a}\r\n");
+                            }
+                            if restarts {
+                                gone.store(true, Ordering::SeqCst);
+                                return;
                             }
                             let _ = write!(c, "WT-END-{n}\r\n");
                         } else if l.contains("od -An") {
