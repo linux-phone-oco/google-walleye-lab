@@ -5079,3 +5079,25 @@ Sources
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-display-delay-bisect-flips-at-25s"></a>
+### walleye-display-delay-bisect-flips-at-25s
+
+Date
+: 2026-11-19
+
+Brief
+: Delay bisect, one unattended run: B2's modules loaded at 5 s and 15 s show the signs; at 25, 35 and 50 s all three are zero and 13 of 13 modules ok
+
+Question
+: Between 2 s and 66 s of uptime, where do B2's three signs (SMMU faults, pclk0 rcg warning, DSI -110) stop?
+
+Found
+: Five RAM boots (B-d5..B-d50), nothing flashed, phone back on Android each time. Delay 5: SMMU faults 10, rcg 4, DSI -110 5. Delay 15: faults 10, rcg 0, -110 0. Delay 25, 35, 50: all 0. The flip is between 15 s and 25 s, so the splash handover (research walleye-display-b2-dsi-clock-warning) is over by 25 s; the SMMU faults outlast the rcg warning and -110. Table kept in ~/lab-material/walleye/display-delay-20261119-232559/table.txt. Next: narrow 15-25 s, or reserve the splash region with simple-framebuffer in the dts (decision 2026-11-19-walleye-display-early-load-splash-handover).
+
+Sources
+: walleye-display-b2-dsi-clock-warning
+
+About
+: walleye-display-s6e3fa5
