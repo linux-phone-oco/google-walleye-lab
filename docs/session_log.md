@@ -3022,3 +3022,18 @@ Done
 
 Considered
 : next: touch events need a touch (touch-read.sh with a person) and part-compare capture touch ours (z21 again with NOREBOOT=1); walleye-ufs-android-regs still needs a mem reader (coordinator); then walleye-try-z19/bootchain-readback
+
+---
+
+
+<a id="2026-11-19-2230-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, 4379 mV; z21 tried a second time for the touch part-compare capture, captured and diffed
+
+Considered
+: next: read the gpio section of compare-touch-diff-z21.txt (pmi8998 gpio 2 on ours vs Android) ; walleye-ufs-android-regs still needs a mem reader (coordinator); then z19, bootchain-readback
