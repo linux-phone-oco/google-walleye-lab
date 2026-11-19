@@ -3520,3 +3520,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-1305-walleye-keeper-late-probe-stands"></a>
+### How the phone stands (late probe tried)
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adbd up, battery 4384 mV; display late-probe image tried once: no mainline gadget, Android back at 57 s (research walleye-display-late-probe-try1-no-gadget); item walleye-try-display-late-probe stays open
+
+Considered
+: next: late-probe kernel with the display nodes disabled in the dtb to tell dtb from kernel; ramoops read of the death; z21 touch gpio section; UFS needs a mem reader (coordinator)
+
+About
+: walleye-first-fastboot-boot
