@@ -8,7 +8,10 @@
 //! self-reboot itself for 600 s after it starts (init-display, the deadman the image carries), then the phone
 //! restarts by itself.
 
-use crate::display::{module_file, module_lines, HOLD_FILE};
+use crate::display::{
+    drawer_has_drawn, drawer_rc, module_file, module_lines, DRAWER_LOG, DRAW_WAIT_S, END_SLACK_S,
+    HOLD_FILE,
+};
 use crate::lab::Lab;
 use crate::settings::Settings;
 use crate::touch::redact;
@@ -26,8 +29,10 @@ const CARD: &str = "card0";
 const CONNECTOR: &str = "DSI-1";
 
 /// What the words said to the author are.
-pub const EXPECT: &str = "The phone's own init loads the display modules at boot; nothing is drawn by the lab. The glass may show the kernel log (white text on black) or the init's console, stay lit and blank, or stay dark: each is a finding, say which. The phone restarts into Android by itself about 10 minutes after it booted, and the run sends it back as soon as you have answered.";
+pub const EXPECT: &str = "The phone's own init loads the display modules at boot; then the run writes the backlight once. The glass may show the kernel log (white text on black) or the init's console, stay lit and blank, or stay dark: each is a finding, say which. A second look follows with four stripes. The phone restarts into Android by itself about 10 minutes after it booted, and the run sends it back when it is done.";
 pub const LOOK_FOR: &str = "the kernel log's text or the init's console on the glass (say what you see, or that it is blank or dark)";
+pub const EXPECT_STRIPES: &str = "Now the run draws four vertical stripes, red, green, blue and white, from left to right, and holds them. Look at the glass at once: they stay for the time said below and then the screen goes black.";
+pub const LOOK_FOR_STRIPES: &str = "four vertical stripes, red, green, blue, white, HELD on the glass (say what you see: the stripes, the kernel log text over them, blank or dark)";
 
 /// What one module's lines in the kernel log say.
 #[derive(Debug, Clone, PartialEq)]
@@ -147,6 +152,72 @@ pub fn drm_command() -> String {
     format!(
         "for e in /sys/class/drm/*; do echo ${{e##*/}}; done; echo dsi=$(cat /sys/class/drm/{CARD}-{CONNECTOR}/status 2>/dev/null)"
     )
+}
+
+/// The command that writes the panel's backlight once through sysfs (item walleye-display-backlight-sysfs-write): half of
+/// max_brightness to the first /sys/class/backlight/*/brightness, and what it did said as `backlight-wrote=DIR=VALUE`.
+pub fn backlight_command() -> String {
+    "for d in /sys/class/backlight/*; do [ -e $d/brightness ] || continue; m=$(cat $d/max_brightness); v=$((m/2)); echo $v > $d/brightness 2>/dev/null; echo backlight-wrote=${d##*/}=$v-rc=$?; break; done; ls /sys/class/backlight".into()
+}
+
+/// The backlight was written: the value, or what stands between the command and a write.
+pub fn backlight_written(said: &str) -> Result<String, String> {
+    said.lines()
+        .find_map(|l| l.trim().strip_prefix("backlight-wrote=").map(String::from))
+        .ok_or_else(|| {
+            format!(
+                "no backlight was written (/sys/class/backlight lists: {})",
+                said.split_whitespace().collect::<Vec<_>>().join(" ")
+            )
+        })
+}
+
+/// The kernel log's lines about the backlight and the -110 timeout the first write may bring (research walleye-display-backlight-timeout).
+pub fn backlight_lines(dmesg: &str) -> Vec<&str> {
+    dmesg
+        .lines()
+        .filter(|l| {
+            let l = l.to_lowercase();
+            l.contains("backlight") || l.contains("-110")
+        })
+        .collect()
+}
+
+/// The command that starts the stripe drawer detached (a shell session that ends must not end it): its log and its exit
+/// code as `stripes-rc=N-end`. The init's own hold (600 s from boot) keeps the phone up; nothing is released from here.
+pub fn stripes_command(hold: u64) -> String {
+    format!(
+        "rm -f {DRAWER_LOG}; setsid sh -c '/bin/walleye-stripes --seconds {hold} > {DRAWER_LOG} 2>&1; echo stripes-rc=$?-end >> {DRAWER_LOG}' </dev/null >/dev/null 2>&1 & echo started-$((6*7))"
+    )
+}
+
+/// The drawer's log says the console took `mode` (KD_GRAPHICS or KD_TEXT) with 0.
+pub fn console_mode_is(log: &str, mode: &str) -> Done {
+    let want = format!("KDSETMODE {mode} on ");
+    match log.lines().find(|l| l.contains(&want)) {
+        Some(l) if l.trim_end().ends_with("= 0") => Ok(()),
+        Some(l) => Err(format!("the console did not take {mode}: {}", l.trim())),
+        None => match log
+            .lines()
+            .find(|l| l.contains(&format!("KDSETMODE {mode}:")))
+        {
+            Some(l) => Err(l.trim().to_string()),
+            None => Err(format!("the drawer's log has no KDSETMODE {mode} line")),
+        },
+    }
+}
+
+/// The drawer's log says the console went to KD_GRAPHICS before the draw and back to KD_TEXT after, each with 0.
+pub fn console_went_graphics_and_back(log: &str) -> Done {
+    console_mode_is(log, "KD_GRAPHICS")?;
+    console_mode_is(log, "KD_TEXT")
+}
+
+/// What the drawer said of the console: /proc/consoles, each vtcon's name and bind, and the KDSETMODE results.
+pub fn console_lines(log: &str) -> Vec<&str> {
+    log.lines()
+        .filter(|l| l.contains("/proc/consoles") || l.contains("vtcon") || l.contains("KDSETMODE"))
+        .collect()
 }
 
 /// What `drm_command` printed.
@@ -382,6 +453,96 @@ impl DisplayBoot {
         }
     }
 
+    /// The backlight is written once through sysfs, then the kernel log is read again: the value and every backlight line
+    /// (the -110 the first write may bring) are kept and said; a log line is a finding here, not a failure.
+    pub fn backlight_is_written(&self) -> impl FnOnce() -> Done + 'static {
+        let d = self.clone();
+        move || {
+            let mut sh = d.lab.shell(10)?;
+            let said = sh.run(&backlight_command(), Duration::from_secs(10))?;
+            let wrote = backlight_written(&said)?;
+            std::thread::sleep(Duration::from_secs(2));
+            let dmesg = redact(&sh.run("dmesg", Duration::from_secs(20))?);
+            d.lab.save("dmesg-after-backlight.txt", &dmesg)?;
+            let lines = backlight_lines(&dmesg);
+            d.lab.save("backlight-lines.txt", &lines.join("\n"))?;
+            println!(
+                "  wrote {wrote}; {} backlight lines in the kernel log:",
+                lines.len()
+            );
+            for l in lines.iter().rev().take(4).rev() {
+                println!("  {l}");
+            }
+            Ok(())
+        }
+    }
+
+    /// Say what the second look is for, before the drawer starts.
+    pub fn stripes_are_announced(&self) -> impl FnOnce() -> Done + 'static {
+        let hold = self.s.hold;
+        move || {
+            println!("  {EXPECT_STRIPES} (held {hold} s)");
+            Ok(())
+        }
+    }
+
+    /// The drawer is started detached; its log says the stripes are drawn and the console went to KD_GRAPHICS with 0.
+    pub fn stripes_are_drawn_held(&self) -> impl FnOnce() -> Done + 'static {
+        let d = self.clone();
+        move || {
+            let mut sh = d.lab.shell(10)?;
+            let said = sh.run(&stripes_command(d.s.hold), Duration::from_secs(10))?;
+            if !said.contains("started-42") {
+                return Err(format!("the drawer did not start: {said}"));
+            }
+            let until = Instant::now() + Duration::from_secs(DRAW_WAIT_S);
+            let log = loop {
+                let log = sh.run(&format!("cat {DRAWER_LOG}"), Duration::from_secs(10))?;
+                if drawer_has_drawn(&log) || drawer_rc(&log).is_some() || Instant::now() >= until {
+                    break log;
+                }
+                std::thread::sleep(Duration::from_secs(1));
+            };
+            d.lab.save("stripes.log", &log)?;
+            if !drawer_has_drawn(&log) {
+                return Err(format!(
+                    "the drawer did not draw within {DRAW_WAIT_S} s; its log's last line: {}",
+                    crate::host::last_line(&log)
+                ));
+            }
+            for l in console_lines(&log) {
+                println!("  {l}");
+            }
+            console_mode_is(&log, "KD_GRAPHICS")
+        }
+    }
+
+    /// The drawer ended with 0 after its hold and put the console back to KD_TEXT with 0; the whole log is kept.
+    pub fn stripes_have_ended(&self) -> impl FnOnce() -> Done + 'static {
+        let d = self.clone();
+        move || {
+            let until = Instant::now() + Duration::from_secs(d.s.hold + END_SLACK_S);
+            let mut sh = d.lab.shell(10)?;
+            loop {
+                let log = sh.run(&format!("cat {DRAWER_LOG}"), Duration::from_secs(10))?;
+                if let Some(rc) = drawer_rc(&log) {
+                    d.lab.save("stripes.log", &log)?;
+                    if rc != 0 {
+                        return Err(format!("the drawer ended with {rc}"));
+                    }
+                    return console_went_graphics_and_back(&log);
+                }
+                if Instant::now() >= until {
+                    return Err(format!(
+                        "the drawer had not ended {} s after the step began (the init's own 600 s hold may have run out and the phone restarted: the author answered too late)",
+                        d.s.hold + END_SLACK_S
+                    ));
+                }
+                std::thread::sleep(Duration::from_secs(2));
+            }
+        }
+    }
+
     /// The way back: the phone ends on Android (the shared step; `reboot -f` over the shell when it is not there yet).
     pub fn way_back(&self) -> impl FnOnce() -> Done + 'static {
         let lab = self.lab.clone();
@@ -585,6 +746,84 @@ mod tests {
         assert!(drm_command().contains("/sys/class/drm/card0-DSI-1/status"));
         assert!(!drm_command().contains("ls "));
         assert!(hold_command().contains("/tmp/hold"));
+        for c in [backlight_command(), stripes_command(60)] {
+            let ok = std::process::Command::new("sh")
+                .arg("-n")
+                .arg("-c")
+                .arg(&c)
+                .status()
+                .unwrap();
+            assert!(ok.success(), "{c}");
+        }
+    }
+
+    #[test]
+    fn the_backlight_write_is_read_from_what_the_phone_said() {
+        assert_eq!(
+            backlight_written("backlight-wrote=panel0-backlight=127-rc=0\npanel0-backlight")
+                .unwrap(),
+            "panel0-backlight=127-rc=0"
+        );
+        let e = backlight_written("panel0-backlight\n").unwrap_err();
+        assert!(
+            e.contains("no backlight was written") && e.contains("panel0-backlight"),
+            "{e}"
+        );
+        assert!(backlight_written("").is_err());
+    }
+
+    #[test]
+    fn a_rejected_write_is_a_finding_kept_not_a_failure() {
+        assert_eq!(
+            backlight_written("backlight-wrote=panel0-backlight=127-rc=1\npanel0-backlight")
+                .unwrap(),
+            "panel0-backlight=127-rc=1"
+        );
+    }
+
+    #[test]
+    fn a_console_that_could_not_be_opened_is_named() {
+        let e = console_mode_is(
+            "walleye-stripes: KDSETMODE KD_GRAPHICS: /dev/tty0 could not be opened\n",
+            "KD_GRAPHICS",
+        )
+        .unwrap_err();
+        assert!(e.contains("could not be opened"), "{e}");
+    }
+    #[test]
+    fn the_backlight_timeout_line_is_found_in_the_kernel_log() {
+        let dmesg = "[1] msm: x\n[9.1] panel-samsung-s6e3fa5 0: failed to set brightness: -110\n[9.2] backlight: ok\n";
+        assert_eq!(backlight_lines(dmesg).len(), 2);
+        assert!(backlight_lines("[1] nothing\n").is_empty());
+    }
+
+    #[test]
+    fn the_drawer_keeps_the_phone_up_by_the_inits_hold_and_releases_nothing() {
+        let c = stripes_command(60);
+        assert!(c.contains("--seconds 60") && c.contains("setsid") && c.contains("stripes-rc="));
+        assert!(!c.contains("rm -f /tmp/hold"), "{c}");
+    }
+
+    #[test]
+    fn the_console_must_have_gone_graphics_and_back_with_zero() {
+        let good = "walleye-stripes: KDSETMODE KD_GRAPHICS on /dev/tty0 = 0\nwalleye-stripes: KDSETMODE KD_TEXT on /dev/tty0 = 0\n";
+        console_went_graphics_and_back(good).unwrap();
+        let e = console_went_graphics_and_back(
+            "walleye-stripes: KDSETMODE KD_GRAPHICS on /dev/tty0 = 0\n",
+        )
+        .unwrap_err();
+        assert!(e.contains("KD_TEXT"), "{e}");
+        let e = console_went_graphics_and_back(
+            "walleye-stripes: KDSETMODE KD_GRAPHICS on /dev/tty0 = Inappropriate ioctl for device\nwalleye-stripes: KDSETMODE KD_TEXT on /dev/tty0 = 0\n",
+        )
+        .unwrap_err();
+        assert!(
+            e.contains("KD_GRAPHICS") && e.contains("Inappropriate"),
+            "{e}"
+        );
+        assert!(console_went_graphics_and_back("").is_err());
+        let log = format!("{good}walleye-stripes: /proc/consoles = tty0 | ttyMSM0\nwalleye-stripes: vtcon1: name = frame buffer device | bind = 1\nwalleye-stripes: plan: x\n");
+        assert_eq!(console_lines(&log).len(), 4);
     }
 
     /// The try against a stand-in phone: the table answers by what the command contains, first row first.
@@ -627,6 +866,72 @@ mod tests {
             format!("{}{DMESG_TAIL}", dmesg_with(&[], 13))
         }
 
+        const GOOD_STRIPES: &str = "walleye-stripes: KDSETMODE KD_GRAPHICS on /dev/tty0 = 0\nwalleye-stripes: draw: four stripes (red, green, blue, white) on /dev/fb0, held 60 s\nwalleye-stripes: KDSETMODE KD_TEXT on /dev/tty0 = 0\nstripes-rc=0-end\n";
+
+        #[test]
+        fn the_backlight_is_written_once_and_the_timeout_line_is_kept() {
+            let dmesg = format!(
+                "{}[ 9.5] panel-samsung-s6e3fa5 0: backlight write failed: -110\n",
+                good_dmesg()
+            );
+            let mut table = phone(dmesg, DRM_UP);
+            table.insert(
+                0,
+                (
+                    "backlight-wrote=",
+                    "backlight-wrote=panel0-backlight=127-rc=0\npanel0-backlight",
+                ),
+            );
+            let d = display_boot(table, "backlight");
+            d.backlight_is_written()().unwrap();
+            let kept =
+                std::fs::read_to_string(out("backlight").join("backlight-lines.txt")).unwrap();
+            assert!(kept.contains("-110"), "{kept}");
+        }
+
+        #[test]
+        fn a_phone_without_a_backlight_is_named() {
+            let mut table = phone(good_dmesg(), DRM_UP);
+            table.insert(0, ("backlight-wrote=", ""));
+            let e = display_boot(table, "nobacklight").backlight_is_written()().unwrap_err();
+            assert!(e.contains("no backlight was written"), "{e}");
+        }
+
+        #[test]
+        fn the_stripes_are_drawn_and_end_with_the_console_back_in_text() {
+            let mut table = phone(good_dmesg(), DRM_UP);
+            table.insert(0, ("cat /tmp/stripes.log", GOOD_STRIPES));
+            table.insert(0, ("walleye-stripes --seconds", "started-42"));
+            let d = display_boot(table, "stripes");
+            d.stripes_are_drawn_held()().unwrap();
+            d.stripes_have_ended()().unwrap();
+            assert!(out("stripes").join("stripes.log").exists());
+        }
+
+        #[test]
+        fn a_console_that_refused_graphics_is_named_at_the_draw() {
+            let log = GOOD_STRIPES.replace(
+                "KD_GRAPHICS on /dev/tty0 = 0",
+                "KD_GRAPHICS on /dev/tty0 = Permission denied",
+            );
+            let mut table = phone(good_dmesg(), DRM_UP);
+            table.insert(0, ("cat /tmp/stripes.log", leak(log)));
+            table.insert(0, ("walleye-stripes --seconds", "started-42"));
+            let e = display_boot(table, "refused").stripes_are_drawn_held()().unwrap_err();
+            assert!(
+                e.contains("KD_GRAPHICS") && e.contains("Permission denied"),
+                "{e}"
+            );
+        }
+
+        #[test]
+        fn a_drawer_that_ended_with_an_error_is_named() {
+            let log = GOOD_STRIPES.replace("stripes-rc=0-end", "stripes-rc=1-end");
+            let mut table = phone(good_dmesg(), DRM_UP);
+            table.insert(0, ("cat /tmp/stripes.log", leak(log)));
+            let e = display_boot(table, "rc1").stripes_have_ended()().unwrap_err();
+            assert!(e.contains("ended with 1"), "{e}");
+        }
         #[test]
         fn the_hold_the_13_oks_the_connector_and_the_record_pass_on_a_phone_that_did_it_itself() {
             let d = display_boot(phone(good_dmesg(), DRM_UP), "pass");

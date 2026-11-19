@@ -20,9 +20,9 @@ pub const HOLD_FILE: &str = "/tmp/hold";
 /// How long one module's load may take before it counts as no answer.
 const LOAD_WAIT_S: u64 = 20;
 /// How long the drawer may take to reach the stripes after it starts (the second L6 try: about 12 s).
-const DRAW_WAIT_S: u64 = 40;
+pub const DRAW_WAIT_S: u64 = 40;
 /// How long past its hold the drawer may take to end.
-const END_SLACK_S: u64 = 30;
+pub const END_SLACK_S: u64 = 30;
 /// How long the phone stays up after the drawer ended, for the host to read its code (the author may be slow to say ok).
 pub const GRACE_S: u64 = 60;
 

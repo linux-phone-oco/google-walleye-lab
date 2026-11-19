@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //! walleye-stripes' invocation surface, declared once with argenv.
-//!   walleye-stripes [--seconds N] [--device FILE] [--connector DIR] [--kmsg FILE]
+//!   walleye-stripes [--seconds N] [--device FILE] [--connector DIR] [--kmsg FILE] [--tty FILE]
 
 use argenv_resolve::*;
 
@@ -36,6 +36,14 @@ contract! {
         ty: Type::String,
         arg: Some(Arg { value_name: "FILE", ..Arg::long("kmsg") }),
         summary: "Where the log lines go besides standard output (default /dev/kmsg, so the netconsole carries them).",
+        ..Input::EMPTY
+    };
+
+    TTY: String = Input {
+        key: "tty",
+        ty: Type::String,
+        arg: Some(Arg { value_name: "FILE", ..Arg::long("tty") }),
+        summary: "The console's tty, put in graphics mode while the stripes are held and back to text after (default /dev/tty0).",
         ..Input::EMPTY
     };
 

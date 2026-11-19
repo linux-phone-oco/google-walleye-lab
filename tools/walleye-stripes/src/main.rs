@@ -10,8 +10,9 @@ use cli::Contract as C;
 use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::os::fd::AsRawFd;
+use std::os::unix::fs::OpenOptionsExt;
 use std::time::Duration;
-use walleye_stripes::{frame, Channel, Geometry};
+use walleye_stripes::{frame, Channel, Geometry, KDSETMODE, KD_GRAPHICS, KD_TEXT};
 
 const FBIOGET_VSCREENINFO: libc::c_ulong = 0x4600;
 const FBIOGET_FSCREENINFO: libc::c_ulong = 0x4602;
@@ -91,24 +92,32 @@ fn main() {
         print!("{}", cli::usage());
         return;
     }
-    let (seconds, device, connector, kmsg) = (
+    let (seconds, device, connector, kmsg, tty) = (
         C::SECONDS.get_from(&r).unwrap_or(20),
         C::DEVICE.get_from(&r).unwrap_or_else(|| "/dev/fb0".into()),
         C::CONNECTOR
             .get_from(&r)
             .unwrap_or_else(|| "/sys/class/drm/card0-DSI-1".into()),
         C::KMSG.get_from(&r).unwrap_or_else(|| "/dev/kmsg".into()),
+        C::TTY.get_from(&r).unwrap_or_else(|| "/dev/tty0".into()),
     );
     let mut log = Log {
         kmsg: OpenOptions::new().write(true).open(&kmsg).ok(),
     };
-    if let Err(e) = run(&mut log, seconds, &device, &connector) {
+    if let Err(e) = run(&mut log, seconds, &device, &connector, &tty) {
         log.say(&format!("FAILED: {e}"));
         std::process::exit(1);
     }
 }
 
-fn run(log: &mut Log, seconds: u64, device: &str, connector: &str) -> Result<(), String> {
+fn run(
+    log: &mut Log,
+    seconds: u64,
+    device: &str,
+    connector: &str,
+    tty: &str,
+) -> Result<(), String> {
+    console_is_read(log);
     connector_is_read(log, "before the draw", connector);
     let fb = OpenOptions::new()
         .write(true)
@@ -128,6 +137,13 @@ fn run(log: &mut Log, seconds: u64, device: &str, connector: &str) -> Result<(),
         geometry.blue.offset,
         geometry.blue.length
     ));
+    // the console is in KD_GRAPHICS while the stripes are held, so fbcon does not repaint the text over them
+    let console = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .custom_flags(libc::O_NOCTTY)
+        .open(tty);
+    console_mode(log, console.as_ref().ok(), tty, KD_GRAPHICS, "KD_GRAPHICS");
     let drawn = frame_is_written(log, &fb, &geometry, true);
     if drawn.is_ok() {
         log.say(&format!(
@@ -135,13 +151,55 @@ fn run(log: &mut Log, seconds: u64, device: &str, connector: &str) -> Result<(),
         ));
         std::thread::sleep(Duration::from_secs(seconds));
     }
-    // the release runs whatever the draw did, so no stripes are left standing
+    // the release and the way back to text run whatever the draw did, so no stripes and no silent console are left standing
     let released = frame_is_written(log, &fb, &geometry, false);
     if released.is_ok() {
         log.say("release: the screen is cleared to black");
     }
+    console_mode(log, console.as_ref().ok(), tty, KD_TEXT, "KD_TEXT");
     connector_is_read(log, "after the release", connector);
     drawn.and(released)
+}
+
+/// KDSETMODE on the console's tty, the result logged (a console that cannot be opened or set says so; the draw goes on).
+fn console_mode(log: &mut Log, tty: Option<&File>, name: &str, mode: u64, said: &str) {
+    let Some(tty) = tty else {
+        log.say(&format!("KDSETMODE {said}: {name} could not be opened"));
+        return;
+    };
+    // SAFETY: KDSETMODE takes an integer; the fd is an open tty
+    let rc = unsafe {
+        libc::ioctl(
+            tty.as_raw_fd(),
+            KDSETMODE as libc::c_ulong,
+            mode as libc::c_ulong,
+        )
+    };
+    let result = if rc == 0 {
+        "0".to_string()
+    } else {
+        std::io::Error::last_os_error().to_string()
+    };
+    log.say(&format!("KDSETMODE {said} on {name} = {result}"));
+}
+
+/// Which console the kernel prints on and which framebuffer console driver is bound: /proc/consoles, then each vtcon's name and bind.
+fn console_is_read(log: &mut Log) {
+    let consoles = std::fs::read_to_string("/proc/consoles")
+        .map(|s| s.lines().collect::<Vec<_>>().join(" | "))
+        .unwrap_or_else(|e| format!("unreadable ({e})"));
+    log.say(&format!("/proc/consoles = {consoles}"));
+    for n in 0..4 {
+        let dir = format!("/sys/class/vtconsole/vtcon{n}");
+        let read = |f: &str| {
+            std::fs::read_to_string(format!("{dir}/{f}"))
+                .map(|s| s.trim().to_string())
+                .ok()
+        };
+        if let (Some(name), Some(bind)) = (read("name"), read("bind")) {
+            log.say(&format!("vtcon{n}: name = {name} | bind = {bind}"));
+        }
+    }
 }
 
 /// The connector's status, enabled and modes, one log line each (a file that cannot be read says so).

@@ -2390,3 +2390,28 @@ Research
 
 Scope
 : walleye lane, phone keeper, panel-samsung-s6e3fa5
+
+
+<a id="2026-11-19-procedures-pinned-together-on-v0-35"></a>
+### 2026-11-19-procedures-pinned-together-on-v0-35
+
+Date
+: 2026-11-19
+
+Brief
+: Every walleye attended program and the walleye-tries crate pin lpoco-attended v0.35.1 together
+
+Decision
+: procedures/*.rs, tests/attended/*.rs, tools/walleye-tries and the CI install all name tag lpoco-attended-v0.35.1 (the newest, what the lab runs); a pin moves for all in one change.
+
+Why
+: The entry file and the walleye-tries crate each compile their own copy of lpoco-attended when their tags differ; the library's procedure() state is then two statics and the first step panics 'call procedure(name, device) before the first step' (seen on the B2 procedure at 0.35.1 against the crate at 0.32.1). 0.34 or newer was the instruction; the installed lpoco-attended is 0.35.1 and check --host reads device.toml with it.
+
+Rejected
+: Pin only the display procedure to 0.35.1: it panics at its first step against the crate. Pin to exactly 0.34.1: older than the installed binary and the lab's lpoco-lab, so check would run a newer reader than the programs use. Duplicate the crate per procedure: more code to keep in step for no gain.
+
+About
+: walleye-display-s6e3fa5
+
+Scope
+: walleye lane, procedures, tools/walleye-tries
