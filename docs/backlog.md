@@ -5169,10 +5169,10 @@ Rank
 ### UFS off in the shared dts and a gate on every boot image (the accident of z11+), then z21
 
 Status
-: open
+: done
 
 Note
-: Decision 2026-11-19-walleye-ufs-off-by-a-gate. Keepers: NO boot of an image of ours until this lands, except read-only Android items. The top coordinator asked to hear before the next phone try.
+: Landed: UFS disabled in dt/msm8998-google-walleye.dts; variant dt/msm8998-google-walleye-ufs.dts for z11-z13; tests/host/ufs-off-image.sh (selftest 26 cases, CI job ufs-off-gate) gates build-all and every build script that writes a boot image (build/ufs-gate.sh); inventory: 58 of 97 images not to boot (research walleye-ufs-on-by-accident); z21 = z20 with UFS and stub container off built, the gate passes it (images-z21, boot-z21.img sha256 bdc0a891...). The z21 try waits for the top coordinator's word (walleye-try-z21).
 
 About
 : walleye-first-fastboot-boot
@@ -5291,3 +5291,31 @@ Proof
 
 Rank
 : 40
+
+
+<a id="walleye-try-z21"></a>
+### Try z21 once from slot b (probe only): UFS off, stub container disabled; read whether regulator-touch-power probes and rmi4 0-0020 binds
+
+Status
+: open
+
+Waits
+: the top coordinator's word before the next phone try (it asked to hear); the gate has passed boot-z21.img (sha256 bdc0a89179d2d7fd...)
+
+Blocked by
+: walleye-ufs-off-gate
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: a z21 try whose dmesg has no 'cannot find GPIO chip gpiolib_shared.proxy' for regulator-touch-power and rmi4 0-0020 probes
+
+Rank
+: 1

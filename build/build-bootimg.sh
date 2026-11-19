@@ -24,6 +24,7 @@ mk() {  # mk NAME RAMDISK_OFFSET TAGS_OFFSET [OS_VERSION OS_PATCH_LEVEL]
   mkbootimg --header_version 0 --base 0x0 --kernel_offset 0x8000 --ramdisk_offset "$2" --second_offset 0xf00000 \
     --tags_offset "$3" ${4:+--os_version "$4" --os_patch_level "$5"} --pagesize 4096 --kernel "$OUT/kernel-dtb" --ramdisk "$RAMDISK" --cmdline "$CMDLINE" \
     -o "$OUT/boot-$1.img"
+  "$HERE/ufs-gate.sh" "$OUT/boot-$1.img" || exit 1
   "$HERE/check-bootimg.sh" "$OUT/boot-$1.img" "$2" "$3" "${4:-}" "${5:-}"
 }
 mk a 0x1000000 0x100
@@ -44,6 +45,7 @@ if [ -n "$DTB_F" ]; then
     mkbootimg --header_version 0 --base 0x0 --kernel_offset 0x8000 --ramdisk_offset 0x1000000 --second_offset 0x0 \
       --tags_offset 0x100 --pagesize 4096 --kernel "$OUT/kernel-dtb-$1" --ramdisk "$RAMDISK" --cmdline "$CMDLINE_E" \
       -o "$OUT/boot-$1.img"
+    "$HERE/ufs-gate.sh" "$OUT/boot-$1.img" || exit 1
     BOARD_ID="${3:-}" "$HERE/check-bootimg.sh" "$OUT/boot-$1.img" 0x1000000 0x100
   }
   mke e "$DTB"
@@ -56,6 +58,7 @@ if [ -n "$DTB_F" ] && [ -n "$RAMDISK_43" ]; then
   mkg() {  # mkg NAME KERNEL_DTB RAMDISK_OFFSET TAGS_OFFSET SECOND_OFFSET CMDLINE [BOARD_ID]
     mkbootimg --header_version 0 --base 0x0 --kernel_offset 0x8000 --ramdisk_offset "$3" --second_offset "$5" \
       --tags_offset "$4" --pagesize 4096 --kernel "$2" --ramdisk "$RAMDISK_43" --cmdline "$6" -o "$OUT/boot-$1.img"
+    "$HERE/ufs-gate.sh" "$OUT/boot-$1.img" || exit 1
     NET=43 BOARD_ID="${7:-}" "$HERE/check-bootimg.sh" "$OUT/boot-$1.img" "$3" "$4"
   }
   mkg g "$OUT/kernel-dtb-e" 0x1000000 0x100 0x0 "$CMDLINE_E"

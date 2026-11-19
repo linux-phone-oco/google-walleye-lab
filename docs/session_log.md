@@ -2986,3 +2986,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-ufs-off-gate"></a>
+### walleye-builder: UFS off by a gate, then z21
+
+Entry date
+: 2026-11-19
+
+Done
+: dts: ufshc/ufsphy disabled, variant dts for z11-z13; gate tests/host/ufs-off-image.sh (every appended dtb, alone and merged with dtbo entry 3, plus command line incl. additional args) with selftest and CI job; build/ufs-gate.sh wired into 56 build scripts and build-all; inventory and NOT-TO-BOOT marks on 58 images; z21 rebuilt UFS-off, gate fails z20 and passes z21; programmer review fixes: extra_cmdline, merge failure fails, unit-address match, image removed on failure.
+
+Considered
+: Gate on stock-kernel repacks (vendor-gadget, vendor-facts, bisect s0): they fail by design, they need a UFS-off dtb before they build again - not done here.
+
+Rejected
+: Matching empty vendor stub nodes named ufs* (they are not devices: first try made 96 images ON); renaming the images directories (scripts refer to them), markers beside the images instead.
+
+About
+: walleye-first-fastboot-boot

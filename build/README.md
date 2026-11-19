@@ -218,3 +218,12 @@ plain `cat`, the old reader was the problem; if not, the silence is on the phone
 `EXTRA_CONFIG=$PWD/build/walleye-diag.config build/build-kernel.sh TREE out-z20` builds the z15 kernel tree with dynamic debug and `CONFIG_DEBUG_GPIO`;
 `build/build-z20.sh Z19_BOOT_IMG out-z20 images-z20` repacks z19 with it, adding `dyndbg="file drivers/gpio/gpiolib.c +p; file drivers/gpio/gpiolib-of.c +p; file drivers/pinctrl/core.c +p; file drivers/pinctrl/devicetree.c +p; file drivers/pinctrl/qcom/pinctrl-spmi-gpio.c +p"` to the
 command line (dtb, ramdisk and the rest are z19's, byte for byte). `tests/host/gpio-diag-boot.sh` fails on z19 and passes on z20. Built only; the keeper tries it once (walleye-try-z20).
+
+## UFS is off, and a gate keeps it off (walleye-ufs-off-gate)
+
+Decision 2026-11-19-walleye-ufs-off-by-a-gate; research walleye-ufs-on-by-accident. UFS was on in every image from z11 and was probed against the author's word. Now `&ufshc` and `&ufsphy` are `status = "disabled"` in `dt/msm8998-google-walleye.dts`;
+the z11, z12 and z13 experiments take `dt/msm8998-google-walleye-ufs.dts` (the same file with the two nodes okay, built by `build-kernel.sh` as `msm8998-google-walleye-ufs.dtb`) and nothing else does.
+`tests/host/ufs-off-image.sh IMAGE|DTB` is the gate: every dtb appended to the image's kernel, alone and merged with the phone's own dtbo entry 3, must hold no UFS host or phy node that is on (okay, or with no status), and the command line must name no ufs
+(the bootloader's own `androidboot.*` words aside). `build/ufs-gate.sh IMAGE...` runs it for the build scripts: every `build-*.sh` that writes a boot image stops there when UFS is on (z11, z12, z13 are the experiments that keep it on and carry no gate: their images are not to boot).
+`tests/host/ufs-off-image-selftest.sh` proves the gate on made dtbs and images (CI job `ufs-off-gate`); `tests/host/ufs-off-inventory.sh` lists which images under `~/Projects/walleye-build/images*` have UFS on.
+`build/build-z21.sh Z20_BOOT_IMG OUT_DIR` makes z21 = z20 with the stub container and UFS disabled in the dtb, nothing else changed (the gate fails z20 and passes z21).

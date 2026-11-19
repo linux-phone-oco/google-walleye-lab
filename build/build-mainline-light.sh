@@ -52,6 +52,7 @@ for S in ml1 ml2; do
     --second_offset 0x0 --tags_offset "$(field 'kernel tags load address')" --pagesize "$(field 'page size')" \
     --os_version "$(field 'os version')" --os_patch_level "$(field 'os patch level')" --cmdline "$CMD" \
     --kernel "$T/blob-$S" --ramdisk "$OUT/initramfs-mainline-light.cpio.xz" -o "$IMG"
+sh "$(dirname "$0")/ufs-gate.sh" "$IMG" || exit 1
   avbtool add_hash_footer --image "$IMG" --partition_size "$PSIZE" --partition_name boot --algorithm NONE \
     --salt "$(echo "$AV" | sed -n 's/^ *Salt: *//p' | head -n1)" "$@"
   pass=0; fail=0

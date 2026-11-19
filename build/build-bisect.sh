@@ -59,6 +59,7 @@ mk() {  # mk NAME KERNEL_BLOB RAMDISK FOOTER(yes|no)
   mkbootimg --header_version 0 --base 0x0 --kernel_offset "$KADDR" --ramdisk_offset "$RADDR" --second_offset 0x0 \
     --tags_offset "$TADDR" --pagesize "$PAGE" --os_version "$OSV" --os_patch_level "$OSP" --cmdline "$CMD" \
     --kernel "$2" --ramdisk "$3" -o "$OUT/boot-$1.img"
+  sh "$(dirname "$0")/ufs-gate.sh" "$OUT/boot-$1.img" || exit 1
   if [ "$4" = yes ]; then
     printf '%s\n' "$PROPS" > "$P/props.txt"
     avbtool add_hash_footer --image "$OUT/boot-$1.img" --partition_size "$PSIZE" --partition_name boot --algorithm NONE \

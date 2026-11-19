@@ -1,4 +1,5 @@
 #!/bin/sh
+# UFS-ON EXPERIMENT (z11/z12/z13): the shared dts now has UFS off (decision 2026-11-19-walleye-ufs-off-by-a-gate); this script takes the dtb of the variant dt/msm8998-google-walleye-ufs.dts, and its image is NOT TO BOOT: tests/host/ufs-off-image.sh fails it.
 # z12 (backlog walleye-ufs-hynix-quirks): z11 with ONE change, the kernel: the Hynix UFS quirks (extended sync length, no purge, one TX lane) in ufs-qcom's fixups table
 # (linux-phone-oco/linux topic/ufs-hynix-quirks). dtb, ramdisk, header, command line and AVB footer are z11's, byte for byte. Built only - no phone run; the UFS try waits for the author's word.
 #   build-z12.sh WORK_DIR Z11_BOOT_IMG KERNEL_TREE KERNEL_OUT_DIR Z11_KERNEL_OUT_DIR OUT_DIR
@@ -13,7 +14,7 @@ OUT=${6:?}
 total=0
 ck() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1: got '$2', want '$3'"; total=$((total+1)); fi; }
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
-for f in "$Z11" "$KT/drivers/ufs/host/ufs-qcom.c" "$KO/Image.gz" "$KO/.config" "$KO/msm8998-google-walleye.dtb" "$CO/Image.gz" "$CO/msm8998-google-walleye.dtb"; do [ -s "$f" ] || { echo "build-z12: missing $f" >&2; exit 1; }; done
+for f in "$Z11" "$KT/drivers/ufs/host/ufs-qcom.c" "$KO/Image.gz" "$KO/.config" "$KO/msm8998-google-walleye-ufs.dtb" "$CO/Image.gz" "$CO/msm8998-google-walleye.dtb"; do [ -s "$f" ] || { echo "build-z12: missing $f" >&2; exit 1; }; done
 split() { # KERNEL_BLOB PREFIX: PREFIX.gz is the Image.gz, PREFIX.dtb the dtb that ends the blob
   o=
   for x in $(LC_ALL=C grep -obUaP '\xd0\x0d\xfe\xed' "$1" | cut -d: -f1); do
@@ -37,7 +38,7 @@ done
 ck "the purge guard is in ufshcd_query_flag" "$(grep -c 'hba->dev_quirks & UFS_DEVICE_QUIRK_NO_PURGE' "$KT/drivers/ufs/core/ufshcd.c")" 1
 ck "the kernel config still builds UFS in" "$(grep -c '^CONFIG_SCSI_UFS_QCOM=y$' "$KO/.config")" 1
 ck "the new Image.gz is not z11's (the kernel change)" "$(cmp -s "$KO/Image.gz" "$CO/Image.gz" && echo same || echo differs)" differs
-ck "the built dtb is z11's source dtb (same build inputs)" "$(cmp -s "$KO/msm8998-google-walleye.dtb" "$CO/msm8998-google-walleye.dtb" && echo same || echo differs)" same
+ck "the built dtb is z11's source dtb (same build inputs)" "$(cmp -s "$KO/msm8998-google-walleye-ufs.dtb" "$CO/msm8998-google-walleye.dtb" && echo same || echo differs)" same
 ck "z11's kernel out dir is the Image.gz inside the z11 image" "$(cmp -s "$CO/Image.gz" "$T/k.gz" && echo same || echo differs)" same
 cat "$KO/Image.gz" "$T/k.dtb" > "$T/blob"
 set --

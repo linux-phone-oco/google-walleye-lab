@@ -1,8 +1,9 @@
 #!/bin/sh
+# UFS-ON EXPERIMENT (z11/z12/z13): the shared dts now has UFS off (decision 2026-11-19-walleye-ufs-off-by-a-gate); this script takes the dtb of the variant dt/msm8998-google-walleye-ufs.dts, and its image is NOT TO BOOT: tests/host/ufs-off-image.sh fails it.
 # z11 (backlog walleye-ufs-readonly): z10 with the UFS storage listed. TWO changes from z10, both for UFS and nothing else: the kernel (Image.gz and dtb: v7.3 + the pmic-wdt series as z9, UFS host and QMP phy built in, ufshc and ufsphy okay with their l20/l26/s4 rails)
 # and the ramdisk's /init (initramfs-mainline/init-z11 = init-z10 + /bin/ufs-lsblk and /bin/ufs-hdr, reads only, mounts and writes nothing). Header, command line and AVB footer are z10's.
 #   build-z11.sh WORK_DIR Z10_BOOT_IMG KERNEL_OUT_DIR Z9_KERNEL_OUT_DIR OUT_DIR
-# KERNEL_OUT_DIR is build-kernel.sh's OUT_DIR for this tree (Image.gz, msm8998-google-walleye.dtb built with -@, .config); Z9_KERNEL_OUT_DIR is z9's (what z11's kernel differs from).
+# KERNEL_OUT_DIR is build-kernel.sh's OUT_DIR for this tree (Image.gz, msm8998-google-walleye.dtb built with -@, .config) AND msm8998-google-walleye-ufs.dtb (the UFS-on variant, dt/msm8998-google-walleye-ufs.dts: the shared dts has UFS off); Z9_KERNEL_OUT_DIR is z9's (what z11's kernel differs from).
 # Writes OUT_DIR/{boot-z11.img,initramfs-z11.cpio.xz,msm8998-google-walleye-z11.dtb,SHA256SUMS-z11}; checks (ok/FAIL, exit 1 on a FAIL, nothing written then).
 # Environment: DTBO (default ~/Projects/walleye-build/control/dtbo.img).
 set -eu
@@ -24,7 +25,7 @@ total=0
 ck() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1: got '$2', want '$3'"; total=$((total+1)); fi; }
 h() { sha256sum "$1" | cut -c1-16; }
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
-for f in "$GEN" "$BB" "$Z10" "$I" "$OLD" "$W/busybox-x86_64" "$DTBO" "$KO/Image.gz" "$KO/.config" "$KO/msm8998-google-walleye.dtb" "$CO/Image.gz" "$CO/.config" "$CO/msm8998-google-walleye.dtb"; do [ -s "$f" ] || { echo "build-z11: missing $f" >&2; exit 1; }; done
+for f in "$GEN" "$BB" "$Z10" "$I" "$OLD" "$W/busybox-x86_64" "$DTBO" "$KO/Image.gz" "$KO/.config" "$KO/msm8998-google-walleye-ufs.dtb" "$CO/Image.gz" "$CO/.config" "$CO/msm8998-google-walleye.dtb"; do [ -s "$f" ] || { echo "build-z11: missing $f" >&2; exit 1; }; done
 split() { # KERNEL_BLOB PREFIX: PREFIX.gz is the Image.gz, PREFIX.dtb the dtb that ends the blob
   o=
   for x in $(LC_ALL=C grep -obUaP '\xd0\x0d\xfe\xed' "$1" | cut -d: -f1); do
@@ -40,7 +41,7 @@ field() { printf '%s\n' "$INFO" | sed -n "s/^$1: *//p" | head -n1; }
 split "$T/z10/kernel" "$T/k"
 PSIZE=$(stat -c %s "$Z10")
 AV=$(avbtool info_image --image "$Z10")
-cp "$KO/msm8998-google-walleye.dtb" "$T/z11.dtb"
+cp "$KO/msm8998-google-walleye-ufs.dtb" "$T/z11.dtb"
 fdtput -t s "$T/z11.dtb" /__symbols__ clock_gcc "$GCC"
 cp "$CO/msm8998-google-walleye.dtb" "$T/z9.dtb"
 fdtput -t s "$T/z9.dtb" /__symbols__ clock_gcc "$GCC"
