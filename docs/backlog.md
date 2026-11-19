@@ -6696,7 +6696,7 @@ Status
 : open
 
 Note
-: From walleye-modem-way. Host first: find modem blobs and rmtfs partitions in the factory image. Keep rmtfs read-only. Rank 20 set 2026-11-19 by the coordinator, after the display and the attended tries. Its firmware (the phone's own) reaches the test ramdisk from ~/lab-material, never git; no UFS-on image (the gate stays).
+: Host step done 2026-11-19 (research walleye-modem-blobs-found): blobs and rmtfs partitions read into ~/lab-material/walleye/modem-2026-11-19 (adb root, read only). Next: a builder row for a test image with remoteproc_mss + mba/modem firmware in the ramdisk + rmtfs read-only, then one try; no UFS-on image.
 
 Blocked by
 : walleye-ufs-readonly

@@ -4330,3 +4330,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-20-1300-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed or written; adb root restarted adbd (Android is throw-away). Read-only pull of modem_a/b, fsg, fsc, modemst1/2 into ~/lab-material/walleye/modem-2026-11-19; modem_b holds mba.mbn and modem.mdt+b00-b27. walleye-modem-mss-proof host step done.
+
+Considered
+: next: builder row for a remoteproc_mss test image (dts node, rmtfs, firmware in ramdisk), then one try on slot b; suite latest needs the phone password file at ~/.config/devlab/google-walleye/password (not present), so no suite run this time; next ready: walleye-slpi-boot-qrtr (21)
+
+About
+: walleye-first-fastboot-boot
