@@ -3277,3 +3277,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-2330-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adbd back to shell; bootchain read back (32 partitions, twice, identical sha256) and item walleye-bootchain-readback done
+
+Considered
+: next: z21 touch gpio section of compare-touch-diff-z21.txt; walleye-ufs-android-regs needs a mem reader (coordinator); pmic-wdt items stay parked
+
+About
+: walleye-first-fastboot-boot
