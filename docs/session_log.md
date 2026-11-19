@@ -4597,3 +4597,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-2045-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed or changed. Read the UFS card read-only with adb root: SK hynix H28U74301AMR rev D003 (research walleye-ufs-card-revision); risk not known. walleye-ufs-card-fw-rev-read done.
+
+Considered
+: next: add the card line to research walleye-ufs-go-note's risk paragraph (coordinator or next keeper); walleye-display-at-boot waits on the author's look (one command); next ready: walleye-attend-pmic-unattended-run-4 (3). Phone password file still missing (suite unavailable).
+
+About
+: walleye-first-fastboot-boot
