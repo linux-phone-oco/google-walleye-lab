@@ -62,3 +62,16 @@ path = ["kernel/fuel-gauge-rfc/0001-*.patch"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2025 Yassine Oudjana, David Heidelberg"
 SPDX-License-Identifier = "GPL-2.0-only OR BSD-3-Clause"
+
+# The DRV2624 series (item walleye-drv2624-driver): patches of kernel files carry the kernel's licence (the driver patch is porthole's, Giuseppe Maggio's; the rest ours); the record is ours.
+[[annotations]]
+path = ["kernel/drv2624/0*.patch", "kernel/drv2624/SHA256SUMS"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Giuseppe Maggio (the driver), grenudi (the rest), as named in each patch"
+SPDX-License-Identifier = "GPL-2.0-only"
+
+[[annotations]]
+path = ["kernel/drv2624/README.md"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 grenudi"
+SPDX-License-Identifier = "CC-BY-SA-4.0"

@@ -3745,3 +3745,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-drv2624-ported-from-porthole"></a>
+### DRV2624 ported from porthole
+
+Entry date
+: 2026-11-19
+
+Done
+: Took porthole's patch 0018 onto v7.3 as an atomized series: binding (written here), driver (authorship kept), two fix commits after a programmer review (unbind work cancel, range checks, READ_ONCE, GPIOLIB), walleye dts node whose values match the stock overlay; per-chip record; host proof test seen failing and passing; no phone touched.
+
+Considered
+: Building a boot image and a try in this item (left to the next item, the part's i2c answer is read first).
+
+Rejected
+: Keeping porthole's patch verbatim with all fixes in the same commit: authorship and our changes must be separate commits. Adding a haptics table to device.toml now: the manifest model is lab-tools' (docs #638), not invented here.
+
+About
+: walleye-audio-haptics
