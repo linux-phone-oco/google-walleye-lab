@@ -25,19 +25,19 @@ set -- $(fdtget -t u "$T/m" "$R" gpios 2>/dev/null)
 [ $# -eq 3 ] && [ "$2" = "$LINE" ] || say fail "$R gpios is '$*', want <phandle $LINE flags>"
 P=$(printf '0x%x' "$1")
 dtc -I dtb -O dts "$T/m" 2>/dev/null > "$T/m.dts" || say fail "cannot decompile the merged dtb"
-# Walk the decompiled tree: a property named gpio(s) or *-gpio(s) (or vendor,*-gpio) whose first two cells are <P LINE> is a claimant, named by its node path.
+# Walk the decompiled tree: a property named gpio(s) or *-gpio(s) whose first two cells are <P LINE> is a claimant, named by its node path.
 awk -v p="$P" -v line="$(printf "0x%02x" "$LINE")" '
   /^[ \t]*[^ \t=;{}][^=;]*\{[ \t]*$/ { depth++; nm = $0; sub(/^[ \t]*/, "", nm); sub(/[ \t]*\{[ \t]*$/, "", nm); sub(/^[^ ]*: /, "", nm); name[depth] = nm; next }
   /^[ \t]*\};/ { depth--; next }
   /^[ \t]*[a-zA-Z0-9,._+-]*gpios? = </ {
     k = $1
-    if (k == "gpio" || k == "gpios" || k ~ /-gpios?$/ || k ~ /,[a-z-]*gpios?$/) {
+    if (k == "gpio" || k == "gpios" || k ~ /-gpios?$/) {
       v = $0; sub(/^[^<]*</, "", v); sub(/>.*/, "", v); split(v, c, " ")
       if (c[1] == p && c[2] == line) { path = ""; for (i = 2; i <= depth; i++) path = path "/" name[i]; print path " (" k ")" }
     }
   }
 ' "$T/m.dts" > "$T/all" || say fail "awk failed"
-# Then keep only the claimants no node on the path blocks (status other than okay).
+# Then keep only the claimants no node on the path blocks (status other than okay). Not handled: a gpio-hog node (the kernel skips it; its gpios is no phandle, so it never matches) and a second <phandle line> pair in one property.
 cnt=0; list=
 while IFS= read -r w; do
   [ -n "$w" ] || continue
