@@ -3729,3 +3729,22 @@ Sources
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-netconsole-over-the-usb-gadget"></a>
+### walleye-netconsole-over-the-usb-gadget
+
+Date
+: 2026-11-19
+
+Brief
+: netconsole over u_ether: set up works from the shell, and carries messages while the controller runs; whether it carries a hang or panic is not known yet
+
+Question
+: Can netconsole send the kernel log over the ECM gadget (usb0) to the host, and what does u_ether lack?
+
+Found
+: Read in the v7.3 tree: u_ether.c has no ndo_poll_controller (netpoll only calls one when a driver has it, net/core/netpoll.c:191), so netconsole sends through ndo_start_xmit and does not drain the queue itself. That works while the USB controller's interrupts run (ordinary log lines); a line printed with interrupts off, or a panic, may reach the queue and never the wire. Not known yet: whether the last lines before a dwc3 or display hang arrive. The probe therefore proves each channel with a marker line before loading anything, reports it (carries yes|no), refuses to load when neither carries, and adds the second channel, a TCP stream of /dev/kmsg over the same link; a bus hang can still stop both. Netconsole is built in (NETCONSOLE=y, NETCONSOLE_DYNAMIC=y) and set from the shell by configfs: dev_name, local_ip, remote_ip, remote_mac (the ECM host_addr 02:42:ac:10:2b:02), ports 6665/6666, then enabled=1.
+
+About
+: walleye-display-s6e3fa5

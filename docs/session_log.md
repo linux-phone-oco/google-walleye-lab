@@ -3499,3 +3499,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-walleye-builder-display-late-probe-image"></a>
+### walleye-builder: the display late-probe image and its host script
+
+Entry date
+: 2026-11-19
+
+Done
+: Image boot-display-late.img on z21's header, command line and footer: display path (drm, msm, the S6E3FA5 panel driver and their helpers, 9 modules) as modules with depmod output and an ordered /display-modules.list in the ramdisk, netconsole built in, d1's dtb with the display nodes on (clock_gcc on the real gcc), init-late (z14's init, self-reboot held by /tmp/hold). build-display-late.sh and build-display-late-image.sh (every check stops the build, 36+ checks, UFS-off gate and AVB footer among them). tests/host/display-late-probe.sh loads the list one module at a time, writes each step to the host before the load, streams the log by netconsole and a TCP /dev/kmsg stream, proves each channel by a marker; its selftest runs against a fake phone (19 checks, including a phone that dies at msm.ko). Not run on any phone. Sums in the keeper's folder: boot-display-late.img 673c9582...aff4ed.
+
+Considered
+: A new init with the loader inside (the host drives the steps instead); netconsole only (the TCP stream is the second channel); the older display worktree as the kernel tree
+
+Rejected
+: The older display worktree: its dts no longer compiles (pmi8998_fg label). /tmp for the work: it is a full 16 GB tmpfs, TMPDIR goes on /home
+
+About
+: walleye-display-s6e3fa5

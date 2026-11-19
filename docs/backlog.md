@@ -5617,10 +5617,10 @@ Rank
 ### Display late probe: the display driver built as modules and loaded by hand from the shell, with the kernel log already streamed to the host, so a hang names its last step
 
 Status
-: open
+: done
 
 Note
-: WHY (research walleye-display-bisect-d1-loses-the-shell, decision 2026-11-19-walleye-display-late-probe): d0 (display kernel, no display nodes) boots the shell; d1 (mdss + display-controller) does not, Android back after 57 s, no log survives (pstore unreadable without root, no UART). The kernel dies before userspace, so no shell can read why. Loading the driver from the shell with the log already streaming (netconsole from the kernel, which also reaches a panic, plus a TCP stream of dmesg) gives the last printed step, which names the probe that dies. Both channels, since a bus hang may print nothing after its last line. NO access change: the shell is the lane's telnet on usb0. The image carries no UFS (gate). The dtb is d1's so the nodes exist but nothing binds until modprobe. If netconsole over the USB ethernet gadget does not carry (u_ether has no netpoll hook of its own), say so in the record and fall back to d1a (mdss okay alone, display-controller disabled) and d1b as plain images.
+: Built and counted: images-display-late/boot-display-late.img sha256 673c9582...aff4ed; tests/host/display-late-probe.sh and its selftest (21 checks); programmer review applied. Next: walleye-try-display-late-probe (the keeper).
 
 About
 : walleye-display-s6e3fa5
