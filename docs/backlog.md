@@ -6364,6 +6364,9 @@ Status
 Note
 : Series and host proof done (kernel/audio-adsp-q6, tests/host/audio-adsp-q6-builds.sh). Next: an image with 0001-0009 for a try (ADSP boots, APR services register) with the firmware provisioned by the keeper; the card comes with the TAS2557 and codec items.
 
+Waits
+: the sound card node waits for walleye-tas2557-driver and the WCD934x item (the series is built and tested: PR 484); no more build work before them
+
 About
 : walleye-audio-haptics
 
