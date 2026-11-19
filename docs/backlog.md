@@ -6689,34 +6689,6 @@ Rank
 : 4
 
 
-<a id="walleye-modem-mss-proof"></a>
-### Modem: boot remoteproc_mss with factory-image blobs, read-only; rmtfs, pd-mapper, tqftpserv, qrtr
-
-Status
-: open
-
-Note
-: Host step done 2026-11-19 (research walleye-modem-blobs-found): blobs and rmtfs partitions read into ~/lab-material/walleye/modem-2026-11-19 (adb root, read only). Next: a builder row for a test image with remoteproc_mss + mba/modem firmware in the ramdisk + rmtfs read-only, then one try; no UFS-on image.
-
-Blocked by
-: walleye-ufs-readonly
-
-About
-: modem-calls
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: dmesg shows the MSS ready and qrtr-lookup lists services (a modem check in the suite passes)
-
-Rank
-: 20
-
-
 <a id="walleye-slpi-boot-qrtr"></a>
 ### Sensors: enable remoteproc_slpi with the phone's own firmware and read qrtr services
 
@@ -7589,3 +7561,56 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-modem-mss-image"></a>
+### A test image with remoteproc_mss: the qcom_q6v5_mss node, rmtfs memory, the modem firmware set in the ramdisk, rmtfs read-only on the modem partitions' copies
+
+Status
+: open
+
+Note
+: Keeper run 2026-11-19 (PR 536, research walleye-modem-blobs-found): the modem firmware set is read from the phone's own modem_b partition. PRIVACY: modemst1, modemst2, fsg and fsc are the modem's own per-device data (calibration and identifiers, an IMEI among them): they stay in ~/lab-material (mode 700, outside git), the ramdisk and the image that hold them stay in the build tree (never git, never a published package, never printed or put in a message or a research row); rmtfs gets them read-only. Then walleye-modem-mss-proof is the one try.
+
+About
+: walleye-modem-mss-proof
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: one boot image (UFS-off gate and AVB pass, rebuild identical, programmer review) of the mainline test kernel with remoteproc_mss and the msm8998 dts nodes enabled as walleye-modem-way says, a ramdisk holding mba.mbn, modem.mdt and b00-b27 (and qdsp6m.qdb) from ~/lab-material/walleye/modem-2026-11-19 (never git), rmtfs started on read-only copies of modemst1, modemst2, fsg and fsc; the build writes nothing to the phone's storage; sha256 line; a host test that the image holds no UFS-on node
+
+Rank
+: 21
+
+
+<a id="walleye-modem-mss-proof"></a>
+### Modem: boot remoteproc_mss with factory-image blobs, read-only; rmtfs, pd-mapper, tqftpserv, qrtr
+
+Status
+: open
+
+Note
+: Host step done 2026-11-19 (research walleye-modem-blobs-found): blobs and rmtfs partitions read into ~/lab-material/walleye/modem-2026-11-19 (adb root, read only). Next: a builder row for a test image with remoteproc_mss + mba/modem firmware in the ramdisk + rmtfs read-only, then one try; no UFS-on image. Host step done (PR 536): the firmware set was read from modem_b. Now blocked by walleye-modem-mss-image.
+
+Blocked by
+: walleye-modem-mss-image
+
+About
+: modem-calls
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: dmesg shows the MSS ready and qrtr-lookup lists services (a modem check in the suite passes)
+
+Rank
+: 20
