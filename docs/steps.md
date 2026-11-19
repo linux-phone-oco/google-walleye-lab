@@ -1614,3 +1614,45 @@ Notes
 
 Updated
 : 2026-11-19
+
+
+### Row 114
+
+Step
+: display-any-order
+
+Status
+: open
+
+Proof
+: display-boots-any-order
+
+Run
+: research walleye-display-b2-dsi-clock-warning; items walleye-display-delay-bisect, walleye-display-splash-region-dts, walleye-display-dts-any-order
+
+Notes
+: Not yet: B2 loaded at 2 s fails (SMMU faults at the splash buffer, pclk0 rcg warnings, DSI -110), clean at 66 s; the dts reserves nothing at 0x9d400000. The cause is the bootloader's scan-out still live; the fix is the splash region in the dts (decision 2026-11-19-walleye-display-early-load-splash-handover).
+
+Updated
+: 2026-11-19
+
+
+### Row 115
+
+Step
+: storage-full-speed
+
+Status
+: open
+
+Proof
+: storage-link-speed
+
+Run
+: research walleye-ufs-why-gear1-ranked; item walleye-ufs-try-2
+
+Notes
+: Not yet: UFS try 1 reads the link at HS gear 1, 2 lanes, FAST_MODE, HIBERN8. The power-mode change was made; gear 1 at idle is most likely clock scale-down (no operating-points table in msm8998.dtsi). A second try with read-only readings after a bounded read waits for the author's word.
+
+Updated
+: 2026-11-19
