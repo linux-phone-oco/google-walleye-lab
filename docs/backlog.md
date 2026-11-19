@@ -5325,12 +5325,10 @@ Witness
 ### Licences for google-walleye-lab: LICENSE files, SPDX headers or REUSE.toml, a README line, a CI coverage check
 
 Status
-: open
+: done
 
 Note
-: The author's word 'Yes, as suggested', docs decision 2026-11-19-licences-for-our-repositories (via orchestration). Small; after the UFS-off gate.
-
-MODEL FROM ORCHESTRATION 2026-11-19: copy device-template #33 (linux-phone-oco/device-template): LICENSE (CC-BY-SA-4.0 for data and docs), LICENSE-MIT and LICENSE-APACHE for scripts, LICENSES/ (the texts), a REUSE.toml annotating each path (adjust to this lab paths), a README line, and bin/licence-check = ideal-agent script BYTE FOR BYTE (run from make verify and check.yml): this replaces writing our own coverage check. Dts patches against upstream files carry the licence of the file they change: docs #590 tagged the msm8998 and pm8998 ones BSD-3-Clause, or BSD-3-Clause AND MIT (read docs #590); our own new dts files: GPL-2.0-only OR BSD-2-Clause. The LineageOS images (control/, not in git), firmware and porthole pieces keep their own licences. Docs device layer carries no licence files, so this one is landed here.
+: Landed: LICENSE/-MIT/-APACHE, LICENSES/, REUSE.toml, bin/licence-check (ideal-agent's, byte for byte), README line, make verify and CI job. Our dts GPL-2.0-only OR BSD-2-Clause; the wahoo-derived board dts stays GPL-2.0-only; C probe GPL-2.0-only by its header; build/ffs-acm-rs MIT OR Apache-2.0.
 
 About
 : walleye-first-fastboot-boot

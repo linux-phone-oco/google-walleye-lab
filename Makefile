@@ -22,3 +22,4 @@ verify: check     ## what CI runs: data is valid and canonical, docs are fresh
 	  echo "data/ or docs/ was not canonical/fresh and has been rewritten. Review and commit:"; \
 	  diff <(echo "$$before") <(echo "$$after") || true; exit 1; \
 	fi; echo "verify: data canonical, docs fresh"
+	@sh bin/licence-check

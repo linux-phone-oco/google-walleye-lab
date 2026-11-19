@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
 /*
  * UFS-ON variant of the walleye board file, for the z11, z12 and z13 build scripts ONLY (the UFS read-only experiments). The shared board file keeps UFS off
  * (decision 2026-11-19-walleye-ufs-off-by-a-gate): an image carrying this dtb fails tests/host/ufs-off-image.sh and is not to boot.
