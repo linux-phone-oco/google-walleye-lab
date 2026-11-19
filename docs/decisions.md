@@ -1519,3 +1519,31 @@ About
 
 Amends
 : 2026-11-18-walleye-pmic-bite-read-then-warm
+
+
+<a id="2026-11-19-walleye-upstream-dts-trim"></a>
+### 2026-11-19-walleye-upstream-dts-trim
+
+Date
+: 2026-11-19
+
+Brief
+: Upstream board dts: APSS wdt dropped, adreno_smmu kept disabled with a reason, UFS off, GPL-2.0-only kept
+
+Decision
+: The upstream series drops the APSS qcom,kpss-wdt node (no msm8998.dtsi patch), keeps &adreno_smmu disabled as a board override with a comment, leaves UFS out, and keeps GPL-2.0-only.
+
+Why
+: The wdt address and bark interrupt are downstream values and no run showed a bite resetting the phone (T3 was the alive class); the smmu's power domain needs the GPU rail nothing describes; UFS is off by decision 2026-11-19-walleye-ufs-off-by-a-gate; the file derives from GPL-only wahoo board files so it cannot be dual-licensed by us.
+
+Rejected
+: A wdt patch to msm8998.dtsi now (no proof, a wrong value would reset real boards); dropping the adreno_smmu node override (left on it logs gpu_gx WARNs and holds sync_state); GPL-2.0-only OR BSD-3-Clause (not ours to give).
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-upstream-dts-series
+
+Tracked by
+: walleye-upstream-dts-polish

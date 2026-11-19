@@ -3199,3 +3199,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-upstream-dts"></a>
+### walleye-builder: the Pixel 2 board dts as an upstream series
+
+Entry date
+: 2026-11-19
+
+Done
+: Polished the candidate into a two-patch series on v7.3; binding, W=1 dtbs and relaxed style clean, strict 76 to 2, checkpatch 0 errors; programmer review applied in part; nothing mailed.
+
+Considered
+: A separate msm8998.dtsi wdt patch
+
+Rejected
+: Wdt patch without a bite proof; dual licence
+
+About
+: walleye-first-fastboot-boot

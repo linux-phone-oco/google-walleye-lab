@@ -5141,10 +5141,10 @@ Rank
 ### Polish the board dts for upstream: lab-id comments, sorting, labels, the APSS wdt and adreno_smmu decisions, UFS disabled
 
 Status
-: open
+: done
 
 Note
-: From the upstreams lane via the top coordinator (docs #573): dt_binding_check clean, CHECK_DTBS W=1 has 0 warnings of ours, checkpatch --strict has 76 findings, all style. The result goes back to the upstreams lane for the series; nothing is mailed without the author's word.
+: Series in research/walleye-first-fastboot-boot/2026-11-19-upstream-dts/ (research walleye-upstream-dts-series); goes back to the upstreams lane; open: author/SoB, provenance lines, one boot of this dtb
 
 About
 : walleye-first-fastboot-boot
