@@ -1858,3 +1858,31 @@ Research
 
 Tracked by
 : walleye-display-late-probe-image
+
+
+<a id="2026-11-19-walleye-attended-tries-one-command"></a>
+### 2026-11-19-walleye-attended-tries-one-command
+
+Date
+: 2026-11-19
+
+Brief
+: The author is asked to attend only when the try is one command away: one Rust program per try, dry-run and every unattended part already run for real
+
+Decision
+: Every attended try of this lane (display stripes, touch z21, PMIC v1 reboot-then-bite, any later UFS try) becomes ONE program with ONE command, its logic in Rust (a rust-script, a small crate of this lab, or an lpoco subcommand where lab-tools already has the piece) - not shell. The program covers the whole sequence: the gate (tests/host/ufs-off-image.sh) and battery, the boot, the console and log reads, the pattern or the touch reader, the prompts to the author (what to expect, what to check, the moment to act), the record of the result and the way back to Android. Its invocation surface is declared once with argenv (practice 43). It has a dry-run that prints and checks the whole sequence without booting, and a mode that runs every part that needs no person for real. Order per try: the program is built, dry-run passes, a keeper runs the unattended parts for real and records it, and only then the coordinator asks the author to attend: he says go and the one command runs (a keeper runs it, or he does). Until then the try item stays blocked and no person is asked. The programs build on lpoco-lab (fastboot, keeper, kernel) and tests/host readers by calling them, not copying; the older shell readers stay as they are (author, earlier: 'shell scripts stay as they are').
+
+Why
+: The author, 2026-11-19, relayed by the Top Coordinator, verbatim: "please, ask me to attent only when everything is preped 1 launch sequence away with test sequences being prepered as rust-script or something and they test them before asking me to attend". Today's attended tries cost him the visit and still failed for lane-side reasons (the touch window missed because the 'ready' arrived late; the display try with no console), which a sequence run for real beforehand would have shown. Practices 11 (a witnessed test: say what to expect, wait for the go), 21 (no shell past one-off glue; logic in Rust) and 43 (argenv) say the same.
+
+Rejected
+: Asking him again with the shell sequences as they are (the same misses); one big generic framework first with the tries after (the first plan is the display's, the framework grows out of two plans, not before); a program that skips the person's prompts when unattended (the prompts are dry-run, and the unattended run reads every part that needs no person); Python (practice 21).
+
+About
+: walleye-first-fastboot-boot
+
+Scope
+: walleye lane attended tries; surya's lane to be told by the Top Coordinator
+
+Tracked by
+: walleye-attend-program-display
