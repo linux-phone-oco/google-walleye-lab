@@ -8441,13 +8441,19 @@ Status
 : open
 
 Note
-: From the bite test of walleye-try-pmic-wdt-v1 (2026-11-20): reset by itself 20 s after arming, phone came up in off-mode charger (charging icon, black screen), Android only after a short power press (author's words, verbatim: 'it did restart into charging, it showed charging icon, now the screen is black'). Questions: which PON/reset reason the bite leaves (read PON registers from Android, debugfs regmap as root, and the bootloader's view), why the bootloader takes charger mode (S2 hard reset type 7 looks like a power-off to it, with USB in), whether a different S2 type or a PON bit makes it warm-boot, and what the upstreams series should say. Does it block the series? Not as a bite proof; it matters for the user-visible behaviour.
+: From the bite test of walleye-try-pmic-wdt-v1 (2026-11-20): reset by itself 20 s after arming, phone came up in off-mode charger (charging icon, black screen), Android only after a short power press (author's words, verbatim: 'it did restart into charging, it showed charging icon, now the screen is black'). Questions: which PON/reset reason the bite leaves (read PON registers from Android, debugfs regmap as root, and the bootloader's view), why the bootloader takes charger mode (S2 hard reset type 7 looks like a power-off to it, with USB in), whether a different S2 type or a PON bit makes it warm-boot, and what the upstreams series should say. Does it block the series? Not as a bite proof; it matters for the user-visible behaviour. Rank 3 and a proof added 2026-11-20 by the walleye coordinator at the Top Coordinator's ask (his words in research walleye-pmic-wdt-v1-try-result).
 
 About
-: walleye-pmic-wdt-proof
+: walleye-pmic-wdt-v1-image
 
 Opened
 : 2026-11-19
 
 Needs
 : research
+
+Proof
+: a research row: the PON reason registers after the bite (what the bootloader reads: WARM_RESET, hard reset, the S2 reset type 7 against the warm-reset types), the reason Android reported ([reboot] / sys.boot.reason bootloader) and why it differs from the author's charger screen; the bootloader's rule for the off-mode charger boot (USB present and a power reason that is not a key press); what a vendor-kernel watchdog bite does on this phone (the stock reset type) against the mainline driver's type 7; the options (another S2 type, a PON bit set before the bite, a boot-reason handover); and the cheapest read-only experiment (the same bite with the cable out, then in, the PON registers read before and after)
+
+Rank
+: 3
