@@ -7870,3 +7870,28 @@ Proof
 
 Rank
 : 7
+
+
+<a id="walleye-display-backlight-timeout"></a>
+### Why the panel's brightness write fails with -110 ('failed to enable backlight') on B1, and whether the glass is affected
+
+Status
+: open
+
+Note
+: Keeper run of B1 (lab PR 569): 13/13 display modules loaded by the init, card0 and DSI-1 connected, fb0 up; the dsi brightness write fails -110 'failed to enable backlight'. Glass not looked at. The author saw the console on the glass on L5/L6 (hand-loaded), so the glass lights there; whether B1's does is not known. A look at B1 is bundled with the held stripes look (walleye-stripes-kd-graphics) in one visit once both are fixed.
+
+About
+: walleye-display-at-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row from the v7.3 source (panel-samsung-s6e3fa5.c backlight update_status, mipi_dsi_dcs_set_display_brightness, the msm dsi host's command transfer and its completion wait) and the keeper's B1 record: when the brightness write happens (at backlight registration before the panel is powered and out of sleep, or after enable), why the DSI command times out (-110) on B1 and not on the hand-loaded L6, and the smallest change (move the first write after enable, or register the backlight after the panel is on); which procedure step or test reads it
+
+Rank
+: 3
