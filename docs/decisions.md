@@ -2275,3 +2275,34 @@ Research
 
 Tracked by
 : walleye-fingerprint-spi-hwid
+
+
+<a id="2026-11-19-walleye-tas2557-from-upstream-v3"></a>
+### 2026-11-19-walleye-tas2557-from-upstream-v3
+
+Date
+: 2026-11-19
+
+Brief
+: Walleye's TAS2557 series starts from Boiano's v3 (binding + driver); porthole's port stays a fallback, mined only for what v3 lacks
+
+Decision
+: Build the TAS2557 series from Boiano's v3 on linux-sound: patch 1 the binding as posted, patch 2 the driver as posted, patch 3 walleye's dts as one node, reg = <0x4c>, <0x4d>, reset-gpios, the four supplies, firmware-name only if v3 does not pick tas2557s_PG21_uCDSP.bin itself. Carry v3 as FROMLIST. Porthole's 0024/0162/0171-0174 are not applied; they stay a reference for gaps (PGID-based firmware choice, volume controls) that a measured try shows v3 lacks, each such gap a separate small patch. A walleye result, good or bad, goes back to the list in the author's name. Amends the order of 2026-11-19-walleye-audio-from-porthole for this chip only; the other groups still come from porthole.
+
+Why
+: Practice 13 and upstream-first: v3 has a reviewed binding (Kozlowski), supports exactly walleye's shape (two amps on one reset, stereo firmware), and is Boiano's own code; porthole's has no binding, a one-node hack that cannot pass review, and is declared ported from the downstream driver. The author asked for one series per chip, each patch upstreamable (decision 2026-11-19-walleye-audio-port-shape). The risk is that v3 is unproven on msm8998 and still under review; one build and one boot try settle that, and porthole stays as the fallback.
+
+Rejected
+: Porthole's port as the base: not upstreamable (no binding, hardcoded second address), LLM-assisted and downstream-derived, but proven on a Pixel 2 XL: kept as fallback and reference. Writing our own driver: duplicates two existing ones. Waiting for v3 to merge: the list gives no date and the series needs the firmware file anyway; carrying v3 costs nothing.
+
+About
+: walleye-audio-haptics
+
+Research
+: walleye-tas2557-v3-vs-porthole
+
+Amends
+: 2026-11-19-walleye-audio-from-porthole
+
+Tracked by
+: walleye-tas2557-driver
