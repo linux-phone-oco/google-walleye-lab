@@ -3058,3 +3058,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-0235-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Nothing changed. Android on slot b, stock kernel, nothing flashed (as the 22:30 hand-over). Keeper run 02:32 took no item: walleye-try-z21-touch-events needs a person at the phone and the run is unattended; lpoco lab cannot reach the phone: ~/.config/devlab/google-walleye/password is missing (no google-walleye dir at all). walleye-ufs-android-regs still waits on a mem reader.
+
+Considered
+: next: coordinator provides the walleye password file (mode 600) and, if the author is at the phone, a fresh go for z21 touch events; then z19, bootchain-readback
+
+About
+: walleye-first-fastboot-boot
