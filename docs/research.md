@@ -4680,3 +4680,22 @@ Found
 
 About
 : walleye-audio-haptics
+
+
+<a id="walleye-display-stripes-l6-tried-2-drawer-held-60s"></a>
+### walleye-display-stripes-l6-tried-2-drawer-held-60s
+
+Date
+: 2026-11-19
+
+Brief
+: L6 tried a second time, drawer detached: exit 0, held 60.3 s, every ioctl 0, connector connected/enabled before and after; whether the glass lit still not known
+
+Question
+: With the drawer detached, does it end with 0 and hold the full 60 s on L6, unattended?
+
+Found
+: Gates: sha256 8ca3af87 ok, ufs-off pass, battery 4376 mV, slot b. fastboot boot (lpoco lab fastboot boot now, nothing written): gadget 1d6b:0104 after 18 s, shell 2 s later. display-late-probe.sh STRIPES_SECONDS=60 (material /home/mll/Projects/walleye-build/runs/l6b-1795105982, not in git): the script reported fail because its 70 s read came while the drawer still ran; read again ~45 s later the log ends stripes-rc=0-end. Kernel stream: draw line at 441.12 s, release pan at 501.45 s = 60.3 s hold. FBIOPAN_DISPLAY, FBIOPUT_VSCREENINFO (force), FBIOBLANK (unblank) = 0; release clears to black; fb0 msmdrmfb and connector connected/enabled 1080x1920 before and after. Script flaw: the drawer reaches its hold ~12 s after the settle and the fixed sleep of STRIPES_SECONDS+10 leaves too little margin; the read should poll for stripes-rc up to a bound. Netconsole UDP carried no marker again, TCP stream did. /tmp/hold removed, phone back on Android slot b by itself: idle-android pass, battery 4383 mV. Not known: whether the glass lit (author not asked; the attended try's question).
+
+About
+: walleye-display-s6e3fa5
