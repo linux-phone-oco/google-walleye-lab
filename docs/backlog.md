@@ -7507,10 +7507,10 @@ Rank
 ### pmic-try.rs always takes the phone back to Android when it stops, however it stops: the way back is a last step that runs after a failure or an unanswered ask
 
 Status
-: open
+: done
 
 Note
-: PMIC run 3 (keeper, PR 534): steps 1-7 pass on the rebuilt pair; after the unanswered ask the program left the phone in image A's ramdisk, which has no self-reboot and is off adb and fastboot; the keeper got it back with 'reboot -f; echo b > /proc/sysrq-trigger' over the telnet shell. That way back belongs in the program: an attended run ends the same way when the author stops or the bite is not answered. Same step for the touch and display programs where their init lacks a self-reboot (z21 and the L-images restart by themselves; check each).
+: Built (branch topic/pmic-way-back): watch.rs re-runs pmic-try.rs as a child and runs Lab::way_back after it (Android: nothing; fastboot: fastboot reboot; shell: reboot -f, then sysrq b; else power-hold sentence, non-zero), only when the child acted on the phone; 61 stand-in tests (no answer, failed check, Ctrl-C, shell silent, sysrq fallback, fastboot, untouched), clippy, fmt, dry-run lists the step. Proven on stand-ins only: the builder never touches the phone; the real run is the PMIC attended try. Not done: touch and display programs (z21 and L-images restart by themselves; Lab::way_back is shared, add the watch when one needs it). Review leftovers: SIGTERM to the parent alone kills only the child (SIGKILL), a second Ctrl-C during the way back does nothing.
 
 About
 : walleye-attend-program-pmic
