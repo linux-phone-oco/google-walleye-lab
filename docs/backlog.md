@@ -6696,34 +6696,6 @@ Rank
 : 2
 
 
-<a id="walleye-procedures-one-shape"></a>
-### Move the attended programs to procedures/NAME.rs and tools/walleye-tries to procedures/steps, dropping what lab-tools' step library takes
-
-Status
-: open
-
-Note
-: PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. Today's #448 (tests/attended/touch-try.rs, tools/walleye-tries) is the closest to it. Move it when lab-tools' scaffold has landed; until then new programs follow the shape already. LIBRARY STEPS (orchestration, 2026-11-19, lab-tools tag lpoco-attended-v0.29.2, #250 #251): dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb are in the library; boot_once and back_to_known_good come next, then lpoco attended new|run|check. Write the PMIC, display and UFS programs against v0.29.2 and these steps, not walleye-tries copies; where the library lacks a step, write it in procedures/steps and name it as wanted.
-
-Waits
-: orchestration: lab-tools attended-scaffold (lpoco attended new|run|check and the step library: boot_once, wait_for_usb, back_to_known_good, read_dmesg)
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: tests/attended/*.rs now in procedures/*.rs (touch-try, and the PMIC program when it has landed), tools/walleye-tries now procedures/steps with only the steps the library does not have (boot_once, wait_for_usb, back_to_known_good, read_dmesg removed in favour of the library's), lpoco attended check passes on each, the stand-in tests still pass, the entry files still read as a checklist on one screen (decision 2026-11-19-walleye-attended-tries-one-command); paths in the backlog notes and the README updated; the PMIC and touch programs use the library's dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb (v0.29.2 or later) in place of their walleye-tries copies
-
-Rank
-: 9
-
-
 <a id="walleye-attend-program-display"></a>
 ### One command for the display try: a Rust program that boots the display image, reads the console and the DRM connector, shows the stripes, prompts the author and returns the phone to Android
 
@@ -6781,3 +6753,59 @@ Proof
 
 Rank
 : 99
+
+
+<a id="walleye-try-settings-into-device-toml"></a>
+### Move the WALLEYE_TRY_* settings into device.toml, under the tables that already hold those facts
+
+Status
+: open
+
+Note
+: Orchestration, 2026-11-19: the procedure names its device and its values come from that device.toml, not from environment variables. Do it with the procedures/ move (walleye-procedures-one-shape): same change or the one just before it. Until then the existing programs keep their settings.
+
+Waits
+: orchestration: lab-tools attended-device-values (the procedure names its device, lpoco-attended loads that device.toml, library steps read named keys, a missing key fails --dry-run, devlab gets --device explicitly; decision 2026-11-19-procedure-values-from-the-named-device)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: every WALLEYE_TRY_* setting of tools/walleye-tries/src/settings.rs is a key of this lab's device.toml, in the table that already holds that fact ([boot], [boot.gadget], the network address and port, the images folder, the battery floor and so on); a new key only where no table holds the fact; settings.rs and the programs read them through the library's named-key reads and no device fact is read from an environment variable; a missing key fails the program's --dry-run; the stand-in tests still pass; the README and the program notes name the keys
+
+Rank
+: 9
+
+
+<a id="walleye-procedures-one-shape"></a>
+### Move the attended programs to procedures/NAME.rs and tools/walleye-tries to procedures/steps, dropping what lab-tools' step library takes
+
+Status
+: open
+
+Note
+: PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. Today's #448 (tests/attended/touch-try.rs, tools/walleye-tries) is the closest to it. Move it when lab-tools' scaffold has landed; until then new programs follow the shape already. LIBRARY STEPS (orchestration, 2026-11-19, lab-tools tag lpoco-attended-v0.29.2, #250 #251): dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb are in the library; boot_once and back_to_known_good come next, then lpoco attended new|run|check. Write the PMIC, display and UFS programs against v0.29.2 and these steps, not walleye-tries copies; where the library lacks a step, write it in procedures/steps and name it as wanted. With it: walleye-try-settings-into-device-toml (the WALLEYE_TRY_* settings become device.toml keys).
+
+Waits
+: orchestration: lab-tools attended-scaffold (lpoco attended new|run|check and the step library: boot_once, wait_for_usb, back_to_known_good, read_dmesg)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: tests/attended/*.rs now in procedures/*.rs (touch-try, and the PMIC program when it has landed), tools/walleye-tries now procedures/steps with only the steps the library does not have (boot_once, wait_for_usb, back_to_known_good, read_dmesg removed in favour of the library's), lpoco attended check passes on each, the stand-in tests still pass, the entry files still read as a checklist on one screen (decision 2026-11-19-walleye-attended-tries-one-command); paths in the backlog notes and the README updated; the PMIC and touch programs use the library's dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb (v0.29.2 or later) in place of their walleye-tries copies
+
+Rank
+: 9
