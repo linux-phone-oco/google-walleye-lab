@@ -7652,10 +7652,10 @@ Rank
 ### The working solution extracted from Android: one table of Android's UFS path against the matched image after the gaps, ending in the refreshed go note
 
 Status
-: open
+: done
 
 Note
-: The lane's own work, not parked on the author (his words, 2026-11-19: "im not holding it back, im waiting until we have all we can from android and a working solution that is extracted from that as we were discussing before"). When this is done the go note goes to him and his word opens walleye-try-ufs-match. All seven gap items are done (PRs 414, 416, 417, 420, 423, 425, 430). Findings to carry into the table: version still 3.0.0 or 3.1.0 (read by the image); link-startup pre-change not carried; ICE skipped; abl leaves host and card running and the RST_n pulse is the one step no capture covers; lane 1 only risks speed; Sony's mechanism unpublished; perf items need nothing for a probe. The perf research says it can drop four rows from the gap table. STORAGE IS NOW THE WEAKEST LINK (the author, via the Top Coordinator, 2026-11-19: 'whats with the memory support ? how did that direction went, can we use it now ?'); the display is proven. Order: walleye-ufs-match-prints (build, first), walleye-ufs-solution-extracted (research, the closing table and the refreshed go note, may start beside the build), walleye-attend-program-ufs (the one-command UFS procedure: read-only, dry-run, its unattended parts run for real; the UFS-on boot itself stays behind the author's go), then the go note goes to the Top Coordinator. MAY START NOW, beside the prints build: the table of Android's path against the matched image does not need the rebuilt image's sha; if the prints build has not landed when the table is done, name the image as 'rebuilt with the prints (sha pending)' and say what the go note then waits on. The go note (research walleye-ufs-go-note) is refreshed in plain words, with the seven gap findings (PRs 414, 416, 417, 420, 423, 425, 430, 434), and goes to the Top Coordinator.
+: Table landed as research walleye-ufs-solution-table (18 steps: 7 equal, 1 carried, 7 harmless, 2 unknown); go note refreshed in place (research walleye-ufs-go-note, image sha 461077869fb2 with the prints). Next: walleye-attend-program-ufs, then the go note goes to the Top Coordinator.
 
 About
 : walleye-ufs-match-android-z

@@ -4486,3 +4486,21 @@ Rejected
 
 About
 : walleye-ufs-match-android-z
+
+---
+
+
+<a id="2026-11-19-walleye-research-ufs-solution-extracted"></a>
+### walleye-research: the UFS solution extracted from Android
+
+Entry date
+: 2026-11-19
+
+Done
+: Closing table of Android's UFS path against the matched image after the gaps (walleye-ufs-solution-table); go note refreshed with the rebuilt image's sha and all gap findings.
+
+Considered
+: Naming the image 'sha pending': not needed, the prints build landed (#555).
+
+About
+: walleye-ufs-match-android-z
