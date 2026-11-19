@@ -5502,37 +5502,6 @@ Rank
 : 20
 
 
-<a id="walleye-ufs-match-android-z"></a>
-### Build a z image whose UFS path matches Android's for this card: SAVECONFIGTIME only, the PHY table of the version read, ICE and rail loads, a card RST_n pulse (built and reviewed, NOT tried)
-
-Status
-: open
-
-Note
-: From research walleye-ufs-android-way-compared and decision 2026-11-19-walleye-ufs-version-read-in-our-driver. The RST_n pulse needs a kernel change (tlmm ngpios or pinctrl states): decide which first. Drop ONE_TX_LANE, EXTEND_SYNC_LENGTH, DELAY_BEFORE_LPM for this card; keep the NO_PURGE guard. NEW: the image reads UFS_HW_VERSION (0xE4, before PHY init, as the vendor does), prints it, selects the PHY rate-A table by it (3.0.0/3.1.0, else stop). Build only; try waits for the author's go.
-
-Waits
-: the author's go on UFS (decision 2026-11-18-walleye-ufs-wait) and the Android register read; a UFS-on image is never built for a try without it
-
-Blocked by
-: walleye-ufs-android-regs
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: a built image whose quirks for H28U74301AMR equal the vendor's, with the programmer review; try waits for the author's word
-
-Rank
-: 98
-
-
 <a id="walleye-try-fuel-gauge"></a>
 ### Try fg1 once from slot b: boot-fg1.img, read capacity and voltage_now, compare with fastboot's battery reading
 
@@ -5646,3 +5615,31 @@ Proof
 
 Rank
 : 62
+
+
+<a id="walleye-ufs-match-android-z"></a>
+### Build a z image whose UFS path matches Android's for this card: SAVECONFIGTIME only, the PHY table of the version read, ICE and rail loads, a card RST_n pulse (built and reviewed, NOT tried)
+
+Status
+: open
+
+Note
+: Build and review only. Research walleye-ufs-regs-reader-verdict: version read at 0xE4 in the image's own ufs-qcom init, table by it (3.0.0/3.1.0, else stop). The RST_n pulse needs a kernel change (tlmm ngpios or pinctrl states): the builder decides which first and records it. Drop ONE_TX_LANE, EXTEND_SYNC_LENGTH, DELAY_BEFORE_LPM for this card; keep the NO_PURGE guard. The image is never booted or put in a keeper's queue; tests/host/ufs-off-image.sh refuses it by design.
+
+Waits
+: the author's go on UFS for the TRY only (decision 2026-11-18-walleye-ufs-wait); the build proceeds (decision 2026-11-19-walleye-ufs-image-builds-before-the-go)
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: a built image whose quirks for H28U74301AMR equal the vendor's, reading UFS_HW_VERSION (0xE4) in its own probe, with the programmer review; named ufs-on, never booted: try waits for the author's word
+
+Rank
+: 5

@@ -1631,3 +1631,34 @@ Research
 
 Tracked by
 : walleye-ufs-match-android-z
+
+
+<a id="2026-11-19-walleye-ufs-image-builds-before-the-go"></a>
+### 2026-11-19-walleye-ufs-image-builds-before-the-go
+
+Date
+: 2026-11-19
+
+Brief
+: The matched UFS image may be built and reviewed before the author's go; it is never booted without it (gate refuses it)
+
+Decision
+: walleye-ufs-match-android-z is built now: a UFS-on image that is built, reviewed by the programmer and left in the build tree under a name that says ufs-on, never booted, never put in a keeper's queue. The try keeps waiting for the author's explicit go (decision 2026-11-18-walleye-ufs-wait); the gate tests/host/ufs-off-image.sh refuses any UFS-on image before a boot, and nothing here weakens it.
+
+Why
+: z13 was built and left unrun on the same wait, the author's 'Yes, wait' is about the UFS probe from our kernel on the phone, not about building; the build touches no phone. Wifi, audio, radios and the display chain all wait on UFS, so a reviewed image makes the author's later go a plain yes or no on a finished thing, and the one lane that can move unattended is this build. Research walleye-ufs-regs-reader-verdict removed the last block (the register read moves into the image's own probe).
+
+Rejected
+: Wait to build until the go (idles the only unattended piece and makes the go a decision about an image not yet seen); building a UFS-off variant (proves nothing about the UFS path); weakening or skipping the gate to try on a fallback (never: no EDL way back, decision 2026-11-18-walleye-edl-no-way-back-wait-holds)
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-ufs-regs-reader-verdict
+
+Amends
+: 2026-11-18-walleye-ufs-wait
+
+Tracked by
+: walleye-ufs-match-android-z
