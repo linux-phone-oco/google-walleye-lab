@@ -6293,34 +6293,6 @@ Rank
 : 14
 
 
-<a id="walleye-try-display-late-probe"></a>
-### Try the display late-probe image once: stream the kernel log, load the display modules by hand, read the last step
-
-Status
-: open
-
-Note
-: UNBLOCKED BY f3-split (research walleye-display-f3-split-tried): g1 and g2 boot a shell. A builder piece: late-probe image on the g2 dtb (no mdss iommus) or g1 cmdline, then this try reads the probe. Still not tried again.
-
-Blocked by
-: walleye-try-display-f3-split
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: the gate passes right before the boot; the shell answers (gadget 1d6b:0104); the host script display-late-probe.sh runs with its files kept in ~/lab-material/walleye; a research row naming the last logged line before the shell or the phone died (or, if nothing died, the dmesg of the probe, the DRM connector status); Android back by itself within the 180 s timer or the fallback
-
-Rank
-: 4
-
-
 <a id="walleye-drv2624-driver"></a>
 ### Write the DRV2624 haptics driver (input FF, regmap) and its dts node
 
@@ -6497,3 +6469,56 @@ Proof
 
 Rank
 : 20
+
+
+<a id="walleye-display-late-probe-l-images"></a>
+### The late-probe image with the full display dtb and the iommu fix: L1 with iommu.passthrough=1, L2 without the mdss iommus property
+
+Status
+: open
+
+Note
+: Research walleye-display-f3-split-tried (PR 440): g1 (f3 + iommu.passthrough=1) and g2 (f3 without the mdss iommus property) boot a shell, gadget at 18 s; g3 (mdss alone) loses it, Android back at 63 s. So the mdss node's iommus property kills the boot (decision 2026-11-19-walleye-display-iommu-reading: confirmed by the three images, not yet by a log). The late-probe try (modules loaded by hand, log streamed) needs one of them with the panel and the rest of the display dtb on. L1 first (no dts surgery, reversible); L2 is the second image if L1 fails.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: two boot images beside the late-probe image, each passing tests/host/ufs-off-image.sh and the AVB check, a rebuild identical, programmer review, sha256 lines: both are the late-probe image (kernel with the display drivers as modules, netconsole, init-late ramdisk with the module list, cmdline of the late-probe image) with the FULL display dtb (mdss, display-controller, DSI host, DSI phy okay, the panel node, regulators, pinctrl states); L1 adds iommu.passthrough=1 to the command line (the g1 recipe); L2 instead removes the iommus property from the mdss node (the g2 recipe); a diff of each against the late-probe image
+
+Rank
+: 1
+
+
+<a id="walleye-try-display-late-probe"></a>
+### Try the display late-probe image once: stream the kernel log, load the display modules by hand, read the last step
+
+Status
+: open
+
+Note
+: UNBLOCKED BY f3-split (research walleye-display-f3-split-tried): g1 and g2 boot a shell. A builder piece: late-probe image on the g2 dtb (no mdss iommus) or g1 cmdline, then this try reads the probe. Still not tried again. 2026-11-19 after PR 440: runs on L1 (iommu.passthrough=1) first, L2 if L1 fails; both unattended. Console first, then the author is asked to look for the stripes alone.
+
+Blocked by
+: walleye-display-late-probe-l-images
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the gate passes right before the boot; the shell answers (gadget 1d6b:0104); the host script display-late-probe.sh runs with its files kept in ~/lab-material/walleye; a research row naming the last logged line before the shell or the phone died (or, if nothing died, the dmesg of the probe, the DRM connector status); Android back by itself within the 180 s timer or the fallback
+
+Rank
+: 2
