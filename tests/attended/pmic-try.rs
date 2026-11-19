@@ -1,7 +1,9 @@
 #!/usr/bin/env rust-script
 //! The PMIC watchdog v1 try (item walleye-attend-program-pmic; decision 2026-11-19-walleye-attended-tries-one-command).
 //! One command: the gates, then the reboot test (arm, clean reboot, Android up and no loop), then the bite last
-//! (arm, never pet, the phone restarts by itself), the plain-words prompts built in, the way back. Nothing is written to storage.
+//! (arm, never pet, the phone restarts by itself), the plain-words prompts built in. However the run ends (a failed check,
+//! an unanswered ask, Ctrl-C) the way back runs last: reboot -f, the sysrq trigger, then the power-hold sentence.
+//! Nothing is written to storage.
 //!   tests/attended/pmic-try.rs [--dry-run] [--log FILE]      (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
 //!
 //! ```cargo
@@ -12,11 +14,16 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use lpoco_attended::prelude::*;
-use walleye_tries::{pmic::words, pmic::Pmic, settings::{Settings, PMIC_PROCEDURE}};
+use walleye_tries::{pmic::words, pmic::Pmic, settings::{Settings, PMIC_PROCEDURE}, watch};
 
 fn main() {
     let _run = procedure(PMIC_PROCEDURE, "google-walleye");
     let wdt = Pmic::new(Settings::for_pmic());
+    // a real run is watched: whatever ends it (a failed check, an unanswered ask, Ctrl-C), the way back runs after
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if watch::watches(&args) {
+        watch::watch_the_try(wdt.way_back());
+    }
 
     check("the battery is good enough", wdt.battery_is_good());
     check("both images are the ones built", wdt.images_are_the_built_ones());
@@ -47,4 +54,5 @@ fn main() {
     check("Android is back", wdt.android_is_back());
     check("Android stays up", wdt.android_stays_up_a_minute());
     step("save the result", wdt.result_is_saved());
+    step("the phone is on Android (the way back, if it is not)", wdt.way_back());
 }

@@ -13,6 +13,13 @@ type Done = Result<(), String>;
 /// How long the phone has to be listed by fastboot after `adb reboot bootloader`.
 const FASTBOOT_WAIT: Duration = Duration::from_secs(90);
 
+/// The two ways to restart a test image that has no self-reboot, over its telnet shell (PMIC run 3 of the keeper).
+pub const REBOOT_NOW: &str = "reboot -f";
+pub const SYSRQ_REBOOT: &str = "echo b > /proc/sysrq-trigger";
+/// What is said when the phone does not return by itself: the one hand step left.
+pub const POWER_HOLD: &str =
+    "hold the power button about 15 seconds until the phone starts or shows the bootloader screen";
+
 #[derive(Clone)]
 pub struct Lab {
     pub s: Rc<Settings>,
@@ -94,20 +101,59 @@ impl Lab {
 
     /// The phone is back on Android (adb device, boot completed, not parked in fastboot).
     pub fn android_is_back(&self) -> Done {
-        let until = Instant::now() + Duration::from_secs(self.s.back_wait);
+        self.android_within(self.s.back_wait, Duration::from_secs(5))
+    }
+
+    /// Android answers within `secs` (one look when 0), looked at again every `poll`.
+    fn android_within(&self, secs: u64, poll: Duration) -> Done {
+        let until = Instant::now() + Duration::from_secs(secs);
         let toml = self.s.device_toml();
         loop {
             match self.script("idle-android.sh", &[&toml.to_string_lossy()], &[]) {
                 Ok(_) => return Ok(()),
                 Err(e) if Instant::now() >= until => {
-                    return Err(format!(
-                        "not back on Android within {} s: {e}",
-                        self.s.back_wait
-                    ))
+                    return Err(format!("not back on Android within {secs} s: {e}"))
                 }
-                Err(_) => std::thread::sleep(Duration::from_secs(5)),
+                Err(_) => std::thread::sleep(poll),
             }
         }
+    }
+
+    /// The way back, the last step of an attended try however it ended: the phone ends on Android without a hand step.
+    /// Already on Android: nothing is sent. In fastboot: `fastboot reboot`. On a test image's shell: `reboot -f`, and
+    /// when Android does not come, the sysrq trigger. A phone that does not return is said so, with the power-hold
+    /// sentence ([`POWER_HOLD`]) - the only hand step left.
+    pub fn way_back(&self) -> Done {
+        let poll = Duration::from_secs(1);
+        if self.android_within(0, poll).is_ok() {
+            return Ok(());
+        }
+        if self.in_fastboot().unwrap_or(false) {
+            let mut c = std::process::Command::new(&self.s.fastboot);
+            c.args(["-s", &self.serial().unwrap_or_default(), "reboot"]);
+            let _ = host::run(c);
+            if self.android_within(self.s.back_wait, poll).is_ok() {
+                return Ok(());
+            }
+        }
+        let mut shell_answered = false;
+        for command in [REBOOT_NOW, SYSRQ_REBOOT] {
+            let Ok(mut sh) = self.shell(3) else { continue };
+            shell_answered = true;
+            // the phone hangs up as it goes down: its answer is not read
+            let _ = sh.run_partial(command, Duration::from_secs(3));
+            if self.android_within(self.s.back_wait, poll).is_ok() {
+                return Ok(());
+            }
+        }
+        // no shell: the phone may be restarting by itself; look once more for as long as the wait
+        if !shell_answered && self.android_within(self.s.back_wait, poll).is_ok() {
+            return Ok(());
+        }
+        Err(format!(
+            "the phone did not come back to Android within {} s of each way: {POWER_HOLD}",
+            self.s.back_wait
+        ))
     }
 }
 

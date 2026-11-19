@@ -4387,3 +4387,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-pmic-program-the-way-back-as-the-last-act"></a>
+### PMIC program: the way back as the last act
+
+Entry date
+: 2026-11-19
+
+Done
+: tools/walleye-tries watch.rs: a real run of pmic-try.rs is watched by a parent that re-runs the program as a child, then runs Lab::way_back (already Android: nothing; fastboot: fastboot reboot; test shell: reboot -f, then echo b > /proc/sysrq-trigger; else the power-hold sentence, exit non-zero) and exits with the child's code, only if the child acted on the phone (marker file). 61 stand-in tests, clippy, fmt, dry-run lists the step. Programmer review applied: marker, no duplicate in the child, serial error falls through, signal exit codes.
+
+Considered
+: library back_to_known_good (systemd userland: does not fit the telnet shell); atexit hook; a library on_stop hook (lab-tools, not mine)
+
+Rejected
+: in-process wrapping of steps: the runner calls process::exit on a failed step or unanswered ask and Ctrl-C kills the process, nothing runs after
+
+About
+: walleye-attend-program-pmic
