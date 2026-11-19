@@ -9,6 +9,7 @@
 //! | the phone's address and shell port | `[connection] shell_address`, `shell_port` |
 //! | the host programs | `[tools] adb`, `fastboot` |
 //! | waits for the phone | `[boot] device_wait`, `back_wait` |
+//! | the battery floor | `[health] battery_floor_mv` (tests/host/battery-ok.sh reads it too) |
 //! | the images | `[images] dir`, `[images.z21]`, `[images.wdt1-a]`, `[images.wdt1-b]` (`path`, `sha256`) |
 //! | the touch try's values | `[procedures.touch-events-on-z21] window`, `min_window` |
 //! | the PMIC try's values | `[procedures.pmic-watchdog-v1-on-the-pixel-2] stay`, `bite_wait` |
@@ -38,6 +39,8 @@ pub struct Settings {
     pub min_window: u64,
     pub device_wait: u64,
     pub back_wait: u64,
+    /// the lowest battery voltage (mV) a try may start at: `[health] battery_floor_mv`
+    pub battery_floor_mv: u64,
     pub address: String,
     pub port: u16,
     pub lpoco: String,
@@ -92,6 +95,7 @@ impl Settings {
             min_window: 0,
             device_wait: number("boot.device_wait", dev("boot.device_wait")),
             back_wait: number("boot.back_wait", dev("boot.back_wait")),
+            battery_floor_mv: number("health.battery_floor_mv", dev("health.battery_floor_mv")),
             address: dev("connection.shell_address"),
             port: u16::try_from(number(
                 "connection.shell_port",
@@ -151,6 +155,7 @@ impl Settings {
             ("images.wdt1-b.path", "boot-wdt1-b.img"),
             ("boot.device_wait", "170"),
             ("boot.back_wait", "240"),
+            ("health.battery_floor_mv", "3700"),
             ("connection.shell_address", "127.0.0.1"),
             ("connection.shell_port", "23"),
             ("tools.adb", "adb"),

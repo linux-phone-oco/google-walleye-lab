@@ -35,6 +35,8 @@ enable = ["sshd.service"]          # the image disables sshd by preset; the lab 
 # What the phone's own health suite expects of it (lpoco lab suite put now). The phone checks itself 120 s
 # after every boot; every change lpoco lab makes ends with that report. Say only facts about the hardware.
 [health]
+battery_floor_mv = 3700            # no try starts below this battery voltage (tests/host/battery-ok.sh and the attended programs)
+battery_source = "fastboot-getvar" # how it is read; battery-ok.sh reads adb dumpsys first while Android runs, the same voltage
 sound_cards = []                   # names as /proc/asound/cards shows them, e.g. ["POCO X3"]
 checks = "tests/health"            # this phone's own checks, beside the generic ones
 absent = ["jack"]                   # the Pixel 2 has no headphone jack; the rest is not measured yet
