@@ -4857,3 +4857,22 @@ Sources
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-display-at-boot-b1-tried-unattended-ok-backlight-fails"></a>
+### walleye-display-at-boot-b1-tried-unattended-ok-backlight-fails
+
+Date
+: 2026-11-19
+
+Brief
+: B1 tried once from fastboot, nothing flashed: shell up by itself, 13 of 13 modules said ok by the init, card0 DSI-1 connected, fb0 msmdrmfb; backlight enable fails -110; glass not looked at
+
+Question
+: Does B1 bring the display up at boot with no host script?
+
+Found
+: Unattended run of procedures/display-at-boot-on-the-pixel-2.rs (image sha 57ab1b69, UFS off, battery ok): gadget 1d6b:0104 came up, init held its self-reboot, 'walleye-display: ok' for all 13 modules, card0 and card0-DSI-1 connected, console switched to fb0 135x120. 249 display lines recorded (~/lab-material/walleye/display-at-boot-*.log). Kernel log shows dsi_err_worker status=c and dsi_cmds2buf_tx cmd dma tx failed type=0x15 data0=0x51 ret=-110, so drm_panel_enable 'failed to enable backlight: -110' (the 0x51 brightness write). The run stopped at the author's look (nobody answered); no way back was run, the init's 10-minute deadman restarted the phone and Android is back (adb device). Whether the glass lit is not known yet.
+
+About
+: walleye-display-s6e3fa5

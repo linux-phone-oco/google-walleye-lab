@@ -7452,7 +7452,7 @@ Status
 : in-progress
 
 Note
-: B1 built and reviewed (research walleye-display-at-boot-b1-built); queued for the keeper's try; done when the try and the author's look pass
+: B1 unattended half passed (13/13 ok, connected); backlog write -110 seen; waits only on the author's look at the glass; next attended window: one command procedures/display-at-boot-on-the-pixel-2.rs
 
 About
 : walleye-display-s6e3fa5
