@@ -704,3 +704,29 @@ Year
 
 Takes
 : Where gpiod_get_optional can return -EPROBE_DEFER for a chip that exists: of_get_named_gpiod_flags (no gdev matches), pinctrl_gpio_request (no gpio range), gpiod_request (module_get)
+
+
+<a id="wahoo-4-4-ufs-qmp-v3"></a>
+### Google wahoo 4.4 kernel: phy-qcom-ufs-qmp-v3.c and ufs-qcom.c (android-msm-wahoo-4.4-android11)
+
+Url
+: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-wahoo-4.4-android11/drivers/phy/phy-qcom-ufs-qmp-v3.c
+
+By
+: Google
+
+Takes
+: facts only: version-to-table selection, SVS2 branch on 3.0.0, no version print
+
+
+<a id="mainlining-dev-ufs-phy-driver"></a>
+### UFS phy driver - A guide to mainlining android phones
+
+Url
+: https://mainlining.dev/2021/07/04/ufs-phy-driver/
+
+Year
+: 2021
+
+Takes
+: downstream v3 tables follow mainline sdm845 values with minuscule exceptions

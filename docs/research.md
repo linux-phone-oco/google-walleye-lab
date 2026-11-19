@@ -3681,3 +3681,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ufs-version-from-source"></a>
+### walleye-ufs-version-from-source
+
+Date
+: 2026-11-19
+
+Brief
+: UFS host version stays 3.0.0 or 3.1.0 from Android's side; no print, no readable trace; the matched image's own read at ufs_qcom_init settles it
+
+Question
+: Can UFS_HW_VERSION (3.0.0 vs 3.1.0) be narrowed from the vendor source, Android's dmesg and the public record, without a register read?
+
+Found
+: Verdict: still two (certain: one of 3.0.0, 3.1.0). Evidence checked, 2026-11-19, nothing run on the phone. (1) Vendor selection: ufs_qcom_phy_qmp_v3_phy_calibrate takes (3,0,0) -> rate_A_3_0_0 table, (3,1,0) -> rate_A_3_1_0, else -ENODEV; Android's UFS works, so it is one of them. (2) Nothing prints the version: ufs_qcom_init stores hw_ver and passes it to the PHY, no dev_info; the only differing branch, ufs_qcom_configure_lpm (SVS2 PHY config with a hibern8 round trip), runs only on exactly 3.0.0 and leaves no log line, so Android's dmesg cannot tell the two apart. (3) The live Android dt (research walleye-first-fastboot-boot 2026-11-18-ufs-android-way live-ufs-props) has the same node for either: phy compatible qcom,ufs-phy-qmp-v3, freq table without an SVS2-only entry that could be told apart; not discriminating. (4) Public record: mainline maps qcom,msm8998-qmp-ufs-phy to sdm845_ufsphy_cfg and it is used on MSM8998 hardware; the vendor 3.1.0 table is the one within 10 lines of it (3.0.0: 35), a weak lean to 3.1.0 for a table that works; the vendor comment 'PHY attached to v3.0.0 controller supports SVS2' and v3 first appearing on MSM8998 lean the other way. No public record states MSM8998's HW_VERSION. Both leans are inference, not evidence. What the matched image settles: its pr_info of REG 0xE4 in ufs_qcom_init plus the table chosen by it, before the PHY is initialised; whichever it reads, the image already carries the choice. Nothing further to do from Android's side.
+
+Sources
+: wahoo-4-4-ufs-qmp-v3,mainlining-dev-ufs-phy-driver
+
+About
+: walleye-ufs-match-android-z
