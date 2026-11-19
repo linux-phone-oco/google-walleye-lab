@@ -4526,31 +4526,6 @@ Rank
 : 1
 
 
-<a id="walleye-bootchain-readback"></a>
-### Read back the Pixel 2's boot chain as files with sha256 (a restore source, kept on the lab machine)
-
-Status
-: open
-
-Note
-: Keeper, Android up, adb root, battery rule passing: sh tests/host/bootchain-readback.sh   (default DIR ~/lab-material/walleye/bootchain-DATE/), then a second read: sh tests/host/bootchain-readback.sh DIR2 and sh tests/host/bootchain-readback-check.sh DIR DIR2. The reader runs the check itself. Optional XBL_SECTORS=8104 (SECTOR_BYTES default 512) asserts xbl; the sector size of that 8104 is not known yet, the phone's own measured sizes bind.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: a test (tests/host/bootchain-readback-check.sh, to write) that fails until every file exists with its measured size and a matching sha256 line, and passes on a second read-back of the same bytes
-
-Rank
-: 4
-
-
 <a id="walleye-ufs-android-live"></a>
 ### Watch Android's own UFS bring-up read-only with adb root: dmesg, debugfs, sysfs, the live host and phy state
 
@@ -5612,3 +5587,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-bootchain-readback"></a>
+### Read back the Pixel 2's boot chain as files with sha256 (a restore source, kept on the lab machine)
+
+Status
+: open
+
+Note
+: Keeper, Android up, adb root, battery rule passing: sh tests/host/bootchain-readback.sh   (default DIR ~/lab-material/walleye/bootchain-DATE/), then a second read: sh tests/host/bootchain-readback.sh DIR2 and sh tests/host/bootchain-readback-check.sh DIR DIR2. The reader runs the check itself. Optional XBL_SECTORS=8104 (SECTOR_BYTES default 512) asserts xbl; the sector size of that 8104 is not known yet, the phone's own measured sizes bind.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: a test (tests/host/bootchain-readback-check.sh, to write) that fails until every file exists with its measured size and a matching sha256 line, and passes on a second read-back of the same bytes
+
+Rank
+: 0
