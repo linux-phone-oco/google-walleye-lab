@@ -3709,3 +3709,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-walleye-builder-display-late-probe-l3-image"></a>
+### walleye-builder: late-probe image L3 (vdd-supply on the dsi node)
+
+Entry date
+: 2026-11-19
+
+Done
+: Built L3 = L1 + vdd-supply (l1a) on dsi@c994000 with lpoco-bringup image bisect; build-display-late-l3-dtb.sh, display-late-l3.toml, check-display-late-l3.sh; gate, AVB pass, rebuild identical; programmer review applied. sha256 9360c0579f1350128b8f43573d9900f8c74e08e0dac21e15089a628f20924e08.
+
+Considered
+: A rail read from the dtbo: it names none; l1a chosen by analogy (PHY vdds, driver's 0.9 V).
+
+About
+: walleye-display-s6e3fa5
