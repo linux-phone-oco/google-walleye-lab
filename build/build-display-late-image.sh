@@ -85,7 +85,7 @@ ck "the ramdisk has the modules' depmod output" "$(cmp -s "$T/rd/lib/modules/$KV
 ck "the ramdisk's busybox has insmod, nc, telnetd and setsid" "$(strings -n2 "$T/rd/bin/busybox" | grep -x -e insmod -e nc -e telnetd -e setsid | sort -u | wc -l)" 4
 mkdir "$T/v" && cp "$IMG" "$T/v/boot.img"
 ck "the AVB footer verifies" "$(avbtool verify_image --image "$T/v/boot.img" >/dev/null 2>&1 && echo yes || echo no)" yes
-ck "the UFS-off gate passes the image (tests/host/ufs-off-image.sh)" "$(sh "$HERE/tests/host/ufs-off-image.sh" "$IMG" | cut -d" " -f1 || true)" pass
+ck "the UFS-off gate (build/ufs-gate.sh) passes the image" "$(sh "$HERE/build/ufs-gate.sh" "$IMG" >/dev/null 2>&1 && echo pass || echo fail)" pass
 ck "the dtb keeps the touch power gpio single-claimant after the overlay merge" "$(DTB="$DTB" sh "$HERE/tests/host/touch-gpio-single-claimant.sh" | cut -d' ' -f1)" pass
 ck "the overlay still merges into the dtb" "$(DTB="$DTB" sh "$HERE/tests/host/dtbo-overlay-merges.sh" | cut -d' ' -f1)" pass
 ck "after the overlay merge the overlay's clock users name gcc (tests/host/overlay-clock-gcc.sh)" "$(DTB="$DTB" sh "$HERE/tests/host/overlay-clock-gcc.sh" | cut -d' ' -f1)" pass
