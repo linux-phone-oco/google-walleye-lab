@@ -4144,3 +4144,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-2000-walleye-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up, battery 4376 mV. drv1 tried once: DRV2624 answers at 0-005a (i2c-0), id 0x03, input registered. Item walleye-haptics-i2c-answers in progress (test itself not run). Suite latest not read: password file still missing.
+
+Considered
+: next: close the haptics item on the dmesg evidence or one more try that lists 0-005a/driver and the supply; then the next ready row is walleye-modem-mss-proof. The drv1 init restarts at 180 s even with /tmp/hold touched.
+
+About
+: walleye-audio-haptics
