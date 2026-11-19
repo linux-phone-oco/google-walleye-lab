@@ -4892,3 +4892,25 @@ YOUR OPTIONS: (a) go on the matched image, one try, read-only; (b) wait for an E
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-backlight-write-minus-110-source-read"></a>
+### walleye-backlight-write-minus-110-source-read
+
+Date
+: 2026-11-19
+
+Brief
+: The 0x51 brightness write fails because it is the first DSI DMA command sent while the DPU streams; read from source, not yet proven on the phone
+
+Question
+: Why does the panel's brightness write fail with -110 on B1, and is the glass affected?
+
+Found
+: Source (v7.3) and the keeper's B1 log. (1) 'failed to enable backlight' is drm_panel_enable's backlight_enable() after panel->funcs->enable, an INFO line only: it does not stop the pipe. Our driver registers the backlight in probe (brightness 255) but writes nothing then; the first 0x51 write is this one, after prepare (reset, sleep out, TE on, 0x53=0x20, display on) succeeded with the same host and LPM. (2) -110 is dsi_cmd_dma_tx's 200 ms dma_comp timeout (DMA-done irq never came). (3) dsi_err_worker status=c = FIFO(4)|MDP_FIFO_UNDERFLOW(8): the MDP pixel path was running into the DSI FIFO when the command was sent; the worker's dsi_sw_reset then kills the pending DMA. msm_dsi_host_xfer_prepare carries the upstream TODO 'make sure dsi_cmd_mdp is idle'; DSI 6G >= 1.2 sets BLOCK_DMA_WITHIN_FRAME, so the DMA waits for the frame end, which never comes if the frame waits for a TE that does not arrive. (4) Order: pre_enable (prepare, writes ok, DPU idle), DPU encoder enable starts the first frame, then panel enable and the backlight write hits it. Hand-loaded L6 differs in order or timing (not read yet). Causes, ranked: A the write collides with the first MDP frame; B TE never arrives so the frame and the blocked DMA never end (dtbo TE/mdp_vsync pin, DPU te source); C a DPU underflow from a too-low clock or bandwidth vote. Glass: panel is sleep-out and display-on, but brightness stays at the panel's power-on level (not known; 0x51 matters), so B1's glass may be dark or dim; not known yet whether it lit. Cheapest settling by the keeper, no flash: after boot write /sys/class/backlight/*/brightness (DPU idle) - works means A, -110 again means B or C; read dmesg for dsi_err_worker repeats and DPU pp-done timeouts.
+
+Sources
+: linux-v7-3-msm-dsi-host
+
+About
+: walleye-display-at-boot

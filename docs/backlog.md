@@ -7876,10 +7876,10 @@ Rank
 ### Why the panel's brightness write fails with -110 ('failed to enable backlight') on B1, and whether the glass is affected
 
 Status
-: open
+: done
 
 Note
-: Keeper run of B1 (lab PR 569): 13/13 display modules loaded by the init, card0 and DSI-1 connected, fb0 up; the dsi brightness write fails -110 'failed to enable backlight'. Glass not looked at. The author saw the console on the glass on L5/L6 (hand-loaded), so the glass lights there; whether B1's does is not known. A look at B1 is bundled with the held stripes look (walleye-stripes-kd-graphics) in one visit once both are fixed.
+: Answered by research walleye-backlight-write-minus-110-source-read and decision 2026-11-19-backlight-first-write-after-first-frame; next walleye-display-backlight-sysfs-write
 
 About
 : walleye-display-at-boot
@@ -7895,3 +7895,56 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-display-backlight-sysfs-write"></a>
+### B1: write the backlight through sysfs after boot and read the dsi errors
+
+Status
+: open
+
+Note
+: From research walleye-backlight-write-minus-110-source-read; settles A vs B/C. Reads and one brightness write only, nothing flashed.
+
+About
+: walleye-display-at-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the keeper's B1 record: sysfs brightness write result (ok or -110), dsi_err_worker lines before and after, and whether the glass lit (author's look, bundled with walleye-stripes-kd-graphics)
+
+Rank
+: 2
+
+
+<a id="walleye-display-backlight-defer-first-write"></a>
+### Driver: defer the first brightness write past the first frame
+
+Status
+: open
+
+Note
+: Only if the sysfs write works (cause A).
+
+Blocked by
+: walleye-display-backlight-sysfs-write
+
+About
+: walleye-display-at-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: B1 boots with no 'failed to enable backlight'; rebuilt image passes the UFS-off gate
+
+Rank
+: 4

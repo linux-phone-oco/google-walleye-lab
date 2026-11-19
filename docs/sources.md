@@ -1157,3 +1157,13 @@ By
 
 Takes
 : fb_set_var_from_user calls fbcon_update_vcs, which repaints the visible console (fbcon_modechanged: update_screen); fbcon_modechanged, fbcon_fb_blanked and vt_console_print all skip when vc_mode is not KD_TEXT; KDSETMODE (vt_kdsetmode) switches that mode
+
+
+<a id="linux-v7-3-msm-dsi-host"></a>
+### Linux v7.3 drivers/gpu/drm/msm/dsi/dsi_host.c and drm_panel.c
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/gpu/drm/msm/dsi/dsi_host.c
+
+Takes
+: dsi_cmd_dma_tx 200 ms completion wait; dsi_err_worker; status bits FIFO=4, MDP_FIFO_UNDERFLOW=8; BLOCK_DMA_WITHIN_FRAME for DSI 6G >= 1.2; TODO 'make sure dsi_cmd_mdp is idle'; drm_panel_enable only logs the backlight failure

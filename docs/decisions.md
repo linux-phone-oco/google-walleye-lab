@@ -2362,3 +2362,31 @@ Scope
 
 Tracked by
 : walleye-stripes-kd-graphics
+
+
+<a id="2026-11-19-backlight-first-write-after-first-frame"></a>
+### 2026-11-19-backlight-first-write-after-first-frame
+
+Date
+: 2026-11-19
+
+Brief
+: Settle the B1 backlight -110 by a sysfs brightness write after boot, then move the first 0x51 write out of the first-frame window
+
+Decision
+: Step 1 (read only, keeper's next B1 visit): after boot write /sys/class/backlight/*/brightness and read dmesg; it settles A versus B/C. Step 2 if it works: the driver defers the first 0x51 write (delayed work after the first pp-done, or brightness left to userspace), no flash. Step 3 if it fails again: look at TE and MDP clock/bandwidth votes (B, C). The -110 is not a boot blocker: drm_panel_enable only logs it.
+
+Why
+: The source read gives one mechanism, a DMA command racing the first MDP frame, with two sibling causes; one idle write tells them apart at no cost to the phone.
+
+Rejected
+: Ignore it as a log line: the glass may stay dark. Patch the msm dsi host first (wait for MDP idle): upstream code and a larger change before the cause is counted. Swallow the error in the panel: hides the failure and leaves brightness unset.
+
+About
+: walleye-display-at-boot
+
+Research
+: walleye-backlight-write-minus-110-source-read
+
+Scope
+: walleye lane, phone keeper, panel-samsung-s6e3fa5
