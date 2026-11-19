@@ -5480,10 +5480,13 @@ Rank
 ### Display: Samsung S6E3FA5 command-mode panel through DPU/DSI
 
 Status
-: in-progress
+: open
 
 Note
 : Driver compiles; boot-display.img built and gate-checked (research walleye-display-s6e3fa5-built); the keeper's try is walleye-try-display; done when a person sees the pattern.
+
+Waits
+: the author looks at the panel: walleye-try-display (attended); the build side is done
 
 Blocked by
 : walleye-try-display
