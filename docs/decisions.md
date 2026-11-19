@@ -1366,3 +1366,25 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="2026-11-19-walleye-ufs-off-by-a-gate"></a>
+### 2026-11-19-walleye-ufs-off-by-a-gate
+
+Date
+: 2026-11-18
+
+Brief
+: UFS off in every image by a host gate; the accident told to the author plainly
+
+Decision
+: Until the author says go, UFS is OFF in every image of the lane, by a gate and not by hope: (1) the shared dts gets &ufshc and &ufsphy status = "disabled" (the z11/z13 UFS experiments live in their own dts variant, not the shared one); (2) tests/host/ufs-off-image.sh IMAGE (or DTB) unpacks a boot image, takes every appended dtb, merges the stock dtbo overlay entry 3 when the overlay could enable it, and fails if ufshc@1da4000 or the ufs phy is enabled; it runs on EVERY image before a keeper boots it (the keeper recipe says so) and in build-all.sh and CI on every built image; (3) the existing images that have UFS on (z11 to z20 and any built from main since) are listed and NOT booted again; a z21 is built with UFS off to continue the touch work; (4) the author is told plainly what happened, with the evidence that the card enumerated and was read at least four times and nothing was erased (bootloader intact), as information for his decision, not as a licence. Class lines: (a) what happened: a UFS enable meant for one parked image landed in the shared dts and every later image probed the card; (b) why it fits the class 'a decision held in prose, not in a check': the wait was a sentence in a record, the images were the thing that acted; (c) the answer: put every held decision where the artefact is checked (the image's dtb), and make the keeper test the artefact, not the item.
+
+Why
+: The author's bound is bricking; the lane broke the letter of his 'Yes, wait' without meaning to; the right response is a check that makes it impossible again, and honesty about what happened.
+
+Rejected
+: Leaving UFS on because the card survived (a few reads are no proof of safety in every sequence); hiding the finding; reverting images by hand without a gate.
+
+About
+: walleye-first-fastboot-boot
