@@ -5402,3 +5402,66 @@ Proof
 
 Witness
 : person
+
+
+<a id="walleye-pmic-wdt-v1-image"></a>
+### Build the Pixel 2 image with the PMIC watchdog v1 series (through patch 2 at least), the type read back before arming
+
+Status
+: open
+
+Note
+: Build item for the attended PMIC bite try (decision 2026-11-19-walleye-pmic-wdt-v1-test-first; the author: "Yes, test first"). Build a Pixel 2 image from the v1 series in docs research/upstream-forks/2026-11-19/pmic-wdt-gen2-v1/ (cover letter, SEND-NOTES.md and the patches; base next-20261118, our kernel is v7.3 so a backport may be needed: patch 1 "Set the reset type with S2 disabled, and check it", patch 2 "Stop the watchdog on reboot and unregister", then the PM8998 compatible, the driver support and the pm8998 node enabled in our dts). The series' tree is the upstreams lane's branch (grenudi/linux topic/pmic-wdt-wake-in-suspend or its v1 successor named in SEND-NOTES.md): ask nobody, read it. Init: read the PON registers with /bin/pon-regs (z10) before arming, print the S2 type read back in the banner and arm the watchdog (20 s timeout, never petted) ONLY by an explicit command from the telnet shell, and only when the type reads back as the one the dts set (warm 0x01 first; hard 0x07 only on a later try if warm restarted); the command loop never arms on boot; keep the 180 s self-reboot and /tmp/hold for the unarmed part; UFS stays disabled (tests/host/ufs-off-image.sh must pass); battery rule first. Record the image path and sha256 in this item's note and in walleye-try-pmic-wdt-v1, check the host selftest, and land.
+
+About
+: walleye-pmic-wdt-proof
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: an image with the v1 series passes ufs-off-image.sh, boots to the banner with the S2 type read back equal to the one set (check pmic-wdt-s2-type-readback), and arms the bite only by an explicit command
+
+Rank
+: 2
+
+
+<a id="walleye-try-pmic-wdt-v1"></a>
+### Try the PMIC watchdog v1 once from slot b: one bite, the phone must restart by itself
+
+Status
+: open
+
+Note
+: ATTENDED, for the author's next lab visit (witness person; no go is open, the coordinator opens it when he is at the phone, for at least 90 minutes). Decision 2026-11-19-walleye-pmic-wdt-v1-test-first ("Yes, test first"). Needs the image from walleye-pmic-wdt-v1-image first.
+
+THE PLAIN-WORDS ASK (the coordinator sends it to him when he is at the phone):
+"One test of the Pixel 2's watchdog. I start the phone from my computer, tell you 'ready', and then trigger one watchdog bite, about 20 seconds later. What you will see: the screen may show nothing new or stay lit on its old picture (that proves nothing); the phone goes quiet for a moment and then restarts by itself, and my computer sees it come back. PASS means it restarts by itself. If it powers off instead (the screen goes dark and the computer does not see it come back within about a minute), hold the power button for about 15 seconds until the phone starts or shows the bootloader screen; that is the same thing that happened last time, and it costs nothing but that. Nothing is written to the phone's storage. I need you at the phone for about 5 minutes."
+
+KEEPER, in order: (1) tests/host/ufs-off-image.sh on the image (do not boot if it fails); battery rule; (2) boot it from fastboot boot (never flash); (3) at the banner read the S2 type back; if it does not equal the one the dts set, stop here and record, no bite; (4) send the coordinator the one line "ready" at once through the send tool (the author is told then), start the reader first; (5) arm with the explicit command; the bite comes after the timeout; (6) judge with several witnesses (tests/host/phone-state.sh: adb, fastboot, sysfs USB, tty): pass = the phone is back by itself with uptime reset and bootstatus CARDRESET on the same slot; (7) record counts and the way it ended, and put a one-line result in a note for the upstreams coordinator. If it powered off: write that in the result, and leave the phone for the author's hands (power 15 s), then check fastboot and the first state. Never flash, erase or set the active slot.
+
+THE RESULT goes to the upstreams coordinator (its note on the series). The series stays unsent until then.
+
+Blocked by
+: walleye-pmic-wdt-v1-image
+
+About
+: walleye-pmic-wdt-proof
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: pmic-wdt-bites,pmic-wdt-restarts: after the bite the phone is back by itself on the same slot, uptime reset, bootstatus CARDRESET, seen by several witnesses
+
+Rank
+: 3
+
+Witness
+: person

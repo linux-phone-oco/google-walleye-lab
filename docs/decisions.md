@@ -1419,3 +1419,25 @@ Scope
 
 Tracked by
 : walleye-touch-gpio-shared-proxy
+
+
+<a id="2026-11-19-walleye-pmic-wdt-v1-test-first"></a>
+### 2026-11-19-walleye-pmic-wdt-v1-test-first
+
+Date
+: 2026-11-19
+
+Brief
+: Test the PMIC watchdog v1 on the Pixel 2 before the series is sent: one attended bite, at least through patch 2
+
+Decision
+: The author said "Yes, test first" (relayed by the top coordinator, docs 604). Build a Pixel 2 image with the v1 series (docs research/upstream-forks/2026-11-19/pmic-wdt-gen2-v1: patch 1 sets the reset type with S2 disabled and reads it back, patch 2 stops the watchdog on reboot; the pm8998 support and node as the series has them), with the UFS-off gate passing, and make one bite on the author's next lab visit, as an attended item (witness person). Pass: the phone restarts by itself (same slot, uptime reset, bootstatus CARDRESET). Arm only when the type reads back as the one set (warm 0x01 first, hard 0x07 only if warm restarted); a power-off means the author holds power about 15 s. The series stays unsent until the result is in; the result goes to the upstreams coordinator.
+
+Why
+: Patch 1 was written for exactly the z9 case (the phone powered off at the bite) and was never tested on this phone; sending a fix untested on the one board that showed the fault would put an unproven claim in the cover letter. The earlier decision (no bite until the reset type reads back as a restart) is met by the read-back in patch 1.
+
+Rejected
+: Sending the series first and testing later: the cover letter says patch 1 is untested on the Pixel 2. Arming the bite from the command loop on boot: a restart would land in a loop; arm only after the read-back, as the warm-first decision says.
+
+About
+: walleye-pmic-wdt-proof
