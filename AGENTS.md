@@ -20,6 +20,7 @@ Principles of linux-phone-oco, cited and never restated ([`tad q principles`](ht
   ends with the phone's health report - read it.
 - **Measured, not claimed** ([principle](https://github.com/linux-phone-oco/docs/blob/main/docs/concepts.md#measured-not-claimed)): a check that cannot measure says `skip`
   and why; a part never working yet is a `gap` in `[health]`.
+- **A fresh worktree needs the images link:** `ln -s ~/Projects/walleye-build build/images` (gitignored; the attended programs read `[images] dir = "build/images"` from device.toml) before a real run.
 - **Keeper's battery rule** (item walleye-battery-watch): before every try run `sh tests/host/battery-ok.sh`; it prints the voltage
   and exits 1 below 3700 mV (exit 2, `skip`, when nothing answers within 15 s: not known yet; stop and record too) - then do not try: stop, record the value, and leave the phone charging in Android. Never park the phone
   in fastboot between tries (fastboot draws power and charges little). End every session with the phone booted into Android on a

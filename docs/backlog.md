@@ -7457,3 +7457,28 @@ Proof
 
 Rank
 : 6
+
+
+<a id="walleye-battery-floor-in-device-toml"></a>
+### Declare [health] battery_floor_mv in device.toml and read the floor and the tools (adb, fastboot) from it in the programs and in battery-ok.sh
+
+Status
+: open
+
+Note
+: Left open by the settings move (PR 522, builder 2026-11-19): battery-ok.sh reads BATTERY_MIN_MV and bare adb/fastboot, and [health] battery_floor_mv is not declared. The shell script may stay a shell script (the author: shell stays as it is); only where it takes its numbers from changes.
+
+About
+: walleye-attend-program-touch
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: device.toml declares [health] battery_floor_mv = 3700 (and how it is read) and [tools] adb and fastboot; the touch and PMIC programs read the floor with dev("health.battery_floor_mv") at the top of main (a missing key fails --dry-run); tests/host/battery-ok.sh takes the floor from the manifest, not BATTERY_MIN_MV, and calls adb and fastboot by the manifest's [tools] names; battery-selftest.sh and the stand-in tests pass
+
+Rank
+: 6
