@@ -4183,3 +4183,21 @@ Rejected
 
 About
 : walleye-attend-program-pmic
+
+---
+
+
+<a id="2026-11-20-0600-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up, 4370 mV. drv1 tried a second time: DRV2624 bound at 0-005a, id 0x03; item walleye-haptics-i2c-answers done. Suite latest not read: password file missing.
+
+Considered
+: next: builder walleye-display-stripes-script-detach, then L6 rerun (walleye-try-display-stripes-unattended-2, unattended); the haptics effect try (play an effect, rail unmeasured) wants a builder row; the password file for suite latest is missing and needs the author
+
+About
+: walleye-audio-haptics

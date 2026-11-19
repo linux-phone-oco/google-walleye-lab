@@ -4661,3 +4661,22 @@ Found
 
 About
 : walleye-audio-haptics
+
+
+<a id="walleye-drv2"></a>
+### walleye-drv2
+
+Date
+: 2026-11-19
+
+Brief
+: drv1 again: 0-005a bound to driver drv2624, name drv2624, of_node vibrator@5a, only supplier the pinctrl; no regulator linked; Android back on b
+
+Question
+: Is the DRV2624 at 0-005a bound to its driver, and what supplies it?
+
+Found
+: Second drv1 try (gates: sha256, ufs-off-image.sh, battery 4377 mV). In the shell: /sys/bus/i2c/devices/0-005a/driver -> drivers/drv2624, name drv2624, of_node soc@0/i2c@c17a000/vibrator@5a, dmesg 'DRV2624 id 0x03' at 1.16 s and input1 drv2624:haptics registered. Supplier links: only platform:3400000.pinctrl; no regulator supplier (the dts names none), so the rail is not known: the chip answers, its power source is read as always-on or shared, not measured. No effect played. Phone back on Android slot b, stock 4.4.302, adb up, 4370 mV after the init's 180 s restart; nothing flashed. Material ~/lab-material/walleye/drv1-try1/answers2.txt.
+
+About
+: walleye-audio-haptics

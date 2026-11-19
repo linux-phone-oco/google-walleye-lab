@@ -6970,10 +6970,10 @@ Rank
 ### Phone: i2c_6 shows 0x5a and the DRV2624 id register reads back
 
 Status
-: in-progress
+: done
 
 Note
-: drv1 tried once 2026-11-19 (research walleye-drv1-tried-drv2624-probes): DRV2624 at 0-005a on i2c-0 (c17a000.i2c), id 0x03 read by the driver's probe, input drv2624:haptics registered. amp-present.sh's haptics-chip-present globs *-005a so its condition holds, but the test itself was not run on the phone (the test image has no devlab lib) and the driver symlink was not listed. Not read: the rail. Next: a builder/coordinator call whether the dmesg evidence closes it, else one more try listing 0-005a/driver and the supply.
+: proven by drv1 try 2 (research walleye-drv2): the DRV2624 id register reads back 0x03 through the driver bound at 0-005a (i2c-0; the dts label i2c_6 is not the Linux number). The suite's haptics-chip-present test was not run on the phone. Rail not measured; no effect played: follow-up is the haptics effect try.
 
 Blocked by
 : walleye-drv2624-image
