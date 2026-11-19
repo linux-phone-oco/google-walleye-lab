@@ -6749,10 +6749,10 @@ Rank
 ### Read which call in msm's DSI host probe defers silently on L3, against our dsi node and the regulators the kernel has registered
 
 Status
-: open
+: done
 
 Note
-: Research walleye-display-late-probe-l3-tried-still-defers (PR 463): L3 (vdd-supply = l1a on the dsi) still defers c994000.dsi silently, no DRM card. The keeper's reads: suppliers all available, phy bound, devices_deferred holds only the dsi with an empty reason. Source reading only; no phone.
+: Done 2026-11-19: research walleye-display-dsi-defer-pinctrl-stubs; the defer is pinctrl_bind_pins on the overlay's stub labels, not in the msm driver. Failing test tests/host/dtb-display-pinctrl-labels.sh.
 
 About
 : walleye-display-s6e3fa5
@@ -6774,10 +6774,10 @@ Rank
 ### L4: L3 with function tracing (function_graph with return values) so the failing call in the dsi probe names itself
 
 Status
-: open
+: dropped
 
 Note
-: From the L3 try (research walleye-display-late-probe-l3-tried-still-defers): no ftrace in the late-probe kernel, so the silent defer cannot name itself. Function-graph return values name the call that returns -EPROBE_DEFER. The research item walleye-display-dsi-defer-source-read reads the source in parallel; whichever finds it first, the try on L4 proves it.
+: Superseded 2026-11-19 by decision 2026-11-19-walleye-display-l4-pinctrl-labels-not-trace: the source read named the defer (pinctrl_bind_pins on the overlay's stub pinctrl labels) without a trace; a trace kernel is not needed. Word: walleye-research.
 
 About
 : walleye-display-s6e3fa5
@@ -6796,16 +6796,16 @@ Rank
 
 
 <a id="walleye-try-display-late-probe-l4"></a>
-### Try L4 once: the traced dsi probe names the failing call; apply its fix and read the card
+### Try L4 once: the pinctrl-labels image; read whether the dsi probes, a DRM card appears and the panel binds
 
 Status
 : open
 
 Note
-: UNATTENDED, no person (decision 2026-11-19-walleye-display-console-before-eyes). One try; timeout 400 s or more.
+: UNATTENDED, no person (decision 2026-11-19-walleye-display-console-before-eyes). One try; timeout 400 s or more. Retargeted 2026-11-19: L4 is the pinctrl-labels image (decision 2026-11-19-walleye-display-l4-pinctrl-labels-not-trace); read after the modules load: devices_deferred (the dsi should leave it), /sys/class/drm, dmesg for 'dsi probed' and the panel probe; then the connector.
 
 Blocked by
-: walleye-display-late-probe-l4-trace-image
+: walleye-display-late-probe-l4-pinctrl-labels-image
 
 About
 : walleye-display-s6e3fa5
@@ -6817,7 +6817,7 @@ Needs
 : phone
 
 Proof
-: the gate passes right before the boot; shell up; the host script loads the modules with the function_graph trace on and the trace comes back as a file; a research row naming the call and its return value for the dsi defer, the next dtb or kernel change that follows; if a DRM card appears: connector status and 'console and connector read' to the coordinator
+: the gate passes right before the boot; shell up; the host script loads the modules; a research row with devices_deferred, /sys/class/drm and the dmesg lines of the dsi and panel probe; if a DRM card appears: connector status and 'console and connector read' to the coordinator; if the dsi still defers: the next candidate of research walleye-display-dsi-defer-pinctrl-stubs item 6
 
 Rank
 : 3
@@ -6937,3 +6937,50 @@ Proof
 
 Rank
 : 20
+
+
+<a id="walleye-display-late-probe-l4-pinctrl-labels-image"></a>
+### L4: L3 with the four overlay pinctrl labels on real tlmm groups (the dsi no longer defers on pinctrl)
+
+Status
+: open
+
+Note
+: From research walleye-display-dsi-defer-pinctrl-stubs and decision 2026-11-19-walleye-display-l4-pinctrl-labels-not-trace. Change dt/msm8998-google-walleye-display.dts (and build/gen-overlay-stubs.sh so the four labels are no stub): mdss_dsi_active on mdss-dsi-active-state, mdss_dsi_suspend on mdss-dsi-suspend-state, mdss_te_active and mdss_te_suspend on mdss-te-state. Keep L3's vdd-supply. Check with fdtoverlay that the merged dsi's pinctrl-0/1 point into tlmm.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: tests/host/dtb-display-pinctrl-labels.sh passes on the L4 dtb (fails on l3.dtb today); UFS-off gate and AVB pass; rebuild identical; programmer review
+
+Rank
+: 2
+
+
+<a id="walleye-overlay-stub-refs-other-nodes"></a>
+### Read every overlay fragment that targets one of our real nodes for phandles into our stubs (the same silent defer elsewhere)
+
+Status
+: open
+
+Note
+: From research walleye-display-dsi-defer-pinctrl-stubs item 8: fragment 89 hung pinctrl-0/1 on the dsi, pointing at stubs. The other 11 labels of ours the overlay targets may carry the same (pinctrl, supplies, clocks, gpios). Host only: fdtoverlay of the built dtb with entry.3, then list properties of our nodes whose phandles land under /vendor-overlay-stubs.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row listing each such property, and a generic check beside tests/host/dtb-display-pinctrl-labels.sh that fails while any remains

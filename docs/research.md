@@ -4226,3 +4226,36 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-dsi-defer-pinctrl-stubs"></a>
+### walleye-display-dsi-defer-pinctrl-stubs
+
+Date
+: 2026-11-19
+
+Brief
+: The dsi's silent defer is the vendor overlay's pinctrl-0/1 on dsi@c994000 pointing at our /vendor-overlay-stubs, before dsi_dev_probe runs; proven on the host
+
+Question
+: Which call in msm's DSI host probe defers silently on L3, against our dsi node and the regulators the kernel has registered?
+
+Found
+: Source read of v7.3 (drivers/gpu/drm/msm/dsi/dsi.c, dsi_host.c, dsi_manager.c, drivers/base/dd.c, drivers/pinctrl/devicetree.c) against the L3 dtb merged with the vendor dtbo overlay, and the L3 stream log.
+1. The defer is not in the msm DSI driver at all. Every EPROBE_DEFER inside dsi_dev_probe/msm_dsi_host_init either prints (dsi_get_phy, DRM_DEV_ERROR) or goes through dev_err_probe (clocks, parse_dt, ioremap, OPP), which records a reason in devices_deferred; only devm_regulator_bulk_get_const returns bare. And dsi_dev_probe's own DBG("") and dsi_init's DBG("dsi probed=%p") never printed in L3's stream, where msm_dsi_register, mdss_runtime_resume and the PHY's dsi_pll_10nm_init did (same dyndbg, same macro): the driver's probe body never ran.
+2. What runs before it, per defer-with-no-message: really_probe -> pinctrl_bind_pins(dev) (dd.c:684) -> then platform_probe: of_clk_set_defaults, dev_pm_domain_attach -> then dsi_dev_probe. The manual-bind read (really_probe, one mdss resume/suspend from pm_runtime_get_suppliers, then EAGAIN) fits a failure at pinctrl_bind_pins, right after the supplier get.
+3. Found: the bootloader merges the vendor dtbo overlay 3 into our dtb. Its fragment@89 targets mdss_dsi0 (= our dsi@c994000, same label) and adds pinctrl-names "mdss_default","mdss_sleep", pinctrl-0 = <&mdss_dsi_active>,<&mdss_te_active>, pinctrl-1 = <&mdss_dsi_suspend>,<&mdss_te_suspend> (and lab/ibb/vci/wqhd-vddio supplies, qcom,platform-*-gpio, qcom,dsi-pref-prim-pan). Those four labels are external references (the overlay's __fixups__), resolved against our /__symbols__, where our generated overlay stubs define them as empty nodes under /vendor-overlay-stubs. fdtoverlay of l3.dtb with entry.3 (host, no phone) gives dsi@c994000 pinctrl-0 = <0x15c 0x169>, pinctrl-1 = <0x15d 0x16a>: phandles of /vendor-overlay-stubs/mdss_dsi_active, mdss_dsi_suspend, mdss_te_active, mdss_te_suspend. The phone's own listing of the running dsi node (why-no-drm-reads4.txt) shows those properties on it: pinctrl-0, pinctrl-1, pinctrl-names, lab-supply, ibb-supply, wqhd-vddio-supply, qcom,platform-*-gpio, qcom,dsi-pref-prim-pan.
+4. dt_to_map_one_config walks the parents of each pinctrl-N target looking for a pin controller; a stub's parents are /vendor-overlay-stubs and the root, so it returns -ENODEV, turned into -EPROBE_DEFER because CONFIG_MODULES is on ("keep deferring if modules are enabled"). create_pinctrl returns it up through pinctrl_bind_pins; really_probe turns it into a deferral with no dev_err_probe, so devices_deferred has the dsi with an empty reason, forever (a new probe is tried whenever another driver binds, and fails the same way). That is every fact the keeper saw: suppliers 'available', phy bound, empty reason, no card, EAGAIN right after the mdss resume/suspend.
+5. L3's vdd-supply = l1a is still needed (msm8998's dsi config lists vdd and vdda) but was never reached; the first defer is pinctrl.
+6. Ranked list of what to check first: (1) pinctrl stubs, proven on the host by the merge above and by tests/host/dtb-display-pinctrl-labels.sh, which FAILS today; (2) after it clears, of_clk_set_defaults on assigned-clock-parents from the phy (silent -EPROBE_DEFER if the PHY's clock provider is missing; the PHY bound and printed its PLL, so unlikely); (3) dev_pm_domain_attach for power-domains rpmpd VDDCX (QCOM_RPMPD=y in the kernel config; the DPU and mdss with the same domain bound, unlikely); (4) the regulator gets (vdd now l1a, vdda l2a, both registered; would print a warning if missing); (5) later binds not read yet: dsi_bind's devm_drm_of_get_bridge for the panel endpoint (the panel's own probe), DPU's component. A trace image (the planned L4 function_graph) is not needed for (1).
+7. The change for L4, in the display dts (dt/msm8998-google-walleye-display.dts), not the kernel: make the four labels name real tlmm groups instead of stubs. /delete-node/ the four stub labels (or leave them out of the generated stubs: build/gen-overlay-stubs.sh), and put the labels on the real groups: mdss_dsi_active on mdss-dsi-active-state, mdss_dsi_suspend on mdss-dsi-suspend-state, mdss_te_active and mdss_te_suspend on mdss-te-state (one group serves both TE states; a state never selected claims no pin). The overlay names its states mdss_default/mdss_sleep, not 'default', so pinctrl_bind_pins finds no default state and applies nothing: the pins stay with our panel node's own pinctrl, and no pin has two owners. Keep L3's vdd-supply.
+8. Not decided by this reading, to read after L4: whether other nodes of ours that the overlay targets carry pinctrl or other phandles into stubs (the same silent defer): the test above is for the dsi only; a generic version walks every overlay fragment whose target is one of our 12 labels.
+
+Sources
+: linux-v7-3-pinctrl-devicetree,linux-v7-3-driver-core-dd
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-19/

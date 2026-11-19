@@ -2194,3 +2194,31 @@ Scope
 
 Tracked by
 : walleye-attend-program-touch
+
+
+<a id="2026-11-19-walleye-display-l4-pinctrl-labels-not-trace"></a>
+### 2026-11-19-walleye-display-l4-pinctrl-labels-not-trace
+
+Date
+: 2026-11-19
+
+Brief
+: L4 is L3 with the four overlay pinctrl labels naming real tlmm groups, not a function-trace image
+
+Decision
+: Build L4 as L3 plus, in the display dts, the labels mdss_dsi_active, mdss_dsi_suspend, mdss_te_active, mdss_te_suspend on the real tlmm groups (mdss-dsi-active-state, mdss-dsi-suspend-state, mdss-te-state) and no stub for them. Drop the function_graph trace image. Gate: tests/host/dtb-display-pinctrl-labels.sh passes on the L4 dtb, then the one unattended try.
+
+Why
+: The defer is in pinctrl_bind_pins, before dsi_dev_probe (research walleye-display-dsi-defer-pinctrl-stubs): the vendor overlay hangs pinctrl-0/1 on our dsi node, pointing at stubs with no pin controller. Proven on the host by fdtoverlay and a failing test; no phone needed to name it. The trace image would have named the same site at the cost of a kernel with ftrace and a try.
+
+Rejected
+: The planned L4 with FTRACE and function_graph retval: names a call we now know without it, needs a kernel rebuild, a try, and tracefs the late-probe kernel does not have. Deleting the overlay's pinctrl properties in the dtb with fdtput: the bootloader merges the overlay after our dtb, so the properties come back. Removing the stub container: the overlay merge needs every label to exist. Applying the vendor groups to the dsi (naming a default state): two owners for gpio94, and the panel's own pinctrl already owns the pins.
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-dsi-defer-pinctrl-stubs
+
+Scope
+: walleye lane: builder (L4 image), keeper (the try); build/gen-overlay-stubs.sh

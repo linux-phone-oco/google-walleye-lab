@@ -1,0 +1,44 @@
+# L3 dtb merged with the vendor dtbo overlay 3 (fdtoverlay), the dsi node's pinctrl and where its phandles point
+# fdtoverlay -i images-display-late-l3/l3.dtb -o merged.dtb control/dtbo/entry.3
+			mdss_dsi0: dsi@c994000 {
+				qcom,platform-err_fg-gpio = <0x5e 0x0e 0x00>;
+				vci-supply = <0x180>;
+				wqhd-vddio-supply = <0x17a>;
+				ibb-supply;
+				lab-supply;
+				qcom,platform-te-gpio = <0x2b 0x0a 0x00>;
+				qcom,platform-reset-gpio = <0x2b 0x5e 0x00>;
+				pinctrl-1 = <0x15d 0x16a>;
+				pinctrl-0 = <0x15c 0x169>;
+				pinctrl-names = "mdss_default", "mdss_sleep";
+				qcom,dsi-pref-prim-pan = <0x1d2>;
+				vdd-supply = <0x25>;
+
+# phandles 0x15c 0x15d 0x169 0x16a:
+		mdss_dsi_active: mdss_dsi_active {
+		mdss_dsi_suspend: mdss_dsi_suspend {
+		mdss_te_active: mdss_te_active {
+		mdss_te_suspend: mdss_te_suspend {
+
+# the overlay's fragment@89 (target mdss_dsi0), from dtbo entry.3:
+	fragment@89 {
+		target = <&mdss_dsi0>;
+
+		__overlay__ {
+			qcom,dsi-pref-prim-pan = <&dsi_s6e3ha3_dualdsi_wqhd_cmd>;
+			lab-supply;
+			ibb-supply;
+			wqhd-vddio-supply = <&pm8998_l14>;
+			vci-supply = <&pm8998_l22>;
+			pinctrl-names = "mdss_default", "mdss_sleep";
+			pinctrl-0 = <&mdss_dsi_active>, <&mdss_te_active>;
+			pinctrl-1 = <&mdss_dsi_suspend>, <&mdss_te_suspend>;
+			qcom,platform-reset-gpio = <&tlmm>, <0x5e 0x00>;
+			qcom,platform-te-gpio = <&tlmm>, <0x0a 0x00>;
+			qcom,platform-err_fg-gpio = <&pmi8998_gpios>, <0x0e 0x00>;
+		};
+	};
+
+
+# test: sh tests/host/dtb-display-pinctrl-labels.sh
+fail walleye-dtb-display-pinctrl-labels kernel l3.dtb: label(s) mdss_dsi_active mdss_dsi_suspend mdss_te_active mdss_te_suspend name a stub under /vendor-overlay-stubs, which has no pin controller above it: dsi@c994000 defers silently
