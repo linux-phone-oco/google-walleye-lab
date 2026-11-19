@@ -7645,34 +7645,6 @@ Rank
 : 2
 
 
-<a id="walleye-person-answer-file"></a>
-### A person step's answer must not depend on a message to a blocked keeper: the person backend takes the answer from a file the procedure polls
-
-Status
-: open
-
-Note
-: 2026-11-19, the Top Coordinator: the author answered at once, the relay sat queued while the keeper blocked in a long wait command and arrived after the timeout; a message reaches a session only at a tool round. Interim rule for every attended keeper: wait by SHORT polls (each tool call 20 s at most, tail the log, check for a message), never one long command; recorded in the attended items' orders and AGENTS.md.
-
-Waits
-: orchestration: lpoco-attended (the Top Coordinator raises it): an answer file the person backend polls, which the Top Coordinator can write directly; until then keepers wait by short polls
-
-About
-: walleye-attend-program-display
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: the display, touch and PMIC procedures run with the library's answer file: a person step reads its answer from a named file (written by whoever relays it) as well as from stdin; a stand-in test writes the file during the wait; the keeper's orders say 'write the answer file' instead of 'feed the FIFO'
-
-Rank
-: 9
-
-
 <a id="walleye-try-pmic-wdt-v1"></a>
 ### Try the PMIC watchdog v1 once from slot b: the bite restarts the phone, and a clean reboot after arming leaves S2 off
 
@@ -7851,3 +7823,50 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-procedures-on-v0-34"></a>
+### Pin the walleye procedures to lpoco-attended 0.34 (prompt and answer files, run --from, skip-when-in-state) and give the attended keeper orders their new form
+
+Status
+: open
+
+Note
+: From the Top Coordinator, 2026-11-19: the lab runs lpoco 0.34.1 with attended prompt and answer files (~/.cache/lpoco-attended/<device>/prompt and answer), run --from and skip-when-in-state. For every attended walleye try from now on (the display look, the PMIC attended, UFS) pin the procedures to it; the keeper tells the Top Coordinator the device dir; the Top Coordinator reads the prompt and writes the author's words to the answer file. Supersedes walleye-person-answer-file (the library has it). This item also finishes walleye-try-settings-into-device-toml's follow-on: walleye-procedures-one-shape (the procedures/ move) can be done in the same change if it is still open.
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: procedures/ and tests/attended (display, touch, PMIC, UFS) depend on lpoco-attended tag v0.34.1 or the newest 0.34.x (cargo git dependency on linux-phone-oco/lab-tools; check the tag in lab-tools), lpoco-attended check and --dry-run pass for each, the stand-in tests pass; each person step shows its prompt in ~/.cache/lpoco-attended/<device>/prompt and takes its answer from .../answer (the Top Coordinator writes it), so no program or keeper needs a relay; steps that are already in their state use skip-when-in-state where it fits (the phone already in fastboot, the image already checked); the attended items' orders (walleye-try-pmic-wdt-v1, the display held try, walleye-try-ufs-match) say: the keeper tells the Top Coordinator the device dir and the line 'prompt waiting' and polls nothing else; the short-poll rule of AGENTS.md is dropped once the procedures are moved; 'run --from' is noted for restarting after a stop
+
+Rank
+: 2
+
+
+<a id="walleye-person-answer-file"></a>
+### A person step's answer must not depend on a message to a blocked keeper: the person backend takes the answer from a file the procedure polls
+
+Status
+: dropped
+
+Note
+: Dropped 2026-11-19: superseded by lpoco 0.34.1, which has the prompt and answer files; the walleye side is walleye-procedures-on-v0-34.
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the display, touch and PMIC procedures run with the library's answer file: a person step reads its answer from a named file (written by whoever relays it) as well as from stdin; a stand-in test writes the file during the wait; the keeper's orders say 'write the answer file' instead of 'feed the FIFO'
