@@ -3913,3 +3913,24 @@ Done
 
 Considered
 : next: keeper walleye-attend-pmic-unattended-run (needs builder to move the TWO_TESTS ask), walleye-tas2557-firmware-source and walleye-haptics-i2c-answers (need the password file for lpoco lab phone); builder z21-hold-init; password file for lpoco lab
+
+---
+
+
+<a id="2026-11-19-adsp-q6-and-quaternary-mi2s-ported-from-porthole"></a>
+### ADSP, q6 and Quaternary MI2S ported from porthole
+
+Entry date
+: 2026-11-19
+
+Done
+: Took porthole 0023, 0043, 0075, 0081-0083, 0085, 0159 onto v7.3 as eight patches with authorship kept (0006-0008 refitted at fuzz 3) and a ninth, the walleye dts (ADSP on, protection domain deleted on all seven services, LPASS SMMU, MultiMedia dais, Quaternary MI2S RX on SD1, pin groups); kernel/audio-adsp-q6/ with the part's record; host proof test tests/host/audio-adsp-q6-builds.sh seen failing (bad checksum) and passing; programmer review fixed: missing voice-service deletes, lost credits, test gaps, trap. No phone touched, dt/ unchanged.
+
+Considered
+: Porting 0084 whole (sound card and WCD934x codec nodes too); changing dt/ now.
+
+Rejected
+: The sound card node here: it names the TAS2557 amp and the codec, whose items come first. Porthole's pin labels: they collide with the overlay stubs, renamed. Marking the item done: its proof is a card in /proc/asound/cards on the phone, not reached.
+
+About
+: walleye-audio-haptics

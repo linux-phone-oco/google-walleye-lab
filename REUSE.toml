@@ -75,3 +75,16 @@ path = ["kernel/drv2624/README.md"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 grenudi"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+# The ADSP/q6 series (item walleye-adsp-q6-mi2s): patches of kernel files carry the kernel's licence (porthole's, as named in each patch; 0009 ours on theirs); the record is ours.
+[[annotations]]
+path = ["kernel/audio-adsp-q6/0*.patch", "kernel/audio-adsp-q6/SHA256SUMS"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2021-2026 the authors named in each patch (Giuseppe Maggio, Jami Kettunen, AngeloGioacchino Del Regno, Casey Connolly), grenudi"
+SPDX-License-Identifier = "GPL-2.0-only"
+
+[[annotations]]
+path = ["kernel/audio-adsp-q6/README.md"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 grenudi"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
