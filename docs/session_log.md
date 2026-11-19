@@ -2405,24 +2405,6 @@ About
 ---
 
 
-<a id="2026-11-19-1200-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-18
-
-Done
-: Phone is Android on slot b, stock kernel, nothing flashed, adb up. phone-state.sh recorded in android, fastboot and mainline-answering (banner2 from memory); it fell back to Android on its own after about 15 min (gone from USB for part of it). Item walleye-phone-state-real-states done (PR 260). Skipped walleye-dtbo-minimal-try: it flashes a dtbo, against decision 2026-11-17-walleye-slot-flags-tries-on-b, and is blocked by walleye-dtbo-overlay-id.
-
-Considered
-: next: ask the walleye coordinator about walleye-dtbo-minimal-try being ready though it flashes; walleye-pmic-wdt-read-s2-regs (read only); walleye-charger-wait-tps61099 dts choice
-
-About
-: walleye-first-fastboot-boot
-
----
-
-
 <a id="2026-11-18-google-walleye-lab-follows-docs-device-layer"></a>
 ### google-walleye-lab follows docs' device layer
 
@@ -3478,6 +3460,24 @@ Considered
 
 Rejected
 : Rebuilding the dtbs from source: the image's own bytes are the proof of the stage
+
+About
+: walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-1200-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, flags clean. Display try 1 (keeper local_a27ce56b, on the Top Coordinator's go): boot-display.img left fastboot at 11:40:18, Android was back at 11:41:07 (49 s by the host log, 63 s by the keeper), no gadget ever enumerated, no shell, no pattern. The author saw the Google logo, then black, then Lineage within a minute (research walleye-display-try1-author-saw). Cause hunt: research walleye-display-try1-no-shell-what-is-known (clock_gcc fix is in the image; only the display nodes and DRM differ from z21). Display bisect images d0, d1, d2 built (PR 404); the try walleye-try-display-bisect runs next, unattended, read from the console (decision 2026-11-19-walleye-display-console-before-eyes).
+
+Considered
+: The keeper's line 'no root, no mainline shell password' is not the gap: the mainline shell is telnet without password and the kernel never reached the gadget, so the keeper's branch keeper/walleye-display-try-1 (which replaces this entry with that wording) is not merged; ramoops needs unlock and root and every mainline try left pstore empty.
 
 About
 : walleye-display-s6e3fa5
