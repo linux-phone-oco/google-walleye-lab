@@ -5991,10 +5991,10 @@ Rank
 ### Whether lane 1 works under the 3.0.0 PHY table (it sets lane 0 only)
 
 Status
-: open
+: done
 
 Note
-: Missing: only matters if the version reads 3.0.0. Next step: the research row.
+: Research row walleye-ufs-gap-lane1: 3.0.0 table is lane 0 only; Android relies on nothing else; down lane 1 = speed risk only. Fallback: carry 3.1.0 lane-1 entries.
 
 About
 : walleye-ufs-match-android-z
