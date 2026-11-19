@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * The upstream series' Pixel 2 board file, unchanged (research/walleye-first-fastboot-boot/2026-11-19-upstream-dts/), plus the two nodes of msm8998.dtsi the
+ * phone's own dtbo overlay would overwrite by name when the bootloader merges it (tests/host/overlay-collisions.sh finds 11 collisions on the series' dtb alone):
+ * the PCIe host pcie@1c00000 (its reg and ranges) and the QUP i2c controller i2c@c179000 (compatible, clocks, dmas, pinctrl, status). The board enables neither
+ * (no touch node in the series), so they are deleted here, as the lab's dts does (decision 2026-11-19-walleye-overlay-collisions-as-a-class).
+ * Only for the image of walleye-upstream-dts-image: an upstream board file has no use for this (it is the stock bootloader's merge that collides).
+ */
+#include "msm8998-google-walleye.dts"
+
+/delete-node/ &pcie0;
+/delete-node/ &blsp1_i2c5;
