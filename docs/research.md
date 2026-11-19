@@ -4604,3 +4604,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-stripes-l6-tried-draw-calls-ok"></a>
+### walleye-display-stripes-l6-tried-draw-calls-ok
+
+Date
+: 2026-11-19
+
+Brief
+: L6 tried once from slot b: fb0 msmdrmfb, connector connected/enabled 1080x1920; pan, commit, unblank return 0; panel init commands sent; whether the glass lit not known
+
+Question
+: With L6, unattended, does the stripe drawer draw and hold on the panel, and what does the panel path say?
+
+Found
+: Gates: sha256 8ca3af87..., ufs-off pass, battery 4377 mV, slot b. fastboot boot of boot-l6.img (nothing flashed): gadget 1d6b:0104 after 18 s, shell 2 s later. display-late-probe.sh with STRIPES_SECONDS=60 (material /home/mll/Projects/walleye-build/runs/l6-1795102107, not in git): stream carried the marker, netconsole did not. The drawer logged fb0 msmdrmfb 1080x1920 32bpp, connector connected/enabled/1080x1920 before the draw; FBIOPAN_DISPLAY, FBIOPUT_VSCREENINFO (force) and FBIOBLANK (unblank) each returned 0; draw line 'four stripes held 60 s' at kernel 442 s. The stream shows dsi_mgr_bridge_pre_enable, then eight dsi_cmds2buf_tx ret=50 with dsi_host_irq after each (the panel's init commands went out; no error line among them), then DPU commits with vblank counts rising through 500 s. 117 s after the draw began the shell found no walleye-stripes process and the connector still connected/enabled. The host script reported fail 'drawer did not end with 0': its telnet session for the drawer ended before the 60 s hold, so the drawer's exit code and release line were not captured (script flaw to fix: run the drawer detached with its log in a file, read after). Not known: whether the glass lit (author not asked), the drawer's exit code, whether the hold was a full 60 s. Phone back on Android slot b by itself after /tmp/hold removed; idle-android pass, battery 4333 mV. Next: a drawer run detached in the script; the attended look only after that.
+
+About
+: walleye-display-s6e3fa5

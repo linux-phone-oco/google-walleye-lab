@@ -7229,10 +7229,10 @@ Rank
 ### Draw the stripes on L6 with nobody looking and read what the panel path says
 
 Status
-: open
+: done
 
 Note
-: UNATTENDED. A dark glass is not a failure of this try: it records what the kernel says; whether the glass lit is the attended try's question.
+: proven in part: gate and shell passed; stripes drawn (pan/commit/unblank 0), connector connected/enabled, panel init commands sent, no panel error, Android back on b (research walleye-display-stripes-l6-tried-draw-calls-ok). Gaps: drawer exit code and 60 s hold not captured (host script's session cut it); glass not looked at.
 
 Blocked by
 : walleye-display-stripes-image
@@ -7363,3 +7363,25 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-display-stripes-script-detach"></a>
+### display-late-probe.sh runs the stripe drawer detached and reads its log and exit code after the hold
+
+Status
+: open
+
+Note
+: L6 try: the telnet session for the drawer ended before its 60 s hold, so the script said fail with no exit code. Run it with setsid into /tmp/stripes.log, sleep the hold plus margin, read the log and rc.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Rank
+: 3
