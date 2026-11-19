@@ -6383,34 +6383,6 @@ Rank
 : 7
 
 
-<a id="walleye-tas2557-driver"></a>
-### Take porthole's TAS2557 driver (0024, 0162, 0171-0174) and tas2557s_uCDSP.bin onto our kernel
-
-Status
-: open
-
-Note
-: Replaces the bypass plan: the part stays mute without its firmware (research walleye-audio-haptics-porthole-has-it). The blob is a vendor file: the author decides whether the lab ships it, see walleye-tas2557-firmware-source. SHAPE OF THE PORT (the author's ask, relayed by the Top Coordinator 2026-11-19, decision 2026-11-19-walleye-audio-port-shape): one series per chip, binding, driver and walleye dts as separate patches, each upstreamable on its own, porthole's authorship and sign-offs kept and our changes as separate commits; per chip a record of what any phone would need: the part number, where the driver stands (mainline, porthole, ours), the firmware (the phone's own, never in git), quirks, the proof test and the bring-up steps it covers; the proof steps are small library steps with walleye's values in device.toml (docs #638), not walleye-only scripts.
-
-Blocked by
-: walleye-adsp-q6-mi2s,walleye-tas2557-firmware-source
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: walleye-tas2557-driver-builds, then amp-present-0x4c/0x4d
-
-Rank
-: 8
-
-
 <a id="walleye-z21-hold-init"></a>
 ### z21's ramdisk with init-late's hold, so the touch window is 90 s or more
 
@@ -6484,28 +6456,6 @@ Proof
 
 Rank
 : 2
-
-
-<a id="walleye-tas2557-upstream-v3-first"></a>
-### TAS2557: weigh Boiano's v3 on the list (binding + driver) against porthole's port before walleye-tas2557-driver is built
-
-Status
-: open
-
-Note
-: From research-chip-layer, 2026-11-19 (docs research chip-layer-open-homes, chip row ti-tas2557, decision 2026-11-19-chip-knowledge-upstream-first-docs-indexes-by-part). Gianluca Boiano posted the TAS2557 driver to linux-sound as v3 (2026-07-17, https://lkml.iu.edu/2607.2/04618.html): dt-bindings ti,tas2557 + ASoC driver, tested on four Xiaomi SDM660/636/MSM8953 boards, reviewed by Mark Brown 07-19 (board GPIO sequence, firmware device-count check, PLL index, suspend mute; https://lkml.iu.edu/2607.2/06067.html). Porthole's 0024/0162/0171-0174 duplicate it with no binding, and take a different dts (two I2C clients + reset GPIO, against v3's reg array + four supplies + firmware-name). Upstream-first says: build v3 on walleye with porthole's firmware handling only where v3 lacks it; walleye's test result is worth a reply on the list, the author's in his name. The lane coordinator decides; nothing on the phone changes for this item.
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: research
-
-Proof
-: a research row naming which driver walleye builds and why, and walleye's dts written to the binding chosen
 
 
 <a id="walleye-display-late-probe-l3-image"></a>
@@ -7159,31 +7109,6 @@ Rank
 : 5
 
 
-<a id="walleye-tas2557-firmware-source"></a>
-### Where the TAS2557 firmware blob comes from for walleye, and whether the lab may ship it
-
-Status
-: open
-
-Note
-: 2026-11-19 keeper try: adb shell (uid 2000) cannot read /vendor/firmware/tas2557s_PG21_uCDSP.bin or tas2557s_uCDSP.bin: ls/stat and adb pull give Permission denied (the files exist; find lists them). Stopped as told, no root sought. Next: a decision from the coordinator on another unattended way to read it (a test image that mounts the vendor partition read-only, or the factory image's vendor.img on the host) - the factory image route needs no phone.
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: tas2557-firmware-hash-matches
-
-Rank
-: 6
-
-
 <a id="walleye-drv2624-image"></a>
 ### A test image with the DRV2624 series, so the haptics chip can be probed on the phone
 
@@ -7260,3 +7185,84 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-tas2557-firmware-source"></a>
+### Where the TAS2557 firmware blob comes from for walleye, and whether the lab may ship it
+
+Status
+: open
+
+Note
+: 2026-11-19 keeper try: adb shell (uid 2000) cannot read /vendor/firmware/tas2557s_PG21_uCDSP.bin or tas2557s_uCDSP.bin: ls/stat and adb pull give Permission denied (the files exist; find lists them). Stopped as told, no root sought. Next: a decision from the coordinator on another unattended way to read it (a test image that mounts the vendor partition read-only, or the factory image's vendor.img on the host) - the factory image route needs no phone. 2026-11-19 keeper run (PR 488): the adb shell user (uid 2000) gets Permission denied on /vendor/firmware/tas2557s_PG21_uCDSP.bin; the keeper stopped without looking for root, as ordered. No vendor.img or factory image is on the lab host (checked: ~/Projects/walleye-build/dl, control, ~/lab-material). The routes are listed in the waits; the coordinator asks the author one line through the Top Coordinator. The TAS2557 driver series does NOT wait for the file (only its try does).
+
+Waits
+: a route to the file: (a) root on the phone's Android (Developer options, Root access, ADB only: a tap by the author), or (b) Google's factory image for walleye downloaded to the host and vendor.img read there with debugfs (a download from Google's page that needs the author's yes), or (c) a UFS-on test image of the Android-derived solution reading the vendor partition (the lane's own work, later)
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: tas2557-firmware-hash-matches
+
+Rank
+: 6
+
+
+<a id="walleye-tas2557-driver"></a>
+### Take porthole's TAS2557 driver (0024, 0162, 0171-0174) and tas2557s_uCDSP.bin onto our kernel
+
+Status
+: open
+
+Note
+: Replaces the bypass plan: the part stays mute without its firmware (research walleye-audio-haptics-porthole-has-it). The blob is a vendor file: the author decides whether the lab ships it, see walleye-tas2557-firmware-source. SHAPE OF THE PORT (the author's ask, relayed by the Top Coordinator 2026-11-19, decision 2026-11-19-walleye-audio-port-shape): one series per chip, binding, driver and walleye dts as separate patches, each upstreamable on its own, porthole's authorship and sign-offs kept and our changes as separate commits; per chip a record of what any phone would need: the part number, where the driver stands (mainline, porthole, ours), the firmware (the phone's own, never in git), quirks, the proof test and the bring-up steps it covers; the proof steps are small library steps with walleye's values in device.toml (docs #638), not walleye-only scripts. 2026-11-19: the series is built and tested without the firmware file; only its try on the phone needs the file (walleye-tas2557-firmware-source). Blocked now by the upstream v3 research (walleye-tas2557-upstream-v3-first), which decides which driver the series starts from.
+
+Blocked by
+: walleye-tas2557-upstream-v3-first
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: walleye-tas2557-driver-builds, then amp-present-0x4c/0x4d
+
+Rank
+: 8
+
+
+<a id="walleye-tas2557-upstream-v3-first"></a>
+### TAS2557: weigh Boiano's v3 on the list (binding + driver) against porthole's port before walleye-tas2557-driver is built
+
+Status
+: open
+
+Note
+: From research-chip-layer, 2026-11-19 (docs research chip-layer-open-homes, chip row ti-tas2557, decision 2026-11-19-chip-knowledge-upstream-first-docs-indexes-by-part). Gianluca Boiano posted the TAS2557 driver to linux-sound as v3 (2026-07-17, https://lkml.iu.edu/2607.2/04618.html): dt-bindings ti,tas2557 + ASoC driver, tested on four Xiaomi SDM660/636/MSM8953 boards, reviewed by Mark Brown 07-19 (board GPIO sequence, firmware device-count check, PLL index, suspend mute; https://lkml.iu.edu/2607.2/06067.html). Porthole's 0024/0162/0171-0174 duplicate it with no binding, and take a different dts (two I2C clients + reset GPIO, against v3's reg array + four supplies + firmware-name). Upstream-first says: build v3 on walleye with porthole's firmware handling only where v3 lacks it; walleye's test result is worth a reply on the list, the author's in his name. The lane coordinator decides; nothing on the phone changes for this item.
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row naming which driver walleye builds and why, and walleye's dts written to the binding chosen
+
+Rank
+: 5
