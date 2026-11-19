@@ -4520,3 +4520,30 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-tas2557-v3-vs-porthole"></a>
+### walleye-tas2557-v3-vs-porthole
+
+Date
+: 2026-11-19
+
+Brief
+: Boiano's v3 TAS2557 (binding + driver, on the list) fits walleye's two amps and the same TI firmware format; porthole's port has no binding and a one-node hack, so start from v3
+
+Question
+: Which TAS2557 driver should walleye's series start from: Boiano's v3 on linux-sound, or porthole's port (0024, 0162, 0171-0174)?
+
+Found
+: Both drive the same part with the same TI uCDSP firmware container (both parse the 'TAS firmware' image; walleye still needs the phone's own tas2557s_PG21_uCDSP.bin, never in git).
+v3 (2026-07-17, linux-sound): binding ti,tas2557 with Reviewed-by Krzysztof Kozlowski; one node, reg = <0x4c>, <0x4d> for a stereo pair (DEV_A/DEV_B by reg order), four required supplies (vbat, iovdd, avdd, dvdd), reset-gpios, interrupt, optional firmware-name ('defaults to a name derived from the silicon revision'), ti,imon/vmon-slot-nos. Driver 3067 lines: mono and dual-device stereo, fault-interrupt recovery, word length from the stream. Exercised on Xiaomi Mi A2, Redmi Note 6 Pro, Redmi 5 Plus (mono) and Mi Pad 4 (stereo, SDM660). Mark Brown's review of the driver (07-19) still open: board-specific startup GPIO table, firmware device-count check, PLL index range error, sense mute on suspend, use_pmdown_time. No v4 found by 2026-11-19. Not merged.
+Porthole (taimen, 7.2.2): driver 1347 lines (0024) plus control patches, Assisted-by: LLM, no binding, no supplies; its dts describes the pair as ONE node at reg 0x4d with the driver claiming 0x4c itself and reset-gpios on pm8998 gpio index 5; picks the firmware by REV_PGID (0xa0 = PG2.1 -> tas2557s_PG21_uCDSP.bin). Measured on taimen: both addresses ACK, PG2.1.
+Fit to walleye: same wahoo board family, so the two-amp pair at 0x4c/0x4d on a shared reset is the likely shape (unread on walleye: its own dts has no audio nodes; the keeper's i2c read, walleye-haptics-i2c-answers sibling, settles it). v3's binding describes that shape properly; porthole's node would not pass dt-binding review.
+Unknowns: (1) v3 on the PG2.1 firmware with MI2S quaternary on msm8998 - never run on Qualcomm 8998; its startup table wires ASI2 GPIOs that may not match the pixel; (2) whether v3 selects tas2557s_PG21_uCDSP.bin by itself, or needs firmware-name in the dts; (3) the amps' supplies on walleye (vbat/iovdd/avdd/dvdd) - the vendor dts names them. All three are settled by building v3 and one boot try, none by the phone first.
+Licence: v3 is Boiano's own code with a Signed-off-by; porthole's is declared ported from the downstream wahoo driver, so v3 is the cleaner base for the lab's clean-room line.
+
+Sources
+: lkml-boiano-tas2557-v3,lkml-broonie-tas2557-v3-review,porthole-pmaports-taimen
+
+About
+: walleye-audio-haptics

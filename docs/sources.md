@@ -1109,3 +1109,38 @@ Url
 
 Takes
 : no FPC SPI (phone-class) driver is listed; FPC entries are USB devices
+
+
+<a id="lkml-boiano-tas2557-v3"></a>
+### [PATCH v3 0/2] ASoC: codecs: add Texas Instruments TAS2557 smart amplifier driver (with binding, patch 1/2)
+
+Url
+: https://lkml.iu.edu/2607.2/04618.html
+
+Author
+: Gianluca Boiano
+
+Year
+: 2026
+
+By
+: Gianluca Boiano
+
+Takes
+: binding ti,tas2557 (reg array of two, four supplies, firmware-name), driver, test boards
+
+
+<a id="lkml-broonie-tas2557-v3-review"></a>
+### Re: [PATCH v3 2/2] ASoC: codecs: add TAS2557 mono smart amplifier driver (Mark Brown's review)
+
+Url
+: https://lkml.iu.edu/2607.2/06067.html
+
+Author
+: Mark Brown
+
+Year
+: 2026
+
+Takes
+: open review points: board-specific startup GPIO table, PLL index range, firmware device-count check, suspend mute of sense

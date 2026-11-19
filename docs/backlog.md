@@ -7215,17 +7215,39 @@ Rank
 : 6
 
 
+<a id="walleye-tas2557-upstream-v3-first"></a>
+### TAS2557: weigh Boiano's v3 on the list (binding + driver) against porthole's port before walleye-tas2557-driver is built
+
+Status
+: done
+
+Note
+: Decided 2026-11-19: v3 is the base (decision 2026-11-19-walleye-tas2557-from-upstream-v3).
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row naming which driver walleye builds and why, and walleye's dts written to the binding chosen
+
+Rank
+: 5
+
+
 <a id="walleye-tas2557-driver"></a>
-### Take porthole's TAS2557 driver (0024, 0162, 0171-0174) and tas2557s_uCDSP.bin onto our kernel
+### Build the TAS2557 series on walleye from Boiano's v3: binding, driver, walleye dts
 
 Status
 : open
 
 Note
-: Replaces the bypass plan: the part stays mute without its firmware (research walleye-audio-haptics-porthole-has-it). The blob is a vendor file: the author decides whether the lab ships it, see walleye-tas2557-firmware-source. SHAPE OF THE PORT (the author's ask, relayed by the Top Coordinator 2026-11-19, decision 2026-11-19-walleye-audio-port-shape): one series per chip, binding, driver and walleye dts as separate patches, each upstreamable on its own, porthole's authorship and sign-offs kept and our changes as separate commits; per chip a record of what any phone would need: the part number, where the driver stands (mainline, porthole, ours), the firmware (the phone's own, never in git), quirks, the proof test and the bring-up steps it covers; the proof steps are small library steps with walleye's values in device.toml (docs #638), not walleye-only scripts. 2026-11-19: the series is built and tested without the firmware file; only its try on the phone needs the file (walleye-tas2557-firmware-source). Blocked now by the upstream v3 research (walleye-tas2557-upstream-v3-first), which decides which driver the series starts from.
-
-Blocked by
-: walleye-tas2557-upstream-v3-first
+: Decision 2026-11-19-walleye-tas2557-from-upstream-v3 (research walleye-tas2557-v3-vs-porthole). Steps: (1) take v3 from lore (source lkml-boiano-tas2557-v3), apply 1/2 and 2/2 on our kernel as FROMLIST, dt_binding_check passes; (2) walleye dts patch: one node reg 0x4c,0x4d, reset on pm8998 (gpio index to confirm from the vendor dts), four supplies, slot numbers; (3) build with firmware-name pointing at the phone's own file, kept out of git (walleye-tas2557-firmware-source); (4) answer the three unknowns in the research: does v3 pick PG21 itself, are the amp supplies right, does the startup GPIO table fit walleye. Porthole's 0162/0171-0174 only where a try shows a gap. Only the boot try needs the firmware file.
 
 About
 : walleye-audio-haptics
@@ -7243,14 +7265,20 @@ Rank
 : 8
 
 
-<a id="walleye-tas2557-upstream-v3-first"></a>
-### TAS2557: weigh Boiano's v3 on the list (binding + driver) against porthole's port before walleye-tas2557-driver is built
+<a id="walleye-tas2557-list-reply"></a>
+### Reply to Boiano's v3 on linux-sound with walleye's TAS2557 result
 
 Status
 : open
 
 Note
-: From research-chip-layer, 2026-11-19 (docs research chip-layer-open-homes, chip row ti-tas2557, decision 2026-11-19-chip-knowledge-upstream-first-docs-indexes-by-part). Gianluca Boiano posted the TAS2557 driver to linux-sound as v3 (2026-07-17, https://lkml.iu.edu/2607.2/04618.html): dt-bindings ti,tas2557 + ASoC driver, tested on four Xiaomi SDM660/636/MSM8953 boards, reviewed by Mark Brown 07-19 (board GPIO sequence, firmware device-count check, PLL index, suspend mute; https://lkml.iu.edu/2607.2/06067.html). Porthole's 0024/0162/0171-0174 duplicate it with no binding, and take a different dts (two I2C clients + reset GPIO, against v3's reg array + four supplies + firmware-name). Upstream-first says: build v3 on walleye with porthole's firmware handling only where v3 lacks it; walleye's test result is worth a reply on the list, the author's in his name. The lane coordinator decides; nothing on the phone changes for this item.
+: First msm8998 board and first Pixel (PG2.1, stereo pair on MI2S); also whether the startup table fits it, answering Mark Brown's board-specific remark. Draft only; the author sends.
+
+Waits
+: the author's yes to post under his name
+
+Blocked by
+: walleye-tone-heard
 
 About
 : walleye-audio-haptics
@@ -7258,11 +7286,5 @@ About
 Opened
 : 2026-11-19
 
-Needs
-: research
-
 Proof
-: a research row naming which driver walleye builds and why, and walleye's dts written to the binding chosen
-
-Rank
-: 5
+: an upstream item for the reply, state sent
