@@ -4237,3 +4237,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-1830-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up, 4383 mV, idle-android pass. Took walleye-try-display-stripes-unattended-2: L6 booted by fastboot from memory, drawer detached ran 60.3 s, exit 0, done. Suite latest not read: password file missing.
+
+Considered
+: next: builder walleye-display-late-probe-poll-stripes-rc; then walleye-attend-program-display (attended look); the PMIC unattended run (walleye-attend-pmic-unattended-run) is ready; the devlab password file for suite latest needs the author
+
+About
+: walleye-first-fastboot-boot

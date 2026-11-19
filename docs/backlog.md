@@ -7332,10 +7332,10 @@ Rank
 ### Draw the stripes on L6 again with the drawer detached, nobody looking: read the drawer's result and the full hold
 
 Status
-: open
+: done
 
 Note
-: UNATTENDED, no person. Repeat of the L6 try (PR 509) after walleye-display-stripes-script-detach (PR 515): the first run's telnet session for the drawer ended early so the drawer's end was not seen. Not known yet: whether the glass lit; that is the attended try's question.
+: proven by research walleye-display-stripes-l6-tried-2-drawer-held-60s: drawer exit 0, 60.3 s hold, phone back on Android. Script flaw (fixed sleep too short; host script said fail) goes to walleye-display-late-probe-poll-stripes-rc
 
 About
 : walleye-display-s6e3fa5
@@ -7482,3 +7482,28 @@ Proof
 
 Rank
 : 6
+
+
+<a id="walleye-display-late-probe-poll-stripes-rc"></a>
+### display-late-probe.sh polls for stripes-rc (bounded) instead of a fixed sleep of STRIPES_SECONDS+10
+
+Status
+: open
+
+Note
+: From the second L6 try: the drawer needs ~12 s after the settle to reach the hold and the fixed read came too early; the script said fail though the drawer exited 0.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: tests/host/display-late-probe-selftest.sh passes with a drawer that ends late; a real L6 run reports pass
+
+Rank
+: 2
