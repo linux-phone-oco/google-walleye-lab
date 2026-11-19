@@ -6639,31 +6639,6 @@ Rank
 : 3
 
 
-<a id="walleye-tries-shared-lab-plumbing"></a>
-### walleye-tries: one shared Lab type for the plumbing touch and pmic both copy
-
-Status
-: open
-
-Note
-: Programmer review of the PMIC program: shell, script, save, battery_is_good, boot, shell_answers, android_is_back are copied between touch.rs and pmic.rs; move into host.rs or a Lab type. Also: an Image enum for A/B; the A->B fallback has no stand-in test and decides on gadget-up.sh alone (item says several witnesses, phone-state.sh); the bite pass could also check bootreason and the slot; arming_said needs 'rebooting cleanly now' though reboot -f follows at once. Review notes from the second builder that dropped its duplicate of #465: check #465's host::to_fastboot for an empty serial (fail fast), an unrunnable fastboot (error at once) and an unreadable device.toml (name the file).
-
-About
-: walleye-attend-program-pmic
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: both tries on one Lab type, tests pass; pmic.rs back_to_fastboot moves onto host::to_fastboot (#465); host::to_fastboot: an empty serial fails fast, an unrunnable fastboot errors at once instead of waiting out the 90 s timeout, an unreadable device.toml names the file
-
-Rank
-: 20
-
-
 <a id="walleye-display-late-probe-l4-pinctrl-labels-image"></a>
 ### L4: L3 with the four overlay pinctrl labels on real tlmm groups (the dsi no longer defers on pinctrl)
 
@@ -7384,6 +7359,31 @@ Rank
 : 5
 
 
+<a id="walleye-tries-shared-lab-plumbing"></a>
+### walleye-tries: one shared Lab type for the plumbing touch and pmic both copy
+
+Status
+: open
+
+Note
+: Programmer review of the PMIC program: shell, script, save, battery_is_good, boot, shell_answers, android_is_back are copied between touch.rs and pmic.rs; move into host.rs or a Lab type. Also: an Image enum for A/B; the A->B fallback has no stand-in test and decides on gadget-up.sh alone (item says several witnesses, phone-state.sh); the bite pass could also check bootreason and the slot; arming_said needs 'rebooting cleanly now' though reboot -f follows at once. Review notes from the second builder that dropped its duplicate of #465: check #465's host::to_fastboot for an empty serial (fail fast), an unrunnable fastboot (error at once) and an unreadable device.toml (name the file). 2026-11-19 keeper run 2 of the PMIC program (PR 511): the program needs the phone in fastboot and the keeper ran adb reboot bootloader by hand; pmic.rs back_to_fastboot is not an enter-fastboot step from Android. Rank 4: before the PMIC unattended run repeats.
+
+About
+: walleye-attend-program-pmic
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: both tries on one Lab type, tests pass; pmic.rs back_to_fastboot moves onto host::to_fastboot (#465); host::to_fastboot: an empty serial fails fast, an unrunnable fastboot errors at once instead of waiting out the 90 s timeout, an unreadable device.toml names the file; pmic-try.rs takes the phone to fastboot itself from Android (host::to_fastboot), so the unattended run needs no adb reboot bootloader by hand
+
+Rank
+: 4
+
+
 <a id="walleye-attend-pmic-unattended-run"></a>
 ### Keeper: the PMIC program's unattended parts run for real
 
@@ -7391,10 +7391,10 @@ Status
 : open
 
 Note
-: run 2 (2026-11-19): gates, boot A, shell pass; check 6 fails on missing sysfs identity; see walleye-wdt-state-without-sysfs-identity. Rerun after it.
+: run 2 (2026-11-19): gates, boot A, shell pass; check 6 fails on missing sysfs identity; see walleye-wdt-state-without-sysfs-identity. Rerun after it. Run 2 (PR 511) stopped at check 6 (wdt-state without sysfs identity) and needed adb reboot bootloader by hand; repeat after walleye-wdt-state-without-sysfs-identity and the fastboot step of walleye-tries-shared-lab-plumbing.
 
 Blocked by
-: walleye-wdt-state-without-sysfs-identity
+: walleye-wdt-state-without-sysfs-identity,walleye-tries-shared-lab-plumbing
 
 About
 : walleye-attend-program-pmic
