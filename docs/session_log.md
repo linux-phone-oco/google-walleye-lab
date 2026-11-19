@@ -3595,3 +3595,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-0200-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up (boot_completed 1); display f3 split tried once each: g1 and g2 shell up, g3 no gadget; item walleye-try-display-f3-split done
+
+Considered
+: next: builder - late-probe image with the g2 dtb or g1 cmdline (then walleye-try-display-late-probe); z21 touch gpio section; walleye-ufs-android-regs needs a mem reader (coordinator); pmic-wdt items parked
+
+About
+: walleye-display-s6e3fa5

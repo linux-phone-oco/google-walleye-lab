@@ -6169,10 +6169,10 @@ Rank
 ### Try g1, g2, g3 once each from slot b: which one keeps the gadget with the display nodes on
 
 Status
-: open
+: done
 
 Note
-: UNATTENDED, no person (decision 2026-11-19-walleye-display-console-before-eyes). If g1 or g2 boots with a shell, the next step is the late-probe try (modules loaded by hand with the log streamed) on that image: walleye-try-display-late-probe.
+: proven by: g1 and g2 shell up (gadget at 18 s), g3 no gadget (Android back 63 s); research walleye-display-f3-split-tried
 
 Blocked by
 : walleye-display-f3-split-images
@@ -6300,7 +6300,7 @@ Status
 : open
 
 Note
-: UNATTENDED, no person (the author's words: first the console, then ask him to look; decision 2026-11-19-walleye-display-console-before-eyes). If the modules load without a hang: read the DRM connector status and the dmesg probe lines of mdss, dpu, dsi, panel; only an image that carries the panel and has them read may ask the author to look, for the stripes alone. If the phone dies at a module load: the netconsole and TCP stream files hold the last lines. One try; the init returns the phone to Android by itself. TRY 1 2026-11-19 (research walleye-display-late-probe-try1-no-gadget, PR 418): no gadget, Android back after 57 s; the display dtb's additions kill the boot even with the drivers as modules (d0 boots with DRM built in). Not tried again until the dtb bisect (walleye-try-display-dtb-bisect, decision 2026-11-19-walleye-display-dtb-bisect) names the group; then the late-probe image gets the fixed dtb and this try reads the probe. Now behind walleye-try-display-f3-split (decision 2026-11-19-walleye-display-iommu-reading): it runs on the image that keeps the gadget with the display nodes on.
+: UNBLOCKED BY f3-split (research walleye-display-f3-split-tried): g1 and g2 boot a shell. A builder piece: late-probe image on the g2 dtb (no mdss iommus) or g1 cmdline, then this try reads the probe. Still not tried again.
 
 Blocked by
 : walleye-try-display-f3-split
