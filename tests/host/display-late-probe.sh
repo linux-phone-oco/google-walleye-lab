@@ -90,7 +90,10 @@ fi
 ph 'dmesg | tail -n 60' 3 > "$OUT/dmesg-tail.log"
 DRAWN=
 if [ "$STRIPES_SECONDS" -gt 0 ] && ph "test -x /bin/walleye-stripes && echo drawer-is-\$((6*7))" 2 | grep -q drawer-is-42; then
-  ph "/bin/walleye-stripes --seconds $STRIPES_SECONDS; echo stripes-rc=\$?-end" "$((STRIPES_SECONDS + 10))" | tr -d "\r" > "$OUT/stripes.log"
+  # detached: a telnet session that ends early must not end the drawer; its log and exit code are read after the hold
+  ph "rm -f /tmp/stripes.log; setsid sh -c '/bin/walleye-stripes --seconds $STRIPES_SECONDS > /tmp/stripes.log 2>&1; r=\$?; echo stripes-rc=\$r-end >> /tmp/stripes.log'</dev/null >/dev/null 2>&1 & echo started-\$((6*7))" 2 | grep -q started-42 || end fail "the stripe drawer did not start"
+  sleep "$((STRIPES_SECONDS + 10))"
+  ph 'cat /tmp/stripes.log' 3 | tr -d "\r" > "$OUT/stripes.log"
   log "the stripe drawer ran: $(grep -c walleye-stripes: "$OUT/stripes.log") lines in $OUT/stripes.log"
   grep -q "stripes-rc=0-end" "$OUT/stripes.log" || end fail "the stripe drawer did not end with 0; last line: [$(last "$OUT/stripes.log")]; see $OUT/stripes.log"
   DRAWN="; the stripes were drawn and held $STRIPES_SECONDS s"

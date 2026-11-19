@@ -28,7 +28,8 @@ case $IN in
   *"touch /tmp/hold"*) printf "%s\n" "$IN"; [ -n "${FAKE_NOHOLD:-}" ] && exit 0; : > "$FAKE/held"; echo hold-is-42;;
   *"echo up-"*) echo up-42;;
   *"test -x /bin/walleye-stripes"*) [ -n "${FAKE_DRAWER:-}" ] && echo drawer-is-42;;
-  *"/bin/walleye-stripes --seconds"*) echo "$IN" | grep -o -e "--seconds [0-9]*" >> "$FAKE/calls"; echo "walleye-stripes: draw: four stripes"; echo "walleye-stripes: release: the screen is cleared to black"; echo "stripes-rc=${FAKE_DRAWER_RC:-0}-end";;
+  *"setsid sh -c '/bin/walleye-stripes --seconds"*) echo "$IN" | grep -o -e "--seconds [0-9]*" >> "$FAKE/calls"; { echo "walleye-stripes: draw: four stripes"; echo "walleye-stripes: release: the screen is cleared to black"; echo "stripes-rc=${FAKE_DRAWER_RC:-0}-end"; } > "$FAKE/drawerlog"; echo started-42;;
+  *"cat /tmp/stripes.log"*) cat "$FAKE/drawerlog" 2>/dev/null;;
   *"echo alive-"*) printf "%s\n" "$IN"; [ -e "$FAKE/held" ] && echo alive-42;;
   *"stream-ok"*) printf "%s\n" "$IN"; echo stream-ok-42;;
   *"nc-rc"*) echo nc-rc=0-end;;
