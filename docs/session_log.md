@@ -4561,3 +4561,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-2300-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Took walleye-tas2557-firmware-source (rank 1). Re-checked: pulled blob ~/lab-material/walleye/tas2557/tas2557s_PG21_uCDSP.bin sha256 ffadec7e...06b8107b0 intact. Porthole's tree on the host carries only patches and an APKBUILD that installs the file from a package source dir that is not on the host and pins no hash for it, so the hash-match proof still has no reference. Phone untouched: Android on slot b, stock kernel, nothing flashed.
+
+Considered
+: next: item stays open; the proof needs porthole's TAS2557 firmware hash (its docs/BLOBS.md, not on host) or a second pull of tas2557s_uCDSP.bin; the driver try can use the pulled file meanwhile. Next keeper item: walleye-attend-pmic-unattended-run waits on a builder change; then walleye-modem-mss-proof.
+
+About
+: walleye-audio-haptics
