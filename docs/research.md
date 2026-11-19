@@ -3962,3 +3962,33 @@ Sources
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-ufs-hynix-sync-length-verdict"></a>
+### walleye-ufs-hynix-sync-length-verdict
+
+Date
+: 2026-11-19
+
+Brief
+: Android never writes PA_TxHsG1/2/3SyncLength or reads AvailTxDataLanes on the Pixel 2 Hynix card: Sony's 0x48 is not Android's value; verdict do not carry
+
+Question
+: What PA_TxHsG1SyncLength does Android use on the Pixel 2 Hynix card (H28U74301AMR fw D003) against Sony's 0x48, and should the matched image carry EXTEND_SYNC_LENGTH and AVAILTXDATALANES?
+
+Found
+: Verdict: do not carry either; the matched image stays as built (SAVECONFIGTIME and the NO_PURGE guard only).
+
+Read, from Google's stock wahoo 4.4 tree (android-msm-wahoo-4.4-android11, head 52750b8f) fetched again this run: the vendor UFS driver never writes PA_TxHsG1/G2/G3SyncLength and never reads or writes PA_AvailTxDataLanes. unipro.h defines TX_HS_SYNC_LENGTH and PA_AVAILTXDATALANES, and nothing in ufshcd.c, ufs-qcom.c or the PHY files uses them; the vendor quirk table has no sync-length entry for any vendor (its SK hynix entries are the HS-G1-to-G3 switch for hB8aL1/hC8aL1/hC8aM1/hC8GL1/hC8HL1/hD8aL1/h08aM1, which do not match H28U74301AMR, and HOST_PA_SAVECONFIGTIME for any model). So Android's value on this card is the power-on default of the link, left as the card and host negotiated it, and Android runs the card at HS-G3, two lanes each way, rate B (live dmesg 2026-11-19: gear 3, lane 2/2, FAST, rate 2) with that default. Sony's 0x48 is a value written on top, by Sony's own quirk, for other cards (Hynix hB8aL1/hC8aL1 fw D001); the SODP contributor only believes it relates to the erase (research walleye-ufs-gap-sony-mechanism-public-record). AVAILTXDATALANES = 1 is the same story: Android uses both lanes and never sets it.
+
+Correction to the item's note: "our tree lacks it for Hynix" is true of the matched image (its quirk table and tests/host/ufs-match-android.sh line 33 count zero EXTEND_SYNC_LENGTH and ONE_TX_LANE code in the tree), but the earlier z13 image (topic/ufs-hynix-quirks) carries both: that is the image the Android comparison already moved away from (research walleye-ufs-android-way-compared, difference 2).
+
+Why not carry: the matched image's rule is equal to Android where Android is proven on this card; an added write is a difference from the only proven link, and it is a write whose purpose nobody has published. The proof that it is not carried is already a check (the test above).
+
+Not known yet: the numeric value of the card's and host's sync-length attributes on live Android (no debugfs file shows DME attributes; a read needs a debug build or the vendor-kernel instrument, with its own risk). It would only matter if the try's link fails at HS-G3; then the first thing to read is the link state, not a quirk. The fallback stays decision 2026-11-19-walleye-ufs-linkstartup-do-not-carry (one reviewed PHY write if link fails).
+
+Sources
+: src-google-wahoo-msm44-android11,wahoo-4-4-ufs-qcom-c,src-sony-ufs-quirks-forward-port,src-sony-bugtracker-802
+
+About
+: walleye-ufs-match-android-z

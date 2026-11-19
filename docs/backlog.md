@@ -6241,10 +6241,10 @@ Opened
 ### Decide whether the matched image carries Sony's Hynix EXTEND_SYNC_LENGTH (PA_TxHsG1/2/3SyncLength 0x48) and AVAILTXDATALANES before the UFS try
 
 Status
-: open
+: done
 
 Note
-: From research walleye-ufs-gap-sony-mechanism-public-record: a SODP contributor ties the sync-length quirk to the erase; our tree lacks it for Hynix; Android's own value on this card is the evidence to read. Unblocked 2026-11-19: walleye-ufs-gap-perf is done (PR 430); it runs before the extraction.
+: Verdict: do not carry; research walleye-ufs-hynix-sync-length-verdict, decision 2026-11-19-walleye-ufs-no-sync-length-quirk. Matched image unchanged; the check already counts zero.
 
 About
 : walleye-ufs-match-android-z
