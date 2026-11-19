@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
 /*
  * Variant f of the walleye board file: the same tree plus qcom,board-id, for the one try that asks whether the
  * bootloader's dtb matcher wants it. The stock walleye kernel's own dtb (LineageOS 22.2 boot.img, 20261113) carries

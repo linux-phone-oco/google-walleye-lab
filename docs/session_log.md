@@ -3037,3 +3037,24 @@ Done
 
 Considered
 : next: read the gpio section of compare-touch-diff-z21.txt (pmi8998 gpio 2 on ours vs Android) ; walleye-ufs-android-regs still needs a mem reader (coordinator); then z19, bootchain-readback
+
+---
+
+
+<a id="2026-11-19-licences-for-google-walleye-lab"></a>
+### Licences for google-walleye-lab
+
+Entry date
+: 2026-11-19
+
+Done
+: Copied device-template #33's model; annotated per path; SPDX dual licence on our own dts and the stub generator; licence-check fails on main (no REUSE.toml), passes on the branch; programmer review found the C probe relicensed against its own GPL header - fixed.
+
+Considered
+: build-pk.sh's generated dts wrap porthole's board files: left GPL-2.0-only.
+
+Rejected
+: Writing our own coverage check: orchestration's order is the shared script.
+
+About
+: walleye-first-fastboot-boot

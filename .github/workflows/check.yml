@@ -49,3 +49,10 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq device-tree-compiler xxd mkbootimg
       - name: the gate fails a dtb or image with UFS on, with no status, or enabled by the overlay, and passes UFS off (decision 2026-11-19-walleye-ufs-off-by-a-gate)
         run: sh tests/host/ufs-off-image-selftest.sh
+  licence-coverage:
+    name: every tracked file is covered by a licence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: bin/licence-check (decision 2026-11-19-licences-for-our-repositories)
+        run: sh bin/licence-check

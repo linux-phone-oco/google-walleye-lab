@@ -49,3 +49,11 @@ A part the phone never had working is a `gap` - measured on every boot, but not 
 - its backlog, decisions, milestones and log are kept in
   [linux-phone-oco/docs](https://github.com/linux-phone-oco/docs), the project's one database (project =
   `linux-phone-oco/device-template`), and shown on [its face](https://linux-phone-oco.github.io/docs/).
+
+## Licence
+
+Data, docs and research: [CC-BY-SA-4.0](LICENSE). Scripts and code: MIT OR Apache-2.0, at your option
+([`LICENSE-MIT`](LICENSE-MIT), [`LICENSE-APACHE`](LICENSE-APACHE)), except the C probe `build/ffs-acm`, GPL-2.0-only by its own header. Our own device trees: GPL-2.0-only OR BSD-2-Clause;
+the board file derived from the wahoo files keeps their GPL-2.0-only. [`REUSE.toml`](REUSE.toml) says it per path, the
+texts are in [`LICENSES/`](LICENSES), and `bin/licence-check` (`make verify`, CI) keeps every tracked file covered.
+Third-party material (LineageOS images, firmware, porthole's pieces) keeps its own licence and is not relicensed.

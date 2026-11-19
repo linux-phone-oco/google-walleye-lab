@@ -1,0 +1,52 @@
+# Who may use which file, and under what (REUSE: https://reuse.software/spec-3.3/#reusetoml), by path; later annotations win
+# where they overlap. Decision 2026-11-19-licences-for-our-repositories (linux-phone-oco/docs), modelled on device-template #33:
+# our data, docs and research are CC-BY-SA-4.0 (LICENSE), our scripts and code MIT OR Apache-2.0 (LICENSE-MIT, LICENSE-APACHE),
+# our own device trees GPL-2.0-only OR BSD-2-Clause (SPDX header in each), and the board file derived from the GPL wahoo
+# files stays GPL-2.0-only, its Copyright lines untouched. bin/licence-check (make verify, CI) is ideal-agent's script,
+# copied as it is; it reads one `path = [...]` per line, and `*` for it crosses folders. Third-party material keeps its own
+# licence and is not here: the LineageOS images in control/ are not in git, nor is firmware; porthole's pmaports pieces and
+# kernel patches based on upstream files carry the licence of the file they change, in their own SPDX header.
+version = 1
+
+# The scripts and configuration.
+[[annotations]]
+path = [".github/**", "bin/**", "queries/**", "records/**", "build/**", "tests/**", "provision/**", "tables.toml", "Makefile", "devicebase.toml", "idealkb.toml", "oco.toml", ".gitignore", ".oco/**", "REUSE.toml"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 grenudi"
+SPDX-License-Identifier = "MIT OR Apache-2.0"
+
+# The data, the docs and the research (what the phone said, as it said it), where they overlap the paths above they win.
+[[annotations]]
+path = ["LICENSE", "README.md", "AGENTS.md", "data/**", "docs/**", "research/**", "tests/results/**", "tests/health/README.md", "device.toml", "build/fdt-bisect-xa-left.txt"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 grenudi"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+# The research folder's own scripts are code.
+[[annotations]]
+path = ["research/**/*.sh"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 grenudi"
+SPDX-License-Identifier = "MIT OR Apache-2.0"
+
+# The board file derived from the GPL wahoo files (Caleb Connolly, Jami Kettunen, The Linux Foundation): their licence.
+[[annotations]]
+path = ["dt/msm8998-google-walleye.dts"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020 Caleb Connolly, 2021 Jami Kettunen, 2016 The Linux Foundation, 2026 grenudi"
+SPDX-License-Identifier = "GPL-2.0-only"
+
+# Our own device trees (variants that include the board file, and the generated stubs).
+[[annotations]]
+path = ["dt/msm8998-google-walleye-f.dts", "dt/msm8998-google-walleye-ufs.dts", "dt/msm8998-google-walleye-overlay-stubs.dtsi"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 grenudi"
+SPDX-License-Identifier = "GPL-2.0-only OR BSD-2-Clause"
+
+# The C probe says of itself "based on the idea of the kernel's tools/usb/ffs-test.c (GPL-2.0); this file is GPL-2.0 too":
+# its own word stands. The Rust helper (build/ffs-acm-rs) is our own code, MIT OR Apache-2.0 by the author's word.
+[[annotations]]
+path = ["build/ffs-acm/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 grenudi"
+SPDX-License-Identifier = "GPL-2.0-only"
