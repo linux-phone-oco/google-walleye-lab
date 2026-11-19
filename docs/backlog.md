@@ -6984,3 +6984,6 @@ Needs
 
 Proof
 : a research row listing each such property, and a generic check beside tests/host/dtb-display-pinctrl-labels.sh that fails while any remains
+
+Rank
+: 4
