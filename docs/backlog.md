@@ -5101,10 +5101,10 @@ Rank
 ### Display: Samsung S6E3FA5 command-mode panel through DPU/DSI
 
 Status
-: open
+: done
 
 Note
-: Driver compiles; boot-display.img built and gate-checked (research walleye-display-s6e3fa5-built); the keeper's try is walleye-try-display; done when a person sees the pattern.
+: DONE 2026-11-19 (about 22:24 CET): the author saw the kernel log on the glass and four held vertical stripes on L7 (research walleye-display-l7-looks-seen). The proof 'the DRM connector is connected and a test pattern is seen by a person' is met on the hand-loaded load order. What remains is the display coming up in any order from the board dts alone: items walleye-display-b2-dsi-clock-warning (research) and walleye-display-dts-any-order (build).
 
 Waits
 : the author looks at the panel: walleye-try-display (attended); the build side is done
