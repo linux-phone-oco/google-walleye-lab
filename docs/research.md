@@ -5009,3 +5009,32 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-b2-dsi-clock-warning"></a>
+### walleye-display-b2-dsi-clock-warning
+
+Date
+: 2026-11-19
+
+Brief
+: B2's early load faults (SMMU, pclk0 rcg, DSI -110) are the bootloader splash still live at 2 s; walleye reserves no splash memory
+
+Question
+: Why B2 (display at boot) warns 'pclk0_clk_src: rcg didn't update', times out DSI commands and floods SMMU faults, when hand-loaded L5/L6 do not; and which dts dependency is missing
+
+Found
+: What the logs count (4 runs, same kernel, dtb, modules and order): msm loaded at about 2 s after boot (B, B1, B2) always gives 10 SMMU context faults at the splash buffer (iova 0x9d6f1500..0x9d771c00, cb 0, SID 0, linear scan), 4x 'pclk0_clk_src: rcg didn't update' (clk_pixel_set_rate from dsi_link_clk_set_rate_6g, run inside s6e3fa5_probe -> mipi_dsi_attach -> component bind -> first modeset), DSI DMA -110 and 'disable autorefresh failed'; msm loaded at 66 s (L6, by hand) gives none of them. So the fault is not the order of modules but the state the hardware is in at 2 s: the bootloader's display is still live.
+Mainline facts (v7.3): msm8998.dtsi describes mdss/dsi/phy completely (iommus on mdss, assigned-clock-parents = phy pixel/byte PLL); OnePlus 5/5T and Fxtec Pro1 reserve the splash memory@9d400000 no-map (OnePlus also a simple-framebuffer with the mmcc clocks + MDSS_GDSC). walleye's dts reserves NOTHING at 0x9d400000, although the faulting iovas lie in it: the kernel may hand that memory out, and nothing tells the clock and SMMU code that the scan-out is in use.
+Ranked hypotheses: H1 (most likely, one cause for all three signs) the bootloader's command-mode pingpong autorefresh is still scanning the splash with the SMMU stream in bypass; msm attaching its own paging domain makes every fetch fault, MDP never idles, DSI engine and pclk0 switch (the RCG update needs the running source: the bootloader's PLL is stopped by the phy reset while the rcg still sources it) fail, so DCS commands time out. By 66 s that state is gone (the bootloader's panel/PLL state is lost after the 30 s regulator late cleanup or the unused-genpd cleanup; unmeasured) so the cold start is clean. H2 the failure is only the pixel clock: the rcg is parked on the bootloader's PLL and the phy enable power-cycles it; the faults are a side show. H3 an init ordering problem (module order, phy not loaded yet): excluded by L6, which loads the same 13 modules in the same order. H4 iommu.passthrough hides a missing iommus on the dpu: excluded as the sole cause (L6 has it too and works), kept as a dts check.
+Readings that tell them apart: (a) load msm at N s for N = 5, 15, 25, 35, 50 (the flip point names the cleanup that matters: 30 s = regulator_init_complete, 12 s = deferred probe timeout / sync_state, 1.3 s = genpd cleanup); (b) load at 2 s with iommu.passthrough off (faults then at attach or none?); (c) at 2 s, before loading msm, read-only: the mmcc pclk0 and byte0 RCG CFG/status, mdss registers via devmem (a keeper read) to see whether autorefresh is on; (d) the same load at 2 s with the splash region reserved (dts) and a simple-framebuffer taking the clocks.
+Mainline-proper answer: the dts change that every board with a live bootloader splash carries: reserved-memory cont_splash_mem memory@9d400000 no-map (size from the vendor dts of wahoo/taimen, GPL), and where the splash must be kept alive until msm takes over, a simple-framebuffer on it with the mmcc clocks and MDSS_GDSC (the OnePlus way), so the handover is by deferred probe in any order: simpledrm/efifb is replaced by msm when it binds. No ordering list needed in init. What dts alone cannot do - a fault-free SMMU handover of an in-flight scan-out on cmd-mode autorefresh - is a driver matter (dpu: disable autorefresh and wait idle before attaching the domain, or arm-smmu keeping the boot stream mapping through reserved-memory iommu-addresses/RMR); to be settled by (a)-(d), then sent upstream as an item.
+
+Sources
+: kernel-oneplus-common-dtsi,kernel-msm8998-dtsi-mdss
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-19/
