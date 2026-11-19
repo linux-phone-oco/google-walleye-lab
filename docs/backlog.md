@@ -6834,3 +6834,81 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-display-dsi-defer-source-read"></a>
+### Read which call in msm's DSI host probe defers silently on L3, against our dsi node and the regulators the kernel has registered
+
+Status
+: open
+
+Note
+: Research walleye-display-late-probe-l3-tried-still-defers (PR 463): L3 (vdd-supply = l1a on the dsi) still defers c994000.dsi silently, no DRM card. The keeper's reads: suppliers all available, phy bound, devices_deferred holds only the dsi with an empty reason. Source reading only; no phone.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row naming, from the v7.3 source (drivers/gpu/drm/msm/dsi/dsi_host.c, dsi.c, dsi_manager.c and the regulator bulk get), every return that is -EPROBE_DEFER without a message in dsi_dev_probe and msm_dsi_host_init, and for each whether our dsi node (dsi@c994000 in the L3 dtb) can trigger it: the regulators vdd and vdda (are vreg_l1a_0p875 and the vdda rail registered by the time the dsi probes, and by which driver), the phy, the clocks, the panel/bridge endpoint, the gpios; a ranked list of what to check first, and the exact dtb or kernel change for L4 if one is evident
+
+Rank
+: 2
+
+
+<a id="walleye-display-late-probe-l4-trace-image"></a>
+### L4: L3 with function tracing (function_graph with return values) so the failing call in the dsi probe names itself
+
+Status
+: open
+
+Note
+: From the L3 try (research walleye-display-late-probe-l3-tried-still-defers): no ftrace in the late-probe kernel, so the silent defer cannot name itself. Function-graph return values name the call that returns -EPROBE_DEFER. The research item walleye-display-dsi-defer-source-read reads the source in parallel; whichever finds it first, the try on L4 proves it.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: one boot image beside L3, UFS-off gate and AVB pass, a rebuild identical, programmer review: the L3 image whose kernel also has FTRACE, FUNCTION_TRACER, FUNCTION_GRAPH and FUNCTION_GRAPH_RETVAL (and tracefs/debugfs mounted by the init as L1-L3 do), and a host script step (or a small script beside display-late-probe.sh) that before loading msm.ko sets tracing to function_graph with the funcgraph-retval option on and set_graph_function to msm_dsi_host_init and dsi_dev_probe (and their callees), loads the modules, then reads trace back to a host file; a diff against L3 showing only the config and the script
+
+Rank
+: 3
+
+
+<a id="walleye-try-display-late-probe-l4"></a>
+### Try L4 once: the traced dsi probe names the failing call; apply its fix and read the card
+
+Status
+: open
+
+Note
+: UNATTENDED, no person (decision 2026-11-19-walleye-display-console-before-eyes). One try; timeout 400 s or more.
+
+Blocked by
+: walleye-display-late-probe-l4-trace-image
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the gate passes right before the boot; shell up; the host script loads the modules with the function_graph trace on and the trace comes back as a file; a research row naming the call and its return value for the dsi defer, the next dtb or kernel change that follows; if a DRM card appears: connector status and 'console and connector read' to the coordinator
+
+Rank
+: 3
