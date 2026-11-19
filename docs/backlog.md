@@ -7163,7 +7163,7 @@ Status
 : open
 
 Note
-: Porthole takes tas2557s_PG21_uCDSP.bin from TheMuppets' mirror; the phone's own vendor partition holds it too. Read it from the phone by the keeper, hash against porthole's; the licence and shipping are the author's call. 2026-11-19 coordinator: UNATTENDED, no person: a read-only pull from the phone's vendor partition into ~/lab-material/walleye (never git), sha256 against porthole's copy, nothing else; shipping is not on the table (decision 2026-11-19-walleye-tas2557-firmware-stays-on-the-phone). NO PASSWORD NEEDED (coordinator 2026-11-19): ~/.config/devlab/google-walleye/password is the ssh password of a Linux phone user for 'lpoco lab phone sh' and 'suite latest'; walleye runs Android and our test images have no login at all, so there is nothing to log in to and no password file is made. Use adb as the shell user: adb shell ls /vendor/firmware* for the file name and adb pull of the file into ~/lab-material/walleye (never git), sha256 against porthole's copy. If the shell user cannot read the file, stop and say so; do not look for root.
+: 2026-11-19 keeper try: adb shell (uid 2000) cannot read /vendor/firmware/tas2557s_PG21_uCDSP.bin or tas2557s_uCDSP.bin: ls/stat and adb pull give Permission denied (the files exist; find lists them). Stopped as told, no root sought. Next: a decision from the coordinator on another unattended way to read it (a test image that mounts the vendor partition read-only, or the factory image's vendor.img on the host) - the factory image route needs no phone.
 
 About
 : walleye-audio-haptics
