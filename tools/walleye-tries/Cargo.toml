@@ -10,8 +10,9 @@ publish = false
 [lib]
 name = "walleye_tries"
 
+[dev-dependencies]
+toml = "0.8"
+
 [dependencies]
 # the runner every attended procedure shares; its release is the tag
-lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.29.0" }
-# the variables this lab's tries read are declared once (argenv), not read by hand
-argenv-resolve = "0.4"
+lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.32.0" }

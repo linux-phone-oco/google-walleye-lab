@@ -1,149 +1,34 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-//! What a try reads from its environment, declared once with argenv. The runner (lpoco-attended) owns the
-//! arguments (`--dry-run`, `--log FILE`, `--help`); everything here is a variable, so the two never clash.
+//! What a try reads about its phone: every fact is a key of this lab's `device.toml`, in the table that owns it
+//! (decisions 2026-11-19-attended-keys-in-the-manifest, 2026-11-19-procedure-values-from-the-named-device).
+//! The entry file reads them once, at the top of `main`, through the runner's named-key reads (`dev`, `proc`), so
+//! `--dry-run` fails on a missing key before any act. No device fact is read from an environment variable.
+//!
+//! | what | key |
+//! |---|---|
+//! | the phone's address and shell port | `[connection] shell_address`, `shell_port` |
+//! | the host programs | `[tools] adb`, `fastboot` |
+//! | waits for the phone | `[boot] device_wait`, `back_wait` |
+//! | the images | `[images] dir`, `[images.z21]`, `[images.wdt1-a]`, `[images.wdt1-b]` (`path`, `sha256`) |
+//! | the touch try's values | `[procedures.touch-events-on-z21] window`, `min_window` |
+//! | the PMIC try's values | `[procedures.pmic-watchdog-v1-on-the-pixel-2] stay`, `bite_wait` |
 
-use argenv_resolve::*;
+use lpoco_attended::prelude::{dev, proc};
 use std::path::PathBuf;
 use std::process::Command;
 
-contract! {
-    IMAGE: String = Input {
-        key: "image",
-        ty: Type::String,
-        env: Some(Env::new("WALLEYE_TRY_IMAGE")),
-        summary: "The boot image to try (default: images-z21/boot-z21.img of ~/Projects/walleye-build).",
-        ..Input::EMPTY
-    };
+/// The procedure names of the two tries: the entry files and the `[procedures.NAME]` tables agree on them.
+pub const TOUCH_PROCEDURE: &str = "touch events on z21";
+pub const PMIC_PROCEDURE: &str = "PMIC watchdog v1 on the Pixel 2";
 
-    OUT: String = Input {
-        key: "out",
-        ty: Type::String,
-        env: Some(Env::new("WALLEYE_TRY_OUT")),
-        summary: "Where the try saves what it reads (default: ~/lab-material/walleye/touch-DATE; mode 700, never in git).",
-        ..Input::EMPTY
-    };
-
-    WINDOW: u64 = Input {
-        key: "window",
-        ty: Type::Uint,
-        default: Some(120),
-        env: Some(Env::new("WALLEYE_TRY_WINDOW")),
-        summary: "Seconds the touch reader stays open at most (the phone restarts by itself at 180 s of uptime: the window is cut to what is left).",
-        ..Input::EMPTY
-    };
-
-    MIN_WINDOW: u64 = Input {
-        key: "min_window",
-        ty: Type::Uint,
-        default: Some(40),
-        env: Some(Env::new("WALLEYE_TRY_MIN_WINDOW")),
-        summary: "The shortest window worth asking the author for; a shorter one stops the run before he is asked.",
-        ..Input::EMPTY
-    };
-
-    DEVICE_WAIT: u64 = Input {
-        key: "device_wait",
-        ty: Type::Uint,
-        default: Some(170),
-        env: Some(Env::new("WALLEYE_TRY_DEVICE_WAIT")),
-        summary: "Seconds to wait for the touch input device to appear after the shell answers.",
-        ..Input::EMPTY
-    };
-
-    BACK_WAIT: u64 = Input {
-        key: "back_wait",
-        ty: Type::Uint,
-        default: Some(240),
-        env: Some(Env::new("WALLEYE_TRY_BACK_WAIT")),
-        summary: "Seconds to wait for the phone to be back on Android after the try.",
-        ..Input::EMPTY
-    };
-
-    ADDRESS: String = Input {
-        key: "address",
-        ty: Type::String,
-        env: Some(Env::new("WALLEYE_TRY_ADDRESS")),
-        summary: "The phone's address (default: the first of [connection] addresses in device.toml).",
-        ..Input::EMPTY
-    };
-
-    PORT: u64 = Input {
-        key: "port",
-        ty: Type::Uint,
-        default: Some(23),
-        env: Some(Env::new("WALLEYE_TRY_PORT")),
-        summary: "The phone's telnet port; a test points it at a stand-in phone.",
-        ..Input::EMPTY
-    };
-
-    LPOCO: String = Input {
-        key: "lpoco",
-        ty: Type::String,
-        env: Some(Env::new("WALLEYE_TRY_LPOCO")),
-        summary: "The lpoco program that boots the image (lpoco when none is given); a test points it at a stand-in.",
-        ..Input::EMPTY
-    };
-
-    LAB: String = Input {
-        key: "lab",
-        ty: Type::String,
-        env: Some(Env::new("WALLEYE_TRY_LAB")),
-        summary: "This lab's folder, where device.toml and tests/host are (default: the folder the program runs in).",
-        ..Input::EMPTY
-    };
-
-    IMAGE_A: String = Input {
-        key: "image_a",
-        ty: Type::String,
-        env: Some(Env::new("WALLEYE_TRY_IMAGE_A")),
-        summary: "PMIC watchdog try, image A (next + the six patches; default: images-wdt1/boot-wdt1-a.img of ~/Projects/walleye-build).",
-        ..Input::EMPTY
-    };
-
-    IMAGE_B: String = Input {
-        key: "image_b",
-        ty: Type::String,
-        env: Some(Env::new("WALLEYE_TRY_IMAGE_B")),
-        summary: "PMIC watchdog try, image B, the fallback when A shows no banner (v7.3 + the patches; default: images-wdt1/boot-wdt1-b.img).",
-        ..Input::EMPTY
-    };
-
-    STAY: u64 = Input {
-        key: "stay",
-        ty: Type::Uint,
-        default: Some(180),
-        env: Some(Env::new("WALLEYE_TRY_STAY")),
-        summary: "Seconds Android must stay up after the clean reboot with no restart (the test's PASS: three minutes).",
-        ..Input::EMPTY
-    };
-
-    BITE_WAIT: u64 = Input {
-        key: "bite_wait",
-        ty: Type::Uint,
-        default: Some(150),
-        env: Some(Env::new("WALLEYE_TRY_BITE_WAIT")),
-        summary: "Seconds to see the phone restart by itself after the bite is armed (20 s timeout; a restart loop of about 20 s is expected after).",
-        ..Input::EMPTY
-    };
-
-    ADB: String = Input {
-        key: "adb",
-        ty: Type::String,
-        env: Some(Env::new("WALLEYE_TRY_ADB")),
-        summary: "The adb program (adb when none is given); a test points it at a stand-in.",
-        ..Input::EMPTY
-    };
-
-    FASTBOOT: String = Input {
-        key: "fastboot",
-        ty: Type::String,
-        env: Some(Env::new("WALLEYE_TRY_FASTBOOT")),
-        summary: "The fastboot program (fastboot when none is given); a test points it at a stand-in.",
-        ..Input::EMPTY
-    };
+/// Which try the settings are read for: each reads only its own procedure's values and images.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Try {
+    Touch,
+    Pmic,
 }
 
-/// The settings of one try, every default filled in.
+/// The settings of one try. The fields of the other try stay empty (zero, no path).
 #[derive(Clone, Debug, PartialEq)]
 pub struct Settings {
     pub lab: PathBuf,
@@ -163,80 +48,89 @@ pub struct Settings {
     pub image_b: PathBuf,
     pub stay: u64,
     pub bite_wait: u64,
-    /// where a try saves what it reads when the author named none (OUT), by the try's name
+    /// where a try saves what it reads when a test named one, by the try's name
     pub out_given: Option<PathBuf>,
     pub day: String,
 }
 
 impl Settings {
-    /// Read the variables of the process's environment; a wrong one stops the program (as argenv does everywhere).
-    pub fn from_env() -> Settings {
-        let day = Command::new("date")
-            .arg("+%Y%m%d-%H%M%S")
-            .output()
-            .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
-            .unwrap_or_default();
-        let r = Invocation::from_env(&ProcessEnv).resolve(&Contract::records());
-        handle_problems(&lint(&Contract::records(), &r), OnProblems::FailOnError);
-        Settings::from_resolution(&r, &day)
-    }
-
-    /// The settings a resolution gives; `day` names the default output folder.
-    pub fn from_resolution(r: &Resolution, day: &str) -> Settings {
-        let home = PathBuf::from(std::env::var("HOME").unwrap_or_else(|_| ".".into()));
-        let lab = Contract::LAB
-            .get_from(r)
-            .map(PathBuf::from)
-            .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| ".".into()));
-        let address = Contract::ADDRESS.get_from(r).unwrap_or_else(|| {
-            let text = std::fs::read_to_string(lab.join("device.toml")).unwrap_or_default();
-            first_address(&text).unwrap_or_default()
-        });
-        Settings {
-            image: Contract::IMAGE
-                .get_from(r)
-                .map(PathBuf::from)
-                .unwrap_or_else(|| home.join("Projects/walleye-build/images-z21/boot-z21.img")),
-            out: Contract::OUT
-                .get_from(r)
-                .map(PathBuf::from)
-                .unwrap_or_else(|| home.join(format!("lab-material/walleye/touch-{day}"))),
-            window: Contract::WINDOW.get_from(r).unwrap_or(120),
-            min_window: Contract::MIN_WINDOW.get_from(r).unwrap_or(40),
-            device_wait: Contract::DEVICE_WAIT.get_from(r).unwrap_or(170),
-            back_wait: Contract::BACK_WAIT.get_from(r).unwrap_or(240),
-            address,
-            port: u16::try_from(Contract::PORT.get_from(r).unwrap_or(23))
-                .expect("WALLEYE_TRY_PORT is a port number"),
-            lpoco: Contract::LPOCO
-                .get_from(r)
-                .unwrap_or_else(|| "lpoco".into()),
-            adb: Contract::ADB.get_from(r).unwrap_or_else(|| "adb".into()),
-            fastboot: Contract::FASTBOOT
-                .get_from(r)
-                .unwrap_or_else(|| "fastboot".into()),
-            image_a: Contract::IMAGE_A
-                .get_from(r)
-                .map(PathBuf::from)
-                .unwrap_or_else(|| home.join("Projects/walleye-build/images-wdt1/boot-wdt1-a.img")),
-            image_b: Contract::IMAGE_B
-                .get_from(r)
-                .map(PathBuf::from)
-                .unwrap_or_else(|| home.join("Projects/walleye-build/images-wdt1/boot-wdt1-b.img")),
-            stay: Contract::STAY.get_from(r).unwrap_or(180),
-            bite_wait: Contract::BITE_WAIT.get_from(r).unwrap_or(150),
-            out_given: Contract::OUT.get_from(r).map(PathBuf::from),
-            day: day.to_string(),
-            lab,
-        }
-    }
-
-    /// Where the try called `name` saves what it reads: the author's OUT, else a folder of the lab's material (mode 700, never in git).
-    pub fn out_dir(&self, name: &str) -> PathBuf {
-        self.out_given.clone().unwrap_or_else(|| {
-            let home = PathBuf::from(std::env::var("HOME").unwrap_or_else(|_| ".".into()));
-            home.join(format!("lab-material/walleye/{name}-{}", self.day))
+    /// The touch try's settings, read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_touch() -> Settings {
+        Settings::read(Try::Touch, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
         })
+    }
+
+    /// The PMIC try's settings, read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_pmic() -> Settings {
+        Settings::read(Try::Pmic, &|k| dev(k).to_string(), &|k| proc(k).to_string())
+    }
+
+    /// Read every key through `dev` (a dotted key of a table) and `proc` (a key of the try's own table); a value
+    /// of the wrong kind stops the program naming the key.
+    pub fn read(
+        which: Try,
+        dev: &dyn Fn(&str) -> String,
+        proc: &dyn Fn(&str) -> String,
+    ) -> Settings {
+        let number = |key: &str, text: String| -> u64 {
+            text.trim()
+                .parse()
+                .unwrap_or_else(|_| panic!("{key} in device.toml is not a whole number: {text:?}"))
+        };
+        let lab: PathBuf = std::env::current_dir().unwrap_or_else(|_| ".".into());
+        let image_dir = dev("images.dir");
+        let image = |name: &str| {
+            lab.join(&image_dir)
+                .join(dev(&format!("images.{name}.path")))
+        };
+        let mut s = Settings {
+            lab: lab.clone(),
+            image: PathBuf::new(),
+            out: PathBuf::new(),
+            window: 0,
+            min_window: 0,
+            device_wait: number("boot.device_wait", dev("boot.device_wait")),
+            back_wait: number("boot.back_wait", dev("boot.back_wait")),
+            address: dev("connection.shell_address"),
+            port: u16::try_from(number(
+                "connection.shell_port",
+                dev("connection.shell_port"),
+            ))
+            .expect("connection.shell_port in device.toml is a port number"),
+            lpoco: "lpoco".into(),
+            adb: dev("tools.adb"),
+            fastboot: dev("tools.fastboot"),
+            image_a: PathBuf::new(),
+            image_b: PathBuf::new(),
+            stay: 0,
+            bite_wait: 0,
+            out_given: None,
+            day: today(),
+        };
+        match which {
+            Try::Touch => {
+                s.image = image("z21");
+                s.window = number("window", proc("window"));
+                s.min_window = number("min_window", proc("min_window"));
+                s.out = s.out_dir("touch");
+            }
+            Try::Pmic => {
+                s.image_a = image("wdt1-a");
+                s.image_b = image("wdt1-b");
+                s.stay = number("stay", proc("stay"));
+                s.bite_wait = number("bite_wait", proc("bite_wait"));
+            }
+        }
+        s
+    }
+
+    /// Where the try called `name` saves what it reads: a folder of the lab's material (mode 700, never in git),
+    /// unless a test named one.
+    pub fn out_dir(&self, name: &str) -> PathBuf {
+        self.out_given
+            .clone()
+            .unwrap_or_else(|| home().join(format!("lab-material/walleye/{name}-{}", self.day)))
     }
 
     pub fn device_toml(&self) -> PathBuf {
@@ -246,68 +140,102 @@ impl Settings {
     pub fn host_script(&self, name: &str) -> PathBuf {
         self.lab.join("tests/host").join(name)
     }
+
+    /// Settings for the stand-in tests: the same keys, read by the same code, from a map of values.
+    #[cfg(test)]
+    pub fn stand_in(which: Try) -> Settings {
+        let keys: std::collections::BTreeMap<&str, &str> = [
+            ("images.dir", "images"),
+            ("images.z21.path", "boot-z21.img"),
+            ("images.wdt1-a.path", "boot-wdt1-a.img"),
+            ("images.wdt1-b.path", "boot-wdt1-b.img"),
+            ("boot.device_wait", "170"),
+            ("boot.back_wait", "240"),
+            ("connection.shell_address", "127.0.0.1"),
+            ("connection.shell_port", "23"),
+            ("tools.adb", "adb"),
+            ("tools.fastboot", "fastboot"),
+            ("window", "120"),
+            ("min_window", "40"),
+            ("stay", "180"),
+            ("bite_wait", "150"),
+        ]
+        .into_iter()
+        .collect();
+        let get = |k: &str| keys[k].to_string();
+        Settings::read(which, &get, &get)
+    }
 }
 
-/// The first of `[connection] addresses = ["..", ..]` in a manifest's text.
-pub fn first_address(manifest: &str) -> Option<String> {
-    let line = manifest
-        .lines()
-        .find(|l| l.trim_start().starts_with("addresses") && l.contains('['))?;
-    let after = line.split_once('[')?.1;
-    let inner = after.split_once('"')?.1;
-    Some(inner.split_once('"')?.0.to_string())
+fn home() -> PathBuf {
+    PathBuf::from(std::env::var("HOME").unwrap_or_else(|_| ".".into()))
+}
+
+fn today() -> String {
+    Command::new("date")
+        .arg("+%Y%m%d-%H%M%S")
+        .output()
+        .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
+        .unwrap_or_default()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::BTreeMap;
 
-    struct Env(BTreeMap<String, String>);
-    impl EnvSource for Env {
-        fn get(&self, name: &str) -> Option<String> {
-            self.0.get(name).cloned()
+    #[test]
+    fn each_try_reads_its_own_values_and_images() {
+        let t = Settings::stand_in(Try::Touch);
+        assert_eq!((t.window, t.min_window, t.port), (120, 40, 23));
+        assert_eq!(t.image, t.lab.join("images/boot-z21.img"));
+        assert_eq!((t.stay, t.image_a), (0, PathBuf::new()));
+        let p = Settings::stand_in(Try::Pmic);
+        assert_eq!((p.stay, p.bite_wait, p.back_wait), (180, 150, 240));
+        assert_eq!(p.image_b, p.lab.join("images/boot-wdt1-b.img"));
+        assert_eq!(p.window, 0);
+        assert_eq!((p.address.as_str(), p.adb.as_str()), ("127.0.0.1", "adb"));
+    }
+
+    /// Every key the program reads is in this lab's real device.toml (a renamed key fails here, not at the author's dry run).
+    #[test]
+    fn this_labs_device_toml_has_every_key() {
+        let raw: toml::Value = toml::from_str(
+            &std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../device.toml"))
+                .unwrap(),
+        )
+        .unwrap();
+        let at = |path: &str| -> String {
+            let v = path
+                .split('.')
+                .try_fold(&raw, |v, p| v.get(p))
+                .unwrap_or_else(|| panic!("device.toml has no {path}"));
+            v.as_str()
+                .map(str::to_string)
+                .unwrap_or_else(|| v.to_string())
+        };
+        for (which, table) in [(Try::Touch, TOUCH_PROCEDURE), (Try::Pmic, PMIC_PROCEDURE)] {
+            let name: Vec<String> = table
+                .split(|c: char| !c.is_ascii_alphanumeric())
+                .filter(|w| !w.is_empty())
+                .map(str::to_ascii_lowercase)
+                .collect();
+            let own = format!("procedures.{}.", name.join("-"));
+            let s = Settings::read(which, &at, &|k| at(&format!("{own}{k}")));
+            assert_eq!(s.port, 23);
         }
-        fn names(&self) -> Vec<String> {
-            self.0.keys().cloned().collect()
-        }
-    }
-
-    fn settings(pairs: &[(&str, &str)]) -> Settings {
-        let env = Env(pairs
-            .iter()
-            .map(|(k, v)| (k.to_string(), v.to_string()))
-            .collect());
-        let r = Invocation::from_env(&env).resolve(&Contract::records());
-        Settings::from_resolution(&r, "DAY")
     }
 
     #[test]
-    fn the_declaration_holds() {
-        assert!(
-            Contract::problems().is_empty(),
-            "{:#?}",
-            Contract::problems()
-        );
-    }
-
-    #[test]
-    fn defaults_and_overrides() {
-        let s = settings(&[
-            ("WALLEYE_TRY_ADDRESS", "10.0.0.1"),
-            ("WALLEYE_TRY_WINDOW", "75"),
-        ]);
-        assert_eq!((s.window, s.min_window, s.port), (75, 40, 23));
-        assert_eq!(s.address, "10.0.0.1");
-        assert!(s.out.ends_with("lab-material/walleye/touch-DAY"));
-        assert!(s.image.ends_with("images-z21/boot-z21.img"));
-        assert_eq!(s.lpoco, "lpoco");
-    }
-
-    #[test]
-    fn the_address_is_the_first_of_the_manifest() {
-        let toml = "[connection]\nuser = \"user\"\naddresses = [\"172.16.43.1\", \"x\"]   # note\n";
-        assert_eq!(first_address(toml).as_deref(), Some("172.16.43.1"));
-        assert_eq!(first_address("[device]\n"), None);
+    #[should_panic(expected = "boot.back_wait in device.toml is not a whole number")]
+    fn a_value_of_the_wrong_kind_is_named() {
+        let get = |k: &str| {
+            match k {
+                "boot.back_wait" => "soon",
+                "connection.shell_port" | "boot.device_wait" => "5",
+                _ => "x",
+            }
+            .to_string()
+        };
+        Settings::read(Try::Pmic, &get, &|_| "5".into());
     }
 }

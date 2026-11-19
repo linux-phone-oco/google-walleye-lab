@@ -2,21 +2,21 @@
 //! The PMIC watchdog v1 try (item walleye-attend-program-pmic; decision 2026-11-19-walleye-attended-tries-one-command).
 //! One command: the gates, then the reboot test (arm, clean reboot, Android up and no loop), then the bite last
 //! (arm, never pet, the phone restarts by itself), the plain-words prompts built in, the way back. Nothing is written to storage.
-//!   tests/attended/pmic-try.rs [--dry-run] [--log FILE]      (variables WALLEYE_TRY_*: tools/walleye-tries/src/settings.rs)
+//!   tests/attended/pmic-try.rs [--dry-run] [--log FILE]      (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
 //!
 //! ```cargo
 //! [dependencies]
-//! lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.29.0" }
+//! lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.32.0" }
 //! walleye-tries = { path = "../../tools/walleye-tries" }
 //! ```
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use lpoco_attended::prelude::*;
-use walleye_tries::{pmic::words, pmic::Pmic, settings::Settings};
+use walleye_tries::{pmic::words, pmic::Pmic, settings::{Settings, PMIC_PROCEDURE}};
 
 fn main() {
-    let _run = procedure("PMIC watchdog v1 on the Pixel 2", "google-walleye");
-    let wdt = Pmic::new(Settings::from_env());
+    let _run = procedure(PMIC_PROCEDURE, "google-walleye");
+    let wdt = Pmic::new(Settings::for_pmic());
 
     check("the battery is good enough", wdt.battery_is_good());
     check("both images are the ones built", wdt.images_are_the_built_ones());

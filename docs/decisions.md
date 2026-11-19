@@ -2306,3 +2306,28 @@ Amends
 
 Tracked by
 : walleye-tas2557-driver
+
+
+<a id="2026-11-19-walleye-tries-read-device-toml"></a>
+### 2026-11-19-walleye-tries-read-device-toml
+
+Date
+: 2026-11-19
+
+Brief
+: The attended tries read their settings from device.toml (dev/proc at the top of main); no WALLEYE_TRY_* variable is left
+
+Decision
+: Every setting of tools/walleye-tries is a key of device.toml in the table that owns it ([connection] shell_address/shell_port, [tools] adb/fastboot, [boot] device_wait/back_wait, [images] dir and [images.z21|wdt1-a|wdt1-b], [procedures.touch-events-on-z21] and [procedures.pmic-watchdog-v1-on-the-pixel-2]); Settings::for_touch/for_pmic read them through lpoco-attended v0.32.0 dev()/proc() right after procedure(); Settings::read takes the two reads as functions so the stand-in tests run the same code. [kernels] test/kept and the gadget usb_id 1d6b:0104 are declared. The images are the rebuilt sysfs-less pair. The out folder and the lpoco program name are no device fact: fixed in code, a test sets them.
+
+Why
+: Item walleye-try-settings-into-device-toml; orchestration's map (docs #662) and lpoco-attended v0.32.0 rules.
+
+Rejected
+: Keeping env overrides beside the keys: two sources for one fact, the item forbids it. Image names wdt1_a/wdt1_b: the manifest allows lowercase, digits and - only, so wdt1-a/wdt1-b. Absolute or ../ image paths: the manifest forbids both, so [images] dir is build/images, a gitignored link to ~/Projects/walleye-build. A split Settings per try: 50 uses in tests for no gain now; the other try's fields stay empty.
+
+About
+: walleye-first-fastboot-boot
+
+Tracked by
+: walleye-try-settings-into-device-toml

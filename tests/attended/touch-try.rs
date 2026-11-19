@@ -2,21 +2,21 @@
 //! The touch try on z21 (item walleye-attend-program-touch; decision 2026-11-19-walleye-attended-tries-one-command).
 //! One command: the gate, the boot, the reader open and showing EVENTS-READY, THEN the author is asked to swipe
 //! across the whole glass and tap each corner; then the way back and the count. Each step stops the run when it fails.
-//!   tests/attended/touch-try.rs [--dry-run] [--log FILE]      (variables WALLEYE_TRY_*: tools/walleye-tries/src/settings.rs)
+//!   tests/attended/touch-try.rs [--dry-run] [--log FILE]      (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
 //!
 //! ```cargo
 //! [dependencies]
-//! lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.29.0" }
+//! lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.32.0" }
 //! walleye-tries = { path = "../../tools/walleye-tries" }
 //! ```
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use lpoco_attended::prelude::*;
-use walleye_tries::{settings::Settings, touch::Touch};
+use walleye_tries::{settings::{Settings, TOUCH_PROCEDURE}, touch::Touch};
 
 fn main() {
-    let _run = procedure("touch events on z21", "google-walleye");
-    let z21 = Touch::new(Settings::from_env());
+    let _run = procedure(TOUCH_PROCEDURE, "google-walleye");
+    let z21 = Touch::new(Settings::for_touch());
 
     check("the battery is good enough", z21.battery_is_good());
     check("the image is the one built", z21.image_is_the_built_one());

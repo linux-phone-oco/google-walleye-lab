@@ -1,3 +1,4 @@
 .oco/
 target/
 attended-*.log
+build/images

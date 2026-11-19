@@ -11,6 +11,8 @@ codename = "google-walleye"        # the Pixel 2; fastboot serial FA81N1A00790; 
 [connection]
 user = "user"                      # the phone's user
 addresses = ["172.16.43.1"]   # walleye's own USB-networking address: surya answers on 172.16.42.1 on the same host
+shell_address = "172.16.43.1"      # the shell's address as dev() reads it (a list cannot be read): the same as addresses[0]
+shell_port = 23
 
 [provision]
 packages = "provision/packages.txt"   # installed on a freshly flashed phone: lpoco lab provision now
@@ -58,6 +60,7 @@ modules = ["usb_storage", "cdc_acm"]
 [[host.gadget]]
 serial = "walleye-first-boot"
 access = ["block", "tty"]          # /dev/sdX (mass_storage window m1) and /dev/ttyACM*
+usb_id = "1d6b:0104"                # Linux Foundation multifunction composite, what our init sets (idVendor/idProduct)
 
 # The device layer, declared once (decision 2026-11-19-device-layer-declared-once): each package format is generated
 # from it. Checked against lab-tools' manifest/device.schema.json by `lpoco-manifest check`. Facts only: no
@@ -100,6 +103,8 @@ dtb = "qcom/msm8998-google-walleye.dtb"   # appended to the kernel
 kernel_compression = "gzip"
 ramdisk_compression = "xz"
 avb_footer = true
+device_wait = 170                   # seconds to wait for a test image's device nodes after its shell answers (attended tries)
+back_wait = 240                     # seconds to wait for the phone to be back on Android after a try
 
 # The USB gadget our init raises, declared for `lpoco-bringup initramfs init` (item walleye-init-from-roof): the names are the ones every
 # init of ours already sets (check-init-serials.sh). Declared only: no build of ours uses the generated init yet, because it still lacks
@@ -110,3 +115,41 @@ serial = "walleye-first-boot"
 product = "Pixel 2 walleye (mainline banner shell)"
 label = "walleye-init"
 rndis = false
+
+# What the attended tries (tests/attended/*.rs, plumbing in tools/walleye-tries) read about this phone; each fact in the table that
+# owns it (decision 2026-11-19-attended-keys-in-the-manifest). Every key is read at the top of main: a missing one fails --dry-run.
+[tools]
+adb = "adb"
+fastboot = "fastboot"
+
+# The kernels the attended procedures' boot_once and back_to_known_good name. Walleye boots only by fastboot boot and nothing is written to it: "kept" names the image the way back returns to, not a kernel stored on the phone.
+[kernels]
+test = ["z21", "wdt1-a", "wdt1-b"]
+kept = "z21"
+
+# The images the tries boot, named; `dir` is a folder of this lab (a link to ~/Projects/walleye-build, which stays out of git), each
+# path below it. The checksum is the one SHA256SUMS beside the image records. wdt1-a and wdt1-b are the rebuilt pair
+# (images-wdt1-sysfsless: the sysfs-less reader fix in the ramdisk init); the older images-wdt1 pair is no longer tried.
+[images]
+dir = "build/images"
+
+[images.z21]
+path = "images-z21/boot-z21.img"
+sha256 = "bdc0a89179d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff"
+
+[images.wdt1-a]
+path = "images-wdt1-sysfsless/boot-wdt1-a.img"
+sha256 = "9dfea09637a813fa677449780ac475a3b859e81135a056fadd8811dadc2f40b4"
+
+[images.wdt1-b]
+path = "images-wdt1-sysfsless/boot-wdt1-b.img"
+sha256 = "15f5e97d1ac4185fd4a3a5dae3b874cd5ee0267e694a4b454f9889d7efefe933"
+
+# The values only one procedure uses (the procedure's name in lowercase words joined by -).
+[procedures.touch-events-on-z21]
+window = 120                        # seconds the touch reader stays open at most (the phone restarts by itself at 180 s of uptime: cut to what is left)
+min_window = 40                     # the shortest window worth asking the author for
+
+[procedures.pmic-watchdog-v1-on-the-pixel-2]
+stay = 180                          # seconds Android must stay up after the clean reboot with no restart (the test's PASS: three minutes)
+bite_wait = 150                     # seconds to see the phone restart by itself after the bite is armed (20 s timeout)
