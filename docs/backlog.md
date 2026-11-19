@@ -8313,10 +8313,10 @@ Witness
 ### Repeat the PMIC procedure's unattended run from procedures/ with the answer limit, nobody answering
 
 Status
-: open
+: done
 
 Note
-: The program moved from tests/attended/ to procedures/ (this item's PR): the earlier run 4 (lab PR 575) was on the old path. The Top Coordinator must NOT write an answer while it runs.
+: proven by keeper run 2026-11-20: lpoco-attended 0.35.1 procedures/pmic-watchdog-v1-on-the-pixel-2 --answer-limit 120, nobody answering: gates 1-3 ok, image A booted with banner, shell, S2 type 7, stopped at ask 8 'nobody answered within 120 s', phone on Android (adb device) afterwards with no hand step; nothing armed, no bite. Log ~/.cache/agent-build/17fd6c/pmic-run5.log
 
 About
 : walleye-attend-program-pmic
