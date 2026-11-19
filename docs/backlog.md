@@ -7236,31 +7236,6 @@ Rank
 : 1
 
 
-<a id="walleye-tries-text-file-busy-flake"></a>
-### Fix the flaky 'Text file busy' in tools/walleye-tries host.rs's fake-fastboot test
-
-Status
-: open
-
-Note
-: Seen once in the attended-tries CI job by the builder of PR 525; it passed on rerun. A shell-script fixture executed right after being written races exec against the write handle (ETXTBSY). Fix in the fixture (sync and close before exec, unique path per test), not by a retry.
-
-About
-: walleye-attend-program-touch
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: the fake-fastboot test of host.rs passes 50 runs in a row (cargo test in a loop) with the CI job's parallelism: the fake script is written, closed and made executable before it is run, with a name unique per test; no shared file between tests
-
-Rank
-: 7
-
-
 <a id="walleye-attend-program-display"></a>
 ### One command for the display try: a Rust program that boots the display image, reads the console and the DRM connector, shows the stripes, prompts the author and returns the phone to Android
 
@@ -7870,3 +7845,28 @@ Needs
 
 Proof
 : the display, touch and PMIC procedures run with the library's answer file: a person step reads its answer from a named file (written by whoever relays it) as well as from stdin; a stand-in test writes the file during the wait; the keeper's orders say 'write the answer file' instead of 'feed the FIFO'
+
+
+<a id="walleye-tries-text-file-busy-flake"></a>
+### Fix the flaky 'Text file busy' in tools/walleye-tries host.rs's fake-fastboot test
+
+Status
+: open
+
+Note
+: Seen once in the attended-tries CI job by the builder of PR 525; it passed on rerun. A shell-script fixture executed right after being written races exec against the write handle (ETXTBSY). Fix in the fixture (sync and close before exec, unique path per test), not by a retry. SECOND FLAKE 2026-11-19 (CI of lab PR 564): pmic::the_way_back::when_reboot_f_does_nothing_the_sysrq_trigger_is_sent failed once ('the sysrq command was not sent', 101 passed 1 failed), passed on rerun: a stand-in script or a log read racing the test's own assertion; fix the fixture (wait for the stand-in's log line with a bounded poll, or run the stand-in synchronously), not by a retry.
+
+About
+: walleye-attend-program-touch
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the fake-fastboot test of host.rs passes 50 runs in a row (cargo test in a loop) with the CI job's parallelism: the fake script is written, closed and made executable before it is run, with a name unique per test; no shared file between tests; also pmic::the_way_back::when_reboot_f_does_nothing_the_sysrq_trigger_is_sent passes 50 runs in a row with the CI job's parallelism
+
+Rank
+: 7
