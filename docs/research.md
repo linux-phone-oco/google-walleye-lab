@@ -3773,3 +3773,34 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-19-ufs-ice/
+
+
+<a id="walleye-ufs-gap-abl-handover-read"></a>
+### walleye-ufs-gap-abl-handover-read
+
+Date
+: 2026-11-19
+
+Brief
+: The abl leaves the host and card running; our kernel resets the host, and only the matched image also pulses the card: four unpulsed probes read fine
+
+Question
+: What state does the bootloader leave the UFS host and card in for a RAM-booted kernel, and what does the matched image's reset and enable path do about it, from the dmesg of z15, z16, z17, z20 and the GPL and mainline sources?
+
+Found
+: Read 2026-11-19 from the captured dmesgs of the four images that had UFS on by accident (lab-material walleye z15-part1, z16-part1, z17-part1, z20-try1), the lab's dts history, and mainline's ufshcd.c and ufs-qcom.c (surya-audio/linux, 2e6c6521d); nothing run on the phone.
+
+WHAT THE BOOTLOADER LEFT, as far as the images show. (1) The card was up and in use: the kernel command line the abl hands over carries androidboot.bootdevice=1da4000.ufshc and androidboot.hardware.ufs=64GB,Hynix, and its boottime stages (1BLL, 1BLE, 2BLL, 2BLE) are the abl reading the boot image from this card: the abl had the link up and the card initialised a moment before our kernel started. (2) Our kernel did not trust or use that state. mainline ufshcd_hba_execute_hce stops the host first when it is active (ufshcd_hba_stop, HCE 1->0) and restarts it, so the host controller is reset whatever the abl left; link startup (DME link startup, UniPro) runs from a fresh host. The vendor 4.4 driver does the same (HCE reset in its hba enable), so Android's own path also starts from a reset host. (3) The card side is NOT reset by that. The device reset line (RST_n, pin 153 UFS_RESET) is pulsed only through ufshcd_device_reset (ufshcd_init after the irq request, and link recovery), and ufs_qcom_device_reset returns -EOPNOTSUPP without a reset-gpios property. z20's dyndbg shows exactly that: 'No GPIO consumer reset found' after the failed lookups of reset-gpios and reset-gpio; and the lab's dts history (git log -S reset-gpios -- dt) shows the property first added by the matched image's commit (baa5540, walleye builder/ufs match android, #400), so z15, z16, z17 had none either (their captures have no dyndbg; this is from the dts, not the log). So in the four captured probes the card was NOT pulsed: it stayed in the state the abl left it, and still answered.
+(4) What it did with that: no 'link startup failed', no retry, no timeout or UIC error line in any of the four (ignore_loglevel was on, so errors would show); 'scsi host0: ufshcd' to the first well-known LUN took about 250 ms in z15 (1.108 to 1.357 s), z16 (1.129 to 1.370) and z17, and about 207 ms in z20 (1.221 to 1.429); then all six LUNs sda..sdf attached and the partition tables read (45 partitions on sda). The card is the SK hynix H28U74301AMR firmware D003, the same in all four. That is: a host reset plus link startup on a card the abl left running (after the abl's own HS gear, if it used one) worked four times out of four captures, every one with the same outcome.
+
+WHAT THE MATCHED IMAGE DOES DIFFERENTLY. It adds the RST_n pulse (10-15 us low then high, as Android's driver does) before the host starts, so the card is returned to its power-on state and the abl's leftover state is moot: the same sequence Android runs from its own abl, and a step none of the four accidental probes ran. That makes the matched image's state at start closer to Android's, but it is also the one step the evidence in dmesg does not cover: no capture shows a reset-pulsed probe on this card, because the first image with the pin reachable is the matched one. The pulse is short and standard; mainline hosts that boot from UFS use it; but 'worked unpulsed four times' is not 'worked pulsed'.
+
+WHAT IS NOT KNOWN, and the try answers it. (a) The host's own state at handover (HCE, UTRLRDY, link state, power mode of the link, gear): no image printed anything before the HCE reset, and ufshcd reads none of it first; it cannot be read from Android either (research walleye-ufs-version-from-source). The matched image's first print is the version at ufs_qcom_init; a read of REG_CONTROLLER_ENABLE (0x34) and the host status (0x30) in the same place would show whether the abl left the host enabled, at the cost of two more reads in the spot where the version read already stands (whether the clocks are on there I did not check, so the bus-hang risk of these reads is not measured; not added by this research, offered as optional). (b) Whether the card, once pulsed, comes up the same: the try's read of the card identity and LUNs is the answer; failure of link startup after a pulse would show as 'link startup failed' with retries, and falls back on the decision 2026-11-19-walleye-ufs-linkstartup-do-not-carry (one reviewed PHY write).
+
+VERDICT in plain words: the bootloader leaves the host enabled and the card running in whatever mode it read the boot image in; the kernel resets the host, and (matched image only) the card; either way the sequence has no write to the card, and the four unpulsed probes (z15, z16, z17, z20) show the card tolerates a host reset over its running state. The pulse is Android's own step and stands in the matched image. Nothing here asks for a change to it; one optional read-only print is named above. The gap 'abl handover' is closed to the point the sources allow: the rest is the try's to measure.
+
+Sources
+: wahoo-4-4-ufs-qcom-c,src-mainline-v73-ufs-qcom-ice
+
+About
+: walleye-ufs-match-android-z
