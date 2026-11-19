@@ -7179,10 +7179,10 @@ Rank
 ### Where the TAS2557 firmware blob comes from for walleye, and whether the lab may ship it
 
 Status
-: open
+: done
 
 Note
-: 2026-11-19 keeper: adb root (author's rooted-debugging) read-only pull done: ~/lab-material/walleye/tas2557/tas2557s_PG21_uCDSP.bin, 101481 bytes, mode 600, sha256 ffadec7eca5fc90617c482f5582be6873ab34c7edfd80ef452cba3806b8107b0. Nothing else changed on Android. Porthole's copy is not on the host (only its patches), so the hash-match proof has nothing to compare to yet; the other file tas2557s_uCDSP.bin (101614 bytes) was not pulled. Next: driver try can use this file; compare to porthole's hash if it appears.
+: DONE 2026-11-19: the phone's own file /vendor/firmware/tas2557s_PG21_uCDSP.bin was read with adb root (rooted debugging, the author's word), 101481 bytes, sha256 ffadec7eca5fc90617c482f5582be6873ab34c7edfd80ef452cba3806b8107b0, kept mode 600 in ~/lab-material/walleye/tas2557 (never git). The comparison with porthole's copy is dropped: porthole's APKBUILD lists only the source archive, not this file, and the phone's own file is the source (decision 2026-11-19-walleye-tas2557-firmware-stays-on-the-phone); nothing was downloaded.
 
 About
 : walleye-audio-haptics

@@ -9,7 +9,12 @@ Principles of linux-phone-oco, cited and never restated ([`tad q principles`](ht
   tool that needs a fact about it reads the manifest. A fact that is missing goes into the manifest -
   and, if it is new for every phone, into lpoco lab's manifest model (linux-phone-oco/lab-tools).
 - **Reach the phone through lpoco lab** (`lpoco lab phone sh|root` with the commands on standard input, or the
-  `lpoco lab mcp` tools) - never by hand-written ssh with nested quoting.
+  `lpoco lab mcp` tools) - never by hand-written ssh with nested quoting. **Not today, for this phone:** walleye
+  has no Linux userland to log in to. It runs Android (adb; root only while "rooted debugging" is on) or one of our
+  test images (a passwordless telnet shell on 172.16.43.1, no login). `lpoco lab phone`, `suite` and `health` need an
+  ssh user and its password in `~/.config/devlab/google-walleye/password`: that file does not exist and is **never
+  created**, and its absence is NOT a blocker. Read the phone with `tests/host/phone-state.sh`, `idle-android.sh`,
+  `battery-ok.sh`, `mainline-shell-read.sh` and the programs in `tests/attended/`; say 'suite not read: no login' in the record.
 - **Keep the phone known-working.** A test kernel is a second boot entry tried once by boot counting,
   falling back to stock by itself; never the initramfs debug shell on an unattended try. Every change
   ends with the phone's health report - read it.
