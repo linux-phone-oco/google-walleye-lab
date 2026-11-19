@@ -5063,10 +5063,10 @@ Rank
 ### Find who else claims pmi8998 gpio 2 and why gpiolib_shared.proxy.0 never registers; fix so regulator-touch-power probes
 
 Status
-: open
+: done
 
 Note
-: Built and landed (lab PR 332: the stub change, one claimant); its proof is z21's dmesg, so it waits for the UFS-off gate's z21 try.
+: Proven by the z21 try (lab PR 343): one claimant of pmi8998 gpio 2 after the overlay stubs were disabled, zero gpiolib_shared deferrals, rmi4 0-0020 bound.
 
 Blocked by
 : walleye-ufs-off-gate
