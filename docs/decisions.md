@@ -1494,3 +1494,28 @@ Research
 
 Tracked by
 : walleye-pmic-wdt-v1-image
+
+
+<a id="2026-11-19-walleye-pmic-wdt-v1-type-is-seven"></a>
+### 2026-11-19-walleye-pmic-wdt-v1-type-is-seven
+
+Date
+: 2026-11-19
+
+Brief
+: The v1 bite try uses the type the series sets, hard 0x07; warm-first cannot be asked of this driver
+
+Decision
+: The attended PMIC try (walleye-try-pmic-wdt-v1) bites with the series as it will be mailed: the driver always sets S2 type 0x07 (hard reset) and the dts cannot choose, so the guard compares the read-back with 7 and the keeper stops, with no bite, if the banner reads anything else (0x01 means the driver did not set it). The earlier plan warm 0x01 first is dropped for this try. The way back stays: nothing is written to storage, the reboot test goes first, the bite last with the author at the phone, and a power-off or a loop ends with him holding power 15 s.
+
+Why
+: The try's value is that what is mailed is what booted; a dts choice of type would test something the series does not do. The danger of a hard type is the one already accepted by the author's Yes, test first: the phone may power off and need his hands, which costs 15 s of holding power and writes nothing.
+
+Rejected
+: Adding a dts property for the type just for the test: the test would no longer be the series. Warm 0x01 first by patching the driver locally: same reason.
+
+About
+: walleye-pmic-wdt-proof
+
+Amends
+: 2026-11-18-walleye-pmic-bite-read-then-warm
