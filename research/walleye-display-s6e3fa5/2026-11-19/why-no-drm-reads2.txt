@@ -1,0 +1,40 @@
+Trying 172.16.43.1...
+Connected to 172.16.43.1.
+Escape character is '^]'.
+
+D=/sys/devices/platform/soc@0/c994000.dsi; ls $D; echo ==SUP; ls -l $D/ | grep supplier; for s in $D/supplier:*; do echo $s; cat $s/status $s/sync_state_only 2>&1; done; echo ==WFS; cat $D/waiting_for_supplier 2>&1; echo ==DSIDMESG; dmesg | grep -iE "c994000|dsi|c994400|s6e3|panel|probe deferred|deferred" | tail -25; echo ==OFNODE; ls $D/of_node/ | head -40; echo ==PHY; ls /sys/devices/platform/soc@0/c994400.phy; echo ==FWDEVLINK; cat /proc/cmdline
+~ # D=/sys/devices/platform/soc@0/c994000.dsi; ls $D; echo ==SUP; ls -l $D/ | gr
+ep supplier; for s in $D/supplier:*; do echo $s; cat $s/status $s/sync_state_onl
+y 2>&1; done; echo ==WFS; cat $D/waiting_for_supplier 2>&1; echo ==DSIDMESG; dme
+sg | grep -iE "c994000|dsi|c994400|s6e3|panel|probe deferred|deferred" | tail -2
+5; echo ==OFNODE; ls $D/of_node/ | head -40; echo ==PHY; ls /sys/devices/platfor
+m/soc@0/c994400.phy; echo ==FWDEVLINK; cat /proc/cmdline
+ls: /sys/devices/platform/soc@0/c994000.dsi: No such file or directory
+==SUP
+ls: /sys/devices/platform/soc@0/c994000.dsi/: No such file or directory
+/sys/devices/platform/soc@0/c994000.dsi/supplier:*
+cat: can't open '/sys/devices/platform/soc@0/c994000.dsi/supplier:*/status': No such file or directory
+cat: can't open '/sys/devices/platform/soc@0/c994000.dsi/supplier:*/sync_state_only': No such file or directory
+==WFS
+cat: can't open '/sys/devices/platform/soc@0/c994000.dsi/waiting_for_supplier': No such file or directory
+==DSIDMESG
+[    0.000000] Kernel command line: clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3 dyndbg="file drivers/gpio/gpiolib.c +p; file drivers/gpio/gpiolib-of.c +p; file drivers/pinctrl/core.c +p; file drivers/pinctrl/devicetree.c +p; file drivers/pinctrl/qcom/pinctrl-spmi-gpio.c +p" iommu.passthrough=1 androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=0000002b-0000-0000-0000-000000000000 androidboot.bootdevice=1da4000.ufshc androidboot.serialno=FA81N1A00790 androidboot.wificountrycode=00 androidboot.boottime=1BLL:221,1BLE:756,2BLL:870,2BLE:8967,SW:10017,KL:0,KD:2334,ODT:75,AVB:39 androidboot.baseband=msm mdss_mdp.panel=1:dsi:0:htc,mdss_dsi_samsung_s6e3fa5_1080p_cmd:1:none:cfg:single_dsi androidboot.fpsensor=fpc1075 androidboot.fpmodule=ofilm androidboot.usbradioflag=0 androidboot.temp_protect_ignore=0 androidboot.hardware.ufs=64GB,Hynix androidboot.mid=G011A androidboot.hardware.sku=G011A androidboot.revision=MP1 \
+[    0.165126] /soc@0/display-subsystem@c900000/phy@c994400: Fixed dependency cycle(s) with /soc@0/clock-controller@c8c0000
+[    0.165225] /soc@0/clock-controller@c8c0000: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/phy@c994400
+[    0.165399] /soc@0/display-subsystem@c900000/dsi@c994000: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/display-controller@c901000
+[    0.165598] /soc@0/display-subsystem@c900000/display-controller@c901000: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/dsi@c994000
+[    0.166182] /soc@0/display-subsystem@c900000/dsi@c994000/panel@0: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/dsi@c994000
+[    0.166299] /soc@0/display-subsystem@c900000/dsi@c994000: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/dsi@c994000/panel@0
+[  333.921761] [drm:msm_dsi_register [msm]] 
+[  333.954619] [drm:dsi_pll_10nm_init [msm]] DSI PLL0
+[  333.955321] [drm:dsi_pll_10nm_init [msm]] DSI0
+[  333.956032] [drm:dsi_pll_10nm_vco_recalc_rate [msm]] DSI PLL0 returning vco rate = 1577625878, dec = 29, frac = 5606
+[  333.957945] [drm:dsi_10nm_pll_save_state [msm]] DSI PLL0 outdiv 1 bit_clk_div 1 pix_clk_div 3 pll_mux 1
+[  333.958729] [drm:dsi_pll_10nm_init [msm]] DSI PLL0 returning vco rate = 1577625878, dec = 29, frac = 5606
+==OFNODE
+ls: /sys/devices/platform/soc@0/c994000.dsi/of_node/: No such file or directory
+==PHY
+ls: /sys/devices/platform/soc@0/c994400.phy: No such file or directory
+==FWDEVLINK
+clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3 dyndbg="file drivers/gpio/gpiolib.c +p; file drivers/gpio/gpiolib-of.c +p; file drivers/pinctrl/core.c +p; file drivers/pinctrl/devicetree.c +p; file drivers/pinctrl/qcom/pinctrl-spmi-gpio.c +p" iommu.passthrough=1 androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=0000002b-0000-0000-0000-000000000000 androidboot.bootdevice=1da4000.ufshc androidboot.serialno=FA81N1A00790 androidboot.wificountrycode=00 androidboot.boottime=1BLL:221,1BLE:756,2BLL:870,2BLE:8967,SW:10017,KL:0,KD:2334,ODT:75,AVB:39 androidboot.baseband=msm mdss_mdp.panel=1:dsi:0:htc,mdss_dsi_samsung_s6e3fa5_1080p_cmd:1:none:cfg:single_dsi androidboot.fpsensor=fpc1075 androidboot.fpmodule=ofilm androidboot.usbradioflag=0 androidboot.temp_protect_ignore=0 androidboot.hardware.ufs=64GB,Hynix androidboot.mid=G011A androidboot.hardware.sku=G011A androidboot.revision=MP1 androidboot.ddrsize=4GB androidboot.ddrinfo=000000FF androidboot.hardware.ddr=4096MB,Micron,LPDDR4 androidboot.bootloader=mw8998-003.0085.00 androidboot.bootreason=reboot androidboot.cid=00000000 androidboot.hardware.color=VEN00 androidboot.theme=1 androidboot.sf=1 androidboot.msm.hw_ver_id=2005E0E1 androidboot.qf.st=2 androidboot.pk=g-pxl-p androidboot.slot_suffix=_b skip_initramfs rootwait ro init=/init
+~ # 

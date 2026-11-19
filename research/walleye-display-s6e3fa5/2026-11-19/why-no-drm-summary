@@ -1,0 +1,1 @@
+pass display-late-probe host all 13 modules loaded and the shell still answers; channels netconsole no stream yes; last stream line: [7,659,333978554,-;[drm:mdss_runtime_suspend [msm]] ]
