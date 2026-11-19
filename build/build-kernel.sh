@@ -1,6 +1,6 @@
 #!/bin/sh
 # Build the walleye kernel: kernel.org v7.3 plus linux-phone-oco/linux topic/pmic-wdt-wake-in-suspend (e123d3bff; our dts needs its &pm8998_wdt), arm64 defconfig + build/walleye.config, and our
-# own dt/msm8998-google-walleye.dts copied into the tree (the tree itself stays pristine but for one Makefile line).
+# own dt/msm8998-google-walleye.dts copied into the tree (the tree stays pristine but for one Makefile line and, when it lacks them, the three fuel gauge RFC patches of kernel/fuel-gauge-rfc/ applied as commits).
 #
 #   [EXTRA_CONFIG="FRAGMENT ..."] build-kernel.sh KERNEL_TREE OUT_DIR   (EXTRA_CONFIG: config fragments, paths as given - relative to the current directory - merged after walleye.config, e.g. $PWD/build/walleye-diag.config)
 #
@@ -23,6 +23,11 @@ grep -q 'msm8998-google-walleye-ufs.dtb' "$QCOM/Makefile" ||
 grep -q 'msm8998-google-walleye-ufs.dtb' "$QCOM/Makefile" || { echo "build-kernel: ufs Makefile line not added" >&2; exit 1; }
 grep -q pm8998_wdt "$QCOM/pm8998.dtsi" || { echo "build-kernel: the tree lacks the pmic-wdt series (no pm8998_wdt in pm8998.dtsi)" >&2; exit 1; }
 mkdir -p "$OUT/b"
+# our dts enables &pmi8998_fg, a label of the fuel gauge RFC's patch 3/8 (kernel/fuel-gauge-rfc/, item walleye-fuel-gauge): a tree without it gets the three patches (git am -3), never a half-built dts
+if ! grep -q 'pmi8998_fg:' "$QCOM/pmi8998.dtsi"; then
+  git -C "$K" am -3 "$HERE"/kernel/fuel-gauge-rfc/000*.patch >/dev/null || { git -C "$K" am --abort >/dev/null 2>&1; echo "build-kernel: the fuel gauge patches did not apply to $K" >&2; exit 1; }
+fi
+grep -q 'pmi8998_fg:' "$QCOM/pmi8998.dtsi" || { echo "build-kernel: the tree lacks the fuel gauge node (pmi8998_fg in pmi8998.dtsi)" >&2; exit 1; }
 M="make -C $K ARCH=arm64 LLVM=1 O=$OUT/b"
 $M defconfig >/dev/null
 "$K/scripts/kconfig/merge_config.sh" -m -O "$OUT/b" "$OUT/b/.config" "$HERE/build/walleye.config" ${EXTRA_CONFIG:-} >/dev/null

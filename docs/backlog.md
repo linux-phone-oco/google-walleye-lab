@@ -5571,10 +5571,10 @@ Rank
 ### Fuel gauge: test the PMI8998 FG gen3 driver (RFC series of 2025-11-24) on walleye; an upstream candidate
 
 Status
-: open
+: in-progress
 
 Note
-: Not in mainline: lwn.net/Articles/1048226 (driver by Joel Selvaraj, carried by sdm845-next). Take the series as a patch file, test, report upstream (ikb upstream-item). The walleye battery profile is the vendor tree's, read in our own words.
+: Built 2026-11-19: image fg1 (research walleye-fuel-gauge-built, decision 2026-11-19-walleye-fuel-gauge-three-patches); try queued as walleye-try-fuel-gauge. Done when that passes; then the reading goes upstream as a Tested-by (ikb upstream-item).
 
 About
 : walleye-first-fastboot-boot
@@ -5621,3 +5621,28 @@ Proof
 
 Rank
 : 98
+
+
+<a id="walleye-try-fuel-gauge"></a>
+### Try fg1 once from slot b: boot-fg1.img, read capacity and voltage_now, compare with fastboot's battery reading
+
+Status
+: open
+
+Note
+: Image ~/Projects/walleye-build/images-fg1/boot-fg1.img, sha256 9f6a7033ae13e532b91874bb90e8a08803172ccfa552bbe6eb53d7f07086b99b (SHA256SUMS-fg1 beside it). KEEPER: battery rule (tests/host/battery-ok.sh, keep its mV from the SAME cable state as the try: a charging phone reads higher than an idle one, so a miss over 100 mV with the cable in is to be repeated, not read as a gauge fault), tests/host/ufs-off-image.sh on the image first, try once from slot b with mainline-shell-read.sh (it now reads capacity, present, temp), then sh tests/host/fuel-gauge-check.sh DIR MV. End on Android.
+
+Blocked by
+: walleye-fuel-gauge
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: walleye-battery-capacity: tests/host/fuel-gauge-check.sh DIR FASTBOOT_MV passes

@@ -3467,3 +3467,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-fuel-gauge-built"></a>
+### walleye-fuel-gauge-built
+
+Date
+: 2026-11-19
+
+Brief
+: fg1 built: v7.3 + the RFC's binding, driver and pmi8998 node, our dts enabling the node; 37 checks ok, rebuild identical; not tried
+
+Question
+: Can the PMI8998 FG gen3 driver of the RFC of 2025-11-24 be built into a gated Pixel 2 image?
+
+Found
+: Patches 1-3 of 8 (binding, pmi8998_fg.c, pmi8998.dtsi node) apply cleanly with git am -3 on v7.3 + pmic-wdt topic (e123d3bff); the other five are other boards' dts. Driver reads the gauge's own SOC, voltage, current and temperature (monitored-battery is in the binding, unused by the driver; the vendor's fg-profile-data stays in the PMIC). Probe writes only IMA interface config and clears a DMA error bit. Two things found: our generated overlay-stubs dtsi had an empty pmi8998_fg stub and the build died on a duplicate label - the stub is dropped (the vendor overlay's fragment 137 now merges its qcom,fg-* properties onto the real node; the driver ignores them); the series' soc-delta irq type is 0x3 (rising edge) in the dtsi but 0x4 in the binding example - not ours to settle, to be asked upstream. Image boot-fg1.img sha256 9f6a7033ae13e532b91874bb90e8a08803172ccfa552bbe6eb53d7f07086b99b: z21's ramdisk, header, size and AVB footer, command line with dyndbg for pmi8998_fg.c; AVB, UFS-off gate and the seven dtb tests pass; rebuilt twice, same hash.
+
+Sources
+: lwn-pmi8998-fg-rfc
+
+About
+: walleye-first-fastboot-boot

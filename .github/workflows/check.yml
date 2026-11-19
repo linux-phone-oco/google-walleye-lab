@@ -42,6 +42,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: the check fails on an empty, short, wrong-hash, wrong-mode or differing read-back and passes a complete one twice; the reader refuses without adb device, battery or a clean DIR (no phone)
         run: sh tests/host/bootchain-readback-selftest.sh
+  fuel-gauge:
+    name: the fuel gauge check proves itself
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: the check passes a battery within tolerance of fastboot's reading and fails a probe fault, a wrong type, an unreadable value or a voltage off by more than 100 mV (no phone)
+        run: sh tests/host/fuel-gauge-selftest.sh
   licence-coverage:
     name: every tracked file is covered by a licence
     runs-on: ubuntu-latest
