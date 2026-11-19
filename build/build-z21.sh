@@ -1,4 +1,5 @@
 #!/bin/sh
+# NOT TO BOOT AS IS: z20 has UFS on (decision 2026-11-19-walleye-ufs-off-by-a-gate); this repack keeps it. The z21 to try is built by walleye-ufs-off-gate (z20 with UFS off) and carries the same stub change from the dtsi.
 # z21 (backlog walleye-touch-gpio-shared-proxy): z20 with ONE change in the dtb: the container of the overlay stubs, /vendor-overlay-stubs, is status = "disabled".
 # Why: z20's dmesg (research walleye-z20-tried-touch-gpio-leaf) says regulator-touch-power waits on a shared GPIO, served by gpiolib_shared.proxy.0, which never registers. The kernel makes a gpio
 # "shared" when two available nodes name it by a *-gpio(s) property (drivers/gpio/gpiolib-shared.c, gpio_shared_of_traverse; it skips a node that is not available and does not enter its children). The

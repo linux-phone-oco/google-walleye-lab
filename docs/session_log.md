@@ -2965,3 +2965,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-z21"></a>
+### walleye-builder: one claimant for the touch gpio
+
+Entry date
+: 2026-11-19
+
+Done
+: Found the second claimant of pmi8998 gpio 2 (overlay synaptics_dsx@20 under our stub i2c_5); test first (fails 2 on z19/z20 dtbs); stubs container disabled in generator and dtsi; a UFS-on z21 repack built, then withdrawn (NOT-TO-BOOT) when main's UFS gate arrived; no phone try queued; programmer review applied.
+
+Considered
+: Queuing the UFS-on z21; folding the UFS gate into this change
+
+Rejected
+: Booting any UFS-on image; the gate is its own item (walleye-ufs-off-gate).
+
+About
+: walleye-first-fastboot-boot

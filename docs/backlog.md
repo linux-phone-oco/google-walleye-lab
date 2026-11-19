@@ -5063,10 +5063,10 @@ Rank
 ### Find who else claims pmi8998 gpio 2 and why gpiolib_shared.proxy.0 never registers; fix so regulator-touch-power probes
 
 Status
-: open
+: in-progress
 
 Note
-: From research walleye-z20-tried-touch-gpio-leaf: list every node referencing pmi8998 gpio 2 (dts and dtbo entry 3 overlay), and read why the proxy aux device (gpio-shared-proxy) does not bind; remove the second claimant or fix the proxy case. Try then is a z21 once from slot b.
+: Second claimant found and fixed in the dtsi and generator (decision 2026-11-19-walleye-stubs-disabled, test tests/host/touch-gpio-single-claimant.sh). The image to try is walleye-ufs-off-gate's z21 (UFS off); no UFS-on image is tried. Done when that z21's dmesg shows the touch probing.
 
 About
 : walleye-first-fastboot-boot
