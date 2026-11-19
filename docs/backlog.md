@@ -4408,31 +4408,6 @@ Rank
 : 2
 
 
-<a id="walleye-display-s6e3fa5"></a>
-### Display: Samsung S6E3FA5 command-mode panel through DPU/DSI
-
-Status
-: in-progress
-
-Note
-: Driver compiles; boot-display.img built and gate-checked (research walleye-display-s6e3fa5-built); the keeper's try is walleye-try-display; done when a person sees the pattern.
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: the DRM connector is connected and a test pattern is seen by a person (test: walleye-display-pattern)
-
-Rank
-: 3
-
-
 <a id="walleye-try-z13"></a>
 ### Try z13 once from slot b: the UFS read-only try with the Hynix quirks and the purge guard at the send (replaces walleye-try-z12)
 
@@ -5499,3 +5474,31 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-display-s6e3fa5"></a>
+### Display: Samsung S6E3FA5 command-mode panel through DPU/DSI
+
+Status
+: in-progress
+
+Note
+: Driver compiles; boot-display.img built and gate-checked (research walleye-display-s6e3fa5-built); the keeper's try is walleye-try-display; done when a person sees the pattern.
+
+Blocked by
+: walleye-try-display
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the DRM connector is connected and a test pattern is seen by a person (test: walleye-display-pattern)
+
+Rank
+: 3
