@@ -8141,10 +8141,10 @@ Rank
 ### Prove the display look's way back when nobody answers: run the L7 procedure for real with --answer-limit 120 and write no answer
 
 Status
-: open
+: done
 
 Note
-: The author's looks were answered in the first real run, so the unanswered path (the one that failed on B2, PR 588) has not run for L7. A short run, about 4 minutes, nobody needed at the phone. The Top Coordinator must NOT write an answer while it runs (the keeper tells him when it starts).
+: proven by research walleye-display-l7-unanswered-run-way-back-ok: stopped at look 1 with nobody answered, phone back on Android slot b by the watcher's own way back ~24 s after the stop, no deadman; idle Android up
 
 About
 : walleye-display-s6e3fa5

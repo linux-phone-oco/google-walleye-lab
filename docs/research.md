@@ -5038,3 +5038,22 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-19/
+
+
+<a id="walleye-display-l7-unanswered-run-way-back-ok"></a>
+### walleye-display-l7-unanswered-run-way-back-ok
+
+Date
+: 2026-11-19
+
+Brief
+: L7 run with no answer: stops at look 1 'nobody answered' after 120 s; the watcher sends the phone back; Android on slot b up ~24 s later, not the 600 s deadman
+
+Question
+: Does the L7 procedure send the phone back by its own way back when nobody answers (the path that failed on B2)?
+
+Found
+: Real run 2026-11-19 by walleye-keeper, lpoco-attended 0.37.1, --answer-limit 120, no answer file written (Top Coordinator told). Dry run 18 steps ok first. Checks 1-3 ok, phone to fastboot, L7 booted from memory (nothing flashed), gadget up, 13 modules loaded shell alive, /sys/class/drm/card0-DSI-1 connected enabled, look 1 asked at t+101 s, FAIL 'nobody answered within 120 s' at t+221 s (exit 1), prints 'the phone goes back to Android'. Phone on Android afterwards: slot _b, sys.boot_completed 1, uptime 80 s when read about 100 s after the stop, so it rebooted ~24 s after the stop, far inside the 600 s deadman. adb shows the phone, fastboot reachable. The glass was not looked at (nobody answered).
+
+About
+: walleye-display-s6e3fa5
