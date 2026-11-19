@@ -7957,10 +7957,10 @@ Rank
 ### Why the link idles at HS gear 1 and the change to HS-G3 is not seen: clock scaling at idle, the power-mode change not made, or the PHY table
 
 Status
-: open
+: done
 
 Note
-: Top Coordinator's questions after try 1: why is the G3 power-mode change not made (lane 1, the PHY table 3.1.0 against the sdm845 table, or a mainline gear cap)? A reading of the link at hibern8 may also just be the clock-scaled idle state: check before assuming a fault.
+: Answered by research walleye-ufs-why-gear1-ranked: power-mode change was made (HS rate B); idle clock scale-down to G1 most likely; try 2 readings listed
 
 About
 : walleye-ufs-match-android-z
