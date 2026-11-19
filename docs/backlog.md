@@ -5734,7 +5734,7 @@ Status
 : open
 
 Note
-: Unattended-safe like z21's try: RAM boot, the init returns the phone to Android by its own 180 s timer (/tmp/hold only while reading), a dark screen costs nothing. Order d0 (kernel alone), d1, d2; one try each; if d0 loses the shell the kernel build itself is the cause and the rest is skipped. The author need not be there; if the panel lights in d2 or d3 he may be told. Needs walleye-display-bisect-images done.
+: Unattended-safe like z21's try: RAM boot, the init returns the phone to Android by its own 180 s timer (/tmp/hold only while reading), a dark screen costs nothing. Order d0 (kernel alone), d1, d2; one try each; if d0 loses the shell the kernel build itself is the cause and the rest is skipped. The author need not be there; if the panel lights in d2 or d3 he may be told. Needs walleye-display-bisect-images done. The author's words on try 1 (research walleye-display-try1-author-saw): logo, then black, then Lineage in under a minute. So for EVERY image also record what the panel did if a person is at the phone (logo stays / goes black / lights): ask the coordinator to ask him, one line per image; without a person, say 'panel not seen'. d0 is the contrast: the logo should stay if the black comes from the display path.
 
 Blocked by
 : walleye-display-bisect-images

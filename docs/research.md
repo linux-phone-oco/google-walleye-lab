@@ -3643,3 +3643,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-try1-author-saw"></a>
+### walleye-display-try1-author-saw
+
+Date
+: 2026-11-19
+
+Brief
+: Display try 1, what the author saw: Google logo, then black, then Lineage within a minute; the black says the kernel reached the display handover
+
+Question
+: What did the panel do during display try 1, and what does it say about where the kernel stopped?
+
+Found
+: The author's words (2026-11-19, relayed by the Top Coordinator, 'i think' his): "google logo then a black screen i think then it rebooted into lineage not more than i minute after". So: logo (the bootloader's splash, shown while fastboot boot loads), then black, no stripes, then Android within a minute (host log: 49 s after leaving fastboot). Reading: the bootloader's splash stays on the panel until something takes the display; a kernel that never reaches a display driver would leave the logo up until the reset. Black before the reset therefore points at the kernel having reached the display handover (DPU/DSI probe, a panel reset or a clock or iommu change that blanks the bootloader's scan-out) and then died or hung before the gadget bound - consistent with a fault in the display path, and not with a kernel that failed earlier. It is one witness's 'i think', and what z21 and upstream-dts showed on the panel in their tries is not recorded, so the contrast is missing: d0 (the display kernel with z21's dtb, no display node) should keep the logo up if this reading holds; d1/d2 say which stage turns it black. Not a proof: black could also be the bootloader turning the panel off at its own reboot.
+
+About
+: walleye-display-s6e3fa5
