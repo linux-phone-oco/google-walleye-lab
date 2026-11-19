@@ -27,6 +27,8 @@ case $IN in
   *"/display-modules.list"*) cat "$FAKE/list"; echo "count-$(wc -l < "$FAKE/list")";;
   *"touch /tmp/hold"*) printf "%s\n" "$IN"; [ -n "${FAKE_NOHOLD:-}" ] && exit 0; : > "$FAKE/held"; echo hold-is-42;;
   *"echo up-"*) echo up-42;;
+  *"test -x /bin/walleye-stripes"*) [ -n "${FAKE_DRAWER:-}" ] && echo drawer-is-42;;
+  *"/bin/walleye-stripes --seconds"*) echo "$IN" | grep -o -e "--seconds [0-9]*" >> "$FAKE/calls"; echo "walleye-stripes: draw: four stripes"; echo "walleye-stripes: release: the screen is cleared to black"; echo "stripes-rc=${FAKE_DRAWER_RC:-0}-end";;
   *"echo alive-"*) printf "%s\n" "$IN"; [ -e "$FAKE/held" ] && echo alive-42;;
   *"stream-ok"*) printf "%s\n" "$IN"; echo stream-ok-42;;
   *"nc-rc"*) echo nc-rc=0-end;;
@@ -79,5 +81,13 @@ env PATH="$T/bin:$PATH" FAKE="$T/nh.fake" FAKE_HOSTIP=10.0.0.9 PAUSE=0 SETTLE=0 
 ck "no host address: exit 1, names the address, the phone untouched" "$(cat "$T/nh.rc") $(grep -c 'this host has no 172.16.43.2' "$T/nh.stdout") $(ls "$T/nh.fake/calls" 2>/dev/null | wc -l)" "1 1 0"
 run nohold FAKE_NOHOLD=1
 ck "a phone where touch /tmp/hold fails (the echoed command line still holds the word): exit 1, names the hold, nothing loaded" "$(cat "$T/nohold.rc") $(grep -c "could not touch /tmp/hold" "$T/nohold.stdout") $(grep -c insmod "$T/nohold.fake/calls")" "1 1 0"
+run nodrawer
+ck "a phone without /bin/walleye-stripes (L1 to L5): passes, the drawer is not asked for" "$(cat "$T/nodrawer.rc") $(grep -c "walleye-stripes --seconds" "$T/nodrawer.fake/calls") $(grep -c "stripes were drawn" "$T/nodrawer.stdout")" "0 0 0"
+run drawer FAKE_DRAWER=1 STRIPES_SECONDS=7
+ck "a phone with the drawer (L6): passes, asks it for the seconds, keeps its lines, says the stripes were drawn" "$(cat "$T/drawer.rc") $(grep -c -e "^--seconds 7$" "$T/drawer.fake/calls") $(grep -c "walleye-stripes: draw" "$T/drawer.fake/out/stripes.log") $(grep -c "stripes were drawn and held 7 s" "$T/drawer.stdout")" "0 1 1 1"
+run drawerzero FAKE_DRAWER=1 STRIPES_SECONDS=0
+ck "STRIPES_SECONDS=0 leaves the drawer out" "$(cat "$T/drawerzero.rc") $(grep -c "walleye-stripes --seconds" "$T/drawerzero.fake/calls")" "0 0"
+run drawerbad FAKE_DRAWER=1 FAKE_DRAWER_RC=1
+ck "a drawer that ends with 1 fails the run and names its log" "$(cat "$T/drawerbad.rc") $(grep -c "the stripe drawer did not end with 0" "$T/drawerbad.stdout")" "1 1"
 ck "the script is plain sh (sh -n)" "$(sh -n "$S" 2>&1 && echo ok)" ok
 if [ $total -eq 0 ]; then echo "pass display-late-probe-selftest host every check passed"; else echo "fail display-late-probe-selftest host $total checks failed"; exit 1; fi
