@@ -5907,10 +5907,10 @@ Rank
 ### Bus votes, PM-QoS, hardware-gated clocks, the ufs_reset pad drive: what each does and whether a probe needs it
 
 Status
-: open
+: done
 
 Note
-: Missing from Android's side: these differences are judged harmless, not proven (research walleye-ufs-go-note). Next step: the research row.
+: Research row walleye-ufs-gap-perf: bus votes, PM-QoS, hw clock gating are performance/power only; the ufs_reset pad drive is the RST_n pulse the overlay carries. A read-only probe needs none.
 
 About
 : walleye-ufs-match-android-z
