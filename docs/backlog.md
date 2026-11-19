@@ -7604,3 +7604,128 @@ Witness
 
 Go until
 : 2026-11-19T19:29:42+01:00
+
+
+<a id="walleye-display-stripes-brief"></a>
+### Why the stripes showed only briefly: the author saw the console output and red, blue and green flash, not four held stripes (fbcon repainting over fb0, the drawer's pan, or a commit that the next console write undid)
+
+Status
+: open
+
+Note
+: The author's look, relayed by the Top Coordinator 2026-11-19: "oh whit, i see the console output some persentage, also i saw it brifly blimp with red blue and green". The glass lights on mainline and shows fbcon (the kernel log); the drawer's 60 s hold (exit 0, all ioctls 0) did not stay on the glass. Not a failure of the panel path.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row from the display procedure's log and the keeper's record, the drawer's source and the kernel's fbcon behaviour: which of fbcon repainting, a missing fbcon unbind (vtcon), or the drawer's pan/commit explains 'brief'; the smallest change that holds the stripes (unbind the console around the drawer, or draw through the DRM master), and the procedure step that carries it
+
+Rank
+: 3
+
+
+<a id="walleye-display-at-boot"></a>
+### The display comes up by itself at boot: the 13 display modules built in or loaded by the init, the kernel log and later a console on the glass, no host script
+
+Status
+: open
+
+Note
+: Today the 13 display modules are loaded by hand from the shell by a host script or the procedure (research walleye-display-late-probe-l5-tried-dsi-connected-1080x1920). Built in (the initramfs carries no modules otherwise) or loaded by the init's own list /display-modules.list; the iommu fix (passthrough or the mdss iommus) and the four pinctrl labels and the reset-gpio claimant are already in L6's dts; the lab-only overlay stubs stay a RAM-boot artefact.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: a boot image (UFS-off gate and AVB pass, rebuild identical, programmer review) in which the display path is up before the init's shell, without tests/host/display-late-probe.sh: the glass shows the kernel log from early boot (fbcon) and the init's banner; one unattended try reads card0 and DSI-1 connected, then the author's look: the console on the glass; a test that no module is loaded by a host script any more
+
+Rank
+: 4
+
+
+<a id="walleye-install-stage-decision"></a>
+### A stage that installs instead of RAM-booting: what writing our kernel to the boot partition would need, and its way back, for the author's word
+
+Status
+: open
+
+Note
+: Everything so far is fastboot boot from RAM: nothing is written. Using the Pixel as a phone needs the kernel on the phone. The lane's rule: no flash, erase or set_active without a recorded decision and, where it cannot be undone, the author's word. This item prepares the decision; it flashes nothing.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row and a proposed decision (not taken): the slots (b is the test slot, a stays Android), what 'install' means for each of fastboot flash boot, the stock dtbo that the bootloader merges (the overlay stubs exist only for this), the way back from the boot-chain read-back (item walleye-bootchain-readback: restore boot_b with fastboot flash from the backup) and the proof that the bootloader and both slots' other partitions are untouched; what the author must say yes to; no write is made
+
+Rank
+: 12
+
+
+<a id="walleye-upstream-panel-series"></a>
+### Upstream series for the Pixel 2's panel: dt-bindings for samsung,s6e3fa5 and the panel driver, as two patches, with a clean boot of the exact series
+
+Status
+: open
+
+Note
+: Mainline v7.3 has panel-samsung-s6e3fa7 and others but no s6e3fa5. The docs upstream-readiness note (2026-11-19) listed the panel as local only, 'WIP, never built'; it now builds, binds and lights the glass (display try 2026-11-19). The driver's on/off command sequence is the phone's own dtbo's.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: two patches on v7.3 (binding, driver panel-samsung-s6e3fa5.c) with the driver's authorship and sign-offs as they are, checkpatch --strict clean but for the author's sign-off, W=1 build clean, dt_binding_check run in the container of docs research/upstream-forks/2026-11-19/dt-checks-in-a-container.md, and one boot of the exact series (display procedure L-image rebuilt from the series, DSI-1 connected, the glass lit); the cover letter says how it was made; target: dri-devel (panel maintainers) and devicetree; NOTHING is sent without the author's go
+
+Rank
+: 10
+
+
+<a id="walleye-upstream-board-dts-next"></a>
+### The board dts series grows: touch, haptics, display and the PMIC watchdog nodes without the lab hacks, one clean boot of the exact dtb, then the bindings first
+
+Status
+: open
+
+Note
+: From the readiness note (docs research/upstream-forks/2026-11-19/upstream-readiness.md rows 7 to 9 and class c): the board dts is close (reviewed; open: author and SoB, carve-out and ramoops provenance, one boot of this exact dtb); the APSS watchdog and the charger are separate SoC patches.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: the two-patch board dts series (research walleye-upstream-dts-series) rebuilt with the nodes the lab has since proved: touchscreen (Synaptics S3708AR, rmi4, i2c, z21 try: 3593 events), haptics (drv2624, bound at 0-005a), the display chain (panel node, dsi, mdss) and the PMIC watchdog, each node its own patch; the overlay stubs, the deleted nodes and the iommu cmdline stay out; dtbs_check and dt-check-style in the container, checkpatch, W=1; one boot of the exact dtb; the dt-bindings: arm: qcom patch for google,walleye first; NOTHING is sent without the author's go
+
+Rank
+: 11
