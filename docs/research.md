@@ -3407,3 +3407,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-19-upstream-dts-image/
+
+
+<a id="walleye-upstream-dts-tried-boots"></a>
+### walleye-upstream-dts-tried-boots
+
+Date
+: 2026-11-19
+
+Brief
+: Upstream board dts image tried once from slot b: boots to the usb0 network shell (gadget, ping, telnet witnesses); phone back on Android b
+
+Question
+: Does the exact series dtb boot to the network shell?
+
+Found
+: boot-upstream-dts.img (sha256 a8e43648...) tried once from slot b by `lpoco lab fastboot boot now` after the UFS-off gate passed (pass) and battery 4373 mV. Booted: left fastboot after 15 s, came back as gadget 1d6b:0104 after 18 s; witnesses: phone-state.sh verdict mainline-answering (usb gadget + tty banner), ping 172.16.43.1 answered, telnet shell gave `uname -a` = Linux 7.3.0-00004-ge123d3bff47d-dirty. dmesg (604 lines, ~/lab-material/walleye/upstream-dts-20261119-081603/dmesg.txt): gadget g1 bound to a800000.usb, ECM MACs set. Only fault-class lines: psci 'failed to set PC mode: -3' (firmware bug note), msm_serial c16f000.serial probe error -2 (the known vendor-overlay serial stub), spmi pm8998@0/pmi8998@3 'does not have reg property' (-22). No -110 timeouts, no phandle errors. No touch (series has none), as expected. Not done: a probe-line diff against z21 - the saved z21 dmesg (compare-touch-ours-20261119-021653) is truncated (10 unique lines), so no diff was drawn; the dmesg-clean-check was not run (needs devices-deferred, not read). Phone fell back to Android slot b by its own 180 s timer; idle-android pass; 4369 mV; nothing flashed.
+
+About
+: walleye-upstream-dts-polish
