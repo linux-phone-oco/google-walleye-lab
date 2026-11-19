@@ -7673,34 +7673,6 @@ Rank
 : 2
 
 
-<a id="walleye-attend-program-ufs"></a>
-### One command for the UFS try, when the author says go: gate-exempt boot of the matched image, version read, the card read, the way back
-
-Status
-: open
-
-Note
-: Parked. Decision 2026-11-19-walleye-attended-tries-one-command. ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone. SHARED RUNNER (orchestration, 2026-11-19): write the program against lpoco-attended, the crate of lab-tools (dir attended/, example in attended/examples/), used from a rust-script entry file with a cargo git dependency on linux-phone-oco/lab-tools at tag lpoco-attended-vX.Y.Z (orchestration sends the tag; until then a path dependency on the lab-tools builder's worktree or branch). Entry file: use lpoco_attended::prelude::*; then in order procedure("name", "google-walleye"); step("what", || ...); check("what must hold", || ...); ask_author("what to do, what to check"); each stops the run on failure; phone() reaches the device through devlab; --dry-run and the log come from the library. Our own plumbing (readers, parsing, retries) goes in helper modules of this lab, not in the entry file and not in a copy of the runner. Anything the runner lacks: write it in a note in the shared notes folder for orchestration (what is missing, which step needed it); do not work around it with your own runner. CORRECTION (orchestration, 2026-11-19, lab-tools tag lpoco-v0.28.3, #243): the runner is released and lives in lpoco-bringup, NOT in a crate of its own: dependency lpoco-bringup = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-v0.28.3" }; use lpoco_bringup::attended::*; entry = procedure("name").run(|p| { p.step("..", phone("..").retry(3,1))?; p.ask_author("what to do", "what to check")?; p.check("..", phone("..").expect(".."))?; Ok(()) }); phone(..) runs as the phone user, phone_root(..) as root, sh(..) on the host; --dry-run, --log FILE, --help come from the library; copy bringup/examples/attended.rs. Where this paragraph and the older 'lpoco-attended' wording differ, this one holds. Device-agnostic steps keyed to bring-up step ids (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) are coming in lab-tools: write ours inline for now and name the ones we would want in the library (note in the shared notes folder for orchestration). FINAL CORRECTION (orchestration, 2026-11-19, lab-tools #247, tag lpoco-attended-v0.29.0): the attended runner is its own crate again and the lpoco_bringup::attended module is removed; this paragraph replaces the earlier two (lpoco-attended vX.Y.Z, then lpoco-v0.28.3). Dependency: lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.29.0" }; use lpoco_attended::prelude::*; let _run = procedure("name", "google-walleye"); (keep it bound) then step("what", || ..), check("what", || ..) (returns (), bool or Result; false or Err stops and names the step), ask_author("what to do / what to check"), phone().sh(..) / phone().root(..), retry(tries, secs, || ..); --dry-run runs no closure; --log FILE; copy attended/examples/attended.rs. Library steps (boot_once, read_dmesg, check_probe, wait_for_usb, back_to_known_good) come next in lab-tools: write ours inline for now and tell orchestration which are needed (note walleye-to-orchestration-attended-steps-wanted.md). PROCEDURES ONE SHAPE (orchestration, decision 2026-11-19-procedures-one-shape): procedures/NAME.rs in this repository, one rust-script each over lpoco-attended, plus at most one procedures/steps crate for walleye-only steps; lpoco attended new|run|check (lab-tools) scaffolds, runs and dry-runs them. Write the program as procedures/NAME.rs from now on. LIBRARY STEPS (orchestration, 2026-11-19, lab-tools tag lpoco-attended-v0.29.2, #250 #251): dmesg_clean, check_probe, wait_for_phone, read_dmesg and wait_for_usb are in the library; boot_once and back_to_known_good come next, then lpoco attended new|run|check. Write the PMIC, display and UFS programs against v0.29.2 and these steps, not walleye-tries copies; where the library lacks a step, write it in procedures/steps and name it as wanted. LPOCO-ATTENDED v0.31.0 (orchestration, lab-tools #266, 2026-11-19): physical steps over a Bench (press_power, hold_button, unplug_usb, replug_usb, touch, swipe, look_for, listen_for, confirm; a person by default, --dry-run lists the doer; ask_author is confirm); boot_once and back_to_known_good read device.toml [kernels] test and kept, a missing key or an unlisted name exits 2 naming it, dry run too. Declare [kernels] and [[host.gadget]] usb_id in this lab's device.toml; programs pinned to v0.29.x keep working until moved. Write the program on v0.31.0 with the physical steps. STORAGE IS NOW THE WEAKEST LINK (the author, via the Top Coordinator, 2026-11-19: 'whats with the memory support ? how did that direction went, can we use it now ?'); the display is proven. Order: walleye-ufs-match-prints (build, first), walleye-ufs-solution-extracted (research, the closing table and the refreshed go note, may start beside the build), walleye-attend-program-ufs (the one-command UFS procedure: read-only, dry-run, its unattended parts run for real; the UFS-on boot itself stays behind the author's go), then the go note goes to the Top Coordinator. Do not wait for the go to BUILD: the go is for the try. Decisions 2026-11-18-walleye-ufs-wait, 2026-11-19-walleye-ufs-hold-second-path, 2026-11-19-walleye-ufs-android-derived-solution.
-
-Blocked by
-: walleye-ufs-match-prints
-
-About
-: walleye-ufs-match-android-z
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: procedures/ufs-matched-image-on-the-pixel-2.rs on lpoco-attended v0.32.x (dry-run, check, stand-in tests, review): the gate and battery, the phone to fastboot, the matched image checked against its sha256, then ONE explicit step that boots the UFS-on image and only runs with the author's go recorded in the item (the gate tests/host/ufs-off-image.sh is not weakened: the matched image is refused by it by design; the step is the one place that names it), the console and dmesg read (UFS_HW_VERSION, PHY table line, link HS-G3 2 lanes, LUNs listed, no purge, host regs 0x30/0x34, PHY+0x130), the way back; READ ONLY: nothing is written to the card; an unattended mode that runs every step before the UFS-on boot for real and stops there with 'no go'; a keeper's run of that mode landed
-
-Rank
-: 3
-
-
 <a id="walleye-person-answer-file"></a>
 ### A person step's answer must not depend on a message to a blocked keeper: the person backend takes the answer from a file the procedure polls
 
@@ -7772,31 +7744,6 @@ Witness
 : person
 
 
-<a id="walleye-stripes-kd-graphics"></a>
-### Stripe drawer: KD_GRAPHICS on /dev/tty0 while held, KD_TEXT after, console state in its log
-
-Status
-: open
-
-Note
-: From research walleye-display-stripes-brief-fbcon-repaints-the-stripes (decision 2026-11-19-walleye-stripes-text-mode-off-while-held). KDSETMODE = 0x4B3A, KD_TEXT 0, KD_GRAPHICS 1. Host only; no phone.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: a test in tools/walleye-stripes that fails now: the ioctl sequence the drawer plans is KD_GRAPHICS, write, pan, set_par, unblank, hold, clear, KD_TEXT, and KD_TEXT is in the plan when the draw failed; then an L7 image rebuilt with the same ramdisk, gate and AVB checks, rebuild identical
-
-Rank
-: 3
-
-
 <a id="walleye-display-stripes-try-held"></a>
 ### Attended try of the held stripes: L7 from slot b, the author looks, four stripes for 60 s
 
@@ -7826,3 +7773,88 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-stripes-kd-graphics"></a>
+### Stripe drawer: KD_GRAPHICS on /dev/tty0 while held, KD_TEXT after, console state in its log
+
+Status
+: open
+
+Note
+: From research walleye-display-stripes-brief-fbcon-repaints-the-stripes (decision 2026-11-19-walleye-stripes-text-mode-off-while-held). KDSETMODE = 0x4B3A, KD_TEXT 0, KD_GRAPHICS 1. Host only; no phone. Rank 5: after the UFS procedure.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: a test in tools/walleye-stripes that fails now: the ioctl sequence the drawer plans is KD_GRAPHICS, write, pan, set_par, unblank, hold, clear, KD_TEXT, and KD_TEXT is in the plan when the draw failed; then an L7 image rebuilt with the same ramdisk, gate and AVB checks, rebuild identical
+
+Rank
+: 5
+
+
+<a id="walleye-ufs-card-fw-rev-read"></a>
+### Read the UFS card's firmware revision and descriptors on live Android with adb root, read only
+
+Status
+: open
+
+Note
+: The refreshed go note says: whether this phone's card firmware is a risky revision cannot be read without root. Rooted debugging is on now (the author, 2026-11-19), so it can be read: adb root, cat the scsi_device attributes, nothing else. It sharpens the go note's risk paragraph; the author is told the result. Not a UFS probe by our kernel.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: a research row naming the card's vendor, model and firmware revision string (sysfs scsi_device vendor, model, rev, and the ufs descriptors the vendor kernel exposes), compared with what is known of the Sony yoshino card (SK hynix, Samsung fw 0200 XZ1 probed without erase): whether this card's revision is one of the risky ones; no write, no reset_controller, no fstrim; files mode 600 in ~/lab-material, never git
+
+Rank
+: 1
+
+
+<a id="walleye-attend-program-ufs"></a>
+### One command for the UFS try, when the author says go: gate-exempt boot of the matched image, version read, the card read, the way back
+
+Status
+: open
+
+Note
+: CURRENT INSTRUCTION (rewritten 2026-11-19; it replaces every earlier runner, path and wait line of this item, which were history).
+
+WHAT: the UFS try as one Rust procedure, procedures/ufs-matched-image-on-the-pixel-2.rs, modelled on procedures/display-stripes-on-the-pixel-2.rs (lab PR 538) on lpoco-attended v0.32.x (cargo git dependency on linux-phone-oco/lab-tools; lpoco-attended new NAME scaffolds, run NAME --dry-run, check; copy attended/examples/attended.rs). Entry file: use lpoco_attended::prelude::*; let _run = procedure(NAME, "google-walleye"); every device value read at the top of main with dev(..) and proc(..) from device.toml (declare [images.ufs-match] path and sha256, and [procedures.ufs-matched-image-on-the-pixel-2] values); one plainly named step per line, each stops the run on failure, the whole procedure on one screen. Our own steps are helpers in tools/walleye-tries (a ufs.rs beside display.rs).
+
+IMAGE: ~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-match2/NOT-TO-BOOT-ufs-on-ufs-match.img, sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 (rebuilt with read-only prints, PR 555). It prints UFS_HW_VERSION, HCS/HCE (0x30/0x34) and PCS+0x130, then reads the card's identity and partitions. The gate tests/host/ufs-off-image.sh REFUSES it by design and is not weakened or bypassed: the procedure's UFS-on boot is the one step that names this image, and it checks instead the sha256 and tests/host/ufs-match-android.sh.
+
+THE GO: the UFS-on boot step runs only when the author's go is recorded on item walleye-try-ufs-match (go_until in the future; the procedure reads it from the data, not from an argument). Without it the step stops with 'no go' and the phone is left on Android. Decisions: 2026-11-18-walleye-ufs-wait, 2026-11-19-walleye-ufs-hold-second-path, 2026-11-19-walleye-ufs-android-derived-solution. The go note for the author is research walleye-ufs-go-note (PR 559).
+
+STEPS: battery and phone-state; the phone to fastboot itself; the image's sha256; [the go step]; boot once from slot b; wait for the gadget; read dmesg: the version line, HCS/HCE, the PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge, PCS+0x130; list the partitions read-only (lsblk, nothing mounted read-write, no dd to the card, no fstrim, no reset_controller); the way back (the image's self-reboot, then reboot -f and the sysrq b fallback over the shell, the power-hold sentence); idle-android passes. READ ONLY: nothing is written to the card.
+
+UNATTENDED MODE: with the go absent the procedure runs every step before the UFS-on boot for real (gates, battery, fastboot step, image sha256, dry-run listing of the rest) and stops at the go step. A keeper runs that mode once for real on the installed lpoco (0.32.1); that record is the bar for 'one command away'. A fresh worktree needs ln -s ~/Projects/walleye-build build/images first (AGENTS.md). Keepers wait by short polls.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: procedures/ufs-matched-image-on-the-pixel-2.rs on lpoco-attended v0.32.x (dry-run, check, stand-in tests, review): the gate and battery, the phone to fastboot, the matched image checked against its sha256, then ONE explicit step that boots the UFS-on image and only runs with the author's go recorded in the item (the gate tests/host/ufs-off-image.sh is not weakened: the matched image is refused by it by design; the step is the one place that names it), the console and dmesg read (UFS_HW_VERSION, PHY table line, link HS-G3 2 lanes, LUNs listed, no purge, host regs 0x30/0x34, PHY+0x130), the way back; READ ONLY: nothing is written to the card; an unattended mode that runs every step before the UFS-on boot for real and stops there with 'no go'; a keeper's run of that mode landed
+
+Rank
+: 2
