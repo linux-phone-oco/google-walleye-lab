@@ -3379,3 +3379,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-20-0030-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adbd up; fg1 tried once: fuel gauge pass (capacity 99 %, 4374 mV = fastboot); item walleye-try-fuel-gauge done
+
+Considered
+: next: z21 touch gpio section of compare-touch-diff-z21.txt; walleye-ufs-android-regs needs a mem reader (coordinator); pmic-wdt items stay parked; upstream the fuel gauge result to the RFC thread is the author's
+
+About
+: walleye-first-fastboot-boot
