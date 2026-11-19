@@ -4426,3 +4426,21 @@ Rejected
 
 About
 : walleye-attend-program-pmic
+
+---
+
+
+<a id="2026-11-19-1855-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed. Ran the display stripes procedure once under the go; stripes drawn, no witness answer came back, so the look is still unmeasured (research walleye-display-stripes-try2-no-answer). The item stays open.
+
+Considered
+: next: re-run when the author is confirmed at the glass and a relay is live (ask him to answer straight to the keeper); else walleye-slpi-boot-qrtr (21)
+
+About
+: walleye-first-fastboot-boot

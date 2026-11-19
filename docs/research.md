@@ -4718,3 +4718,22 @@ Found
 
 About
 : modem-calls
+
+
+<a id="walleye-display-stripes-try2-no-answer"></a>
+### walleye-display-stripes-try2-no-answer
+
+Date
+: 2026-11-19
+
+Brief
+: Display stripes procedure ran for real: DSI-1 connected, drawer drew, but no witness answer reached it in 120 s; look_for FAILed on 'no', not on a seen-dark report
+
+Question
+: Does the Pixel 2 show four vertical stripes (red, green, blue, white) from procedures/display-stripes-on-the-pixel-2.rs?
+
+Found
+: 2026-11-19 18:47-18:53: battery 100, image sha b70feabf, UFS-off check ok, fastboot, shell answered, 13 modules loaded, DSI connector connected, drawer drew. LOOK NOW sent to the Top Coordinator (local_12b18c70) at 18:49:30; no relayed answer by the hold plus 30 s, so 'no' was fed per the item's orders. The FAIL therefore means NO ANSWER, not that the author saw dark glass: unmeasured, not broken (measured-not-claimed). Phone back on Android (phone-state android). Log: ~/lab-material/walleye/display-stripes-1795110464.log.
+
+About
+: walleye-first-fastboot-boot
