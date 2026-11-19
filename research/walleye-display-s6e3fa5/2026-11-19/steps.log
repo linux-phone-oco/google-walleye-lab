@@ -1,0 +1,27 @@
+step 1 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm.ko
+step 1 after: rc=0-step1
+step 2 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_kms_helper.ko
+step 2 after: rc=0-step2
+step 3 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/clients/drm_client_lib.ko
+step 3 after: rc=0-step3
+step 4 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/media/cec/core/cec.ko
+step 4 after: rc=0-step4
+step 5 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/display/drm_display_helper.ko
+step 5 after: rc=0-step5
+step 6 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/display/drm_dp_aux_bus.ko
+step 6 after: rc=0-step6
+step 7 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/scheduler/gpu-sched.ko
+step 7 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/scheduler/gpu-sched.ko
+step 7 after: rc=1-step7
+step 8 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_exec.ko
+step 8 after: rc=0-step8
+step 9 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_gpuvm.ko
+step 9 after: rc=0-step9
+step 10 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/soc/qcom/mdt_loader.ko
+step 10 after: rc=0-step10
+step 11 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/soc/qcom/ubwc_config.ko
+step 11 after: rc=0-step11
+step 12 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/msm/msm.ko dyndbg=+p
+step 12 after: rc=0-step12
+step 13 before: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/panel/panel-samsung-s6e3fa5.ko dyndbg=+p
+step 13 after: rc=0-step13

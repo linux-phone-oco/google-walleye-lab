@@ -3652,3 +3652,21 @@ Rejected
 
 About
 : walleye-attend-program-touch
+
+---
+
+
+<a id="2026-11-19-1415-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up (boot_completed 1, 4385 mV). Display late-probe L1 tried once: shell up, all 13 display modules load with the shell alive, msm probes to the dpu mmap, no drm card, no panel line (research walleye-display-late-probe-l1-modules-load-no-drm-card); item walleye-try-display-late-probe done. My own timeout 200 cut display-late-probe.sh at step 7; steps 7-13 by hand; use 400+ next time.
+
+Considered
+: next: walleye-display-why-no-drm-card (read-only reads on L1); then walleye-tas2557-firmware-source and walleye-haptics-i2c-answers (ready, read-only from Android); L2 not needed; builder: z21 touch gpio section; walleye-ufs-android-regs needs a mem reader (coordinator)
+
+About
+: walleye-display-s6e3fa5

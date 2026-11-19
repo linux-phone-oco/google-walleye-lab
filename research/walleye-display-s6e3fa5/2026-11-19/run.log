@@ -1,0 +1,6 @@
+shell up after about 2 s
+/tmp/hold set
+netconsole target: nc-rc=0-end
+channels: netconsole (UDP 6666) carries the marker: no; the TCP dmesg stream (6667) carries it: yes
+2026/11/19 14:00:23 socat[3965809] W exiting on signal 15
+2026/11/19 14:00:23 socat[3966079] W exiting on signal 15

@@ -1,0 +1,13 @@
+insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm.ko
+insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_kms_helper.ko
+insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/clients/drm_client_lib.ko
+insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/media/cec/core/cec.ko
+insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/display/drm_display_helper.ko
+insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/display/drm_dp_aux_bus.ko
+insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/scheduler/gpu-sched.ko
+insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_exec.ko
+insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_gpuvm.ko
+insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/soc/qcom/mdt_loader.ko
+insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/soc/qcom/ubwc_config.ko
+insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/msm/msm.ko
+insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/panel/panel-samsung-s6e3fa5.ko

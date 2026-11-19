@@ -6403,10 +6403,10 @@ Rank
 ### Try the display late-probe image once: stream the kernel log, load the display modules by hand, read the last step
 
 Status
-: open
+: done
 
 Note
-: UNBLOCKED BY f3-split (research walleye-display-f3-split-tried): g1 and g2 boot a shell. 2026-11-19 after PR 440: runs on L1 (iommu.passthrough=1) first, L2 if L1 fails; both unattended. Console first, then the author is asked to look for the stripes alone. IMAGES READY: boot-l1.img and boot-l2.img in ~/Projects/walleye-build/images-display-late-l, sums in SHA256SUMS-display-late-l.
+: proven by L1: shell (1d6b:0104) up, display modules loaded one by one with shell alive, log stream kept, research walleye-display-late-probe-l1-modules-load-no-drm-card names the last line; Android back by itself on slot b. Stripes look and L2 not needed: no card to draw on. Script's last 7 steps run by hand after my own timeout cut it.
 
 Blocked by
 : walleye-display-late-probe-l-images
@@ -6603,3 +6603,28 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-display-why-no-drm-card"></a>
+### Find why the DRM master does not assemble on L1: read the component state, the panel's dsi device, supplies and reset gpio
+
+Status
+: open
+
+Note
+: From research walleye-display-late-probe-l1-modules-load-no-drm-card: msm probes to dpu mmap, then nothing; no card, no panel line. Reuse boot-l1.img and the host script (timeout 400+); read-only reads after the loads. Unattended.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: a research row naming what the msm component master waits on (component debugfs, devices_deferred, fw_devlink) on L1 after the modules load; no card needed yet
+
+Rank
+: 2

@@ -4123,3 +4123,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-display-late-probe-l1-modules-load-no-drm-card"></a>
+### walleye-display-late-probe-l1-modules-load-no-drm-card
+
+Date
+: 2026-11-19
+
+Brief
+: Late-probe L1 (passthrough): shell up at 2 s, all 13 display modules load with the shell alive; msm probes to the dpu mmap then stops; no drm card, no panel line
+
+Question
+: With iommu.passthrough=1 (L1), does the late-probe image reach the shell, and where does loading the display modules stop?
+
+Found
+: Gates: battery 4376 mV, ufs-off-image pass, sha256 ok. fastboot boot of boot-l1.img (nothing flashed, slot b): gadget 1d6b:0104 after 18 s, shell up 2 s later. display-late-probe.sh: log stream (TCP 6667) carried the marker, netconsole (UDP) did not. Steps 1-6 ran under the script; my own timeout 200 killed the script at step 7 (the phone was fine, held by /tmp/hold), so steps 7-13 were run by hand with the same commands and a fresh stream: all rc=0, shell alive after each, msm.ko and panel-samsung-s6e3fa5.ko with dyndbg=+p. The dmesg after msm shows: msm init, mdp and dsi registered, mdss mapped, DSI PLL0 vco 1577625878 Hz, last line 'dpu_kms_mmap_dpu mapped dpu address space' then mdss_runtime_suspend. No drm card (/sys/class/drm empty, no /dev/dri), no panel probe line, no error. The platform drivers msm_dpu, msm_dsi, msm_mdp, msm-mdss are registered. So with passthrough the dtb display nodes do not kill the boot: the failure is the SMMU path (matches g1/g2 vs g3), and the DRM master does not assemble: the component is waiting on something (panel/bridge/DSI host binding) with nothing logged. Android came back by itself on slot b, adb up, boot_completed 1, battery 4385 mV. L2 not tried (L1 did not fail). Stripes not looked for: no card to draw on. Next: read why the component master does not bind.
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-19/

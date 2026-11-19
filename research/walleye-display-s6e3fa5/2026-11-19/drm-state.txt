@@ -1,0 +1,55 @@
+Trying 172.16.43.1...
+Connected to 172.16.43.1.
+Escape character is '^]'.
+
+dmesg > /tmp/d.txt; wc -l /tmp/d.txt; for c in /sys/class/drm/*/status; do echo $c $(cat $c); done; ls /sys/class/drm /dev/dri; dmesg | grep -iE "msm|dpu|dsi|mdss|s6e3|drm|panel" | tail -40
+~ # dmesg > /tmp/d.txt; wc -l /tmp/d.txt; for c in /sys/class/drm/*/status; do e
+cho $c $(cat $c); done; ls /sys/class/drm /dev/dri; dmesg | grep -iE "msm|dpu|ds
+i|mdss|s6e3|drm|panel" | tail -40
+660 /tmp/d.txt
+cat: can't open '/sys/class/drm/*/status': No such file or directory
+/sys/class/drm/*/status
+ls: /dev/dri: No such file or directory
+/sys/class/drm:
+[0;0mversion[m
+[    1.233970] msm8998-pinctrl 3400000.pinctrl: found group selector 87 for gpio87
+[    1.234042] msm8998-pinctrl 3400000.pinctrl: found group selector 88 for gpio88
+[    1.234122] msm8998-pinctrl 3400000.pinctrl: found group selector 88 for gpio88
+[    1.237850] msm8998-pinctrl 3400000.pinctrl: found group selector 125 for gpio125
+[    1.237934] msm8998-pinctrl 3400000.pinctrl: found group selector 125 for gpio125
+[    1.238037] msm8998-pinctrl 3400000.pinctrl: found group selector 89 for gpio89
+[    1.238105] msm8998-pinctrl 3400000.pinctrl: found group selector 89 for gpio89
+[    1.353081] msm8998-pinctrl 3400000.pinctrl: found group selector 40 for gpio40
+[    1.353219] msm8998-pinctrl 3400000.pinctrl: found group selector 121 for gpio121
+[    1.353341] msm8998-pinctrl 3400000.pinctrl: found group selector 126 for gpio126
+[    1.353401] msm8998-pinctrl 3400000.pinctrl: found group selector 40 for gpio40
+[    1.353471] msm8998-pinctrl 3400000.pinctrl: found group selector 121 for gpio121
+[    1.353541] msm8998-pinctrl 3400000.pinctrl: found group selector 126 for gpio126
+[    1.353628] msm8998-pinctrl 3400000.pinctrl: found group selector 40 for gpio40
+[    1.353742] msm8998-pinctrl 3400000.pinctrl: found group selector 121 for gpio121
+[    1.353857] msm8998-pinctrl 3400000.pinctrl: found group selector 126 for gpio126
+[    1.353915] msm8998-pinctrl 3400000.pinctrl: found group selector 40 for gpio40
+[    1.353984] msm8998-pinctrl 3400000.pinctrl: found group selector 121 for gpio121
+[    1.354054] msm8998-pinctrl 3400000.pinctrl: found group selector 126 for gpio126
+[   12.001406] mmcc-msm8998 c8c0000.clock-controller: sync_state() pending due to c900000.display-subsystem
+[   12.001511] gcc-msm8998 100000.clock-controller: sync_state() pending due to soc@0:bt_wcn3990
+[   12.001570] gcc-msm8998 100000.clock-controller: sync_state() pending due to c16f000.serial
+[   12.001623] gcc-msm8998 100000.clock-controller: sync_state() pending due to soc@0:mnh-sm
+[   12.001673] gcc-msm8998 100000.clock-controller: sync_state() pending due to c179000.i2c
+[  662.215629] [drm:init_module [msm]] init
+[  662.216364] [drm:msm_mdp_register [msm]] 
+[  662.220292] [drm:msm_dsi_register [msm]] 
+[  662.231009] msm-mdss c900000.display-subsystem: mapped mdss address space @000000008be2a212
+[  662.233635] [drm:mdss_runtime_resume [msm]] 
+[  662.239049] [drm:mdss_runtime_suspend [msm]] 
+[  662.240345] [drm:mdss_runtime_resume [msm]] 
+[  662.247758] [drm:mdss_runtime_suspend [msm]] 
+[  662.248886] [drm:mdss_runtime_resume [msm]] 
+[  662.254851] [drm:dsi_pll_10nm_init [msm]] DSI PLL0
+[  662.255556] [drm:dsi_pll_10nm_init [msm]] DSI0
+[  662.256271] [drm:dsi_pll_10nm_vco_recalc_rate [msm]] DSI PLL0 returning vco rate = 1577625878, dec = 29, frac = 5606
+[  662.258234] [drm:dsi_10nm_pll_save_state [msm]] DSI PLL0 outdiv 1 bit_clk_div 1 pix_clk_div 3 pll_mux 1
+[  662.258993] [drm:dsi_pll_10nm_init [msm]] DSI PLL0 returning vco rate = 1577625878, dec = 29, frac = 5606
+[  662.265084] [drm:dpu_kms_mmap_dpu [msm]] mapped dpu address space @000000006975fd50
+[  662.270328] [drm:mdss_runtime_suspend [msm]] 
+~ # 
