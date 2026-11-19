@@ -4069,3 +4069,21 @@ Considered
 
 About
 : walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-20-0430-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up (idle-android pass), battery 4333 mV; L6 tried once: stripes drawn by fbdev, connector connected/enabled, panel init commands sent without error; item walleye-try-display-stripes-unattended done in part (glass, drawer exit code unread). Suite latest not read: password file missing.
+
+Considered
+: next: builder walleye-display-stripes-script-detach, then rerun the L6 try for the exit code and hold; attended look only after; keeper walleye-attend-pmic-unattended-run waits on the builder's ask move
+
+About
+: walleye-display-s6e3fa5
