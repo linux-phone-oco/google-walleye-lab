@@ -3823,3 +3823,35 @@ Sources
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-ufs-gap-lane1"></a>
+### walleye-ufs-gap-lane1
+
+Date
+: 2026-11-19
+
+Brief
+: Vendor 3.0.0 table programs lane 0 only (3.1.0 adds lane 1); Android needs nothing else for lane 1; a down lane 1 leaves link up and reads working, only the 2-lane step fails
+
+Question
+: What does the 3.0.0 PHY table program for lane 1 (TX/RX), does Android's HS-G3 two-lane link at version 3.0.0 rely on something outside the table, and what would the matched image show if lane 1 stayed down?
+
+Found
+: Read 2026-11-19 from Google's GPL wahoo 4.4 (android-msm-wahoo-4.4-android11, head 52750b8f; fetched with the earlier research's scripts/fetch-vendor.sh; tables counted from its results/phy lists); nothing run on the phone.
+
+TABLE COUNT (entries by block): rate_A_3_0_0 = COM 35, TX0 1, RX0 15, PCS 6, TX1 0, RX1 0. rate_A_3_1_0 = COM 36, TX0 1, RX0 15, RX1 15, TX1 1 (QSERDES_TX1_LANE_MODE_1 = 0x06), PCS 9 (adds UFS_PHY_MULTI_LANE_CTRL1 = 0x02 among them). So the 3.0.0 table writes nothing for lane 1, no TX1 and no RX1; only 3.1.0 does. Rate B table is one entry and lane-free. The table's lane-1 entries are the same values as lane 0's (RX1 SIGDET/UCDR/EQ entries mirror RX0).
+
+DOES ANDROID RELY ON ANYTHING ELSE FOR LANE 1? Outside the table, in the vendor code: (1) ufs_qcom_phy_calibrate only writes tbl_A (plus tbl_B for rate B) - no per-lane code; (2) the v3 PHY's set_tx_lane_enable is an empty function ('v3 PHY does not have TX_LANE_ENABLE register'); (3) the host enables the rx_lane1_sync_clk when the host has two lanes (ufs-qcom.c clock enable; our dtb lists the same clock-names, ours-ufs-props); (4) lanes-per-direction: the base msm8998.dtsi (v1 silicon, msm-id 0x0) says 1, the msm8998-v2.dtsi overlay says 2, and the live fdt reads 2 (live-ufs-props) - Walleye runs the v2/v2.1 description. Nothing else touches lane 1. So under 3.0.0 Android would have run its two-lane HS-G3 link on a PHY whose lane 1 was never programmed: either the hardware defaults suffice, or the host is not 3.0.0. Live: the first link is 'gear 1, 1 lane, SLOWAUTO' (1.82 s) and the power-mode change to 'gear 3, 2 lanes, FAST, rate B' follows at 2.05 s (research walleye-ufs-android-way README) - two lanes did work on this phone under Android's tables, whichever of the two it ran.
+
+WHICH IT IS (still not known): the coherent picture is 3.0.0 table <-> v1 silicon, one lane (the base dtsi's lanes 1 beside a lane-0-only table) and 3.1.0 table <-> v2.x silicon, two lanes (the v2 overlay's lanes 2 beside a table with lane 1). Walleye is v2.1, which leans 3.1.0 - inference only: no public record states MSM8998's UFS_HW_VERSION per silicon revision (a search for one found none), and the vendor comment 'PHY attached to v3.0.0 controller supports SVS2' leans the other way (research walleye-ufs-version-from-source). The matched image's own read settles it.
+
+IF THE VERSION READS 3.0.0 AND LANE 1 STAYS DOWN (expected, not run): the link comes up and reads work. Link startup and the first link run on one lane in PWM-G1 (the live 'gear 1, 1 lane' step), so a down lane 1 cannot stop link startup or the card read; it can only fail the later power-mode change to two lanes. What it would show: the 'power mode change' / 'failed setting power mode' error from ufshcd and a link left at one lane, G1 (debugfs power_mode showing 1 lane), not a hang, no card write. Ours is not Android here: mainline's sdm845 table (what MSM8998 uses) already writes both lanes' entries, so on 3.1.0 nothing differs for lane 1; only a 3.0.0 read uses the lane-0-only table.
+
+ANSWER FOR THE TRY: lane 1 is a risk to speed, not to the card or the bootloader. Fallback if the read says 3.0.0 and the power-mode step fails: carry the 3.1.0 lane-1 entries (TX1_LANE_MODE_1 0x06, the 15 RX1 entries, MULTI_LANE_CTRL1 0x02) as one reviewed table change in a later image - a PHY lane-register write, not a card command; decide only after the try shows the version and the lane count (item backlog walleye-ufs-gap-lane1). Needs no phone work now.
+
+Sources
+: src-google-wahoo-msm44-android11,wahoo-4-4-ufs-qmp-v3,mainlining-dev-ufs-phy-driver
+
+About
+: walleye-ufs-match-android-z
