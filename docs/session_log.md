@@ -4819,3 +4819,21 @@ Rejected
 
 About
 : walleye-attend-program-touch
+
+---
+
+
+<a id="2026-11-19-walleye-builder-delay-bisect-build"></a>
+### Delay bisect build
+
+Entry date
+: 2026-11-19
+
+Done
+: init-display-delay, build-display-delay-images.sh (five images, all checks pass, rebuilt identical), tests/host/display-delay-init.sh, walleye-tries display_delay.rs (scoring from the reached line, settled read, every module must say ok), procedures/display-delay-bisect-on-the-pixel-2.rs, device.toml keys, README; programmer review: 3 findings fixed
+
+Considered
+: Reading the mmcc/autorefresh registers before the load (optional in the bisect item): left to the keeper run
+
+About
+: walleye-display-s6e3fa5

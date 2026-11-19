@@ -1,0 +1,73 @@
+#!/usr/bin/env rust-script
+//! The display delay bisect as one command (item walleye-display-delay-bisect-build; research walleye-display-b2-dsi-clock-warning,
+//! decision 2026-11-19-walleye-display-early-load-splash-handover). B2's kernel, dtb and modules fail when msm loads at about 2 s of uptime and
+//! are clean at 66 s: where between them do the signs stop? Five images B-d5, B-d15, B-d25, B-d35, B-d50 are B2 whose init waits the
+//! number of seconds in its own /display-delay before it loads the display modules (build/build-display-delay-images.sh), so the load time
+//! does not depend on the shell. For each, in a row: the phone to fastboot, the image from memory (nothing flashed), the shell answering with
+//! the image's own delay, the kernel log read once the init says it is through the list and the three signs counted (SMMU context faults,
+//! `rcg didn't update its configuration`, DSI -110), the way back to Android. At the end the result table (delay, faults, warnings, -110) is
+//! kept in ~/lab-material/walleye/display-delay-DAY/table.txt and said in the log. NO person step: nobody is asked, the glass is not looked at.
+//! A stop ends with the way back to Android (the watching parent).
+//!   procedures/display-delay-bisect-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
+//!
+//! ```cargo
+//! [dependencies]
+//! lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.35.1" }
+//! walleye-tries = { path = "../tools/walleye-tries" }
+//! ```
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
+use lpoco_attended::{prelude::*, steps};
+use walleye_tries::{
+    display_delay::DisplayDelay,
+    settings::{Settings, DISPLAY_DELAY_PROCEDURE},
+    watch,
+};
+
+fn main() {
+    let _run = procedure(DISPLAY_DELAY_PROCEDURE, "google-walleye");
+    let bisect = DisplayDelay::new(Settings::for_display_delay());
+    // a real run is watched: whatever ends it (a failed check, Ctrl-C), the way back runs after
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if watch::watches(&args) {
+        watch::watch_the_try(bisect.way_back_after_any_stop());
+    }
+
+    check("the battery is good enough", bisect.battery_is_good());
+    check(
+        "every image is the one built (sha256)",
+        bisect.every_image_is_the_built_one(),
+    );
+    check("UFS is off in every image", bisect.ufs_is_off_in_every_image());
+    for delay in bisect.delays() {
+        step(
+            &format!("B-d{delay}: take the phone to fastboot"),
+            bisect.phone_is_in_fastboot(),
+        );
+        step(
+            &format!("B-d{delay}: boot the image from memory, nothing flashed"),
+            bisect.boot_image(delay),
+        );
+        run_step(steps::wait_for_gadget(30, 5));
+        step(
+            &format!("B-d{delay}: the shell answers and the image has its delay"),
+            bisect.shell_answers_and_the_image_has_its_delay(delay),
+        );
+        check(
+            &format!("B-d{delay}: the modules load at {delay} s and the three signs are counted"),
+            bisect.modules_load_and_the_signs_are_scored(delay),
+        );
+        step(
+            &format!("B-d{delay}: send the phone back to Android"),
+            bisect.way_back(),
+        );
+        check(
+            &format!("B-d{delay}: the phone is back on Android"),
+            bisect.android_is_back(),
+        );
+    }
+    step(
+        "write the result table: delay, faults, warnings, -110",
+        bisect.the_table_is_written(),
+    );
+}

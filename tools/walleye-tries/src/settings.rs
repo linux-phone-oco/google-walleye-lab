@@ -16,6 +16,7 @@
 //! | the display try's values | `[images.l7]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
 //! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item` |
 //! | the display-at-boot try's values | `[images.b2]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules, hold` |
+//! | the display delay bisect's values | `[images.b-d5]` ... `[images.b-d50]` (`path`, `sha256`), `[procedures.display-delay-bisect-on-the-pixel-2] delays` |
 
 use lpoco_attended::prelude::{dev, proc};
 use std::path::PathBuf;
@@ -27,6 +28,7 @@ pub const PMIC_PROCEDURE: &str = "PMIC watchdog v1 on the Pixel 2";
 pub const DISPLAY_PROCEDURE: &str = "display stripes on the Pixel 2";
 pub const DISPLAY_BOOT_PROCEDURE: &str = "display at boot on the Pixel 2";
 pub const UFS_PROCEDURE: &str = "UFS matched image on the Pixel 2";
+pub const DISPLAY_DELAY_PROCEDURE: &str = "display delay bisect on the Pixel 2";
 
 /// Which try the settings are read for: each reads only its own procedure's values and images.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -35,7 +37,16 @@ pub enum Try {
     Pmic,
     Display,
     DisplayBoot,
+    DisplayDelay,
     Ufs,
+}
+
+/// One image of the delay bisect: the seconds of uptime its init waits, its file and the sha256 `device.toml` records.
+#[derive(Clone, Debug, PartialEq)]
+pub struct DelayImage {
+    pub delay: u64,
+    pub path: PathBuf,
+    pub sha256: String,
 }
 
 /// The settings of one try. The fields of the other try stay empty (zero, no path).
@@ -66,6 +77,9 @@ pub struct Settings {
     /// the display-at-boot try: how many display modules the init must say ok for, and the sha256 its image must have
     pub modules: u64,
     pub image_sha256: String,
+    /// the display delay bisect: the delays (seconds of uptime) in the order they are tried, each with its image and the sha256 device.toml records
+    pub delays: Vec<u64>,
+    pub delay_images: Vec<DelayImage>,
     /// the UFS try: the dtb the matched image was built with, the kernel tree it was built from, the item the author's go is recorded on
     pub dtb: PathBuf,
     pub kernel_tree: PathBuf,
@@ -93,6 +107,13 @@ impl Settings {
     /// The display-at-boot try's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_display_boot() -> Settings {
         Settings::read(Try::DisplayBoot, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
+    /// The display delay bisect's settings, read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_display_delay() -> Settings {
+        Settings::read(Try::DisplayDelay, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
@@ -151,6 +172,8 @@ impl Settings {
             module_pause: 0,
             modules: 0,
             image_sha256: String::new(),
+            delays: Vec::new(),
+            delay_images: Vec::new(),
             dtb: PathBuf::new(),
             kernel_tree: PathBuf::new(),
             go_item: String::new(),
@@ -190,6 +213,28 @@ impl Settings {
                 s.hold = number("hold", proc("hold"));
                 s.modules = number("modules", proc("modules"));
                 s.out = s.out_dir("display-boot");
+            }
+            Try::DisplayDelay => {
+                s.delays = proc("delays")
+                    .split_whitespace()
+                    .map(|n| {
+                        n.parse().unwrap_or_else(|_| {
+                            panic!("delays in device.toml is a list of whole seconds: {n:?}")
+                        })
+                    })
+                    .collect();
+                assert!(!s.delays.is_empty(), "delays in device.toml names no delay");
+                s.delay_images = s
+                    .delays
+                    .iter()
+                    .map(|&n| DelayImage {
+                        delay: n,
+                        path: image(&format!("b-d{n}")),
+                        sha256: dev(&format!("images.b-d{n}.sha256")),
+                    })
+                    .collect();
+                s.modules = number("modules", proc("modules"));
+                s.out = s.out_dir("display-delay");
             }
         }
         s
@@ -236,6 +281,17 @@ impl Settings {
             ("images.b2.path", "boot-b2.img"),
             ("images.b2.sha256", "e4c8"),
             ("modules", "13"),
+            ("delays", "5 15 25 35 50"),
+            ("images.b-d5.path", "boot-b-d5.img"),
+            ("images.b-d5.sha256", "d5d5"),
+            ("images.b-d15.path", "boot-b-d15.img"),
+            ("images.b-d15.sha256", "d15d"),
+            ("images.b-d25.path", "boot-b-d25.img"),
+            ("images.b-d25.sha256", "d25d"),
+            ("images.b-d35.path", "boot-b-d35.img"),
+            ("images.b-d35.sha256", "d35d"),
+            ("images.b-d50.path", "boot-b-d50.img"),
+            ("images.b-d50.sha256", "d50d"),
             ("images.ufs-match.path", "NOT-TO-BOOT-x/NOT-TO-BOOT-ufs.img"),
             ("images.ufs-match.sha256", "4610"),
             ("dtb", "NOT-TO-BOOT-x/ufs-match.dtb"),
@@ -318,6 +374,7 @@ mod tests {
             (Try::Display, DISPLAY_PROCEDURE),
             (Try::DisplayBoot, DISPLAY_BOOT_PROCEDURE),
             (Try::Ufs, UFS_PROCEDURE),
+            (Try::DisplayDelay, DISPLAY_DELAY_PROCEDURE),
         ] {
             let name: Vec<String> = table
                 .split(|c: char| !c.is_ascii_alphanumeric())

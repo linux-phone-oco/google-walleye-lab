@@ -2474,3 +2474,31 @@ Research
 
 Tracked by
 : walleye-display-dts-any-order
+
+
+<a id="2026-11-19-walleye-display-delay-baked-in-the-image"></a>
+### 2026-11-19-walleye-display-delay-baked-in-the-image
+
+Date
+: 2026-11-19
+
+Brief
+: The delay bisect bakes each delay into its image as /display-delay, read by init-display-delay; five images, one unattended procedure
+
+Decision
+: Five images B-d5..B-d50 are B2 with /init = init-display-delay (init-display plus added lines: wait until /proc/uptime reaches the number in /display-delay, say it, then load) and one added file /display-delay. procedures/display-delay-bisect-on-the-pixel-2.rs boots them in a row from fastboot, scores the three signs per kernel log, goes back to Android between images and after any stop, keeps the table with the flip point. No person step.
+
+Why
+: The load time then does not depend on the shell (the gadget only comes up at about 18 s), so 5 s is a real 5 s; B2 is reproduced byte for byte as the control, so the only differences are the init and one file (research walleye-display-b2-dsi-clock-warning, decision 2026-11-19-walleye-display-early-load-splash-handover).
+
+Rejected
+: A host-side delay (shell loads the modules after N s): the shell is not up before 18 s, so 5 and 15 s could not be tried. A kernel command line parameter: changes the header words and the kernel line B2 is compared on. Editing init-display in place: breaks the byte-for-byte rebuild of B1 and B2. A Rust rewrite of the image build script: the B1/B2 build scripts are shell with checks; kept the shape, the logic that scores is Rust with tests.
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-b2-dsi-clock-warning
+
+Tracked by
+: walleye-display-delay-bisect-build
