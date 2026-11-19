@@ -2107,3 +2107,31 @@ Research
 
 Tracked by
 : walleye-try-display-f3-split
+
+
+<a id="2026-11-19-walleye-tas2557-firmware-stays-on-the-phone"></a>
+### 2026-11-19-walleye-tas2557-firmware-stays-on-the-phone
+
+Date
+: 2026-11-19
+
+Brief
+: The TAS2557 firmware is the phone's own: read from its vendor partition into the lab's material, hashed, never put in a repository and never shipped by us
+
+Decision
+: The lab reads tas2557s_PG21_uCDSP.bin from the phone's own vendor partition (a keeper, read-only, unattended), keeps it in ~/lab-material/walleye (not git), records its sha256 against porthole's copy, and loads it on the phone at boot from the phone's own partition, as the lane already does for the Wi-Fi firmware (device.toml [layer] firmware: extract-from-partitions). Nothing of the blob goes into a repository, an image kept in git or a package we publish; so the question whether to ship the vendor blob does not arise now. The porthole patches for DRV2624, ADSP/q6, the sound card and TAS2557 are taken as GPL-2.0 kernel code with their authors' headers and sign-offs kept (the clean-room line of this lane allows GPL sources, observed behaviour and specs; it forbids proprietary code and blobs in git).
+
+Why
+: The lane's firmware policy (device.toml [layer], the Wi-Fi item: the firmware is the phone's own, read from its partition at boot, never in a repository). Research walleye-audio-haptics-porthole-has-it: the amp stays mute without the file, porthole fetches it from a mirror, the phone's vendor partition holds it too. The porthole drivers are ported from the downstream driver, which is GPL-2.0 kernel code. So no author decision is needed for what we do; a later decision to ship the blob would be his.
+
+Rejected
+: Putting the blob in a repository or a published package (proprietary, and the licence is not ours); taking the copy from a mirror (the phone's own partition is the source and avoids the mirror's provenance); asking the author now (nothing we do ships it); writing a bypass TAS2557 driver (the amp is mute without its firmware, research walleye-audio-haptics-porthole-has-it)
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-audio-haptics-porthole-has-it
+
+Tracked by
+: walleye-tas2557-firmware-source
