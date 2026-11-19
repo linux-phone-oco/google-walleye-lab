@@ -7978,31 +7978,6 @@ Rank
 : 6
 
 
-<a id="walleye-ufs-link-check-works-slow"></a>
-### The UFS procedure reads the link, it does not fail on a gear below HS-G3: 'works, slow' is a result
-
-Status
-: open
-
-Note
-: Research walleye-ufs-try1-card-readable: the procedure's only FAIL was this check; the card read fine at HS gear 1, 2 lanes, rate B, in HIBERN8.
-
-About
-: walleye-ufs-match-android-z
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: procedures/ufs-matched-image-on-the-pixel-2.rs: the check 'the link is HS-G3 on two lanes' becomes a reading step that records gear, lanes, rate, mode, link_state and dev_pm and says 'works at full speed' (HS-G3, 2 lanes) or 'works, slow' (a lower gear, link up, LUNs read) or fails only when the link is down or a LUN is unreadable; stand-in tests for gear 1, gear 3 and link down; dry-run, lpoco-attended check pass; the real files of try 1 (link.txt) read through it as 'works, slow'
-
-Rank
-: 1
-
-
 <a id="walleye-ufs-why-gear1"></a>
 ### Why the link idles at HS gear 1 and the change to HS-G3 is not seen: clock scaling at idle, the power-mode change not made, or the PHY table
 
@@ -8057,3 +8032,59 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-display-look-b2"></a>
+### The author's look at the Pixel's screen as one command: B2 (display at boot plus the held stripes) and display-at-boot-on-the-pixel-2.rs on lpoco-attended 0.34 with the answer file
+
+Status
+: open
+
+Note
+: CURRENT INSTRUCTION (2026-11-19, Top Coordinator after the RAM crash: the author is back and wants to SEE the screen; at most 3 sessions at once, the machine is short on RAM).
+
+WHAT: one image B2 and ONE procedure for the author's look at the Pixel: procedures/display-at-boot-on-the-pixel-2.rs (exists, PR 554) pinned to lpoco-attended 0.34 or newer (check the tag in lab-tools; dependency in its cargo block) with the prompt and answer files: ~/.cache/lpoco-attended/<device>/prompt and answer (the Top Coordinator reads the prompt and writes the author's words into the answer file; the keeper tells him the device dir). B2 = B1 (images-display-at-boot/boot-b1.img, the init loads the 13 display modules itself) PLUS the stripe drawer /bin/walleye-stripes of L6 with the fix of item walleye-stripes-kd-graphics (put /dev/tty0 in KD_GRAPHICS with KDSETMODE while the stripes are held, KD_TEXT after, also after a failed draw; log /proc/consoles and the vtcon name and bind; decision 2026-11-19-walleye-stripes-text-mode-off-while-held), if it is cheap; if the drawer part is not cheap, ship B1's look first and the stripes after.
+
+STEPS, entry file one screen, keys at the top of main (device.toml [images.b2], [procedures.display-at-boot-on-the-pixel-2]), UFS-off gate on B2 (it passes: no UFS node), the library's steps where they exist: battery and phone-state; the phone to fastboot; boot B2 once; wait for the gadget; read dmesg (13 modules, card0 and DSI-1 connected, the -110 backlight line if it comes: research walleye-display-backlight-timeout, decision 2026-11-19-backlight-first-write-after-first-frame); write the backlight once through sysfs (/sys/class/backlight/*/brightness, one value, item walleye-display-backlight-sysfs-write) and read dmesg again; look_for #1: the kernel log text on the glass from boot (the author saw it on L5 and L6); draw the stripes held in KD_GRAPHICS for 60 s; look_for #2: four vertical stripes red, green, blue, white, HELD; the way back; idle-android. Both look_for prompts say what to expect first.
+
+BAR before 'ready, one command' to the Top Coordinator: dry-run and lpoco-attended check --host pass; stand-in tests, clippy and fmt clean; programmer review; the answer file path is printed by --dry-run; then a keeper's unattended run for real that stops at look_for #1 ('nobody answered') with the phone back on Android; the record landed. A fresh worktree needs ln -s ~/Projects/walleye-build build/images first. Items done by this one when it lands: walleye-stripes-kd-graphics, walleye-display-backlight-sysfs-write (its program side), walleye-procedures-on-v0-34 (for this procedure).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: image B2 (gate, AVB, rebuild identical, review) and the procedure: dry-run and 'lpoco-attended check --host' pass, the answer file path printed, a keeper's unattended run for real stops at the first look_for with the phone on Android; see the note's BAR
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-link-check-works-slow"></a>
+### The UFS procedure reads the link, it does not fail on a gear below HS-G3: 'works, slow' is a result
+
+Status
+: open
+
+Note
+: Research walleye-ufs-try1-card-readable: the procedure's only FAIL was this check; the card read fine at HS gear 1, 2 lanes, rate B, in HIBERN8. Rank 2 (2026-11-19): after walleye-display-look-b2, which the author is waiting for.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: procedures/ufs-matched-image-on-the-pixel-2.rs: the check 'the link is HS-G3 on two lanes' becomes a reading step that records gear, lanes, rate, mode, link_state and dev_pm and says 'works at full speed' (HS-G3, 2 lanes) or 'works, slow' (a lower gear, link up, LUNs read) or fails only when the link is down or a LUN is unreadable; stand-in tests for gear 1, gear 3 and link down; dry-run, lpoco-attended check pass; the real files of try 1 (link.txt) read through it as 'works, slow'
+
+Rank
+: 2
