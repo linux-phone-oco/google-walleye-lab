@@ -4416,3 +4416,22 @@ Sources
 
 About
 : deep-sleep
+
+
+<a id="walleye-display-late-probe-l4-built"></a>
+### walleye-display-late-probe-l4-built
+
+Date
+: 2026-11-19
+
+Brief
+: L4 built: L3 with the four overlay pinctrl labels on real tlmm groups, their stubs removed; test passes (fails on L3), gate and AVB pass, rebuild identical, reviewed; not tried
+
+Question
+: Build L3 with mdss_dsi_active, mdss_dsi_suspend, mdss_te_active, mdss_te_suspend naming the real tlmm groups, not stubs
+
+Found
+: boot-l4.img sha256 1dfeebe2c1b6867a0f3fb9f18094e3755e9933cee668dbb177d5af27ed1750d9 (~/Projects/walleye-build/images-display-late-l4/) = L3 with only the dtb changed: /__symbols__ of the four labels now point at /soc@0/pinctrl@3400000/mdss-dsi-active-state, mdss-dsi-suspend-state and mdss-te-state (twice), and the four empty stubs under /vendor-overlay-stubs are gone (l4.diff: 4 stub nodes, 3 group lines gain labels, 4 symbol lines). dt/msm8998-google-walleye-display.dts now gives the same on a fresh build (/delete-node/ the four stubs, labels on the groups; compiled against wt-k-fg, same symbols). L3's vdd-supply, ramdisk, command line, size, Image.gz are kept. tests/host/dtb-display-pinctrl-labels.sh fails on L3's dtb and passes on L4's (and on the dtb inside boot-l4.img); dtbo-overlay-merges.sh and touch-gpio-single-claimant.sh pass; UFS-off gate and AVB pass; dtb and image rebuild identical. Programmer review: no blocker; re-diff from the images added to the check. Not checked by the reviewer: that the overlay names its states mdss_default/mdss_sleep (from research walleye-display-dsi-defer-pinctrl-stubs). gen-overlay-stubs.sh needed no change: it makes stubs only for labels our dtb lacks. Build: build/build-display-late-l4-dtb.sh, build/series/display-late-l4.toml (lpoco-bringup image bisect), build/check-display-late-l4.sh. The try is walleye-try-display-late-probe-l4.
+
+About
+: walleye-display-s6e3fa5

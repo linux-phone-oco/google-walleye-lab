@@ -3805,3 +3805,24 @@ Rejected
 
 About
 : walleye-attend-program-touch
+
+---
+
+
+<a id="2026-11-20-walleye-builder-display-late-probe-l4-image"></a>
+### walleye-builder: late-probe image L4 (pinctrl labels on real tlmm groups)
+
+Entry date
+: 2026-11-19
+
+Done
+: Built L4 from L3 (dtb: four overlay labels repointed to tlmm groups, stubs removed; display dts changed to match); scripts, series, check; test fails on L3 and passes on L4; gate, AVB pass; rebuild identical; programmer review applied. sha256 1dfeebe2c1b6867a0f3fb9f18094e3755e9933cee668dbb177d5af27ed1750d9.
+
+Considered
+: Changing gen-overlay-stubs.sh: not needed, it stubs only labels our dtb lacks; the display dts deletes the four generic stubs instead (the main dts keeps them).
+
+Rejected
+: A full kernel/dtb rebuild for the image: the L1..L3 line patches the previous image's dtb, so L4 differs from L3 in the dtb only.
+
+About
+: walleye-display-s6e3fa5
