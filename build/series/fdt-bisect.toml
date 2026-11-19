@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# x1..x7, xa (backlog walleye-compare-with-the-running-fdt): wpa (alive) with one disjoint group of its differences to our dtb made equal to ours; xa is all of them. The dtbs are the recorded ones: build/build-fdt-bisect.sh makes them.
+# Run: lpoco-bringup image bisect build/series/fdt-bisect.toml --out OUT; the images' sha256 are the SHA256SUMS of walleye-build/images-x.
+control = "../../../../walleye-build/images-wp/boot-wpa.img"
+
+[[image]]
+name = "x1"
+dtb = "../../../../walleye-build/images-x/x1.dtb"
+
+[[image]]
+name = "x2"
+dtb = "../../../../walleye-build/images-x/x2.dtb"
+
+[[image]]
+name = "x3"
+dtb = "../../../../walleye-build/images-x/x3.dtb"
+
+[[image]]
+name = "x4"
+dtb = "../../../../walleye-build/images-x/x4.dtb"
+
+[[image]]
+name = "x5"
+dtb = "../../../../walleye-build/images-x/x5.dtb"
+
+[[image]]
+name = "x6"
+dtb = "../../../../walleye-build/images-x/x6.dtb"
+
+[[image]]
+name = "x7"
+dtb = "../../../../walleye-build/images-x/x7.dtb"
+
+[[image]]
+name = "xa"
+dtb = "../../../../walleye-build/images-x/xa.dtb"

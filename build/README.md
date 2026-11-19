@@ -53,11 +53,10 @@ from e, b and f. `check-bootimg.sh` now also counts `ifconfig usb0 172.16.NET.1`
 ## The bisect images s0, s0n, s1, s2, s3 (stock to ours, one swap each)
 
 e, b (and g, h, i) are accepted by the bootloader ("Booting OKAY") from the first state but never start; the stock control boots.
-`build/build-bisect.sh CONTROL_BOOT_IMG OUR_IMAGE OUR_DTB OUR_RAMDISK_43 OUT_DIR` unpacks the control and packs its own parts
-again with its own header fields and its AVB hash footer (avbtool, algorithm NONE, padded to 32 MiB, same properties), swapping
-one part: `s1` ramdisk = ours (172.16.43.1), `s2` kernel = our raw Image in an lz4 frame (as the stock one), `s3` dtb = ours.
+`lpoco-bringup image bisect build/series/stock-to-ours.toml --out DIR` swaps one part of the control's boot.img per image (header fields and AVB hash footer
+kept: algorithm NONE, padded to 32 MiB, same properties), as the series declares: `s1` ramdisk = ours (172.16.43.1), `s2` kernel = our raw Image in an lz4 frame (as the stock one), `s3` dtb = ours.
 `s0` swaps nothing (differs from the control in the header id and the footer digest only: 53 bytes) and `s0n` is s0 without footer
-and padding (the shape of a-i). `build/check-bisect.sh` counts per image that exactly the swapped part differs and the footer verifies.
+and padding (the shape of a-i). The command counts per image that exactly the declared part differs and the footer verifies; the five images are byte-equal to the ones first built (sha256 in `bisect/SHA256SUMS`).
 What differs between stock and ours that the bootloader could read: no AVB footer and no 32 MiB padding (ours 16 MB); os version
 and patch level 0 (stock 15.0.0 / 2026-11); kernel gzip (stock lz4 frame); dtb of 51 KB with no /chosen bootargs (stock 376 KB,
 bootargs "rcupdate.rcu_expedited=1"); command line (stock has androidboot.* and androidboot.dtbo_idx=3); ramdisk gzip (stock xz).
@@ -66,8 +65,7 @@ Equal: header v0, offsets, page size, one appended dtb, msm-id 0x124/0x20001, no
 ## vendor-gadget.img (the vendor-kernel-first try)
 
 `~/Projects/walleye-build/images/vendor-gadget.img` is the bisect image s1 (the control's boot.img with only the ramdisk swapped to
-our gadget initramfs, 172.16.43.1; kernel, dtb, command line, header, AVB footer as the control's). `build/check-bisect.sh` counts
-that. The proof that it worked on the phone is `tests/host/gadget-up.sh` (run on the lab host; `GADGET_WAIT=90` waits for the gadget):
+our gadget initramfs, 172.16.43.1; kernel, dtb, command line, header, AVB footer as the control's). `lpoco-bringup image bisect` counts that. The proof that it worked on the phone is `tests/host/gadget-up.sh` (run on the lab host; `GADGET_WAIT=90` waits for the gadget):
 it passes only when a USB device with our gadget strings enumerates and 172.16.43.1 answers ping and telnet; with the phone in
 fastboot it fails.
 
@@ -136,9 +134,9 @@ props are the source's (11 checks per image). Rationale and expected return time
 
 ## pk4, pk5, pk6: bisect porthole's kernel against ours (one swap each, no earlycon)
 
-`build/build-pk456.sh PK3_BOOT_IMG ML6A_BOOT_IMG ML5B_BOOT_IMG OUT_DIR` swaps one part at a time between pk3 (porthole's kernel + taimen dtb) and ml6a
+`lpoco-bringup image bisect build/series/pk456.toml --out DIR` swaps one part at a time between pk3 (porthole's kernel + taimen dtb) and ml6a
 (our kernel + our dtb): `pk4` = porthole's Image.gz + OUR dtb; `pk5` = OUR Image.gz + porthole's taimen dtb; `pk6` = pk3 with only the ramdisk of ml5b (3 s per
-score point). Header, command line (no earlycon) and AVB footer are pk3's; pk4 and pk5 carry ml5a's reboot-at-once init. 31 checks, rebuild byte-identical.
+score point). Header, command line (no earlycon) and AVB footer are pk3's; pk4 and pk5 carry ml5a's reboot-at-once init. The command counts each image and the three are byte-equal to the first build (`images-pk456/SHA256SUMS`).
 Not run on the phone: the keeper's try `walleye-try-bisect-pk`.
 
 ## d1..d6: which node of our dtb stops boot (pk4 with one node group removed)
@@ -227,3 +225,34 @@ the z11, z12 and z13 experiments take `dt/msm8998-google-walleye-ufs.dts` (the s
 (the bootloader's own `androidboot.*` words aside). `build/ufs-gate.sh IMAGE...` runs it for the build scripts: every `build-*.sh` that writes a boot image stops there when UFS is on (z11, z12, z13 are the experiments that keep it on and carry no gate: their images are not to boot).
 `tests/host/ufs-off-image-selftest.sh` proves the gate on made dtbs and images (CI job `ufs-off-gate`); `tests/host/ufs-off-inventory.sh` lists which images under `~/Projects/walleye-build/images*` have UFS on.
 `build/build-z21.sh Z20_BOOT_IMG OUT_DIR` makes z21 = z20 with the stub container and UFS disabled in the dtb, nothing else changed (the gate fails z20 and passes z21).
+
+## The series files: every bisect, declared (build/series/)
+
+One command builds and counts a bisect: `lpoco-bringup image bisect build/series/NAME.toml --out DIR` (lab-tools 0.4.0, here 0.24). A series names
+a control image and, per `[[image]]`, the one part each swaps (kernel, dtb, ramdisk, command line; `lz4`, `footer`); paths are relative to the
+series file and point into `~/Projects/walleye-build` (`../../../../walleye-build`, the same from a worktree beside the clone). The images
+of each series are byte-equal to the recorded ones (sha256 in the SHA256SUMS of the folder each series' "Run:" line names; stock-to-ours: `bisect/`, pk456: `images-pk456/`):
+
+| series | control | images |
+|---|---|---|
+| stock-to-ours.toml | the stock boot.img | s0, s0n, s1, s2, s3 |
+| pk456.toml | pk3 | pk4, pk5, pk6 |
+| dtb-bisect.toml | pk4 | d1..d6 |
+| taimen-walleye.toml | pk5 | w1..w5, wr, wa |
+| property-bisect.toml | wa | wp1..wp5, wpa |
+| fdt-bisect.toml | wpa | x1..x7, xa |
+
+The parts the pk series names are `lpoco-bringup image unpack` of pk3, ml6a and ml5b into `walleye-build/parts-series/NAME/`, `ml6a/Image.gz`
+being ml6a's `kernel` less the dtb that ends it. The dtbs of the last four series are the recorded ones: `build-dtb-bisect.sh`,
+`build-taimen-walleye.sh`, `build-property-bisect.sh` and `build-fdt-bisect.sh` still make them (node edits, which `image bisect` does not do).
+
+Three things to know when you run them:
+
+- **The UFS gate does not run inside `image bisect`.** The old scripts stopped on `ufs-gate.sh`; a series writes every image it declares. Run
+  `build/ufs-gate.sh DIR/boot-*.img` on the output and do not boot an image it refuses (s0..s3, pk5, pk6, w*, wp* and most x* are stock-dtb or taimen-dtb
+  controls and UFS-on by nature: they carry `NOT-TO-BOOT-*.txt` beside the recorded ones). Note the gate deletes a failing image.
+- **The series chain.** The controls of taimen-walleye, property-bisect and fdt-bisect are images of earlier series (pk5, wa, wpa): run pk456, then
+  taimen-walleye, property-bisect, fdt-bisect in that order, into the `images-*` folders their controls name.
+- **The parts of pk456 are made by hand:** `lpoco-bringup image unpack IMG --out parts-series/NAME` for pk3, ml6a, ml5b, then
+  `head -c $((KERNEL_SIZE - DTB_SIZE)) ml6a/kernel > ml6a/Image.gz` (the dtb is `appended.dtb`, the tail of `kernel`). Not scripted; the s3o image
+  (our dtb with overlay stubs) the old script could add is not declared.

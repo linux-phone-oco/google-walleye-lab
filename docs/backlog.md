@@ -313,7 +313,7 @@ Status
 : open
 
 Note
-: After bringup-image-v0, -swap and -initramfs land: build-bootimg, build-bisect, check-bootimg, check-bisect, build-initramfs, build-all become one-line calls (or go) with the header facts in device.toml [boot]; build-kernel, build-busybox and selftest-initramfs stay as they are (make and qemu calls). Proof: the images a-i and s0-s3 rebuilt by bringup are byte for byte the ones in ~/Projects/walleye-build/images (SHA256SUMS), or differ only where the item says why.
+: build-bisect, check-bisect and build-pk456 are gone (walleye-use-lpoco-bisect: series files reproduce the 35 recorded images); build-bootimg, check-bootimg, build-initramfs, build-all remain. The four dtb-making scripts still pack their own images. The series do not run the UFS gate: see build/README.md.
 
 Waits
 : bringup-image-swap
@@ -5546,10 +5546,10 @@ Rank
 ### Retire walleye's own bisect scripts (build-bisect.sh, check-bisect.sh and their kin) for `lpoco-bringup image bisect SERIES`: write walleye's series files
 
 Status
-: open
+: done
 
 Note
-: From orchestration (lab-tools PR 123, release v0.4.0): the one command `lpoco-bringup image bisect SERIES --out DIR` counts the swaps against the control and wraps lz4 kernels. Low rank; any builder run after the lab host is on 0.4.0. Keep the old scripts until the reproduction passes.
+: Six series in build/series reproduce all 35 recorded images byte for byte (research walleye-series-reproduce-the-bisects); three scripts removed; the four dtb-making scripts stay (decision 2026-11-19-walleye-bisect-by-series).
 
 About
 : walleye-first-fastboot-boot

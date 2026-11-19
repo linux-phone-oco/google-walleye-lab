@@ -3448,3 +3448,22 @@ Sources
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-series-reproduce-the-bisects"></a>
+### walleye-series-reproduce-the-bisects
+
+Date
+: 2026-11-19
+
+Brief
+: lpoco-bringup 0.24.0 image bisect rebuilt all 35 recorded bisect images (s*, pk4-6, d1-6, w*, wp*, x*) byte for byte from six series files
+
+Question
+: Can lpoco-bringup image bisect SERIES reproduce walleye's recorded bisect images, so the old shell scripts can go?
+
+Found
+: Six series files in build/series (stock-to-ours, pk456, dtb-bisect, taimen-walleye, property-bisect, fdt-bisect) declare the control and one swapped part per image. Run on the lab host, every image's sha256 equals the recorded SHA256SUMS: s0 s0n s1 s2 s3 (5), pk4 pk5 pk6 (3), d1-d6 (6), w1-w5 wr wa (7), wp1-wp5 wpa (6), x1-x7 xa (8): 35 of 35, each counted ok by the command. One slip on the way: lpoco-bringup image unpack leaves the appended dtb inside the kernel file, so a kernel swap needs Image.gz = kernel less appended.dtb (the first pk5 differed until so); the s2 kernel is the raw Image in an lz4 frame. The dtb-making scripts (fdtput node edits) are not swaps and stay.
+
+About
+: walleye-first-fastboot-boot
