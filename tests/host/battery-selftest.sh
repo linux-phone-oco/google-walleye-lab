@@ -6,7 +6,7 @@ T=$(mktemp -d) || exit 1; trap 'rm -rf "$T"' EXIT
 fail() { echo "fail walleye-battery-selftest host $1"; exit 1; }
 mkfake() { # NAME BODY
   printf '#!/bin/sh\n%s\n' "$2" > "$T/$1"; chmod +x "$T/$1"; }
-run() { PATH="$T:$PATH" timeout -k 1 30 sh "$HERE/$1" 2>&1; }
+run() { s=$1; shift; PATH="$T:$PATH" timeout -k 1 30 sh "$HERE/$s" "$@" 2>&1; }
 # fastboot at 3892 mV: pass; at 3600: fail; no tool answering: skip (exit 1 too, nothing measured)
 mkfake fastboot 'case "$*" in *battery-voltage*) echo "battery-voltage: 3892mV" >&2;; esac'; mkfake adb 'exit 1'
 out=$(run battery-ok.sh); [ $? -eq 0 ] || fail "3892 mV did not pass: $out"
@@ -29,6 +29,13 @@ s=$(date +%s); out=$(run battery-ok.sh); rc=$?; e=$(( $(date +%s) - s ))
 mkfake adb 'exec sleep 60'
 s=$(date +%s); out=$(run battery-ok.sh); rc=$?; e=$(( $(date +%s) - s ))
 [ $rc -eq 2 ] && [ $e -lt 15 ] && case $out in skip*not\ known*) ;; *) false;; esac || fail "both hanging: rc $rc, $e s: $out"
+# the floor and the tools come from the manifest given: a lower floor passes 3600 mV, a missing floor is skip, other tool names are the ones called
+M=$T/m.toml; printf '[health]\nbattery_floor_mv = 3500 # low\n[tools]\nadb = "myadb"\nfastboot = "myfb"\n' > "$M"
+mkfake myadb 'exit 1'; mkfake myfb 'case "$*" in *battery-voltage*) echo "battery-voltage: 3600mV" >&2;; esac'
+mkfake adb 'echo bare adb was called >&2; exit 1'; mkfake fastboot 'echo bare fastboot was called >&2; exit 1'
+out=$(run battery-ok.sh "$M"); [ $? -eq 0 ] && case $out in pass*3600*minimum\ 3500*) ;; *) false;; esac || fail "manifest floor 3500 and tools myadb/myfb: $out"
+printf '[tools]\nadb = "adb"\nfastboot = "fastboot"\n' > "$M"
+out=$(run battery-ok.sh "$M"); [ $? -eq 2 ] && case $out in skip*battery_floor_mv*) ;; *) false;; esac || fail "no floor is not skip: $out"
 # idle-android.sh: Android booted -> pass; fastboot -> fail
 mkfake adb 'case "$*" in *get-state*) echo device;; *boot_completed*) echo 1;; *) :;; esac'
 mkfake fastboot 'exit 0'

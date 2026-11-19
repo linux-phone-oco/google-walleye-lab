@@ -4255,3 +4255,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-battery-floor-into-device-toml"></a>
+### Battery floor into device.toml
+
+Entry date
+: 2026-11-19
+
+Done
+: Declared [health] battery_floor_mv and battery_source; programs read the floor with dev(); battery-ok.sh reads floor and tool names from the manifest, BATTERY_MIN_MV gone.
+
+Rejected
+: Keeping a 3700 default in the script: a missing floor would pass blind; it is skip now. Rewriting battery-ok.sh in Rust: the author said shell stays.
+
+About
+: walleye-attend-program-touch
