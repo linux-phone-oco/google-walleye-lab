@@ -1662,3 +1662,34 @@ Amends
 
 Tracked by
 : walleye-ufs-match-android-z
+
+
+<a id="2026-11-19-walleye-ufs-hold-second-path"></a>
+### 2026-11-19-walleye-ufs-hold-second-path
+
+Date
+: 2026-11-19
+
+Brief
+: The UFS hold has a second way out: Android's UFS bring-up of this card understood 'atmost sure' (author's words); the final go stays his
+
+Decision
+: The hold of decision 2026-11-18-walleye-ufs-wait ends in two ways, not one: (a) an EDL way back for walleye is known, or (b) we understand how Android brings up this exact card's UFS well enough to be 'atmost sure' - the matched image (walleye-ufs-match-android-z) is the work heading there. In either case the author says the go himself, in his own words; no session lifts the hold by its own judgement. When the matched image is built and reviewed, a short note goes to him (item walleye-ufs-go-note-for-author): how close the image is to Android's path step by step, what is still unknown (UFS_HW_VERSION, read only in our own init), and the remaining risk in plain words. Until his go: no UFS-on image is booted, the gate stays.
+
+Why
+: The author's words of 2026-11-19, relayed by the Top Coordinator: "or we can figure out how its done in android exactly and be atmost sure we understan the intricacies". The first decision named only the EDL way back or his explicit go; he added the second path today. The original 'Yes, wait' (2026-11-18) is unchanged as to the probe from our kernel on the phone.
+
+Rejected
+: Treating the second path as the go itself (he said 'figure out' and 'be at most sure', and the final go is his); lifting the gate when the builder or the programmer review says it is close (the gate is the author's, not a session's); dropping the EDL path (still valid, still unknown)
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-ufs-regs-reader-verdict
+
+Amends
+: 2026-11-18-walleye-ufs-wait
+
+Tracked by
+: walleye-ufs-go-note-for-author

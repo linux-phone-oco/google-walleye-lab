@@ -5641,3 +5641,31 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-ufs-go-note-for-author"></a>
+### A short note for the author before the UFS go: how close the matched image is to Android's bring-up of this card, what is unknown, the remaining risk
+
+Status
+: open
+
+Note
+: Opened 2026-11-19 on the author's second path ("or we can figure out how its done in android exactly and be atmost sure we understan the intricacies", relayed by the Top Coordinator). Starts when walleye-ufs-match-android-z is built and reviewed. The note goes to the author through the Top Coordinator; the go stays his.
+
+Blocked by
+: walleye-ufs-match-android-z
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row, one page in plain words: Android's UFS bring-up of H28U74301AMR step by step against the matched image (quirks, PHY table, clocks, rails, ICE, RST_n pulse) with each equal / different / not known; what is still unknown (UFS_HW_VERSION, read only in our own init) and what the try would read first; the remaining risk and what a failure costs with no EDL way back; the author says go or not (decision 2026-11-19-walleye-ufs-hold-second-path)
+
+Rank
+: 6
