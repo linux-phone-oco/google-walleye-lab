@@ -6656,3 +6656,25 @@ Proof
 
 Rank
 : 99
+
+
+<a id="walleye-tas2557-upstream-v3-first"></a>
+### TAS2557: weigh Boiano's v3 on the list (binding + driver) against porthole's port before walleye-tas2557-driver is built
+
+Status
+: open
+
+Note
+: From research-chip-layer, 2026-11-19 (docs research chip-layer-open-homes, chip row ti-tas2557, decision 2026-11-19-chip-knowledge-upstream-first-docs-indexes-by-part). Gianluca Boiano posted the TAS2557 driver to linux-sound as v3 (2026-07-17, https://lkml.iu.edu/2607.2/04618.html): dt-bindings ti,tas2557 + ASoC driver, tested on four Xiaomi SDM660/636/MSM8953 boards, reviewed by Mark Brown 07-19 (board GPIO sequence, firmware device-count check, PLL index, suspend mute; https://lkml.iu.edu/2607.2/06067.html). Porthole's 0024/0162/0171-0174 duplicate it with no binding, and take a different dts (two I2C clients + reset GPIO, against v3's reg array + four supplies + firmware-name). Upstream-first says: build v3 on walleye with porthole's firmware handling only where v3 lacks it; walleye's test result is worth a reply on the list, the author's in his name. The lane coordinator decides; nothing on the phone changes for this item.
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row naming which driver walleye builds and why, and walleye's dts written to the binding chosen
