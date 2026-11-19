@@ -3115,3 +3115,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-pmic-wdt-v1-images"></a>
+### walleye-builder: the PMIC watchdog v1 images, A on next and B on v7.3
+
+Entry date
+: 2026-11-19
+
+Done
+: Rebuilt the upstreams lane's next tree from the tag next-20261118 plus the six patches (clean), built kernel A there and kernel B on v7.3 + topic 8b2283da3, wrote init-wdt1 (unarmed at boot; wdt-state, wdt-bite, wdt-reboot; SoC petter by identity; banner lines PON and WDT), its host selftest (seen failing on init-z14, passing on init-wdt1) and build/build-pmic-wdt-v1.sh (81 checks, rebuild identical). Found that the clock_gcc symbol must be fixed after the build and that the display image lacks it (backlog walleye-display-image-clock-gcc). Hashes in the try item and in research walleye-pmic-wdt-v1-images-built. A programmer review found seven issues (arming not read back, the self-reboot racing the bite, a racy selftest, a petter check by text only, and more); all fixed, the selftest now catches five mutations of the init, and the images were rebuilt (87 checks ok, rebuild identical).
+
+Considered
+: Waiting for the lane's own next tree (not on this machine); arming from the init after a delay; a dts property for the reset type (the driver always sets hard 0x07).
+
+Rejected
+: Using /dev/watchdog for the petter (may be the PMIC device, opening arms it). Calling the guard 'the dts type' (there is none).
+
+About
+: walleye-pmic-wdt-proof

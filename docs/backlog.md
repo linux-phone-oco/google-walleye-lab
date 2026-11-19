@@ -5383,17 +5383,10 @@ Witness
 ### Build the Pixel 2 images with the PMIC watchdog v1 series: A on the next-based tree, B on v7.3 plus topic 8b2283da3
 
 Status
-: open
+: done
 
 Note
-: Build item for the attended PMIC watchdog try (decision 2026-11-19-walleye-pmic-wdt-v1-test-first; the author: "Yes, test first"; the upstreams lane's list of what is unproven, docs 607, adds the stop-on-reboot path and the next-based build). Build TWO images so one visit can fall back without another build:
- A = the next-based v1 tree itself (the prepared linux-next tree of the upstreams lane, base next-20261118 = e8017d29, with the six patches of docs research/upstream-forks/2026-11-19/pmic-wdt-gen2-v1/; SEND-NOTES.md names the branch), so what is mailed is what booted. Our walleye dts and config go on top as they are for v7.3; if next needs a change to build or bind, record it.
- B = v7.3 plus the same six patches (a backport, ours as in z21 plus the series).
-Both: patch 1 (reset type set with S2 disabled, read back) and patch 2 (stop on reboot and unregister) at least, the PM8998 compatible, the driver support and the pm8998 node enabled in our dts. UFS stays disabled (tests/host/ufs-off-image.sh must pass on each image); battery rule first.
-Init (same in A and B): print the S2 type read back in the banner (/bin/pon-regs from z10 reads PON registers, reads only); two explicit commands from the telnet shell and no arming on boot: `wdt-bite` arms the watchdog at 20 s and never pets it, and only when the type reads back as the one the dts set (warm 0x01 first, hard 0x07 only on a later try if warm restarted); `wdt-reboot` arms the watchdog (20 s) and then does a clean `reboot`, to prove the stop-on-reboot path. Keep the 180 s self-reboot and /tmp/hold for the unarmed part; the self-reboot must never arm anything.
-Record both image paths and sha256 in this note and in walleye-try-pmic-wdt-v1, run the host selftests, and land.
-
-UPSTREAMS LANE 2026-11-19 (their message to the walleye coordinator): kernel B is v7.3 + linux-phone-oco/linux topic/pmic-wdt-wake-in-suspend at 8b2283da3 (NOT the old pin e123d3bff; patches 1 and 2 there are f5bb57d27 and 8b2283da3, identical in code to the v1 patches 1 and 2, which are only rebased onto next). Image A (next-based v1 tree) stays as asked. In both images switch dynamic debug on for the driver (kernel command line, e.g. dyndbg="file drivers/watchdog/pm8916_wdt.c +p", or the equivalent that works for a built-in) so the banner or dmesg carries "S2 reset control was %#x" (the firmware's type) and shows that the probe does not fail (the read-back passed): the init prints those two lines in the banner.
+: Done 2026-11-19 by walleye-builder (research walleye-pmic-wdt-v1-images-built, decision 2026-11-19-walleye-pmic-wdt-v1-image-choices). Images on the lab machine in ~/Projects/walleye-build/images-wdt1/: boot-wdt1-a.img (A: next-20261118 + the six v1 patches) sha256 6c1dc855cc6777abf51a38dbc92dc1279396187a2bbefef42bb904118211acf8; boot-wdt1-b.img (B: v7.3 + topic 8b2283da3) sha256 5ff05b4f299c081567d2bc3511c5fbc0692180cb2c5be12430939f4b61f198cb. Both pass the UFS gate, rebuild identical, boot UNARMED; commands from the telnet shell (172.16.43.1) or the ACM tty: wdt-state, wdt-bite, wdt-reboot (see the init header). Built with build/build-pmic-wdt-v1.sh, 87 checks ok, 0 FAIL, host selftest tests/host/pmic-wdt-v1-init-selftest.sh. NOTE for the keeper: the driver always sets S2 type 0x07 (hard); the guard in wdt-bite/wdt-reboot compares the read-back with 7, not with 'the dts type' (the dts sets none); if the banner shows s2-type 0x01 the driver did not set it: stop. Not run: QEMU init run, any phone. If S2 type reads unread in the banner (pon-regs was never shown to read on this phone): wdt-state tells whether the PMIC device registered, and 'wdt-bite 7 probe' / 'wdt-reboot 7 probe' trust the driver's own read-back. wdt-bite/wdt-reboot print FAILED, and wdt-reboot does not reboot, when the applet is not running or S2 does not read enabled; arming holds the self-reboot for 90 s.
 
 About
 : walleye-pmic-wdt-proof
@@ -5428,6 +5421,8 @@ KEEPER, in order: (1) the images: the next-based image A first; tests/host/ufs-o
 THE RESULT goes to the upstreams coordinator (its note on the series): what booted (A or B), the bite result, the reboot result. The series stays unsent until then.
 
 UPSTREAMS LANE 2026-11-19 (their message to the walleye coordinator), TO RECORD: (a) with dyndbg on pm8916_wdt: the line "S2 reset control was %#x" (the firmware's type) and that the probe did not fail (the read-back passed); (b) a bite RESTARTS the phone instead of powering it off (z9 powered off); (c) patch 2: after a plain reboot with the watchdog open, the next boot is not reset by the watchdog. SAFETY: after a bite S2 stays enabled, so the next boot must carry pm8916_wdt or it resets every timeout until a full power-off (surya learned this on the POCO X3). The next boot after OUR bite is the phone's own Android (no pm8916_wdt), so a restart loop of about 20 s is EXPECTED there, not only possible: that is why the reboot test goes first and the bite last, and why the author stays at the phone for it: judge the bite pass at the FIRST restart (uptime reset seen once, bootloader or Android reached), then ask him to hold power 15 s, then check fastboot and the first state. When the result is in, send the upstreams coordinator the record id (the research row of this try) and the lab PR.
+
+IMAGES BUILT 2026-11-19 (walleye-builder; research walleye-pmic-wdt-v1-images-built), on the lab machine in ~/Projects/walleye-build/images-wdt1/: A = boot-wdt1-a.img (next-20261118 + the six v1 patches) sha256 6c1dc855cc6777abf51a38dbc92dc1279396187a2bbefef42bb904118211acf8; B = boot-wdt1-b.img (v7.3 + topic 8b2283da3) sha256 5ff05b4f299c081567d2bc3511c5fbc0692180cb2c5be12430939f4b61f198cb. Both pass tests/host/ufs-off-image.sh. At boot nothing is armed. From the telnet shell (172.16.43.1) or the tty: wdt-state (reads), wdt-reboot, wdt-bite; the banner has WALLEYE-BANNER-PON and WALLEYE-BANNER-WDT (watchdogs by identity, s2-type read back, s2-enabled, firmware-type from the driver's dyndbg line, probe, the two kernel lines). THE GUARD: the driver always sets S2 type 0x07 (hard), the dts sets none, so 'the type the dts set' is 7: wdt-bite and wdt-reboot refuse unless the read-back is 7 (wdt-bite 1 only on purpose); if the banner reads s2-type 0x01 the driver did not set it: stop, record, no bite. The SoC petter is found by identity qcom_wdt; the 180 s self-reboot waits while /tmp/hold exists (touch it to stay). If the banner's s2-type is unread (the init's pon-regs reader has never been shown to read on this phone): read wdt-state (probe=pmic-device-registered means the probe's own read-back equalled 7), then use 'wdt-reboot 7 probe' and 'wdt-bite 7 probe'; the init then cannot confirm S2 enabled after the arming (after=unread). Both commands print FAILED and (wdt-reboot) do not reboot when the applet is not running or S2 does not read enabled; arming holds the 180 s self-reboot for 90 s.
 
 Blocked by
 : walleye-pmic-wdt-v1-image
@@ -5502,6 +5497,31 @@ Needs
 
 Proof
 : the DRM connector is connected and a test pattern is seen by a person (test: walleye-display-pattern)
+
+Rank
+: 3
+
+
+<a id="walleye-display-image-clock-gcc"></a>
+### Rebuild the display image with /__symbols__/clock_gcc at the real gcc (tests/host/overlay-clock-gcc.sh fails on boot-display.img's dtb)
+
+Status
+: open
+
+Note
+: Found by walleye-builder while building the PMIC v1 images (research walleye-pmic-wdt-v1-images-built): build-display-image.sh takes the dtb from build-display.sh and never runs z3's fdtput of clock_gcc; on images-display/msm8998-google-walleye-display.dtb the test says clocks[0]=321 want 36 for i2c@c179000, serial@c16f000, bt_wcn3990 and mnh-sm, so the touch i2c and the serial may wait on the empty stub as before z3. Change build-display-image.sh (or build-display.sh) the way build-pmic-wdt-v1.sh does (copy the dtb, fdtput, check before and after) and add overlay-clock-gcc to its checks. The display try waits for the attended visit anyway: say the new hash in walleye-try-display.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: overlay-clock-gcc passes on the display image's dtb (the four overlay clock users name the real gcc), the UFS gate passes, the image rebuilt and hashed; the try item walleye-try-display notes the new hash
 
 Rank
 : 3
