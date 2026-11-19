@@ -3766,3 +3766,21 @@ Rejected
 
 About
 : walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-19-2330-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed, adb up (idle-android pass). L3 tried once from memory: shell up, 13 display modules load, c994000.dsi still deferred silently, no DRM card. Item walleye-try-display-late-probe-l3 done; lease released.
+
+Considered
+: next: builder/research - which msm dsi host get defers (source read, then L4 with dev_err_probe or another vdd rail); keeper next: walleye-attend-pmic-unattended-run, walleye-tas2557-firmware-source, walleye-haptics-i2c-answers
+
+About
+: walleye-display-s6e3fa5
