@@ -2331,3 +2331,34 @@ About
 
 Tracked by
 : walleye-try-settings-into-device-toml
+
+
+<a id="2026-11-19-walleye-stripes-text-mode-off-while-held"></a>
+### 2026-11-19-walleye-stripes-text-mode-off-while-held
+
+Date
+: 2026-11-19
+
+Brief
+: The stripe drawer puts the console in KD_GRAPHICS (KDSETMODE on /dev/tty0) while the stripes are held, and back to KD_TEXT after the release
+
+Decision
+: walleye-stripes opens /dev/tty0, sets KD_GRAPHICS before the first write, and sets KD_TEXT again after the release and clear, also when the draw failed; its log also carries /proc/consoles and each /sys/class/vtconsole/vtcon*/{name,bind}. The pan, the forced set_par and the unblank stay. Proposed for the builder; nothing on the phone is changed by this decision.
+
+Why
+: The v7.3 source shows the drawer's own FBIOPUT_VSCREENINFO repaints the console over the stripes (fbcon_modechanged -> update_screen), and every fbcon repaint path returns early in KD_GRAPHICS; the ioctls all returned 0 and the author saw a red-blue-green blip, so the commit path works.
+
+Rejected
+: Unbinding fbcon (vtcon bind=0): also silences it but detaches the console from every fb for the rest of the boot, bigger than the question needs. Drawing through the DRM master: right for a compositor later, a new program for a question the fbdev path answers. Dropping FBIOPUT_VSCREENINFO alone: the next console write or unblank still repaints.
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-stripes-brief-fbcon-repaints-the-stripes
+
+Scope
+: tools/walleye-stripes, procedures/display-stripes-on-the-pixel-2.rs, the builder, the keeper's try
+
+Tracked by
+: walleye-stripes-kd-graphics

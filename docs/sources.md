@@ -1144,3 +1144,16 @@ Year
 
 Takes
 : open review points: board-specific startup GPIO table, PLL index range, firmware device-count check, suspend mute of sense
+
+
+<a id="linux-v7-3-fbcon-fbmem"></a>
+### Linux v7.3: drivers/video/fbdev/core/fbmem.c, fbcon.c and drivers/tty/vt/vt.c, vt_ioctl.c (the tree the walleye image is built from)
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/video/fbdev/core/fbcon.c?h=v7.3
+
+By
+: Linux kernel
+
+Takes
+: fb_set_var_from_user calls fbcon_update_vcs, which repaints the visible console (fbcon_modechanged: update_screen); fbcon_modechanged, fbcon_fb_blanked and vt_console_print all skip when vc_mode is not KD_TEXT; KDSETMODE (vt_kdsetmode) switches that mode
