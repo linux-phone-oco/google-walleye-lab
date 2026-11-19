@@ -118,7 +118,7 @@ product = "Pixel 2 walleye (mainline banner shell)"
 label = "walleye-init"
 rndis = false
 
-# What the attended tries (tests/attended/*.rs, plumbing in tools/walleye-tries) read about this phone; each fact in the table that
+# What the attended tries (procedures/*.rs, plumbing in tools/walleye-tries) read about this phone; each fact in the table that
 # owns it (decision 2026-11-19-attended-keys-in-the-manifest). Every key is read at the top of main: a missing one fails --dry-run.
 [tools]
 adb = "adb"

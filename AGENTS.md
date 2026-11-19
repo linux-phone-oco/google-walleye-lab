@@ -14,7 +14,7 @@ Principles of linux-phone-oco, cited and never restated ([`tad q principles`](ht
   test images (a passwordless telnet shell on 172.16.43.1, no login). `lpoco lab phone`, `suite` and `health` need an
   ssh user and its password in `~/.config/devlab/google-walleye/password`: that file does not exist and is **never
   created**, and its absence is NOT a blocker. Read the phone with `tests/host/phone-state.sh`, `idle-android.sh`,
-  `battery-ok.sh`, `mainline-shell-read.sh` and the programs in `tests/attended/`; say 'suite not read: no login' in the record.
+  `battery-ok.sh`, `mainline-shell-read.sh` and the procedures in `procedures/`; say 'suite not read: no login' in the record.
 - **Keep the phone known-working.** A test kernel is a second boot entry tried once by boot counting,
   falling back to stock by itself; never the initramfs debug shell on an unattended try. Every change
   ends with the phone's health report - read it.
