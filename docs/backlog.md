@@ -5266,3 +5266,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-shell-past-glue-into-rust"></a>
+### Move shell with logic into Rust as each file is touched (practice 21): the rule, the debt count, the first moves
+
+Status
+: open
+
+Note
+: Request from orchestration (ideal-agent 0.3.56). Not one rewrite; much of build/ falls away with walleye-init-from-roof.
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: Practice 21, tightened on the author's word (docs/ideal-agent decision 2026-11-19-rust-for-scripts-shell-only-glue): shell is only for one-off glue (a few commands in order: no parsing, no loops over data, no functions); anything with logic is Rust (rust-script for a single file, a crate for what repeats). google-walleye-lab carries about 6,316 lines of shell (build/, tests/host), the most of any repo. NOT one rewrite: (1) a rule for every change from now on, in the lab's AGENTS.md: a script that is touched and has logic is moved to Rust in the same change (the tests/host readers, phone-state, part-compare, overlay-collisions, the check scripts); a NEW script with logic starts in Rust (rust-script); (2) a count the lab keeps honest: tests/host/shell-debt.sh (glue-only, so shell is fine) prints the lines of shell with logic (files with `while`, `for ... in`, functions, `case`, parsing pipes) per file, ordered, and the CI check prints it (informing, not failing) so the debt shows; (3) the first moves, in order of use and value: tests/host/phone-state.sh (every keeper calls it), tests/host/part-compare.sh (a general helper orchestration may lift into lpoco-bringup: write it in Rust there rather than here), tests/host/overlay-collisions.sh and ufs-off-image.sh (the gates), mainline-shell-read.sh; each move keeps the same CLI and its selftest, now as cargo tests with fake captures; (4) the init scripts (initramfs sh that runs ON the phone in busybox ash) are a different matter: they are the phone's own sh, and walleye-init-from-roof replaces most of them with lpoco-bringup's generated init; do not rewrite those; (5) no new Python
+
+Rank
+: 40
