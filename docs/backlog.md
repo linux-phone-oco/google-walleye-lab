@@ -5891,10 +5891,10 @@ Rank
 ### UFS_HW_VERSION 3.0.0 or 3.1.0: narrow it from Android's side without a register read
 
 Status
-: open
+: done
 
 Note
-: Missing from Android's side: the version register is not readable on live Android (decision 2026-11-19-walleye-ufs-version-read-in-our-driver). Next step: the research row above; whatever stays unknown is read first thing by the matched image's own probe.
+: Researched 2026-11-19 (walleye-ufs-version-from-source): still two, 3.0.0 or 3.1.0; no trace on Android; settled by the matched image's own read at the try.
 
 About
 : walleye-ufs-match-android-z
