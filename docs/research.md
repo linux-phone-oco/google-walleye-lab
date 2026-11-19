@@ -3773,3 +3773,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-19-ufs-ice/
+
+
+<a id="walleye-display-late-probe-try1-no-gadget"></a>
+### walleye-display-late-probe-try1-no-gadget
+
+Date
+: 2026-11-19
+
+Brief
+: Late-probe image tried once: no gadget at all (no 1d6b:0104), Android back after 57 s; same as d1, so the loss is not the display modules
+
+Question
+: Does the display late-probe image (display dtb, DRM/msm/panel as modules) reach the shell so the modules can be loaded by hand with the log streamed?
+
+Found
+: Gates passed first: battery 4375 mV, ufs-off-image.sh pass on boot-display-late.img, sha256 ok. adb reboot bootloader, lpoco lab fastboot boot now: left fastboot after 15 s, came back as Android slot b after 57 s. The host kernel log shows only Android's 18d1:4ee0 then 18d1:4ee7 (Pixel 2): no mainline gadget ever enumerated, so the shell, netconsole and TCP stream never existed and display-late-probe.sh could not run; no last-line finding. Same dead-kernel path as d1 (57 s). The modules are not loaded at boot in this image, so the cause lies in what d1 and this image share and d0 lacks: the display nodes (mdss, display controller, panel) in the dtb, or the DRM built-in parts. Nothing flashed; phone on Android slot b, adb up, battery 4384 mV. Item walleye-try-display-late-probe stays open: its proof is not met. Next, for the lane coordinator: a dtb with the display nodes disabled on this kernel with the late-probe ramdisk, to prove dtb nodes and not kernel; or a ramoops read of this death.
+
+About
+: walleye-display-s6e3fa5
