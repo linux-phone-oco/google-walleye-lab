@@ -3460,3 +3460,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-display-bisect-images"></a>
+### walleye-builder: the display bisect images d0, d1, d2
+
+Entry date
+: 2026-11-19
+
+Done
+: Three boot images on z21's boot.img: d0 the display kernel with z21's dtb, d1 mdss and the display controller only, d2 plus DSI and its PHY, no panel node; a series file, a parts script and a count script (21+ checks ok; a z21-kernel negative run fails it), UFS-off gate passes on each, sha256 recorded. A programmer review found the count script too trusting; it now reads the display kernel and the stage dtbs itself. Not run on any phone.
+
+Considered
+: Whether the stale-looking dtb in images-display is read: build-display-image.sh reads it as raw input and fixes clock_gcc itself
+
+Rejected
+: Rebuilding the dtbs from source: the image's own bytes are the proof of the stage
+
+About
+: walleye-display-s6e3fa5

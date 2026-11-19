@@ -256,3 +256,10 @@ Three things to know when you run them:
 - **The parts of pk456 are made by hand:** `lpoco-bringup image unpack IMG --out parts-series/NAME` for pk3, ml6a, ml5b, then
   `head -c $((KERNEL_SIZE - DTB_SIZE)) ml6a/kernel > ml6a/Image.gz` (the dtb is `appended.dtb`, the tail of `kernel`). Not scripted; the s3o image
   (our dtb with overlay stubs) the old script could add is not declared.
+
+## The display bisect images d0, d1, d2
+
+z21's boot.img with the display kernel (`d0`), then the display dtb in stages: `d1` mdss and the display controller only, `d2` plus the DSI host and its PHY, no panel node (`d3` is `images-display/boot-display.img`, tried: no shell).
+`build/build-display-bisect-dtbs.sh images-display/boot-display.img images-display-bisect` cuts Image.gz, `d1.dtb` and `d2.dtb` from that image (counting what differs),
+`lpoco-bringup image bisect build/series/display-bisect.toml --out images-display-bisect` packs the three, `build/check-display-bisect.sh IMAGES Z21 PARTS BOOT_DISPLAY_IMG` counts each against z21 (and the parts against the display image)'s (ramdisk, header, size, footer, UFS-off gate) and writes `SHA256SUMS`.
+Built only; the try is walleye-try-display-bisect.

@@ -1777,3 +1777,28 @@ Research
 
 Tracked by
 : walleye-ufs-match-android-z
+
+
+<a id="2026-11-19-walleye-display-bisect-parts-from-the-image"></a>
+### 2026-11-19-walleye-display-bisect-parts-from-the-image
+
+Date
+: 2026-11-19
+
+Brief
+: Display bisect d1 and d2 are cut from the dtb inside boot-display.img; the panel's remote-endpoint goes with the panel node
+
+Decision
+: d0, d1, d2 are lpoco-bringup series images on z21's boot.img (build/series/display-bisect.toml). Image.gz and the dtb are cut from boot-display.img (ed155326, clock_gcc on the real gcc); d1 = mdss and display controller okay, DSI and PHY disabled, panel node and the DSI output's remote-endpoint removed; d2 = d1 with DSI and PHY okay. images-display/msm8998-google-walleye-display.dtb (84c72763) is not stale for the build: build-display-image.sh reads it as the raw input and fdtputs clock_gcc; no bisect image reads it.
+
+Why
+: Cutting from the image makes the parts the very bytes the tried d3 boots, so a difference is the stage and nothing else; checked by decompiled diff, and check-display-bisect.sh reads the stage dtbs and the display kernel itself.
+
+Rejected
+: Rebuilding the dtbs from the dts: a second route to the same bytes with a chance to differ; leaving the dangling remote-endpoint: it names a phandle of a node that is gone; deleting the raw dtb in images-display: build-display-image.sh needs it
+
+About
+: walleye-display-s6e3fa5
+
+Tracked by
+: walleye-display-bisect-images

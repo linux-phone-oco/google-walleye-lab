@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# d0, d1, d2 (backlog walleye-display-bisect-images): z21's boot.img (shell comes up) with the display kernel, then the display dtb in stages; d3 = images-display/boot-display.img (no shell, tried).
+# The parts are build/build-display-bisect-dtbs.sh's. Run: lpoco-bringup image bisect build/series/display-bisect.toml --out OUT; every image passes tests/host/ufs-off-image.sh (build/check-display-bisect.sh).
+control = "../../../../walleye-build/images-z21/boot-z21.img"
+
+[[image]]   # the display kernel (DRM, DPU, DSI, panel driver built in) with z21's dtb unchanged
+name = "d0"
+kernel = "../../../../walleye-build/images-display-bisect/Image.gz"
+
+[[image]]   # + the display dtb with mdss and the display controller only
+name = "d1"
+kernel = "../../../../walleye-build/images-display-bisect/Image.gz"
+dtb = "../../../../walleye-build/images-display-bisect/d1.dtb"
+
+[[image]]   # + the DSI host and its PHY, panel node absent
+name = "d2"
+kernel = "../../../../walleye-build/images-display-bisect/Image.gz"
+dtb = "../../../../walleye-build/images-display-bisect/d2.dtb"
