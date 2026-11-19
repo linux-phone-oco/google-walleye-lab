@@ -4277,40 +4277,6 @@ Rank
 : 2
 
 
-<a id="walleye-try-z13"></a>
-### Try z13 once from slot b: the UFS read-only try with the Hynix quirks and the purge guard at the send (replaces walleye-try-z12)
-
-Status
-: open
-
-Note
-: Never run without the author's word. z12's purge guard missed ufs_bsg; z13 has it at the UPIU send.
-
-Waits
-: the author said 'Yes, wait' (decision 2026-11-18-walleye-ufs-wait): no UFS probe until an EDL way back is known or he says go
-
-Blocked by
-: walleye-ufs-off-gate
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: phone
-
-Proof
-: z13 once from slot b (images-z13/boot-z13.img sha256 b8348e40182e93f1f6c575abdcf586fc6ff91ebaed68bd0a9ecf51f2522cb89f), the z11 recipe; then tests/host/ufs-lsblk-check.sh must say pass (walleye-ufs-lsblk)
-
-Rank
-: 96
-
-Witness
-: person
-
-
 <a id="walleye-try-z11"></a>
 ### Try z11 once from slot b: do the UFS LUNs and partitions show, and does boot_a's header read ANDROID!?
 
@@ -4321,7 +4287,7 @@ Note
 : Use z12 instead (walleye-try-z12): z11 has no Hynix quirks, so it is not to be tried.
 
 Waits
-: the author said 'Yes, wait' (decision 2026-11-18-walleye-ufs-wait): no UFS probe until an EDL way back is known or he says go
+: the Android-derived solution (the lane's work: items walleye-ufs-gap-*, then walleye-ufs-solution-extracted); then the go note goes to the author (research walleye-ufs-go-note, refreshed) and his word opens the try (decisions 2026-11-19-walleye-ufs-android-derived-solution, 2026-11-19-walleye-ufs-hold-second-path)
 
 About
 : walleye-first-fastboot-boot
@@ -5576,7 +5542,7 @@ Note
 : Image: ~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-match/NOT-TO-BOOT-ufs-on-ufs-match.img (sha256 f8f6215e...4f45). The UFS-off gate refuses it by design: a keeper needs the author's go before any gate exception. Not queued (no needs) until the go.
 
 Waits
-: the author's explicit go on UFS (decision 2026-11-18-walleye-ufs-wait); no keeper queue until it
+: the Android-derived solution (the lane's work: items walleye-ufs-gap-*, then walleye-ufs-solution-extracted); then the go note goes to the author (research walleye-ufs-go-note, refreshed) and his word opens the try (decisions 2026-11-19-walleye-ufs-android-derived-solution, 2026-11-19-walleye-ufs-hold-second-path)
 
 Blocked by
 : walleye-ufs-match-android-z
@@ -5903,7 +5869,7 @@ Note
 : Parked. Decision 2026-11-19-walleye-attended-tries-one-command. ENTRY FILE (the author, 2026-11-19, via the Top Coordinator, verbatim: "make sure the rust program reads cleanly and simply on the top entry file level, like any other simple scripted procedure would read"): the entry file reads top to bottom like a checklist, ONE plainly named call per step (boot_image, read_dmesg, draw_pattern, ask_author("..."), back_to_android, ...), each stopping the run on failure; plumbing, parsing and retries live in helper modules or lpoco's shared runner; the whole procedure fits on one screen. A programmer review checks this by reading the entry file alone. SHARED RUNNER (orchestration, 2026-11-19): write the program against lpoco-attended, the crate of lab-tools (dir attended/, example in attended/examples/), used from a rust-script entry file with a cargo git dependency on linux-phone-oco/lab-tools at tag lpoco-attended-vX.Y.Z (orchestration sends the tag; until then a path dependency on the lab-tools builder's worktree or branch). Entry file: use lpoco_attended::prelude::*; then in order procedure("name", "google-walleye"); step("what", || ...); check("what must hold", || ...); ask_author("what to do, what to check"); each stops the run on failure; phone() reaches the device through devlab; --dry-run and the log come from the library. Our own plumbing (readers, parsing, retries) goes in helper modules of this lab, not in the entry file and not in a copy of the runner. Anything the runner lacks: write it in a note in the shared notes folder for orchestration (what is missing, which step needed it); do not work around it with your own runner.
 
 Waits
-: the author's go on UFS (decisions 2026-11-18-walleye-ufs-wait, 2026-11-19-walleye-ufs-hold-second-path); not started before
+: the Android-derived solution (the lane's work: items walleye-ufs-gap-*, then walleye-ufs-solution-extracted); then the go note goes to the author (research walleye-ufs-go-note, refreshed) and his word opens the try (decisions 2026-11-19-walleye-ufs-android-derived-solution, 2026-11-19-walleye-ufs-hold-second-path)
 
 About
 : walleye-ufs-match-android-z
@@ -5919,3 +5885,234 @@ Proof
 
 Rank
 : 99
+
+
+<a id="walleye-ufs-gap-version"></a>
+### UFS_HW_VERSION 3.0.0 or 3.1.0: narrow it from Android's side without a register read
+
+Status
+: open
+
+Note
+: Missing from Android's side: the version register is not readable on live Android (decision 2026-11-19-walleye-ufs-version-read-in-our-driver). Next step: the research row above; whatever stays unknown is read first thing by the matched image's own probe.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row: the vendor kernel's dmesg ufs-phy lines (if any survive), the vendor dts phy node and the selection logic in the GPL wahoo 4.4 source, what each version's tables set per lane, and any public record for MSM8998 phones; verdict: known / narrowed to one with the evidence / still two, and what the matched image's own first read then settles
+
+Rank
+: 6
+
+
+<a id="walleye-ufs-gap-link-startup"></a>
+### Android's link-startup pre-change (RX line config, PA_VS_CONFIG_REG1 mask, hardware clock gating): spell it from source and decide whether the image carries it
+
+Status
+: open
+
+Note
+: Missing from Android's side: the matched image does NOT carry it (decision 2026-11-19-walleye-ufs-match-no-ice-no-linkstartup: no new unreviewed hardware code before the solution is understood). Next step: the research row, then the patch if recommended.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row spelling the three steps with register addresses and values from the GPL wahoo 4.4 ufs-qcom source, what mainline does for other Qualcomm hosts at link startup, and a recommendation (carry, carry later, do not), with the programmer's read; if carry: a build item for a reviewed patch on the matched image's kernel branch (built, not tried)
+
+Rank
+: 7
+
+
+<a id="walleye-ufs-gap-ice"></a>
+### Inline crypto engine: what Android's probe does with ICE before the first command, and whether the card path needs it
+
+Status
+: open
+
+Note
+: Missing from Android's side: ICE (decision 2026-11-19-walleye-ufs-match-no-ice-no-linkstartup). Next step: the research row.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row: the order of Android's ICE init (clocks, reset, key slots) against the first UFS command in the GPL source, whether any of it can touch the link or the card (the earlier judgement: no), mainline's lack of an MSM8998 ICE node and binding, and a recommendation (skip for a read-only probe, or what to add)
+
+Rank
+: 8
+
+
+<a id="walleye-ufs-gap-abl-handover"></a>
+### What the bootloader leaves the UFS host and card in when it hands over to a RAM-booted kernel
+
+Status
+: open
+
+Note
+: Missing from Android's side: Android starts from its own ABL path; a fastboot-booted kernel inherits what abl left. Next step: the research row from existing dmesg first.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row: from the dmesg of the four images that had UFS on by accident (research walleye-ufs-on-by-accident: z15, z16, z17, z20) and the GPL sources of what the vendor and mainline drivers expect (host already enabled, link up, card powered), the state at our kernel's start and what the matched image's reset and enable path does about it; the unknown, if any, as a question the try answers
+
+Rank
+: 9
+
+
+<a id="walleye-ufs-gap-lane1"></a>
+### Whether lane 1 works under the 3.0.0 PHY table (it sets lane 0 only)
+
+Status
+: open
+
+Note
+: Missing: only matters if the version reads 3.0.0. Next step: the research row.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row from the GPL tables: what the 3.0.0 table programs for lane 1 (TX/RX), whether Android's HS-G3 two-lane link at version 3.0.0 relies on something outside the table, and what the matched image would show if lane 1 stayed down (one lane, link up at half speed: a read still works)
+
+Rank
+: 10
+
+
+<a id="walleye-ufs-gap-sony-mechanism"></a>
+### Why Sony's yoshino phone lost its bootloader with a UFS probe lacking quirks: the public record
+
+Status
+: open
+
+Note
+: The go note's unknown 4 (research walleye-ufs-go-note). Next step: the research row.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row from public sources (mailing lists, commit messages, forum records of the yoshino UFS bricking): the mechanism if anyone published it, which command, which card, and whether the matched image's path can send it (purge, erase, a write with the wrong descriptor); the verdict in plain words, 'not published' counted as a finding with the sources searched
+
+Rank
+: 11
+
+
+<a id="walleye-ufs-gap-perf"></a>
+### Bus votes, PM-QoS, hardware-gated clocks, the ufs_reset pad drive: what each does and whether a probe needs it
+
+Status
+: open
+
+Note
+: Missing from Android's side: these differences are judged harmless, not proven (research walleye-ufs-go-note). Next step: the research row.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row: per item what the vendor driver does, what breaks without it (performance, power, or the link), the source line, and the answer for a read-only probe (expected: not needed; the pad drive belongs with the RST_n pulse the image already carries)
+
+Rank
+: 12
+
+
+<a id="walleye-ufs-solution-extracted"></a>
+### The working solution extracted from Android: one table of Android's UFS path against the matched image after the gaps, ending in the refreshed go note
+
+Status
+: open
+
+Note
+: The lane's own work, not parked on the author (his words, 2026-11-19: "im not holding it back, im waiting until we have all we can from android and a working solution that is extracted from that as we were discussing before"). When this is done the go note goes to him and his word opens walleye-try-ufs-match.
+
+Blocked by
+: walleye-ufs-gap-version,walleye-ufs-gap-link-startup,walleye-ufs-gap-ice,walleye-ufs-gap-abl-handover,walleye-ufs-gap-lane1,walleye-ufs-gap-sony-mechanism,walleye-ufs-gap-perf
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: a research row: every step of Android's bring-up of this card against the image, each equal / carried / judged harmless with the source / unknown with the question the try answers; the matched image rebuilt if a gap item changed it; the go note (research walleye-ufs-go-note) refreshed in plain words, ready for the Top Coordinator to bring to the author
+
+Rank
+: 13
+
+
+<a id="walleye-try-z13"></a>
+### Try z13 once from slot b: the UFS read-only try with the Hynix quirks and the purge guard at the send (replaces walleye-try-z12)
+
+Status
+: dropped
+
+Note
+: Dropped 2026-11-19: superseded by walleye-try-ufs-match (the matched image replaces z13: builder, decision 2026-11-19-walleye-ufs-match-no-ice-no-linkstartup; coordinator word). The UFS try now waits on the Android-derived solution (decision 2026-11-19-walleye-ufs-android-derived-solution).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: z13 once from slot b (images-z13/boot-z13.img sha256 b8348e40182e93f1f6c575abdcf586fc6ff91ebaed68bd0a9ecf51f2522cb89f), the z11 recipe; then tests/host/ufs-lsblk-check.sh must say pass (walleye-ufs-lsblk)
+
+Rank
+: 96
+
+Witness
+: person
