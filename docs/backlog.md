@@ -5916,10 +5916,10 @@ Rank
 ### Android's link-startup pre-change (RX line config, PA_VS_CONFIG_REG1 mask, hardware clock gating): spell it from source and decide whether the image carries it
 
 Status
-: open
+: done
 
 Note
-: Missing from Android's side: the matched image does NOT carry it (decision 2026-11-19-walleye-ufs-match-no-ice-no-linkstartup: no new unreviewed hardware code before the solution is understood). Next step: the research row, then the patch if recommended.
+: Research walleye-ufs-gap-link-startup-read: do not carry (decision 2026-11-19-walleye-ufs-linkstartup-do-not-carry). Programmer's read not taken (no carry). Open question for the try: read PHY+0x130 bit1.
 
 About
 : walleye-ufs-match-android-z

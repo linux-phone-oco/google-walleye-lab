@@ -3703,3 +3703,29 @@ Sources
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-ufs-gap-link-startup-read"></a>
+### walleye-ufs-gap-link-startup-read
+
+Date
+: 2026-11-19
+
+Brief
+: Android's link-startup pre-change = timers, RX linecfg on, core clk 150, HW clock gating, LCC off, SAVECONFIGTIME mask; mainline matches all but RX linecfg and the mask: do not carry
+
+Question
+: What does the GPL wahoo 4.4 ufs-qcom do before link startup (three Qualcomm-specific steps), what does mainline do for other Qualcomm hosts, and should the matched image carry the difference?
+
+Found
+: Read 2026-11-19 from the GPL source (android-msm-wahoo-4.4-android11 ufs-qcom.c, ufs-qcom.h, phy-qcom-ufs-qmp-v3.h) against the local mainline tree (surya-audio/linux, ufs-qcom.c); nothing run on the phone.
+Android ufs_qcom_link_startup_pre_change, in order: (0) cfg_timers(G1, SLOWAUTO, link-startup timer) - clock-cycle registers; (1) ufs_qcom_phy_ctrl_rx_linecfg(true): clear bit1 (UFS_PHY_RX_LINECFG_DISABLE_BIT) of UFS_PHY_LINECFG_DISABLE = PHY_OFF(0x130) in the v3 PHY, readl/modify/writel, so RX LineCfg is on; (2) if QUNIPRO: DME_VS_CORE_CLK_CTRL (0xD002): MAX_CORE_CLK_1US_CYCLES (mask 0xFF) = 150, clear CORE_CLK_DIV_EN (bit 8); (3) ufs_qcom_enable_hw_clk_gating: REG_UFS_CFG2 (0xE0) |= bits 0-7 (all CGC_EN), then if QUNIPRO_CLK_GATING (hw major >= 3): DME rmw DL_VS_CLK_CFG (0xA00B) |= 0x3FF, PA_VS_CLK_CFG_REG (0x9004) |= 0x1FF, DME_VS_CORE_CLK_CTRL bit 9 (DME_HW_CGC_EN); (4) PA_LOCAL_TX_LCC_ENABLE (0x155E) = 0 unless UniPro 1.41; (5) if QUNIPRO_CLK_GATING: DME rmw PA_VS_CONFIG_REG1 (0x9000) |= SAVECONFIGTIME_MODE_MASK 0x6000. The 'three steps' of the item are: RX line config (1), the PA_VS_CONFIG_REG1 mask (5), hardware clock gating (3).
+Mainline link_startup_notify PRE_CHANGE: cfg_timers; set_core_clk_ctrl (the same 0xD002 cycles/div step, scaled to the core clock rate, not a fixed 150); ufshcd_disable_host_tx_lcc (same as (4)). Hardware clock gating moved to hce_enable_notify POST_CHANGE (ufs_qcom_enable_hw_clk_gating: same CFG2 bits, same three DME rmw, unconditional on version) - before link startup, as before. Mainline has NO RX linecfg write (the v4/v6 PCS headers define LINECFG_DISABLE offsets but no code uses them; grep over drivers/phy/qualcomm and ufs-qcom.c) and NO SAVECONFIGTIME_MODE_MASK write (its PA_VS_CONFIG_REG1 use is a different, quirk-gated bit 12). The MSM8998 PHY compatible maps to sdm845_ufsphy_cfg; that, sdm845, sm8150 and the later hosts bring UFS up on mainline without those two steps.
+Findings: (a) clock gating, LCC off and core clock control: the matched image has them through mainline (power and timing, none gates the link). (b) RX linecfg: the only link-relevant difference; vendor comment ties line-cfg trouble to power-mode change on some devices (UniPro 1.41 post-change disable only); whether the bit resets to enabled is not in the sources - an unknown the try can answer by one read of PHY+0x130 and needs no write. (c) PA_VS_CONFIG_REG1 0x6000: a Qualcomm-internal SaveConfigTime mode, power-mode-change time, no effect before the link is up; mainline hosts run without it.
+Recommendation: do not carry. The image's mainline path equals Android's for what the link needs; the two missing steps are absent on every mainline Qualcomm host that boots from UFS, and the decision 2026-11-19-walleye-ufs-match-no-ice-no-linkstartup already bars new unreviewed hardware code. If the try's link comes up and a read of PHY+0x130 shows bit1 set, nothing is left; if link startup fails with the line-cfg bit set (disabled), the carry then is one reviewed PHY write - recorded as the fallback, not built now. The programmer's read of this was not taken: the item proof asks for it only on a carry, and the verdict is no carry; if the author wants one, it is a reading of two diffs of about 20 lines.
+
+Sources
+: wahoo-4-4-ufs-qcom-c,wahoo-4-4-ufs-qmp-v3,mainlining-dev-ufs-phy-driver
+
+About
+: walleye-ufs-match-android-z
