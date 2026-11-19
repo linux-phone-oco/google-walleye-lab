@@ -3097,3 +3097,21 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-display"></a>
+### walleye-builder: the display driver compiled from the phone's own panel facts, image built
+
+Entry date
+: 2026-11-19
+
+Done
+: Took the unlanded display branch of earlier runs; it did not compile (reset and on functions deleted). Read the S6E3FA5 node of the phone's dtbo and restored them with its sequences; built Image.gz and the display dtb, then boot-display.img on z21's ramdisk; every check ok incl. the UFS-off gate. Queued walleye-try-display (witness: person). Not lit: untried.
+
+Rejected
+: Lighting the panel with the OnePlus 5 init: not the Pixel 2's own.
+
+About
+: walleye-first-fastboot-boot

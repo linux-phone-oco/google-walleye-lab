@@ -1,0 +1,99 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Variant display of the walleye board file (item walleye-display-s6e3fa5): the same tree plus the display path -
+ * the memory-mapped display subsystem (MDSS, DPU, DSI 0 and its PHY) and the Samsung S6E3FA5 command-mode panel,
+ * 1080x1920 on four lanes, reset gpio94, tearing-effect gpio10, rails PM8998 L14 (1.8 V I/O) and L22 (3.0 V analog).
+ * The main file stays as it is: the images already tried keep their dtb byte for byte.
+ * The panel has no LAB/IBB and no WLED: its backlight is set by DCS commands (the driver registers it).
+ */
+#include "msm8998-google-walleye.dts"
+
+&rpm_requests {
+	regulators-0 {
+		vdd_l18_l22-supply = <&vreg_bob>;
+
+		vreg_l14a_1p8: l14 {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			regulator-allow-set-load;
+		};
+
+		vreg_l22a_3p0: l22 {
+			regulator-min-microvolt = <3000000>;
+			regulator-max-microvolt = <3000000>;
+			regulator-allow-set-load;
+		};
+	};
+};
+
+&tlmm {
+	mdss_dsi_active_state: mdss-dsi-active-state {
+		pins = "gpio94";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-disable;
+	};
+
+	mdss_dsi_suspend_state: mdss-dsi-suspend-state {
+		pins = "gpio94";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
+
+	mdss_te_state: mdss-te-state {
+		pins = "gpio10";
+		function = "mdp_vsync_a";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
+};
+
+&mmss_smmu {
+	status = "okay";
+};
+
+&mdss {
+	status = "okay";
+};
+
+&mdss_mdp {
+	status = "okay";
+};
+
+&mdss_dsi0 {
+	status = "okay";
+
+	vdda-supply = <&vreg_l2a_1p2>;
+
+	panel@0 {
+		compatible = "samsung,s6e3fa5";
+		reg = <0>;
+
+		vddio-supply = <&vreg_l14a_1p8>;
+		vci-supply = <&vreg_l22a_3p0>;
+
+		reset-gpios = <&tlmm 94 GPIO_ACTIVE_LOW>;
+
+		pinctrl-names = "default", "sleep";
+		pinctrl-0 = <&mdss_dsi_active_state &mdss_te_state>;
+		pinctrl-1 = <&mdss_dsi_suspend_state &mdss_te_state>;
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&mdss_dsi0_out>;
+			};
+		};
+	};
+};
+
+&mdss_dsi0_out {
+	remote-endpoint = <&panel_in>;
+	data-lanes = <0 1 2 3>;
+};
+
+&mdss_dsi0_phy {
+	status = "okay";
+
+	vdds-supply = <&vreg_l1a_0p875>;
+};
