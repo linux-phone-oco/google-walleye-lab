@@ -3157,3 +3157,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-layer-declared"></a>
+### walleye's device layer declared in device.toml
+
+Entry date
+: 2026-11-19
+
+Done
+: Added [layer] (name google-walleye, no needs, kernel linux-phone-oco/linux topic/pmic-wdt-wake-in-suspend with build/walleye.config and the walleye dtb, boot android-bootimg, firmware extract-from-partitions) and [boot] (header v0, base 0, kernel 0x8000, ramdisk 0x1000000, tags 0x100, page 4096, 32 MiB partition, msm-id, dtb appended, AVB footer). Checked with lpoco-manifest's own parser (Manifest::parse from lab-tools main 51e5e87, a scratch example): ok; a bad boot method is refused.
+
+Considered
+: The cmdline is the plain Android one of the z-line without the diagnostic dyndbg words.
+
+Rejected
+: Declaring UCM or udev files: walleye has none, none invented. Naming firmware partition files: the schema holds a method only, so the sources are said in a comment. Declaring [boot.gadget] here: that is walleye-init-from-roof.
+
+About
+: walleye-first-fastboot-boot
