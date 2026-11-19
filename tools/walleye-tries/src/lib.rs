@@ -12,4 +12,5 @@ pub mod pmic;
 pub mod reader;
 pub mod settings;
 pub mod touch;
+pub mod ufs;
 pub mod watch;
