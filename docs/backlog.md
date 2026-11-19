@@ -6728,3 +6728,56 @@ Proof
 
 Rank
 : 20
+
+
+<a id="walleye-display-late-probe-l3-image"></a>
+### L3: the late-probe image L1 plus the vdd-supply on the dsi node, the rail read from the phone's own dtbo
+
+Status
+: open
+
+Note
+: Research walleye-display-why-dsi-defers-silently (PR 454): the DRM master waits for c994000.dsi, deferred with an empty reason, because msm_dsi_host_init asks for the regulators 'vdd' and 'vdda' (msm8998_dsi_cfg) and the node has vdda-supply, vci-supply, wqhd-vddio-supply and no vdd-supply; devm_regulator_bulk_get returns without a message. Not proven until an image with the supply binds the dsi: this image is the proof's first half, the try is the second. No phone read is needed for the rail: the dtbo file is on the lab host.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: one boot image beside L1, passing tests/host/ufs-off-image.sh and the AVB check, a rebuild identical, programmer review, sha256 line: the L1 image (late-probe kernel, ramdisk, display modules, iommu.passthrough=1) whose dtb gives the DSI host node (dsi@c994000) a vdd-supply naming the rail the Pixel 2 uses for the DSI core (read from the phone's own dtbo entry 3 in ~/Projects/walleye-build/control/dtbo.img, mainline's other msm8998 boards say vreg_l1a_0p875, to be confirmed against the dtbo and the regulator list of our dts), the rail defined in our dts if it is not; a diff against L1 that shows only that supply; the tests/host/display-late-probe.sh timeout noted as 400 s or more
+
+Rank
+: 1
+
+
+<a id="walleye-try-display-late-probe-l3"></a>
+### Try L3 once: does the DSI host bind, does a DRM card appear, what does the connector say
+
+Status
+: open
+
+Note
+: UNATTENDED, no person (decision 2026-11-19-walleye-display-console-before-eyes). After the reads only: the author is asked, through the coordinator, for the stripes alone; the stripes themselves are drawn by the display attended program (item walleye-attend-program-display), which is written once a card exists.
+
+Blocked by
+: walleye-display-late-probe-l3-image
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the gate passes right before the boot; the shell up; the modules loaded by the host script (timeout 400 s or more); the dsi device bound (devices_deferred empty of c994000.dsi), the panel probe line, /sys/class/drm with a card and the connector status; a research row; if a card and a connected connector exist and everything is read, the keeper tells the coordinator 'console and connector read' so the author can be asked to look for the stripes alone; if it still defers, the next missing supply or binding named from the reads
+
+Rank
+: 2
