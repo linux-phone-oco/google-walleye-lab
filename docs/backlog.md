@@ -6330,56 +6330,6 @@ Rank
 : 2
 
 
-<a id="walleye-tas2557-firmware-source"></a>
-### Where the TAS2557 firmware blob comes from for walleye, and whether the lab may ship it
-
-Status
-: open
-
-Note
-: Porthole takes tas2557s_PG21_uCDSP.bin from TheMuppets' mirror; the phone's own vendor partition holds it too. Read it from the phone by the keeper, hash against porthole's; the licence and shipping are the author's call. 2026-11-19 coordinator: UNATTENDED, no person: a read-only pull from the phone's vendor partition into ~/lab-material/walleye (never git), sha256 against porthole's copy, nothing else; shipping is not on the table (decision 2026-11-19-walleye-tas2557-firmware-stays-on-the-phone).
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: tas2557-firmware-hash-matches
-
-Rank
-: 6
-
-
-<a id="walleye-haptics-i2c-answers"></a>
-### Phone: i2c_6 shows 0x5a and the DRV2624 id register reads back
-
-Status
-: open
-
-Note
-: Keeper reads only; failing test haptics-chip-present in tests/health/base/amp-present.sh.
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: haptics-chip-present
-
-Rank
-: 7
-
-
 <a id="walleye-drv2624-driver"></a>
 ### Take porthole's DRV2624 driver (patch 0018) and its dts node onto our kernel
 
@@ -7220,3 +7170,81 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-tas2557-firmware-source"></a>
+### Where the TAS2557 firmware blob comes from for walleye, and whether the lab may ship it
+
+Status
+: open
+
+Note
+: Porthole takes tas2557s_PG21_uCDSP.bin from TheMuppets' mirror; the phone's own vendor partition holds it too. Read it from the phone by the keeper, hash against porthole's; the licence and shipping are the author's call. 2026-11-19 coordinator: UNATTENDED, no person: a read-only pull from the phone's vendor partition into ~/lab-material/walleye (never git), sha256 against porthole's copy, nothing else; shipping is not on the table (decision 2026-11-19-walleye-tas2557-firmware-stays-on-the-phone). NO PASSWORD NEEDED (coordinator 2026-11-19): ~/.config/devlab/google-walleye/password is the ssh password of a Linux phone user for 'lpoco lab phone sh' and 'suite latest'; walleye runs Android and our test images have no login at all, so there is nothing to log in to and no password file is made. Use adb as the shell user: adb shell ls /vendor/firmware* for the file name and adb pull of the file into ~/lab-material/walleye (never git), sha256 against porthole's copy. If the shell user cannot read the file, stop and say so; do not look for root.
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: tas2557-firmware-hash-matches
+
+Rank
+: 6
+
+
+<a id="walleye-drv2624-image"></a>
+### A test image with the DRV2624 series, so the haptics chip can be probed on the phone
+
+Status
+: open
+
+Note
+: Decision 2026-11-19-walleye-audio-port-shape: one series per chip, the image is a second boot entry. haptics-chip-present (tests/health/base/amp-present.sh) runs on a phone with a Linux userland; on our test images the same reads (ls /sys/bus/i2c/devices, the driver link, dmesg) are made over the mainline shell by the keeper, no login and no password.
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: one boot image (UFS-off gate and AVB pass, rebuild identical, programmer review) of the lane's mainline test kernel with the kernel/drv2624 series applied (the driver as a module in the ramdisk or built in), the walleye dts node vibrator@5a (reset gpio 95), the ramdisk with the telnet shell; sha256 line; tests/host/drv2624-builds.sh still passes
+
+Rank
+: 6
+
+
+<a id="walleye-haptics-i2c-answers"></a>
+### Phone: i2c_6 shows 0x5a and the DRV2624 id register reads back
+
+Status
+: open
+
+Note
+: Keeper reads only; failing test haptics-chip-present in tests/health/base/amp-present.sh. NO PASSWORD NEEDED: the reads are made over the mainline shell of the DRV2624 test image (telnet 172.16.43.1, no login): i2c-6 shows 0x5a, the drv2624 driver is bound or the dmesg says why not, the id register through the driver's probe, which rail powers the part (not yet read). Blocked by walleye-drv2624-image.
+
+Blocked by
+: walleye-drv2624-image
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: haptics-chip-present
+
+Rank
+: 7
