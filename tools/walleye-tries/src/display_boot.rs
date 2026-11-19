@@ -145,7 +145,7 @@ pub fn display_lines(dmesg: &str) -> Vec<&str> {
 /// The command that reads the DRM class: what is listed, and what the DSI-1 connector of card0 says.
 pub fn drm_command() -> String {
     format!(
-        "ls --color=never /sys/class/drm; echo dsi=$(cat /sys/class/drm/{CARD}-{CONNECTOR}/status 2>/dev/null)"
+        "for e in /sys/class/drm/*; do echo ${{e##*/}}; done; echo dsi=$(cat /sys/class/drm/{CARD}-{CONNECTOR}/status 2>/dev/null)"
     )
 }
 
@@ -583,6 +583,7 @@ mod tests {
             assert!(ok.success(), "{c}");
         }
         assert!(drm_command().contains("/sys/class/drm/card0-DSI-1/status"));
+        assert!(!drm_command().contains("ls "));
         assert!(hold_command().contains("/tmp/hold"));
     }
 
