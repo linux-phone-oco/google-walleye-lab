@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# pk4, pk5, pk6 (backlog walleye-bisect-porthole-vs-ours): pk3 (porthole's kernel + taimen dtb) with exactly one part swapped each.
+# Run: lpoco-bringup image bisect build/series/pk456.toml --out OUT
+# Paths are relative to this file. parts-series/NAME/ is `lpoco-bringup image unpack` of the NAME image; Image.gz is its kernel file less the dtb that ends it (appended.dtb).
+control = "../../../../walleye-build/images-nocon/boot-pk3.img"
+
+[[image]]   # porthole's kernel + OUR dtb (ml6a's)
+name = "pk4"
+dtb = "../../../../walleye-build/parts-series/ml6a/appended.dtb"
+
+[[image]]   # OUR kernel (ml6a's Image.gz) + porthole's dtb
+name = "pk5"
+kernel = "../../../../walleye-build/parts-series/ml6a/Image.gz"
+
+[[image]]   # the timing ramdisk (ml5b's)
+name = "pk6"
+ramdisk = "../../../../walleye-build/parts-series/ml5b/ramdisk"

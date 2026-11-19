@@ -3337,3 +3337,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-walleye-builder-series-files"></a>
+### walleye-builder: the bisects as lpoco-bringup series files
+
+Entry date
+: 2026-11-19
+
+Done
+: Six series files in build/series; lpoco-bringup 0.24.0 image bisect reproduced 35 of 35 recorded images byte for byte; removed build-bisect.sh, check-bisect.sh, build-pk456.sh; README names the series. Not run on any phone.
+
+Considered
+: Leaving the dtb scripts whole
+
+Rejected
+: Deleting the dtb scripts: they make the dtbs
+
+About
+: walleye-first-fastboot-boot

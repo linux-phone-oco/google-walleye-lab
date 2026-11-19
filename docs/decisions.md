@@ -1547,3 +1547,31 @@ Research
 
 Tracked by
 : walleye-upstream-dts-polish
+
+
+<a id="2026-11-19-walleye-bisect-by-series"></a>
+### 2026-11-19-walleye-bisect-by-series
+
+Date
+: 2026-11-19
+
+Brief
+: Walleye's bisects are series files for lpoco-bringup image bisect; build-bisect, check-bisect and build-pk456 go, the dtb-making scripts stay
+
+Decision
+: build/series/*.toml declare every bisect done so far; build-bisect.sh, check-bisect.sh and build-pk456.sh are removed. build-dtb-bisect.sh, build-taimen-walleye.sh, build-property-bisect.sh and build-fdt-bisect.sh stay for the node and property edits that make their dtbs; the series take those dtbs as recorded.
+
+Why
+: The reproduction passed: 35 of 35 images byte-equal to the recorded sha256, each counted by the command (research walleye-series-reproduce-the-bisects).
+
+Rejected
+: Removing the four dtb scripts too: their fdtput edits are what made d*, w*, wp*, x* and image bisect does not edit dtbs, so the recipe would be lost. Series paths absolute: they would break in a worktree; ../../../../walleye-build holds for the clone and for worktrees beside it.
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-series-reproduce-the-bisects
+
+Tracked by
+: walleye-use-lpoco-bisect

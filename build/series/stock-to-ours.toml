@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# s0, s0n, s1, s2, s3 (decision walleye-bisect-from-the-control): the stock control's own boot.img with exactly one part swapped each.
+# Run: lpoco-bringup image bisect build/series/stock-to-ours.toml --out OUT.
+# bisect/parts/ holds our parts as the first run wrote them (our-Image is our-kernel.lz4 decompressed).
+control = "../../../../walleye-build/control/boot.img"
+
+[[image]]   # the control's parts packed again: the proof that the tool reproduces the control
+name = "s0"
+
+[[image]]   # s0 without the AVB footer and padding (the shape of the first images)
+name = "s0n"
+footer = false
+
+[[image]]   # our ramdisk (172.16.43.1); the stock 4.4 kernel, dtb and command line
+name = "s1"
+ramdisk = "../../../../walleye-build/bisect/parts/our-ramdisk"
+
+[[image]]   # our kernel in an lz4 frame like the stock one
+name = "s2"
+kernel = "../../../../walleye-build/bisect/parts/our-Image"
+lz4 = true
+
+[[image]]   # our dtb
+name = "s3"
+dtb = "../../../../walleye-build/bisect/parts/our.dtb"

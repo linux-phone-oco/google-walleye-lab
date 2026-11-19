@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# d1..d6 (backlog walleye-our-dtb-bisect): pk4 (porthole's kernel + our dtb, dead) with one group of nodes removed from our dtb each. The dtbs are the recorded ones: build/build-dtb-bisect.sh makes them (fdtput -r).
+# Run: lpoco-bringup image bisect build/series/dtb-bisect.toml --out OUT; the images' sha256 are the SHA256SUMS of walleye-build/images-dtb.
+control = "../../../../walleye-build/images-pk456/boot-pk4.img"
+
+[[image]]
+name = "d1"
+dtb = "../../../../walleye-build/images-dtb/d1.dtb"
+
+[[image]]
+name = "d2"
+dtb = "../../../../walleye-build/images-dtb/d2.dtb"
+
+[[image]]
+name = "d3"
+dtb = "../../../../walleye-build/images-dtb/d3.dtb"
+
+[[image]]
+name = "d4"
+dtb = "../../../../walleye-build/images-dtb/d4.dtb"
+
+[[image]]
+name = "d5"
+dtb = "../../../../walleye-build/images-dtb/d5.dtb"
+
+[[image]]
+name = "d6"
+dtb = "../../../../walleye-build/images-dtb/d6.dtb"
