@@ -6321,28 +6321,6 @@ Rank
 : 4
 
 
-<a id="walleye-audio-haptics-read"></a>
-### Read the vendor audio dts and the vendor TAS2557 driver: MI2S clocks, ADSP firmware, minimal amp register sequence
-
-Status
-: open
-
-Note
-: First step; settles the unknowns of research walleye-audio-haptics-ways. Reading only.
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: research
-
-Proof
-: research row walleye-audio-routing-and-amp-sequence naming clocks, firmware, register sequence
-
-
 <a id="walleye-drv2624-driver"></a>
 ### Write the DRV2624 haptics driver (input FF, regmap) and its dts node
 
@@ -6494,3 +6472,28 @@ Needs
 
 Proof
 : research row for the SLIMbus NGD path, then a mic test
+
+
+<a id="walleye-audio-haptics-read"></a>
+### Read the vendor audio dts and the vendor TAS2557 driver: MI2S clocks, ADSP firmware, minimal amp register sequence
+
+Status
+: open
+
+Note
+: First step; settles the unknowns of research walleye-audio-haptics-ways. Reading only.
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: research
+
+Proof
+: research row walleye-audio-routing-and-amp-sequence naming clocks, firmware, register sequence
+
+Rank
+: 20
