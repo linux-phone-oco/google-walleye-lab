@@ -5272,10 +5272,10 @@ Rank
 ### Move shell with logic into Rust as each file is touched (practice 21): the rule, the debt count, the first moves
 
 Status
-: open
+: done
 
 Note
-: Request from orchestration (ideal-agent 0.3.56). Not one rewrite; much of build/ falls away with walleye-init-from-roof.
+: closed by the author's word, docs session-log 2026-11-19-author-shell-stays: existing shell stays as it is, no migration and no move-when-touched rule; the one rule that stays: a new script with logic starts in Rust.
 
 About
 : walleye-first-fastboot-boot
