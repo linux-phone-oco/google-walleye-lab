@@ -8116,10 +8116,10 @@ Rank
 ### Why B2 (display at boot) warns 'pclk0_clk_src: rcg didn't update its configuration', times out every DSI command (-110) and floods SMMU translation faults, when hand-loaded L5 and L6 do not
 
 Status
-: open
+: done
 
 Note
-: Evidence from the B2 run: [2.237] the SMMU faults start right after 'dpu hardware revision 0x30000000'; [2.304] WARNING clk-rcg2.c:136 update_config: 'pclk0_clk_src: rcg didn't update its configuration', call trace clk_pixel_set_rate, dsi_link_clk_set_rate_6g, msm_dsi_host_power_on, dsi_mgr_bridge_pre_enable, dsi_dev_attach, dsi_host_attach, mipi_dsi_attach, s6e3fa5_probe; the sysfs backlight write returned 0 but 'panel init and the 0x51 command still -110'. Related: research walleye-display-backlight-timeout (decision 2026-11-19-backlight-first-write-after-first-frame), whose reading (first DMA command after the first frame, MDP underflow) may be the same fault seen from the other side. 2026-11-19 SCOPE ADDED by the Top Coordinator (told the author in plain words): B2's failures mean the board dts is missing a dependency, so the display works only in a hand-picked load order. The aim is the dts fix that also goes upstream: no ordering list in the init, modules autoloaded, deferred probe in any order. The build follows as item walleye-display-dts-any-order.
+: Answered: research row and decision 2026-11-19-walleye-display-early-load-splash-handover; steps walleye-display-delay-bisect, -splash-region-dts, -handover-driver, -dts-any-order.
 
 About
 : walleye-display-s6e3fa5
@@ -8135,34 +8135,6 @@ Proof
 
 Rank
 : 1
-
-
-<a id="walleye-display-dts-any-order"></a>
-### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
-
-Status
-: open
-
-Note
-: Follows the research (rank 1). The mainline-proper fix, not a script: the stub and overlay workarounds of the RAM boot (the pinctrl labels, the reset-gpio claimant) stay local to the RAM boot; what the dts lacks goes into the board dts and upstream.
-
-Blocked by
-: walleye-display-b2-dsi-clock-warning
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: an image (UFS-off gate, AVB, rebuild identical, review) whose init loads the display modules in an order other than the hand-picked one (for example alphabetical, or all at once by udev-less modprobe of the alias set), and still shows: no pclk0 rcg warning, no -110 on a DSI command, no SMMU fault flood, card0 and DSI-1 connected, the glass lit; the dts changes as separate patches in the upstream board dts series (research walleye-upstream-dts-series, item walleye-upstream-board-dts-next) with dtbs_check where the container allows; an unattended try for real; the author's look through the answer file only after that
-
-Rank
-: 2
 
 
 <a id="walleye-display-look-l7-unanswered-run"></a>
@@ -8188,3 +8160,109 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-display-delay-bisect"></a>
+### Load msm at 5, 15, 25, 35 and 50 s after boot and read the three signs (SMMU faults, pclk0 rcg warning, DSI -110) per load
+
+Status
+: open
+
+Note
+: From research walleye-display-b2-dsi-clock-warning: the flip point between 2 s (fails) and 66 s (clean) names the cleanup that matters (30 s regulators, 12 s sync_state, 1.3 s genpd). One RAM boot per delay, nothing written. Also read before loading, read-only: mmcc pclk0/byte0 RCG state and the mdss autorefresh register.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: display-boot-clean
+
+Rank
+: 1
+
+
+<a id="walleye-display-splash-region-dts"></a>
+### Reserve the bootloader splash (memory@9d400000, no-map) in the walleye dts and add a simple-framebuffer with the mmcc clocks and MDSS_GDSC, the OnePlus way
+
+Status
+: open
+
+Note
+: Mainline-proper step of the chosen vector. Size and address from the GPL wahoo dts. Build only the dtb and image; the keeper tries it at 2 s with the init loading modules in any order.
+
+Blocked by
+: walleye-display-delay-bisect
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: display-boot-clean
+
+Rank
+: 2
+
+
+<a id="walleye-display-handover-driver"></a>
+### If the dts alone leaves the SMMU faults at 2 s: dpu disables pingpong autorefresh and waits idle before msm attaches its domain; send upstream
+
+Status
+: open
+
+Note
+: Only when the splash-region try still shows faults. Goes into our linux fork and upstream as an item.
+
+Blocked by
+: walleye-display-splash-region-dts
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: display-boot-clean
+
+Rank
+: 3
+
+
+<a id="walleye-display-dts-any-order"></a>
+### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
+
+Status
+: open
+
+Blocked by
+: walleye-display-splash-region-dts
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: display-boot-clean
+
+Rank
+: 4
