@@ -1193,3 +1193,59 @@ By
 
 Takes
 : the SoC-level display description is complete: iommus on mdss, assigned-clock-parents on dsi0
+
+
+<a id="qcom-pmic-pon-reset-status"></a>
+### Qualcomm: PMIC PON reset status (PON_REASON1 bits, PON_ON_REASON warm vs normal)
+
+Url
+: https://docs.qualcomm.com/doc/80-88500-4/topic/74_PMIC_PON_reset_status.html
+
+Author
+: Qualcomm
+
+Takes
+: PON_REASON1 0x808 bits: KPDPWR_N 7, CBLPWR_N 6, PON1 5, USB_CHG 4, DC_CHG 3, RTC 2, hard reset 0; PON_ON_REASON 0x40 warm reset vs 0x80 normal power-on
+
+
+<a id="qcom-pmic-boot-guide-reset-types"></a>
+### Qualcomm Linux Boot Guide: PMIC reset-type (WARM_RESET for crash dumps, HARD_RESET to restart, SHUTDOWN)
+
+Url
+: https://docs.qualcomm.com/doc/80-70030-4/topic/pmic-developer-touchpoints.html
+
+Author
+: Qualcomm
+
+Takes
+: The vendor's own meaning of the three reset types, per reset source (KPDPWR S2 etc.)
+
+
+<a id="vendor-qpnp-power-on-c"></a>
+### qpnp-power-on.c, vendor msm kernel (comma msm8996 copy)
+
+Url
+: https://github.com/commaai/android_kernel_comma_msm8996/blob/master/drivers/platform/msm/qpnp-power-on.c
+
+Takes
+: S2 type written to the S2 CNTL register from qcom,s2-type, 4-bit mask; the PS_HOLD type is chosen per warm/hard/shutdown, overridable per board in DT; the boot reason is ffs(PON reason)
+
+
+<a id="mainline-pm8916-wdt-c"></a>
+### drivers/watchdog/pm8916_wdt.c, Linux 7.3 (our tree)
+
+Url
+: https://github.com/torvalds/linux/blob/master/drivers/watchdog/pm8916_wdt.c
+
+Takes
+: RESET_TYPE_WARM 0x01, SHUTDOWN 0x04, HARD 0x07 for the S2 control register 0x56
+
+
+<a id="android-bootstat-reasons"></a>
+### AOSP system/core bootstat.cpp: boot reason strings
+
+Url
+: https://android.googlesource.com/platform/system/core/+/refs/heads/main/bootstat/bootstat.cpp
+
+Takes
+: Android maps bootloader reasons such as hard_rst, usb_chg, kpdpwr, pmic_watchdog, cold,charger; sys.boot.reason is Android's reading, not the PON register

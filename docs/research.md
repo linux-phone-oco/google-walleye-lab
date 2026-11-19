@@ -5139,3 +5139,25 @@ Found
 
 About
 : walleye-pmic-wdt-v1-image
+
+
+<a id="walleye-wdt-reset-boots-charger-mode-how-it-stands"></a>
+### walleye-wdt-reset-boots-charger-mode-how-it-stands
+
+Date
+: 2026-11-19
+
+Brief
+: A bite with USB in boots charger mode because the S2 reset type 7 (hard) power-cycles the PMIC and USB then counts as the power-on reason; the S2 type the firmware left (1, warm) is the one to try
+
+Question
+: Why does a PMIC-watchdog bite with USB in boot the bootloader's charger screen, and should the PON or the reset type make it warm-boot?
+
+Found
+: READ, not measured on the bite: (1) Qualcomm: the PMIC records WHY it powered on in PON_REASON1 (KPDPWR_N, CBLPWR_N cable, USB_CHG, DC_CHG, hard-reset bit) and PON_ON_REASON separates a warm reset (0x40) from a normal power-on (0x80); the vendor says WARM_RESET is for crash dumps, HARD_RESET for restarting the device. (2) Our driver writes S2 type 0x07 (hard): the PMIC then powers its rails down and up like a cold start, so with the cable in the power-on reason is the cable (USB_CHG/CBLPWR_N), not a key press or a warm reset. A bootloader that sees a charger reason and no key press shows its off-mode charging screen: that matches the author's words (charging icon, black screen, Android only after a short power press). (3) The firmware had left S2 at type 0x01 (warm), read by the driver at probe ('S2 reset control was 0x1', booted 2026-11-20 run); mainline's own constants are 0x01 warm, 0x04 shutdown, 0x07 hard. A warm type keeps the PMIC peripherals on and sets the warm-reset bit, which bootloaders of this family read as 'not a cold boot' and do not send to the charger screen (the Qualcomm LK rule, recalled, NOT read: walleye's bootloader is closed and its rule is not confirmed here). (4) Android reported boot reason [reboot] after the later power press: that is Android's reading of the second boot, and says nothing of the bite's reason. NOT KNOWN YET: the PON_REASON/POFF/ON_REASON registers right after the bite (nobody read them before the second boot: the run read them only before arming); why z9 without patch 1 powered off while the firmware type was 1 (maybe the type was never read back there); what stock Android's own watchdog bite does on this phone (stock reset type). OPTIONS: A) arm S2 with warm type 0x01 (the firmware's own): smallest change, the series already has the reset-type hook; risk: the earlier z9 power-off; B) keep hard 0x07 and accept the charger screen when USB is in (the phone does restart; user-visible only with a cable); C) a PON bit or boot-reason handover before the bite (PON_SOFT_RB_SPARE as qcom-pon.c uses for reboot modes): works only if the bootloader reads it, unproven; D) leave it to the user space: nothing. LEAN: A, tried first because it is the firmware's own value, read-only experiment first (item walleye-wdt-bite-pon-reasons-read). Does not block the series: the bite proof stands.
+
+Sources
+: qcom-pmic-pon-reset-status,qcom-pmic-boot-guide-reset-types,vendor-qpnp-power-on-c,mainline-pm8916-wdt-c,android-bootstat-reasons
+
+About
+: walleye-pmic-wdt-v1-image
