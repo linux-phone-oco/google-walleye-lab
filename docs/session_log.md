@@ -4837,3 +4837,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-19-2345-how-the-phone-stands-after-delay-bisect"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, nothing flashed. The display passes on mainline (L7 looks seen by the author). Delay bisect ran unattended for real, 5 RAM boots: the signs (SMMU faults, rcg warning, DSI -110) show at 5 s and 15 s and are zero from 25 s; item done. The older hand-over 2026-11-20-1500 predates L7 and is stale.
+
+Considered
+: next: narrow 15-25 s or reserve the splash region with simple-framebuffer (decision 2026-11-19-walleye-display-early-load-splash-handover); then walleye-slpi-boot-qrtr, walleye-nfc-nxp-nci-node. Tooling: phone password file ~/.config/devlab/google-walleye/password missing (lpoco lab phone/suite); a keeper worktree needs build/images -> ~/Projects/walleye-build.
+
+About
+: walleye-display-s6e3fa5

@@ -8247,10 +8247,10 @@ Rank
 ### Load msm at 5, 15, 25, 35 and 50 s after boot and read the three signs (SMMU faults, pclk0 rcg warning, DSI -110) per load
 
 Status
-: open
+: done
 
 Note
-: READY 2026-11-19: run procedures/display-delay-bisect-on-the-pixel-2.rs unattended (no person step; five RAM boots, about 15 min); the table is ~/lab-material/walleye/display-delay-DAY/table.txt; record the flip point against research walleye-display-b2-dsi-clock-warning.
+: proven by procedures/display-delay-bisect-on-the-pixel-2.rs, all 39 steps, 2026-11-19: signs stop between 15 s and 25 s (research walleye-display-delay-bisect-flips-at-25s)
 
 About
 : walleye-display-s6e3fa5
