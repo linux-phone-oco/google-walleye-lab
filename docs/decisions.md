@@ -2135,3 +2135,31 @@ Research
 
 Tracked by
 : walleye-tas2557-firmware-source
+
+
+<a id="2026-11-19-walleye-audio-port-shape"></a>
+### 2026-11-19-walleye-audio-port-shape
+
+Date
+: 2026-11-19
+
+Brief
+: The porthole audio port is atomized: one series per chip, binding, driver and dts apart, authorship kept, a per-chip record for any phone, proof steps keyed to device.toml
+
+Decision
+: DRV2624, TAS2557 and the q6/ADSP groups are each one series of separate patches (binding, driver, walleye dts), each upstreamable alone, porthole's authorship kept and our changes as separate commits on top. Per chip a record is kept of what any phone would need: part number, the driver's standing (mainline, porthole, ours), firmware (the phone's own, never in git), quirks, the proof test and the bring-up steps it covers. The proof steps are small library steps (lab-tools, docs #638) with walleye's values in device.toml; walleye-only scripts are written only where no library step fits and are named as wanted.
+
+Why
+: The author, via the Top Coordinator, 2026-11-19: parts atomized and easy to follow so they can go upstream and be useful for any phone; orchestration is researching where chip-level knowledge lives, so the port is shaped to fit whatever comes out of that.
+
+Rejected
+: Taking porthole's patches as one lump onto our kernel (not upstreamable, hides authorship); walleye-only proof scripts (not reusable by other phones)
+
+About
+: walleye-first-fastboot-boot
+
+Research
+: walleye-audio-haptics-porthole-has-it
+
+Tracked by
+: walleye-drv2624-driver

@@ -6452,6 +6452,31 @@ Rank
 : 6
 
 
+<a id="walleye-haptics-i2c-answers"></a>
+### Phone: i2c_6 shows 0x5a and the DRV2624 id register reads back
+
+Status
+: open
+
+Note
+: Keeper reads only; failing test haptics-chip-present in tests/health/base/amp-present.sh.
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: haptics-chip-present
+
+Rank
+: 7
+
+
 <a id="walleye-drv2624-driver"></a>
 ### Take porthole's DRV2624 driver (patch 0018) and its dts node onto our kernel
 
@@ -6459,7 +6484,7 @@ Status
 : open
 
 Note
-: Replaces clean-room writing (decision 2026-11-19-walleye-audio-from-porthole). Source: porthole-pmaports-taimen, patch 0018, taimen dts node ti,drv2624. Walleye's i2c_6 0x5a, reset gpio95 to be checked against it.
+: Replaces clean-room writing (decision 2026-11-19-walleye-audio-from-porthole). Source: porthole-pmaports-taimen, patch 0018, taimen dts node ti,drv2624. Walleye's i2c_6 0x5a, reset gpio95 to be checked against it. SHAPE OF THE PORT (the author's ask, relayed by the Top Coordinator 2026-11-19, decision 2026-11-19-walleye-audio-port-shape): one series per chip, binding, driver and walleye dts as separate patches, each upstreamable on its own, porthole's authorship and sign-offs kept and our changes as separate commits; per chip a record of what any phone would need: the part number, where the driver stands (mainline, porthole, ours), the firmware (the phone's own, never in git), quirks, the proof test and the bring-up steps it covers; the proof steps are small library steps with walleye's values in device.toml (docs #638), not walleye-only scripts.
 
 About
 : walleye-audio-haptics
@@ -6484,7 +6509,7 @@ Status
 : open
 
 Note
-: ADSP firmware from the vendor partition by the keeper's provisioning; the sound card defers until the amp probes, so tried together with the TAS2557 group.
+: ADSP firmware from the vendor partition by the keeper's provisioning; the sound card defers until the amp probes, so tried together with the TAS2557 group. SHAPE OF THE PORT (the author's ask, relayed by the Top Coordinator 2026-11-19, decision 2026-11-19-walleye-audio-port-shape): one series per chip, binding, driver and walleye dts as separate patches, each upstreamable on its own, porthole's authorship and sign-offs kept and our changes as separate commits; per chip a record of what any phone would need: the part number, where the driver stands (mainline, porthole, ours), the firmware (the phone's own, never in git), quirks, the proof test and the bring-up steps it covers; the proof steps are small library steps with walleye's values in device.toml (docs #638), not walleye-only scripts.
 
 About
 : walleye-audio-haptics
@@ -6509,7 +6534,7 @@ Status
 : open
 
 Note
-: Replaces the bypass plan: the part stays mute without its firmware (research walleye-audio-haptics-porthole-has-it). The blob is a vendor file: the author decides whether the lab ships it, see walleye-tas2557-firmware-source.
+: Replaces the bypass plan: the part stays mute without its firmware (research walleye-audio-haptics-porthole-has-it). The blob is a vendor file: the author decides whether the lab ships it, see walleye-tas2557-firmware-source. SHAPE OF THE PORT (the author's ask, relayed by the Top Coordinator 2026-11-19, decision 2026-11-19-walleye-audio-port-shape): one series per chip, binding, driver and walleye dts as separate patches, each upstreamable on its own, porthole's authorship and sign-offs kept and our changes as separate commits; per chip a record of what any phone would need: the part number, where the driver stands (mainline, porthole, ours), the firmware (the phone's own, never in git), quirks, the proof test and the bring-up steps it covers; the proof steps are small library steps with walleye's values in device.toml (docs #638), not walleye-only scripts.
 
 Blocked by
 : walleye-adsp-q6-mi2s,walleye-tas2557-firmware-source
@@ -6528,28 +6553,3 @@ Proof
 
 Rank
 : 8
-
-
-<a id="walleye-haptics-i2c-answers"></a>
-### Phone: i2c_6 shows 0x5a and the DRV2624 id register reads back
-
-Status
-: open
-
-Note
-: Keeper reads only; failing test haptics-chip-present in tests/health/base/amp-present.sh.
-
-About
-: walleye-audio-haptics
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: haptics-chip-present
-
-Rank
-: 7
