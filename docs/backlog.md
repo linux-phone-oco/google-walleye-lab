@@ -5624,10 +5624,7 @@ Status
 : open
 
 Note
-: Build and review only. Research walleye-ufs-regs-reader-verdict: version read at 0xE4 in the image's own ufs-qcom init, table by it (3.0.0/3.1.0, else stop). The RST_n pulse needs a kernel change (tlmm ngpios or pinctrl states): the builder decides which first and records it. Drop ONE_TX_LANE, EXTEND_SYNC_LENGTH, DELAY_BEFORE_LPM for this card; keep the NO_PURGE guard. The image is never booted or put in a keeper's queue; tests/host/ufs-off-image.sh refuses it by design.
-
-Waits
-: the author's go on UFS for the TRY only (decision 2026-11-18-walleye-ufs-wait); the build proceeds (decision 2026-11-19-walleye-ufs-image-builds-before-the-go)
+: Build and review only. Research walleye-ufs-regs-reader-verdict: version read at 0xE4 in the image's own ufs-qcom init, table by it (3.0.0/3.1.0, else stop). The RST_n pulse needs a kernel change (tlmm ngpios or pinctrl states): the builder decides which first and records it. Drop ONE_TX_LANE, EXTEND_SYNC_LENGTH, DELAY_BEFORE_LPM for this card; keep the NO_PURGE guard. The image is never booted or put in a keeper's queue; tests/host/ufs-off-image.sh refuses it by design. The try is a separate item that waits for the author's go on UFS (decision 2026-11-18-walleye-ufs-wait); this item is the build and the review only (decision 2026-11-19-walleye-ufs-image-builds-before-the-go).
 
 About
 : walleye-first-fastboot-boot
