@@ -43,7 +43,7 @@ ck "the ufs, phy and pinctrl files of the tree are committed (clean against HEAD
 HEADHASH=$(git -C "$KT" rev-parse --short=12 HEAD)
 BANNERS=$(zcat "$KO/Image.gz" | LC_ALL=C grep -a -o "Linux version [^ ]*" | sort -u)
 ck "the Image's banner names the tree's HEAD commit g$HEADHASH, and only it" "$(printf '%s\n' "$BANNERS" | grep -c -E -e "-g$HEADHASH(-dirty)?$")/$(printf '%s\n' "$BANNERS" | grep -c .)" 1/1
-ck "the Image carries the code of the tree (strings of the purge guard, the version print, the phy refusal), whatever the tree looks like now" "$(zcat "$KO/Image.gz" | LC_ALL=C grep -a -c -e 'purge refused on this device' -e 'UFS_HW_VERSION %u.%u.%u' -e 'unknown UFS host version')" 3
+ck "the Image carries the code of the tree (strings of the purge guard, the version print, the phy refusal, the two read-only prints), whatever the tree looks like now" "$(zcat "$KO/Image.gz" | LC_ALL=C grep -a -c -e 'purge refused on this device' -e 'UFS_HW_VERSION %u.%u.%u' -e 'unknown UFS host version' -e 'UFS_HOST_LEFT HCS' -e 'UFS_PHY_LINECFG_DISABLE')" 5
 ck "the kernel config builds UFS, its phy and the msm8998 pinctrl in" "$(grep -c -e '^CONFIG_SCSI_UFS_QCOM=y$' -e '^CONFIG_PHY_QCOM_QMP_UFS=y$' -e '^CONFIG_PINCTRL_MSM8998=y$' "$KO/.config")" 3
 ck "the kernel config is z21's (the diagnostic one: dynamic debug and gpio debug)" "$(grep -c -e '^CONFIG_DYNAMIC_DEBUG=y$' -e '^CONFIG_DEBUG_GPIO=y$' "$KO/.config")" 2
 ck "the new Image.gz is not z21's (the kernel change)" "$(cmp -s "$KO/Image.gz" "$T/k.gz" && echo same || echo differs)" differs

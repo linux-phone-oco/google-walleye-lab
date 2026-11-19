@@ -7627,10 +7627,10 @@ Rank
 ### The matched image prints what the gaps left as questions, read-only, beside the version read
 
 Status
-: open
+: done
 
 Note
-: Read-only prints only; reads of a powered, clocked host at the point where the version register is read anyway. The bus-hang risk of the 0x30/0x34 reads is not measured (research walleye-ufs-gap-abl-handover-read): the builder says whether they sit at the same point and clock state as the version read, and the programmer's review decides. If the PHY read can fault, leave it out and say so. Local branch topic/ufs-match-android in ~/Projects/walleye-build/wt-k-ufsm. No try: the try waits for the Android-derived solution and the go note. STORAGE IS NOW THE WEAKEST LINK (the author, via the Top Coordinator, 2026-11-19: 'whats with the memory support ? how did that direction went, can we use it now ?'); the display is proven. Order: walleye-ufs-match-prints (build, first), walleye-ufs-solution-extracted (research, the closing table and the refreshed go note, may start beside the build), walleye-attend-program-ufs (the one-command UFS procedure: read-only, dry-run, its unattended parts run for real; the UFS-on boot itself stays behind the author's go), then the go note goes to the Top Coordinator.
+: Built 2026-11-19: kernel topic/ufs-match-android 3644090c7 (local, ~/Projects/walleye-build/wt-k-ufsm); image ~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-match2/NOT-TO-BOOT-ufs-on-ufs-match.img sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5, rebuild identical, all build checks and the selftest pass, gate refuses it. Prints at ufs_qcom_init after the 0xE4 read (same clocks-on point, host untouched): UFS_HOST_LEFT HCS/HCE (0x30/0x34); and UFS_PHY_LINECFG_DISABLE (PCS+0x130) after PCS ready: the value after our init, which never writes it (not a bootloader leftover). Nothing written. Programmer review: no defect; PHY read cannot fault (page mapped, clocks on, block just polled). Still NOT TO BOOT; no try.
 
 About
 : walleye-ufs-match-android-z
