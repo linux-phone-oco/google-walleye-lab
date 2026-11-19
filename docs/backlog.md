@@ -7477,10 +7477,10 @@ Go until
 ### Why the stripes showed only briefly: the author saw the console output and red, blue and green flash, not four held stripes (fbcon repainting over fb0, the drawer's pan, or a commit that the next console write undid)
 
 Status
-: open
+: done
 
 Note
-: The author's look, relayed by the Top Coordinator 2026-11-19: "oh whit, i see the console output some persentage, also i saw it brifly blimp with red blue and green". The glass lights on mainline and shows fbcon (the kernel log); the drawer's 60 s hold (exit 0, all ioctls 0) did not stay on the glass. Not a failure of the panel path.
+: Answered by research walleye-display-stripes-brief-fbcon-repaints-the-stripes; carried by walleye-stripes-kd-graphics (build) then walleye-display-stripes-try-held (phone, witnessed).
 
 About
 : walleye-display-s6e3fa5
@@ -7767,6 +7767,62 @@ Proof
 
 Rank
 : 3
+
+Witness
+: person
+
+
+<a id="walleye-stripes-kd-graphics"></a>
+### Stripe drawer: KD_GRAPHICS on /dev/tty0 while held, KD_TEXT after, console state in its log
+
+Status
+: open
+
+Note
+: From research walleye-display-stripes-brief-fbcon-repaints-the-stripes (decision 2026-11-19-walleye-stripes-text-mode-off-while-held). KDSETMODE = 0x4B3A, KD_TEXT 0, KD_GRAPHICS 1. Host only; no phone.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: build
+
+Proof
+: a test in tools/walleye-stripes that fails now: the ioctl sequence the drawer plans is KD_GRAPHICS, write, pan, set_par, unblank, hold, clear, KD_TEXT, and KD_TEXT is in the plan when the draw failed; then an L7 image rebuilt with the same ramdisk, gate and AVB checks, rebuild identical
+
+Rank
+: 3
+
+
+<a id="walleye-display-stripes-try-held"></a>
+### Attended try of the held stripes: L7 from slot b, the author looks, four stripes for 60 s
+
+Status
+: open
+
+Note
+: Say before the try what to expect (four vertical stripes held 60 s) and what to check (do they stay when console text would appear); battery rule first. If the stripes still go, the log's vtcon/consoles lines say what else writes: the next try unbinds fbcon.
+
+Blocked by
+: walleye-stripes-kd-graphics
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-19
+
+Needs
+: phone
+
+Proof
+: the author's word that four stripes (red, green, blue, white) stayed for the 60 s hold, with the drawer's log: exit 0, /proc/consoles and the vtcon lines read, the phone back on Android slot b
+
+Rank
+: 4
 
 Witness
 : person

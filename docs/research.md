@@ -4797,3 +4797,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-stripes-brief-fbcon-repaints-the-stripes"></a>
+### walleye-display-stripes-brief-fbcon-repaints-the-stripes
+
+Date
+: 2026-11-19
+
+Brief
+: The drawer's own FBIOPUT_VSCREENINFO makes fbcon repaint the console over the stripes (host, v7.3 source); the commits are not the cause; fix: KD_GRAPHICS while held
+
+Question
+: Why did the author see console output and a brief red, blue, green flash, not four held stripes, when the drawer held 60 s with every ioctl 0: fbcon repainting over fb0, a missing vtcon unbind, or the drawer's pan/commit?
+
+Found
+: Read from the v7.3 tree the image is built from; nothing tried on the phone. (1) The drawer writes the stripes into fb0 (msm fbdev, deferred damage via the drm fb helper, so the glass gets the stripes at once - the author's red-blue-green blip), then calls FBIOPUT_VSCREENINFO with activate = FB_ACTIVATE_NOW|FORCE (128). fb_set_var_from_user (fbmem.c) then calls fbcon_update_vcs; FORCE is not FB_ACTIVATE_ALL (64), so fbcon_modechanged runs, which ends in update_screen(vc): the whole visible console is drawn again cell by cell, background included, over the stripes. That is the 'console output some percentage': the stripes were wiped by the console within milliseconds of being drawn, by the drawer's own call. (2) Any later console write repaints too (scrolling is a redraw), and FBIOBLANK unblank reaches fbcon_fb_blanked -> do_unblank_screen -> fbcon_blank -> update_screen when the console was blanked; so during the 60 s hold fbcon is a second writer. (3) The pan and the commit are not at fault: every ioctl returned 0 and the blip shows a commit reaches the glass. A vtcon unbind (echo 0 > /sys/class/vtconsole/vtconN/bind, N the one named 'frame buffer device') would also stop it but detaches fbcon from every fb; the standard way is what X and Wayland compositors do: KDSETMODE KD_GRAPHICS on /dev/tty0 for the hold. In KD_GRAPHICS fbcon_modechanged, fbcon_fb_blanked and the vt's console print all return early (vc_mode != KD_TEXT), so fbcon draws nothing; entering runs do_blank_screen(1), which calls fbcon_blank with mode_switch (marks graphics; that it does not blank the panel is not proven here). KD_TEXT afterwards restores the console. The image's console= is ttyGS0 only, so where the glass's console text comes from is not known yet: the try reads /proc/consoles and the vtcon names and binds. Not known: that the glass holds the stripes once fbcon is silenced - only the attended try says.
+
+Sources
+: linux-v7-3-fbcon-fbmem
+
+About
+: walleye-display-s6e3fa5
