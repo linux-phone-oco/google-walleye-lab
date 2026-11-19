@@ -2405,24 +2405,6 @@ About
 ---
 
 
-<a id="2026-11-19-1200-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-18
-
-Done
-: Phone is Android on slot b, stock kernel, nothing flashed, adb up. phone-state.sh recorded in android, fastboot and mainline-answering (banner2 from memory); it fell back to Android on its own after about 15 min (gone from USB for part of it). Item walleye-phone-state-real-states done (PR 260). Skipped walleye-dtbo-minimal-try: it flashes a dtbo, against decision 2026-11-17-walleye-slot-flags-tries-on-b, and is blocked by walleye-dtbo-overlay-id.
-
-Considered
-: next: ask the walleye coordinator about walleye-dtbo-minimal-try being ready though it flashes; walleye-pmic-wdt-read-s2-regs (read only); walleye-charger-wait-tps61099 dts choice
-
-About
-: walleye-first-fastboot-boot
-
----
-
-
 <a id="2026-11-18-google-walleye-lab-follows-docs-device-layer"></a>
 ### google-walleye-lab follows docs' device layer
 
@@ -3439,3 +3421,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-19-1200-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-19
+
+Done
+: Android on slot b, stock kernel, flags clean; walleye-try-display tried once on go from the Top Coordinator: boot-display.img left fastboot in 15 s, phone back in Android in 63 s, no hold, no pattern, no dmesg/DRM read (adb not root, no mainline shell); item stays open
+
+Considered
+: next: find why the display image returned in 63 s - read ramoops/pstore (needs a root path) before a second try; no witnessed pattern happened
