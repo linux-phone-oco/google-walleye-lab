@@ -8384,31 +8384,6 @@ Witness
 : person
 
 
-<a id="walleye-declare-transport-login"></a>
-### Declare [connection] transport and login = none in device.toml and drop our own helpers for what the library then does (read_dmesg, back_to_known_good, phone(), boot_once)
-
-Status
-: open
-
-Note
-: Orchestration's answer to walleye's notes (2026-11-19): it ends the 'password file needed' false claim at its root and the library-steps-need-a-login gap. Until it lands the keepers' start reads phone-state.sh for walleye (phone-keeper.md already says so). UPDATE 2026-11-20 (orchestration, lab-tools #305 and #306): lpoco-attended 0.38.0 reads [connection] transport = ssh|telnet|adb and login = password|none; with login = none, lpoco lab suite says 'not applicable' instead of asking a password; 0.38.1 makes an unanswered prompt without a terminal wait 300 s on the answer file by default (an explicit --answer-limit stays valid). The follow timer installs 0.38.1 when both phones are free. DO NOW: declare transport and login = none in device.toml and check that suite latest says 'not applicable'. NEXT SLICE (orchestration): boot_once by fastboot and the attended steps over the transport: dropping our own helpers (read_dmesg, back_to_known_good, phone(), boot_once) waits for it; leave the item open for that half.
-
-About
-: walleye-attend-program-display
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: device.toml declares transport (telnet for our test images, adb for Android) and login = none; lpoco lab suite latest says 'not applicable' and exits clean on walleye; the procedures use the library's read_dmesg, back_to_known_good and boot_once where they fit and tools/walleye-tries shrinks accordingly; dry-run, check --host and stand-in tests pass; the keeper brief's 'suite latest' no longer yields a 'password' line in any hand-over
-
-Rank
-: 4
-
-
 <a id="walleye-upstream-board-dts-next"></a>
 ### The board dts series grows: touch, haptics, display and the PMIC watchdog nodes without the lab hacks, one clean boot of the exact dtb, then the bindings first
 
@@ -8594,3 +8569,28 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-declare-transport-login"></a>
+### Declare [connection] transport and login = none in device.toml and drop our own helpers for what the library then does (read_dmesg, back_to_known_good, phone(), boot_once)
+
+Status
+: open
+
+Note
+: Orchestration's answer to walleye's notes (2026-11-19): it ends the 'password file needed' false claim at its root and the library-steps-need-a-login gap. Until it lands the keepers' start reads phone-state.sh for walleye (phone-keeper.md already says so). UPDATE 2026-11-20 (orchestration, lab-tools #305 and #306): lpoco-attended 0.38.0 reads [connection] transport = ssh|telnet|adb and login = password|none; with login = none, lpoco lab suite says 'not applicable' instead of asking a password; 0.38.1 makes an unanswered prompt without a terminal wait 300 s on the answer file by default (an explicit --answer-limit stays valid). The follow timer installs 0.38.1 when both phones are free. DO NOW: declare transport and login = none in device.toml and check that suite latest says 'not applicable'. NEXT SLICE (orchestration): boot_once by fastboot and the attended steps over the transport: dropping our own helpers (read_dmesg, back_to_known_good, phone(), boot_once) waits for it; leave the item open for that half. UPDATE 2026-11-20 (orchestration, lab-tools #308, v0.39.0): [kernels] boot = "fastboot" makes boot_once boot the [images.NAME] image by 'devlab fastboot boot now' and wait [boot] device_wait s for the [[host.gadget]] usb_id, with no login; back_to_known_good reboots under the declared transport; read_dmesg and phone() go through it. NOT YET: the image's sha256 is not checked before booting (next lab-tools run, first), the gadget is matched by vendor:product only, and the phone must already be in fastboot. So: declare it and use the library's boot_once, back_to_known_good, read_dmesg and phone() where they fit, but KEEP our own checksum gate (the UFS-off gate and the image sha) until the sha check lands; the helpers that only do the checksum stay until then. The follow timer installs the new version when both phones are free.
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: device.toml declares transport (telnet for our test images, adb for Android) and login = none; lpoco lab suite latest says 'not applicable' and exits clean on walleye; the procedures use the library's read_dmesg, back_to_known_good and boot_once where they fit and tools/walleye-tries shrinks accordingly; dry-run, check --host and stand-in tests pass; the keeper brief's 'suite latest' no longer yields a 'password' line in any hand-over
+
+Rank
+: 4
