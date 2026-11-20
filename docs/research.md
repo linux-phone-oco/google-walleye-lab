@@ -5183,3 +5183,25 @@ Sources
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-splash-try-signs-stay"></a>
+### walleye-display-splash-try-signs-stay
+
+Date
+: 2026-11-20
+
+Brief
+: B-s5 (splash reserved, simple-framebuffer) at 5 s: all three signs stay, same as B-d5: SMMU faults 10, rcg warnings 4, DSI -110 5; 13 of 13 modules ok
+
+Question
+: With the splash region reserved and a simple-framebuffer in the dtb, do the SMMU faults, the pclk0 rcg warning and the DSI -110 vanish at a 5 s load?
+
+Found
+: One unattended RAM boot of B-s5 (nothing flashed) by procedures/display-delay-bisect-on-the-pixel-2.rs with delays=5, image_prefix=b-s (device.toml put back after): sha, UFS-off and battery checks ok, 11 steps passed, phone back on Android slot b. Against B-d5 (SMMU 10, rcg 4, -110 5) and B-d25 (all 0): SMMU faults did NOT vanish (10 level-2 context faults, cb 0, iova 0x9d4e1400..0x9d56c000, inside the now-reserved 0x9d400000 region, at 6.19 s); pclk0/byte0 rcg warnings did NOT vanish (4, at 6.22-6.24 s); DSI -110 did NOT vanish (EXIT_SLEEP_MODE and Failed to initialize panel at 6.48 s, the first 0x51 backlog write -110 at 6.69 s, drm_panel_enable failed to enable backlight); fb0 msmdrmfb still registers at 8.57 s. So reserving the region and describing it as simple-framebuffer does not stop the scanout from faulting through msm's new SMMU domain nor the bootloader's DSI clocks from being re-programmed; a simple-framebuffer alone does not hand the splash over. No simple-framebuffer line in the kernel log (grep simple-fb/simplefb: none): whether it bound is not known yet. Table and dmesg kept in ~/lab-material/walleye/display-delay-b-s-20261120-011649/. Next: read whether simple-framebuffer probed (its clocks/GDSC held), then the handover in the driver (disable scanout / stop DSI clocks before msm attaches) or load after 25 s.
+
+Sources
+: walleye-display-b2-dsi-clock-warning
+
+About
+: walleye-display-s6e3fa5

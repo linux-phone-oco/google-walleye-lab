@@ -8519,10 +8519,10 @@ Witness
 ### Try image B-s5 (splash reserved, simple-framebuffer) at 5 s: do the SMMU faults, the pclk0 rcg warning and the DSI -110 vanish?
 
 Status
-: open
+: done
 
 Note
-: Built 2026-11-20 (research walleye-display-splash-image-built): device.toml [images.b-s5], sha256 b7c827e9.... Same unattended bisect as the delay bisect, one image at 5 s, signs counted from the kernel log; no person step. The delay procedure names its images b-dN: it needs an image prefix first (item walleye-display-delay-procedure-image-name). READY 2026-11-20: the image-name item is done (PR 636): set [procedures.display-delay-bisect-on-the-pixel-2] delays = "5" and image_prefix = "b-s" for the run (image B-s5) and put both back after; the out folder is display-delay-b-s-DAY. Read the same signs as the delay bisect (arm-smmu translation faults, the pclk0 rcg warning, DSI -110, the first backlog write) and say in one line whether each vanished, against B-d5 and B-d25 of research walleye-display-delay-bisect. Unattended, no person step; battery rule and UFS-off gate as for every display try; the phone ends on Android by its own way back. Rank 1 over the older in-progress display items (walleye-display-backlight-sysfs-write, walleye-display-at-boot), which this try's result supersedes.
+: Done 2026-11-20 (walleye-keeper): ran once unattended, 11 steps passed, phone back on Android slot b; all three signs stay (SMMU 10, rcg 4, DSI -110 5), same as B-d5: research walleye-display-splash-try-signs-stay.
 
 About
 : walleye-display-s6e3fa5

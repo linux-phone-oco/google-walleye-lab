@@ -4936,3 +4936,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-1700-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-20
+
+Done
+: Android on slot b, stock kernel, nothing flashed; B-s5 tried once unattended from fastboot by the delay bisect (delays=5, image_prefix=b-s, device.toml put back): 13/13 modules ok, SMMU faults 10, rcg 4, DSI -110 5 - nothing vanished, same as B-d5; phone back on Android by the run's own way back.
+
+Considered
+: next: read why simple-framebuffer did not hand over (did it bind? no log line), then the handover in the driver or a load after 25 s (research walleye-display-splash-try-signs-stay); next ready after: walleye-display-look-b2, walleye-slpi-boot-qrtr. Tooling: phone password file missing (state from phone-state.sh).
+
+About
+: walleye-display-s6e3fa5
