@@ -7445,31 +7445,6 @@ Rank
 : 3
 
 
-<a id="walleye-install-stage-decision"></a>
-### A stage that installs instead of RAM-booting: what writing our kernel to the boot partition would need, and its way back, for the author's word
-
-Status
-: open
-
-Note
-: Everything so far is fastboot boot from RAM: nothing is written. Using the Pixel as a phone needs the kernel on the phone. The lane's rule: no flash, erase or set_active without a recorded decision and, where it cannot be undone, the author's word. This item prepares the decision; it flashes nothing.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: research
-
-Proof
-: a research row and a proposed decision (not taken): the slots (b is the test slot, a stays Android), what 'install' means for each of fastboot flash boot, the stock dtbo that the bootloader merges (the overlay stubs exist only for this), the way back from the boot-chain read-back (item walleye-bootchain-readback: restore boot_b with fastboot flash from the backup) and the proof that the bootloader and both slots' other partitions are untouched; what the author must say yes to; no write is made
-
-Rank
-: 12
-
-
 <a id="walleye-attend-pmic-unattended-run-4"></a>
 ### Repeat the PMIC program's unattended run with the way back and the A/B Image type in, from Android with no hand step
 
@@ -8672,3 +8647,28 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-install-stage-decision"></a>
+### How far is Linux installed on the Pixel 2 and booting from its own storage: the install stage, its way back and the exact yeses the author must give
+
+Status
+: open
+
+Note
+: THE LANE'S GOAL (2026-11-20, the author, relayed by the Top Coordinator): 'lets resume work on walleye. how far are we from getting linux installed on it and booting from its own storage ?'. So 'Linux installed and booting from its own storage' is the lane's goal, and the docs step rootfs-boots is the one open step on that chain. Rank 1 (was 12). Everything so far is fastboot boot from RAM: nothing is written. The lane's rule stays: no flash, erase or set_active without a recorded decision and, where it cannot be undone, the author's word. This item prepares the decision and the honest distance; it flashes and writes nothing. Alongside it: item walleye-display-reset-image (B-r5, so the installed system has a screen) and then walleye-ufs-try-2 (gear under load, one command, needs the author's go).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: research
+
+Proof
+: a research row (look around first, with sources) and a PROPOSED decision (not taken), writing nothing to the phone: (1) how postmarketOS and other Pixel and msm8998 ports install (Pixel 2 walleye and taimen, Pixel 3, OnePlus 5/5T, Fxtec Pro1, Sony Xperia msm8998 devices; pmbootstrap flash, fastboot partitions, the boot image, the dtbo, avb); (2) WHERE THE KERNEL GOES: boot_b (slot a stays Android) and what fastboot flash boot_b needs: the stock dtbo merged by the bootloader, AVB (the vbmeta, the verified-boot rules and our own key item walleye-verified-boot-own-key at rank 999), the slot switch and its rollback counter; (3) WHERE THE ROOTFS GOES: which UFS partition (system_b? userdata? a new partition?) and its size, what is on each (tad q and the boot-chain read-back, item walleye-bootchain-readback), whether Android's own layout can stay for the way back; (4) WHAT READ-WRITE UFS NEEDS beyond the one read-only try: the card's quirks (SK hynix H28U74301AMR D003, item walleye-ufs-hynix-quirks), the purge and erase hazards and the purge guard with the Sony note (items walleye-ufs-hazard-research, walleye-ufs-gap-sony-mechanism), the gear and the OPP table (walleye-ufs-opp-table-image), a write test that cannot touch the bootloader partitions, and the proof the bootloader and the other slot are untouched; (5) THE DISTRO IMAGE: the author postponed 'Debian or Nura' (see the earlier decision rows), so lay out both, with what each costs HERE (build size, init, the initramfs we already have, who builds it, how it boots from the UFS rootfs, firmware and modem and TAS2557 data that must stay out of git); (6) THE WAY BACK from the boot-chain read-back: restore boot_b by fastboot flash from the backup, the verified backup's sha, the power-key and fastboot ways, what could NOT be undone (the bootloader and the other slot, erase, purge) and so which steps need the author's word; (7) THE EXACT THINGS THE AUTHOR MUST SAY YES TO, each as one plain sentence; (8) an honest distance in steps and in days of keeper work from today to 'Linux installed and booting from its own storage' (the docs step rootfs-boots), what is not known yet, and the order, using the steps and parts boards; nothing is written to the phone
+
+Rank
+: 1
