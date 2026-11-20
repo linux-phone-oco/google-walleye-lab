@@ -2589,3 +2589,34 @@ Amends
 
 Tracked by
 : walleye-display-reset-image
+
+
+<a id="2026-11-20-pon-bites-two-images-and-one-ask-before-the-bite"></a>
+### 2026-11-20-pon-bites-two-images-and-one-ask-before-the-bite
+
+Date
+: 2026-11-20
+
+Brief
+: Four bites on two images (wdt2-hard, wdt2-warm: the warm type comes from a qcom,s2-type property, hard by default); the author is asked first, before any bite, and only through physical steps
+
+Decision
+: The four bites run on two images built by build-pmic-wdt-v1.sh with INIT_NAME=wdt2: wdt2-hard is image A's kernel and dts with init-wdt2 (type 0x07), wdt2-warm is the same tree plus kernel/pmic-wdt-s2-type/ (the driver reads qcom,s2-type, hard when the property is absent, a type that does not read back fails the probe) with the property set to 1 in that image's dtb only. The driver property reuses the downstream binding's name and values (1 warm, 4 shutdown, 7 hard), so what boots is the shape a later upstream patch would have. init-wdt2 differs from wdt1 in three things: pon-regs reads the whole reason blocks, wdt-arm trusts the driver's read-back (probe) for any type, wdt-bite takes the timeout (the cable-out bites are armed for 45 s, the author's time to pull the cable). The procedure asks the author to stay with a finger on the power button BEFORE the first bite of every group (a phone that stays dark after a hard bite needs the press), so a run nobody answers ends there with every lab-only step done and the phone back on Android by the shared way back. The entry file runs on lpoco-attended 0.39.0 and reads its keys through its own runner; walleye-tries stays on 0.35.1 for the older entries.
+
+Why
+: The item asks for B as A with the S2 type changed 'the way such a property would work': a DT property read by the driver is that, and one dtb edit on the same kernel keeps A's rebuild identical (the generalised script reproduced the v1 pair byte for byte, 9dfea096.. and 15f5e97d..). The unattended keeper run must end at the first ask with the phone on Android: the z9 and the 2026-11-19 run show a bite can leave the phone dark, so the ask comes before the bite, never after it.
+
+Rejected
+: A second hard-coded constant in the driver (B differs from what would be sent; the item says not to); a module parameter (the driver is built in, the command line would carry it: a different shape from the one that would be mailed); re-using the wdt1 pair (its ramdisk reads seven registers and cannot name the reason blocks, and wdt-arm refuses the probe for type 1); asking the author after the bite only (an unattended run would leave the phone dark); free-text ask_author for the readiness ask (the brief says the author is asked only through the physical steps: confirm is one); bumping walleye-tries to 0.39 now (it would break the six entries pinned to 0.35.1; those are items walleye-procedures-on-v0-34 and -step-groups).
+
+About
+: walleye-pmic-wdt-v1-image
+
+Research
+: walleye-pon-reasons-after-a-bite-how-to-read
+
+Scope
+: google-walleye-lab: procedures, images wdt2-hard and wdt2-warm, build-pmic-wdt-v1.sh, init-wdt2 (built on the parked branch walleye-wdt-pon-bites-procedure, NOT landed: the images and the procedure are not on main)
+
+Tracked by
+: walleye-wdt-pon-bites-procedure

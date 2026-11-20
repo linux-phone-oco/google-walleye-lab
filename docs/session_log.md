@@ -4954,3 +4954,45 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-walleye-builder-pon-bites"></a>
+### Builder: the four PMIC bites as one command, two images and the plumbing
+
+Entry date
+: 2026-11-20
+
+Done
+: Looked around (item, research walleye-wdt-reset-boots-charger-mode-how-it-stands, v1 procedure and plumbing, lpoco-attended 0.39 groups and physical steps). Built a kernel worktree of the shared linux clone at A's commit with a driver patch (qcom,s2-type, hard by default) in $AGENT_BUILD, built it (out-wdt-warm), generalised build-pmic-wdt-v1.sh by env variables (default run reproduces wdt1 a and b byte for byte), wrote init-wdt2 (wider pon-regs, probe for any type, timeout argument; selftest extended for both inits), built wdt2-hard and wdt2-warm (91 checks each run, rebuild identical), wrote bites.rs (11 stand-in tests: cable in with Android back, a dark phone, the bootloader by itself, cable out, the guard on the type, the image names), settings keys and the entry file; research and decision recorded. Programmer subagent review before landing.
+
+Considered
+: Running the cable-out bite with a fixed 20 s timeout (no time to pull the cable: the arm takes a timeout); decoding register bits in the lab (offsets not confirmed on this phone: raw plus a few names from data); one group per whole bite (the dark-phone asks depend on what the lab saw, so the groups are built as the run goes).
+
+Rejected
+: Rebuilding the older six entries on 0.39 here (their own items); naming PON_ON_REASON at a guessed offset; reading the registers only in Android (raw registers need root).
+
+About
+: walleye-pmic-wdt-v1-image
+
+---
+
+
+<a id="2026-11-20-walleye-paused-at-the-authors-word"></a>
+### The walleye lane paused at the author's word, 2026-11-20
+
+Entry date
+: 2026-11-20
+
+Done
+: The author's word, relayed by the Top Coordinator: 'lets wrap it up gently for now. let everything open in work complete gently to a stable pause point'. Since the resume the lane did: PMIC follow-up (research walleye-wdt-reset-boots-charger-mode-how-it-stands: the hard reset type 0x07 power-cycles the PMIC so the bootloader shows its charger screen with USB in, read not measured; the upstreams call: v1 keeps 0x07, a warm type would be a later DT-property patch; the cable-out bite folded into the four-bite item walleye-wdt-bite-pon-reasons-read, PR 629, 631, 634, 638); the display: splash region dts built (PR 632), the delay procedure takes an image prefix (PR 636), the keeper's try of B-s5 at 5 s: SMMU faults 10, rcg 4, DSI -110 5, nothing vanished (PR 642), then the research walleye-display-handover-how-others-found and the decision 2026-11-20-walleye-display-handover-reset-first: the faults are msm's new empty SMMU domain meeting the bootloader's live scan-out, simple-framebuffer never bound (no driver in the image), no board hands over cleanly; next image B-r5 = B-d5 plus resets MDSS_BCR (PR 644); the author's look at B2 parked at rank 50; orchestration's lpoco-attended 0.38 to 0.39.1 (declared transport, boot_once with the sha check) noted on walleye-declare-transport-login (PR 635, 641, and this change); the outgoing series live in docs upstream/ (PR 637). THE PAUSE: the research session finished and landed; the builder parked the four-bites item on the pushed branch walleye-wdt-pon-bites-procedure (4b83994): built and host-checked, review found 3 blockers, listed in the item's note with how to resume; its research, decision and log are landed here from that branch. The splash keeper's lease read 'kept by walleye-keeper, renewed 18 min ago' after its run said 'lease released': the keeper session had ended, so I ran lpoco-lab keeper release walleye-keeper (status: free). PHONE: Android slot b, phone-state verdict android (adb lists the serial as device), nothing armed, booted or flashed, lease free, no session of the lane running. RESUME ORDER: 1 walleye-display-reset-image (build B-r5), then the keeper's 5 s try with the signs table; 2 the four-bites branch (fix the 3 blockers, rebuild the warm image, land, the keeper's unattended run, and only then ask the author for the cable moves); 3 walleye-declare-transport-login (declare the images' sha256, drop the checksum-only helpers, keep the UFS-off gate); 4 walleye-display-scanout-registers; then the board dts and panel series in docs upstream/. Waiting on the author's word: UFS try 2 and the OPP image, the PMIC cable moves, the install stage decision.
+
+Considered
+: Starting the builder on walleye-display-reset-image straight away (the next build); the camera and install-stage research items (ready, not started).
+
+Rejected
+: Landing the four-bites branch with its 3 blockers (the review's call stands: a half-fixed bite procedure must not reach main); starting any new keeper, builder or research at the pause (the author said to wrap up gently); landing the parked branch's code through a records-only copy (only its records are replayed here).
+
+About
+: walleye-pmic-wdt-v1-image
