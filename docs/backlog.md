@@ -8888,31 +8888,6 @@ Witness
 : person
 
 
-<a id="walleye-install-rootfs-alpine-min"></a>
-### Build a minimal Alpine arm64 rootfs, the hardware-test layer, under 2.5 GiB: getty on tty and ttyGS0, sshd over usb-network, the Qualcomm services the steps need, lpoco-health; no UI, no firmware, no phone shell
-
-Status
-: open
-
-Note
-: From the author's distro word (decision 2026-11-20-walleye-distro-alpine-minimal): plain Alpine, minimal, hardware-test layer. Replaces the dropped Debian item. About 3 agent-h. Look around first for how pmbootstrap and Alpine make an aarch64 rootfs without installing debootstrap (alpine-minirootfs tarball plus apk.static --root --initdb, scripts that need the target run under qemu-user or are skipped): fewer host installs is better. Stage 1 of decision 2026-11-20-walleye-install-in-stages-proposed. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. HOST TOOLS (the Top Coordinator): install them through the lab machine's own declarations (lab-machine: lpoco host prepare and lab.toml), not by hand; STOP on any root command and say it, so the author's hands do it. GETTY READING CLOSED (Top Coordinator, 2026-11-20): 'shell' in this project is a phone UI shell (sxmo, phosh, Plasma Mobile), not a command shell; 'just tty' is a text console with a login, so a getty login on the tty and on ttyGS0 plus sshd is what he wants; keep the list as built. 2026-11-20 (coordinator): rank 2: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: a host check: the ext4 image is under 2.5 GiB sparse, is Alpine (apk database present), has OpenRC with getty on tty0 and ttyGS0, sshd, the usb gadget network unit, the Qualcomm services named by the steps (qrtr, rmtfs, pd-mapper, tqftpserv: installed, none started without its firmware), lpoco-health, and holds NO file from the phone's firmware or modem data and no sxmo, phosh or other UI (the file list is checked against both); rebuild reproducible (same sha256); built without installing anything on the lab machine beyond what the author said yes to; the image's package list is written into the item's research row and follows decision 2026-11-19-hardware-test-layer
-
-Rank
-: 2
-
-
 <a id="walleye-install-ufs-root-image"></a>
 ### Build the UFS-root kernel and initramfs: root = the unused slot's system partition, read-only with a tmpfs overlay, ext4 nodiscard, purge guard kept; never booted without the author's UFS go
 
@@ -9011,3 +8986,78 @@ Proof
 
 Rank
 : 6
+
+
+<a id="walleye-install-rootfs-alpine-min"></a>
+### Build a minimal Alpine arm64 rootfs, the hardware-test layer, under 2.5 GiB: getty on tty and ttyGS0, sshd over usb-network, the Qualcomm services the steps need, lpoco-health; no UI, no firmware, no phone shell
+
+Status
+: open
+
+Note
+: From the author's distro word (decision 2026-11-20-walleye-distro-alpine-minimal): plain Alpine, minimal, hardware-test layer. Replaces the dropped Debian item. About 3 agent-h. Look around first for how pmbootstrap and Alpine make an aarch64 rootfs without installing debootstrap (alpine-minirootfs tarball plus apk.static --root --initdb, scripts that need the target run under qemu-user or are skipped): fewer host installs is better. Stage 1 of decision 2026-11-20-walleye-install-in-stages-proposed. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. HOST TOOLS (the Top Coordinator): install them through the lab machine's own declarations (lab-machine: lpoco host prepare and lab.toml), not by hand; STOP on any root command and say it, so the author's hands do it. GETTY READING CLOSED (Top Coordinator, 2026-11-20): 'shell' in this project is a phone UI shell (sxmo, phosh, Plasma Mobile), not a command shell; 'just tty' is a text console with a login, so a getty login on the tty and on ttyGS0 plus sshd is what he wants; keep the list as built. 2026-11-20 (coordinator): rank 2: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time. 2026-11-20 (coordinator, on the builder's look-around, PR 664): Alpine 3.24 builds with no root and no qemu (56 packages, 24 MiB): good, that is fewer host installs. Two parts leave v1 so the image is not held: (1) pd-mapper is in no Alpine repo (postmarketOS carries it): item walleye-install-rootfs-pd-mapper, a static build from the upstream source, due when the remoteproc steps need it; (2) lpoco-health needs an aarch64 Rust std and the host has x86_64 only: item walleye-install-rootfs-health-binary. First check whether the suite for the step rootfs-boots needs lpoco-health ON the phone at all, or runs from the lab over ssh: if it runs from the lab, v1 is enough for stage 1. NEXT BUILDER RUN: the rootfs config (inittab with getty on tty0 and ttyGS0, OpenRC links, the gadget unit), the image and its host check.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: a host check, v1 for stage 1 (what the stage needs to log in and run the suite): the ext4 image is under 2.5 GiB sparse, is Alpine (apk database present, Alpine 3.24 aarch64 built rootless with apk.static --usermode --no-scripts and mke2fs -d), has OpenRC with getty on tty0 and ttyGS0, sshd, the usb gadget network unit, the Qualcomm services that Alpine packages (qrtr, rmtfs, tqftpserv: installed, none started without its firmware), and holds NO file from the phone's firmware or modem data and no sxmo, phosh or other UI (the file list is checked against both); rebuild reproducible (same sha256); the package list is written into the research row. NOT in v1 (their own items, below): pd-mapper (in no Alpine repo) and lpoco-health (needs an aarch64 Rust std); v1 says so in its list
+
+Rank
+: 2
+
+
+<a id="walleye-install-rootfs-health-binary"></a>
+### lpoco-health for the Alpine image: an aarch64 static (musl) build without root and without installing a system Rust target
+
+Status
+: open
+
+Note
+: From the Alpine builder's look-around (PR 664): the host has an x86_64 Rust std only. The author's yes (decision 2026-11-20-walleye-install-stage-1-go) covers Alpine's build tools, not a Rust target on the system: so a rootless way first, a root command for his hands only if that fails. Not needed for stage 1 if the suite runs from the lab over ssh.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: an aarch64-unknown-linux-musl static lpoco-health built from the lab-tools release the lab uses, by a rootless way (a private sysroot with the rust-std tarball for that target, downloaded from static.rust-lang.org and checked against the signed channel manifest's sha256, kept outside git and outside the system Rust), added to the Alpine image's file list and checked there (file says aarch64 static, the sha256 recorded); or, if that is not possible rootless, the one root command named for the author's hands (the lab machine's declared way: lab.toml, lpoco host prepare)
+
+Rank
+: 8
+
+
+<a id="walleye-install-rootfs-pd-mapper"></a>
+### pd-mapper for the Alpine image: a static aarch64 build from the upstream source (it is in no Alpine repo)
+
+Status
+: open
+
+Note
+: From the Alpine builder's look-around (PR 664): Alpine's repos have qrtr, rmtfs and tqftpserv; pd-mapper is postmarketOS's package. Due when the remoteproc and firmware steps need it (step pd-mapper-before-remoteproc), not for stage 1. Look at how postmarketOS and the linux-msm tree make it before building: contribute back, do not copy a patch we do not understand.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: pd-mapper (linux-msm/pd-mapper) built static for aarch64 with aarch64-linux-gnu-gcc, from a pinned commit, licence read and recorded, added to the Alpine image's file list and checked (file says aarch64 static); installed, not started without firmware
+
+Rank
+: 25
