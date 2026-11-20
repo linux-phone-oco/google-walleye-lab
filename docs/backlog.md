@@ -8435,10 +8435,10 @@ Rank
 ### The delay bisect procedure takes the image's name (b-s5), not only b-dN
 
 Status
-: open
+: done
 
 Note
-: tools/walleye-tries/src/settings.rs builds image names as b-d{n} (and display_delay.rs words B-d{n}); give [procedures.display-delay-bisect-on-the-pixel-2] an optional image prefix (default b-d) so the keeper runs delays=5 on images.b-s5 with no new program. The image is built: item walleye-display-splash-try.
+: Done 2026-11-20 (walleye-builder): [procedures.display-delay-bisect-on-the-pixel-2] image_prefix (default b-d) names the images PREFIX+delay; the keeper runs the splash image with delays = "5" and image_prefix = "b-s" (set both, run, put them back), no new program. Proof: tools/walleye-tries stand-in test an_image_prefix_names_the_splash_image_at_five_seconds (seen failing first), 137 tests, clippy, fmt, lpoco-attended check --host ok.
 
 About
 : walleye-display-s6e3fa5

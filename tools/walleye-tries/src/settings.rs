@@ -16,7 +16,7 @@
 //! | the display try's values | `[images.l7]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
 //! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item` |
 //! | the display-at-boot try's values | `[images.b2]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules, hold` |
-//! | the display delay bisect's values | `[images.b-d5]` ... `[images.b-d50]` (`path`, `sha256`), `[procedures.display-delay-bisect-on-the-pixel-2] delays` |
+//! | the display delay bisect's values | `[images.b-d5]` ... `[images.b-d50]` (or the images `image_prefix` names: `b-s` and delays 5 give `[images.b-s5]`) (`path`, `sha256`), `[procedures.display-delay-bisect-on-the-pixel-2] delays`, `image_prefix`, `modules` |
 
 use lpoco_attended::prelude::{dev, proc};
 use std::path::PathBuf;
@@ -44,6 +44,8 @@ pub enum Try {
 /// One image of the delay bisect: the seconds of uptime its init waits, its file and the sha256 `device.toml` records.
 #[derive(Clone, Debug, PartialEq)]
 pub struct DelayImage {
+    /// the image's name in `[images.NAME]`: the procedure's `image_prefix` and the delay (b-d5, b-s5)
+    pub name: String,
     pub delay: u64,
     pub path: PathBuf,
     pub sha256: String,
@@ -224,17 +226,19 @@ impl Settings {
                     })
                     .collect();
                 assert!(!s.delays.is_empty(), "delays in device.toml names no delay");
+                let prefix = proc("image_prefix");
                 s.delay_images = s
                     .delays
                     .iter()
                     .map(|&n| DelayImage {
+                        name: format!("{prefix}{n}"),
                         delay: n,
-                        path: image(&format!("b-d{n}")),
-                        sha256: dev(&format!("images.b-d{n}.sha256")),
+                        path: image(&format!("{prefix}{n}")),
+                        sha256: dev(&format!("images.{prefix}{n}.sha256")),
                     })
                     .collect();
                 s.modules = number("modules", proc("modules"));
-                s.out = s.out_dir("display-delay");
+                s.out = s.out_dir(&format!("display-delay-{prefix}"));
             }
         }
         s
@@ -282,6 +286,7 @@ impl Settings {
             ("images.b2.sha256", "e4c8"),
             ("modules", "13"),
             ("delays", "5 15 25 35 50"),
+            ("image_prefix", "b-d"),
             ("images.b-d5.path", "boot-b-d5.img"),
             ("images.b-d5.sha256", "d5d5"),
             ("images.b-d15.path", "boot-b-d15.img"),
