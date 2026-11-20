@@ -7863,31 +7863,6 @@ Rank
 : 1
 
 
-<a id="walleye-display-look-b2"></a>
-### The author's look at the Pixel's screen as one command: B2 (display at boot plus the held stripes) and display-at-boot-on-the-pixel-2.rs on lpoco-attended 0.34 with the answer file
-
-Status
-: open
-
-Note
-: KEEPER'S UNATTENDED RUN FOR REAL 2026-11-19 (walleye-keeper): procedures/display-at-boot-on-the-pixel-2.rs on lpoco-attended 0.35.1, dry-run 19 steps ok first. Checks 1-3 ok (sha b9dbd162, UFS off, battery), B2 booted from fastboot, gadget up, 13/13 modules ok, card0+DSI-1 connected, 249 display lines kept, backlight sysfs write rc=0 (value 127) yet dmesg still shows 'EXIT_SLEEP_MODE failed -110', 'Failed to initialize panel -110' and the 0x51 backlight cmd dma tx -110 at ~2.8 s; stopped at ask 13 (look 1) with 'nobody answered' as the bar wants. NOT as the bar says: the run does not send the phone back itself when it stops at an ask - the phone stayed on B2's gadget and returned to Android only by the init's 600 s deadman (~10 min), slot b, fastboot reachable afterwards. Needs: the run's way-back on a failed ask (or the author told the phone self-returns in 10 min); the programmer review; then 'ready, one command' to the Top Coordinator. Answer file dir ~/.cache/lpoco-attended/google-walleye/ (created at the first ask; prompt file was not present after the stop). Tooling: worktree needs build/images -> ~/Projects/walleye-build; phone password file ~/.config/devlab/google-walleye/password still missing (lpoco lab phone sh/suite unavailable). 2026-11-19 PARKED behind research walleye-display-b2-dsi-clock-warning: the unattended run (PR 588) shows -110 on every DSI command, SMMU faults and a pixel-clock warning, and the run does not send the phone back on an unanswered ask. Not offered to the author. The near-term look is walleye-display-look-l7.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: a keeper's unattended 'lpoco-attended run display-at-boot-on-the-pixel-2' for real: passes steps 1-12, stops at look_for 1 with 'nobody answered', the phone back on Android; then the author's two looks answered through the answer file
-
-Rank
-: 3
-
-
 <a id="walleye-procedures-on-v0-34"></a>
 ### Pin the walleye procedures to lpoco-attended 0.34 (prompt and answer files, run --from, skip-when-in-state) and give the attended keeper orders their new form
 
@@ -7961,59 +7936,6 @@ Proof
 
 Rank
 : 2
-
-
-<a id="walleye-display-handover-driver"></a>
-### If the dts alone leaves the SMMU faults at 2 s: dpu disables pingpong autorefresh and waits idle before msm attaches its domain; send upstream
-
-Status
-: open
-
-Note
-: Only when the splash-region try still shows faults. Goes into our linux fork and upstream as an item.
-
-Blocked by
-: walleye-display-splash-region-dts
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: display-boot-clean
-
-Rank
-: 3
-
-
-<a id="walleye-display-dts-any-order"></a>
-### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
-
-Status
-: open
-
-Blocked by
-: walleye-display-splash-region-dts
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: display-boot-clean
-
-Rank
-: 4
 
 
 <a id="walleye-display-delay-bisect-build"></a>
@@ -8594,3 +8516,112 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-display-handover-how-others"></a>
+### Why the reserved splash did not stop the SMMU faults at 6 s, and how other msm platforms hand the bootloader's scan-out over to the msm driver
+
+Status
+: open
+
+Note
+: WHY (2026-11-20): the keeper's try of B-s5 (research walleye-display-splash-try-signs-stay, lab PR 642): the reserved region plus simple-framebuffer in the dtb changed NOTHING at 2 s: SMMU faults 10, rcg warnings 4, DSI -110 5, the same as B-d5, and the faults' iova are inside the reserved region. So the dts alone does not hand the splash over (the decision 2026-11-19-walleye-display-early-load-splash-handover is not borne out by this image). The kept dmesg and table: ~/lab-material/walleye/display-delay-b-s-20261120-011649/. A fresh look is needed before another image is built: this item reads, builds nothing, touches no phone.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: research
+
+Proof
+: a research row with sources and ranked options, and a decision: (1) the faults of B-s5 (research walleye-display-splash-try-signs-stay: 10 level-2 context faults, cb 0, iova 0x9d4e1400..0x9d56c000, INSIDE the now reserved region) read against how the Qualcomm SMMU keeps a bootloader-configured display stream (arm-smmu-qcom.c qcom_smmu_cfg_probe and its bypass retention for the display's stream mapping: does it cover the msm8998 'qcom,smmu-v2' of our dts, which implementation does it use, and what would carry it over), against reserved-memory 'iommu-addresses' direct mappings (does the msm driver's own domain get them), and against what the msm driver itself does at probe for a live display (dpu reset, the mdss reset, drm_aperture_remove_framebuffers, disable of the scan-out and the DSI before the new domain); (2) what other boards do that boot with the bootloader's display live: OnePlus 5/5T and Fxtec Pro1 (msm8998), OnePlus 6 and Pixel 3 (sdm845), with their dts and their kernel patches by commit or mail thread, and whether any of them loads msm at 2 s without faults; (3) why the 25 s load is clean (what happens near 25 s: unused clocks or power domains switched off? then the scan-out simply stops), so the same stop can be made early on purpose; (4) whether simple-framebuffer ever bound in B-s5 (the log has no line: read the image's config for CONFIG_DRM_SIMPLEDRM, SYSFB_SIMPLEFB, FB_SIMPLE and what the dtb node needs: clocks, power domains, the format); (5) ranked hypotheses and the cheapest experiment images (for example the modules loaded after N s on purpose; the dpu stopping the scan-out before msm attaches; an arm-smmu change), which signs tell them apart; a decision row naming the way to build, and an update of items walleye-display-handover-driver and walleye-display-dts-any-order
+
+Rank
+: 2
+
+
+<a id="walleye-display-handover-driver"></a>
+### If the dts alone leaves the SMMU faults at 2 s: dpu disables pingpong autorefresh and waits idle before msm attaches its domain; send upstream
+
+Status
+: open
+
+Note
+: Only when the splash-region try still shows faults. Goes into our linux fork and upstream as an item. 2026-11-20 (coordinator): its premise is now true (B-s5 still faults at 2 s: research walleye-display-splash-try-signs-stay). It does not start from this item's own guess (pingpong autorefresh): it waits on research walleye-display-handover-how-others, which names the way (the SMMU's retained stream, the msm probe's stop of the scan-out, or a deliberate late load); then this item builds that way.
+
+Blocked by
+: walleye-display-handover-how-others
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: display-boot-clean
+
+Rank
+: 3
+
+
+<a id="walleye-display-dts-any-order"></a>
+### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
+
+Status
+: open
+
+Note
+: 2026-11-20 (coordinator): the splash-region dts is done (PR 632) and is not enough alone (B-s5 tried: research walleye-display-splash-try-signs-stay); this item follows the handover (item walleye-display-handover-driver) and puts the dts fixes and the autoload together.
+
+Blocked by
+: walleye-display-handover-driver
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: display-boot-clean
+
+Rank
+: 4
+
+
+<a id="walleye-display-look-b2"></a>
+### The author's look at the Pixel's screen as one command: B2 (display at boot plus the held stripes) and display-at-boot-on-the-pixel-2.rs on lpoco-attended 0.34 with the answer file
+
+Status
+: open
+
+Note
+: KEEPER'S UNATTENDED RUN FOR REAL 2026-11-19 (walleye-keeper): procedures/display-at-boot-on-the-pixel-2.rs on lpoco-attended 0.35.1, dry-run 19 steps ok first. Checks 1-3 ok (sha b9dbd162, UFS off, battery), B2 booted from fastboot, gadget up, 13/13 modules ok, card0+DSI-1 connected, 249 display lines kept, backlight sysfs write rc=0 (value 127) yet dmesg still shows 'EXIT_SLEEP_MODE failed -110', 'Failed to initialize panel -110' and the 0x51 backlight cmd dma tx -110 at ~2.8 s; stopped at ask 13 (look 1) with 'nobody answered' as the bar wants. NOT as the bar says: the run does not send the phone back itself when it stops at an ask - the phone stayed on B2's gadget and returned to Android only by the init's 600 s deadman (~10 min), slot b, fastboot reachable afterwards. Needs: the run's way-back on a failed ask (or the author told the phone self-returns in 10 min); the programmer review; then 'ready, one command' to the Top Coordinator. Answer file dir ~/.cache/lpoco-attended/google-walleye/ (created at the first ask; prompt file was not present after the stop). Tooling: worktree needs build/images -> ~/Projects/walleye-build; phone password file ~/.config/devlab/google-walleye/password still missing (lpoco lab phone sh/suite unavailable). 2026-11-19 PARKED behind research walleye-display-b2-dsi-clock-warning: the unattended run (PR 588) shows -110 on every DSI command, SMMU faults and a pixel-clock warning, and the run does not send the phone back on an unanswered ask. Not offered to the author. The near-term look is walleye-display-look-l7. 2026-11-20 (coordinator): PARKED at rank 50. B-s5 at 2 s still shows the faults and the -110 (research walleye-display-splash-try-signs-stay): a look at B2 or B-s5 would show the author a broken or dark glass. The look he is asked for is the one after the handover works. The known-good look is L7 (display-stripes-on-the-pixel-2.rs, done).
+
+Waits
+: parked: the display at boot is not a good look yet (B2 faults, B-s5 faults the same: item walleye-display-handover-how-others); not asked of the author, not for a keeper
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: phone
+
+Proof
+: a keeper's unattended 'lpoco-attended run display-at-boot-on-the-pixel-2' for real: passes steps 1-12, stops at look_for 1 with 'nobody answered', the phone back on Android; then the author's two looks answered through the answer file
+
+Rank
+: 50
