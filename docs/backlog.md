@@ -7445,31 +7445,6 @@ Rank
 : 3
 
 
-<a id="walleye-display-at-boot"></a>
-### The display comes up by itself at boot: the 13 display modules built in or loaded by the init, the kernel log and later a console on the glass, no host script
-
-Status
-: in-progress
-
-Note
-: B1 unattended half passed (13/13 ok, connected); backlog write -110 seen; waits only on the author's look at the glass; next attended window: one command procedures/display-at-boot-on-the-pixel-2.rs
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: one unattended try of images-display-at-boot/boot-b1.img (sha256 57ab1b69de78a304e0fba1b2576a1781de2b9cbc41a02c2d73b5328c67b8ebd7): shell up, kmsg shows 'walleye-display: ok' for all 13 modules, card0 and DSI-1 connected, with no host script; then the author's look: the kernel log and the init's console on the glass
-
-Rank
-: 4
-
-
 <a id="walleye-install-stage-decision"></a>
 ### A stage that installs instead of RAM-booting: what writing our kernel to the boot partition would need, and its way back, for the author's word
 
@@ -7721,31 +7696,6 @@ Proof
 
 Rank
 : 3
-
-
-<a id="walleye-display-backlight-sysfs-write"></a>
-### B1: write the backlight through sysfs after boot and read the dsi errors
-
-Status
-: in-progress
-
-Note
-: B2 keeper run 2026-11-19: sysfs brightness write rc=0 (127) but the panel init itself failed -110 (EXIT_SLEEP_MODE) before it; backlight cmd 0x51 also -110. Glass not looked at (nobody answered). See walleye-display-look-b2.
-
-About
-: walleye-display-at-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: the keeper's B1 record: sysfs brightness write result (ok or -110), dsi_err_worker lines before and after, and whether the glass lit (author's look, bundled with walleye-stripes-kd-graphics)
-
-Rank
-: 2
 
 
 <a id="walleye-display-backlight-defer-first-write"></a>
@@ -8588,3 +8538,59 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-display-backlight-sysfs-write"></a>
+### B1: write the backlight through sysfs after boot and read the dsi errors
+
+Status
+: open
+
+Note
+: B2 keeper run 2026-11-19: sysfs brightness write rc=0 (127) but the panel init itself failed -110 (EXIT_SLEEP_MODE) before it; backlight cmd 0x51 also -110. Glass not looked at (nobody answered). See walleye-display-look-b2. 2026-11-20 (coordinator): back to open, rank 5: the B2 run answered its first half (the write returns 0, the panel init fails -110 first); the second half, the glass, waits on the splash try's result (item walleye-display-splash-try), which may remove the -110 itself.
+
+Waits
+: the author's look at the glass, after walleye-display-splash-try (the display at boot in any order); not asked of him before that
+
+About
+: walleye-display-at-boot
+
+Opened
+: 2026-11-20
+
+Needs
+: phone
+
+Proof
+: the keeper's B1 record: sysfs brightness write result (ok or -110), dsi_err_worker lines before and after, and whether the glass lit (author's look, bundled with walleye-stripes-kd-graphics)
+
+Rank
+: 5
+
+
+<a id="walleye-display-at-boot"></a>
+### The display comes up by itself at boot: the 13 display modules built in or loaded by the init, the kernel log and later a console on the glass, no host script
+
+Status
+: open
+
+Note
+: B1 unattended half passed (13/13 ok, connected); backlog write -110 seen; waits only on the author's look at the glass; next attended window: one command procedures/display-at-boot-on-the-pixel-2.rs 2026-11-20 (coordinator): back to open, rank 5: the splash try (item walleye-display-splash-try) decides whether B-s5 or another image is the one he is asked to look at.
+
+Waits
+: the author's look at the glass, after walleye-display-splash-try; one command: procedures/display-at-boot-on-the-pixel-2.rs
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: phone
+
+Proof
+: one unattended try of images-display-at-boot/boot-b1.img (sha256 57ab1b69de78a304e0fba1b2576a1781de2b9cbc41a02c2d73b5328c67b8ebd7): shell up, kmsg shows 'walleye-display: ok' for all 13 modules, card0 and DSI-1 connected, with no host script; then the author's look: the kernel log and the init's console on the glass
+
+Rank
+: 5
