@@ -5107,3 +5107,18 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-2359-z-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-20
+
+Done
+: Android on slot b, stock kernel, nothing flashed or written. Item walleye-install-current-slot-read done: adb ro.boot.slot_suffix _b and fastboot current-slot b agree; other slot is a. Phone left on Android after a read-only fastboot visit.
+
+Considered
+: next: the stage 1 builds first (decision 2026-11-20), then walleye-display-dts-any-order, walleye-display-look-b2.

@@ -5379,3 +5379,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-install-current-slot-read-b-both"></a>
+### walleye-install-current-slot-read-b-both
+
+Date
+: 2026-11-20
+
+Brief
+: Android runs from slot b (adb ro.boot.slot_suffix _b = fastboot current-slot b); the other slot is a, the one stage 1 writes system_a of
+
+Question
+: Which slot does Android run from, and which is the other: adb getprop ro.boot.slot_suffix and fastboot getvar current-slot, equal?
+
+Found
+: adb getprop ro.boot.slot_suffix read _b; at a fastboot visit (adb reboot bootloader, lpoco lab fastboot getvar current-slot, reboot now) current-slot read b. The two readings are equal: Android runs from slot b, the other slot is a (stage 1 writes system_a). Nothing written; phone back on Android, slot_suffix _b after the reboot. The slot-readback directories ~/lab-material/walleye/slot-readback-2026-11-20-{1,2} each hold both slots' images named by slot (boot_a/boot_b, system_a/system_b ...), so names match slots. The lane logs (slot b) were right; the Top Coordinator's brief (boot_b, Android slot a) is the one that disagreed.
+
+About
+: walleye-display-s6e3fa5
