@@ -5205,3 +5205,25 @@ Sources
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-handover-how-others-found"></a>
+### walleye-display-handover-how-others-found
+
+Date
+: 2026-11-20
+
+Brief
+: The faults are msm's new SMMU domain meeting a live scan-out; no board hands over cleanly (OnePlus 5, Pixel 3 skip msm); cheapest try: reset MDSS_BCR at mdss probe
+
+Question
+: Why did the reserved splash not stop the SMMU faults at 6 s, and how do other msm platforms hand the bootloader's scan-out over?
+
+Found
+: (1) Our mmss_smmu (qcom,msm8998-smmu-v2) takes qcom_smmu_cfg_probe: the bootloader's valid SMRs are kept as BYPASS across the SMMU reset. That holds only until a device attaches a translating domain. 'preserved 0 boot mappings' in our log is the ACPI IORT RMR path and means nothing on DT. (2) msm_iommu_new does iommu_paging_domain_alloc + iommu_attach_device: the S2CR of mdss SID 0 moves to a new empty context bank, and the scan-out, still reading physical 0x9d4xxxxx, faults (SID 0x0, cb 0); first fault 5 ms after dpu_kms_hw_init. iommu-addresses direct mappings are applied by the IOMMU core to default domains only (iommu.c ~671, 3186, 3221), so msm's own domain does not get them: the walleye coordinator's lead (2) is right as far as it goes, but its mapping would not reach msm. iommu.passthrough=1 does not help either (msm allocates its own paging domain). No mainline commit found that stops the scan-out before the attach (not proof none exists). (3) B-s5's simple-framebuffer cannot have bound: no SIMPLEDRM, SYSFB_SIMPLEFB or FB_SIMPLE in arm64 defconfig or our fragments; its clocks were never held. The cmdline has clk_ignore_unused ('Not disabling unused clocks' in the log), so clk_disable_unused is not what stops the scan-out near 25 s; the earlier read (no kernel event 12-25 s) points at the bootloader side; genpd and regulator late-off timers are also ruled out for the 16-26 s window (regulators at 30 s; genpd at init, and pd is held by clk/pd state). Not known yet: what stops it. (4) Others: OnePlus 5/5T reserve cont_splash_mem and describe a simplefb but never enable mdss; Pixel 3 crosshatch disables mdss and dispcc 'so simple-framebuffer continues working'; OnePlus 6 enables mdss beside simplefb (fault-free not verified); Fxtec Pro1 reserves only. No board found loads msm over a live splash and says it is clean. The 2019 Andersson/Hugo RFC saw exactly our failure and was not merged. (5) The DSI -110 and pclk0 rcg warnings (DSI/PLL re-programmed under a live bootloader state) are what break the panel, more than the faults, which Hugo calls non-fatal. (6) msm_mdss_reset (assert, 20 ms, deassert) exists but the msm8998 mdss node has no resets property; MDSS_BCR (mmcc 0x2300) is registered and mdss-common.yaml has resets: a dts-only line would make mdss probe reset the whole MDSS block (scan-out, DSI host, pingpong) before msm attaches. Ranked hypotheses: A the bootloader's scan-out and DSI state are live and only a reset or quiesce before attach helps (try: resets = <&mmcc MDSS_BCR>); B the stop at 25 s is something outside the kernel that a read of the DPU registers at 5 s and 30 s will show; C pre-map the region in msm's domain (silences faults, leaves DSI -110: a part, not the way); D disable mdss until late like crosshatch (works, is the delay in the dts); E identity-attach msm (loses isolation, upstream-unfriendly). Material: researcher's survey, kept as this row only.
+
+Sources
+: lkml-arm-smmu-qcom-read-back-stream-mappings,lkml-arm-smmu-handoff-smr-rfc,mainline-dts-oneplus5-pixel3-splash,v73-arm-smmu-qcom-msm-iommu-source,walleye-display-splash-try-signs-stay
+
+About
+: walleye-display-s6e3fa5

@@ -2558,3 +2558,34 @@ Scope
 
 Tracked by
 : walleye-tries-text-file-busy-flake
+
+
+<a id="2026-11-20-walleye-display-handover-reset-first"></a>
+### 2026-11-20-walleye-display-handover-reset-first
+
+Date
+: 2026-11-20
+
+Brief
+: Hand the splash over by resetting the MDSS block at mdss probe (resets = <&mmcc MDSS_BCR>), proven by one RAM image at 5 s; read the DPU registers to learn what stops at 25 s
+
+Decision
+: First step: image B-r5 = B-d5 (not B-s5: the splash reservation and the unbound simplefb add nothing) plus resets = <&mmcc MDSS_BCR> on the mdss node, loaded at 5 s; signs counted as in the delay bisect (SMMU faults, rcg warnings, DSI -110). In parallel a read-only try: at 5 s and at 30 s read the DPU/INTF/pingpong registers of the live scan-out by devmem from the shell, to see what the 25 s flip turns off. If the reset leaves the signs, next is the driver quiesce (item walleye-display-handover-driver: dpu stops scan-out and DSI before msm attaches), sent upstream. The dts reservation of the splash stays out of the way until a simplefb driver is actually built.
+
+Why
+: The faults are the live scan-out meeting msm's new domain; the bootloader state, not the mapping, also breaks DSI (-110, rcg), and a mapping fixes only faults. The MDSS_BCR reset is a one-line dts change on code that already exists (msm_mdss_reset), reversible by RAM boot, and settles hypothesis A at once. Other boards avoid the problem instead of solving it.
+
+Rejected
+: Pre-mapping 0x9d400000 in msm's domain (iommu-addresses): the IOMMU core maps direct regions in default domains only, so it needs a new msm patch and silences faults only; kept as a later part. Waiting 25 s in the dts: a hidden timing, rejected before (2026-11-19-walleye-display-flip-dts-not-timing). Disabling mdss like Pixel 3: no display. Identity attach of msm: loses isolation, no upstream path. More simplefb work: no driver is built, so it holds nothing.
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-handover-how-others-found
+
+Amends
+: 2026-11-19-walleye-display-early-load-splash-handover
+
+Tracked by
+: walleye-display-reset-image
