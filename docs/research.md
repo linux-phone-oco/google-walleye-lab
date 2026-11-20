@@ -5420,3 +5420,22 @@ The empty root password on tty0 and ttyGS0 is the test layer's, like the earlier
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ufs-root-image-built"></a>
+### walleye-ufs-root-image-built
+
+Date
+: 2026-11-20
+
+Brief
+: UFS-root image built: matched UFS kernel code and dtb, overlayfs built in, our own initramfs; checks pass, rebuild identical, gate refuses it by design
+
+Question
+: Can a boot image mount the Alpine system_a read-only with a tmpfs overlay, on what exists, proven without the phone?
+
+Found
+: Image sha256 35b60fdaf0764e97e0b6de60cddc9a955a14928ba3577f7f110206387f966474 (~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-root, 32 MiB, AVB footer verifies, header and dtb the matched image's, command line plus walleye.root=system_a, built twice identical). Kernel tree 3644090c7f6d with CONFIG_OVERLAY_FS=y (defconfig =m). tests/host/ufs-root-init.sh (QEMU, loop-made GPT disk, writable disk, sha256 compared after): root is an overlay; card partition ro, norecovery, kernel refuses writes (blockdev --setro); petter outside /run holds /dev/watchdog, survives a tmpfs on /run, the phone resets after the hold; refusals for no partition, running slot, foreign name, no name, dangling /sbin/init. Review (programmer) found: petter under /run (OpenRC remounts it), a test that could not fail (read-only QEMU disk), no kernel-side ro, a symlinked /sbin/init checked in the initramfs, unchecked numeric settings: all fixed. Open: the guard on androidboot.slot_suffix fails open when the bootloader gives none on fastboot boot (read-only mount only); only the real card shows PARTNAME and probe time: the boot try.
+
+About
+: walleye-display-s6e3fa5
