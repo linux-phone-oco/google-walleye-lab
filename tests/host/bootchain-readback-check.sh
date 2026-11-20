@@ -6,19 +6,20 @@
 # Given a second DIR2 it must pass the same, and its sha256sums must equal DIR's: a second read of the same bytes.
 # XBL_SECTORS (optional, e.g. 8104) and SECTOR_BYTES (default 512): xbl_a and xbl_b must then also be XBL_SECTORS sectors; unset = that
 # measure is not known yet, and the phone's own size is the one that binds.
-# Prints `problem ...` lines, then one line `pass|fail walleye-bootchain-readback-check host DETAIL`; exit 0 only on pass. Reads files only.
+# Prints `problem ...` lines, then one line `pass|fail $NAME host DETAIL`; exit 0 only on pass. Reads files only.
 #
 #   tests/host/bootchain-readback-check.sh DIR [DIR2]
 HERE=$(cd "$(dirname "$0")" && pwd)
-LIST=$HERE/bootchain-parts.list
+LIST=${LIST:-$HERE/bootchain-parts.list}
+NAME=${NAME:-walleye-bootchain-readback-check}
 SB=${SECTOR_BYTES:-512}
 bad=0
 problem() { echo "problem $1"; bad=$((bad + 1)); }
-verdict() { if [ "$bad" -eq 0 ]; then echo "pass walleye-bootchain-readback-check host $1"; exit 0; fi
-  echo "fail walleye-bootchain-readback-check host $bad problem(s)"; exit 1; }
-[ $# -ge 1 ] && [ $# -le 2 ] || { echo "fail walleye-bootchain-readback-check host usage: bootchain-readback-check.sh DIR [DIR2]"; exit 1; }
-[ -r "$LIST" ] || { echo "fail walleye-bootchain-readback-check host $LIST is missing"; exit 1; }
-case "$XBL_SECTORS$SB" in *[!0-9]*) echo "fail walleye-bootchain-readback-check host XBL_SECTORS and SECTOR_BYTES must be whole numbers"; exit 1;; esac
+verdict() { if [ "$bad" -eq 0 ]; then echo "pass $NAME host $1"; exit 0; fi
+  echo "fail $NAME host $bad problem(s)"; exit 1; }
+[ $# -ge 1 ] && [ $# -le 2 ] || { echo "fail $NAME host usage: bootchain-readback-check.sh DIR [DIR2]"; exit 1; }
+[ -r "$LIST" ] || { echo "fail $NAME host $LIST is missing"; exit 1; }
+case "$XBL_SECTORS$SB" in *[!0-9]*) echo "fail $NAME host XBL_SECTORS and SECTOR_BYTES must be whole numbers"; exit 1;; esac
 
 check_one() { # DIR: appends problems
   d=$1

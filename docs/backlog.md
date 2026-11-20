@@ -8597,10 +8597,10 @@ Rank
 ### How far is Linux installed on the Pixel 2 and booting from its own storage: the install stage, its way back and the exact yeses the author must give
 
 Status
-: open
+: done
 
 Note
-: THE LANE'S GOAL (2026-11-20, the author, relayed by the Top Coordinator): 'lets resume work on walleye. how far are we from getting linux installed on it and booting from its own storage ?'. So 'Linux installed and booting from its own storage' is the lane's goal, and the docs step rootfs-boots is the one open step on that chain. Rank 1 (was 12). Everything so far is fastboot boot from RAM: nothing is written. The lane's rule stays: no flash, erase or set_active without a recorded decision and, where it cannot be undone, the author's word. This item prepares the decision and the honest distance; it flashes and writes nothing. Alongside it: item walleye-display-reset-image (B-r5, so the installed system has a screen) and then walleye-ufs-try-2 (gear under load, one command, needs the author's go).
+: Answered: research walleye-install-stage-how-it-stands, proposed decision 2026-11-20-walleye-install-in-stages-proposed, steps walleye-install-* rank 3-9, test slot-readback-check.sh. Nothing written to the phone. Distance: rootfs-boots ~8 build h + ~5 keeper h; boots-by-itself +3 keeper h; the author's seven yeses are in the session log 2026-11-20-walleye-research-install-stage.
 
 About
 : walleye-display-s6e3fa5
@@ -8697,6 +8697,220 @@ Proof
 
 Rank
 : 3
+
+Witness
+: person
+
+
+<a id="walleye-install-slot-readback"></a>
+### Read back boot, dtbo, vbmeta, misc, system, vendor of both slots over adb root as files with sha256 (the way back of the install); read the current slot first
+
+Status
+: open
+
+Note
+: Read only, over adb root, as the boot-chain read-back (tests/host/bootchain-readback.sh with slot-parts.list). Files mode 600 in ~/lab-material/walleye, never git. About 3 GiB twice. Unblocks the install stage. From research walleye-install-stage-how-it-stands.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: phone
+
+Proof
+: tests/host/slot-readback-check.sh DIR DIR2 passes on two reads of the same bytes (fails now: no DIR); fastboot getvar current-slot recorded
+
+Rank
+: 3
+
+
+<a id="walleye-install-ufs-root-image"></a>
+### Build the UFS-root kernel and initramfs: root = the unused slot's system partition, read-only with a tmpfs overlay, ext4 nodiscard, purge guard kept; never booted without the author's UFS go
+
+Status
+: open
+
+Note
+: ~4 agent-h. Based on the matched UFS image. The ufs sd probe and ext4 must be built in. Stage 1 of decision 2026-11-20-walleye-install-in-stages-proposed.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: a host check that the image passes the UFS-gate with the go marker, the initramfs mounts a loop-made test rootfs read-only in a chroot test, and the rebuild is identical
+
+Rank
+: 4
+
+
+<a id="walleye-install-rootfs-debian-min"></a>
+### Build a minimal Debian arm64 rootfs under 2.5 GiB: ssh, usb-network config, the suite's login, no firmware or modem data
+
+Status
+: open
+
+Note
+: ~3 agent-h. Nura (pmbootstrap, device package) stays the author's later choice.
+
+Waits
+: the author's yes to install debootstrap and qemu-user-static on the lab machine, and to Debian minimal first
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: a host check: the ext4 image is under 2.5 GiB sparse, has sshd and the usb gadget network unit, and holds no file from the phone's firmware (list checked); rebuild reproducible
+
+Rank
+: 5
+
+
+<a id="walleye-install-write-rootfs"></a>
+### Write the rootfs image to the unused slot's system partition from Android over adb root; read it back and compare sha256
+
+Status
+: open
+
+Note
+: ~1 keeper-h. Way back: dd the stored system read-back. The Android slot is not touched.
+
+Waits
+: the author's yes to writing the unused slot's system partition
+
+Blocked by
+: walleye-install-slot-readback,walleye-install-rootfs-debian-min
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: phone
+
+Proof
+: the partition's read-back sha256 equals the image's; slot-readback-check on a fresh read still passes for every other partition; battery-ok.sh passed first
+
+Rank
+: 6
+
+Witness
+: person
+
+
+<a id="walleye-install-rootfs-boots-try"></a>
+### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
+
+Status
+: open
+
+Note
+: 2-3 tries, ~3 keeper-h. The phone returns to Android by reboot; end state recorded with idle-android.sh.
+
+Waits
+: the author's UFS-on go for the image
+
+Blocked by
+: walleye-install-write-rootfs,walleye-install-ufs-root-image
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: phone
+
+Proof
+: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
+
+Rank
+: 7
+
+Witness
+: person
+
+
+<a id="walleye-install-flash-boot"></a>
+### Stage 2: fastboot flash boot of the unused slot with our image and set_active; the phone starts Linux by itself; the fall back to Android proven
+
+Status
+: open
+
+Note
+: ~3 keeper-h. Read back boot, dtbo, vbmeta first (walleye-install-slot-readback). Way back: fastboot flash the stored boot, set_active the Android slot.
+
+Waits
+: the author's yes to flashing boot of the unused slot and the slot switch
+
+Blocked by
+: walleye-install-rootfs-boots-try
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: phone
+
+Proof
+: a power-on lands in Linux on ssh without fastboot boot; after a forced failed boot (retry count) it falls back to Android; avb behaviour recorded
+
+Rank
+: 8
+
+Witness
+: person
+
+
+<a id="walleye-install-rw-write-test"></a>
+### Stage 3: one rw mount (nodiscard, no fstrim, purge guard) of the rootfs partition under our kernel, a write run, and proof the bootloader files are unchanged
+
+Status
+: open
+
+Note
+: ~4 keeper-h. The only stage with the Sony-class hazard; no erase, purge or unmap is ever sent.
+
+Waits
+: the author's yes to mainline writes to the UFS
+
+Blocked by
+: walleye-install-rootfs-boots-try,walleye-ufs-try-2
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: phone
+
+Proof
+: bootchain-readback.sh then bootchain-readback-check.sh DIR_before DIR_after: same sha256 for every file; the card reports no errors; the partition's fsck is clean
+
+Rank
+: 9
 
 Witness
 : person

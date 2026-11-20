@@ -2620,3 +2620,34 @@ Scope
 
 Tracked by
 : walleye-wdt-pon-bites-procedure
+
+
+<a id="2026-11-20-walleye-install-in-stages-proposed"></a>
+### 2026-11-20-walleye-install-in-stages-proposed
+
+Date
+: 2026-11-20
+
+Brief
+: PROPOSED, not taken: install in stages: rootfs on the unused slot's system partition written from Android, booted from RAM; then flash boot; mainline UFS writes last
+
+Decision
+: PROPOSED for the author, nothing is taken until he says yes. Stage 1 (rootfs-boots): read back the unused slot's boot, dtbo, vbmeta, misc, system, vendor with sha256 (tests/host/slot-readback-check.sh); build a UFS-root kernel and initramfs (root read-only, tmpfs overlay, no discard) and a minimal Debian rootfs of under 2.5 GiB; write it to the unused slot's system partition from Android over adb root; boot our kernel from RAM with fastboot boot; proof is ssh over usb-network and the health suite. Stage 2 (boots by itself): fastboot flash boot of that slot and set_active after the read-back, boot counting falls back. Stage 3 (writable): UFS try 2 for gear, then an rw mount with nodiscard and the purge guard, proving the bootloader files unchanged by sha256 after each write run. Never queued: any write to xbl, abl, tz, hyp or other bootloader partitions, the GPT, erase, purge.
+
+Why
+: Android already writes UFS, so the rootfs needs no mainline write; stage 1 changes nothing the bootloader sees and returns to Android by reboot; the Sony-class hazard (erase, purge, unmap) is confined to stage 3 where it can be guarded and measured; decision 2026-11-18-walleye-android-disposable-no-bricking makes Android disposable and bricking the one hard line; no EDL way back exists.
+
+Rejected
+: pmbootstrap-style flash_rootfs plus flash_kernel first (writes boot and rootfs with no read-back and sets the slot before the UFS read path under load is seen); userdata as the first rootfs (ends Android data, needed only for a phone-UI image); a new partition or GPT edit (the bootloader reads the GPT, no way back); loopback rootfs.img on userdata first (one more moving part, OnePlus 5 way kept for later); Nura first (device package nobody wrote, 6-8 agent-h and pmbootstrap not installed; kept as the author's later choice); mainline UFS write before the root is proven read-only (the one hazard class, nothing needs it yet).
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-install-stage-how-it-stands
+
+Scope
+: walleye lane: keeper, builder; the author's yes
+
+Tracked by
+: walleye-install-slot-readback

@@ -1301,3 +1301,63 @@ Url
 
 Takes
 : msm8998 smmu takes qcom_smmu_cfg_probe; msm attaches its own paging domain (no direct mappings); msm_mdss_reset exists and MDSS_BCR is registered in mmcc-msm8998
+
+
+<a id="src-pmaports-crosshatch-mr83"></a>
+### pmaports MR 83: crosshatch (Pixel 3 XL) new device
+
+Url
+: https://gitlab.com/postmarketOS/pmaports/-/merge_requests/83
+
+Takes
+: Pixel A/B ports flash one slot only; pmOS on a Pixel boots from the active slot
+
+
+<a id="src-pmbootstrap-install-guide"></a>
+### postmarketOS installation guide with pmbootstrap (ivonblog)
+
+Url
+: https://ivonblog.com/en-us/posts/postmarketos-general-installation/
+
+Takes
+: flasher flash_rootfs (--partition userdata when system is too small), flash_kernel, fastboot reboot
+
+
+<a id="src-debian-wiki-oneplus6"></a>
+### Debian wiki: InstallingDebianOn/OnePlus/OnePlus6 (Mobian)
+
+Url
+: https://wiki.debian.org/InstallingDebianOn/OnePlus/OnePlus6
+
+Takes
+: Mobian flow: fastboot flash boot, erase userdata, flash userdata (sparse, -S 100M), erase dtbo
+
+
+<a id="src-oneplus5-mainline-jami"></a>
+### JamiKettunen/linux-mainline-oneplus5 (deprecated, moved to msm8998-mainline/linux)
+
+Url
+: https://github.com/JamiKettunen/linux-mainline-oneplus5
+
+Takes
+: OP5 (msm8998) runs a loopback rootfs.img on the userdata partition from a ramdisk
+
+
+<a id="src-avb-readme"></a>
+### Android Verified Boot 2.0 README (AOSP external/avb)
+
+Url
+: https://android.googlesource.com/platform/external/avb/+/master/README.md
+
+Takes
+: vbmeta, descriptors, append_vbmeta_image to a boot image; unlocked state allows a failed verification
+
+
+<a id="src-pmaports-msm8998-6-0"></a>
+### pmaports MR 3531: MSM8998 mainline kernel 6.0 and OnePlus 5/5T updates
+
+Url
+: https://gitlab.com/postmarketOS/pmaports/-/merge_requests/3531
+
+Takes
+: OP5/5T installed to internal storage on mainline

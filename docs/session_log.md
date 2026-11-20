@@ -5014,3 +5014,18 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-walleye-research-install-stage"></a>
+### walleye-research: the install stage, its way back and the author's yeses
+
+Entry date
+: 2026-11-20
+
+Done
+: Research walleye-install-stage-how-it-stands and the PROPOSED decision 2026-11-20-walleye-install-in-stages-proposed; seven backlog steps (rank 3-9) and tests/host/slot-readback-check.sh (fails until the read-back exists). THE AUTHOR'S YESES, one sentence each: (1) Let the lab read back the boot, dtbo, vbmeta, system and vendor partitions of both slots over adb root (read only). (2) Let the lab install debootstrap and qemu-user-static on this machine, and build Debian minimal first. (3) Let the lab write the new root image into the system partition of the slot Android is not on, while Android runs. (4) Let the lab boot our kernel from RAM with the phone's storage on, mounting that partition read-only. (5) Later: let the lab flash our boot image into that slot and switch the active slot. (6) Later: let our kernel write to the phone's storage (one partition, no erase, no purge). (7) Before a phone-UI image: choose Debian or Nura.
+
+About
+: walleye-display-s6e3fa5
