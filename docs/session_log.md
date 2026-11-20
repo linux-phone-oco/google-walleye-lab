@@ -5068,3 +5068,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-2359-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-20
+
+Done
+: Android on slot b, stock kernel, nothing flashed or written. Item walleye-install-slot-readback done: slot partitions of both slots read twice, identical, kept in ~/lab-material/walleye/slot-readback-2026-11-20-{1,2}. Reader takes LIST from the environment.
+
+Considered
+: next: the stage 1 builds first (decision 2026-11-20), then walleye-display-dts-any-order, walleye-display-look-b2; fastboot getvar current-slot still wants a read at the next fastboot visit.
+
+About
+: walleye-display-s6e3fa5

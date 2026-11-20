@@ -9,10 +9,10 @@
 # second read: `check.sh DIR DIR2`); 1 on a refusal, a missing name or a failed read. Prints `pass|fail walleye-bootchain-readback host DETAIL`.
 #
 #   tests/host/bootchain-readback.sh [DIR]      (default: ~/lab-material/walleye/bootchain-DATE/, DATE = today)
-# Environment: DEVICE_TOML (default: ../../device.toml), CALL_WAIT seconds for each short adb call (default 15).
+# Environment: LIST (default: bootchain-parts.list; slot-parts.list reads the slot partitions), DEVICE_TOML (default: ../../device.toml), CALL_WAIT seconds for each short adb call (default 15).
 HERE=$(cd "$(dirname "$0")" && pwd)
 TOML=${DEVICE_TOML:-$HERE/../../device.toml}
-LIST=$HERE/bootchain-parts.list
+LIST=${LIST:-$HERE/bootchain-parts.list}
 CW=${CALL_WAIT:-15}
 DIR=${1:-$HOME/lab-material/walleye/bootchain-$(date +%Y-%m-%d)}
 say() { printf "%s walleye-bootchain-readback host %s\n" "$1" "$2"; [ "$1" = pass ] && exit 0; exit 1; }
