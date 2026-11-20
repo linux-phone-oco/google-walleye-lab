@@ -5029,3 +5029,21 @@ Done
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-2330-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-20
+
+Done
+: Android on slot b, stock kernel, nothing flashed. B-r5 (B-d5 plus resets = <&mmcc MDSS_BCR> on mdss) tried once unattended from fastboot at 5 s: SMMU faults 0, rcg warnings 0, DSI -110 0, 13 of 13 modules ok; phone back on Android by the run's own way back (phone-state: android). Item walleye-display-reset-image done; [images.b-r5] declared in device.toml; step display-boots-any-order partial. build/images is an untracked link to ~/Projects/walleye-build that a fresh worktree lacks (ln -s ~/Projects/walleye-build build/images).
+
+Considered
+: next: the reset in the board dts so any load order works at boot (walleye-display-dts-any-order; try B-r at 2 s via a delay of 2 image), then walleye-display-look-b2 for the author's look; keeper queue after: walleye-install-slot-readback (rank 3), walleye-slpi-boot-qrtr. Tooling: phone password file missing (state from phone-state.sh).
+
+About
+: walleye-display-s6e3fa5

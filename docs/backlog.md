@@ -8444,10 +8444,10 @@ Rank
 ### Image B-r5: B-d5 plus resets = <&mmcc MDSS_BCR> on mdss, loaded at 5 s; one unattended RAM try
 
 Status
-: open
+: done
 
 Note
-: Decision 2026-11-20-walleye-display-handover-reset-first. Build like build-display-splash-image.sh from B-d5 (fdtput resets <mmcc MDSS_BCR=5> on /soc@0/display-subsystem@c900000; mdss-common takes one unnamed reset). Then queue the try for the keeper with ikb backlog-needs --needs phone.
+: proven by tests/host/dtb-display-reset.sh (pass on B-r5's dtb) and the delay bisect at 5 s: faults 0, rcg 0, dsi_110 0, 13 of 13 modules ok (research walleye-display-reset-image-b-r5-tried-signs-vanish)
 
 About
 : walleye-display-s6e3fa5
