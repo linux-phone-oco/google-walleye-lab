@@ -8350,34 +8350,6 @@ Rank
 : 8
 
 
-<a id="walleye-declare-transport-login"></a>
-### Declare [connection] transport and login = none in device.toml and drop our own helpers for what the library then does (read_dmesg, back_to_known_good, phone(), boot_once)
-
-Status
-: open
-
-Note
-: Orchestration's answer to walleye's notes (2026-11-19): it ends the 'password file needed' false claim at its root and the library-steps-need-a-login gap. Until it lands the keepers' start reads phone-state.sh for walleye (phone-keeper.md already says so).
-
-Waits
-: orchestration: lab-tools phone-declared-transport (rank 2 there; decision 2026-11-19-phone-reached-by-its-declared-transport): [connection] transport = ssh|telnet|adb and login = password|none; lpoco lab phone/suite and the library steps go through it; login = none is never asked a password
-
-About
-: walleye-attend-program-display
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: device.toml declares transport (telnet for our test images, adb for Android) and login = none; lpoco lab suite latest says 'not applicable' and exits clean on walleye; the procedures use the library's read_dmesg, back_to_known_good and boot_once where they fit and tools/walleye-tries shrinks accordingly; dry-run, check --host and stand-in tests pass; the keeper brief's 'suite latest' no longer yields a 'password' line in any hand-over
-
-Rank
-: 7
-
-
 <a id="walleye-procedures-on-step-groups"></a>
 ### The walleye procedures use lpoco-attended's step groups: phone_ready and leave_known_good in place of the repeated gate, boot, shell and way-back lines
 
@@ -8594,3 +8566,28 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-declare-transport-login"></a>
+### Declare [connection] transport and login = none in device.toml and drop our own helpers for what the library then does (read_dmesg, back_to_known_good, phone(), boot_once)
+
+Status
+: open
+
+Note
+: Orchestration's answer to walleye's notes (2026-11-19): it ends the 'password file needed' false claim at its root and the library-steps-need-a-login gap. Until it lands the keepers' start reads phone-state.sh for walleye (phone-keeper.md already says so). UPDATE 2026-11-20 (orchestration, lab-tools #305 and #306): lpoco-attended 0.38.0 reads [connection] transport = ssh|telnet|adb and login = password|none; with login = none, lpoco lab suite says 'not applicable' instead of asking a password; 0.38.1 makes an unanswered prompt without a terminal wait 300 s on the answer file by default (an explicit --answer-limit stays valid). The follow timer installs 0.38.1 when both phones are free. DO NOW: declare transport and login = none in device.toml and check that suite latest says 'not applicable'. NEXT SLICE (orchestration): boot_once by fastboot and the attended steps over the transport: dropping our own helpers (read_dmesg, back_to_known_good, phone(), boot_once) waits for it; leave the item open for that half.
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: device.toml declares transport (telnet for our test images, adb for Android) and login = none; lpoco lab suite latest says 'not applicable' and exits clean on walleye; the procedures use the library's read_dmesg, back_to_known_good and boot_once where they fit and tools/walleye-tries shrinks accordingly; dry-run, check --host and stand-in tests pass; the keeper brief's 'suite latest' no longer yields a 'password' line in any hand-over
+
+Rank
+: 4
