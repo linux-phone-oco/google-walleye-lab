@@ -2653,6 +2653,40 @@ Tracked by
 : walleye-install-slot-readback
 
 
+<a id="2026-11-20-walleye-install-stage-1-go"></a>
+### 2026-11-20-walleye-install-stage-1-go
+
+Date
+: 2026-11-20
+
+Brief
+: The author says yes to install stage 1: Alpine build tools on the lab machine, the write of the Alpine image to the unused slot's system partition from Android, a read-only UFS-on boot from RAM
+
+Decision
+: The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. Stages 2 and 3 of decision 2026-11-20-walleye-install-in-stages-proposed (flash boot and switch the slot; our kernel writing to the card) still wait for his word. Each attended or irreversible step is brought to him as one command, tested first (decision 2026-11-19-walleye-attended-tries-one-command): items walleye-install-write-procedure and walleye-install-boot-procedure.
+
+Why
+: His word 'yes', just given, to the Top Coordinator's restated stage 1; the research walleye-install-stage-how-it-stands shows stage 1 changes nothing the bootloader sees and returns to Android by reboot, the write goes to a slot Android is not on, with the read-back backup as its way back.
+
+Rejected
+: A go for flashing boot, set_active, mainline writes, any GPT or bootloader write, erase or purge, or the userdata loopback (not asked, not given); opening the write for a keeper before the image and its one command exist (the author's rule: attend only when one command away).
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-install-stage-how-it-stands
+
+Amends
+: 2026-11-20-walleye-install-in-stages-proposed
+
+Scope
+: walleye lane: keeper, builder; the author's yes
+
+Tracked by
+: walleye-install-write-rootfs
+
+
 <a id="2026-11-20-walleye-distro-alpine-minimal"></a>
 ### 2026-11-20-walleye-distro-alpine-minimal
 
@@ -2663,7 +2697,7 @@ Brief
 : The Pixel 2's first installed system is plain Alpine, minimal, as the hardware-test layer: no Debian, no Nura, no UI, no phone shell
 
 Decision
-: The rootfs of install stage 1 is Alpine (apk, OpenRC, musl), minimal: getty on the tty (the display console) and on ttyGS0, sshd over the usb-network gadget, the Qualcomm services the steps need (qrtr, rmtfs, pd-mapper, tqftpserv when a step needs them; ModemManager later), and lpoco-health. No sxmo, no phosh, no UI. Its package list follows decision 2026-11-19-hardware-test-layer (docs): the hardware tests run with no phone shell as the product; the shell and UI are later layers. No firmware or modem data inside the image (it stays on the phone). The kernel is ours; the initramfs is ours (no mkinitfs, Alpine's or any). The stages and their yeses are unchanged and still wait for the author (decision 2026-11-20-walleye-install-in-stages-proposed).
+: The rootfs of install stage 1 is Alpine (apk, OpenRC, musl), minimal: getty on the tty (the display console) and on ttyGS0, sshd over the usb-network gadget, the Qualcomm services the steps need (qrtr, rmtfs, pd-mapper, tqftpserv when a step needs them; ModemManager later), and lpoco-health. No sxmo, no phosh, no UI. Its package list follows decision 2026-11-19-hardware-test-layer (docs): the hardware tests run with no phone shell as the product; the shell and UI are later layers. No firmware or modem data inside the image (it stays on the phone). The kernel is ours; the initramfs is ours (no mkinitfs, Alpine's or any). The stages and their yeses are unchanged and still wait for the author (decision 2026-11-20-walleye-install-in-stages-proposed). READING CLOSED (Top Coordinator, 2026-11-20): 'shell' in this project means a phone UI shell (sxmo, phosh, Plasma Mobile), not a command shell; 'just tty' is a text console with a login, so getty on the tty and on ttyGS0 plus sshd stays as listed.
 
 Why
 : The author, "ye, alpine sounds reasonable(no nura, if we dont loose anything by giving nura up. if its alpine upstream, why use nura at all ?)" and "we were planning to use no shells at all, just tty, why we bringup hardware side" (the author, 2026-11-20, relayed by the Top Coordinator). Recorded reasons (Top Coordinator): Nura's ports do not cover walleye; sxmo, phosh, qrtr, rmtfs, pd-mapper, tqftpserv and ModemManager are all packaged in Alpine; postmarketOS refuses AI-assisted contributions, so 'upstream' for this lane means Alpine and mainline. What we give up by leaving Nura: its pmbootstrap device-package route and a ready phone UI, which this stage does not use. The cost: an initramfs of our own (we already have one from the matched image) instead of mkinitfs.
