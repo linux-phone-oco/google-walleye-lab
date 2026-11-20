@@ -14,12 +14,13 @@ MODE=${1:?usage: build-initramfs.sh phone|selftest WORK_DIR OUT}
 W=${2:?usage: build-initramfs.sh phone|selftest WORK_DIR OUT}
 OUT=${3:?usage: build-initramfs.sh phone|selftest WORK_DIR OUT}
 HERE=$(cd "$(dirname "$0")" && pwd)
-case $MODE in phone) BB=$W/busybox-arm64 ;; selftest) BB=$W/busybox-x86_64 ;; *) echo "mode $MODE" >&2; exit 2 ;; esac
-GEN=$W/out/b/usr/gen_init_cpio
+case $MODE in phone|ufs-root) BB=$W/busybox-arm64 ;; selftest|ufs-root-selftest) BB=$W/busybox-x86_64 ;; *) echo "mode $MODE" >&2; exit 2 ;; esac
+GEN=${GEN:-$W/out/b/usr/gen_init_cpio}   # GEN: the usr/gen_init_cpio of any built kernel tree
 [ -x "$GEN" ] || make -C "$W/linux-v7.3" ARCH=arm64 LLVM=1 O="$W/out/b" usr/gen_init_cpio >/dev/null
 NET=${NET:-42}
 SRC=$HERE/initramfs; SUF=
-if [ "$NET" != 42 ]; then
+case $MODE in ufs-root|ufs-root-selftest) SRC=$HERE/initramfs-root ;; esac
+if [ "$NET" != 42 ] && [ "${MODE#ufs-root}" = "$MODE" ]; then
   SRC=$W/net$NET; SUF=-$NET; rm -rf "$SRC"; mkdir -p "$SRC"
   MAC=$(printf %02x "$NET")
   for n in init udhcpd.conf selftest.sh udhcpc.script; do
@@ -35,7 +36,7 @@ SPEC=$W/initramfs-$MODE$SUF.spec
   echo "file /bin/busybox $BB 755 0 0"
   echo "slink /bin/sh busybox 777 0 0"
   echo "file /init $SRC/init 755 0 0"
-  echo "file /etc/udhcpd.conf $SRC/udhcpd.conf 644 0 0"
+  [ "${MODE#ufs-root}" != "$MODE" ] || echo "file /etc/udhcpd.conf $SRC/udhcpd.conf 644 0 0"
 } > "$SPEC"
 if [ $MODE = selftest ]; then
   KVER=${SELFTEST_KVER:?selftest needs SELFTEST_KVER, the release of the host kernel QEMU boots (its modules are packed)}
@@ -62,6 +63,21 @@ if [ $MODE = selftest ]; then
   # libraries go where the loader looks: /usr/lib and /lib64 (Arch's /lib is a link to /usr/lib)
   awk '{n=split($2,a,"/"); print "file /usr/lib/" a[n] " " $3 " " $4 " " $5 " " $6}' "$T/libs.spec" >> "$SPEC"
   awk '{n=split($2,a,"/"); if (a[n] ~ /^ld-linux/) print "slink /lib64/" a[n] " /usr/lib/" a[n] " 777 0 0"}' "$T/libs.spec" >> "$SPEC"
+fi
+if [ $MODE = ufs-root-selftest ]; then
+  KVER=${SELFTEST_KVER:?ufs-root-selftest needs SELFTEST_KVER, the release of the host kernel QEMU boots (its modules are packed)}
+  T=$W/ufs-root-selftest-files; rm -rf "$T"; mkdir -p "$T/mod"
+  : > "$T/modules.list"
+  for d in /lib /lib/modules; do echo "dir $d 755 0 0"; done >> "$SPEC"
+  for m in virtio_pci virtio_blk crc32c_generic ext4 overlay i6300esb; do
+    modprobe -S "$KVER" --show-depends "$m" | sed -n "s/^insmod //p"
+  done | awk "!seen[\$1]++" | while read -r ko; do
+    b=$(basename "$ko" .zst); b=${b%.ko}
+    case $ko in *.zst) zstd -dqc "$ko" > "$T/mod/$b.ko" ;; *) cp "$ko" "$T/mod/$b.ko" ;; esac
+    echo "/lib/modules/$b.ko" >> "$T/modules.list"
+  done
+  while read -r f; do echo "file $f $T/mod/$(basename "$f") 644 0 0"; done < "$T/modules.list" >> "$SPEC"
+  echo "file /modules.list $T/modules.list 644 0 0" >> "$SPEC"
 fi
 "$GEN" -t 0 "$SPEC" | gzip -9n > "$OUT"
 ls -l "$OUT"

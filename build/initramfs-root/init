@@ -1,0 +1,91 @@
+#!/bin/busybox sh
+# The UFS-root init (backlog walleye-install-ufs-root-image; decisions 2026-11-20-walleye-install-stage-1-go, 2026-11-20-walleye-distro-alpine-minimal): find the card's system partition named on the
+# command line (walleye.root=system_a|system_b), mount it READ-ONLY (ext4, nodiscard, noload: nothing is replayed, trimmed or written), put a tmpfs overlay on it so the root can write in memory only,
+# keep the SoC watchdog petted for a bounded time, and hand over to the root's own /sbin/init (switch_root). Nothing is ever written to the card by this file: no mkfs, no fsck, no rw mount, no
+# discard, no purge (the kernel's purge guard stays in the image too).
+# Refuses (a line `walleye-ufs-root: refused ...` in the kernel log, which the ramoops console keeps for Android to read, then the phone restarts by itself) when: no walleye.root, a name that is not
+# system_a or system_b, the same slot as androidboot.slot_suffix (the slot Android runs from), no partition of that name, or two of them. It mounts nothing it was not named.
+# The init of the root (Alpine's busybox init + OpenRC, with the usb gadget unit and sshd) brings the gadget up itself; this init does no gadget.
+# Never exits except by exec (an init that ends is a kernel panic).
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+HOLD_SECONDS=900   # the watchdog is petted this long after the hand-over, longer while /run/walleye/hold exists in the root; then the phone resets itself (the way back to Android); walleye.hold=SECONDS changes it
+WAIT_SECONDS=90    # the card's probe takes time: wait this long for the partition (walleye.wait=SECONDS on the command line changes it: the QEMU proof)
+PAUSE_SECONDS=30   # after a refusal the log stays readable this long before the phone restarts (walleye.pause=SECONDS)
+say() { echo "walleye-ufs-root: $*" > /dev/kmsg 2>/dev/null; echo "walleye-ufs-root: $*"; }
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+mount -t devtmpfs dev /dev 2>/dev/null
+refuse() { # the phone restarts by itself after a pause long enough to read the log; the watchdog is petted meanwhile
+  say "refused: $*"
+  n=0
+  while [ $n -lt $((PAUSE_SECONDS / 2)) ]; do [ -e /dev/watchdog ] && echo > /dev/watchdog 2>/dev/null; sleep 2; n=$((n+1)); done
+  sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+  while :; do sleep 60; done
+}
+# modules for a host that has them (the QEMU proof); the phone's kernel has everything built in and no /modules.list
+if [ -f /modules.list ]; then while read -r m; do insmod "$m" || say "insmod $m failed"; done < /modules.list; fi
+CMD=$(cat /proc/cmdline)
+arg() { for w in $CMD; do case $w in "$1="*) echo "${w#"$1="}"; return ;; esac; done; }
+ROOT=$(arg walleye.root)
+SLOT=$(arg androidboot.slot_suffix)
+for k in wait pause hold; do V=$(arg walleye.$k); case $V in ""|*[!0-9]*) ;; *) case $k in wait) WAIT_SECONDS=$V ;; pause) PAUSE_SECONDS=$V ;; hold) HOLD_SECONDS=$V ;; esac ;; esac; done
+say "start, kernel $(uname -r), root=[$ROOT] running slot suffix=[$SLOT]"
+case $ROOT in
+  system_a|system_b) ;;
+  '') refuse "no walleye.root on the command line" ;;
+  *) refuse "walleye.root=$ROOT is not system_a or system_b" ;;
+esac
+[ -z "$SLOT" ] || [ "$ROOT" != "system$SLOT" ] || refuse "$ROOT is the system of the slot Android runs from (androidboot.slot_suffix=$SLOT)"
+# the partition: exactly one block device whose PARTNAME is the name asked, waited for
+found=
+n=0
+while [ $n -lt $WAIT_SECONDS ]; do
+  found=; count=0
+  for u in /sys/class/block/*/uevent; do
+    [ -e "$u" ] || continue
+    if grep -qx "PARTNAME=$ROOT" "$u"; then found=$(basename "$(dirname "$u")"); count=$((count+1)); fi
+  done
+  [ $count -eq 0 ] || break
+  [ -e /dev/watchdog ] && echo > /dev/watchdog 2>/dev/null
+  sleep 1; n=$((n+1))
+done
+[ -n "$found" ] || refuse "no partition named $ROOT after ${WAIT_SECONDS}s"
+[ $count -eq 1 ] || refuse "$count partitions are named $ROOT"
+n=0; while [ ! -b "/dev/$found" ] && [ $n -lt 10 ]; do sleep 1; n=$((n+1)); done
+[ -b "/dev/$found" ] || refuse "no node /dev/$found"
+say "root is /dev/$found (PARTNAME=$ROOT)"
+mkdir -p /lower /ovl /newroot
+blockdev --setro "/dev/$found" || refuse "cannot set /dev/$found read-only"
+mount -t ext4 -o ro,nodiscard,noload "/dev/$found" /lower || refuse "the read-only ext4 mount of /dev/$found failed"
+# /sbin/init may be a symlink (Alpine: to /bin/busybox): resolve it inside the card's root, not in this initramfs
+if [ -L /lower/sbin/init ]; then
+  t=$(readlink /lower/sbin/init); case $t in /*) t=/lower$t ;; *) t=/lower/sbin/$t ;; esac
+  [ -e "$t" ] || refuse "/dev/$found: /sbin/init is a symlink to nothing ($t)"
+else
+  [ -x /lower/sbin/init ] || refuse "/dev/$found holds no /sbin/init"
+fi
+mount -t tmpfs -o mode=755,size=256m tmpfs /ovl || refuse "no tmpfs for the overlay"
+mkdir -p /ovl/upper /ovl/work
+mount -t overlay overlay -o lowerdir=/lower,upperdir=/ovl/upper,workdir=/ovl/work /newroot || refuse "the overlay mount failed"
+mkdir -p /newroot/proc /newroot/sys /newroot/dev /newroot/run /newroot/lower
+# the watchdog petter lives in the new root (its own copy of busybox in the tmpfs upper layer): the SoC watchdog resets the phone when nobody pets it
+mkdir -p /newroot/.walleye /newroot/run/walleye
+cp /bin/busybox /newroot/.walleye/busybox
+cat > /newroot/.walleye/hold.sh <<EOH
+#!/.walleye/busybox sh
+exec 3> /dev/watchdog || exit 0
+n=0
+while [ \$n -lt $((HOLD_SECONDS / 2)) ] || [ -e /run/walleye/hold ]; do echo >&3 2>/dev/null; n=\$((n+1)); /.walleye/busybox sleep 2; done
+echo "<3>walleye-ufs-root: hold over, the phone resets itself" > /dev/kmsg 2>/dev/null
+/.walleye/busybox sync; /.walleye/busybox reboot -f; /.walleye/busybox sleep 5; echo b > /proc/sysrq-trigger
+EOH
+chmod 755 /newroot/.walleye/hold.sh
+mount --move /proc /newroot/proc
+mount --move /sys /newroot/sys
+mount --move /dev /newroot/dev
+mount --move /lower /newroot/lower
+chroot /newroot /.walleye/busybox setsid /.walleye/busybox sh /.walleye/hold.sh > /newroot/.walleye/hold.log 2>&1 &
+say "handing over to the root's /sbin/init"
+exec switch_root /newroot /sbin/init
+refuse "switch_root did not run"

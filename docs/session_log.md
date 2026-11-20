@@ -5143,3 +5143,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-21-walleye-builder-ufs-root-image"></a>
+### UFS-root image built
+
+Entry date
+: 2026-11-20
+
+Done
+: build/initramfs-root/init, build-initramfs.sh ufs-root modes, build-ufs-root-image.sh, tests/host/ufs-root-init.sh, config fragment walleye-ufs-root.config; image sha256 35b60fdaf0764e97e0b6de60cddc9a955a14928ba3577f7f110206387f966474; proof test seen failing first, then passing; review fixes applied
+
+Considered
+: chroot test with a loop device (needs root): QEMU instead; refusing when androidboot.slot_suffix is empty: left open so a bootloader that omits it does not block the try
+
+Rejected
+: an endless petter; fixed device names
+
+About
+: walleye-display-s6e3fa5

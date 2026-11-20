@@ -2750,3 +2750,28 @@ Scope
 
 Tracked by
 : walleye-install-rootfs-lab-key
+
+
+<a id="2026-11-21-walleye-ufs-root-init-reads-the-name-and-refuses"></a>
+### 2026-11-21-walleye-ufs-root-init-reads-the-name-and-refuses
+
+Date
+: 2026-11-20
+
+Brief
+: The UFS-root init mounts only the partition walleye.root names (system_a|b), read-only, refuses the running slot, and keeps a bounded watchdog petter
+
+Decision
+: build/initramfs-root/init takes walleye.root=system_a|system_b from the command line (the image bakes system_a: Android runs from b), finds the one partition with that PARTNAME, mounts it ext4 ro,nodiscard,noload under a tmpfs overlay and hands over with switch_root. It refuses (log line, then the phone restarts by itself) with no name, a foreign name, the slot of androidboot.slot_suffix, no partition or two. A petter in the new root pets /dev/watchdog for 900 s (longer while /run/walleye/hold exists), then the phone resets itself. The proof is QEMU on a loop-made GPT disk, no root needed.
+
+Why
+: The author's stage 1 yes covers a read-only mount of the unused slot's system and nothing the card could be written by; naming the slot on the command line keeps one image for both slots and the slot guard keeps it off Android's. A petter that never ends would leave a hung phone to a hand on the power key; QEMU showed the first petter never held the watchdog (busybox applets need argv0 busybox), so the test now checks a process holds /dev/watchdog and that the reset follows the hold.
+
+Rejected
+: mkinitfs / Alpine's initramfs (the coordinator said our own); mounting by a fixed device name (sda order is not stable on UFS); a loop-device chroot test (needs root; QEMU needs none and runs the real init); an endless petter (no way back); noload omitted (a journal replay writes).
+
+About
+: walleye-display-s6e3fa5
+
+Tracked by
+: walleye-install-ufs-root-image

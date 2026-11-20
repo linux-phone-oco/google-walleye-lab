@@ -8833,10 +8833,10 @@ Witness
 ### Build the UFS-root kernel and initramfs: root = the unused slot's system partition, read-only with a tmpfs overlay, ext4 nodiscard, purge guard kept; never booted without the author's UFS go
 
 Status
-: open
+: done
 
 Note
-: ~4 agent-h. Based on the matched UFS image. The ufs sd probe and ext4 must be built in. Stage 1 of decision 2026-11-20-walleye-install-in-stages-proposed. 2026-11-20 (coordinator): the rootfs is Alpine minimal (walleye-install-rootfs-alpine-min); the initramfs is our own, no mkinitfs; the chroot test uses the Alpine image when it exists, a loop-made test rootfs until then. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. This image is the UFS-on boot of step 4: never booted by a keeper except through the go item and the one command of walleye-install-boot-procedure. 2026-11-20 (coordinator): rank 3: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time.
+: Built 2026-11-21 by walleye-builder: image sha256 35b60fdaf0764e97e0b6de60cddc9a955a14928ba3577f7f110206387f966474 in ~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-root (never booted); tests/host/ufs-root-init.sh passes; the gate refuses the image by design; rebuild identical. Read: research walleye-ufs-root-image-built. Next: walleye-install-boot-procedure.
 
 About
 : walleye-display-s6e3fa5
