@@ -5322,3 +5322,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-alpine-rootfs-rootless-look-around"></a>
+### walleye-alpine-rootfs-rootless-look-around
+
+Date
+: 2026-11-20
+
+Brief
+: Alpine 3.24 aarch64 rootfs builds rootless (apk.static --usermode --no-scripts, 56 pkgs, 24 MiB); gaps: no pd-mapper package, no aarch64 Rust target for lpoco-health
+
+Question
+: Can plain Alpine minimal be built on the lab machine without installing anything, and are all the packages the item names available?
+
+Found
+: apk-tools-static 3.0.9 (x86_64, from the Alpine mirror, kept under AGENT_BUILD) installs alpine-base, openssh, agetty, qrtr, rmtfs(+openrc), tqftpserv, e2fsprogs into a directory as the lab user with --usermode --initdb --no-scripts: 56 packages, 22.5 MiB, no root, no qemu. mke2fs -d (host) can make the ext4 image from that directory. Missing: pd-mapper is in no Alpine 3.24 repo (main, community; edge testing also has none) - it is postmarketOS's, build from source (aarch64-linux-gnu-gcc exists, link static); lpoco-health is ours and the host has only the x86_64 Rust std, so an aarch64 build needs a rust-std target installed (a root pacman command - for the author's hands, not done). Scripts skipped without qemu: OpenRC runlevel links, inittab getty lines, the usb gadget unit are written by the build as files.
+
+About
+: walleye-display-s6e3fa5
