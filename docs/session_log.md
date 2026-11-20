@@ -5047,3 +5047,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-walleye-builder-b-q5-built"></a>
+### Image B-q5 built (spare): B-d5 plus a read-only register sampler (DPU, interface, pingpong, DSI)
+
+Entry date
+: 2026-11-20
+
+Done
+: Built B-q5 (build/build-display-regs-image.sh; tests/host/display-regs-init.sh seen failing on init-display-delay, then passing): B-d5's kernel, dtb, command line, size and 5 s delay; /init is init-display-regs (init-display-delay plus a regs block, added lines only); /regs.list (41 registers) and /regs-times (4 10 30); busybox devmem 32 bits, never given a value; each read said to the kernel log first so a hang names its register. 24 build checks ok. boot-b-q5.img sha256 86d0813a1ae47ab0d33803d4c4d5a1e24df0988aae760d83e0605b584e80596d in ~/Projects/walleye-build/images-display-regs. Programmer review found DISP_INTF_SEL at 0x104 (is 0x004): fixed, rebuilt. walleye-tries: the delay bisect waits for 'registers: done' when the log shows samples and keeps regs-d5.txt (a log without it is marked incomplete; one reading is single); 141 tests, clippy clean. device.toml has [images.b-q5]; run: delays = 5, image_prefix = b-q. Named risk: if the DPU is runtime-suspended at 10 or 30 s a read could take the SoC; the last read line is lost unless ramoops holds it. Not queued ahead: the coordinator ranked the item off the path (B-r5 is clean at 5 s); it keeps its wait.
+
+Considered
+: Samples at 5 s and 30 s only: 5 s races the module load that starts at 5 s, so 4, 10 and 30 s.
+
+Rejected
+: A new procedure (the delay bisect already boots a b-prefix image and keeps the log); debugfs reads (exist only after msm probes).
+
+About
+: walleye-display-s6e3fa5

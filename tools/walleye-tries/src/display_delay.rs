@@ -121,6 +121,84 @@ pub fn table(rows: &[Row]) -> String {
     out
 }
 
+/// The registers the image's init read (item walleye-display-scanout-registers): `walleye-regs: T=30 INTF1_STATUS 0x0c96ba6c 0x00000001`, one value per sample time.
+/// A read that failed (`... FAILED devmem: ...`) is a value of `FAILED`.
+pub fn register_values(dmesg: &str) -> Vec<(String, String, u64, String)> {
+    dmesg
+        .lines()
+        .filter_map(|l| {
+            let said = l.split_once("walleye-regs: T=")?.1;
+            let mut w = said.split_whitespace();
+            let sample: u64 = w.next()?.parse().ok()?;
+            let name = w.next()?.to_string();
+            let addr = w.next()?.to_string();
+            let value = w.next()?.to_string();
+            Some((name, addr, sample, value))
+        })
+        .collect()
+}
+
+/// The init has begun sampling registers but not said it is done (`registers: done`): the log is read again later. A log from an image without the regs block never waits.
+pub fn registers_pending(dmesg: &str) -> bool {
+    dmesg.contains("walleye-regs: sample") && !dmesg.contains("registers: done")
+}
+
+/// The table as kept: a log whose init never said `registers: done` (a read hung, or the wait ran out) says so first, so a table of dashes is not taken for a result.
+pub fn regs_table_text(dmesg: &str) -> String {
+    let note = if registers_pending(dmesg) {
+        "incomplete: registers: done not seen\n"
+    } else {
+        ""
+    };
+    format!("{note}{}", register_table(dmesg))
+}
+
+/// The register table: one line per register, its value at each sample time, and `changes` when two samples differ (the registers that move between the samples are what to look at).
+/// A register not read at a sample shows `-`.
+pub fn register_table(dmesg: &str) -> String {
+    let values = register_values(dmesg);
+    let mut samples: Vec<u64> = values.iter().map(|v| v.2).collect();
+    samples.sort_unstable();
+    samples.dedup();
+    let mut regs: Vec<(String, String)> = Vec::new();
+    for (name, addr, _, _) in &values {
+        if !regs.iter().any(|r| &r.0 == name) {
+            regs.push((name.clone(), addr.clone()));
+        }
+    }
+    let mut out = String::from("register address");
+    for s in &samples {
+        out.push_str(&format!(" at_{s}s"));
+    }
+    out.push_str(" verdict\n");
+    for (name, addr) in &regs {
+        out.push_str(&format!("{name} {addr}"));
+        let at: Vec<String> = samples
+            .iter()
+            .map(|s| {
+                values
+                    .iter()
+                    .rev()
+                    .find(|v| &v.0 == name && v.2 == *s)
+                    .map_or("-".to_string(), |v| v.3.clone())
+            })
+            .collect();
+        for v in &at {
+            out.push_str(&format!(" {v}"));
+        }
+        let seen: Vec<&String> = at.iter().filter(|v| v.as_str() != "-").collect();
+        let moves = seen.iter().any(|v| *v != seen[0]);
+        out.push_str(if seen.len() < 2 {
+            " single\n"
+        } else if moves {
+            " changes\n"
+        } else {
+            " same\n"
+        });
+    }
+    out
+}
+
 /// The delay at which the signs stop: the first delay whose row is clean and finished, after which every later row is too.
 /// `None` when no row is clean, or a clean one is followed by one with signs (the flip is then not a point).
 pub fn flip_point(rows: &[Row]) -> Option<u64> {
@@ -256,13 +334,14 @@ impl DisplayDelay {
             let mut sh = d.lab.shell(10)?;
             let until = Instant::now() + Duration::from_secs(d.s.device_wait);
             // the signs come after the init says it is through the list (the first faults 30 ms, the DSI timeouts 0.6 s later):
-            // read again every 2 s until two reads in a row count the same
+            // read again every 2 s until two reads in a row count the same (and, on an image whose init samples registers, until it says it is done)
             let (dmesg, row) = {
                 let mut last: Option<Row> = None;
                 loop {
                     let dmesg = redact(&sh.run("dmesg", Duration::from_secs(20))?);
                     let row = score(delay, d.s.modules as usize, &dmesg);
-                    let settled = row.finished && last.as_ref() == Some(&row);
+                    let settled =
+                        row.finished && last.as_ref() == Some(&row) && !registers_pending(&dmesg);
                     if settled || Instant::now() >= until {
                         break (dmesg, row);
                     }
@@ -272,6 +351,10 @@ impl DisplayDelay {
             };
             let name = d.image(delay)?.name;
             d.lab.save(&format!("dmesg-d{delay}.txt"), &dmesg)?;
+            if !register_values(&dmesg).is_empty() {
+                d.lab
+                    .save(&format!("regs-d{delay}.txt"), &register_table(&dmesg))?;
+            }
             let reached = row.reached.ok_or(format!(
                 "the init never said 'delay {delay} s reached': the image's init is not the delay init"
             ))?;
@@ -456,6 +539,81 @@ mod tests {
         let unfinished = rows(&[(5, 3, true), (15, 0, false)]);
         assert_eq!(flip_point(&unfinished), None);
         assert!(table(&unfinished).contains("clean-but-not-loaded"));
+    }
+
+    const REGS_LOG: &str = "[    4.1] walleye-regs: sample 4 s at uptime 4 s
+[    4.1] walleye-regs: read CTL0_TOP 0x0c902014
+[    4.1] walleye-regs: T=4 CTL0_TOP 0x0c902014 0x00000001
+[    4.2] walleye-regs: T=4 INTF1_STATUS 0x0c96ba6c 0x00000001
+[   10.1] walleye-regs: T=10 CTL0_TOP 0x0c902014 0x00000001
+[   10.2] walleye-regs: T=10 INTF1_STATUS 0x0c96ba6c 0x00000001
+[   30.1] walleye-regs: T=30 CTL0_TOP 0x0c902014 0x00000001
+[   30.2] walleye-regs: T=30 INTF1_STATUS 0x0c96ba6c 0x00000000
+[   30.3] walleye-regs: T=30 PP0_AUTOREFRESH_CONFIG 0x0c971030 FAILED devmem: mmap: Operation not permitted
+";
+
+    #[test]
+    fn the_registers_are_read_off_the_log_by_sample_and_a_failed_read_is_a_value() {
+        let v = register_values(REGS_LOG);
+        assert_eq!(v.len(), 7);
+        assert_eq!(
+            v[0],
+            (
+                "CTL0_TOP".into(),
+                "0x0c902014".into(),
+                4,
+                "0x00000001".into()
+            )
+        );
+        assert_eq!(v[6].3, "FAILED");
+        assert!(register_values("[ 1.0] walleye-regs: read CTL0_TOP 0x0c902014\n").is_empty());
+    }
+
+    #[test]
+    fn the_register_table_names_the_registers_that_change_between_samples() {
+        let t = register_table(REGS_LOG);
+        let lines: Vec<&str> = t.lines().collect();
+        assert_eq!(lines[0], "register address at_4s at_10s at_30s verdict");
+        assert_eq!(
+            lines[1],
+            "CTL0_TOP 0x0c902014 0x00000001 0x00000001 0x00000001 same"
+        );
+        assert_eq!(
+            lines[2],
+            "INTF1_STATUS 0x0c96ba6c 0x00000001 0x00000001 0x00000000 changes"
+        );
+        assert_eq!(
+            lines[3],
+            "PP0_AUTOREFRESH_CONFIG 0x0c971030 - - FAILED single"
+        );
+        assert_eq!(lines.len(), 4);
+    }
+
+    #[test]
+    fn a_table_of_a_log_that_never_said_done_says_it_is_incomplete() {
+        let t = regs_table_text("[ 4.0] walleye-regs: sample 4 s at uptime 4 s\n[ 4.1] walleye-regs: T=4 CTL0_TOP 0x0c902014 0x1\n");
+        assert!(
+            t.starts_with("incomplete: registers: done not seen\nregister address at_4s verdict\n")
+        );
+        assert!(t.contains("CTL0_TOP 0x0c902014 0x1 single"));
+        assert!(!regs_table_text(&format!(
+            "{REGS_LOG}[ 31.0] walleye-banner: step 14: registers: done\n"
+        ))
+        .starts_with("incomplete"));
+    }
+
+    #[test]
+    fn the_log_is_read_again_while_the_init_samples_registers_and_never_for_an_image_without_them()
+    {
+        assert!(registers_pending(
+            "[ 4.0] walleye-regs: sample 4 s at uptime 4 s\n"
+        ));
+        assert!(!registers_pending(&format!(
+            "{REGS_LOG}[ 31.0] walleye-banner: step 14: registers: done\n"
+        )));
+        assert!(!registers_pending(
+            "[ 9.9] walleye-banner: step 12: display modules: done\n"
+        ));
     }
 
     #[test]
