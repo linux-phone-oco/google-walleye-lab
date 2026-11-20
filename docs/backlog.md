@@ -9061,3 +9061,28 @@ Proof
 
 Rank
 : 25
+
+
+<a id="walleye-install-current-slot-read"></a>
+### Read which slot Android runs from and which is the other: adb getprop ro.boot.slot_suffix now, and fastboot getvar current-slot at the next fastboot visit; the two must agree
+
+Status
+: open
+
+Note
+: From the slot-readback keeper run (PR 666): the read-back is done twice and equal, but fastboot getvar current-slot was not read, and the item's proof asked for it. The lane logs say Android runs from slot b; the Top Coordinator's brief said boot_b with slot a Android: the two disagree until this is read. The adb reading needs no fastboot visit; a keeper doing any fastboot visit (the display any-order try, the UFS-root boot) reads the other. The write command (walleye-install-write-procedure) reads both itself and refuses on any doubt: this item is to know before it is built.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: phone
+
+Proof
+: a research row or the keeper's hand-over line with both readings and the verdict: the slot Android runs from, the OTHER slot named (the one stage 1 writes system_<other> of), and the two readings equal; read only, nothing written; the slot-readback directory names are matched to the slots
+
+Rank
+: 3
