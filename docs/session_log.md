@@ -4996,3 +4996,21 @@ Rejected
 
 About
 : walleye-pmic-wdt-v1-image
+
+---
+
+
+<a id="2026-11-20-walleye-builder-b-r5-built"></a>
+### Image B-r5 built: B-d5 plus resets = <&mmcc MDSS_BCR> on mdss
+
+Entry date
+: 2026-11-20
+
+Done
+: Built B-r5 (build/build-display-reset-image.sh, test tests/host/dtb-display-reset.sh seen failing on B-d5's dtb then passing): B-d5's dtb with one added property, resets = <&mmcc 5> on /soc@0/display-subsystem@c900000; kernel, ramdisk (5 s), command line and size are B-d5's; 16 build checks ok (rebuild identical, AVB verifies, UFS-off gate and tests, single reset-gpio claimant, overlay merges). Files in ~/Projects/walleye-build/images-display-reset: boot-b-r5.img sha256 6dc0239e93b4f4b3a01aa1fd3c308aa5208d16f9545b900bfcc38f1ea70904d8, reset.dtb 95f3a8a0..., SHA256SUMS-display-reset. Item queued for the keeper (needs phone): one unattended RAM try, delay bisect at 5 s with image_prefix=b-r. Item stays open: its proof's second half (signs at 0) is the keeper's.
+
+Considered
+: Marking the item done now: no, its proof needs the phone run.
+
+About
+: walleye-display-s6e3fa5

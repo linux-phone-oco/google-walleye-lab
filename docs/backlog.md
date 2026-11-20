@@ -8456,10 +8456,10 @@ Opened
 : 2026-11-20
 
 Needs
-: build
+: phone
 
 Proof
-: tests/host/dtb-display-reset.sh passes on the image's dtb (fails on B-d5's); then the delay-bisect table at 5 s shows smmu_faults, rcg_warnings, dsi_110 all 0 with 13 of 13 modules ok (procedures/display-delay-bisect-on-the-pixel-2.rs, image_prefix=b-r)
+: tests/host/dtb-display-reset.sh passes on the image's dtb (fails on B-d5's; passed, built by build/build-display-reset-image.sh); then the delay-bisect table at 5 s shows smmu_faults, rcg_warnings, dsi_110 all 0 with 13 of 13 modules ok (procedures/display-delay-bisect-on-the-pixel-2.rs, image_prefix=b-r)
 
 Rank
 : 2
