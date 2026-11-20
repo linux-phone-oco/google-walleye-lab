@@ -8487,31 +8487,6 @@ Rank
 : 2
 
 
-<a id="walleye-declare-transport-login"></a>
-### Declare [connection] transport and login = none in device.toml and drop our own helpers for what the library then does (read_dmesg, back_to_known_good, phone(), boot_once)
-
-Status
-: open
-
-Note
-: Orchestration's answer to walleye's notes (2026-11-19): it ends the 'password file needed' false claim at its root and the library-steps-need-a-login gap. Until it lands the keepers' start reads phone-state.sh for walleye (phone-keeper.md already says so). UPDATE 2026-11-20 (orchestration, lab-tools #305 and #306): lpoco-attended 0.38.0 reads [connection] transport = ssh|telnet|adb and login = password|none; with login = none, lpoco lab suite says 'not applicable' instead of asking a password; 0.38.1 makes an unanswered prompt without a terminal wait 300 s on the answer file by default (an explicit --answer-limit stays valid). The follow timer installs 0.38.1 when both phones are free. DO NOW: declare transport and login = none in device.toml and check that suite latest says 'not applicable'. NEXT SLICE (orchestration): boot_once by fastboot and the attended steps over the transport: dropping our own helpers (read_dmesg, back_to_known_good, phone(), boot_once) waits for it; leave the item open for that half. UPDATE 2026-11-20 (orchestration, lab-tools #308, v0.39.0): [kernels] boot = "fastboot" makes boot_once boot the [images.NAME] image by 'devlab fastboot boot now' and wait [boot] device_wait s for the [[host.gadget]] usb_id, with no login; back_to_known_good reboots under the declared transport; read_dmesg and phone() go through it. NOT YET: the image's sha256 is not checked before booting (next lab-tools run, first), the gadget is matched by vendor:product only, and the phone must already be in fastboot. So: declare it and use the library's boot_once, back_to_known_good, read_dmesg and phone() where they fit, but KEEP our own checksum gate (the UFS-off gate and the image sha) until the sha check lands; the helpers that only do the checksum stay until then. The follow timer installs the new version when both phones are free. UPDATE 2026-11-20 (orchestration, lab-tools #310, v0.39.1): boot_once on a fastboot device refuses an [images.NAME] image whose sha256 differs from the declared one (path, found, declared; boots nothing; an unreadable image also stops it) and matches the gadget by the serial of the [[host.gadget]] that carries the usb_id. So: declare every image's sha256 in device.toml, then our checksum-only helpers go; KEEP the UFS-off gate (it is ours).
-
-About
-: walleye-attend-program-display
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: device.toml declares transport (telnet for our test images, adb for Android) and login = none; lpoco lab suite latest says 'not applicable' and exits clean on walleye; the procedures use the library's read_dmesg, back_to_known_good and boot_once where they fit and tools/walleye-tries shrinks accordingly; dry-run, check --host and stand-in tests pass; the keeper brief's 'suite latest' no longer yields a 'password' line in any hand-over
-
-Rank
-: 4
-
-
 <a id="walleye-install-stage-decision"></a>
 ### How far is Linux installed on the Pixel 2 and booting from its own storage: the install stage, its way back and the exact yeses the author must give
 
@@ -8879,31 +8854,6 @@ Rank
 : 3
 
 
-<a id="walleye-install-boot-procedure"></a>
-### The read-only UFS-on boot of our kernel on the Alpine root as ONE command: procedures/rootfs-boots-on-the-pixel-2.rs, tested everywhere but the boot
-
-Status
-: open
-
-Note
-: From the author's stage 1 yes (decision 2026-11-20-walleye-install-stage-1-go), step 4. Item walleye-install-rootfs-boots-try runs it. 2026-11-20 (coordinator): rank 5: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: procedures/rootfs-boots-on-the-pixel-2.rs on the current lpoco-attended (a variation of ufs-matched-image-on-the-pixel-2.rs: the UFS-on exception only through the go item, never a bypass), keys at the top of main: gates (battery, the UFS gate's exception only with the go marker, image sha), fastboot boot of the UFS-root image from RAM (item walleye-install-ufs-root-image), the gadget up, the root partition mounted read-only with the tmpfs overlay (nodiscard, no write to the card: the proof reads mount options and /proc/mounts), ssh login over usb-network and the health suite (docs step rootfs-boots), the GPT and the bootchain read-back check against the stored set unchanged, the way back to Android on any stop (also an unanswered ask), idle-android, both slots' flags unchanged; dry-run, check --host, stand-in tests, clippy, fmt, review; the prompt text for the author's go; NOT booted on the phone until the image and the written root exist
-
-Rank
-: 5
-
-
 <a id="walleye-display-dts-any-order"></a>
 ### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
 
@@ -9113,6 +9063,56 @@ Rank
 : 40
 
 
+<a id="walleye-declare-transport-login"></a>
+### Declare [connection] transport and login = none in device.toml and drop our own helpers for what the library then does (read_dmesg, back_to_known_good, phone(), boot_once)
+
+Status
+: open
+
+Note
+: Orchestration's answer to walleye's notes (2026-11-19): it ends the 'password file needed' false claim at its root and the library-steps-need-a-login gap. Until it lands the keepers' start reads phone-state.sh for walleye (phone-keeper.md already says so). UPDATE 2026-11-20 (orchestration, lab-tools #305 and #306): lpoco-attended 0.38.0 reads [connection] transport = ssh|telnet|adb and login = password|none; with login = none, lpoco lab suite says 'not applicable' instead of asking a password; 0.38.1 makes an unanswered prompt without a terminal wait 300 s on the answer file by default (an explicit --answer-limit stays valid). The follow timer installs 0.38.1 when both phones are free. DO NOW: declare transport and login = none in device.toml and check that suite latest says 'not applicable'. NEXT SLICE (orchestration): boot_once by fastboot and the attended steps over the transport: dropping our own helpers (read_dmesg, back_to_known_good, phone(), boot_once) waits for it; leave the item open for that half. UPDATE 2026-11-20 (orchestration, lab-tools #308, v0.39.0): [kernels] boot = "fastboot" makes boot_once boot the [images.NAME] image by 'devlab fastboot boot now' and wait [boot] device_wait s for the [[host.gadget]] usb_id, with no login; back_to_known_good reboots under the declared transport; read_dmesg and phone() go through it. NOT YET: the image's sha256 is not checked before booting (next lab-tools run, first), the gadget is matched by vendor:product only, and the phone must already be in fastboot. So: declare it and use the library's boot_once, back_to_known_good, read_dmesg and phone() where they fit, but KEEP our own checksum gate (the UFS-off gate and the image sha) until the sha check lands; the helpers that only do the checksum stay until then. The follow timer installs the new version when both phones are free. UPDATE 2026-11-20 (orchestration, lab-tools #310, v0.39.1): boot_once on a fastboot device refuses an [images.NAME] image whose sha256 differs from the declared one (path, found, declared; boots nothing; an unreadable image also stops it) and matches the gadget by the serial of the [[host.gadget]] that carries the usb_id. So: declare every image's sha256 in device.toml, then our checksum-only helpers go; KEEP the UFS-off gate (it is ours). 2026-11-21 (orchestration, lab-tools #316 and #317, v0.40.0 and v0.41.0): [connection] login = "key" with identity = "/abs/path" makes ssh use that key for phone, test, health and suite; refused if the path is missing, not a file, or group/world-readable (mode 600 under ~/lab-material/walleye fits). [kernels] pre_boot = ["cmd arg", ...] with boot = "fastboot": each gate runs before the checksum and any reboot to bootloader, and boot_once boots nothing if one exits non-zero; a gate string is split on spaces into argv (no quoting), so give a gate that needs quoted arguments a script path. The follow timer installs 0.41.0 when both phones are free. No key was made by lab-tools. FOR THIS ITEM: declare login = key and the identity path once the key exists (item walleye-install-rootfs-lab-key); the Alpine image is the first ssh phone, the earlier test images stay telnet with login = none, so the declaration is per image or per procedure: say how, in the research row.
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: device.toml declares transport (telnet for our test images, adb for Android) and login = none; lpoco lab suite latest says 'not applicable' and exits clean on walleye; the procedures use the library's read_dmesg, back_to_known_good and boot_once where they fit and tools/walleye-tries shrinks accordingly; dry-run, check --host and stand-in tests pass; the keeper brief's 'suite latest' no longer yields a 'password' line in any hand-over
+
+Rank
+: 4
+
+
+<a id="walleye-install-boot-procedure"></a>
+### The read-only UFS-on boot of our kernel on the Alpine root as ONE command: procedures/rootfs-boots-on-the-pixel-2.rs, tested everywhere but the boot
+
+Status
+: open
+
+Note
+: From the author's stage 1 yes (decision 2026-11-20-walleye-install-stage-1-go), step 4. Item walleye-install-rootfs-boots-try runs it. 2026-11-20 (coordinator): rank 5: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time. 2026-11-21 (orchestration, lab-tools #316 and #317, v0.40.0 and v0.41.0): [connection] login = "key" with identity = "/abs/path" makes ssh use that key for phone, test, health and suite; refused if the path is missing, not a file, or group/world-readable (mode 600 under ~/lab-material/walleye fits). [kernels] pre_boot = ["cmd arg", ...] with boot = "fastboot": each gate runs before the checksum and any reboot to bootloader, and boot_once boots nothing if one exits non-zero; a gate string is split on spaces into argv (no quoting), so give a gate that needs quoted arguments a script path. The follow timer installs 0.41.0 when both phones are free. No key was made by lab-tools. FOR THIS ITEM: the UFS gate with its go marker and the battery rule become [kernels] pre_boot script paths (one script each), not hand wiring; the login is ssh by the declared identity.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: procedures/rootfs-boots-on-the-pixel-2.rs on the current lpoco-attended (a variation of ufs-matched-image-on-the-pixel-2.rs: the UFS-on exception only through the go item, never a bypass), keys at the top of main: gates (battery, the UFS gate's exception only with the go marker, image sha), fastboot boot of the UFS-root image from RAM (item walleye-install-ufs-root-image), the gadget up, the root partition mounted read-only with the tmpfs overlay (nodiscard, no write to the card: the proof reads mount options and /proc/mounts), ssh login over usb-network and the health suite (docs step rootfs-boots), the GPT and the bootchain read-back check against the stored set unchanged, the way back to Android on any stop (also an unanswered ask), idle-android, both slots' flags unchanged; dry-run, check --host, stand-in tests, clippy, fmt, review; the prompt text for the author's go; NOT booted on the phone until the image and the written root exist
+
+Rank
+: 5
+
+
 <a id="walleye-install-rootfs-lab-key"></a>
 ### Give the Alpine image the lab machine's ssh key: a key pair for root on the phone over usb-network, then rebuild with --authorized-key
 
@@ -9120,7 +9120,7 @@ Status
 : open
 
 Note
-: THE AUTHOR'S WORD (2026-11-21, relayed by the Top Coordinator), verbatim: "Yes, create the key", in answer to 'May the lab create a lab-only SSH key for root login on the Pixel's Alpine?'. Scope: one ed25519 key pair for the lab only; private key mode 600 under ~/lab-material/walleye, never in git or in any message; the public key into the Alpine image's /root/.ssh/authorized_keys for root login over usb-network; the ttyGS0 console keeps its empty root password, as he did not ask for a password. None exists on the lab machine (~/.ssh holds only known_hosts). The builder does not create an identity: the coordinator or the author names the key (or says make one, mode 600, private part never in a repository). Then: tools/walleye-rootfs --build now --repo . --authorized-key PUBKEY, new sha256 into the install items. The consoles log in without it; stage 1's step 4 'log in over usb-network' needs it.
+: THE AUTHOR'S WORD (2026-11-21, relayed by the Top Coordinator), verbatim: "Yes, create the key", in answer to 'May the lab create a lab-only SSH key for root login on the Pixel's Alpine?'. Scope: one ed25519 key pair for the lab only; private key mode 600 under ~/lab-material/walleye, never in git or in any message; the public key into the Alpine image's /root/.ssh/authorized_keys for root login over usb-network; the ttyGS0 console keeps its empty root password, as he did not ask for a password. None exists on the lab machine (~/.ssh holds only known_hosts). The builder does not create an identity: the coordinator or the author names the key (or says make one, mode 600, private part never in a repository). Then: tools/walleye-rootfs --build now --repo . --authorized-key PUBKEY, new sha256 into the install items. The consoles log in without it; stage 1's step 4 'log in over usb-network' needs it. 2026-11-21 (orchestration, lab-tools #316 and #317, v0.40.0 and v0.41.0): [connection] login = "key" with identity = "/abs/path" makes ssh use that key for phone, test, health and suite; refused if the path is missing, not a file, or group/world-readable (mode 600 under ~/lab-material/walleye fits). [kernels] pre_boot = ["cmd arg", ...] with boot = "fastboot": each gate runs before the checksum and any reboot to bootloader, and boot_once boots nothing if one exits non-zero; a gate string is split on spaces into argv (no quoting), so give a gate that needs quoted arguments a script path. The follow timer installs 0.41.0 when both phones are free. No key was made by lab-tools. FOR THIS ITEM: declare the identity path in [connection] (login = key) as soon as the key exists.
 
 About
 : walleye-display-s6e3fa5
