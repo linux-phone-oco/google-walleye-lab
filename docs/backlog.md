@@ -8646,59 +8646,6 @@ Rank
 : 3
 
 
-<a id="walleye-install-ufs-root-image"></a>
-### Build the UFS-root kernel and initramfs: root = the unused slot's system partition, read-only with a tmpfs overlay, ext4 nodiscard, purge guard kept; never booted without the author's UFS go
-
-Status
-: open
-
-Note
-: ~4 agent-h. Based on the matched UFS image. The ufs sd probe and ext4 must be built in. Stage 1 of decision 2026-11-20-walleye-install-in-stages-proposed.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: a host check that the image passes the UFS-gate with the go marker, the initramfs mounts a loop-made test rootfs read-only in a chroot test, and the rebuild is identical
-
-Rank
-: 4
-
-
-<a id="walleye-install-rootfs-debian-min"></a>
-### Build a minimal Debian arm64 rootfs under 2.5 GiB: ssh, usb-network config, the suite's login, no firmware or modem data
-
-Status
-: open
-
-Note
-: ~3 agent-h. Nura (pmbootstrap, device package) stays the author's later choice.
-
-Waits
-: the author's yes to install debootstrap and qemu-user-static on the lab machine, and to Debian minimal first
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: a host check: the ext4 image is under 2.5 GiB sparse, has sshd and the usb gadget network unit, and holds no file from the phone's firmware (list checked); rebuild reproducible
-
-Rank
-: 5
-
-
 <a id="walleye-install-write-rootfs"></a>
 ### Write the rootfs image to the unused slot's system partition from Android over adb root; read it back and compare sha256
 
@@ -8939,3 +8886,81 @@ Proof
 
 Rank
 : 30
+
+
+<a id="walleye-install-rootfs-debian-min"></a>
+### Build a minimal Debian arm64 rootfs under 2.5 GiB: ssh, usb-network config, the suite's login, no firmware or modem data
+
+Status
+: dropped
+
+Note
+: Closed without doing, 2026-11-20: the author chose plain Alpine, not Debian (his words in decision 2026-11-20-walleye-distro-alpine-minimal); replaced by walleye-install-rootfs-alpine-min. Was: ~3 agent-h. Nura (pmbootstrap, device package) stays the author's later choice.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: a host check: the ext4 image is under 2.5 GiB sparse, has sshd and the usb gadget network unit, and holds no file from the phone's firmware (list checked); rebuild reproducible
+
+Rank
+: 5
+
+
+<a id="walleye-install-rootfs-alpine-min"></a>
+### Build a minimal Alpine arm64 rootfs, the hardware-test layer, under 2.5 GiB: getty on tty and ttyGS0, sshd over usb-network, the Qualcomm services the steps need, lpoco-health; no UI, no firmware, no phone shell
+
+Status
+: open
+
+Note
+: From the author's distro word (decision 2026-11-20-walleye-distro-alpine-minimal): plain Alpine, minimal, hardware-test layer. Replaces the dropped Debian item. About 3 agent-h. Look around first for how pmbootstrap and Alpine make an aarch64 rootfs without installing debootstrap (alpine-minirootfs tarball plus apk.static --root --initdb, scripts that need the target run under qemu-user or are skipped): fewer host installs is better. An open point for the builder to put to the Top Coordinator: the author said 'no shells at all, just tty' and the layer has getty on the tty and ttyGS0 and sshd for the lab; whether a login getty on the tty is wanted or only the console log is not known yet: build the getty and sshd as the Top Coordinator listed them and say the question in the research row. Stage 1 of decision 2026-11-20-walleye-install-in-stages-proposed.
+
+Waits
+: the author's yes to the host tools the build needs (apk-tools-static from Alpine, qemu-user-static if a chroot step needs it; the builder names exactly what, with versions and where they come from), and to Alpine minimal as the first image (taken: decision 2026-11-20-walleye-distro-alpine-minimal; the stages still wait on his yes)
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: a host check: the ext4 image is under 2.5 GiB sparse, is Alpine (apk database present), has OpenRC with getty on tty0 and ttyGS0, sshd, the usb gadget network unit, the Qualcomm services named by the steps (qrtr, rmtfs, pd-mapper, tqftpserv: installed, none started without its firmware), lpoco-health, and holds NO file from the phone's firmware or modem data and no sxmo, phosh or other UI (the file list is checked against both); rebuild reproducible (same sha256); built without installing anything on the lab machine beyond what the author said yes to; the image's package list is written into the item's research row and follows decision 2026-11-19-hardware-test-layer
+
+Rank
+: 5
+
+
+<a id="walleye-install-ufs-root-image"></a>
+### Build the UFS-root kernel and initramfs: root = the unused slot's system partition, read-only with a tmpfs overlay, ext4 nodiscard, purge guard kept; never booted without the author's UFS go
+
+Status
+: open
+
+Note
+: ~4 agent-h. Based on the matched UFS image. The ufs sd probe and ext4 must be built in. Stage 1 of decision 2026-11-20-walleye-install-in-stages-proposed. 2026-11-20 (coordinator): the rootfs is Alpine minimal (walleye-install-rootfs-alpine-min); the initramfs is our own, no mkinitfs; the chroot test uses the Alpine image when it exists, a loop-made test rootfs until then.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: a host check that the image passes the UFS-gate with the go marker, the initramfs mounts a loop-made test rootfs read-only in a chroot test, and the rebuild is identical
+
+Rank
+: 4
