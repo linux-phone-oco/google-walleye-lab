@@ -8599,31 +8599,6 @@ Rank
 : 2
 
 
-<a id="walleye-wdt-pon-bites-procedure"></a>
-### The four PMIC bites as one command: procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs (S2 type 0x07 and 0x01, cable in and out), the PON registers read after each
-
-Status
-: in-progress
-
-Note
-: PARKED, NOT LANDED (2026-11-20, author's gentle pause): the build is whole on branch walleye-wdt-pon-bites-procedure (commit after 43f1090; fetch it from origin) but the programmer review found 3 blockers to fix before landing: (1) look_for in the dark-phone group: any answer but 'ok' stops the run and loses the observation: make the check text 'ok once you have looked' or drop it; (2) the_host_lost_the_phone passes after the bite already fired with the cable in: fail when armed.elapsed() >= bite_seconds, and print cable_out_s in the CABLE_OUT prompt; (3) a warm bite can run as hard when the PON registers do not read (probe trusts any type; the patch ignores device_property_read_u32's result): dev_dbg the chosen type in the patch and require that line in bite_type_reads when registers are unread, or fail the probe on an unreadable property. Also fix: after the author forces a reset the 'by itself' labels and reason.txt are false (record the intervention; keep the first seen.txt); charger_wait 60 is measured from the shell loss: use about 150 s from arming; comments claiming the registers are read before anything resets them and that fastboot boot is not a reset must say not known yet; pon_names uses gen1 offsets on a PM8998: disclaim; rename W in build-pmic-wdt-v1.sh one(); stale text in init-wdt2 (banner 'wdt1', 'seven', usage); tests should assert the command lines sent (wdt-bite 1 read 20, 7 read 45). The images wdt2-hard e7590705 and wdt2-warm 9b3b0394 are built in ~/Projects/walleye-build/images-wdt2-bites; fixing the patch changes the warm image (rebuild: kernel tree $AGENT_BUILD/k-wdt-warm of the shared linux clone, build/build-kernel.sh with EXTRA_CONFIG=build/walleye-wdt.config, then build-pmic-wdt-v1.sh with INIT_NAME=wdt2 PREFIX=wdt2 NAME_A=hard NAME_B=warm VERSION_B=next-20261118 DTB_PROP_B='qcom,s2-type 1'; update the sha256 in device.toml). Then land, and the keeper runs it unattended. Needs: phone (keeper), after the fixes. BRANCH: origin/walleye-wdt-pon-bites-procedure (4b83994), pushed, not landed, the pause 2026-11-20 at the author's word.
-
-About
-: walleye-pmic-wdt-v1-image
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: image B = image A with the S2 reset type 0x01 (the way the series' reset-type hook allows: a DT property or the module's parameter, the smallest; UFS-off gate and AVB pass, rebuild identical, review) and procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs on the current lpoco-attended, keys at the top of main (device.toml [procedures.*], [images.*]), one screen of entry file; four bites as step groups (0x07 cable in, 0x07 cable out, 0x01 cable in, 0x01 cable out), each: battery rule, arm, bite, then the PON registers (PON_REASON1, PON_ON_REASON, POFF_REASON1, WARM_RESET_REASON1) read BEFORE anything resets them, then the way back to Android; a research row first says how the registers can be read after a bite on this phone (the bootloader's charger screen has no adb: what reads them? Android's dmesg after the power press is already a second boot) and the procedure follows it; the lab decides every part it can without the author (no adb within N s after the bite with the cable in = charger screen or off; adb up by itself = Android came back); the author is asked only for the physical steps (the cable moves, the power press, the look at the cable-in screen) and only through the lpoco-attended physical steps; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; then a keeper's unattended run of every part that needs nobody, ending at the first physical ask with 'nobody answered' and the phone back on Android BY ITS OWN WAY BACK; the answer file path printed
-
-Rank
-: 3
-
-
 <a id="walleye-declare-transport-login"></a>
 ### Declare [connection] transport and login = none in device.toml and drop our own helpers for what the library then does (read_dmesg, back_to_known_good, phone(), boot_once)
 
@@ -8672,3 +8647,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-wdt-pon-bites-procedure"></a>
+### The four PMIC bites as one command: procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs (S2 type 0x07 and 0x01, cable in and out), the PON registers read after each
+
+Status
+: open
+
+Note
+: PARKED, NOT LANDED (2026-11-20, author's gentle pause): the build is whole on branch walleye-wdt-pon-bites-procedure (commit after 43f1090; fetch it from origin) but the programmer review found 3 blockers to fix before landing: (1) look_for in the dark-phone group: any answer but 'ok' stops the run and loses the observation: make the check text 'ok once you have looked' or drop it; (2) the_host_lost_the_phone passes after the bite already fired with the cable in: fail when armed.elapsed() >= bite_seconds, and print cable_out_s in the CABLE_OUT prompt; (3) a warm bite can run as hard when the PON registers do not read (probe trusts any type; the patch ignores device_property_read_u32's result): dev_dbg the chosen type in the patch and require that line in bite_type_reads when registers are unread, or fail the probe on an unreadable property. Also fix: after the author forces a reset the 'by itself' labels and reason.txt are false (record the intervention; keep the first seen.txt); charger_wait 60 is measured from the shell loss: use about 150 s from arming; comments claiming the registers are read before anything resets them and that fastboot boot is not a reset must say not known yet; pon_names uses gen1 offsets on a PM8998: disclaim; rename W in build-pmic-wdt-v1.sh one(); stale text in init-wdt2 (banner 'wdt1', 'seven', usage); tests should assert the command lines sent (wdt-bite 1 read 20, 7 read 45). The images wdt2-hard e7590705 and wdt2-warm 9b3b0394 are built in ~/Projects/walleye-build/images-wdt2-bites; fixing the patch changes the warm image (rebuild: kernel tree $AGENT_BUILD/k-wdt-warm of the shared linux clone, build/build-kernel.sh with EXTRA_CONFIG=build/walleye-wdt.config, then build-pmic-wdt-v1.sh with INIT_NAME=wdt2 PREFIX=wdt2 NAME_A=hard NAME_B=warm VERSION_B=next-20261118 DTB_PROP_B='qcom,s2-type 1'; update the sha256 in device.toml). Then land, and the keeper runs it unattended. Needs: phone (keeper), after the fixes. BRANCH: origin/walleye-wdt-pon-bites-procedure (4b83994), pushed, not landed, the pause 2026-11-20 at the author's word. 2026-11-20 (coordinator, the author resumes with the goal Linux installed and booting from its own storage): open again at rank 5, behind walleye-display-reset-image (B-r5, rank 2) and walleye-ufs-try-2's preparation; resume from the branch, fix the 3 blockers first.
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: image B = image A with the S2 reset type 0x01 (the way the series' reset-type hook allows: a DT property or the module's parameter, the smallest; UFS-off gate and AVB pass, rebuild identical, review) and procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs on the current lpoco-attended, keys at the top of main (device.toml [procedures.*], [images.*]), one screen of entry file; four bites as step groups (0x07 cable in, 0x07 cable out, 0x01 cable in, 0x01 cable out), each: battery rule, arm, bite, then the PON registers (PON_REASON1, PON_ON_REASON, POFF_REASON1, WARM_RESET_REASON1) read BEFORE anything resets them, then the way back to Android; a research row first says how the registers can be read after a bite on this phone (the bootloader's charger screen has no adb: what reads them? Android's dmesg after the power press is already a second boot) and the procedure follows it; the lab decides every part it can without the author (no adb within N s after the bite with the cable in = charger screen or off; adb up by itself = Android came back); the author is asked only for the physical steps (the cable moves, the power press, the look at the cable-in screen) and only through the lpoco-attended physical steps; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; then a keeper's unattended run of every part that needs nobody, ending at the first physical ask with 'nobody answered' and the phone back on Android BY ITS OWN WAY BACK; the answer file path printed
+
+Rank
+: 5
