@@ -1361,3 +1361,41 @@ Url
 
 Takes
 : OP5/5T installed to internal storage on mainline
+
+
+<a id="src-google-device-wahoo"></a>
+### device/google/wahoo: Google's AOSP device configuration for the Pixel 2 and 2 XL (walleye and taimen)
+
+Url
+: https://android.googlesource.com/device/google/wahoo
+
+Author
+: Google (AOSP)
+
+Year
+: 2020
+
+By
+: Google
+
+Takes
+: PRIMARY source for the Android-side device configuration of the Pixel 2: fstab.hardware (partition names, mount options, A/B), recovery, init.hardware.*.rc (the USB gadget lines we used from crDroid's copy), init.insmod.cfg (the vendor module order), mixer_paths_tavil.xml and audio_platform_info_tavil.xml (WCD934x routing, for ALSA UCM), thermal-engine.conf and thermal_info_config.json (zones and limits), synaptics_dsxv26.idc (touch), WCNSS_qcom_cfg.ini (Wi-Fi). Read the branch or tag that matches the phone's Android build (android11-release is the last release branch listed; main is the later tidy-up). Google's tree has no proprietary-*.txt: the firmware blobs are not in it.
+
+
+<a id="src-projectelixir-device-google-walleye"></a>
+### ProjectElixir-Devices/device_google_walleye, branch udc: Project Elixir's Android device tree for the Pixel 2
+
+Url
+: https://github.com/ProjectElixir-Devices/device_google_walleye/tree/udc
+
+Author
+: Project Elixir (Pranav Vashi, Asriadi Rahim and the AOSP history it keeps)
+
+Year
+: 2024
+
+By
+: Project Elixir
+
+Takes
+: WHERE THE AUTHOR SAW IT (2026-11-20), not the primary: a custom-ROM tree that keeps Google's device/google/wahoo history (its commits say 'Merged-In' and AOSP Change-Ids) and adds Elixir's own. Use it for what Google's tree lacks: proprietary-firmware.txt and proprietary-files*.txt (the lists of firmware and vendor blobs and their paths: modem, adsp, venus, wlan) and extract-files.sh, and for the REPARTITIONING custom ROMs do (its fstab.hardware and gpt-utils define a product partition as A/B: 'walleye and taimen require repartitioning'); that fstab is NOT the stock layout, so partition names and mount options of the STOCK phone are read from src-google-device-wahoo. The Dolby, powerhint and audio_effects files are Elixir's, not Google's. Read-only; GitHub shows it as not a fork.

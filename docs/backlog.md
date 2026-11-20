@@ -8914,3 +8914,28 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-device-config-sources-read"></a>
+### Read Google's wahoo device configuration (and Project Elixir's tree) for what the bring-up steps need: firmware paths, WCD934x routing, vendor module order, thermal zones, touch config, Wi-Fi config
+
+Status
+: open
+
+Note
+: From the author, via the Top Coordinator (2026-11-20): he found ProjectElixir-Devices/device_google_walleye (branch udc, 2024), AOSP device configuration (not a kernel device tree) derived from Google's device/google/wahoo. Recorded as sources: src-google-device-wahoo (primary) and src-projectelixir-device-google-walleye (where the author saw it). Until now only crDroid's wahoo init.hardware.usb.rc was cited. The fstab.hardware and recovery part is folded into the install research walleye-install-stage-decision NOW; the rest waits for its step. Checked 2026-11-20 on both pages: the Elixir tree lists fstab.hardware, recovery, proprietary-firmware.txt, proprietary-files.txt and -vendor.txt, init.insmod.cfg, mixer_paths_tavil.xml, audio_platform_info_tavil.xml, thermal-engine.conf, thermal_info_config.json, synaptics_dsxv26.idc, WCNSS_qcom_cfg.ini; Google's googlesource page lists branches and tags (android11-release, main) but its file list was not read: whether each file exists there is not known yet.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: research
+
+Proof
+: one research row per area when its step comes due, each naming the file in src-google-device-wahoo (primary) or src-projectelixir-device-google-walleye (where noted) and what it gives, read only: (1) firmware: proprietary-firmware.txt and proprietary-files*.txt of the Elixir tree against the phone's own partitions (modem, adsp, slpi, venus, wlan; our read-only extraction) for step firmware-reachable and walleye-modem-mss-image; (2) audio: mixer_paths_tavil.xml and audio_platform_info_tavil.xml for the WCD934x (tavil) routing, for items walleye-adsp-q6-mi2s and walleye-tas2557-driver and the later ALSA UCM profile (step ucm-hifi-profile); (3) init.insmod.cfg: the vendor module order, against our own load orders (display, the L7 order); (4) thermal-engine.conf and thermal_info_config.json: the zones and limits, for step thermal-zones-sane; (5) synaptics_dsxv26.idc: the touch config against our Synaptics S3708AR node; (6) WCNSS_qcom_cfg.ini: for walleye-wifi-wcn3990; none of it is copied into git beyond what its licence allows (Apache 2.0 for Google's files: quote small, cite the path and commit)
+
+Rank
+: 25
