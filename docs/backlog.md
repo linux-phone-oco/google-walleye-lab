@@ -9095,7 +9095,10 @@ Status
 : open
 
 Note
-: None exists on the lab machine (~/.ssh holds only known_hosts). The builder does not create an identity: the coordinator or the author names the key (or says make one, mode 600, private part never in a repository). Then: tools/walleye-rootfs --build now --repo . --authorized-key PUBKEY, new sha256 into the install items. The consoles log in without it; stage 1's step 4 'log in over usb-network' needs it.
+: None exists on the lab machine (~/.ssh holds only known_hosts). The builder does not create an identity: the coordinator or the author names the key (or says make one, mode 600, private part never in a repository). Then: tools/walleye-rootfs --build now --repo . --authorized-key PUBKEY, new sha256 into the install items. The consoles log in without it; stage 1's step 4 'log in over usb-network' needs it. 2026-11-20 (coordinator): the Alpine builder found no ssh key on the lab machine and sshd in the image is key-only (the consoles log in with an empty root password, as the earlier test images had no login). The author's stage 1 yes covers 'log in over usb-network', not the creation of a key: asked.
+
+Waits
+: the author's yes to the lab machine creating one lab-only ssh key pair (private key mode 600 under ~/lab-material/walleye, never git) for root login on the phone's Alpine image over usb-network: creating an access key is his to allow; asked through the Top Coordinator
 
 About
 : walleye-display-s6e3fa5
@@ -9108,6 +9111,31 @@ Needs
 
 Proof
 : walleye-rootfs --check prints 'root's authorized_keys is in the image', two builds same sha256
+
+Rank
+: 3
+
+
+<a id="walleye-install-rootfs-v1-hardening"></a>
+### Alpine image v1 hardening: the review's open findings fixed before the image is written to the phone
+
+Status
+: open
+
+Note
+: From the Alpine builder's report (PR 668, research walleye-alpine-rootfs-v1-built): the findings the review left unfixed, in its order. The image is never booted yet. They come before the write because the image's sha256 changes with them, and the write command pins the sha. The consoles' empty root password on tty0 and ttyGS0 is the test layer's, like the earlier test images; say it in the research row (ttyGS0 is reachable with the USB cable).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: tools/walleye-rootfs with each of these fixed and checked, the image rebuilt twice with one new sha256 (declared in device.toml), no change to what is in the image beyond them: (1) the apk keys and apk.static pinned by sha256, one fetch used by both builds (supply chain: the build trusts nothing it did not hash); (2) the apk database modes and owners applied (busybox-suid's bbsuid is 4111, not 0111); (3) a dangling-symlink check and an executable check over the image; (4) a scan that nothing is started by conf.d or inittab that is not installed; (5) the four 172.16.43.1 places checked against device.toml; (6) a host-tool preflight; (7) the check logic moved into lib.rs as pure functions with tests; (8) getty on ttyGS0 respawns until the gadget binds (checked from the inittab); and the open question answered in the research row: does the step rootfs-boots (the suite) need lpoco-health ON the phone, or does the lab run it over ssh? Only then the image's sha256 is the one the write command (walleye-install-write-procedure) takes
 
 Rank
 : 2
