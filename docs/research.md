@@ -5341,3 +5341,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-install-slot-readback-done-twice-same-bytes"></a>
+### walleye-install-slot-readback-done-twice-same-bytes
+
+Date
+: 2026-11-20
+
+Brief
+: Both slots' boot, dtbo, vbmeta, misc, system, vendor read back over adb root twice: checked at measured sizes, identical sha256; slot b active
+
+Question
+: Can the way back of the install (both slots' partitions) be read to files, reproducibly?
+
+Found
+: Read 11 partitions (~6.3 GiB) twice via bootchain-readback.sh with LIST=slot-parts.list (reader now honours LIST), ~12 min each, to ~/lab-material/walleye/slot-readback-2026-11-20-1 and -2 (mode 600/700, outside git). slot-readback-check.sh DIR DIR2 passes: measured sizes, sha256 match, both reads the same bytes. Current slot (adb getprop ro.boot.slot_suffix) _b; fastboot getvar not read, to avoid a reboot of a healthy phone. Nothing written to the phone; adbd left as root (resets on reboot).
+
+About
+: walleye-display-s6e3fa5

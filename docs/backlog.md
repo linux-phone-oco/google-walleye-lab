@@ -8799,10 +8799,10 @@ Rank
 ### Read back boot, dtbo, vbmeta, misc, system, vendor of both slots over adb root as files with sha256 (the way back of the install); read the current slot first
 
 Status
-: open
+: done
 
 Note
-: Read only, over adb root, as the boot-chain read-back (tests/host/bootchain-readback.sh with slot-parts.list). Files mode 600 in ~/lab-material/walleye, never git. About 3 GiB twice. Unblocks the install stage. From research walleye-install-stage-how-it-stands. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback.
+: proven by tests/host/slot-readback-check.sh on two reads, same sha256 (research walleye-install-slot-readback-done-twice-same-bytes)
 
 About
 : walleye-display-s6e3fa5
