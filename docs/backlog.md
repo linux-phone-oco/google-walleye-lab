@@ -9004,34 +9004,6 @@ Rank
 : 3
 
 
-<a id="walleye-install-rootfs-lab-key"></a>
-### Give the Alpine image the lab machine's ssh key: a key pair for root on the phone over usb-network, then rebuild with --authorized-key
-
-Status
-: open
-
-Note
-: None exists on the lab machine (~/.ssh holds only known_hosts). The builder does not create an identity: the coordinator or the author names the key (or says make one, mode 600, private part never in a repository). Then: tools/walleye-rootfs --build now --repo . --authorized-key PUBKEY, new sha256 into the install items. The consoles log in without it; stage 1's step 4 'log in over usb-network' needs it. 2026-11-20 (coordinator): the Alpine builder found no ssh key on the lab machine and sshd in the image is key-only (the consoles log in with an empty root password, as the earlier test images had no login). The author's stage 1 yes covers 'log in over usb-network', not the creation of a key: asked.
-
-Waits
-: the author's yes to the lab machine creating one lab-only ssh key pair (private key mode 600 under ~/lab-material/walleye, never git) for root login on the phone's Alpine image over usb-network: creating an access key is his to allow; asked through the Top Coordinator
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: walleye-rootfs --check prints 'root's authorized_keys is in the image', two builds same sha256
-
-Rank
-: 3
-
-
 <a id="walleye-install-rootfs-v1-hardening"></a>
 ### Alpine image v1 hardening: the review's open findings fixed before the image is written to the phone
 
@@ -9139,3 +9111,28 @@ Proof
 
 Rank
 : 40
+
+
+<a id="walleye-install-rootfs-lab-key"></a>
+### Give the Alpine image the lab machine's ssh key: a key pair for root on the phone over usb-network, then rebuild with --authorized-key
+
+Status
+: open
+
+Note
+: THE AUTHOR'S WORD (2026-11-21, relayed by the Top Coordinator), verbatim: "Yes, create the key", in answer to 'May the lab create a lab-only SSH key for root login on the Pixel's Alpine?'. Scope: one ed25519 key pair for the lab only; private key mode 600 under ~/lab-material/walleye, never in git or in any message; the public key into the Alpine image's /root/.ssh/authorized_keys for root login over usb-network; the ttyGS0 console keeps its empty root password, as he did not ask for a password. None exists on the lab machine (~/.ssh holds only known_hosts). The builder does not create an identity: the coordinator or the author names the key (or says make one, mode 600, private part never in a repository). Then: tools/walleye-rootfs --build now --repo . --authorized-key PUBKEY, new sha256 into the install items. The consoles log in without it; stage 1's step 4 'log in over usb-network' needs it.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: one ed25519 key pair made for the lab only (ssh-keygen -t ed25519, no passphrase file left readable by others): the PRIVATE key mode 600 under ~/lab-material/walleye (name it for the phone, e.g. walleye-lab-ed25519), never in git, never printed, copied or put in any message or log; the PUBLIC key in the image's /root/.ssh/authorized_keys (mode 600, directory 700, owned by root) by walleye-rootfs --authorized-key; walleye-rootfs --check prints that root's authorized_keys is in the image and that no private key is; two builds, one new sha256, declared in device.toml [images.alpine-rootfs] (the old one stays declared as its own name until the write); the identity path declared in device.toml [connection] for lpoco-attended's login = key (lab-tools item connection-login-key); the ttyGS0 and tty0 consoles keep their empty root password
+
+Rank
+: 3
