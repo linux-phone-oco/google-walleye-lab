@@ -1,5 +1,7 @@
 # The Pixel 2 board dts as an upstream series (2026-11-19)
 
+> **The outgoing copy lives in docs**: `upstream/linux-arm-msm/walleye-board-dts/` (item `walleye-board-dts`; decision `2026-11-20-outgoing-items-live-in-upstream`). The next version is made there. This folder stays as the v0 record, unchanged.
+
 This folder holds a two-patch series on Linux v7.3 for the upstreams lane: `0001` adds `google,walleye`
 to the msm8998 compatibles of `arm/qcom.yaml`, `0002` adds `msm8998-google-walleye.dts` and its
 Makefile line. Nothing is mailed. The patches carry no Signed-off-by and no author of the author's

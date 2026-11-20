@@ -7495,56 +7495,6 @@ Rank
 : 12
 
 
-<a id="walleye-upstream-panel-series"></a>
-### Upstream series for the Pixel 2's panel: dt-bindings for samsung,s6e3fa5 and the panel driver, as two patches, with a clean boot of the exact series
-
-Status
-: open
-
-Note
-: Mainline v7.3 has panel-samsung-s6e3fa7 and others but no s6e3fa5. The docs upstream-readiness note (2026-11-19) listed the panel as local only, 'WIP, never built'; it now builds, binds and lights the glass (display try 2026-11-19). The driver's on/off command sequence is the phone's own dtbo's.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: two patches on v7.3 (binding, driver panel-samsung-s6e3fa5.c) with the driver's authorship and sign-offs as they are, checkpatch --strict clean but for the author's sign-off, W=1 build clean, dt_binding_check run in the container of docs research/upstream-forks/2026-11-19/dt-checks-in-a-container.md, and one boot of the exact series (display procedure L-image rebuilt from the series, DSI-1 connected, the glass lit); the cover letter says how it was made; target: dri-devel (panel maintainers) and devicetree; NOTHING is sent without the author's go
-
-Rank
-: 10
-
-
-<a id="walleye-upstream-board-dts-next"></a>
-### The board dts series grows: touch, haptics, display and the PMIC watchdog nodes without the lab hacks, one clean boot of the exact dtb, then the bindings first
-
-Status
-: open
-
-Note
-: From the readiness note (docs research/upstream-forks/2026-11-19/upstream-readiness.md rows 7 to 9 and class c): the board dts is close (reviewed; open: author and SoB, carve-out and ramoops provenance, one boot of this exact dtb); the APSS watchdog and the charger are separate SoC patches.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: the two-patch board dts series (research walleye-upstream-dts-series) rebuilt with the nodes the lab has since proved: touchscreen (Synaptics S3708AR, rmi4, i2c, z21 try: 3593 events), haptics (drv2624, bound at 0-005a), the display chain (panel node, dsi, mdss) and the PMIC watchdog, each node its own patch; the overlay stubs, the deleted nodes and the iommu cmdline stay out; dtbs_check and dt-check-style in the container, checkpatch, W=1; one boot of the exact dtb; the dt-bindings: arm: qcom patch for google,walleye first; NOTHING is sent without the author's go
-
-Rank
-: 11
-
-
 <a id="walleye-attend-pmic-unattended-run-4"></a>
 ### Repeat the PMIC program's unattended run with the way back and the A/B Image type in, from Android with no hand step
 
@@ -8591,3 +8541,53 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-upstream-board-dts-next"></a>
+### The board dts series grows: touch, haptics, display and the PMIC watchdog nodes without the lab hacks, one clean boot of the exact dtb, then the bindings first
+
+Status
+: open
+
+Note
+: From the readiness note (docs research/upstream-forks/2026-11-19/upstream-readiness.md rows 7 to 9 and class c): the board dts is close (reviewed; open: author and SoB, carve-out and ramoops provenance, one boot of this exact dtb); the APSS watchdog and the charger are separate SoC patches. HOME (2026-11-20, upstreams coordinator, docs decision 2026-11-20-outgoing-items-live-in-upstream, docs #726): the series is made in docs under upstream/linux-arm-msm/walleye-board-dts/ (docs item walleye-board-dts), where the v0 two patches were copied unchanged; our research folder research/walleye-first-fastboot-boot/2026-11-19-upstream-dts/ stays as the v0 record and points there. COVER LETTER: the v0 letter says 'this exact file has not booted yet'; the try walleye-upstream-dts-tried-boots (boot-upstream-dts.img, 2026-11-19) booted the board dts to a gadget shell on v7.3, so the next letter says so: verify first that the dtb in that image is the series' dts file (compare the built dtb or rebuild from the series), then say it with the try's faults (psci PC mode -3, serial probe -2 from the overlay stub, spmi 'no reg property') as they are. Nothing is sent without the author's go.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: the two-patch board dts series (research walleye-upstream-dts-series) rebuilt with the nodes the lab has since proved: touchscreen (Synaptics S3708AR, rmi4, i2c, z21 try: 3593 events), haptics (drv2624, bound at 0-005a), the display chain (panel node, dsi, mdss) and the PMIC watchdog, each node its own patch; the overlay stubs, the deleted nodes and the iommu cmdline stay out; dtbs_check and dt-check-style in the container, checkpatch, W=1; one boot of the exact dtb; the dt-bindings: arm: qcom patch for google,walleye first; NOTHING is sent without the author's go
+
+Rank
+: 11
+
+
+<a id="walleye-upstream-panel-series"></a>
+### Upstream series for the Pixel 2's panel: dt-bindings for samsung,s6e3fa5 and the panel driver, as two patches, with a clean boot of the exact series
+
+Status
+: open
+
+Note
+: Mainline v7.3 has panel-samsung-s6e3fa7 and others but no s6e3fa5. The docs upstream-readiness note (2026-11-19) listed the panel as local only, 'WIP, never built'; it now builds, binds and lights the glass (display try 2026-11-19). The driver's on/off command sequence is the phone's own dtbo's. HOME (2026-11-20, upstreams coordinator, docs decision 2026-11-20-outgoing-items-live-in-upstream, docs #726): the series is made in docs under upstream/dri-devel/walleye-panel-s6e3fa5/, not in this repository; the cover letter says what really booted (the panel lit on mainline with the L7 load order, not yet from the board dts at boot: item walleye-display-dts-any-order). Nothing is sent without the author's go.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: two patches on v7.3 (binding, driver panel-samsung-s6e3fa5.c) with the driver's authorship and sign-offs as they are, checkpatch --strict clean but for the author's sign-off, W=1 build clean, dt_binding_check run in the container of docs research/upstream-forks/2026-11-19/dt-checks-in-a-container.md, and one boot of the exact series (display procedure L-image rebuilt from the series, DSI-1 connected, the glass lit); the cover letter says how it was made; target: dri-devel (panel maintainers) and devicetree; NOTHING is sent without the author's go
+
+Rank
+: 10
