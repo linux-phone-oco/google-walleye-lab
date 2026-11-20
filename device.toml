@@ -217,6 +217,11 @@ sha256 = "f6ea1d15fd149ab886c086db4ef24fcd77e5a6517737aa22388fa161a62b88b2"
 path = "images-display-splash/boot-b-s5.img"
 sha256 = "b7c827e9a3f55a7ee6e68752430a19bdad2de3262bc22a5cc0379cd3df80df58"
 
+# The reset image B-r5 (item walleye-display-reset-image): B-d5 plus resets = <&mmcc MDSS_BCR> on mdss (build/build-display-reset-image.sh). Run with delays = "5" and image_prefix = "b-r".
+[images.b-r5]
+path = "images-display-reset/boot-b-r5.img"
+sha256 = "6dc0239e93b4f4b3a01aa1fd3c308aa5208d16f9545b900bfcc38f1ea70904d8"
+
 [procedures.display-delay-bisect-on-the-pixel-2]
 delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of uptime at which each image's init loads the display modules; an image b-dN must exist for each
 image_prefix = "b-d"                # the images are named PREFIX+delay in [images.*]: b-d5, b-d15 ...; the splash image B-s5 is run with delays = "5" and image_prefix = "b-s" (set both, run, put them back)

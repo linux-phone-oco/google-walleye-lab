@@ -5303,3 +5303,22 @@ Sources
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-reset-image-b-r5-tried-signs-vanish"></a>
+### walleye-display-reset-image-b-r5-tried-signs-vanish
+
+Date
+: 2026-11-20
+
+Brief
+: B-r5 (mdss resets = <&mmcc MDSS_BCR>) at 5 s: SMMU faults 0, rcg warnings 0, DSI -110 0; 13 of 13 modules ok; phone back on Android
+
+Question
+: Does resetting the MDSS block at mdss probe (B-d5 plus resets) hand the live splash over, so B-d5's three signs (faults 10, rcg 4, DSI -110 5 at 5 s) vanish?
+
+Found
+: One unattended RAM try from fastboot on slot b, nothing flashed, procedures/display-delay-bisect-on-the-pixel-2.rs with delays=5 image_prefix=b-r (device.toml put back): reached 5 s, smmu_faults 0, rcg_warnings 0, dsi_110 0, modules_ok 13, verdict clean; phone back on Android (phone-state: android). Host half passed first (tests/host/dtb-display-reset.sh). Table in ~/lab-material/walleye/display-delay-b-r-20261120-230943/table.txt. Image sha256 6dc0239e...; declared as [images.b-r5] in device.toml (the builder had not). Not measured: B-r5 at 2 s (display at boot, any order), and the glass was not looked at. Decision 2026-11-20-walleye-display-handover-reset-first stands: the reset is the handover. Next: the dts for any load order (walleye-display-dts-any-order) can carry the same resets property; the author's look at B2 is walleye-display-look-b2.
+
+About
+: walleye-display-s6e3fa5

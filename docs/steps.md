@@ -1668,3 +1668,27 @@ Notes
 
 Updated
 : 2026-11-19
+
+
+### Row 116
+
+Step
+: display-boots-any-order
+
+Status
+: partial
+
+Proof
+: tests/host/dtb-display-reset.sh
+
+Run
+: walleye-display-reset-image-b-r5-tried-signs-vanish
+
+Proven on
+: b-r5 boot image sha256 6dc0239e
+
+Notes
+: B-r5 (mdss resets MDSS_BCR) loaded at 5 s: signs 0, 13 of 13 modules ok; not yet at boot time (2 s) and not looked at on the glass
+
+Updated
+: 2026-11-20
