@@ -8954,31 +8954,6 @@ Rank
 : 2
 
 
-<a id="walleye-install-rootfs-health-binary"></a>
-### lpoco-health for the Alpine image: an aarch64 static (musl) build without root and without installing a system Rust target
-
-Status
-: open
-
-Note
-: From the Alpine builder's look-around (PR 664): the host has an x86_64 Rust std only. The author's yes (decision 2026-11-20-walleye-install-stage-1-go) covers Alpine's build tools, not a Rust target on the system: so a rootless way first, a root command for his hands only if that fails. Not needed for stage 1 if the suite runs from the lab over ssh.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: an aarch64-unknown-linux-musl static lpoco-health built from the lab-tools release the lab uses, by a rootless way (a private sysroot with the rust-std tarball for that target, downloaded from static.rust-lang.org and checked against the signed channel manifest's sha256, kept outside git and outside the system Rust), added to the Alpine image's file list and checked there (file says aarch64 static, the sha256 recorded); or, if that is not possible rootless, the one root command named for the author's hands (the lab machine's declared way: lab.toml, lpoco host prepare)
-
-Rank
-: 8
-
-
 <a id="walleye-install-rootfs-pd-mapper"></a>
 ### pd-mapper for the Alpine image: a static aarch64 build from the upstream source (it is in no Alpine repo)
 
@@ -9139,3 +9114,28 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-install-rootfs-health-binary"></a>
+### lpoco-health for the Alpine image: an aarch64 static (musl) build without root and without installing a system Rust target
+
+Status
+: open
+
+Note
+: From the Alpine builder's look-around (PR 664): the host has an x86_64 Rust std only. The author's yes (decision 2026-11-20-walleye-install-stage-1-go) covers Alpine's build tools, not a Rust target on the system: so a rootless way first, a root command for his hands only if that fails. Not needed for stage 1 if the suite runs from the lab over ssh. 2026-11-21 (coordinator): rank 40: the research walleye-alpine-rootfs-v1-hardened answers that the step rootfs-boots needs ssh from the lab, not lpoco-health on the phone. Due when a step needs the binary on the phone.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: an aarch64-unknown-linux-musl static lpoco-health built from the lab-tools release the lab uses, by a rootless way (a private sysroot with the rust-std tarball for that target, downloaded from static.rust-lang.org and checked against the signed channel manifest's sha256, kept outside git and outside the system Rust), added to the Alpine image's file list and checked there (file says aarch64 static, the sha256 recorded); or, if that is not possible rootless, the one root command named for the author's hands (the lab machine's declared way: lab.toml, lpoco host prepare)
+
+Rank
+: 40
