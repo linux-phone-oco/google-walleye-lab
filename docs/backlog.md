@@ -9088,31 +9088,6 @@ Rank
 : 4
 
 
-<a id="walleye-install-boot-procedure"></a>
-### The read-only UFS-on boot of our kernel on the Alpine root as ONE command: procedures/rootfs-boots-on-the-pixel-2.rs, tested everywhere but the boot
-
-Status
-: open
-
-Note
-: From the author's stage 1 yes (decision 2026-11-20-walleye-install-stage-1-go), step 4. Item walleye-install-rootfs-boots-try runs it. 2026-11-20 (coordinator): rank 5: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time. 2026-11-21 (orchestration, lab-tools #316 and #317, v0.40.0 and v0.41.0): [connection] login = "key" with identity = "/abs/path" makes ssh use that key for phone, test, health and suite; refused if the path is missing, not a file, or group/world-readable (mode 600 under ~/lab-material/walleye fits). [kernels] pre_boot = ["cmd arg", ...] with boot = "fastboot": each gate runs before the checksum and any reboot to bootloader, and boot_once boots nothing if one exits non-zero; a gate string is split on spaces into argv (no quoting), so give a gate that needs quoted arguments a script path. The follow timer installs 0.41.0 when both phones are free. No key was made by lab-tools. FOR THIS ITEM: the UFS gate with its go marker and the battery rule become [kernels] pre_boot script paths (one script each), not hand wiring; the login is ssh by the declared identity.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: procedures/rootfs-boots-on-the-pixel-2.rs on the current lpoco-attended (a variation of ufs-matched-image-on-the-pixel-2.rs: the UFS-on exception only through the go item, never a bypass), keys at the top of main: gates (battery, the UFS gate's exception only with the go marker, image sha), fastboot boot of the UFS-root image from RAM (item walleye-install-ufs-root-image), the gadget up, the root partition mounted read-only with the tmpfs overlay (nodiscard, no write to the card: the proof reads mount options and /proc/mounts), ssh login over usb-network and the health suite (docs step rootfs-boots), the GPT and the bootchain read-back check against the stored set unchanged, the way back to Android on any stop (also an unanswered ask), idle-android, both slots' flags unchanged; dry-run, check --host, stand-in tests, clippy, fmt, review; the prompt text for the author's go; NOT booted on the phone until the image and the written root exist
-
-Rank
-: 5
-
-
 <a id="walleye-install-rootfs-lab-key"></a>
 ### Give the Alpine image the lab machine's ssh key: a key pair for root on the phone over usb-network, then rebuild with --authorized-key
 
@@ -9136,3 +9111,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-install-boot-procedure"></a>
+### The read-only UFS-on boot of our kernel on the Alpine root as ONE command: procedures/rootfs-boots-on-the-pixel-2.rs, tested everywhere but the boot
+
+Status
+: open
+
+Note
+: From the author's stage 1 yes (decision 2026-11-20-walleye-install-stage-1-go), step 4. Item walleye-install-rootfs-boots-try runs it. 2026-11-20 (coordinator): rank 5: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time. 2026-11-21 (orchestration, lab-tools #316 and #317, v0.40.0 and v0.41.0): [connection] login = "key" with identity = "/abs/path" makes ssh use that key for phone, test, health and suite; refused if the path is missing, not a file, or group/world-readable (mode 600 under ~/lab-material/walleye fits). [kernels] pre_boot = ["cmd arg", ...] with boot = "fastboot": each gate runs before the checksum and any reboot to bootloader, and boot_once boots nothing if one exits non-zero; a gate string is split on spaces into argv (no quoting), so give a gate that needs quoted arguments a script path. The follow timer installs 0.41.0 when both phones are free. No key was made by lab-tools. FOR THIS ITEM: the UFS gate with its go marker and the battery rule become [kernels] pre_boot script paths (one script each), not hand wiring; the login is ssh by the declared identity. 2026-11-21 (UFS-root image builder, PR 676): the init's slot_suffix guard FAILS OPEN if the bootloader gives no androidboot.slot_suffix on a fastboot boot, and the real card's PARTNAME and probe time are only seen by the boot try. So THIS command carries the guard on its own: it reads current-slot over adb and fastboot BEFORE the boot (the other slot must equal walleye.root's slot, system_a), refuses otherwise, and reads the kernel log after the boot for the slot the init saw; the image is ~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-root (sha256 35b60fda, never booted; the UFS gate refuses it except through the go item).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: procedures/rootfs-boots-on-the-pixel-2.rs on the current lpoco-attended (a variation of ufs-matched-image-on-the-pixel-2.rs: the UFS-on exception only through the go item, never a bypass), keys at the top of main: gates (battery, the UFS gate's exception only with the go marker, image sha), fastboot boot of the UFS-root image from RAM (item walleye-install-ufs-root-image), the gadget up, the root partition mounted read-only with the tmpfs overlay (nodiscard, no write to the card: the proof reads mount options and /proc/mounts), ssh login over usb-network and the health suite (docs step rootfs-boots), the GPT and the bootchain read-back check against the stored set unchanged, the way back to Android on any stop (also an unanswered ask), idle-android, both slots' flags unchanged; dry-run, check --host, stand-in tests, clippy, fmt, review; the prompt text for the author's go; NOT booted on the phone until the image and the written root exist
+
+Rank
+: 5
