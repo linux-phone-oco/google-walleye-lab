@@ -1,0 +1,44 @@
+#!/sbin/openrc-run
+# The usb gadget of the Pixel 2: ACM serial (ttyGS0, the getty's) and ECM network (usb0 172.16.43.1, one lease 172.16.43.2),
+# the values of build/initramfs-mainline/init-z14 (net 43). The address is device.toml's addresses[0].
+description="usb gadget: serial and network"
+G=/sys/kernel/config/usb_gadget/g1
+
+depend() {
+	need localmount
+	before sshd
+}
+
+start() {
+	ebegin "Binding the usb gadget"
+	modprobe -q libcomposite 2>/dev/null; modprobe -q usb_f_acm 2>/dev/null; modprobe -q usb_f_ecm 2>/dev/null
+	mountpoint -q /sys/kernel/config || mount -t configfs none /sys/kernel/config || return 1
+	mkdir -p $G $G/strings/0x409 $G/functions/acm.usb0 $G/functions/ecm.usb0 $G/configs/c.1/strings/0x409
+	echo 0x1d6b > $G/idVendor
+	echo 0x0104 > $G/idProduct
+	echo "walleye-alpine" > $G/strings/0x409/serialnumber
+	echo "linux-phone-oco" > $G/strings/0x409/manufacturer
+	echo "Pixel 2 walleye (Alpine)" > $G/strings/0x409/product
+	echo "02:42:ac:10:2b:01" > $G/functions/ecm.usb0/dev_addr
+	echo "02:42:ac:10:2b:02" > $G/functions/ecm.usb0/host_addr
+	echo "ACM + ECM" > $G/configs/c.1/strings/0x409/configuration
+	ln -sf $G/functions/acm.usb0 $G/configs/c.1/
+	ln -sf $G/functions/ecm.usb0 $G/configs/c.1/
+	n=0
+	while [ -z "$(ls /sys/class/udc 2>/dev/null)" ] && [ $n -lt 60 ]; do sleep 1; n=$((n+1)); done
+	udc=$(ls /sys/class/udc | head -n1)
+	[ -n "$udc" ] || { eend 1 "no udc after 60 s"; return 1; }
+	echo "$udc" > $G/UDC
+	n=0
+	while ! ip link show usb0 >/dev/null 2>&1 && [ $n -lt 20 ]; do sleep 1; n=$((n+1)); done
+	ip addr add 172.16.43.1/24 dev usb0 && ip link set usb0 up || { eend 1 "usb0 is not up"; return 1; }
+	start-stop-daemon --start --background --make-pidfile --pidfile /run/udhcpd.pid --exec /usr/sbin/udhcpd -- -f -S /etc/udhcpd.conf
+	eend $?
+}
+
+stop() {
+	ebegin "Releasing the usb gadget"
+	start-stop-daemon --stop --quiet --pidfile /run/udhcpd.pid
+	[ -w $G/UDC ] && echo "" > $G/UDC
+	eend 0
+}

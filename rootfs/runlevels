@@ -1,0 +1,18 @@
+# LEVEL SERVICE - what OpenRC starts (the apk scripts that would link these are skipped, --no-scripts: the build writes the links).
+# qrtr, rmtfs and tqftpserv are installed and linked into NO level: none starts without its firmware.
+sysinit devfs
+sysinit dmesg
+sysinit mdev
+sysinit hwdrivers
+boot modules
+boot sysctl
+boot hostname
+boot swclock
+boot seedrng
+boot bootmisc
+boot syslog
+default usb-gadget
+default sshd
+default local
+shutdown killprocs
+shutdown savecache

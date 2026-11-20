@@ -5086,3 +5086,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-walleye-alpine-rootfs-v1"></a>
+### Alpine rootfs v1 built, reproducible
+
+Entry date
+: 2026-11-20
+
+Done
+: tools/walleye-rootfs (Rust, argenv, 7 unit tests, clippy clean, in CI) and rootfs/ (packages, runlevels, overlay) build the image rootless twice with one sha256 and check it by what is in it (41 checks). Image and checksum in ~/Projects/walleye-build/images-rootfs/.
+
+Considered
+: mke2fs -d on the directory: ctime of the source files made every build differ; a tar under fakeroot fixed it. apk --allow-untrusted: replaced by the alpine-keys package's keys. Running the busybox post-install under qemu: not needed, the applet list is in the package.
+
+Rejected
+: Hand-editing the image after mke2fs (debugfs): not reproducible by reading. A chown of the whole tree to root:root by a root command: fakeroot does it with no root.
+
+About
+: walleye-display-s6e3fa5

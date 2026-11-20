@@ -75,6 +75,12 @@ jobs:
           cargo test --locked
           cargo fmt --check
           cargo clippy --locked --all-targets -- -D warnings
+      - name: the Alpine rootfs tool (what the image may hold), clippy clean (no phone)
+        run: |
+          cd tools/walleye-rootfs
+          cargo test --locked
+          cargo fmt --check
+          cargo clippy --locked --all-targets -- -D warnings
   device-toml:
     name: device.toml is read by the newest lpoco-lab
     runs-on: ubuntu-latest

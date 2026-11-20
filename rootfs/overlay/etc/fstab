@@ -1,0 +1,1 @@
+# the root is mounted by the initramfs (read-only, tmpfs overlay): nothing else to mount

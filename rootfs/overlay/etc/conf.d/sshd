@@ -1,0 +1,2 @@
+# listening on 172.16.43.1 would make OpenRC need "net" (the networking service, which has nothing to read here): the gadget unit brings the address up
+rc_need="usb-gadget"

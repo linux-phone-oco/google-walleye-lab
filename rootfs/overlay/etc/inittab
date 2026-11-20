@@ -1,0 +1,8 @@
+# busybox init: OpenRC's levels, then a login on the screen console and on the usb gadget's serial (ttyGS0)
+::sysinit:/sbin/openrc sysinit
+::sysinit:/sbin/openrc boot
+::once:/sbin/openrc default
+tty0::respawn:/sbin/getty 38400 tty0
+ttyGS0::respawn:/sbin/getty -L 115200 ttyGS0 vt100
+::ctrlaltdel:/sbin/reboot
+::shutdown:/sbin/openrc shutdown

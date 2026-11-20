@@ -5360,3 +5360,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-alpine-rootfs-v1-built"></a>
+### walleye-alpine-rootfs-v1-built
+
+Date
+: 2026-11-20
+
+Brief
+: Alpine 3.24 aarch64 rootfs v1 built rootless, reproducible, reviewed: 1 GiB sparse ext4, 57 packages, 43 checks ok, sha256 89f543eb; no ssh key yet, no pd-mapper, no lpoco-health
+
+Question
+: Does tools/walleye-rootfs build the item's v1 image (login on tty0 and ttyGS0, sshd, usb gadget net, qrtr/rmtfs/tqftpserv installed not started, no phone files, no UI) twice with the same sha256?
+
+Found
+: tools/walleye-rootfs --build now: apk.static 3.0.9 --usermode --no-scripts, Alpine keys from alpine-keys, the skipped scripts' work written by the tool (busybox and busybox-extras applet links, OpenRC links from rootfs/runlevels, inittab, the usb-gadget unit = init-z14's gadget with ECM 172.16.43.1 + udhcpd lease .2, root empty password on consoles), a tar under fakeroot, mke2fs -d tarball. Two builds, same sha256 89f543ebd4642c135af3ddcba25f37e1372ef505bb351afd598373fb83b45b54 (a directory source was not reproducible: mke2fs copies ctime). 1 GiB sparse, e2fsck clean, no file under lib/firmware, vendor, modem, no UI package. Programmer review fixed: sshd needs usb-gadget not net (conf.d/sshd), swclock+seedrng in boot, gadget unit checks usb0 and supervises udhcpd, openrc default is ::once, the image is checked before it gets its name and .sha256, an existing .sha256 is compared. NOT fixed (open, in order): ssh key required/validated; apk keys and apk.static pinned by hash, one fetch for both builds; apk db modes/owners (bbsuid is 0111, not 4111) applied; dangling-link and executable checks; started-by-nothing scan of conf.d/inittab; all four 172.16.43.1 places checked against device.toml; host-tool preflight; check logic moved into lib.rs as pure functions; getty on ttyGS0 respawns until the gadget binds. Never booted: the services' start is read from OpenRC's dependency output by the reviewer, not run on aarch64. Found: Alpine's busybox has no udhcpd (busybox-extras added); no ssh key on the lab machine: item walleye-install-rootfs-lab-key. Image ~/Projects/walleye-build/images-rootfs/walleye-alpine.ext4 (+ .sha256, packages.txt). Packages: agetty-2.42.3-r1 agetty-openrc-0.63.2-r0 alpine-baselayout-3.7.2-r1 alpine-baselayout-data-3.7.2-r1 alpine-base-3.24.4-r0 alpine-conf-3.22.0-r0 alpine-keys-2.6-r0 alpine-release-3.24.4-r0 apk-tools-3.0.9-r0 bridge-1.5-r5 busybox-1.37.0-r31 busybox-binsh-1.37.0-r31 busybox-extras-1.37.0-r31 busybox-mdev-openrc-1.37.0-r31 busybox-openrc-1.37.0-r31 busybox-suid-1.37.0-r31 ca-certificates-bundle-20261020-r0 e2fsprogs-1.47.4-r0 e2fsprogs-libs-1.47.4-r0 eudev-libs-3.2.14-r6 ifupdown-ng-0.13.0-r0 libapk-3.0.9-r0 libblkid-2.42.3-r1 libcap2-2.78-r0 libcom_err-1.47.4-r0 libcrypto3-3.5.9-r1 libeconf-0.8.3-r0 libedit-20260508.3.1-r1 libncursesw-6.6_p20260516-r0 libssl3-3.5.9-r1 libuuid-2.42.3-r1 mdev-conf-4.10-r0 musl-1.2.6-r3 musl-utils-1.2.6-r3 ncurses-terminfo-base-6.6_p20260516-r0 openrc-0.63.2-r0 openrc-user-0.63.2-r0 openssh-10.3_p1-r2 openssh-client-common-10.3_p1-r2 openssh-client-default-10.3_p1-r2 openssh-keygen-10.3_p1-r2 openssh-server-10.3_p1-r2 openssh-server-common-10.3_p1-r2 openssh-server-common-openrc-10.3_p1-r2 openssh-sftp-server-10.3_p1-r2 qrtr-1.2-r1 qrtr-libs-1.2-r1 rmtfs-1.3-r0 rmtfs-openrc-1.3-r0 scanelf-1.3.9-r1 skalibs-libs-2.15.0.0-r0 ssl_client-1.37.0-r31 tqftpserv-1.1.1-r0 tqftpserv-openrc-1.1.1-r0 utmps-libs-0.1.3.3-r0 zlib-1.4-r0 zstd-libs-1.5.7-r2 
+
+About
+: walleye-display-s6e3fa5
