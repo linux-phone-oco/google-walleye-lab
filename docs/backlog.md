@@ -9061,10 +9061,10 @@ Rank
 ### Alpine image v1 hardening: the review's open findings fixed before the image is written to the phone
 
 Status
-: open
+: done
 
 Note
-: From the Alpine builder's report (PR 668, research walleye-alpine-rootfs-v1-built): the findings the review left unfixed, in its order. The image is never booted yet. They come before the write because the image's sha256 changes with them, and the write command pins the sha. The consoles' empty root password on tty0 and ttyGS0 is the test layer's, like the earlier test images; say it in the research row (ttyGS0 is reachable with the USB cable).
+: Done: image sha256 57cf5fd1425787eaa3399484d449e544057cac862308881069581b232fc89939 declared in device.toml [images.alpine-rootfs]; research walleye-alpine-rootfs-v1-hardened. The write command (walleye-install-write-procedure) takes this sha256.
 
 About
 : walleye-display-s6e3fa5

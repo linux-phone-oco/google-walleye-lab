@@ -54,6 +54,11 @@ fn main() {
             .unwrap_or_else(|| "https://dl-cdn.alpinelinux.org/alpine".into()),
         key: C::KEY.get_from(&r).map(PathBuf::from),
     };
+    let building = C::BUILD.get_from(&r).is_some();
+    if let Err(e) = preflight(building) {
+        eprintln!("walleye-rootfs: FAILED: {e}");
+        std::process::exit(1);
+    }
     let result = match (C::BUILD.get_from(&r), C::CHECK.get_from(&r)) {
         (Some(w), None) if w == "now" => build_twice_and_check(&ctx),
         (None, Some(img)) => check_image(&ctx, Path::new(&img)),
@@ -89,37 +94,46 @@ fn build_twice_and_check(ctx: &Ctx) -> Result<(), String> {
     Ok(())
 }
 
-/// apk.static and the Alpine keys, from the mirror's main index, into WORK/tools and WORK/keys.
+/// apk.static and the Alpine keys, the exact versions rootfs/pins names, each hashed before it is unpacked, into WORK/tools and WORK/keys-pkg.
+/// One fetch serves both builds (and a later run: a download already on disk is used when its sha256 is the pinned one).
 fn fetch_tools(ctx: &Ctx) -> Result<Tools, String> {
     let dl = ctx.work.join("dl");
     fs::create_dir_all(&dl).map_err(|e| e.to_string())?;
-    let base = format!("{}/v{}/main/x86_64", ctx.mirror, ctx.release);
-    let index_file = dl.join("APKINDEX.tar.gz");
-    run(
-        "curl",
-        &[
-            "-sfL",
-            &format!("{base}/APKINDEX.tar.gz"),
-            "-o",
-            path(&index_file),
-        ],
+    let pins = parse_pins(
+        &fs::read_to_string(ctx.repo.join("rootfs/pins"))
+            .map_err(|e| format!("rootfs/pins: {e}"))?,
     )?;
-    let index = run("tar", &["-xzOf", path(&index_file), "APKINDEX"])?;
+    let base = format!("{}/v{}/main/x86_64", ctx.mirror, ctx.release);
     for (pkg, into) in [("apk-tools-static", "tools"), ("alpine-keys", "keys-pkg")] {
-        let ver = index_version(&index, pkg).ok_or(format!("{pkg} is not in the index"))?;
-        let apk = dl.join(format!("{pkg}-{ver}.apk"));
-        run(
-            "curl",
-            &["-sfL", &format!("{base}/{pkg}-{ver}.apk"), "-o", path(&apk)],
-        )?;
+        let pin = pins
+            .iter()
+            .find(|p| p.name == pkg)
+            .ok_or(format!("rootfs/pins has no line for {pkg}"))?;
+        let apk = dl.join(format!("{pkg}-{}.apk", pin.version));
+        if !apk.exists() || check_pin(pin, &sha256(&apk)?).is_err() {
+            run(
+                "curl",
+                &[
+                    "-sfL",
+                    &format!("{base}/{pkg}-{}.apk", pin.version),
+                    "-o",
+                    path(&apk),
+                ],
+            )?;
+        }
+        check_pin(pin, &sha256(&apk)?)?;
+        say(&format!(
+            "pinned: {pkg}-{} sha256 {}",
+            pin.version, pin.sha256
+        ));
         let dir = ctx.work.join(into);
+        let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
         run("tar", &["-xzf", path(&apk), "-C", path(&dir)])?;
     }
-    let keys = ctx.work.join("keys-pkg/usr/share/apk/keys");
     Ok(Tools {
         apk: ctx.work.join("tools/sbin/apk.static"),
-        keys,
+        keys: ctx.work.join("keys-pkg/usr/share/apk/keys"),
     })
 }
 
@@ -262,7 +276,7 @@ fn make_image(ctx: &Ctx, tree: &Path, img: &Path) -> Result<(), String> {
             path(tree),
         ],
     )?;
-    keep_modes_of_unreadable_files(tree, &state)?;
+    apply_database_modes(tree, &state)?;
     // a tar carries owner, mode and mtime and no ctime: mke2fs copies from it, the same bytes every time
     let tarball = PathBuf::from(format!("{}.tar", tree.display()));
     run(
@@ -306,35 +320,6 @@ fn make_image(ctx: &Ctx, tree: &Path, img: &Path) -> Result<(), String> {
         ],
         ("E2FSPROGS_FAKE_TIME", "1767225600"),
     )?;
-    Ok(())
-}
-
-/// A file apk made unreadable to its owner (bbsuid) cannot be copied by tar or mke2fs: it is made readable for real and fakeroot
-/// is told the mode the file had, as apk --usermode installed it (apk's own database says 4111 for bbsuid; not applied: noted in the research row).
-fn keep_modes_of_unreadable_files(tree: &Path, state: &Path) -> Result<(), String> {
-    for rel in walk(tree, tree)? {
-        let file = tree.join(&rel);
-        let meta = fs::symlink_metadata(&file).map_err(|e| e.to_string())?;
-        if meta.file_type().is_symlink() || meta.permissions().mode() & 0o400 != 0 {
-            continue;
-        }
-        let mode = meta.permissions().mode() & 0o7777;
-        fs::set_permissions(&file, fs::Permissions::from_mode(mode | 0o600))
-            .map_err(|e| e.to_string())?;
-        run(
-            "fakeroot",
-            &[
-                "-i",
-                path(state),
-                "-s",
-                path(state),
-                "--",
-                "chmod",
-                &format!("{mode:o}"),
-                path(&file),
-            ],
-        )?;
-    }
     Ok(())
 }
 
@@ -410,15 +395,6 @@ fn check_image(ctx: &Ctx, img: &Path) -> Result<(), String> {
         busybox.is_ok() && is_aarch64_elf(&head),
         "bin/busybox is an aarch64 ELF",
     );
-    let inittab = fs::read_to_string(dump.join("etc/inittab")).unwrap_or_default();
-    for tty in ["tty0", "ttyGS0"] {
-        rep.ok(
-            inittab
-                .lines()
-                .any(|l| l.starts_with(&format!("{tty}::respawn:/sbin/getty"))),
-            &format!("inittab: getty on {tty}"),
-        );
-    }
     for exe in [
         "sbin/openrc",
         "usr/sbin/sshd",
@@ -470,6 +446,10 @@ fn check_image(ctx: &Ctx, img: &Path) -> Result<(), String> {
         Ok(_) => say("ok: root's authorized_keys is in the image"),
         Err(_) => say("not known yet: no authorized key was given (--authorized-key FILE), so ssh has no way in; the consoles do"),
     }
+    check_links_and_programs(&mut rep, &dump, &files)?;
+    check_started_programs(&mut rep, &dump, &files)?;
+    check_database_modes(&mut rep, &dump, img)?;
+    check_addresses(&mut rep, ctx, &dump)?;
     let sum = sha256(img)?;
     say(&format!("sha256 {sum}"));
     if let Ok(recorded) = fs::read_to_string(sha_file(img)) {
@@ -615,6 +595,322 @@ fn link_busybox_applets(tree: &Path) -> Result<(), String> {
                 .map_err(|e| e.to_string())?;
             symlink(binary, &link).map_err(|e| format!("{rel}: {e}"))?;
         }
+    }
+    Ok(())
+}
+
+/// The host tools a run needs, found on PATH before anything is downloaded or built.
+fn preflight(building: bool) -> Result<(), String> {
+    let check_only = ["e2fsck", "debugfs", "sha256sum"];
+    let build_too = [
+        "curl", "tar", "fakeroot", "mke2fs", "find", "touch", "truncate", "cp", "chmod", "chown",
+    ];
+    let mut need: Vec<&str> = check_only.to_vec();
+    if building {
+        need.extend(build_too);
+    }
+    let dirs: Vec<PathBuf> = std::env::var_os("PATH")
+        .map(|p| std::env::split_paths(&p).collect())
+        .unwrap_or_default();
+    let have = |t: &str| {
+        dirs.iter().any(|d| {
+            fs::metadata(d.join(t))
+                .is_ok_and(|m| m.is_file() && m.permissions().mode() & 0o111 != 0)
+        })
+    };
+    let missing = missing_tools(&need, &have);
+    if missing.is_empty() {
+        Ok(())
+    } else {
+        Err(format!(
+            "host tools missing from PATH: {}",
+            missing.join(", ")
+        ))
+    }
+}
+
+/// apk's own record of every file's owner and mode (--usermode could not apply them: bbsuid came out 0111, not 4111) is applied
+/// through fakeroot's state, one chown and one chmod per (owner, mode) group, the files given as arguments.
+fn apply_database_modes(tree: &Path, state: &Path) -> Result<(), String> {
+    let db = fs::read_to_string(tree.join("lib/apk/db/installed")).map_err(|e| e.to_string())?;
+    let present: Vec<(String, u32, u32, u32)> = database_files(&db)
+        .into_iter()
+        .filter(|(p, ..)| {
+            fs::symlink_metadata(tree.join(p)).is_ok_and(|m| !m.file_type().is_symlink())
+        })
+        .collect();
+    let mut applied = 0;
+    for ((uid, gid, mode), files) in group_modes(&present) {
+        for chunk in files.chunks(200) {
+            let abs: Vec<String> = chunk
+                .iter()
+                .map(|f| path(&tree.join(f)).to_string())
+                .collect();
+            for (cmd, first) in [
+                ("chown", format!("{uid}:{gid}")),
+                ("chmod", format!("{mode:o}")),
+            ] {
+                let mut args = vec!["-i", path(state), "-s", path(state), "--", cmd, "-h"];
+                if cmd == "chmod" {
+                    args.pop();
+                }
+                args.push(&first);
+                args.extend(abs.iter().map(String::as_str));
+                run("fakeroot", &args)?;
+            }
+            applied += chunk.len();
+        }
+    }
+    say(&format!(
+        "apk database: owner and mode applied to {applied} paths"
+    ));
+    Ok(())
+}
+
+/// The image's tree as the dump shows it, for the link and presence checks.
+fn tree_of(dump: &Path, files: &[String]) -> Result<Tree, String> {
+    let mut t = Tree::default();
+    for f in files {
+        let m = fs::symlink_metadata(dump.join(f)).map_err(|e| e.to_string())?;
+        t.add(
+            f,
+            if m.file_type().is_symlink() {
+                Entry::Link(
+                    fs::read_link(dump.join(f))
+                        .map_err(|e| e.to_string())?
+                        .to_string_lossy()
+                        .into_owned(),
+                )
+            } else if m.is_dir() {
+                Entry::Dir
+            } else {
+                Entry::File
+            },
+        );
+    }
+    Ok(t)
+}
+
+fn check_links_and_programs(rep: &mut Report, dump: &Path, files: &[String]) -> Result<(), String> {
+    let tree = tree_of(dump, files)?;
+    let dangling = tree.dangling_links();
+    let links = files
+        .iter()
+        .filter(|f| fs::symlink_metadata(dump.join(f)).is_ok_and(|m| m.file_type().is_symlink()))
+        .count();
+    rep.ok(
+        links > 0 && dangling.is_empty(),
+        &format!(
+            "no symlink ends nowhere ({links} links of {} entries followed){}",
+            files.len(),
+            dangling.join("; ")
+        ),
+    );
+    let mut modes = Vec::new();
+    for f in files {
+        let m = fs::symlink_metadata(dump.join(f)).map_err(|e| e.to_string())?;
+        if m.is_file() {
+            modes.push((f.clone(), m.permissions().mode() & 0o7777));
+        }
+    }
+    let plain = not_executable(&modes);
+    rep.ok(
+        plain.is_empty(),
+        &format!(
+            "every file in a bin, sbin or init.d directory can be run{}",
+            plain.join("; ")
+        ),
+    );
+    Ok(())
+}
+
+/// What inittab and the conf.d and init.d files start must be in the image.
+fn check_started_programs(rep: &mut Report, dump: &Path, files: &[String]) -> Result<(), String> {
+    let tree = tree_of(dump, files)?;
+    let inittab = fs::read_to_string(dump.join("etc/inittab")).unwrap_or_default();
+    let missing: Vec<String> = inittab_programs(&inittab)
+        .into_iter()
+        .filter(|p| !tree.exists(p))
+        .collect();
+    rep.ok(
+        missing.is_empty(),
+        &format!(
+            "every program inittab starts is in the image{}",
+            missing.join("; ")
+        ),
+    );
+    for tty in ["tty0", "ttyGS0"] {
+        match getty_respawns(&inittab, tty) {
+            Ok(()) => rep.ok(
+                true,
+                &format!("inittab: a getty on {tty} respawns until its tty is there"),
+            ),
+            Err(e) => rep.ok(false, &e),
+        }
+    }
+    let mut known: Vec<String> = Vec::new();
+    let mut scripts = Vec::new();
+    for f in files.iter().filter(|f| f.starts_with("etc/init.d/")) {
+        known.push(file_name(Path::new(f)));
+        let text = fs::read_to_string(dump.join(f)).unwrap_or_default();
+        known.extend(init_script_provides(&text));
+        scripts.push((file_name(Path::new(f)), text));
+    }
+    // only what a runlevel starts: init.d holds scripts of packages nothing links (runsvdir wants runit, installed or not)
+    let started: Vec<String> = files
+        .iter()
+        .filter(|f| f.starts_with("etc/runlevels/") && f.matches('/').count() == 3)
+        .map(|f| file_name(Path::new(f)))
+        .collect();
+    let (mut services, mut commands) = (Vec::new(), Vec::new());
+    let mut script_commands: Vec<(String, Vec<String>)> = Vec::new();
+    for f in files
+        .iter()
+        .filter(|f| f.starts_with("etc/conf.d/") && started.contains(&file_name(Path::new(f))))
+    {
+        let (s, c) = conf_d_started(&fs::read_to_string(dump.join(f)).unwrap_or_default());
+        services.extend(s.into_iter().map(|x| (f.clone(), x)));
+        commands.extend(c);
+    }
+    for (name, text) in &scripts {
+        if started.contains(name) {
+            // a script names its program once per variant (sshd, sshd.pam, sshd.krb5): one of them must be there
+            let variants: Vec<String> = conf_d_started(text)
+                .1
+                .iter()
+                .filter_map(|c| command_default(c))
+                .collect();
+            if !variants.is_empty() {
+                script_commands.push((name.clone(), variants));
+            }
+        }
+    }
+    let unknown: Vec<String> = services
+        .iter()
+        .filter(|(_, s)| !known.contains(s))
+        .map(|(f, s)| format!("{f} names {s}"))
+        .collect();
+    rep.ok(
+        unknown.is_empty(),
+        &format!(
+            "every service a conf.d file needs, uses or wants has an init.d script ({} names){}",
+            services.len(),
+            unknown.join("; ")
+        ),
+    );
+    let strict: Vec<String> = commands.iter().filter_map(|c| command_default(c)).collect();
+    let mut gone: Vec<String> = strict.iter().filter(|c| !tree.exists(c)).cloned().collect();
+    for (name, variants) in &script_commands {
+        if !variants.iter().any(|v| tree.exists(v)) {
+            gone.push(format!("{name}: none of {}", variants.join(", ")));
+        }
+    }
+    let checked = strict.len() + script_commands.len();
+    rep.ok(
+        checked > 0 && gone.is_empty(),
+        &format!(
+            "every program a started service runs is in the image ({} conf.d commands, {} init.d scripts with a command=; start() bodies are not read); {} runlevel services{}",
+            strict.len(),
+            script_commands.len(),
+            started.len(),
+            gone.join("; ")
+        ),
+    );
+    Ok(())
+}
+
+/// The modes and owners apk records, read back from the ext4 itself (debugfs stat): the files with a special mode or another owner.
+fn check_database_modes(rep: &mut Report, dump: &Path, img: &Path) -> Result<(), String> {
+    let db = fs::read_to_string(dump.join("lib/apk/db/installed")).unwrap_or_default();
+    let special: Vec<(String, u32, u32, u32)> = database_files(&db)
+        .into_iter()
+        .filter(|(p, ..)| {
+            fs::symlink_metadata(dump.join(p)).is_ok_and(|x| !x.file_type().is_symlink())
+        })
+        .collect();
+    let cmds = dump.with_extension("stat-cmds");
+    fs::write(
+        &cmds,
+        special
+            .iter()
+            .map(|(p, ..)| format!("stat /{p}\n"))
+            .collect::<String>(),
+    )
+    .map_err(|e| e.to_string())?;
+    let out = run("debugfs", &["-f", path(&cmds), path(img)])?;
+    let seen = debugfs_stats(&out);
+    let wrong: Vec<String> = special
+        .iter()
+        .filter(|(p, u, g, m)| {
+            seen.iter()
+                .find(|s| &s.0 == p)
+                .is_none_or(|s| (s.1, s.2, s.3) != (*m, *u, *g))
+        })
+        .map(|(p, u, g, m)| format!("{p} should be {u}:{g} {m:o}"))
+        .collect();
+    rep.ok(
+        !special.is_empty() && wrong.is_empty(),
+        &format!(
+            "apk's owner and mode stand in the image for {} files and directories (read back with debugfs stat){}",
+            special.len(),
+            wrong.join("; ")
+        ),
+    );
+    let bbsuid = seen.iter().find(|s| s.0 == "bin/bbsuid");
+    rep.ok(
+        bbsuid.is_some_and(|s| (s.1, s.2, s.3) == (0o4111, 0, 0)),
+        "bin/bbsuid is 0:0 mode 4111, as busybox-suid installs it",
+    );
+    Ok(())
+}
+
+/// Every lab address in the image's own files is device.toml's network, and the gadget unit and sshd have its address itself.
+fn check_addresses(rep: &mut Report, ctx: &Ctx, dump: &Path) -> Result<(), String> {
+    let address = device_address(&ctx.repo)?;
+    let toml = fs::read_to_string(ctx.repo.join("device.toml")).map_err(|e| e.to_string())?;
+    let first = toml
+        .lines()
+        .find(|l| l.starts_with("addresses = "))
+        .and_then(|l| addresses_in(l).first().map(|a| a.1.clone()));
+    rep.ok(
+        first.as_deref() == Some(address.as_str()),
+        &format!("device.toml: shell_address is addresses[0] ({address})"),
+    );
+    let places = [
+        ("etc/init.d/usb-gadget", true),
+        ("etc/ssh/sshd_config.d/10-lab.conf", true),
+        ("etc/udhcpd.conf", false),
+        ("etc/conf.d/sshd", false),
+    ];
+    for (file, must_be_the_address) in places {
+        let read = fs::read_to_string(dump.join(file));
+        let text_ok = read.is_ok();
+        let text = read.unwrap_or_default();
+        let found: Vec<(usize, String)> = addresses_in(&text)
+            .into_iter()
+            .filter(|(_, a)| !a.starts_with("255."))
+            .collect();
+        let bad: Vec<String> = found
+            .iter()
+            .filter_map(|(n, a)| address_problem(a, &address).map(|p| format!("{file}:{n}: {p}")))
+            .collect();
+        let has = found.iter().any(|(_, a)| *a == address);
+        rep.ok(
+            text_ok
+                && bad.is_empty()
+                && (has || !must_be_the_address)
+                && (!found.is_empty() || file == "etc/conf.d/sshd"),
+            &format!(
+                "{file}: {} lab addresses, all in device.toml's {address} network{}{}",
+                found.len(),
+                if must_be_the_address && !has {
+                    "; the address itself is missing"
+                } else {
+                    ""
+                },
+                bad.join("; ")
+            ),
+        );
     }
     Ok(())
 }

@@ -128,6 +128,339 @@ pub fn busybox_links(paths: &str) -> Vec<String> {
         .collect()
 }
 
+/// One pinned download: the package's name, its exact version and the sha256 of its .apk (supply chain: the build trusts nothing it did not hash).
+#[derive(Debug, Clone, PartialEq)]
+pub struct Pin {
+    pub name: String,
+    pub version: String,
+    pub sha256: String,
+}
+
+/// The pins file: `NAME VERSION SHA256` per line, comments and blank lines left out.
+pub fn parse_pins(text: &str) -> Result<Vec<Pin>, String> {
+    let mut out = Vec::new();
+    for (n, line) in text.lines().enumerate() {
+        let l = line.trim();
+        if l.is_empty() || l.starts_with('#') {
+            continue;
+        }
+        let w: Vec<&str> = l.split_whitespace().collect();
+        if w.len() != 3 {
+            return Err(format!(
+                "pins line {}: want NAME VERSION SHA256, got `{l}`",
+                n + 1
+            ));
+        }
+        out.push(Pin {
+            name: w[0].into(),
+            version: w[1].into(),
+            sha256: w[2].to_lowercase(),
+        });
+    }
+    Ok(out)
+}
+
+/// Ok when the file's sha256 is the pinned one; the error names the pin and both sums.
+pub fn check_pin(pin: &Pin, actual: &str) -> Result<(), String> {
+    if pin.sha256.eq_ignore_ascii_case(actual) {
+        Ok(())
+    } else {
+        Err(format!(
+            "{}-{}: sha256 {actual} is not the pinned {}",
+            pin.name, pin.version, pin.sha256
+        ))
+    }
+}
+
+/// Every path of apk's installed database with the owner and mode apk records, octal: a file's from its `a:UID:GID:MODE` line (after `R:`),
+/// a directory's from its `M:UID:GID:MODE` line (after `F:`). A path with no such line has apk's default and nothing to apply.
+pub fn database_files(db: &str) -> Vec<(String, u32, u32, u32)> {
+    let mut out = Vec::new();
+    let mut dir = String::new();
+    let mut target: Option<String> = None;
+    for line in db.lines() {
+        if let Some(d) = line.strip_prefix("F:") {
+            dir = d.to_string();
+            target = Some(dir.clone());
+        } else if let Some(f) = line.strip_prefix("R:") {
+            target = Some(if dir.is_empty() {
+                f.to_string()
+            } else {
+                format!("{dir}/{f}")
+            });
+        } else if line.starts_with("P:") {
+            dir.clear();
+            target = None;
+        } else if let Some(a) = line.strip_prefix("a:").or_else(|| line.strip_prefix("M:")) {
+            let w: Vec<&str> = a.split(':').collect();
+            if let (Some(t), [u, g, m]) = (target.clone(), &w[..]) {
+                if let (Ok(u), Ok(g), Ok(m)) = (u.parse(), g.parse(), u32::from_str_radix(m, 8)) {
+                    out.push((t, u, g, m));
+                }
+            }
+        }
+    }
+    out
+}
+
+/// The files by (uid, gid, mode): one chown and one chmod per group, the files passed as arguments.
+pub fn group_modes(
+    files: &[(String, u32, u32, u32)],
+) -> std::collections::BTreeMap<(u32, u32, u32), Vec<String>> {
+    let mut g: std::collections::BTreeMap<(u32, u32, u32), Vec<String>> = Default::default();
+    for (p, u, gid, m) in files {
+        g.entry((*u, *gid, *m)).or_default().push(p.clone());
+    }
+    g
+}
+
+/// What one path of the image is.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Entry {
+    File,
+    Dir,
+    Link(String),
+}
+
+/// Paths made at run time: a link into them is not dangling.
+const MADE_AT_RUN: &[&str] = &["proc", "sys", "run", "dev", "tmp"];
+
+/// The image's paths (relative, no leading slash), for the link check.
+#[derive(Default)]
+pub struct Tree(std::collections::BTreeMap<String, Entry>);
+
+impl Tree {
+    pub fn add(&mut self, path: &str, e: Entry) {
+        self.0.insert(path.trim_start_matches('/').to_string(), e);
+    }
+
+    /// `path -> target` of every symlink that ends nowhere (links through links and linked directories are followed).
+    pub fn dangling_links(&self) -> Vec<String> {
+        self.0
+            .iter()
+            .filter_map(|(p, e)| match e {
+                Entry::Link(t) if !self.resolves(&link_target(p, t), 0) => {
+                    Some(format!("{p} -> {t}"))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// True when `path` (from the root) leads to something in the image, links followed (run-time directories count).
+    pub fn exists(&self, path: &str) -> bool {
+        self.resolves(path, 0)
+    }
+
+    fn resolves(&self, path: &str, depth: u32) -> bool {
+        if depth > 40 {
+            return false;
+        }
+        let comps: Vec<&str> = path
+            .split('/')
+            .filter(|c| !c.is_empty() && *c != ".")
+            .collect();
+        let mut cur: Vec<&str> = Vec::new();
+        for (i, c) in comps.iter().enumerate() {
+            if *c == ".." {
+                cur.pop();
+                continue;
+            }
+            cur.push(c);
+            if cur.len() == 1 && MADE_AT_RUN.contains(c) {
+                return true;
+            }
+            match self.0.get(&cur.join("/")) {
+                Some(Entry::Link(t)) => {
+                    let mut next = link_target(&cur.join("/"), t);
+                    for r in &comps[i + 1..] {
+                        next = format!("{next}/{r}");
+                    }
+                    return self.resolves(&next, depth + 1);
+                }
+                Some(_) => {}
+                None => return false,
+            }
+        }
+        true
+    }
+}
+
+/// Where a link at `path` pointing to `target` leads, as a path from the root (a relative target starts at the link's directory).
+fn link_target(path: &str, target: &str) -> String {
+    match target.strip_prefix('/') {
+        Some(t) => t.to_string(),
+        None => match path.rsplit_once('/') {
+            Some((dir, _)) => format!("{dir}/{target}"),
+            None => target.to_string(),
+        },
+    }
+}
+
+/// The files (path, mode) in a program directory that no one may run: the programs of bin, sbin and init.d need an execute bit.
+pub fn not_executable(files: &[(String, u32)]) -> Vec<String> {
+    const PROGRAM_DIRS: &[&str] = &[
+        "bin",
+        "sbin",
+        "usr/bin",
+        "usr/sbin",
+        "usr/local/bin",
+        "usr/local/sbin",
+        "etc/init.d",
+    ];
+    files
+        .iter()
+        .filter(|(p, m)| {
+            p.rsplit_once('/')
+                .is_some_and(|(d, _)| PROGRAM_DIRS.contains(&d))
+                && m & 0o111 == 0
+        })
+        .map(|(p, _)| p.clone())
+        .collect()
+}
+
+/// The fields of the inittab lines: (id, action, program with its arguments), comments and lines without a program left out.
+fn inittab_lines(tab: &str) -> Vec<(String, String, String)> {
+    tab.lines()
+        .map(str::trim)
+        .filter(|l| !l.is_empty() && !l.starts_with('#'))
+        .filter_map(|l| {
+            let f: Vec<&str> = l.splitn(4, ':').collect();
+            (f.len() == 4 && !f[3].trim().is_empty())
+                .then(|| (f[0].to_string(), f[2].to_string(), f[3].trim().to_string()))
+        })
+        .collect()
+}
+
+/// The program (first word) every inittab line starts.
+pub fn inittab_programs(tab: &str) -> Vec<String> {
+    inittab_lines(tab)
+        .into_iter()
+        .filter_map(|(_, _, p)| p.split_whitespace().next().map(str::to_string))
+        .collect()
+}
+
+/// What a conf.d file makes OpenRC start: the services it needs, uses or wants, and the `command=` it runs.
+pub fn conf_d_started(text: &str) -> (Vec<String>, Vec<String>) {
+    let (mut services, mut commands) = (Vec::new(), Vec::new());
+    for l in text.lines().map(str::trim).filter(|l| !l.starts_with('#')) {
+        let Some((k, v)) = l.split_once('=') else {
+            continue;
+        };
+        let v = v.trim().trim_matches(|c| c == '"' || c == '\'');
+        match k.trim() {
+            "rc_need" | "rc_use" | "rc_want" => {
+                services.extend(v.split_whitespace().map(str::to_string))
+            }
+            "command" if !v.is_empty() => commands.push(v.to_string()),
+            _ => {}
+        }
+    }
+    (services, commands)
+}
+
+/// The program a `command=` value names: the value itself, or the default of `${VAR:-"default"}`; None when it is any other expansion.
+pub fn command_default(v: &str) -> Option<String> {
+    if !v.contains('$') {
+        return Some(v.to_string());
+    }
+    let d = v.strip_prefix("${")?.split_once(":-")?.1;
+    let d = d.split('}').next()?.trim_matches(|c| c == '"' || c == '\'');
+    (!d.is_empty() && !d.contains('$')).then(|| d.to_string())
+}
+
+/// Ok when the inittab's line for `tty` is a respawning getty: it is tried again until the gadget has made the tty.
+pub fn getty_respawns(tab: &str, tty: &str) -> Result<(), String> {
+    let (_, action, prog) = inittab_lines(tab)
+        .into_iter()
+        .find(|(id, _, _)| id == tty)
+        .ok_or(format!("inittab has no line for {tty}"))?;
+    if action != "respawn" {
+        return Err(format!("inittab: {tty} is `{action}`, not respawn: the getty would end before the gadget binds"));
+    }
+    if prog.split_whitespace().next() != Some("/sbin/getty")
+        || !prog.split_whitespace().any(|w| w == tty)
+    {
+        return Err(format!(
+            "inittab: {tty} runs `{prog}`, not /sbin/getty on {tty}"
+        ));
+    }
+    Ok(())
+}
+
+/// Every dotted address of a text with its line (1-based).
+pub fn addresses_in(text: &str) -> Vec<(usize, String)> {
+    let mut out = Vec::new();
+    for (n, line) in text.lines().enumerate() {
+        let line = line.split('#').next().unwrap_or_default();
+        for tok in line.split(|c: char| !(c.is_ascii_digit() || c == '.')) {
+            let t = tok.trim_matches('.');
+            let parts: Vec<&str> = t.split('.').collect();
+            if parts.len() == 4 && parts.iter().all(|p| p.parse::<u8>().is_ok()) {
+                out.push((n + 1, t.to_string()));
+            }
+        }
+    }
+    out
+}
+
+/// Why an address found in the image is not the device's network (device.toml's address, its /24), if it is not.
+pub fn address_problem(found: &str, device: &str) -> Option<String> {
+    let net = |a: &str| a.rsplit_once('.').map(|(n, _)| n.to_string());
+    (net(found) != net(device))
+        .then(|| format!("{found} is not in device.toml's network of {device}"))
+}
+
+/// The tools of `needed` that `have` does not find.
+pub fn missing_tools<'a>(needed: &[&'a str], have: &dyn Fn(&str) -> bool) -> Vec<&'a str> {
+    needed.iter().copied().filter(|t| !have(t)).collect()
+}
+
+/// The mode of debugfs's `stat` output (`Mode:  4111`), octal.
+pub fn debugfs_mode(out: &str) -> Option<u32> {
+    let rest = out.split("Mode:").nth(1)?;
+    u32::from_str_radix(rest.split_whitespace().next()?, 8).ok()
+}
+
+/// Every `stat` block of a `debugfs -f` run: (path, mode, uid, gid).
+pub fn debugfs_stats(out: &str) -> Vec<(String, u32, u32, u32)> {
+    let mut res = Vec::new();
+    let mut path: Option<String> = None;
+    let mut mode = None;
+    for l in out.lines() {
+        if let Some(p) = l
+            .strip_prefix("debugfs:")
+            .and_then(|r| r.trim_start().strip_prefix("stat "))
+        {
+            path = Some(p.trim().trim_start_matches('/').to_string());
+            mode = None;
+        } else if l.contains("Mode:") {
+            mode = debugfs_mode(l);
+        } else if let (Some(rest), true) = (l.strip_prefix("User:"), path.is_some()) {
+            let w: Vec<&str> = rest.split_whitespace().collect();
+            let uid = w.first().and_then(|u| u.parse::<u32>().ok());
+            let gid = w
+                .iter()
+                .position(|x| *x == "Group:")
+                .and_then(|i| w.get(i + 1))
+                .and_then(|g| g.parse::<u32>().ok());
+            if let (Some(p), Some(m), Some(u), Some(g)) = (path.take(), mode, uid, gid) {
+                res.push((p, m, u, g));
+            }
+        }
+    }
+    res
+}
+
+/// The virtual services an OpenRC script provides (`provide logger` in its depend()).
+pub fn init_script_provides(text: &str) -> Vec<String> {
+    text.lines()
+        .map(str::trim)
+        .filter_map(|l| l.strip_prefix("provide "))
+        .flat_map(|r| r.split_whitespace().map(str::to_string).collect::<Vec<_>>())
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -213,5 +546,199 @@ mod tests {
     fn busybox_links_are_the_listed_paths() {
         let l = busybox_links("bin/busybox\nbin/ash\n/sbin/getty\n\n");
         assert_eq!(l, vec!["bin/ash".to_string(), "sbin/getty".to_string()]);
+    }
+
+    #[test]
+    fn pins_are_read_and_checked() {
+        let p =
+            parse_pins("# c\napk-tools-static 3.0.9-r0 aa11\n\nalpine-keys 2.6-r0 bb22\n").unwrap();
+        assert_eq!(p.len(), 2);
+        assert_eq!(p[1].name, "alpine-keys");
+        assert_eq!(p[1].version, "2.6-r0");
+        assert!(parse_pins("one two\n").is_err(), "a pin has three words");
+        assert!(check_pin(&p[0], "AA11").is_ok(), "case does not matter");
+        assert!(check_pin(&p[0], "ff")
+            .unwrap_err()
+            .contains("apk-tools-static"));
+    }
+
+    #[test]
+    fn the_database_gives_owner_and_mode_of_every_file() {
+        let db = "P:busybox\nV:1\nF:bin\nR:busybox\na:0:0:755\nZ:Q1x\nF:bin\nR:bbsuid\na:0:0:4111\n\nP:x\nV:2\nF:etc/ssh\nM:0:0:700\nR:ssh_config\na:0:0:644\nF:var\nR:nothing\n";
+        let e = database_files(db);
+        assert!(e.contains(&("bin/busybox".into(), 0, 0, 0o755)));
+        assert!(e.contains(&("bin/bbsuid".into(), 0, 0, 0o4111)));
+        assert!(e.contains(&("etc/ssh/ssh_config".into(), 0, 0, 0o644)));
+        assert!(
+            e.contains(&("etc/ssh".into(), 0, 0, 0o700)),
+            "a directory's mode is its M: line"
+        );
+        assert!(
+            !e.iter().any(|f| f.0 == "var/nothing"),
+            "no a: line, no mode to apply"
+        );
+    }
+
+    #[test]
+    fn modes_are_grouped_so_one_command_sets_many() {
+        let f = vec![
+            ("a".to_string(), 0, 0, 0o644),
+            ("b".to_string(), 0, 0, 0o644),
+            ("c".to_string(), 0, 5, 0o4111),
+        ];
+        let g = group_modes(&f);
+        assert_eq!(g.len(), 2);
+        assert_eq!(g[&(0, 0, 0o644)], vec!["a".to_string(), "b".to_string()]);
+    }
+
+    #[test]
+    fn links_are_followed_to_where_they_end() {
+        let mut t = Tree::default();
+        t.add("bin", Entry::Dir);
+        t.add("usr", Entry::Dir);
+        t.add("usr/lib", Entry::Dir);
+        t.add("usr/lib/libc.so", Entry::File);
+        t.add("lib", Entry::Link("usr/lib".into()));
+        t.add("bin/a", Entry::Link("../lib/libc.so".into()));
+        t.add("bin/b", Entry::Link("/usr/lib/nothing".into()));
+        t.add("bin/c", Entry::Link("/proc/self/mounts".into()));
+        t.add("bin/loop", Entry::Link("loop".into()));
+        assert_eq!(
+            t.dangling_links(),
+            vec![
+                "bin/b -> /usr/lib/nothing".to_string(),
+                "bin/loop -> loop".to_string()
+            ]
+        );
+    }
+
+    #[test]
+    fn programs_without_an_execute_bit_are_found() {
+        let files = vec![
+            ("usr/sbin/sshd".to_string(), 0o755),
+            ("usr/bin/broken".to_string(), 0o644),
+            ("etc/init.d/sshd".to_string(), 0o644),
+            ("etc/hostname".to_string(), 0o644),
+            ("bin/bbsuid".to_string(), 0o4111),
+        ];
+        assert_eq!(
+            not_executable(&files),
+            vec!["usr/bin/broken".to_string(), "etc/init.d/sshd".to_string()]
+        );
+    }
+
+    #[test]
+    fn what_inittab_and_conf_d_start_is_listed() {
+        let tab = "# c\n::sysinit:/sbin/openrc sysinit\ntty0::respawn:/sbin/getty 38400 tty0\n::ctrlaltdel:/sbin/reboot\n::once:\n";
+        assert_eq!(
+            inittab_programs(tab),
+            vec!["/sbin/openrc", "/sbin/getty", "/sbin/reboot"]
+        );
+        let conf =
+            "# c\nrc_need=\"usb-gadget net\"\nrc_use='logger'\ncommand=/usr/sbin/sshd\nrc_want=\n";
+        assert_eq!(
+            conf_d_started(conf),
+            (
+                vec!["usb-gadget".to_string(), "net".into(), "logger".into()],
+                vec!["/usr/sbin/sshd".to_string()]
+            )
+        );
+    }
+
+    #[test]
+    fn getty_must_respawn_until_the_gadget_binds() {
+        let good = "ttyGS0::respawn:/sbin/getty -L 115200 ttyGS0 vt100\n";
+        assert!(getty_respawns(good, "ttyGS0").is_ok());
+        assert!(
+            getty_respawns("ttyGS0::once:/sbin/getty -L 115200 ttyGS0\n", "ttyGS0")
+                .unwrap_err()
+                .contains("respawn")
+        );
+        assert!(
+            getty_respawns("tty0::respawn:/sbin/getty 38400 tty0\n", "ttyGS0")
+                .unwrap_err()
+                .contains("no line")
+        );
+        assert!(getty_respawns("ttyGS0::respawn:/bin/sh\n", "ttyGS0")
+            .unwrap_err()
+            .contains("getty"));
+    }
+
+    #[test]
+    fn addresses_in_a_file_are_found_and_judged() {
+        assert_eq!(
+            addresses_in("a 172.16.43.1/24\nListenAddress 172.16.43.1\nno 1.2.3\n"),
+            vec![
+                (1, "172.16.43.1".to_string()),
+                (2, "172.16.43.1".to_string())
+            ]
+        );
+        assert!(address_problem("172.16.43.1", "172.16.43.1").is_none());
+        assert!(
+            address_problem("172.16.43.2", "172.16.43.1").is_none(),
+            "the lease is in the same /24"
+        );
+        assert!(address_problem("172.16.42.1", "172.16.43.1")
+            .unwrap()
+            .contains("172.16.42.1"));
+    }
+
+    #[test]
+    fn missing_host_tools_are_all_named() {
+        let have = |t: &str| t == "curl" || t == "tar";
+        assert_eq!(
+            missing_tools(&["curl", "tar", "fakeroot", "mke2fs"], &have),
+            vec!["fakeroot", "mke2fs"]
+        );
+        assert!(missing_tools(&["curl"], &have).is_empty());
+    }
+
+    #[test]
+    fn the_stat_of_a_file_gives_its_mode() {
+        let out = "Inode: 12  Type: regular    Mode:  4111   Flags: 0x80000\nGeneration: 0\n";
+        assert_eq!(debugfs_mode(out), Some(0o4111));
+        assert_eq!(debugfs_mode("nothing"), None);
+    }
+
+    #[test]
+    fn debugfs_stat_blocks_give_path_mode_and_owner() {
+        let out = "debugfs: stat /bin/bbsuid\nInode: 12   Type: regular    Mode:  4111   Flags: 0x80000\nGeneration: 0\nUser:     0   Group:     0   Project:     0   Size: 123\ndebugfs: stat /etc/x\nInode: 13   Type: regular    Mode:  0644   Flags: 0x80000\nUser:  100   Group:   101   Project:     0   Size: 1\n";
+        assert_eq!(
+            debugfs_stats(out),
+            vec![
+                ("bin/bbsuid".to_string(), 0o4111, 0, 0),
+                ("etc/x".to_string(), 0o644, 100, 101)
+            ]
+        );
+    }
+
+    #[test]
+    fn virtual_services_are_read_from_the_script() {
+        assert_eq!(
+            init_script_provides("depend() {\n\tneed localmount\n\tprovide logger\n}\n"),
+            vec!["logger".to_string()]
+        );
+    }
+
+    #[test]
+    fn a_command_with_a_default_is_read() {
+        assert_eq!(
+            command_default("/sbin/syslogd").as_deref(),
+            Some("/sbin/syslogd")
+        );
+        assert_eq!(
+            command_default("${SSHD_BINARY:-\"/usr/sbin/sshd\"}").as_deref(),
+            Some("/usr/sbin/sshd")
+        );
+        assert_eq!(command_default("${X}"), None);
+        assert_eq!(command_default("$cmd"), None);
+    }
+
+    #[test]
+    fn addresses_in_comments_are_not_read() {
+        assert_eq!(
+            addresses_in("# 172.16.43.1\nListenAddress 0.0.0.0 # 172.16.43.1\n"),
+            vec![(2, "0.0.0.0".to_string())]
+        );
     }
 }

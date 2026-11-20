@@ -5398,3 +5398,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-alpine-rootfs-v1-hardened"></a>
+### walleye-alpine-rootfs-v1-hardened
+
+Date
+: 2026-11-20
+
+Brief
+: Alpine v1 hardened: pinned apk.static and keys, apk dir/file modes, link/exec/start/address checks; image sha256 57cf5fd1; rootfs-boots needs ssh from the lab, not lpoco-health
+
+Question
+: Does the hardened tools/walleye-rootfs rebuild the v1 image twice with one sha256, and does step rootfs-boots need lpoco-health on the phone?
+
+Found
+: tools/walleye-rootfs, hardened (all in Rust, argenv). Image built twice, one new sha256 57cf5fd1425787eaa3399484d449e544057cac862308881069581b232fc89939 (v1 first build was 89f543eb; the change is the apk directory modes now applied), declared in device.toml [images.alpine-rootfs] at images-rootfs/walleye-alpine-v1.ext4; 54+ checks ok.
+(1) rootfs/pins names apk-tools-static 3.0.9-r0 and alpine-keys 2.6-r0 with their sha256; the build downloads those exact versions once, hashes before unpacking, reuses a cached download only if its hash matches; no APKINDEX trust. (2) apk's installed db applied through fakeroot: files from `a:`, directories from `M:` (the review caught that real apk writes directory modes as M:, e.g. var/empty 555, tmp 1777, root 700); 241 paths; bin/bbsuid 4111 asserted by name from debugfs stat. (3) dangling-symlink check (399 links followed through linked dirs; run-time dirs proc sys run dev tmp allowed) and execute-bit check over bin, sbin, init.d. (4) inittab programs, conf.d needs and init.d command= of the 16 runlevel services must be in the image; start() bodies are NOT read (not known yet). (5) the 172.16.43.x places: usb-gadget and sshd 10-lab.conf must carry device.toml's address, udhcpd.conf its /24; comments are not read; device.toml shell_address = addresses[0]. (6) host-tool preflight names every missing tool. (7) the logic is pure functions in lib.rs (21 tests). (8) inittab must have a respawn getty on tty0 and ttyGS0, so ttyGS0 is retried until the gadget binds (read from the inittab; the retry rate of busybox init when /dev/ttyGS0 is absent is not measured yet).
+OPEN QUESTION answered: step rootfs-boots (done_when: a distribution's root boots to its init and ssh answers; proof rootfs-ssh, a host-check) needs no lpoco-health on the phone: the lab runs it over ssh from the host. The phone's own suite is the next step health-suite-runs (proof suite-filed) and waits for item walleye-install-rootfs-health-binary.
+The empty root password on tty0 and ttyGS0 is the test layer's, like the earlier test images; ttyGS0 is reachable by anyone with the USB cable. sshd takes a key only and none is in the image yet (waits for the author's yes). Not claimed: the image was never booted. Reproducibility: package versions float with the mirror (names only in rootfs/packages), so the same pins rebuilt later may give another sha; the host tools were mke2fs 1.47.4, fakeroot 1.37.2.
+
+About
+: walleye-display-s6e3fa5
