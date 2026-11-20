@@ -8091,37 +8091,6 @@ Rank
 : 1
 
 
-<a id="walleye-ufs-try-2"></a>
-### UFS try 2: the same read-only boot again, with the questions of try 1 added, and the proof that the card is unharmed
-
-Status
-: open
-
-Note
-: A second boot of the same image confirms the first was no fluke and that the card is unharmed. NOT started without the author's word. 2026-11-19 ASK from the upstreams coordinator (docs #714): before they take an OPP table for msm8998.dtsi up as a patch, a measurement: the gear under load, or a dtsi with an OPP table holding G3. Both belong to this try or its image (walleye-ufs-opp-table-image). Still needs the author's word for a second try.
-
-Waits
-: the author's word for a second try (his go bought one try, spent 2026-11-19 21:05 CET), brought by the Top Coordinator; and walleye-ufs-link-check-works-slow, walleye-ufs-why-gear1 done
-
-About
-: walleye-ufs-match-android-z
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: through procedures/ufs-matched-image-on-the-pixel-2.rs: the same boot read only, the card's identity and LUNs again, the readings that walleye-ufs-why-gear1 names; and the unharmed proof: the partition tables (GPT) read by Android as root before and after, and by the mainline boot, hash-equal; Android boots normally afterwards (idle-android), both slots' flags unchanged; nothing is written; and the upstreams lane's measurement: the link gear UNDER LOAD (a bounded read-only O_DIRECT read of sda) and again after 2 s idle, from power_info and the devfreq node, so the clock scale-down reading is measured
-
-Rank
-: 3
-
-Witness
-: person
-
-
 <a id="walleye-ufs-opp-table-image"></a>
 ### A UFS image with an operating-points table for the ufshc node that holds HS-G3, so the link stays at gear 3 under load: the patch candidate the upstreams lane wants measured
 
@@ -8672,3 +8641,62 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-ufs-try-2-one-command"></a>
+### UFS try 2 as ONE command: the matched-image procedure with the gear read under load and after 2 s idle, tested everywhere but the phone, so the author's go buys exactly that
+
+Status
+: open
+
+Note
+: From the author's goal (2026-11-20: Linux installed and booting from its own storage) and the upstreams coordinator's ask (docs #714, the gear under load before an OPP table patch): UFS is on the critical path, so try 2 is the next UFS step. The OPP-table image (walleye-ufs-opp-table-image, rank 8) is a later boot of the same procedure and also needs the author's word; this item makes the FIRST one a single launch away, in the author's rule (2026-11-19): 'ask me to attend only when everything is prepared one launch sequence away', tests written as a program and run before. Starts after walleye-display-reset-image (B-r5).
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: procedures/ufs-matched-image-on-the-pixel-2.rs on the current lpoco-attended (0.39 or newer), entry file one screen, keys at the top of main from device.toml, the sequence a plain checklist: the gates (battery, the UFS-off gate's one exception only through the go item walleye-try-ufs-match, the image sha), the boot of the matched UFS image from fastboot, the gadget up, the card read (identity, six LUNs, partition tables) as in try 1, THEN the new part: the link gear and the clock from power_info and the devfreq node BEFORE load, during a bounded read-only O_DIRECT read of sda (a few GB at most, a time limit, nothing written), and again 2 s after it ends; the GPT of sda read before and after and hash-equal; the way back to Android on any stop (also an unanswered ask), idle-android, both slots' flags unchanged; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; a keeper's run of every part that does not touch the UFS-on boot (the dry run, the gates, the way back from a fake stop) and the prompt text the Top Coordinator shows the author for his go: one command, what it reads, what it never writes, how long, the way back; NOT booted: the UFS-on boot waits for the author's word
+
+Rank
+: 3
+
+
+<a id="walleye-ufs-try-2"></a>
+### UFS try 2: the same read-only boot again, with the questions of try 1 added, and the proof that the card is unharmed
+
+Status
+: open
+
+Note
+: A second boot of the same image confirms the first was no fluke and that the card is unharmed. NOT started without the author's word. 2026-11-19 ASK from the upstreams coordinator (docs #714): before they take an OPP table for msm8998.dtsi up as a patch, a measurement: the gear under load, or a dtsi with an OPP table holding G3. Both belong to this try or its image (walleye-ufs-opp-table-image). Still needs the author's word for a second try. 2026-11-20 (coordinator): blocked on walleye-ufs-try-2-one-command (the one command, tested first); then the Top Coordinator brings it to the author for his go.
+
+Waits
+: the author's word for a second try (his go bought one try, spent 2026-11-19 21:05 CET), brought by the Top Coordinator; and walleye-ufs-link-check-works-slow, walleye-ufs-why-gear1 done
+
+Blocked by
+: walleye-ufs-try-2-one-command
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-20
+
+Needs
+: phone
+
+Proof
+: through procedures/ufs-matched-image-on-the-pixel-2.rs: the same boot read only, the card's identity and LUNs again, the readings that walleye-ufs-why-gear1 names; and the unharmed proof: the partition tables (GPT) read by Android as root before and after, and by the mainline boot, hash-equal; Android boots normally afterwards (idle-android), both slots' flags unchanged; nothing is written; and the upstreams lane's measurement: the link gear UNDER LOAD (a bounded read-only O_DIRECT read of sda) and again after 2 s idle, from power_info and the devfreq node, so the clock scale-down reading is measured
+
+Rank
+: 3
+
+Witness
+: person
