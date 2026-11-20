@@ -88,3 +88,10 @@ path = ["kernel/audio-adsp-q6/README.md"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 grenudi"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+# The PMIC watchdog S2-type patch (item walleye-wdt-pon-bites-procedure): a change to a kernel file, the kernel's licence (GPL-2.0-only); the record is ours.
+[[annotations]]
+path = ["kernel/pmic-wdt-s2-type/0*.patch"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 grenudi"
+SPDX-License-Identifier = "GPL-2.0-only"

@@ -19,7 +19,9 @@ HERE=$(cd "$(dirname "$0")/.." && pwd)
 export DTBO=${DTBO:-$HOME/Projects/walleye-build/control/dtbo.img}
 GEN=${GEN_INIT_CPIO:-$W/out-z20/b/usr/gen_init_cpio}
 BB=$W/busybox-arm64
-I=$HERE/build/initramfs-mainline/init-wdt1
+# the bites images (item walleye-wdt-pon-bites-procedure) are this script with INIT_NAME=wdt2 PREFIX=wdt2 NAME_A=hard NAME_B=warm VERSION_B=next-20261118 DTB_PROP_B="qcom,s2-type 1": the same checks, the init of wdt2, B's dtb naming the S2 type; no variable given = the v1 pair as before
+INIT_NAME=${INIT_NAME:-wdt1}; PREFIX=${PREFIX:-wdt1}; NAME_A=${NAME_A:-a}; NAME_B=${NAME_B:-b}; VERSION_A=${VERSION_A:-next-20261118}; VERSION_B=${VERSION_B:-g8b2283da3}; DTB_PROP_B=${DTB_PROP_B:-}
+I=$HERE/build/initramfs-mainline/init-$INIT_NAME
 OLDI=$HERE/build/initramfs-mainline/init-z14
 CONF=$HERE/build/initramfs-mainline/udhcpd-z14.conf
 DYN='dyndbg="file drivers/watchdog/pm8916_wdt.c +p"'
@@ -42,8 +44,8 @@ ck "the command line names no ufs" "$(printf '%s\n' "$NEWCMD" | grep -ci ufs || 
 for a in IFCONFIG UDHCPD TELNETD DMESG WATCHDOG SYNC REBOOT; do
   ck "busybox has the applet $a (arm64 build config)" "$(grep -cx "CONFIG_$a=y" "$W/busybox-arm64.src/.config")" 1
 done
-ck "init-wdt1 (busybox ash -n) has no syntax error" "$("$W/busybox-x86_64" ash -n "$I" 2>&1 || echo syntax-error)" ""
-ck "the host selftest passes on init-wdt1 (tests/host/pmic-wdt-v1-init-selftest.sh)" "$(sh "$HERE/tests/host/pmic-wdt-v1-init-selftest.sh" "$I" | cut -d' ' -f1 | tail -n1)" pass
+ck "init-$INIT_NAME (busybox ash -n) has no syntax error" "$("$W/busybox-x86_64" ash -n "$I" 2>&1 || echo syntax-error)" ""
+ck "the host selftest passes on init-$INIT_NAME (tests/host/pmic-wdt-v1-init-selftest.sh)" "$(sh "$HERE/tests/host/pmic-wdt-v1-init-selftest.sh" "$I" | cut -d' ' -f1 | tail -n1)" pass
 ck "every init of ours writes the serial walleye-first-boot (check-init-serials.sh)" "$(sh "$HERE/build/check-init-serials.sh" "$HERE/build" >/dev/null 2>&1 && echo yes || echo no)" yes
 pack() { # INIT OUT_XZ
   {
@@ -57,7 +59,7 @@ pack() { # INIT OUT_XZ
 }
 pack "$OLDI" "$T/old.xz"
 ck "packing init-z14 gives z21's ramdisk byte for byte (the packing is the same)" "$(cmp -s "$T/old.xz" "$T/z21/ramdisk" && echo same || echo differs)" same
-pack "$I" "$T/wdt1.xz"
+pack "$I" "$T/$PREFIX.xz"
 # one image
 one() { # NAME KDIR VERSION_PATTERN (a string of the kernel's own "Linux version" line)
   n=$1; k=$2
@@ -76,6 +78,15 @@ one() { # NAME KDIR VERSION_PATTERN (a string of the kernel's own "Linux version
   fdtput -t s "$D" /__symbols__ clock_gcc "$GCC"   # as z3 and every image since: the overlay's clock users must name the real gcc
   ck "$n: clock_gcc is the real gcc in the image dtb" "$(fdtget "$D" /__symbols__ clock_gcc)" "$GCC"
   ck "$n: the PMIC watchdog node is the PM8998 one, enabled" "$(fdtget "$D" /soc@0/spmi@800f000/pmic@0/pon@800/watchdog compatible 2>&1 | head -n1) $(fdtget "$D" /soc@0/spmi@800f000/pmic@0/pon@800/watchdog status 2>&1 | head -n1)" "qcom,pm8998-wdt okay"
+  W=/soc@0/spmi@800f000/pmic@0/pon@800/watchdog
+  if [ -n "${4:-}" ]; then # a property for the watchdog node: its name and its value ("qcom,s2-type 1")
+    ck "$n: the driver of this kernel reads the property it is given ($(set -- $4; echo "$1"))" "$(grep -ac "$(set -- $4; echo "$1")" "$T/kernel-$n" | sed 's/^[1-9][0-9]*$/yes/')" yes
+    ck "$n: the dts did not name the property before (the default stays the driver's)" "$(fdtget "$D" "$W" $(set -- $4; echo "$1") 2>&1 | grep -c 'FDT_ERR_NOTFOUND')" 1
+    fdtput -t u "$D" "$W" $4
+    ck "$n: the property reads back in the image dtb ($4)" "$(fdtget "$D" "$W" $(set -- $4; echo "$1"))" "$(set -- $4; echo "$2")"
+  else
+    ck "$n: the dtb names no S2 type (the driver's default, hard)" "$(fdtget "$D" "$W" qcom,s2-type 2>&1 | grep -c 'FDT_ERR_NOTFOUND')" 1
+  fi
   ck "$n: UFS is off in the dtb" "$(fdtget "$D" /soc@0/ufshc@1da4000 status) $(fdtget "$D" /soc@0/phy@1da7000 status)" "disabled disabled"
   ck "$n: the SoC watchdog (qcom,kpss-wdt) is in the dtb for the petter" "$(fdtget "$D" /soc@0/watchdog@17817000 compatible 2>&1 | head -n1)" qcom,kpss-wdt
   cat "$k/Image.gz" "$D" > "$T/blob-$n"
@@ -83,16 +94,16 @@ one() { # NAME KDIR VERSION_PATTERN (a string of the kernel's own "Linux version
   while IFS= read -r pr; do [ -n "$pr" ] && set -- "$@" --prop "$pr"; done <<EOP
 $(printf '%s\n' "$AV" | sed -n "s/^ *Prop: \([^ ]*\) -> '\(.*\)'$/\1:\2/p")
 EOP
-  IMG=$T/boot-wdt1-$n.img
+  IMG=$T/boot-$PREFIX-$n.img
   mkbootimg --header_version 0 --base 0x0 --kernel_offset "$(field 'kernel load address')" --ramdisk_offset "$(field 'ramdisk load address')" \
     --second_offset 0x0 --tags_offset "$(field 'kernel tags load address')" --pagesize "$(field 'page size')" \
     --os_version "$(field 'os version')" --os_patch_level "$(field 'os patch level')" --cmdline "$NEWCMD" \
-    --kernel "$T/blob-$n" --ramdisk "$T/wdt1.xz" -o "$IMG"
+    --kernel "$T/blob-$n" --ramdisk "$T/$PREFIX.xz" -o "$IMG"
   avbtool add_hash_footer --image "$IMG" --partition_size "$PSIZE" --partition_name boot --algorithm NONE \
     --salt "$(printf '%s\n' "$AV" | sed -n 's/^ *Salt: *//p' | head -n1)" "$@"
   U=$(unpack_bootimg --boot_img "$IMG" --out "$T/u-$n")
   ck "$n: the kernel blob is Image.gz then the dtb, byte for byte" "$(cmp -s "$T/u-$n/kernel" "$T/blob-$n" && echo same || echo differs)" same
-  ck "$n: the ramdisk is wdt1's, byte for byte" "$(cmp -s "$T/u-$n/ramdisk" "$T/wdt1.xz" && echo same || echo differs)" same
+  ck "$n: the ramdisk is $INIT_NAME's, byte for byte" "$(cmp -s "$T/u-$n/ramdisk" "$T/$PREFIX.xz" && echo same || echo differs)" same
   ck "$n: the command line is the new one" "$(printf '%s\n' "$U" | sed -n 's/^command line args: *//p')" "$NEWCMD"
   for h in 'kernel load address' 'ramdisk load address' 'kernel tags load address' 'page size' 'os version' 'os patch level' 'boot image header version'; do
     ck "$n: header $h is z21's" "$(printf '%s\n' "$U" | sed -n "s/^$h: *//p")" "$(field "$h")"
@@ -107,9 +118,9 @@ EOP
     ck "$n: tests/host/$t.sh on the dtb" "$(DTB="$D" QUIET=1 sh "$HERE/tests/host/$t.sh" | tail -n1 | cut -d' ' -f1)" pass
   done
 }
-one a "$KA" "next-20261118"
-one b "$KB" "g8b2283da3"
+one "$NAME_A" "$KA" "$VERSION_A"
+one "$NAME_B" "$KB" "$VERSION_B" "$DTB_PROP_B"
 [ $total -eq 0 ] || { echo "build-pmic-wdt-v1: $total checks failed, nothing written" >&2; exit 1; }
 mkdir -p "$OUT"
-cp "$T/boot-wdt1-a.img" "$T/boot-wdt1-b.img" "$OUT/"
-(cd "$OUT" && sha256sum boot-wdt1-a.img boot-wdt1-b.img | tee SHA256SUMS-wdt1)
+cp "$T/boot-$PREFIX-$NAME_A.img" "$T/boot-$PREFIX-$NAME_B.img" "$OUT/"
+(cd "$OUT" && sha256sum "boot-$PREFIX-$NAME_A.img" "boot-$PREFIX-$NAME_B.img" | tee "SHA256SUMS-$PREFIX")

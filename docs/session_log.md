@@ -4954,3 +4954,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-walleye-builder-pon-bites"></a>
+### Builder: the four PMIC bites as one command, two images and the plumbing
+
+Entry date
+: 2026-11-20
+
+Done
+: Looked around (item, research walleye-wdt-reset-boots-charger-mode-how-it-stands, v1 procedure and plumbing, lpoco-attended 0.39 groups and physical steps). Built a kernel worktree of the shared linux clone at A's commit with a driver patch (qcom,s2-type, hard by default) in $AGENT_BUILD, built it (out-wdt-warm), generalised build-pmic-wdt-v1.sh by env variables (default run reproduces wdt1 a and b byte for byte), wrote init-wdt2 (wider pon-regs, probe for any type, timeout argument; selftest extended for both inits), built wdt2-hard and wdt2-warm (91 checks each run, rebuild identical), wrote bites.rs (11 stand-in tests: cable in with Android back, a dark phone, the bootloader by itself, cable out, the guard on the type, the image names), settings keys and the entry file; research and decision recorded. Programmer subagent review before landing.
+
+Considered
+: Running the cable-out bite with a fixed 20 s timeout (no time to pull the cable: the arm takes a timeout); decoding register bits in the lab (offsets not confirmed on this phone: raw plus a few names from data); one group per whole bite (the dark-phone asks depend on what the lab saw, so the groups are built as the run goes).
+
+Rejected
+: Rebuilding the older six entries on 0.39 here (their own items); naming PON_ON_REASON at a guessed offset; reading the registers only in Android (raw registers need root).
+
+About
+: walleye-pmic-wdt-v1-image

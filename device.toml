@@ -163,6 +163,15 @@ sha256 = "9dfea09637a813fa677449780ac475a3b859e81135a056fadd8811dadc2f40b4"
 path = "images-wdt1-sysfsless/boot-wdt1-b.img"
 sha256 = "15f5e97d1ac4185fd4a3a5dae3b874cd5ee0267e694a4b454f9889d7efefe933"
 
+# The four PMIC bites' pair (item walleye-wdt-pon-bites-procedure): the same kernel and dts as wdt1-a with init-wdt2 (hard, S2 type 0x07), and the same kernel with patch kernel/pmic-wdt-s2-type/ (the driver reads qcom,s2-type, hard by default) and that property set to 1 in the dtb (warm, type 0x01). build-pmic-wdt-v1.sh with INIT_NAME=wdt2 PREFIX=wdt2 NAME_A=hard NAME_B=warm VERSION_B=next-20261118 DTB_PROP_B="qcom,s2-type 1".
+[images.wdt2-hard]
+path = "images-wdt2-bites/boot-wdt2-hard.img"
+sha256 = "e7590705f60247b3303cdc9eda54709eaae2df52f767658c36dacb70e2b9636a"
+
+[images.wdt2-warm]
+path = "images-wdt2-bites/boot-wdt2-warm.img"
+sha256 = "9b3b0394f7c065fffb56f98292008245913643a9be0362e9499ab591a929e549"
+
 # The values only one procedure uses (the procedure's name in lowercase words joined by -).
 [procedures.touch-events-on-z21]
 window = 120                        # seconds the touch reader stays open at most (the phone restarts by itself at 180 s of uptime: cut to what is left)
@@ -221,3 +230,10 @@ sha256 = "b7c827e9a3f55a7ee6e68752430a19bdad2de3262bc22a5cc0379cd3df80df58"
 delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of uptime at which each image's init loads the display modules; an image b-dN must exist for each
 image_prefix = "b-d"                # the images are named PREFIX+delay in [images.*]: b-d5, b-d15 ...; the splash image B-s5 is run with delays = "5" and image_prefix = "b-s" (set both, run, put them back)
 modules = 13                        # the display modules each init loads, each said "walleye-display: ok": a row with fewer says nothing about the signs (the ramdisk's /display-modules.list has this many lines)
+
+[procedures.pmic-wdt-pon-reasons-on-the-pixel-2]
+stay = 60                           # seconds Android must stay up after a bite it came back from by itself (no restart loop)
+bite_wait = 150                     # seconds to see the shell go quiet after the bite is armed (20 s timeout, cable in)
+charger_wait = 60                   # seconds after the bite with no adb and no fastboot before the phone is taken for the charger screen or off
+cable_out_s = 45                    # seconds the bite is armed for when the cable is to come out: the author's time to pull it
+pon_names = "08=PON_REASON1 0a=WARM_RESET_REASON1 0c=POFF_REASON1 c5=POFF_REASON1_GEN2 56=S2_RESET_CTL 57=S2_RESET_CTL2"   # the PON registers (offsets in the block at 0x800) whose names the driver or the downstream qpnp-power-on gives; PON_ON_REASON is not named: its offset is not confirmed on this phone, its candidates are read raw (08..0d, c0..c7)

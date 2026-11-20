@@ -5205,3 +5205,25 @@ Sources
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-pon-reasons-after-a-bite-how-to-read"></a>
+### walleye-pon-reasons-after-a-bite-how-to-read
+
+Date
+: 2026-11-20
+
+Brief
+: After a bite the PON reasons can be read only where the phone first answers; a power press is a power-on that rewrites PON_REASON1, so POFF/WARM_RESET are the ones that can outlive it (not measured)
+
+Question
+: How can the PON registers be read after a PMIC watchdog bite on this phone, before anything resets them: the bootloader's charger screen has no adb, and Android's dmesg after the power press is already a second boot?
+
+Found
+: READ in this session: the driver's own constants (drivers/watchdog/pm8916_wdt.c): POFF_REASON1 is 0x0c (first generation) and 0xc5 (second generation, PM8998), PMIC_WD is its bit 2; the S2 type is the low nibble of 0x56, S2 enable is bit 7 of 0x57; the ramdisk of image A already reads those through the regmap debugfs (pon-regs). RECALLED from the downstream qpnp-power-on driver, NOT re-read: PON_REASON1 at 0x08, WARM_RESET_REASON1 at 0x0a; the offset of PON_ON_REASON on PM8998 is NOT confirmed, so the procedure reads 0x08..0x0d and 0xc0..0xc7 raw and names only 0x08, 0x0a, 0x0c and 0xc5. WHAT READS WHERE: (1) Android by itself (a warm bite may bring it back without a hand): adb gives ro.boot.bootreason and, if adb may read the kernel log, the PMIC's own reason lines; raw registers need root. (2) The bootloader by itself (fastboot lists the phone): our image booted again from memory reads the reason blocks; fastboot boot is a jump, not a PMIC reset (recalled, not measured). (3) The charger screen or an off phone: nothing answers (no adb, no fastboot), so a reading needs a hand: a power press or power+volume down; either is a power-on from off, which rewrites PON_REASON1 with the key: so for a cable-in hard bite PON_REASON1 cannot show the bite, and only the registers that outlive a power-on (POFF_REASON1 and WARM_RESET_REASON1, recalled to persist until the next power-off or warm reset, NOT measured) can. NOT KNOWN YET: which of these holds on this phone, and the PON_ON_REASON offset: the procedure saves every register raw with the path that read it (Android, our image), so the four bites decide it. DECIDED FROM THIS: the lab reads at the first place the phone answers without a hand; it asks the author only for the physical acts of the paths above, and never before it has said what it could see by itself.
+
+Sources
+: qcom-pmic-pon-reset-status,vendor-qpnp-power-on-c,mainline-pm8916-wdt-c,android-bootstat-reasons
+
+About
+: walleye-pmic-wdt-v1-image

@@ -14,6 +14,8 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use std::time::{Duration, Instant};
 
+pub mod bites;
+
 /// The bite's timeout (what wdt-arm sets), and how long past it the phone may keep answering the shell.
 pub const BITE_S: u64 = 20;
 const BITE_SLACK_S: u64 = 25;
@@ -127,6 +129,9 @@ struct Facts {
     /// the image that booted (A, or B when A showed no banner)
     chosen: Option<Image>,
     know: Option<Know>,
+    /// the four bites: the one in hand (its files are named by it) and what the lab saw after it
+    bite: Option<bites::Bite>,
+    seen: Option<bites::Seen>,
     armed_at: Option<Instant>,
     /// what each step learned, written to summary.txt at the end
     notes: Vec<String>,
@@ -139,6 +144,8 @@ pub struct Pmic {
     lab: Lab,
     out: Rc<PathBuf>,
     facts: Rc<RefCell<Facts>>,
+    /// what the two images are called in what the try says: A and B, or hard and warm
+    names: [&'static str; 2],
 }
 
 type Done = Result<(), String>;
@@ -163,6 +170,7 @@ impl Pmic {
             s,
             out: Rc::new(out),
             facts: Rc::default(),
+            names: ["A", "B"],
         }
     }
 
@@ -172,11 +180,15 @@ impl Pmic {
             &*self.out,
             std::os::unix::fs::PermissionsExt::from_mode(0o700),
         );
-        let n = self.facts.borrow().boots;
-        let name = if n > 0 && name != "summary.txt" {
-            format!("b{n}-{name}")
-        } else {
-            name.to_string()
+        let (n, bite) = {
+            let f = self.facts.borrow();
+            (f.boots, f.bite)
+        };
+        // the four bites keep each bite's files apart by its name, the v1 try by the boot's number
+        let name = match bite {
+            Some(b) if name != "summary.txt" => format!("{}-{name}", b.slug()),
+            _ if n > 0 && name != "summary.txt" => format!("b{n}-{name}"),
+            _ => name.to_string(),
         };
         std::fs::write(self.out.join(&name), format!("{text}\n"))
             .map_err(|e| format!("{name}: {e}"))
@@ -218,11 +230,11 @@ impl Pmic {
     fn images(&self) -> [Image; 2] {
         [
             Image {
-                name: "A",
+                name: self.names[0],
                 path: self.s.image_a.clone(),
             },
             Image {
-                name: "B",
+                name: self.names[1],
                 path: self.s.image_b.clone(),
             },
         ]
@@ -529,6 +541,37 @@ impl Pmic {
         }
     }
 
+    /// The shell goes quiet at about the bite: the seconds after the arming it was last answered, or why it never went quiet.
+    fn shell_goes_quiet(&self, armed: Instant) -> Result<u64, String> {
+        let t = self;
+        let secs = |i: Instant| i.duration_since(armed).as_secs();
+        let quiet_by =
+            Instant::now() + Duration::from_secs((BITE_S + BITE_SLACK_S).min(t.s.bite_wait));
+        let lost = loop {
+            let answer = t
+                .lab
+                .shell(2)
+                .and_then(|mut sh| sh.run("cat /proc/uptime", Duration::from_secs(5)));
+            match answer {
+                Err(_) => break secs(Instant::now()),
+                Ok(up) if Instant::now() >= quiet_by => {
+                    return Err(format!(
+                        "no bite: {} s after the arming the phone still answers (uptime {})",
+                        secs(Instant::now()),
+                        up.trim()
+                    ))
+                }
+                Ok(_) => std::thread::sleep(Duration::from_secs(1)),
+            }
+        };
+        if lost < EARLY_S {
+            t.note(format!(
+                "the shell went quiet only {lost} s after the arming, before the bite was due: not proof by itself"
+            ));
+        }
+        Ok(lost)
+    }
+
     /// The phone restarts by itself: the shell goes quiet at about the bite, and the phone is seen again, on a
     /// boot that began after the arming (adb uptime), or in fastboot - never judged from one witness.
     pub fn restarts_by_itself(&self) -> impl FnOnce() -> Done + 'static {
@@ -536,30 +579,7 @@ impl Pmic {
         move || {
             let armed = t.facts.borrow().armed_at.ok_or("the bite was not armed")?;
             let secs = |i: Instant| i.duration_since(armed).as_secs();
-            let quiet_by =
-                Instant::now() + Duration::from_secs((BITE_S + BITE_SLACK_S).min(t.s.bite_wait));
-            let lost = loop {
-                let answer = t
-                    .lab
-                    .shell(2)
-                    .and_then(|mut sh| sh.run("cat /proc/uptime", Duration::from_secs(5)));
-                match answer {
-                    Err(_) => break secs(Instant::now()),
-                    Ok(up) if Instant::now() >= quiet_by => {
-                        return Err(format!(
-                            "no bite: {} s after the arming the phone still answers (uptime {})",
-                            secs(Instant::now()),
-                            up.trim()
-                        ))
-                    }
-                    Ok(_) => std::thread::sleep(Duration::from_secs(1)),
-                }
-            };
-            if lost < EARLY_S {
-                t.note(format!(
-                    "the shell went quiet only {lost} s after the arming, before the bite was due: not proof by itself"
-                ));
-            }
+            let lost = t.shell_goes_quiet(armed)?;
             let until = armed + Duration::from_secs(t.s.bite_wait);
             while Instant::now() < until {
                 let now = secs(Instant::now());
@@ -680,7 +700,7 @@ mod walkthrough {
     use super::*;
     use crate::phone::fake;
 
-    fn lab(name: &str, adb_state: &str) -> PathBuf {
+    pub(super) fn lab(name: &str, adb_state: &str) -> PathBuf {
         let d = std::env::temp_dir().join(format!("wt-pmic-{name}-{}", std::process::id()));
         let hosts = d.join("tests/host");
         std::fs::create_dir_all(&hosts).unwrap();
@@ -746,7 +766,7 @@ mod walkthrough {
         Pmic::new(s)
     }
 
-    fn phone(state: &'static str, bite: &'static str) -> u16 {
+    pub(super) fn phone(state: &'static str, bite: &'static str) -> u16 {
         fake::phone(
             vec![
                 ("wdt-state", state),
@@ -759,9 +779,9 @@ mod walkthrough {
         )
     }
 
-    const STATE_OK: &str = "wdt-state pmic=watchdog1 soc=watchdog0 s2-type=0x07 s2-enabled=no src=x firmware-type=0x01 probe=pmic-device-registered kline-type=[] kline-poff=[]";
+    pub(super) const STATE_OK: &str = "wdt-state pmic=watchdog1 soc=watchdog0 s2-type=0x07 s2-enabled=no src=x firmware-type=0x01 probe=pmic-device-registered kline-type=[] kline-poff=[]";
     const STATE_WARM: &str = "wdt-state pmic=watchdog1 soc=watchdog0 s2-type=0x01 s2-enabled=no src=x firmware-type=0x01 probe=pmic-device-registered kline-type=[] kline-poff=[]";
-    const BITE_OK: &str = "!wdt-arm armed watchdog1 type=0x07 timeout=20 s2-enabled-before=no after=yes hold=90s\nwdt-bite: x; not petted, the bite is due in 20 s";
+    pub(super) const BITE_OK: &str = "!wdt-arm armed watchdog1 type=0x07 timeout=20 s2-enabled-before=no after=yes hold=90s\nwdt-bite: x; not petted, the bite is due in 20 s";
 
     #[test]
     fn the_reboot_test_then_the_bite_pass_and_the_result_is_saved() {

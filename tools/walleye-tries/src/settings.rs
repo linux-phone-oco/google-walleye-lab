@@ -13,6 +13,7 @@
 //! | the images | `[images] dir`, `[images.z21]`, `[images.wdt1-a]`, `[images.wdt1-b]` (`path`, `sha256`) |
 //! | the touch try's values | `[procedures.touch-events-on-z21] window`, `min_window` |
 //! | the PMIC try's values | `[procedures.pmic-watchdog-v1-on-the-pixel-2] stay`, `bite_wait` |
+//! | the four PMIC bites' values | `[images.wdt2-hard]`, `[images.wdt2-warm]` (`path`, `sha256`), `[procedures.pmic-wdt-pon-reasons-on-the-pixel-2] stay`, `bite_wait`, `charger_wait`, `cable_out_s` |
 //! | the display try's values | `[images.l7]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
 //! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item` |
 //! | the display-at-boot try's values | `[images.b2]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules, hold` |
@@ -25,6 +26,7 @@ use std::process::Command;
 /// The procedure names of the tries: the entry files and the `[procedures.NAME]` tables agree on them.
 pub const TOUCH_PROCEDURE: &str = "touch events on z21";
 pub const PMIC_PROCEDURE: &str = "PMIC watchdog v1 on the Pixel 2";
+pub const BITES_PROCEDURE: &str = "PMIC wdt PON reasons on the Pixel 2";
 pub const DISPLAY_PROCEDURE: &str = "display stripes on the Pixel 2";
 pub const DISPLAY_BOOT_PROCEDURE: &str = "display at boot on the Pixel 2";
 pub const UFS_PROCEDURE: &str = "UFS matched image on the Pixel 2";
@@ -35,6 +37,7 @@ pub const DISPLAY_DELAY_PROCEDURE: &str = "display delay bisect on the Pixel 2";
 pub enum Try {
     Touch,
     Pmic,
+    Bites,
     Display,
     DisplayBoot,
     DisplayDelay,
@@ -73,6 +76,11 @@ pub struct Settings {
     pub image_b: PathBuf,
     pub stay: u64,
     pub bite_wait: u64,
+    /// the four bites: seconds with no adb after a bite (cable in) before the phone is taken for the charger screen or off, and the seconds the bite is armed for when the cable is to come out
+    pub charger_wait: u64,
+    pub cable_out_s: u64,
+    /// the PON registers whose meaning is known, by their offset in the PON block (`08=PON_REASON1`): the rest of what is read is said raw
+    pub pon_names: Vec<(String, String)>,
     /// the display try: seconds the drawer holds the stripes, seconds between two module loads
     pub hold: u64,
     pub module_pause: u64,
@@ -170,6 +178,9 @@ impl Settings {
             image_b: PathBuf::new(),
             stay: 0,
             bite_wait: 0,
+            charger_wait: 0,
+            cable_out_s: 0,
+            pon_names: Vec::new(),
             hold: 0,
             module_pause: 0,
             modules: 0,
@@ -194,6 +205,21 @@ impl Settings {
                 s.image_b = image("wdt1-b");
                 s.stay = number("stay", proc("stay"));
                 s.bite_wait = number("bite_wait", proc("bite_wait"));
+            }
+            Try::Bites => {
+                s.image_a = image("wdt2-hard");
+                s.image_b = image("wdt2-warm");
+                s.stay = number("stay", proc("stay"));
+                s.bite_wait = number("bite_wait", proc("bite_wait"));
+                s.charger_wait = number("charger_wait", proc("charger_wait"));
+                s.cable_out_s = number("cable_out_s", proc("cable_out_s"));
+                s.pon_names = proc("pon_names")
+                    .split_whitespace()
+                    .map(|w| match w.split_once('=') {
+                        Some((reg, name)) => (reg.to_ascii_lowercase(), name.to_string()),
+                        None => panic!("pon_names in device.toml is a list of OFFSET=NAME: {w:?}"),
+                    })
+                    .collect();
             }
             Try::Display => {
                 s.image = image("l7");
@@ -268,6 +294,14 @@ impl Settings {
             ("images.z21.path", "boot-z21.img"),
             ("images.wdt1-a.path", "boot-wdt1-a.img"),
             ("images.wdt1-b.path", "boot-wdt1-b.img"),
+            ("images.wdt2-hard.path", "boot-wdt2-hard.img"),
+            ("images.wdt2-warm.path", "boot-wdt2-warm.img"),
+            ("charger_wait", "60"),
+            ("cable_out_s", "45"),
+            (
+                "pon_names",
+                "08=PON_REASON1 0a=WARM_RESET_REASON1 0c=POFF_REASON1 c5=POFF_REASON1_GEN2",
+            ),
             ("boot.device_wait", "170"),
             ("boot.back_wait", "240"),
             ("health.battery_floor_mv", "3700"),
@@ -376,6 +410,7 @@ mod tests {
         for (which, table) in [
             (Try::Touch, TOUCH_PROCEDURE),
             (Try::Pmic, PMIC_PROCEDURE),
+            (Try::Bites, BITES_PROCEDURE),
             (Try::Display, DISPLAY_PROCEDURE),
             (Try::DisplayBoot, DISPLAY_BOOT_PROCEDURE),
             (Try::Ufs, UFS_PROCEDURE),

@@ -1,0 +1,79 @@
+From 69086e5eba7e4eb42ae77fe06030f53a9a45f2ed Mon Sep 17 00:00:00 2001
+From: "walleye-builder.01de63" <idunerg+walleye-builder.01de63@gmail.com>
+Date: Fri, 20 Nov 2026 01:26:36 +0100
+Subject: [PATCH] watchdog: pm8916_wdt: Take the S2 reset type from
+ qcom,s2-type (hard by default)
+
+The driver always sets the hard type (0x07). On a phone with the USB cable
+in, a hard reset power-cycles the PMIC and the bootloader shows its charger
+screen. Let a board choose: the optional property qcom,s2-type, named and
+valued as the downstream PON binding has it (1 warm, 4 shutdown, 7 hard),
+defaults to hard, so every board that does not say stays as it is. Any other
+value fails the probe, and so does a type that does not read back.
+
+A try image of linux-phone-oco (google-walleye-lab, item
+walleye-wdt-pon-bites-procedure), not sent anywhere: the result of the four
+bites decides whether it is.
+
+---
+ drivers/watchdog/pm8916_wdt.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/watchdog/pm8916_wdt.c b/drivers/watchdog/pm8916_wdt.c
+index e88c150b5..8abb09b78 100644
+--- a/drivers/watchdog/pm8916_wdt.c
++++ b/drivers/watchdog/pm8916_wdt.c
+@@ -101,7 +101,7 @@ static int pm8916_wdt_configure_timers(struct watchdog_device *wdev)
+  * left the watchdog running, the type the firmware chose stays, and that
+  * may be a shutdown. Read it back so a type that did not take fails loudly.
+  */
+-static int pm8916_wdt_set_reset_type(struct pm8916_wdt *wdt,
++static int pm8916_wdt_set_reset_type(struct pm8916_wdt *wdt, u32 type,
+ 				     struct device *dev, bool running)
+ {
+ 	unsigned int ctl;
+@@ -124,7 +124,7 @@ static int pm8916_wdt_set_reset_type(struct pm8916_wdt *wdt,
+ 
+ 	err = regmap_update_bits(wdt->regmap,
+ 				 wdt->baseaddr + PON_PMIC_WD_RESET_S2_CTL,
+-				 RESET_TYPE_MASK, RESET_TYPE_HARD);
++				 RESET_TYPE_MASK, type);
+ 	if (err)
+ 		return err;
+ 
+@@ -132,7 +132,7 @@ static int pm8916_wdt_set_reset_type(struct pm8916_wdt *wdt,
+ 			  &ctl);
+ 	if (err)
+ 		return err;
+-	if ((ctl & RESET_TYPE_MASK) != RESET_TYPE_HARD)
++	if ((ctl & RESET_TYPE_MASK) != type)
+ 		return -EIO;
+ 
+ 	if (running) {
+@@ -205,6 +205,7 @@ static int pm8916_wdt_probe(struct platform_device *pdev)
+ 	const struct pm8916_wdt_data *data;
+ 	struct device *parent;
+ 	unsigned int val;
++	u32 type;
+ 	int err, irq;
+ 	u8 poff[2] = { };
+ 
+@@ -275,7 +276,14 @@ static int pm8916_wdt_probe(struct platform_device *pdev)
+ 	if (val & S2_RESET_EN_BIT)
+ 		set_bit(WDOG_HW_RUNNING, &wdt->wdev.status);
+ 
+-	err = pm8916_wdt_set_reset_type(wdt, dev, val & S2_RESET_EN_BIT);
++	/* Hard by default; a board that wants another type says so, as the downstream PON binding does. */
++	type = RESET_TYPE_HARD;
++	device_property_read_u32(dev, "qcom,s2-type", &type);
++	if (type != RESET_TYPE_WARM && type != RESET_TYPE_SHUTDOWN &&
++	    type != RESET_TYPE_HARD)
++		return dev_err_probe(dev, -EINVAL, "bad qcom,s2-type %u\n", type);
++
++	err = pm8916_wdt_set_reset_type(wdt, type, dev, val & S2_RESET_EN_BIT);
+ 	if (err) {
+ 		dev_err(dev, "failed configure watchdog: %d\n", err);
+ 		return err;
+-- 
+2.56.1
+
