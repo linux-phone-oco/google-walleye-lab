@@ -5122,3 +5122,24 @@ Done
 
 Considered
 : next: the stage 1 builds first (decision 2026-11-20), then walleye-display-dts-any-order, walleye-display-look-b2.
+
+---
+
+
+<a id="2026-11-21-walleye-builder-rootfs-v1-hardening"></a>
+### Alpine v1 hardening built
+
+Entry date
+: 2026-11-20
+
+Done
+: Eight hardening fixes in tools/walleye-rootfs, programmer review fixed (directory M: modes, vacuous counts, comments in address scan, command defaults); image rebuilt twice, one new sha256 57cf5fd1; open question on rootfs-boots answered
+
+Considered
+: Pinning the package versions too (rootfs/packages names only): left open, noted in the research row
+
+Rejected
+: Trusting the APKINDEX for apk.static: the pin replaces it
+
+About
+: walleye-display-s6e3fa5

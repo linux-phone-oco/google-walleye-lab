@@ -1,0 +1,5 @@
+# NAME VERSION SHA256 - the two downloads the build runs before apk checks anything (item walleye-install-rootfs-v1-hardening).
+# apk.static installs every other package and checks it against the keys; these two it cannot check, so the build does:
+# a download whose sha256 is not here stops the build. A new Alpine release moves them together (fetch, sha256sum, edit, read the diff).
+apk-tools-static 3.0.9-r0 0a1a0682375f66a83b7b903f6e4638ccfe312547d50d336b5f2be9fc391281be
+alpine-keys 2.6-r0 dd211936d544f4050924ce8aec078d24e7b1b036ae70b30bd07867349587c708

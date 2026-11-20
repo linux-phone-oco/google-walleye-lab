@@ -233,3 +233,10 @@ sha256 = "86d0813a1ae47ab0d33803d4c4d5a1e24df0988aae760d83e0605b584e80596d"
 delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of uptime at which each image's init loads the display modules; an image b-dN must exist for each
 image_prefix = "b-d"                # the images are named PREFIX+delay in [images.*]: b-d5, b-d15 ...; the splash image B-s5 is run with delays = "5" and image_prefix = "b-s" (set both, run, put them back)
 modules = 13                        # the display modules each init loads, each said "walleye-display: ok": a row with fewer says nothing about the signs (the ramdisk's /display-modules.list has this many lines)
+
+# The Alpine hardware-test rootfs v1 (items walleye-install-rootfs-alpine-min, walleye-install-rootfs-v1-hardening): a 1 GiB sparse ext4 built
+# by tools/walleye-rootfs --build now, twice with this one sha256 (apk.static and the keys pinned in rootfs/pins; apk's modes applied, bbsuid 4111, directory modes too).
+# The write command (item walleye-install-write-procedure) takes this sha256. Not booted yet; no authorized ssh key in it.
+[images.alpine-rootfs]
+path = "images-rootfs/walleye-alpine-v1.ext4"
+sha256 = "57cf5fd1425787eaa3399484d449e544057cac862308881069581b232fc89939"
