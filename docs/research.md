@@ -5277,3 +5277,29 @@ Sources
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-install-stock-fstab-wahoo"></a>
+### walleye-install-stock-fstab-wahoo
+
+Date
+: 2026-11-20
+
+Brief
+: Google's wahoo tree (android11-release): stock system is slot-selected with avb, UFS host 1da4000.ufshc, recovery.wipe wipes system/vendor/userdata then boot; supports stage 1; Elixir repartitions
+
+Question
+: What do Google's own fstab.hardware and recovery files say about the stock partitions, mounts and A/B layout, for the install stage?
+
+Found
+: Read 2026-11-20 from android.googlesource.com device/google/wahoo, branch android11-release (commit 5361539c, 2020-09-16; which Android build the phone runs is not known yet, so the match to the phone's build is not checked). Files that exist there: fstab.hardware, fstab.postinstall, init.recovery.hardware.rc, recovery.wipe, init.hardware.rc, init.insmod.sh and others; no proprietary-files lists.
+fstab.hardware: (1) system mounts at / ext4 ro,barrier=1 with fs_mgr flags wait,slotselect,avb: the stock root is the SLOT-SELECTED system partition, checked by AVB, so stage 1's use of system_<other> follows the stock A/B scheme; our rootfs there needs no verity because our initramfs mounts it, not Android's fs_mgr. (2) metadata ext4 noatime,nosuid,nodev,discard,sync formattable. (3) userdata ext4 errors=panic,noatime,nosuid,nodev,barrier=1,noauto_da_alloc, latemount,wait,check,formattable, fileencryption=ice:aes-256-heh (UFS inline crypto), eraseblk=16777216, logicalblk=4096, quota, reservedsize=128M, checkpoint=block: userdata is encrypted by the UFS inline-crypto engine; our image leaves ICE out (decision 2026-11-19-walleye-ufs-match-no-ice-no-linkstartup), so old userdata is unreadable to us and needs no preserving, and the formattable flag means Android re-formats it itself. (4) misc is emmc type, no slot. (5) modem mounts at /firmware vfat ro, slotselect: the modem image is per slot, as our read of modem_b found. (6) The UFS host is soc/1da4000.ufshc, by-name under it: the controller address our dts uses. (7) zram swap 2 GiB, 8 streams. No vendor line: where Android 11 mounts vendor from is not known yet. boot, dtbo and vbmeta are not in the fstab (the bootloader reads them).
+init.recovery.hardware.rc: only waits for /dev/block/platform/soc/${ro.boot.bootdevice}, symlinks it as /dev/block/bootdevice and sets sys.usb.configfs 1: nothing about slots.
+recovery.wipe: Google's own recovery wipes, in order, system_a, system_b, vendor_a, vendor_b, userdata, then boot_a and boot_b last so that all partitions are wiped correctly even if interrupted: Google itself treats these slot partitions as wipeable, boot last, and the way back is Google's public factory image. This supports stage 1 writing system_<other> and stage 2 writing boot_<slot>, and gives the order to keep: never leave a slot with a new boot and no system.
+ELIXIR (ProjectElixir-Devices/device_google_walleye, branch udc, 2024; relayed by the walleye coordinator, its page not read by me): its fstab.hardware and gpt-utils are its own repartitioning; the commit says walleye and taimen require repartitioning and defines product as A/B. That is not the stock layout and not our plan: the stock layout is Google's tree plus our own read-back (walleye-bootchain-readback). REPARTITIONING (a new GPT, a resized userdata or system) is a bigger step than walleye-install-stage-how-it-stands: the bootloader reads the GPT, no way back from a bad table is known, so it needs the author's word, and only then. Its proprietary-firmware.txt lists are for the later firmware step (item walleye-device-config-sources-read). Consequence: the plan is unchanged; stages 1 and 2 stand; a loopback rootfs.img in userdata stays the way to more room without a GPT edit.
+
+Sources
+: src-google-device-wahoo,src-projectelixir-device-google-walleye
+
+About
+: walleye-display-s6e3fa5
