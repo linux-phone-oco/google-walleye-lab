@@ -4915,3 +4915,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-20-delay-bisect-takes-the-image-s-name-prefix"></a>
+### Delay bisect takes the image's name prefix
+
+Entry date
+: 2026-11-20
+
+Done
+: Added image_prefix to the display delay bisect: DelayImage carries its name, settings read images.PREFIX+delay, device.toml records the default b-d; B-s5 runs as delays=5, image_prefix=b-s.
+
+Considered
+: an optional key (dev/proc cannot read a missing key, so the default sits in device.toml)
+
+Rejected
+: a second procedure for the splash image: a copy of the same steps
+
+About
+: walleye-display-s6e3fa5

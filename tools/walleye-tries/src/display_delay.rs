@@ -2,7 +2,7 @@
 //! The display delay bisect's steps (item walleye-display-delay-bisect-build; research walleye-display-b2-dsi-clock-warning): the same
 //! kernel, dtb and modules load at 2 s of uptime with three signs of trouble (SMMU context faults at the bootloader's splash buffer,
 //! `pclk0_clk_src: rcg didn't update its configuration`, DSI commands timing out with -110) and at 66 s with none. One image per delay
-//! (B-d5 ... B-d50: B2 whose init waits the number of seconds in its own /display-delay before the first insmod); this program boots
+//! (b-d5 ... b-d50, or the images `image_prefix` names: B2 whose init waits the number of seconds in its own /display-delay before the first insmod); this program boots
 //! them from memory one after the other and scores the three signs of each from the kernel log. Nothing is written to the phone and
 //! nobody is asked: the glass is not looked at, the console and the log are read (decision 2026-11-19-walleye-display-console-before-eyes).
 //! Each method is one step of procedures/display-delay-bisect-on-the-pixel-2.rs.
@@ -138,7 +138,7 @@ pub fn summary(rows: &[Row]) -> String {
             "no delay shows a sign: the signs did not appear at any of these delays".into()
         }
         (Some(d), _) => {
-            format!("the signs stop at a delay of {d} s: every image from B-d{d} on is clean")
+            format!("the signs stop at a delay of {d} s: every delay from {d} s on is clean")
         }
         (None, _) => {
             "no single flip point: the clean rows are not all after the rows with signs".into()
@@ -191,7 +191,7 @@ impl DisplayDelay {
             for i in &d.s.delay_images {
                 crate::host::image_is_the_built_one(&i.path)
                     .and_then(|_| crate::host::image_has_sha256(&i.path, &i.sha256))
-                    .map_err(|e| format!("B-d{}: {e}", i.delay))?;
+                    .map_err(|e| format!("{}: {e}", i.name))?;
             }
             Ok(())
         }
@@ -204,7 +204,7 @@ impl DisplayDelay {
             for i in &d.s.delay_images {
                 d.lab
                     .ufs_is_off(&i.path)
-                    .map_err(|e| format!("B-d{}: {e}", i.delay))?;
+                    .map_err(|e| format!("{}: {e}", i.name))?;
             }
             Ok(())
         }
@@ -236,8 +236,9 @@ impl DisplayDelay {
             let said = sh.run("cat /display-delay", Duration::from_secs(10))?;
             if said.trim() != delay.to_string() {
                 return Err(format!(
-                    "the image says its delay is {:?}, not {delay}: it is not B-d{delay}",
-                    said.trim()
+                    "the image says its delay is {:?}, not {delay}: it is not {}",
+                    said.trim(),
+                    d.image(delay)?.name
                 ));
             }
             Ok(())
@@ -269,6 +270,7 @@ impl DisplayDelay {
                     std::thread::sleep(Duration::from_secs(2));
                 }
             };
+            let name = d.image(delay)?.name;
             d.lab.save(&format!("dmesg-d{delay}.txt"), &dmesg)?;
             let reached = row.reached.ok_or(format!(
                 "the init never said 'delay {delay} s reached': the image's init is not the delay init"
@@ -279,7 +281,7 @@ impl DisplayDelay {
                 ));
             }
             println!(
-                "  B-d{delay}: loaded at {reached} s; SMMU faults {}, rcg warnings {}, DSI -110 {}; {} of {} modules ok{}",
+                "  {name}: loaded at {reached} s; SMMU faults {}, rcg warnings {}, DSI -110 {}; {} of {} modules ok{}",
                 row.smmu_faults,
                 row.rcg_warnings,
                 row.dsi_110,
@@ -467,6 +469,28 @@ mod tests {
     }
 
     #[test]
+    fn an_image_prefix_names_the_splash_image_at_five_seconds() {
+        let base = |k: &str| match k {
+            "images.dir" => "images".to_string(),
+            "images.b-s5.path" => "boot-b-s5.img".into(),
+            "images.b-s5.sha256" => "5b5b".into(),
+            "boot.device_wait" | "boot.back_wait" | "health.battery_floor_mv" => "5".into(),
+            "connection.shell_port" => "23".into(),
+            "delays" => "5".into(),
+            "image_prefix" => "b-s".into(),
+            "modules" => "13".into(),
+            _ => "x".into(),
+        };
+        let s = Settings::read(Try::DisplayDelay, &base, &base);
+        assert_eq!(s.delay_images.len(), 1);
+        assert_eq!(s.delay_images[0].name, "b-s5");
+        assert_eq!(s.delay_images[0].path, s.lab.join("images/boot-b-s5.img"));
+        assert_eq!(s.delay_images[0].sha256, "5b5b");
+        let d = Settings::stand_in(Try::DisplayDelay);
+        assert_eq!(d.delay_images[0].name, "b-d5");
+    }
+
+    #[test]
     fn the_settings_name_an_image_for_every_delay() {
         let s = Settings::stand_in(Try::DisplayDelay);
         assert_eq!(s.delays, vec![5, 15, 25, 35, 50]);
@@ -569,7 +593,7 @@ mod tests {
             );
             (right.shell_answers_and_the_image_has_its_delay(35))().unwrap();
             let e = (right.shell_answers_and_the_image_has_its_delay(5))().unwrap_err();
-            assert!(e.contains("is not B-d5"), "{e}");
+            assert!(e.contains("is not b-d5"), "{e}");
         }
 
         #[test]

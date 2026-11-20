@@ -6,7 +6,7 @@
 //! does not depend on the shell. For each, in a row: the phone to fastboot, the image from memory (nothing flashed), the shell answering with
 //! the image's own delay, the kernel log read once the init says it is through the list and the three signs counted (SMMU context faults,
 //! `rcg didn't update its configuration`, DSI -110), the way back to Android. At the end the result table (delay, faults, warnings, -110) is
-//! kept in ~/lab-material/walleye/display-delay-DAY/table.txt and said in the log. NO person step: nobody is asked, the glass is not looked at.
+//! kept in ~/lab-material/walleye/display-delay-PREFIX-DAY/table.txt (PREFIX: b-d, or the image_prefix) and said in the log. NO person step: nobody is asked, the glass is not looked at.
 //! A stop ends with the way back to Android (the watching parent).
 //!   procedures/display-delay-bisect-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
 //!
