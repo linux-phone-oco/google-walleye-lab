@@ -8621,99 +8621,6 @@ Witness
 : person
 
 
-<a id="walleye-install-slot-readback"></a>
-### Read back boot, dtbo, vbmeta, misc, system, vendor of both slots over adb root as files with sha256 (the way back of the install); read the current slot first
-
-Status
-: open
-
-Note
-: Read only, over adb root, as the boot-chain read-back (tests/host/bootchain-readback.sh with slot-parts.list). Files mode 600 in ~/lab-material/walleye, never git. About 3 GiB twice. Unblocks the install stage. From research walleye-install-stage-how-it-stands.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: phone
-
-Proof
-: tests/host/slot-readback-check.sh DIR DIR2 passes on two reads of the same bytes (fails now: no DIR); fastboot getvar current-slot recorded
-
-Rank
-: 3
-
-
-<a id="walleye-install-write-rootfs"></a>
-### Write the rootfs image to the unused slot's system partition from Android over adb root; read it back and compare sha256
-
-Status
-: open
-
-Note
-: ~1 keeper-h. Way back: dd the stored system read-back. The Android slot is not touched.
-
-Waits
-: the author's yes to writing the unused slot's system partition
-
-Blocked by
-: walleye-install-slot-readback,walleye-install-rootfs-debian-min
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: phone
-
-Proof
-: the partition's read-back sha256 equals the image's; slot-readback-check on a fresh read still passes for every other partition; battery-ok.sh passed first
-
-Rank
-: 6
-
-Witness
-: person
-
-
-<a id="walleye-install-rootfs-boots-try"></a>
-### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
-
-Status
-: open
-
-Note
-: 2-3 tries, ~3 keeper-h. The phone returns to Android by reboot; end state recorded with idle-android.sh.
-
-Waits
-: the author's UFS-on go for the image
-
-Blocked by
-: walleye-install-write-rootfs,walleye-install-ufs-root-image
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: phone
-
-Proof
-: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
-
-Rank
-: 7
-
-Witness
-: person
-
-
 <a id="walleye-install-flash-boot"></a>
 ### Stage 2: fastboot flash boot of the unused slot with our image and set_active; the phone starts Linux by itself; the fall back to Android proven
 
@@ -8913,6 +8820,106 @@ Rank
 : 5
 
 
+<a id="walleye-install-write-procedure"></a>
+### Writing the Alpine image to the unused slot's system partition as ONE command: procedures/install-rootfs-on-the-pixel-2.rs, tested everywhere but the write
+
+Status
+: open
+
+Note
+: From the author's stage 1 yes (decision 2026-11-20-walleye-install-stage-1-go): the write goes from Android with a sha256 of the partition read back after the write. His rule: attend only when one command away, tests first. Item walleye-install-write-rootfs runs it.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: procedures/install-rootfs-on-the-pixel-2.rs on the current lpoco-attended, entry file one screen, keys at the top of main from device.toml: battery rule; the phone on Android over adb root; fastboot getvar current-slot read and the OTHER slot named (the write goes only to system_<other>; refuses on any doubt: the read-back backup of that slot missing or its sha256 not matching a fresh read, the slot Android runs from, a partition name that is not system_a or system_b); the image's sha256 against the one declared in device.toml; the write from Android (dd from a staged copy to the by-name device, nothing else), then the partition READ BACK and its sha256 equal to the image's (padding handled); the other slot's partitions re-read and unchanged (slot-readback-check); the way back (dd the stored read-back of that partition, or leave it: Android's own slot is untouched) on any stop; dry-run, lpoco-attended check --host, stand-in tests with a loop file as the partition, clippy, fmt, review; the prompt text the Top Coordinator shows the author for his go: one command, what it writes, where, how long, the way back; NOT run on the phone until the image exists and the Top Coordinator brings it
+
+Rank
+: 5
+
+
+<a id="walleye-install-boot-procedure"></a>
+### The read-only UFS-on boot of our kernel on the Alpine root as ONE command: procedures/rootfs-boots-on-the-pixel-2.rs, tested everywhere but the boot
+
+Status
+: open
+
+Note
+: From the author's stage 1 yes (decision 2026-11-20-walleye-install-stage-1-go), step 4. Item walleye-install-rootfs-boots-try runs it.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: procedures/rootfs-boots-on-the-pixel-2.rs on the current lpoco-attended (a variation of ufs-matched-image-on-the-pixel-2.rs: the UFS-on exception only through the go item, never a bypass), keys at the top of main: gates (battery, the UFS gate's exception only with the go marker, image sha), fastboot boot of the UFS-root image from RAM (item walleye-install-ufs-root-image), the gadget up, the root partition mounted read-only with the tmpfs overlay (nodiscard, no write to the card: the proof reads mount options and /proc/mounts), ssh login over usb-network and the health suite (docs step rootfs-boots), the GPT and the bootchain read-back check against the stored set unchanged, the way back to Android on any stop (also an unanswered ask), idle-android, both slots' flags unchanged; dry-run, check --host, stand-in tests, clippy, fmt, review; the prompt text for the author's go; NOT booted on the phone until the image and the written root exist
+
+Rank
+: 6
+
+
+<a id="walleye-install-slot-readback"></a>
+### Read back boot, dtbo, vbmeta, misc, system, vendor of both slots over adb root as files with sha256 (the way back of the install); read the current slot first
+
+Status
+: open
+
+Note
+: Read only, over adb root, as the boot-chain read-back (tests/host/bootchain-readback.sh with slot-parts.list). Files mode 600 in ~/lab-material/walleye, never git. About 3 GiB twice. Unblocks the install stage. From research walleye-install-stage-how-it-stands. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: phone
+
+Proof
+: tests/host/slot-readback-check.sh DIR DIR2 passes on two reads of the same bytes (fails now: no DIR); fastboot getvar current-slot recorded
+
+Rank
+: 3
+
+
+<a id="walleye-install-ufs-root-image"></a>
+### Build the UFS-root kernel and initramfs: root = the unused slot's system partition, read-only with a tmpfs overlay, ext4 nodiscard, purge guard kept; never booted without the author's UFS go
+
+Status
+: open
+
+Note
+: ~4 agent-h. Based on the matched UFS image. The ufs sd probe and ext4 must be built in. Stage 1 of decision 2026-11-20-walleye-install-in-stages-proposed. 2026-11-20 (coordinator): the rootfs is Alpine minimal (walleye-install-rootfs-alpine-min); the initramfs is our own, no mkinitfs; the chroot test uses the Alpine image when it exists, a loop-made test rootfs until then. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. This image is the UFS-on boot of step 4: never booted by a keeper except through the go item and the one command of walleye-install-boot-procedure.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: a host check that the image passes the UFS-gate with the go marker, the initramfs mounts a loop-made test rootfs read-only in a chroot test, and the rebuild is identical
+
+Rank
+: 4
+
+
 <a id="walleye-install-rootfs-alpine-min"></a>
 ### Build a minimal Alpine arm64 rootfs, the hardware-test layer, under 2.5 GiB: getty on tty and ttyGS0, sshd over usb-network, the Qualcomm services the steps need, lpoco-health; no UI, no firmware, no phone shell
 
@@ -8920,10 +8927,7 @@ Status
 : open
 
 Note
-: From the author's distro word (decision 2026-11-20-walleye-distro-alpine-minimal): plain Alpine, minimal, hardware-test layer. Replaces the dropped Debian item. About 3 agent-h. Look around first for how pmbootstrap and Alpine make an aarch64 rootfs without installing debootstrap (alpine-minirootfs tarball plus apk.static --root --initdb, scripts that need the target run under qemu-user or are skipped): fewer host installs is better. An open point for the builder to put to the Top Coordinator: the author said 'no shells at all, just tty' and the layer has getty on the tty and ttyGS0 and sshd for the lab; whether a login getty on the tty is wanted or only the console log is not known yet: build the getty and sshd as the Top Coordinator listed them and say the question in the research row. Stage 1 of decision 2026-11-20-walleye-install-in-stages-proposed.
-
-Waits
-: the author's yes to the host tools the build needs (apk-tools-static from Alpine, qemu-user-static if a chroot step needs it; the builder names exactly what, with versions and where they come from), and to Alpine minimal as the first image (taken: decision 2026-11-20-walleye-distro-alpine-minimal; the stages still wait on his yes)
+: From the author's distro word (decision 2026-11-20-walleye-distro-alpine-minimal): plain Alpine, minimal, hardware-test layer. Replaces the dropped Debian item. About 3 agent-h. Look around first for how pmbootstrap and Alpine make an aarch64 rootfs without installing debootstrap (alpine-minirootfs tarball plus apk.static --root --initdb, scripts that need the target run under qemu-user or are skipped): fewer host installs is better. Stage 1 of decision 2026-11-20-walleye-install-in-stages-proposed. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. HOST TOOLS (the Top Coordinator): install them through the lab machine's own declarations (lab-machine: lpoco host prepare and lab.toml), not by hand; STOP on any root command and say it, so the author's hands do it. GETTY READING CLOSED (Top Coordinator, 2026-11-20): 'shell' in this project is a phone UI shell (sxmo, phosh, Plasma Mobile), not a command shell; 'just tty' is a text console with a login, so a getty login on the tty and on ttyGS0 plus sshd is what he wants; keep the list as built.
 
 About
 : walleye-display-s6e3fa5
@@ -8941,14 +8945,20 @@ Rank
 : 5
 
 
-<a id="walleye-install-ufs-root-image"></a>
-### Build the UFS-root kernel and initramfs: root = the unused slot's system partition, read-only with a tmpfs overlay, ext4 nodiscard, purge guard kept; never booted without the author's UFS go
+<a id="walleye-install-write-rootfs"></a>
+### Write the rootfs image to the unused slot's system partition from Android over adb root; read it back and compare sha256
 
 Status
 : open
 
 Note
-: ~4 agent-h. Based on the matched UFS image. The ufs sd probe and ext4 must be built in. Stage 1 of decision 2026-11-20-walleye-install-in-stages-proposed. 2026-11-20 (coordinator): the rootfs is Alpine minimal (walleye-install-rootfs-alpine-min); the initramfs is our own, no mkinitfs; the chroot test uses the Alpine image when it exists, a loop-made test rootfs until then.
+: ~1 keeper-h. Way back: dd the stored system read-back. The Android slot is not touched. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. The write goes from Android, with the partition's sha256 read back after it. Read fastboot getvar current-slot first; the write goes only to the other slot's system partition.
+
+Waits
+: the one command walleye-install-write-procedure built and tested, the Alpine image built, and the Top Coordinator bringing it: the author's yes is given (decision 2026-11-20-walleye-install-stage-1-go), the run is not a keeper's to start before
+
+Blocked by
+: walleye-install-slot-readback,walleye-install-rootfs-alpine-min,walleye-install-write-procedure
 
 About
 : walleye-display-s6e3fa5
@@ -8957,10 +8967,47 @@ Opened
 : 2026-11-20
 
 Needs
-: build
+: phone
 
 Proof
-: a host check that the image passes the UFS-gate with the go marker, the initramfs mounts a loop-made test rootfs read-only in a chroot test, and the rebuild is identical
+: the partition's read-back sha256 equals the image's; slot-readback-check on a fresh read still passes for every other partition; battery-ok.sh passed first
 
 Rank
-: 4
+: 6
+
+Witness
+: person
+
+
+<a id="walleye-install-rootfs-boots-try"></a>
+### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
+
+Status
+: open
+
+Note
+: 2-3 tries, ~3 keeper-h. The phone returns to Android by reboot; end state recorded with idle-android.sh. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback.
+
+Waits
+: the one command walleye-install-boot-procedure built and tested, the root written, and the Top Coordinator bringing it: the author's go is given for step 4 (decision 2026-11-20-walleye-install-stage-1-go)
+
+Blocked by
+: walleye-install-write-rootfs,walleye-install-ufs-root-image,walleye-install-boot-procedure
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: phone
+
+Proof
+: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
+
+Rank
+: 7
+
+Witness
+: person
