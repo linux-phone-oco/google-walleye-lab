@@ -222,6 +222,13 @@ sha256 = "b7c827e9a3f55a7ee6e68752430a19bdad2de3262bc22a5cc0379cd3df80df58"
 path = "images-display-reset/boot-b-r5.img"
 sha256 = "6dc0239e93b4f4b3a01aa1fd3c308aa5208d16f9545b900bfcc38f1ea70904d8"
 
+# The registers image B-q5 (item walleye-display-scanout-registers): B-d5 whose init also reads the DPU, interface, pingpong and DSI registers with devmem (read only) at 4, 10 and 30 s and says them to the kernel log
+# (build/build-display-regs-image.sh; kernel, dtb, command line, header words, size and the 5 s delay are B-d5's). Run: delays = "5" and image_prefix = "b-q" (set both, run, put them back); the run waits for
+# the init's "registers: done" and keeps regs-d5.txt (the register table, which registers change between the samples) beside dmesg-d5.txt in the lab's material.
+[images.b-q5]
+path = "images-display-regs/boot-b-q5.img"
+sha256 = "86d0813a1ae47ab0d33803d4c4d5a1e24df0988aae760d83e0605b584e80596d"
+
 [procedures.display-delay-bisect-on-the-pixel-2]
 delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of uptime at which each image's init loads the display modules; an image b-dN must exist for each
 image_prefix = "b-d"                # the images are named PREFIX+delay in [images.*]: b-d5, b-d15 ...; the splash image B-s5 is run with delays = "5" and image_prefix = "b-s" (set both, run, put them back)

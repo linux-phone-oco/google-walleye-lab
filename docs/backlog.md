@@ -8879,7 +8879,7 @@ Opened
 : 2026-11-20
 
 Needs
-: build
+: phone
 
 Proof
 : a research row with the register table at 5 s and 30 s (CTL, INTF, pingpong autorefresh, DSI status) and the register that changes
