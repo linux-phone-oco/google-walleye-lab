@@ -8434,62 +8434,6 @@ Rank
 : 2
 
 
-<a id="walleye-wdt-pon-bites-procedure"></a>
-### The four PMIC bites as one command: procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs (S2 type 0x07 and 0x01, cable in and out), the PON registers read after each
-
-Status
-: open
-
-Note
-: WHY (2026-11-20): research walleye-wdt-reset-boots-charger-mode-how-it-stands read (not measured) that S2 type 0x07 (hard) power-cycles the PMIC, so with USB in the power-on reason is the cable and the bootloader shows its charging screen; the firmware had left S2 at 0x01 (warm); lean: try 0x01. The experiment is item walleye-wdt-bite-pon-reasons-read, but the author's rule (2026-11-19, relayed by the Top Coordinator) is: ask him to attend only when everything is prepared one launch sequence away, with the test sequences written as a rust-script or similar and tested before asking. So the sequence is built and tested here first; the phone item waits on this one (blocked_by). The entry file reads like a plain procedure. Related: z9 (before patch 1) powered OFF while the firmware type read 0x1: the procedure's first bite (0x07, cable in) reproduces the charger screen; the 0x01 bites may power the phone off as z9 did: the way back then needs the power press (a physical step; never leave the phone parked).
-
-About
-: walleye-pmic-wdt-v1-image
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: image B = image A with the S2 reset type 0x01 (the way the series' reset-type hook allows: a DT property or the module's parameter, the smallest; UFS-off gate and AVB pass, rebuild identical, review) and procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs on the current lpoco-attended, keys at the top of main (device.toml [procedures.*], [images.*]), one screen of entry file; four bites as step groups (0x07 cable in, 0x07 cable out, 0x01 cable in, 0x01 cable out), each: battery rule, arm, bite, then the PON registers (PON_REASON1, PON_ON_REASON, POFF_REASON1, WARM_RESET_REASON1) read BEFORE anything resets them, then the way back to Android; a research row first says how the registers can be read after a bite on this phone (the bootloader's charger screen has no adb: what reads them? Android's dmesg after the power press is already a second boot) and the procedure follows it; the lab decides every part it can without the author (no adb within N s after the bite with the cable in = charger screen or off; adb up by itself = Android came back); the author is asked only for the physical steps (the cable moves, the power press, the look at the cable-in screen) and only through the lpoco-attended physical steps; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; then a keeper's unattended run of every part that needs nobody, ending at the first physical ask with 'nobody answered' and the phone back on Android BY ITS OWN WAY BACK; the answer file path printed
-
-Rank
-: 3
-
-
-<a id="walleye-wdt-bite-pon-reasons-read"></a>
-### Read the PON registers after a bite, cable in and cable out, with S2 type 0x07 then 0x01
-
-Status
-: open
-
-Note
-: From research walleye-wdt-reset-boots-charger-mode-how-it-stands. Includes the optional item walleye-wdt-bite-cable-out (its 0x07 cable-out bite is one of the four; close that one when this is done). Keeper: four bites, one at a time, battery rule first: 0x07 cable in (reproduce: charger screen), 0x07 cable out, 0x01 cable in, 0x01 cable out; read the PON registers in the next boot's first line before anything resets them; the author is needed only for the cable-in view of the screen (the PON registers and adb's boot reason answer the rest). 0x01 may power the phone off as z9 did: then it needs its power press; never leave it parked. 2026-11-20 (coordinator): not yet one command away: the four bites are not scripted, image B (S2 type 0x01) does not exist and how the PON registers are read after a bite on this phone is not settled. Item walleye-wdt-pon-bites-procedure builds the one command first; this item (rank 3 again when it lands) runs it. The author is called only after a keeper's unattended run proved every part that needs nobody. The result of the cable-out 0x07 bite goes to the upstreams coordinator (local_ab8f8562) for the v1 cover letter.
-
-Blocked by
-: walleye-wdt-pon-bites-procedure
-
-About
-: walleye-pmic-wdt-v1-image
-
-Opened
-: 2026-11-19
-
-Needs
-: phone
-
-Proof
-: a research row superseding walleye-wdt-reset-boots-charger-mode-how-it-stands with PON_REASON1, PON_ON_REASON, POFF_REASON1 and WARM_RESET_REASON1 read after each bite (pmic-watchdog-v1 procedure plus tests/host/pmic-wdt-pon-regs-banner.sh), and whether Android came up by itself with the cable in for type 0x01
-
-Rank
-: 30
-
-Witness
-: person
-
-
 <a id="walleye-wdt-bite-cable-out"></a>
 ### Optional: the PMIC bite once more with the USB cable OUT, to see a plain restart; the author's call
 
@@ -8591,3 +8535,59 @@ Proof
 
 Rank
 : 10
+
+
+<a id="walleye-wdt-pon-bites-procedure"></a>
+### The four PMIC bites as one command: procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs (S2 type 0x07 and 0x01, cable in and out), the PON registers read after each
+
+Status
+: open
+
+Note
+: WHY (2026-11-20): research walleye-wdt-reset-boots-charger-mode-how-it-stands read (not measured) that S2 type 0x07 (hard) power-cycles the PMIC, so with USB in the power-on reason is the cable and the bootloader shows its charging screen; the firmware had left S2 at 0x01 (warm); lean: try 0x01. The experiment is item walleye-wdt-bite-pon-reasons-read, but the author's rule (2026-11-19, relayed by the Top Coordinator) is: ask him to attend only when everything is prepared one launch sequence away, with the test sequences written as a rust-script or similar and tested before asking. So the sequence is built and tested here first; the phone item waits on this one (blocked_by). The entry file reads like a plain procedure. Related: z9 (before patch 1) powered OFF while the firmware type read 0x1: the procedure's first bite (0x07, cable in) reproduces the charger screen; the 0x01 bites may power the phone off as z9 did: the way back then needs the power press (a physical step; never leave the phone parked). UPSTREAMS CALL (2026-11-20): v1 keeps the hard type 0x07 (the mainline driver sets hard reset for every PMIC it serves; a warm type would change boards we cannot test). If 0x01 restarts cleanly with the cable in, that becomes its own later patch, probably a DT property choosing the reset type with hard as the default. So build image B the way such a property would work (a DT property on the PMIC watchdog node read by the driver, hard by default), not as a hard-coded second constant, so the try proves the shape that would be sent.
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: image B = image A with the S2 reset type 0x01 (the way the series' reset-type hook allows: a DT property or the module's parameter, the smallest; UFS-off gate and AVB pass, rebuild identical, review) and procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs on the current lpoco-attended, keys at the top of main (device.toml [procedures.*], [images.*]), one screen of entry file; four bites as step groups (0x07 cable in, 0x07 cable out, 0x01 cable in, 0x01 cable out), each: battery rule, arm, bite, then the PON registers (PON_REASON1, PON_ON_REASON, POFF_REASON1, WARM_RESET_REASON1) read BEFORE anything resets them, then the way back to Android; a research row first says how the registers can be read after a bite on this phone (the bootloader's charger screen has no adb: what reads them? Android's dmesg after the power press is already a second boot) and the procedure follows it; the lab decides every part it can without the author (no adb within N s after the bite with the cable in = charger screen or off; adb up by itself = Android came back); the author is asked only for the physical steps (the cable moves, the power press, the look at the cable-in screen) and only through the lpoco-attended physical steps; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; then a keeper's unattended run of every part that needs nobody, ending at the first physical ask with 'nobody answered' and the phone back on Android BY ITS OWN WAY BACK; the answer file path printed
+
+Rank
+: 3
+
+
+<a id="walleye-wdt-bite-pon-reasons-read"></a>
+### Read the PON registers after a bite, cable in and cable out, with S2 type 0x07 then 0x01
+
+Status
+: open
+
+Note
+: From research walleye-wdt-reset-boots-charger-mode-how-it-stands. Includes the optional item walleye-wdt-bite-cable-out (its 0x07 cable-out bite is one of the four; close that one when this is done). Keeper: four bites, one at a time, battery rule first: 0x07 cable in (reproduce: charger screen), 0x07 cable out, 0x01 cable in, 0x01 cable out; read the PON registers in the next boot's first line before anything resets them; the author is needed only for the cable-in view of the screen (the PON registers and adb's boot reason answer the rest). 0x01 may power the phone off as z9 did: then it needs its power press; never leave it parked. 2026-11-20 (coordinator): not yet one command away: the four bites are not scripted, image B (S2 type 0x01) does not exist and how the PON registers are read after a bite on this phone is not settled. Item walleye-wdt-pon-bites-procedure builds the one command first; this item (rank 3 again when it lands) runs it. The author is called only after a keeper's unattended run proved every part that needs nobody. The result of the cable-out 0x07 bite goes to the upstreams coordinator (local_ab8f8562) for the v1 cover letter. UPSTREAMS (2026-11-20): v1 keeps 0x07; the result is re-checked against v1 by the upstreams coordinator (local_ab8f8562). The result row says in one line, even unexplained, that z9 (before patch 1) powered the phone OFF while the firmware type read 0x1.
+
+Blocked by
+: walleye-wdt-pon-bites-procedure
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-20
+
+Needs
+: phone
+
+Proof
+: a research row superseding walleye-wdt-reset-boots-charger-mode-how-it-stands with PON_REASON1, PON_ON_REASON, POFF_REASON1 and WARM_RESET_REASON1 read after each bite (pmic-watchdog-v1 procedure plus tests/host/pmic-wdt-pon-regs-banner.sh), and whether Android came up by itself with the cable in for type 0x01
+
+Rank
+: 30
+
+Witness
+: person
