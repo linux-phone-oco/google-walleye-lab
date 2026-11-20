@@ -8356,31 +8356,6 @@ Rank
 : 10
 
 
-<a id="walleye-wdt-pon-bites-procedure"></a>
-### The four PMIC bites as one command: procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs (S2 type 0x07 and 0x01, cable in and out), the PON registers read after each
-
-Status
-: open
-
-Note
-: WHY (2026-11-20): research walleye-wdt-reset-boots-charger-mode-how-it-stands read (not measured) that S2 type 0x07 (hard) power-cycles the PMIC, so with USB in the power-on reason is the cable and the bootloader shows its charging screen; the firmware had left S2 at 0x01 (warm); lean: try 0x01. The experiment is item walleye-wdt-bite-pon-reasons-read, but the author's rule (2026-11-19, relayed by the Top Coordinator) is: ask him to attend only when everything is prepared one launch sequence away, with the test sequences written as a rust-script or similar and tested before asking. So the sequence is built and tested here first; the phone item waits on this one (blocked_by). The entry file reads like a plain procedure. Related: z9 (before patch 1) powered OFF while the firmware type read 0x1: the procedure's first bite (0x07, cable in) reproduces the charger screen; the 0x01 bites may power the phone off as z9 did: the way back then needs the power press (a physical step; never leave the phone parked). UPSTREAMS CALL (2026-11-20): v1 keeps the hard type 0x07 (the mainline driver sets hard reset for every PMIC it serves; a warm type would change boards we cannot test). If 0x01 restarts cleanly with the cable in, that becomes its own later patch, probably a DT property choosing the reset type with hard as the default. So build image B the way such a property would work (a DT property on the PMIC watchdog node read by the driver, hard by default), not as a hard-coded second constant, so the try proves the shape that would be sent.
-
-About
-: walleye-pmic-wdt-v1-image
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: image B = image A with the S2 reset type 0x01 (the way the series' reset-type hook allows: a DT property or the module's parameter, the smallest; UFS-off gate and AVB pass, rebuild identical, review) and procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs on the current lpoco-attended, keys at the top of main (device.toml [procedures.*], [images.*]), one screen of entry file; four bites as step groups (0x07 cable in, 0x07 cable out, 0x01 cable in, 0x01 cable out), each: battery rule, arm, bite, then the PON registers (PON_REASON1, PON_ON_REASON, POFF_REASON1, WARM_RESET_REASON1) read BEFORE anything resets them, then the way back to Android; a research row first says how the registers can be read after a bite on this phone (the bootloader's charger screen has no adb: what reads them? Android's dmesg after the power press is already a second boot) and the procedure follows it; the lab decides every part it can without the author (no adb within N s after the bite with the cable in = charger screen or off; adb up by itself = Android came back); the author is asked only for the physical steps (the cable moves, the power press, the look at the cable-in screen) and only through the lpoco-attended physical steps; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; then a keeper's unattended run of every part that needs nobody, ending at the first physical ask with 'nobody answered' and the phone back on Android BY ITS OWN WAY BACK; the answer file path printed
-
-Rank
-: 3
-
-
 <a id="walleye-wdt-bite-pon-reasons-read"></a>
 ### Read the PON registers after a bite, cable in and cable out, with S2 type 0x07 then 0x01
 
@@ -8491,31 +8466,6 @@ Proof
 
 Rank
 : 5
-
-
-<a id="walleye-declare-transport-login"></a>
-### Declare [connection] transport and login = none in device.toml and drop our own helpers for what the library then does (read_dmesg, back_to_known_good, phone(), boot_once)
-
-Status
-: open
-
-Note
-: Orchestration's answer to walleye's notes (2026-11-19): it ends the 'password file needed' false claim at its root and the library-steps-need-a-login gap. Until it lands the keepers' start reads phone-state.sh for walleye (phone-keeper.md already says so). UPDATE 2026-11-20 (orchestration, lab-tools #305 and #306): lpoco-attended 0.38.0 reads [connection] transport = ssh|telnet|adb and login = password|none; with login = none, lpoco lab suite says 'not applicable' instead of asking a password; 0.38.1 makes an unanswered prompt without a terminal wait 300 s on the answer file by default (an explicit --answer-limit stays valid). The follow timer installs 0.38.1 when both phones are free. DO NOW: declare transport and login = none in device.toml and check that suite latest says 'not applicable'. NEXT SLICE (orchestration): boot_once by fastboot and the attended steps over the transport: dropping our own helpers (read_dmesg, back_to_known_good, phone(), boot_once) waits for it; leave the item open for that half. UPDATE 2026-11-20 (orchestration, lab-tools #308, v0.39.0): [kernels] boot = "fastboot" makes boot_once boot the [images.NAME] image by 'devlab fastboot boot now' and wait [boot] device_wait s for the [[host.gadget]] usb_id, with no login; back_to_known_good reboots under the declared transport; read_dmesg and phone() go through it. NOT YET: the image's sha256 is not checked before booting (next lab-tools run, first), the gadget is matched by vendor:product only, and the phone must already be in fastboot. So: declare it and use the library's boot_once, back_to_known_good, read_dmesg and phone() where they fit, but KEEP our own checksum gate (the UFS-off gate and the image sha) until the sha check lands; the helpers that only do the checksum stay until then. The follow timer installs the new version when both phones are free.
-
-About
-: walleye-attend-program-display
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: device.toml declares transport (telnet for our test images, adb for Android) and login = none; lpoco lab suite latest says 'not applicable' and exits clean on walleye; the procedures use the library's read_dmesg, back_to_known_good and boot_once where they fit and tools/walleye-tries shrinks accordingly; dry-run, check --host and stand-in tests pass; the keeper brief's 'suite latest' no longer yields a 'password' line in any hand-over
-
-Rank
-: 4
 
 
 <a id="walleye-display-look-b2"></a>
@@ -8672,3 +8622,53 @@ Needs
 
 Rank
 : 2
+
+
+<a id="walleye-wdt-pon-bites-procedure"></a>
+### The four PMIC bites as one command: procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs (S2 type 0x07 and 0x01, cable in and out), the PON registers read after each
+
+Status
+: in-progress
+
+Note
+: PARKED, NOT LANDED (2026-11-20, author's gentle pause): the build is whole on branch walleye-wdt-pon-bites-procedure (commit after 43f1090; fetch it from origin) but the programmer review found 3 blockers to fix before landing: (1) look_for in the dark-phone group: any answer but 'ok' stops the run and loses the observation: make the check text 'ok once you have looked' or drop it; (2) the_host_lost_the_phone passes after the bite already fired with the cable in: fail when armed.elapsed() >= bite_seconds, and print cable_out_s in the CABLE_OUT prompt; (3) a warm bite can run as hard when the PON registers do not read (probe trusts any type; the patch ignores device_property_read_u32's result): dev_dbg the chosen type in the patch and require that line in bite_type_reads when registers are unread, or fail the probe on an unreadable property. Also fix: after the author forces a reset the 'by itself' labels and reason.txt are false (record the intervention; keep the first seen.txt); charger_wait 60 is measured from the shell loss: use about 150 s from arming; comments claiming the registers are read before anything resets them and that fastboot boot is not a reset must say not known yet; pon_names uses gen1 offsets on a PM8998: disclaim; rename W in build-pmic-wdt-v1.sh one(); stale text in init-wdt2 (banner 'wdt1', 'seven', usage); tests should assert the command lines sent (wdt-bite 1 read 20, 7 read 45). The images wdt2-hard e7590705 and wdt2-warm 9b3b0394 are built in ~/Projects/walleye-build/images-wdt2-bites; fixing the patch changes the warm image (rebuild: kernel tree $AGENT_BUILD/k-wdt-warm of the shared linux clone, build/build-kernel.sh with EXTRA_CONFIG=build/walleye-wdt.config, then build-pmic-wdt-v1.sh with INIT_NAME=wdt2 PREFIX=wdt2 NAME_A=hard NAME_B=warm VERSION_B=next-20261118 DTB_PROP_B='qcom,s2-type 1'; update the sha256 in device.toml). Then land, and the keeper runs it unattended. Needs: phone (keeper), after the fixes. BRANCH: origin/walleye-wdt-pon-bites-procedure (4b83994), pushed, not landed, the pause 2026-11-20 at the author's word.
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: image B = image A with the S2 reset type 0x01 (the way the series' reset-type hook allows: a DT property or the module's parameter, the smallest; UFS-off gate and AVB pass, rebuild identical, review) and procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs on the current lpoco-attended, keys at the top of main (device.toml [procedures.*], [images.*]), one screen of entry file; four bites as step groups (0x07 cable in, 0x07 cable out, 0x01 cable in, 0x01 cable out), each: battery rule, arm, bite, then the PON registers (PON_REASON1, PON_ON_REASON, POFF_REASON1, WARM_RESET_REASON1) read BEFORE anything resets them, then the way back to Android; a research row first says how the registers can be read after a bite on this phone (the bootloader's charger screen has no adb: what reads them? Android's dmesg after the power press is already a second boot) and the procedure follows it; the lab decides every part it can without the author (no adb within N s after the bite with the cable in = charger screen or off; adb up by itself = Android came back); the author is asked only for the physical steps (the cable moves, the power press, the look at the cable-in screen) and only through the lpoco-attended physical steps; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; then a keeper's unattended run of every part that needs nobody, ending at the first physical ask with 'nobody answered' and the phone back on Android BY ITS OWN WAY BACK; the answer file path printed
+
+Rank
+: 3
+
+
+<a id="walleye-declare-transport-login"></a>
+### Declare [connection] transport and login = none in device.toml and drop our own helpers for what the library then does (read_dmesg, back_to_known_good, phone(), boot_once)
+
+Status
+: open
+
+Note
+: Orchestration's answer to walleye's notes (2026-11-19): it ends the 'password file needed' false claim at its root and the library-steps-need-a-login gap. Until it lands the keepers' start reads phone-state.sh for walleye (phone-keeper.md already says so). UPDATE 2026-11-20 (orchestration, lab-tools #305 and #306): lpoco-attended 0.38.0 reads [connection] transport = ssh|telnet|adb and login = password|none; with login = none, lpoco lab suite says 'not applicable' instead of asking a password; 0.38.1 makes an unanswered prompt without a terminal wait 300 s on the answer file by default (an explicit --answer-limit stays valid). The follow timer installs 0.38.1 when both phones are free. DO NOW: declare transport and login = none in device.toml and check that suite latest says 'not applicable'. NEXT SLICE (orchestration): boot_once by fastboot and the attended steps over the transport: dropping our own helpers (read_dmesg, back_to_known_good, phone(), boot_once) waits for it; leave the item open for that half. UPDATE 2026-11-20 (orchestration, lab-tools #308, v0.39.0): [kernels] boot = "fastboot" makes boot_once boot the [images.NAME] image by 'devlab fastboot boot now' and wait [boot] device_wait s for the [[host.gadget]] usb_id, with no login; back_to_known_good reboots under the declared transport; read_dmesg and phone() go through it. NOT YET: the image's sha256 is not checked before booting (next lab-tools run, first), the gadget is matched by vendor:product only, and the phone must already be in fastboot. So: declare it and use the library's boot_once, back_to_known_good, read_dmesg and phone() where they fit, but KEEP our own checksum gate (the UFS-off gate and the image sha) until the sha check lands; the helpers that only do the checksum stay until then. The follow timer installs the new version when both phones are free. UPDATE 2026-11-20 (orchestration, lab-tools #310, v0.39.1): boot_once on a fastboot device refuses an [images.NAME] image whose sha256 differs from the declared one (path, found, declared; boots nothing; an unreadable image also stops it) and matches the gadget by the serial of the [[host.gadget]] that carries the usb_id. So: declare every image's sha256 in device.toml, then our checksum-only helpers go; KEEP the UFS-off gate (it is ours).
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: device.toml declares transport (telnet for our test images, adb for Android) and login = none; lpoco lab suite latest says 'not applicable' and exits clean on walleye; the procedures use the library's read_dmesg, back_to_known_good and boot_once where they fit and tools/walleye-tries shrinks accordingly; dry-run, check --host and stand-in tests pass; the keeper brief's 'suite latest' no longer yields a 'password' line in any hand-over
+
+Rank
+: 4
