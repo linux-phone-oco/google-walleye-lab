@@ -8992,10 +8992,10 @@ Rank
 ### Build a minimal Alpine arm64 rootfs, the hardware-test layer, under 2.5 GiB: getty on tty and ttyGS0, sshd over usb-network, the Qualcomm services the steps need, lpoco-health; no UI, no firmware, no phone shell
 
 Status
-: open
+: done
 
 Note
-: From the author's distro word (decision 2026-11-20-walleye-distro-alpine-minimal): plain Alpine, minimal, hardware-test layer. Replaces the dropped Debian item. About 3 agent-h. Look around first for how pmbootstrap and Alpine make an aarch64 rootfs without installing debootstrap (alpine-minirootfs tarball plus apk.static --root --initdb, scripts that need the target run under qemu-user or are skipped): fewer host installs is better. Stage 1 of decision 2026-11-20-walleye-install-in-stages-proposed. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. HOST TOOLS (the Top Coordinator): install them through the lab machine's own declarations (lab-machine: lpoco host prepare and lab.toml), not by hand; STOP on any root command and say it, so the author's hands do it. GETTY READING CLOSED (Top Coordinator, 2026-11-20): 'shell' in this project is a phone UI shell (sxmo, phosh, Plasma Mobile), not a command shell; 'just tty' is a text console with a login, so a getty login on the tty and on ttyGS0 plus sshd is what he wants; keep the list as built. 2026-11-20 (coordinator): rank 2: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time. 2026-11-20 (coordinator, on the builder's look-around, PR 664): Alpine 3.24 builds with no root and no qemu (56 packages, 24 MiB): good, that is fewer host installs. Two parts leave v1 so the image is not held: (1) pd-mapper is in no Alpine repo (postmarketOS carries it): item walleye-install-rootfs-pd-mapper, a static build from the upstream source, due when the remoteproc steps need it; (2) lpoco-health needs an aarch64 Rust std and the host has x86_64 only: item walleye-install-rootfs-health-binary. First check whether the suite for the step rootfs-boots needs lpoco-health ON the phone at all, or runs from the lab over ssh: if it runs from the lab, v1 is enough for stage 1. NEXT BUILDER RUN: the rootfs config (inittab with getty on tty0 and ttyGS0, OpenRC links, the gadget unit), the image and its host check.
+: v1 built 2026-11-20 by walleye-builder, reviewed: tools/walleye-rootfs --build now; two builds one sha256 89f543ebd4642c135af3ddcba25f37e1372ef505bb351afd598373fb83b45b54; 43 checks ok (research walleye-alpine-rootfs-v1-built, with the review findings still open). Image ~/Projects/walleye-build/images-rootfs/walleye-alpine.ext4. Open: ssh key (walleye-install-rootfs-lab-key); not in v1: pd-mapper, lpoco-health.
 
 About
 : walleye-display-s6e3fa5
@@ -9086,3 +9086,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-install-rootfs-lab-key"></a>
+### Give the Alpine image the lab machine's ssh key: a key pair for root on the phone over usb-network, then rebuild with --authorized-key
+
+Status
+: open
+
+Note
+: None exists on the lab machine (~/.ssh holds only known_hosts). The builder does not create an identity: the coordinator or the author names the key (or says make one, mode 600, private part never in a repository). Then: tools/walleye-rootfs --build now --repo . --authorized-key PUBKEY, new sha256 into the install items. The consoles log in without it; stage 1's step 4 'log in over usb-network' needs it.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: walleye-rootfs --check prints 'root's authorized_keys is in the image', two builds same sha256
+
+Rank
+: 2

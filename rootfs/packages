@@ -1,0 +1,13 @@
+# The packages of the Pixel 2's hardware-test layer (item walleye-install-rootfs-alpine-min, decision 2026-11-20-walleye-distro-alpine-minimal).
+# One per line. NOT here, on purpose: any UI (sxmo, phosh, plasma), any firmware package, pd-mapper (in no Alpine repo: item
+# walleye-install-rootfs-pd-mapper), lpoco-health (item walleye-install-rootfs-health-binary).
+alpine-base
+openssh
+agetty
+qrtr
+rmtfs
+rmtfs-openrc
+tqftpserv
+tqftpserv-openrc
+e2fsprogs
+busybox-extras
