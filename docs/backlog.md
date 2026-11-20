@@ -8465,87 +8465,6 @@ Rank
 : 2
 
 
-<a id="walleye-display-scanout-registers"></a>
-### Read the live scan-out's DPU registers at 5 s and 30 s from the shell (read only), to see what stops near 25 s
-
-Status
-: open
-
-Note
-: devmem of 0x0c901000.. while mdss clocks are on (clk_ignore_unused). A read with a gated clock can hang the bus: RAM boot, the watcher reboots. Image: B-d5's ramdisk plus a devmem script, nothing else. Keeper tries it after B-r5 or with it.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: a research row with the register table at 5 s and 30 s (CTL, INTF, pingpong autorefresh, DSI status) and the register that changes
-
-Rank
-: 3
-
-
-<a id="walleye-display-handover-driver"></a>
-### If the dts alone leaves the SMMU faults at 2 s: dpu disables pingpong autorefresh and waits idle before msm attaches its domain; send upstream
-
-Status
-: open
-
-Note
-: Only when the splash-region try still shows faults. Goes into our linux fork and upstream as an item. 2026-11-20 (coordinator): its premise is now true (B-s5 still faults: research walleye-display-splash-try-signs-stay). 2026-11-20 (research): research walleye-display-handover-how-others-found names the way: first reset the MDSS block at probe (item walleye-display-reset-image, decision 2026-11-20-walleye-display-handover-reset-first); this item builds the dpu/DSI quiesce before msm attaches only if that leaves the signs. No mainline patch does it; the 2019 Andersson/Hugo RFC is nearest.
-
-Blocked by
-: walleye-display-reset-image
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: display-boot-clean
-
-Rank
-: 3
-
-
-<a id="walleye-display-dts-any-order"></a>
-### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
-
-Status
-: open
-
-Note
-: 2026-11-20 (coordinator): the splash-region dts is done (PR 632) and is not enough alone (B-s5 tried); this item follows the handover and puts the dts fixes and the autoload together. 2026-11-20 (research): the dts fix to try is resets = <&mmcc MDSS_BCR> on mdss (item walleye-display-reset-image); if it works alone this item can follow it directly.
-
-Blocked by
-: walleye-display-handover-driver
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: display-boot-clean
-
-Rank
-: 4
-
-
 <a id="walleye-display-handover-how-others"></a>
 ### Why the reserved splash did not stop the SMMU faults at 6 s, and how other msm platforms hand the bootloader's scan-out over to the msm driver
 
@@ -8939,3 +8858,84 @@ Proof
 
 Rank
 : 25
+
+
+<a id="walleye-display-dts-any-order"></a>
+### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
+
+Status
+: open
+
+Note
+: 2026-11-20 (coordinator): B-r5 at 5 s is CLEAN: smmu 0, rcg 0, dsi -110 0, 13 of 13 (keeper, PR 657, research walleye-display-reset-image-b-r5-tried-signs-vanish): the MDSS reset is the handover (decision 2026-11-20-walleye-display-handover-reset-first stands). NOT measured: 2 s (display at boot) and another load order, and the glass was not looked at. So this item builds those images and then the keeper's try; it no longer waits on walleye-display-handover-driver. Rank 2 (the top build).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: the display at boot, in any load order: (1) the board dts carries resets = <&mmcc MDSS_BCR> on the mdss node in the form it would go upstream (an msm8998.dtsi patch for the reset property, and the board dts without any lab hack), tests/host/dtb-display-reset.sh passes on its dtb; (2) images that load the display modules EARLY on purpose: B-r2 (the same as B-r5 at 2 s, the earliest the init could load them), and one with the modules loaded in another order than L6/L7's (any order); declared in device.toml [images.*] with the sha256; (3) the keeper's unattended delay-bisect table at 2 s and in the other order: smmu_faults, rcg_warnings, dsi_110 all 0 and 13 of 13 modules ok (display-boot-clean); (4) the step display-boots-any-order marked from that run; the author's look is a later item (walleye-display-look-b2)
+
+Rank
+: 2
+
+
+<a id="walleye-display-handover-driver"></a>
+### If the dts alone leaves the SMMU faults at 2 s: dpu disables pingpong autorefresh and waits idle before msm attaches its domain; send upstream
+
+Status
+: open
+
+Note
+: Only when the splash-region try still shows faults. Goes into our linux fork and upstream as an item. 2026-11-20 (coordinator): its premise is now true (B-s5 still faults: research walleye-display-splash-try-signs-stay). 2026-11-20 (research): research walleye-display-handover-how-others-found names the way: first reset the MDSS block at probe (item walleye-display-reset-image, decision 2026-11-20-walleye-display-handover-reset-first); this item builds the dpu/DSI quiesce before msm attaches only if that leaves the signs. No mainline patch does it; the 2019 Andersson/Hugo RFC is nearest. 2026-11-20 (coordinator): B-r5 at 5 s is clean with the reset alone (research walleye-display-reset-image-b-r5-tried-signs-vanish): this driver work is not needed unless the 2 s try says otherwise.
+
+Waits
+: only if the 2 s or any-order try of walleye-display-dts-any-order still shows the signs; the reset at 5 s is clean already
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: display-boot-clean
+
+Rank
+: 30
+
+
+<a id="walleye-display-scanout-registers"></a>
+### Read the live scan-out's DPU registers at 5 s and 30 s from the shell (read only), to see what stops near 25 s
+
+Status
+: open
+
+Note
+: devmem of 0x0c901000.. while mdss clocks are on (clk_ignore_unused). A read with a gated clock can hang the bus: RAM boot, the watcher reboots. Image: B-d5's ramdisk plus a devmem script, nothing else. Keeper tries it after B-r5 or with it. 2026-11-20 (coordinator): rank 30: B-r5 cleared the signs at 5 s, so the register read is not on the path.
+
+Waits
+: only if the reset leaves signs at 2 s (item walleye-display-dts-any-order): the reset is the handover, what stops the scan-out near 25 s is a question for later
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-20
+
+Needs
+: build
+
+Proof
+: a research row with the register table at 5 s and 30 s (CTL, INTF, pingpong autorefresh, DSI status) and the register that changes
+
+Rank
+: 30
