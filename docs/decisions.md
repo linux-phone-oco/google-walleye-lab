@@ -2651,3 +2651,37 @@ Scope
 
 Tracked by
 : walleye-install-slot-readback
+
+
+<a id="2026-11-20-walleye-distro-alpine-minimal"></a>
+### 2026-11-20-walleye-distro-alpine-minimal
+
+Date
+: 2026-11-20
+
+Brief
+: The Pixel 2's first installed system is plain Alpine, minimal, as the hardware-test layer: no Debian, no Nura, no UI, no phone shell
+
+Decision
+: The rootfs of install stage 1 is Alpine (apk, OpenRC, musl), minimal: getty on the tty (the display console) and on ttyGS0, sshd over the usb-network gadget, the Qualcomm services the steps need (qrtr, rmtfs, pd-mapper, tqftpserv when a step needs them; ModemManager later), and lpoco-health. No sxmo, no phosh, no UI. Its package list follows decision 2026-11-19-hardware-test-layer (docs): the hardware tests run with no phone shell as the product; the shell and UI are later layers. No firmware or modem data inside the image (it stays on the phone). The kernel is ours; the initramfs is ours (no mkinitfs, Alpine's or any). The stages and their yeses are unchanged and still wait for the author (decision 2026-11-20-walleye-install-in-stages-proposed).
+
+Why
+: The author, "ye, alpine sounds reasonable(no nura, if we dont loose anything by giving nura up. if its alpine upstream, why use nura at all ?)" and "we were planning to use no shells at all, just tty, why we bringup hardware side" (the author, 2026-11-20, relayed by the Top Coordinator). Recorded reasons (Top Coordinator): Nura's ports do not cover walleye; sxmo, phosh, qrtr, rmtfs, pd-mapper, tqftpserv and ModemManager are all packaged in Alpine; postmarketOS refuses AI-assisted contributions, so 'upstream' for this lane means Alpine and mainline. What we give up by leaving Nura: its pmbootstrap device-package route and a ready phone UI, which this stage does not use. The cost: an initramfs of our own (we already have one from the matched image) instead of mkinitfs.
+
+Rejected
+: Debian minimal (the research's recommendation, research walleye-install-stage-how-it-stands: debootstrap and qemu-user-static, smallest effort for ssh; the author chose Alpine because it is where the upstream work goes); Nura / postmarketOS first (no walleye port, a device package nobody wrote, pmbootstrap not installed, and postmarketOS refuses AI-assisted contributions); a UI or shell image at this stage (sxmo, phosh: the author's 'no shells at all, just tty' while the hardware is brought up); Alpine's mkinitfs (our initramfs mounts the UFS root read-only with a tmpfs overlay already, item walleye-install-ufs-root-image).
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-install-stage-how-it-stands
+
+Amends
+: 2026-11-20-walleye-install-in-stages-proposed
+
+Scope
+: walleye lane: builder (rootfs image), keeper; the Debian item is dropped
+
+Tracked by
+: walleye-install-rootfs-alpine-min
