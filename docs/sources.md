@@ -1249,3 +1249,55 @@ Url
 
 Takes
 : Android maps bootloader reasons such as hard_rst, usb_chg, kpdpwr, pmic_watchdog, cold,charger; sys.boot.reason is Android's reading, not the PON register
+
+
+<a id="lkml-arm-smmu-qcom-read-back-stream-mappings"></a>
+### iommu/arm-smmu-qcom: Read back stream mappings (v5 2/3)
+
+Url
+: https://lkml.iu.edu/hypermail/linux/kernel/2010.2/02870.html
+
+Author
+: Bjorn Andersson
+
+Year
+: 2020
+
+Takes
+: the bootloader's valid SMRs are kept as BYPASS across the SMMU reset (commit 07a7f2caaa5a); only until a device attaches a translating domain
+
+
+<a id="lkml-arm-smmu-handoff-smr-rfc"></a>
+### iommu: arm-smmu: Handoff SMR registers and context banks (RFC)
+
+Url
+: https://lkml.iu.edu/1906.1/05055.html
+
+Author
+: Bjorn Andersson, Jeffrey Hugo
+
+Year
+: 2019
+
+Takes
+: the same failure as ours (framebuffer works until the display driver attaches, then context faults); idea of pre-installing handover translations in the context bank; not merged
+
+
+<a id="mainline-dts-oneplus5-pixel3-splash"></a>
+### mainline dts at v7.3: msm8998-oneplus-common, sdm845-oneplus-common, sdm845-google-common/crosshatch, msm8998-fxtec-pro1
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/arm64/boot/dts/qcom
+
+Takes
+: OnePlus 5/5T keep simplefb and do not enable mdss; Pixel 3 crosshatch disables mdss/dispcc so simple-framebuffer keeps working; no msm8998 board runs msm over a live splash
+
+
+<a id="v73-arm-smmu-qcom-msm-iommu-source"></a>
+### v7.3 source: arm-smmu-qcom.c, msm_iommu.c, msm_kms.c, iommu.c, msm_mdss.c, mmcc-msm8998.c
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers
+
+Takes
+: msm8998 smmu takes qcom_smmu_cfg_probe; msm attaches its own paging domain (no direct mappings); msm_mdss_reset exists and MDSS_BCR is registered in mmcc-msm8998
