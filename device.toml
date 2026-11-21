@@ -13,6 +13,8 @@ user = "user"                      # the phone's user
 addresses = ["172.16.43.1"]   # walleye's own USB-networking address: surya answers on 172.16.42.1 on the same host
 shell_address = "172.16.43.1"      # the shell's address as dev() reads it (a list cannot be read): the same as addresses[0]
 shell_port = 23
+transport = "telnet"               # our test images answer over telnet on the USB-networking address; an Android boot would be "adb" (lab-tools 0.38.0)
+login = "none"                     # no password exists on walleye: lpoco lab suite says "not applicable" (decision walleye-declare-transport-login)
 
 [provision]
 packages = "provision/packages.txt"   # installed on a freshly flashed phone: lpoco lab provision now

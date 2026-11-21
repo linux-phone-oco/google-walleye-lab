@@ -5224,3 +5224,24 @@ Considered
 
 About
 : walleye-ufs-match-android-z
+
+---
+
+
+<a id="2026-11-21-walleye-declare-transport-login"></a>
+### walleye declares transport and login
+
+Entry date
+: 2026-11-21
+
+Done
+: device.toml [connection] now has transport = telnet and login = none; lpoco lab suite latest says 'not applicable' instead of 'no password', manifest check reads the file. CI's lpoco-attended pin raised to 0.41.0 to read the fields. Item stays in progress for the helper-dropping half.
+
+Considered
+: transport = adb: that is for Android boots, ours are test images on telnet.
+
+Rejected
+: dropping the helpers in tools/walleye-tries in this change: it changes how tries boot the phone and needs a keeper-run proof, so a builder who never touches the phone leaves it queued.
+
+About
+: walleye-attend-program-display
