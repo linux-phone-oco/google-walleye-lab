@@ -251,3 +251,10 @@ sha256 = "57ea715200ee68430d5417ae30334ae774eaef9028621209e10a1778e193de75"
 [images.alpine-rootfs-v1-no-key]
 path = "images-rootfs/walleye-alpine-v1.ext4"
 sha256 = "57cf5fd1425787eaa3399484d449e544057cac862308881069581b232fc89939"
+
+# Install stage 1 (item walleye-install-write-procedure; decision 2026-11-20-walleye-install-stage-1-go): the Alpine image [images.alpine-rootfs] written from Android to the
+# system partition of the slot Android is NOT on. The slot is read at the run (fastboot getvar current-slot, equal to adb's ro.boot.slot_suffix), never typed here.
+[procedures.install-rootfs-on-the-pixel-2]
+backup = "~/lab-material/walleye/slot-readback-2026-11-20-2"   # the slots' read-back (the way back): tests/host/slot-readback-check.sh must pass on it, and the target partition read fresh must equal its sha256
+stage_dir = "/data/local/tmp"                                  # where on the phone the image is staged before the one dd (removed after)
+by_name = "/dev/block/by-name"                                 # the phone's partition names: the write goes to by_name/system_a or system_b, nothing else

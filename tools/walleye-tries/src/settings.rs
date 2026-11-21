@@ -15,6 +15,7 @@
 //! | the PMIC try's values | `[procedures.pmic-watchdog-v1-on-the-pixel-2] stay`, `bite_wait` |
 //! | the display try's values | `[images.l7]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
 //! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item`, `lun`, `load_mb`, `load_limit`, `luns` |
+//! | the install write's values | `[images.alpine-rootfs]` (`path`, `sha256`), `[procedures.install-rootfs-on-the-pixel-2]` `backup`, `stage_dir`, `by_name` |
 //! | the display-at-boot try's values | `[images.b2]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules, hold` |
 //! | the display delay bisect's values | `[images.b-d5]` ... `[images.b-d50]` (or the images `image_prefix` names: `b-s` and delays 5 give `[images.b-s5]`) (`path`, `sha256`), `[procedures.display-delay-bisect-on-the-pixel-2] delays`, `image_prefix`, `modules` |
 
@@ -29,6 +30,7 @@ pub const DISPLAY_PROCEDURE: &str = "display stripes on the Pixel 2";
 pub const DISPLAY_BOOT_PROCEDURE: &str = "display at boot on the Pixel 2";
 pub const UFS_PROCEDURE: &str = "UFS matched image on the Pixel 2";
 pub const DISPLAY_DELAY_PROCEDURE: &str = "display delay bisect on the Pixel 2";
+pub const INSTALL_PROCEDURE: &str = "install rootfs on the Pixel 2";
 
 /// Which try the settings are read for: each reads only its own procedure's values and images.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -39,6 +41,7 @@ pub enum Try {
     DisplayBoot,
     DisplayDelay,
     Ufs,
+    Install,
 }
 
 /// One image of the delay bisect: the seconds of uptime its init waits, its file and the sha256 `device.toml` records.
@@ -91,6 +94,11 @@ pub struct Settings {
     pub load_mb: u64,
     pub load_limit: u64,
     pub luns: u64,
+    /// the install write: the folder of the slots' read-back (the way back), the folder on the phone the image is staged in,
+    /// the folder of the phone's partition names
+    pub backup: PathBuf,
+    pub stage_dir: String,
+    pub by_name: String,
     /// where a try saves what it reads when a test named one, by the try's name
     pub out_given: Option<PathBuf>,
     pub day: String,
@@ -128,6 +136,13 @@ impl Settings {
     /// The UFS try's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_ufs() -> Settings {
         Settings::read(Try::Ufs, &|k| dev(k).to_string(), &|k| proc(k).to_string())
+    }
+
+    /// The install write's settings, read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_install() -> Settings {
+        Settings::read(Try::Install, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
     }
 
     /// The PMIC try's settings, read from the device's `device.toml` (call after `procedure(...)`).
@@ -188,6 +203,9 @@ impl Settings {
             load_mb: 0,
             load_limit: 0,
             luns: 0,
+            backup: PathBuf::new(),
+            stage_dir: String::new(),
+            by_name: String::new(),
             out_given: None,
             day: today(),
         };
@@ -230,6 +248,18 @@ impl Settings {
                     "load_mb, load_limit and luns in device.toml are at least 1"
                 );
                 s.out = s.out_dir("ufs");
+            }
+            Try::Install => {
+                s.image = image("alpine-rootfs");
+                s.image_sha256 = dev("images.alpine-rootfs.sha256");
+                s.backup = home_path(&proc("backup"));
+                s.stage_dir = proc("stage_dir");
+                s.by_name = proc("by_name");
+                assert!(
+                    s.stage_dir.starts_with('/') && s.by_name.starts_with('/'),
+                    "stage_dir and by_name in device.toml are absolute paths on the phone"
+                );
+                s.out = s.out_dir("install");
             }
             Try::DisplayBoot => {
                 s.image = image("b2");
@@ -334,6 +364,11 @@ impl Settings {
             ("load_mb", "4"),
             ("load_limit", "20"),
             ("luns", "6"),
+            ("images.alpine-rootfs.path", "images-rootfs/rootfs.ext4"),
+            ("images.alpine-rootfs.sha256", "a1b2"),
+            ("backup", "~/backup"),
+            ("stage_dir", "/data/local/tmp"),
+            ("by_name", "/dev/block/by-name"),
         ]
         .into_iter()
         .collect();
@@ -413,6 +448,7 @@ mod tests {
             (Try::DisplayBoot, DISPLAY_BOOT_PROCEDURE),
             (Try::Ufs, UFS_PROCEDURE),
             (Try::DisplayDelay, DISPLAY_DELAY_PROCEDURE),
+            (Try::Install, INSTALL_PROCEDURE),
         ] {
             let name: Vec<String> = table
                 .split(|c: char| !c.is_ascii_alphanumeric())

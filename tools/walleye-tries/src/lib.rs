@@ -9,6 +9,7 @@ pub mod display_delay;
 #[cfg(test)]
 mod fixture;
 pub mod host;
+pub mod install;
 pub mod lab;
 pub mod phone;
 pub mod pmic;

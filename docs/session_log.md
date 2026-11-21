@@ -5266,3 +5266,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-21-install-write-procedure-built"></a>
+### Install write procedure built
+
+Entry date
+: 2026-11-21
+
+Done
+: procedures/install-rootfs-on-the-pixel-2.rs and tools/walleye-tries install.rs: 17 stand-in tests (loop files), review fixes, device.toml section.
+
+Considered
+: Re-run after a partial write recognises 'target already reads back as the image' (review finding 4): not built, a re-run refuses and says why; Ctrl-C leaving an orphan adb dd (finding 5): the way back does not check for a running dd, the keeper should look before trusting it.
+
+Rejected
+: Automatic restore; lpoco-attended 0.42.
+
+About
+: walleye-display-s6e3fa5

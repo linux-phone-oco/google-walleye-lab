@@ -9070,10 +9070,10 @@ Rank
 ### Writing the Alpine image to the unused slot's system partition as ONE command: procedures/install-rootfs-on-the-pixel-2.rs, tested everywhere but the write
 
 Status
-: open
+: done
 
 Note
-: From the author's stage 1 yes (decision 2026-11-20-walleye-install-stage-1-go): the write goes from Android with a sha256 of the partition read back after the write. His rule: attend only when one command away, tests first. Item walleye-install-write-rootfs runs it. 2026-11-20 (coordinator): rank 4: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time. 2026-11-21 (keeper, PR 669): adb ro.boot.slot_suffix _b and fastboot getvar current-slot b agree: Android runs from slot b, the other slot is a, so stage 1 writes system_a. The command still reads both itself and refuses on any doubt (the slot name is read, never typed). 2026-11-21 (coordinator): rank 2.
+: Built and landed 2026-11-21: procedures/install-rootfs-on-the-pixel-2.rs; 173 walleye-tries tests with a loop file as the partition, clippy and fmt clean, --dry-run and lpoco-attended check --host ok, reviewed. NOT run on the phone. Two things only the phone shows, for the first run (the keeper's item walleye-install-write-rootfs, after the Top Coordinator brings the author's go): that Android's toybox dd accepts conv=fsync,notrunc (a stop before any write if not: try the flags on a file in /data/local/tmp first), and that misc reads equal across the fastboot visit. The prompt text for the author is printed by the program's step 4 (install::expect).
 
 About
 : walleye-display-s6e3fa5
