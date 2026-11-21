@@ -9167,3 +9167,31 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-install-write-rehearsal"></a>
+### Rehearse the stage 1 write for real, up to but not including the dd: the slot read, the image staged, the target compared with its backup, the toybox dd proof on a temp file
+
+Status
+: open
+
+Note
+: The author's yes for stage 1 step 3 is given (decision 2026-11-20-walleye-install-stage-1-go) and the write command is built (PR 689); his rule is that every safe part runs for real before he is asked, so this rehearsal comes first. It writes only a temporary file under /data/local/tmp (about 1 GiB staged, removed after) and the toybox dd proof; no go is needed for it. The real run is item walleye-install-write-rootfs, which the Top Coordinator brings to the author as the one command after this passes.
+
+Blocked by
+: walleye-install-write-rehearse-flag
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-21
+
+Needs
+: phone
+
+Proof
+: procedures/install-rootfs-on-the-pixel-2.rs --rehearse (the flag of item walleye-install-write-rehearse-flag) run by a keeper for real, unattended: every step passes up to the one dd, which is not run; fastboot current-slot and the adb slot suffix agree and name the other slot (a, from the earlier read); the staged copy's sha256 equals the declared image (57ea7152...); the target partition read now equals its stored backup; the toybox dd proof file reads back; the staged copy and the proof file are gone after; nothing is written to any partition; the phone ends on Android slot b (idle-android); the keeper reads lpoco-lab keeper status back as free; the research row names the run time, the staging speed and the read speed, so the real run's duration is known
+
+Rank
+: 2
