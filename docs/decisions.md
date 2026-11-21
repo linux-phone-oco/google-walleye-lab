@@ -2800,3 +2800,31 @@ About
 
 Tracked by
 : walleye-ufs-try-2-one-command
+
+
+<a id="2026-11-21-walleye-install-write-one-dd-gates"></a>
+### 2026-11-21-walleye-install-write-one-dd-gates
+
+Date
+: 2026-11-21
+
+Brief
+: Install stage 1 is one program: one dd to system_a|b, slot read twice, backup equal to the partition read now, read-back by sha256
+
+Decision
+: procedures/install-rootfs-on-the-pixel-2.rs (plumbing tools/walleye-tries/src/install.rs). Order: battery, backup whole, image declared, author told, fastboot read of current-slot, Android as adb root, stage the image and hash the copy, adb slot suffix equals fastboot slot, target partition read now equals the backup's sha256, ONE dd (bs 4096, count = the image's blocks, conv=fsync,notrunc) to by-name/system_<other>, read-back of the image's blocks equals the image sha256 (page cache dropped before every read), every other partition of slot-parts.list re-read equals its backup, staged copy removed, Android back. The write step re-checks slot agreement, partition name and image sha itself. The way back is leaving it: Android's slot is never written; the backup goes back by hand (dd of the stored file).
+
+Why
+: The author's stage 1 yes (2026-11-20-walleye-install-stage-1-go) and his rule: attend only when one command away, tested first. Review by the programmer subagent found no path to a wrong partition; its fixes (page cache, gate right before the write, count, non-empty list) are in.
+
+Rejected
+: An automatic restore on any stop (a second write nobody asked for, onto a slot that is not booted); bumping to lpoco-attended 0.42.0 (the other procedures pin 0.41.0 and share the library's types; 0.42 adds nothing this needs); typing the slot (it is read); a Python or sh writer.
+
+About
+: walleye-display-s6e3fa5
+
+Scope
+: walleye lane: builder, keeper
+
+Tracked by
+: walleye-install-write-rootfs
