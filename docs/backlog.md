@@ -9195,3 +9195,25 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-install-rehearsal-procedure"></a>
+### The install write's rehearsal as a command: procedures/rehearse-install-rootfs-on-the-pixel-2.rs
+
+Status
+: done
+
+Note
+: Built and landed 2026-11-21 at the Top Coordinator lane's ask (walleye coordinator): every step of the write but the write, plus a dd probe (the write's own flags, 16 blocks of the image to walleye-dd-probe in /data/local/tmp, read back by sha256, removed). Its own procedure file, not a flag: the lpoco-attended runner takes a fixed option set, and a file with no write step cannot write. 175 stand-in tests (no partition changed, one dd and it to the stage folder, a corrupted probe fails). The phone run is the keeper's: no go needed.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-21
+
+Needs
+: build
+
+Proof
+: tools/walleye-tries install tests: the_rehearsal_writes_a_file_in_the_stage_folder_and_no_partition, a_probe_that_reads_back_wrong_fails_the_rehearsal

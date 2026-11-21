@@ -258,3 +258,10 @@ sha256 = "57cf5fd1425787eaa3399484d449e544057cac862308881069581b232fc89939"
 backup = "~/lab-material/walleye/slot-readback-2026-11-20-2"   # the slots' read-back (the way back): tests/host/slot-readback-check.sh must pass on it, and the target partition read fresh must equal its sha256
 stage_dir = "/data/local/tmp"                                  # where on the phone the image is staged before the one dd (removed after)
 by_name = "/dev/block/by-name"                                 # the phone's partition names: the write goes to by_name/system_a or system_b, nothing else
+
+# The rehearsal of the same write (procedures/rehearse-install-rootfs-on-the-pixel-2.rs): every step but the write, and a dd probe on a file in stage_dir.
+# It writes no partition, so it needs no go; the keys are the write's, read from this table.
+[procedures.rehearse-install-rootfs-on-the-pixel-2]
+backup = "~/lab-material/walleye/slot-readback-2026-11-20-2"
+stage_dir = "/data/local/tmp"
+by_name = "/dev/block/by-name"

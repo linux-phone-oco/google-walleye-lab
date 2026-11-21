@@ -5287,3 +5287,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-21-install-rehearsal-built"></a>
+### Install rehearsal built
+
+Entry date
+: 2026-11-21
+
+Done
+: rehearse-install-rootfs-on-the-pixel-2.rs: 14 steps, no write step, dd probe on a file; install.rs gained the_dd_works_on_a_file, clean_stage, rehearsal_way_back.
+
+Rejected
+: A --rehearse flag on the write's procedure (the runner takes a fixed option set; one file with both paths could write).
+
+About
+: walleye-display-s6e3fa5

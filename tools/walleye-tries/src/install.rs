@@ -23,6 +23,13 @@ type Done = Result<(), String>;
 /// The block the image and the partitions are written and read back in (dd's `bs` for a read).
 pub const BLOCK: u64 = 4096;
 
+/// The flags of the one write, and of the rehearsal's probe: the same, so the probe proves this dd.
+const DD_FLAGS: &str = "conv=fsync,notrunc";
+
+/// The rehearsal's probe: this file in the stage folder, this many blocks of the staged image.
+pub const PROBE_NAME: &str = "walleye-dd-probe";
+pub const PROBE_BLOCKS: u64 = 16;
+
 /// How long adbd has to answer as root after `adb root` restarts it.
 const ROOT_WAIT: Duration = Duration::from_secs(40);
 
@@ -110,9 +117,20 @@ pub fn write_command(
 ) -> Result<String, String> {
     let partition = partition_for_write(partition)?;
     Ok(format!(
-        "dd if={} of={}/{partition} bs={BLOCK} count={blocks} conv=fsync,notrunc",
+        "dd if={} of={}/{partition} bs={BLOCK} count={blocks} {DD_FLAGS}",
         plain_path(staged)?,
         plain_path(by_name)?
+    ))
+}
+
+/// The rehearsal's dd: the write's flags, from a staged file to a file in the stage folder - never to a partition.
+pub fn probe_command(staged: &str, probe: &str, blocks: u64) -> Result<String, String> {
+    if plain_path(probe)?.starts_with("/dev/") {
+        return Err(format!("{probe} is a device: the probe writes a file"));
+    }
+    Ok(format!(
+        "dd if={} of={probe} bs={BLOCK} count={blocks} {DD_FLAGS}",
+        plain_path(staged)?
     ))
 }
 
@@ -158,6 +176,14 @@ pub fn expect(s: &Settings) -> String {
          Before the write that partition is read and must equal the sha256 of its stored backup; after it, the partition is read back and must hash to the image's sha256, and every other partition of both slots is read again and must equal its backup. \
          Any doubt stops it before the write. The way back: Android's own slot is never touched, so the phone runs as before even if the write is cut off; the stored backup goes back with one dd, which the run prints if it stops.",
         sha = s.image_sha256.chars().take(12).collect::<String>()
+    )
+}
+
+/// What the author is told before the rehearsal (the keeper runs it; nothing in it writes a partition).
+pub fn expect_rehearsal(s: &Settings) -> String {
+    format!(
+        "The rehearsal of the install write, about 10 minutes, the phone stays on Android (it visits fastboot once to read its slot). It runs every step of the write except the write: the battery, the backup, the image, the slot read in fastboot and in adb (they must agree), adb as root, the image staged and its copy hashed, the target partition read now and compared with its backup, and a dd probe - the write's own dd flags copy {} blocks of the image to a small file in {} and read back by sha256, then the file is removed. NO partition is written; the staged copy is removed at the end.",
+        PROBE_BLOCKS, s.stage_dir
     )
 }
 
@@ -304,6 +330,15 @@ impl Install {
     /// Say what to expect, before the first act on the phone.
     pub fn author_is_told(&self) -> impl FnOnce() -> Done + 'static {
         let text = expect(&self.s);
+        move || {
+            println!("  {text}");
+            Ok(())
+        }
+    }
+
+    /// Say what to expect of the rehearsal.
+    pub fn rehearsal_is_told(&self) -> impl FnOnce() -> Done + 'static {
+        let text = expect_rehearsal(&self.s);
         move || {
             println!("  {text}");
             Ok(())
@@ -473,11 +508,64 @@ impl Install {
     /// The staged copy is removed from the phone.
     pub fn the_stage_is_removed(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
+        move || u.clean_stage()
+    }
+    /// The staged copy and the dd probe are taken off the phone, and are gone.
+    pub fn clean_stage(&self) -> Done {
+        let staged = self.staged()?;
+        let probe = self.probe_path()?;
+        self.adb(&["shell", &format!("rm -f {staged} {probe}")])?;
+        self.adb(&["shell", &format!("test ! -e {staged} && test ! -e {probe}")])
+            .map(|_| ())
+    }
+
+    fn probe_path(&self) -> Result<String, String> {
+        plain_path(&format!(
+            "{}/{PROBE_NAME}",
+            self.s.stage_dir.trim_end_matches('/')
+        ))
+        .map(str::to_string)
+    }
+
+    /// The rehearsal's dd proof: the real write's dd, flags and block size, copies the first blocks of the staged image to a small
+    /// file in the stage folder, which reads back as the same bytes of the image; the file is removed. No partition is named.
+    pub fn the_dd_works_on_a_file(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
         move || {
-            let staged = u.staged()?;
-            u.adb(&["shell", &format!("rm -f {staged}")])?;
-            u.adb(&["shell", &format!("test ! -e {staged}")])
-                .map(|_| ())
+            let (staged, probe) = (u.staged()?, u.probe_path()?);
+            let blocks = PROBE_BLOCKS.min(u.image_bytes()? / BLOCK);
+            let command = probe_command(&staged, &probe, blocks)?;
+            let proof = (|| {
+                u.adb(&["shell", &command])?;
+                let got = u.phone_sha256(&probe, Some(blocks))?;
+                let want = host::sha256_of_head(&u.s.image, blocks * BLOCK)?;
+                if got == want {
+                    Ok(())
+                } else {
+                    Err(format!(
+                        "the dd probe file reads back as {got}, the image's same bytes are {want}: this dd does not copy as the write needs"
+                    ))
+                }
+            })();
+            let _ = u.adb(&["shell", &format!("rm -f {probe}")]);
+            proof
+        }
+    }
+
+    /// The rehearsal's way back: the stage and the probe off the phone, the phone on Android. It wrote no partition.
+    pub fn rehearsal_way_back(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            if std::env::var_os(watch::CHILD).is_some() {
+                return Ok(());
+            }
+            let result = u.lab.way_back();
+            let _ = u.clean_stage();
+            println!(
+                "  the rehearsal wrote no partition: only a file in {}, now removed",
+                u.s.stage_dir
+            );
+            result
         }
     }
 
@@ -887,6 +975,84 @@ mod tests {
             "adb root was asked"
         );
     }
+
+    fn rehearse(b: &Bench) -> Done {
+        let i = &b.install;
+        (i.the_image_is_the_declared_one())()?;
+        (i.the_slot_is_read())()?;
+        (i.the_image_is_staged())()?;
+        (i.the_slots_agree())()?;
+        (i.the_backup_is_the_slot_as_it_is_now())()?;
+        (i.the_dd_works_on_a_file())()?;
+        (i.the_stage_is_removed())()
+    }
+
+    #[test]
+    fn the_rehearsal_writes_a_file_in_the_stage_folder_and_no_partition() {
+        let b = bench("rehearse", "b", "_b", true);
+        let before: Vec<Vec<u8>> = ["system_a", "system_b", "boot_a", "boot_b"]
+            .iter()
+            .map(|n| partition(&b, n))
+            .collect();
+        rehearse(&b).unwrap();
+        let after: Vec<Vec<u8>> = ["system_a", "system_b", "boot_a", "boot_b"]
+            .iter()
+            .map(|n| partition(&b, n))
+            .collect();
+        assert_eq!(before, after, "no partition changed");
+        let calls = std::fs::read_to_string(b.d.join("adb.calls")).unwrap();
+        let writes: Vec<&str> = calls.lines().filter(|l| l.contains("of=")).collect();
+        assert_eq!(writes.len(), 1, "one dd, the probe: {calls}");
+        assert!(
+            writes[0].contains(&format!("of={}/", b.d.join("stage").display()))
+                && !writes[0].contains("by-name"),
+            "{}",
+            writes[0]
+        );
+        assert!(
+            writes[0].contains("conv=fsync,notrunc"),
+            "the real write's flags: {}",
+            writes[0]
+        );
+        assert!(
+            std::fs::read_dir(b.d.join("stage"))
+                .unwrap()
+                .next()
+                .is_none(),
+            "stage and probe removed"
+        );
+    }
+
+    #[test]
+    fn a_probe_that_reads_back_wrong_fails_the_rehearsal() {
+        let b = bench("probe-bad", "b", "_b", true);
+        // an adb that corrupts the probe file after the dd wrote it
+        let real = b.install.s.adb.clone();
+        let bad = b.d.join("adb-bad");
+        executable(
+            &bad,
+            &format!("#!/bin/sh\n\"{real}\" \"$@\"\ncase \"$*\" in *of=*walleye-dd-probe*) f=$(echo \"$*\" | sed -n 's/.*of=\\([^ ]*\\).*/\\1/p'); printf Z | dd of=\"$f\" bs=1 count=1 conv=notrunc 2>/dev/null;; esac\n"),
+        );
+        let mut s = (*b.install.s).clone();
+        s.adb = bad.to_string_lossy().into_owned();
+        let bad_install = Install::new(s);
+        (bad_install.the_image_is_staged())().unwrap();
+        let e = (bad_install.the_dd_works_on_a_file())().unwrap_err();
+        assert!(e.contains("probe"), "{e}");
+    }
+
+    #[test]
+    fn the_stage_and_the_probe_are_cleaned_off_the_phone() {
+        let b = bench("clean", "b", "_b", true);
+        std::fs::write(b.d.join("stage/walleye-dd-probe"), "x").unwrap();
+        std::fs::write(b.d.join("stage/rootfs.ext4"), "x").unwrap();
+        b.install.clean_stage().unwrap();
+        assert!(std::fs::read_dir(b.d.join("stage"))
+            .unwrap()
+            .next()
+            .is_none());
+    }
+
     #[test]
     fn the_author_is_told_the_command_what_it_writes_where_and_the_way_back() {
         let b = bench("told", "b", "_b", true);
