@@ -173,6 +173,45 @@ pub fn last_line(text: &str) -> String {
     text.lines().last().unwrap_or("").to_string()
 }
 
+/// The lines of `fastboot getvar all` that say which slot the phone is on and each slot's flags (successful, unbootable,
+/// retry count), sorted, so two reads of an unchanged phone are equal text. Nothing else (no serial) is kept.
+pub fn slot_lines(getvar_all: &str) -> String {
+    let mut lines: Vec<String> = getvar_all
+        .lines()
+        .map(|l| {
+            l.trim()
+                .trim_start_matches("(bootloader)")
+                .trim()
+                .to_string()
+        })
+        .filter(|l| {
+            l.starts_with("current-slot")
+                || l.starts_with("slot-successful")
+                || l.starts_with("slot-unbootable")
+                || l.starts_with("slot-retry-count")
+        })
+        .collect();
+    lines.sort();
+    lines.dedup();
+    lines.join("\n")
+}
+
+/// The slot flags of the phone in fastboot (`fastboot -s SERIAL getvar all`); an answer with no slot line is an error, not "unchanged".
+pub fn slot_flags(fastboot: &str, serial: &str) -> Result<String, String> {
+    let mut c = Command::new(fastboot);
+    c.args(["-s", serial, "getvar", "all"]);
+    let said = run(c)?;
+    let lines = slot_lines(&said.text);
+    if lines.contains("current-slot") && lines.contains("slot-successful") {
+        Ok(lines)
+    } else {
+        Err(format!(
+            "fastboot told no slot flags (current-slot, slot-successful): {}",
+            last_line(&said.text)
+        ))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

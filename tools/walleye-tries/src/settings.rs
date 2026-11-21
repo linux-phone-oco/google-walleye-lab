@@ -14,7 +14,7 @@
 //! | the touch try's values | `[procedures.touch-events-on-z21] window`, `min_window` |
 //! | the PMIC try's values | `[procedures.pmic-watchdog-v1-on-the-pixel-2] stay`, `bite_wait` |
 //! | the display try's values | `[images.l7]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
-//! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item` |
+//! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item`, `lun`, `load_mb`, `load_limit`, `luns` |
 //! | the display-at-boot try's values | `[images.b2]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules, hold` |
 //! | the display delay bisect's values | `[images.b-d5]` ... `[images.b-d50]` (or the images `image_prefix` names: `b-s` and delays 5 give `[images.b-s5]`) (`path`, `sha256`), `[procedures.display-delay-bisect-on-the-pixel-2] delays`, `image_prefix`, `modules` |
 
@@ -86,6 +86,11 @@ pub struct Settings {
     pub dtb: PathBuf,
     pub kernel_tree: PathBuf,
     pub go_item: String,
+    /// the UFS try's read of the card: the disk it reads (`lun`, one lower-case letter after `sd`), how many MiB at most (`load_mb`), the most seconds it may take (`load_limit`), the disks the card has (`luns`)
+    pub lun: String,
+    pub load_mb: u64,
+    pub load_limit: u64,
+    pub luns: u64,
     /// where a try saves what it reads when a test named one, by the try's name
     pub out_given: Option<PathBuf>,
     pub day: String,
@@ -179,6 +184,10 @@ impl Settings {
             dtb: PathBuf::new(),
             kernel_tree: PathBuf::new(),
             go_item: String::new(),
+            lun: String::new(),
+            load_mb: 0,
+            load_limit: 0,
+            luns: 0,
             out_given: None,
             day: today(),
         };
@@ -207,6 +216,19 @@ impl Settings {
                 s.dtb = lab.join(&image_dir).join(proc("dtb"));
                 s.kernel_tree = home_path(&proc("kernel_tree"));
                 s.go_item = proc("go_item");
+                s.lun = proc("lun");
+                assert!(
+                    crate::ufs::load::lun_is_a_disk(&s.lun),
+                    "lun in device.toml is not a disk name like sda: {:?}",
+                    s.lun
+                );
+                s.load_mb = number("load_mb", proc("load_mb"));
+                s.load_limit = number("load_limit", proc("load_limit"));
+                s.luns = number("luns", proc("luns"));
+                assert!(
+                    s.load_mb >= 1 && s.load_limit >= 1 && s.luns >= 1,
+                    "load_mb, load_limit and luns in device.toml are at least 1"
+                );
                 s.out = s.out_dir("ufs");
             }
             Try::DisplayBoot => {
@@ -263,7 +285,13 @@ impl Settings {
     /// Settings for the stand-in tests: the same keys, read by the same code, from a map of values.
     #[cfg(test)]
     pub fn stand_in(which: Try) -> Settings {
-        let keys: std::collections::BTreeMap<&str, &str> = [
+        Settings::stand_in_with(which, &[])
+    }
+
+    /// The stand-in keys with some values replaced.
+    #[cfg(test)]
+    pub fn stand_in_with(which: Try, over: &[(&'static str, &'static str)]) -> Settings {
+        let mut keys: std::collections::BTreeMap<&str, &str> = [
             ("images.dir", "images"),
             ("images.z21.path", "boot-z21.img"),
             ("images.wdt1-a.path", "boot-wdt1-a.img"),
@@ -302,9 +330,14 @@ impl Settings {
             ("dtb", "NOT-TO-BOOT-x/ufs-match.dtb"),
             ("kernel_tree", "~/tree"),
             ("go_item", "walleye-try-ufs-match"),
+            ("lun", "sda"),
+            ("load_mb", "4"),
+            ("load_limit", "20"),
+            ("luns", "6"),
         ]
         .into_iter()
         .collect();
+        keys.extend(over.iter().copied());
         let get = |k: &str| keys[k].to_string();
         Settings::read(which, &get, &get)
     }

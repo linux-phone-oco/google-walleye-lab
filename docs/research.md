@@ -5439,3 +5439,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ufs-try-2-built-not-booted"></a>
+### walleye-ufs-try-2-built-not-booted
+
+Date
+: 2026-11-21
+
+Brief
+: UFS try 2 built as one command on lpoco-attended 0.41.0; host-side proofs pass; the UFS-on boot waits for the author's go
+
+Question
+: Is UFS try 2 one launch away, tested everywhere but the phone?
+
+Found
+: procedures/ufs-matched-image-on-the-pixel-2.rs (23 steps, 51 lines) on lpoco-attended-v0.41.0; walleye-tries: 152 unit tests incl. stand-in phone walkthroughs of the load, GPT and slot steps; clippy -D warnings, fmt clean; --dry-run passes all 23 steps; lpoco-attended check --host ok (devlab, lpoco-lab 0.41.0). NOT run on the phone, NOT booted. Author's go text: 'One command, about 5 minutes: boots the matched UFS-on image once from memory; reads the card (six disks, partition tables); reads sda read-only for at most 4 GiB or 60 s while the link gear and clock are noted; sda's partition table hashed before and after; NOTHING is written to the card; glass stays dark; the phone returns to Android by itself and visits fastboot once more to read the slot flags; if not on Android after 4 minutes, hold power ~15 s. Go covers only the image sha256 the go item names.' Keeper's run of the parts that do not boot UFS-on (dry run, gates, way back from a fake stop) is still to do.
+
+About
+: walleye-ufs-match-android-z

@@ -2775,3 +2775,28 @@ About
 
 Tracked by
 : walleye-install-ufs-root-image
+
+
+<a id="2026-11-21-ufs-try-2-reads-the-gear-under-load-by-a-bounded"></a>
+### 2026-11-21-ufs-try-2-reads-the-gear-under-load-by-a-bounded
+
+Date
+: 2026-11-21
+
+Brief
+: UFS try 2 reads the gear under load by a bounded O_DIRECT read of sda, and checks slot flags through a second fastboot visit
+
+Decision
+: Try 2 is the existing matched-image procedure on lpoco-attended 0.41.0 with new steps: gear+clock (power_info, devfreq cur_freq) idle, sampled during a read of sda (dd iflag=direct to /dev/null, timeout, device.toml lun/load_mb/load_limit), and 2 s after; sda's primary+backup GPT sha256 before/after; fastboot slot flags before and, after Android is back, once more in fastboot. Missing clock node is 'not known yet', never a fail; a read that ends before one sample is 'not known yet' too.
+
+Why
+: Upstreams coordinator wants the gear under load before an OPP-table patch (docs #714); the author wants one launch. Values live in device.toml, commands are built only from a validated sdX name.
+
+Rejected
+: Reading slot flags from adb props: they show no retry/unbootable flags. Hashing the whole disk: reads GBs for no gain. A fixed-time sleep instead of sampling: could miss the load window. Weakening the UFS-off gate: stays untouched, the go item is the one exception.
+
+About
+: walleye-ufs-match-android-z
+
+Tracked by
+: walleye-ufs-try-2-one-command

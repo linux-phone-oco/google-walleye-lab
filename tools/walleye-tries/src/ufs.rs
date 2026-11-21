@@ -18,6 +18,8 @@ use std::time::{Duration, Instant};
 
 type Done = Result<(), String>;
 
+pub mod load;
+
 /// What the matched-image tests print last when every check is ok.
 pub const MATCH_OK: &str = "ufs-match-android: all checks ok";
 
@@ -28,7 +30,10 @@ pub const PHY_TABLE: &str = "MSM8998 PHY table";
 pub const PHY_LINECFG: &str = "UFS_PHY_LINECFG_DISABLE";
 
 /// What the author is told before the step that boots the UFS-on image (the go note has the rest).
-pub const EXPECT: &str = "The phone boots the matched UFS-on image once, from memory, and only reads the card: nothing is written to it. The glass stays dark. The phone returns to Android by itself; if it is not there after 4 minutes, hold the power button about 15 seconds.";
+/// What the author is told before the step that boots the UFS-on image: the numbers are the settings', never typed twice.
+pub fn expect(s: &Settings) -> String {
+    format!("One command, about 5 minutes: the phone boots the matched UFS-on image once, from memory. It reads the card (its {} disks and their partition tables), then reads {} for at most {} MiB or {} seconds, read only, while the link gear and the clock are noted; the disk's partition table is hashed before and after. NOTHING is written to the card. The glass stays dark. The phone returns to Android by itself and visits fastboot once more to read the slot flags; if it is not on Android after 4 minutes, hold the power button about 15 seconds.", s.luns, s.lun, s.load_mb, s.load_limit)
+}
 
 /// Is the text the strict shape `ikb backlog-go` writes (`date -Is`: YYYY-MM-DDTHH:MM:SS+HH:MM or Z)? Nothing relative
 /// ("tomorrow", "+1 hour", "2027", "@N") is a go date: `date -d` would read those as a time that never runs out.
@@ -514,8 +519,9 @@ impl Ufs {
 
     /// Say what to expect, before the boot.
     pub fn author_is_told(&self) -> impl FnOnce() -> Done + 'static {
+        let text = expect(&self.s);
         move || {
-            println!("  {EXPECT}");
+            println!("  {text}");
             Ok(())
         }
     }

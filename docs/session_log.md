@@ -5185,3 +5185,24 @@ Rejected
 
 About
 : walleye-install-current-slot-read
+
+---
+
+
+<a id="2026-11-21-ufs-try-2-built"></a>
+### UFS try 2 built
+
+Entry date
+: 2026-11-21
+
+Done
+: Bumped walleye-tries and all six procedures to lpoco-attended 0.41.0; added gear/clock before-during-after, GPT hash and slot-flag steps with stand-in tests; reviewed: load polling paced, keys validated at the dry run, empty GPT hash refused, told text built from settings. Dry run and check --host pass.
+
+Considered
+: Slot flags via adb props; hashing the whole disk. Review point left: slot-retry-count may change across the reboot cycle and fail the exact flag compare (a false failure, the phone is on Android)
+
+Rejected
+: Both first: see decision 2026-11-21-ufs-try-2-reads-the-gear-under-load-by-a-bounded
+
+About
+: walleye-ufs-match-android-z
