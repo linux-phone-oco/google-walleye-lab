@@ -5175,10 +5175,10 @@ Entry date
 : 2026-11-21
 
 Done
-: Three keeper runs (the splash try, the slot read-back and the current-slot read) ended with 'lease released' in their report; lpoco-lab keeper status afterwards said 'kept by walleye-keeper, renewed N min ago'. The coordinator released it by name twice and orchestration found it holding the lab tool update (lpoco 0.41 waits for both phones' leases to be free). AGENTS.md now tells a keeper to read the status back and say free. Cause not known yet: the keepers release from their own worktree, so a per-worktree or per-name mismatch is possible; orchestration owns lpoco-lab keeper.
+: Three keeper runs (the splash try, the slot read-back and the current-slot read) ended with 'lease released' in their reports; lpoco-lab keeper status afterwards said 'kept by walleye-keeper, renewed N min ago'. The coordinator released it by name twice, and the third time it held the lab tool update (lpoco 0.41) for over an hour. CAUSE (orchestration, 2026-11-21): release exits 1 with 'no device.toml here or above' from a folder without one, and a keeper transcript shows it run from ~/Projects/linux-phone-oco after its worktree was removed, in a chain that went on. AGENTS.md now tells a keeper to release inside the worktree (or pass --device) before removing it, and to read the status back. Orchestration queued lab-tools keeper-release-from-anywhere.
 
 Considered
-: Releasing the lease from the coordinator on every run (it is the keeper's own step and it hides the fault); a note to orchestration about lpoco-lab keeper release (sent).
+: Releasing the lease from the coordinator on every run (it is the keeper's own step and it hides the fault).
 
 Rejected
 : Letting the 90 minute lapse do it (it held a tool update for over an hour).
