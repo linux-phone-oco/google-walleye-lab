@@ -5206,3 +5206,21 @@ Rejected
 
 About
 : walleye-ufs-match-android-z
+
+---
+
+
+<a id="2026-11-21-0200-z-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-21
+
+Done
+: Android on slot b, stock kernel, nothing flashed or written. UFS try 2, parts that do not boot UFS-on: dry run 23 steps pass; walleye-tries 156 tests pass; the real run to the first ask passed checks 1-5 (battery, matched image sha and tests, fastboot visit, slot flags, expect-text) and stopped at check 6, no go for the image's sha256 - as designed. Phone returned to Android by itself. Note: a keeper worktree needs build/images linked to ~/Projects/walleye-build (untracked) before the procedure finds the image.
+
+Considered
+: next: the author's go for the one UFS-on try (the text: one command, about 5 min, reads sda up to 4096 MiB or 60 s, nothing written, glass dark, hold power 15 s if not on Android after 4 min); then run the procedure; else stage 1 builds, walleye-display-dts-any-order, walleye-display-look-b2.
+
+About
+: walleye-ufs-match-android-z
