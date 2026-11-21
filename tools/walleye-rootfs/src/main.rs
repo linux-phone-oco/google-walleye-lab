@@ -442,10 +442,20 @@ fn check_image(ctx: &Ctx, img: &Path) -> Result<(), String> {
             .any(|l| l.starts_with("root::")),
         "root logs in on the consoles without a password",
     );
-    match fs::metadata(dump.join("root/.ssh/authorized_keys")) {
-        Ok(_) => say("ok: root's authorized_keys is in the image"),
+    match fs::symlink_metadata(dump.join("root/.ssh/authorized_keys")) {
+        Ok(_) => {
+            say("ok: root's authorized_keys is in the image");
+            check_authorized_keys_modes(&mut rep, ctx, img)?;
+        }
         Err(_) => say("not known yet: no authorized key was given (--authorized-key FILE), so ssh has no way in; the consoles do"),
     }
+    rep.ok(
+        !files.iter().any(|f| {
+            fs::symlink_metadata(dump.join(f)).is_ok_and(|m| m.is_file())
+                && read_scratch(&dump.join(f)).map_or(true, |b| holds_private_key_bytes(&b))
+        }),
+        "no private key is in the image (every file read whole; one that cannot be read fails)",
+    );
     check_links_and_programs(&mut rep, &dump, &files)?;
     check_started_programs(&mut rep, &dump, &files)?;
     check_database_modes(&mut rep, &dump, img)?;
@@ -815,6 +825,30 @@ fn check_started_programs(rep: &mut Report, dump: &Path, files: &[String]) -> Re
             started.len(),
             gone.join("; ")
         ),
+    );
+    Ok(())
+}
+
+/// A file of the scratch dump, whole: the dump is ours, so a mode without owner read (bbsuid 4111) is lifted first.
+fn read_scratch(file: &Path) -> std::io::Result<Vec<u8>> {
+    let mode = fs::metadata(file)?.permissions().mode();
+    fs::set_permissions(file, fs::Permissions::from_mode(mode | 0o400))?;
+    fs::read(file)
+}
+
+/// root's .ssh is 700 and its authorized_keys 600, both root's (sshd's StrictModes refuses otherwise).
+fn check_authorized_keys_modes(rep: &mut Report, ctx: &Ctx, img: &Path) -> Result<(), String> {
+    let cmds = ctx.work.join("check-ssh.stat-cmds");
+    fs::write(&cmds, "stat /root/.ssh\nstat /root/.ssh/authorized_keys\n")
+        .map_err(|e| e.to_string())?;
+    let seen = debugfs_stats(&run("debugfs", &["-f", path(&cmds), path(img)])?);
+    let has = |p: &str, mode: u32| {
+        seen.iter()
+            .any(|s| s.0 == p && (s.1, s.2, s.3) == (mode, 0, 0))
+    };
+    rep.ok(
+        has("root/.ssh", 0o700) && has("root/.ssh/authorized_keys", 0o600),
+        "root's .ssh is 0:0 mode 700 and its authorized_keys 0:0 mode 600",
     );
     Ok(())
 }
