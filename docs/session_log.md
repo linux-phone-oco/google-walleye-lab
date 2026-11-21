@@ -5164,3 +5164,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-21-walleye-keeper-lease-left-held"></a>
+### Keeper runs left the lease held although they said released
+
+Entry date
+: 2026-11-21
+
+Done
+: Three keeper runs (the splash try, the slot read-back and the current-slot read) ended with 'lease released' in their report; lpoco-lab keeper status afterwards said 'kept by walleye-keeper, renewed N min ago'. The coordinator released it by name twice and orchestration found it holding the lab tool update (lpoco 0.41 waits for both phones' leases to be free). AGENTS.md now tells a keeper to read the status back and say free. Cause not known yet: the keepers release from their own worktree, so a per-worktree or per-name mismatch is possible; orchestration owns lpoco-lab keeper.
+
+Considered
+: Releasing the lease from the coordinator on every run (it is the keeper's own step and it hides the fault); a note to orchestration about lpoco-lab keeper release (sent).
+
+Rejected
+: Letting the 90 minute lapse do it (it held a tool update for over an hour).
+
+About
+: walleye-install-current-slot-read
