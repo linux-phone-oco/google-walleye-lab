@@ -9142,3 +9142,28 @@ Proof
 
 Rank
 : 20
+
+
+<a id="walleye-install-write-rehearse-flag"></a>
+### Add --rehearse to the write command: every step but the dd, plus the toybox dd proof on a temp file
+
+Status
+: open
+
+Note
+: Asked of the write-command builder directly (2026-11-21); this item is its record. Queued for the keeper as walleye-install-write-rehearsal.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-21
+
+Needs
+: build
+
+Proof
+: procedures/install-rootfs-on-the-pixel-2.rs --rehearse: every step except the dd to system_a|b, ending with the way back; the toybox dd proof (conv=fsync,notrunc on a file in /data/local/tmp, read back by sha256, removed); a stand-in test for the rehearse path that writes no partition; dry-run, check --host, clippy, fmt and review pass
+
+Rank
+: 1
