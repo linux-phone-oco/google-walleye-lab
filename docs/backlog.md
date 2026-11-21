@@ -9120,10 +9120,13 @@ Rank
 ### Declare [connection] transport and login = none in device.toml and drop our own helpers for what the library then does (read_dmesg, back_to_known_good, phone(), boot_once)
 
 Status
-: in-progress
+: open
 
 Note
-: 2026-11-21 walleye-builder: first half done - device.toml declares transport = telnet and login = none; lpoco 0.41.0 'lab suite latest' now says 'not applicable' (was: no password) and 'lab manifest check' reads it. Open: drop our own helpers (read_dmesg, back_to_known_good, phone(), boot_once) in tools/walleye-tries for the library's steps (boot = fastboot, lab-tools 0.39.0); that half needs a keeper-run try on the phone to prove. 2026-11-21 (coordinator, builder PR 684): the first half landed: transport = telnet, login = none in device.toml, lpoco lab suite latest says not applicable, CI's lpoco-attended pin is 0.41.0. The rest (dropping read_dmesg, back_to_known_good, phone() and boot_once from tools/walleye-tries for the library's) needs a keeper-run try to prove: rank 20, after stage 1's commands, which use the library steps from the start; login = key follows the key (item walleye-install-rootfs-lab-key).
+: 2026-11-21 walleye-builder: first half done - device.toml declares transport = telnet and login = none; lpoco 0.41.0 'lab suite latest' now says 'not applicable' (was: no password) and 'lab manifest check' reads it. Open: drop our own helpers (read_dmesg, back_to_known_good, phone(), boot_once) in tools/walleye-tries for the library's steps (boot = fastboot, lab-tools 0.39.0); that half needs a keeper-run try on the phone to prove. 2026-11-21 (coordinator, builder PR 684): the first half landed: transport = telnet, login = none in device.toml, lpoco lab suite latest says not applicable, CI's lpoco-attended pin is 0.41.0. The rest (dropping read_dmesg, back_to_known_good, phone() and boot_once from tools/walleye-tries for the library's) needs a keeper-run try to prove: rank 20, after stage 1's commands, which use the library steps from the start; login = key follows the key (item walleye-install-rootfs-lab-key). 2026-11-21 (coordinator): back to open so a builder does not take it before its keeper try.
+
+Waits
+: a keeper-run try that proves the library's boot_once, back_to_known_good, read_dmesg and phone() in place of tools/walleye-tries' helpers (the first half landed: PR 684); after stage 1's commands, which use the library steps from the start
 
 About
 : walleye-attend-program-display
