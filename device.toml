@@ -240,9 +240,14 @@ delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of
 image_prefix = "b-d"                # the images are named PREFIX+delay in [images.*]: b-d5, b-d15 ...; the splash image B-s5 is run with delays = "5" and image_prefix = "b-s" (set both, run, put them back)
 modules = 13                        # the display modules each init loads, each said "walleye-display: ok": a row with fewer says nothing about the signs (the ramdisk's /display-modules.list has this many lines)
 
-# The Alpine hardware-test rootfs v1 (items walleye-install-rootfs-alpine-min, walleye-install-rootfs-v1-hardening): a 1 GiB sparse ext4 built
-# by tools/walleye-rootfs --build now, twice with this one sha256 (apk.static and the keys pinned in rootfs/pins; apk's modes applied, bbsuid 4111, directory modes too).
-# The write command (item walleye-install-write-procedure) takes this sha256. Not booted yet; no authorized ssh key in it.
+# The Alpine hardware-test rootfs v2: v1 plus root's authorized_keys (the lab-only key ~/lab-material/walleye/walleye-lab-ed25519.pub; the private key never in the image),
+# built by tools/walleye-rootfs --build now --authorized-key, twice with this one sha256, 54+ checks ok (root's .ssh 700, authorized_keys 600, no private key in the image).
+# The write command (item walleye-install-write-procedure) takes this sha256. Not booted yet. The consoles keep their empty root password.
 [images.alpine-rootfs]
+path = "images-rootfs/walleye-alpine-v2-key.ext4"
+sha256 = "57ea715200ee68430d5417ae30334ae774eaef9028621209e10a1778e193de75"
+
+# v1 without an ssh key, kept under its own name until the write (item walleye-install-write-procedure) has used the keyed image.
+[images.alpine-rootfs-v1-no-key]
 path = "images-rootfs/walleye-alpine-v1.ext4"
 sha256 = "57cf5fd1425787eaa3399484d449e544057cac862308881069581b232fc89939"

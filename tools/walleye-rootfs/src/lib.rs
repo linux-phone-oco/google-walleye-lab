@@ -416,6 +416,27 @@ pub fn missing_tools<'a>(needed: &[&'a str], have: &dyn Fn(&str) -> bool) -> Vec
     needed.iter().copied().filter(|t| !have(t)).collect()
 }
 
+/// Whether a text holds the armor of a private key (OpenSSH, RSA, EC, plain PKCS8): none may be in the image.
+pub fn holds_private_key(text: &str) -> bool {
+    holds_private_key_bytes(text.as_bytes())
+}
+
+/// The same over any bytes, anywhere in them: `-----BEGIN [KIND ]PRIVATE KEY-----`; a program (ELF) is no key, ssh and sshd carry the words.
+pub fn holds_private_key_bytes(data: &[u8]) -> bool {
+    if data.starts_with(b"\x7fELF") {
+        return false;
+    }
+    const BEGIN: &[u8] = b"-----BEGIN ";
+    const END: &[u8] = b"PRIVATE KEY-----";
+    data.windows(BEGIN.len()).enumerate().any(|(i, w)| {
+        w == BEGIN
+            && data[i + BEGIN.len()..]
+                .windows(END.len())
+                .take(12)
+                .any(|e| e == END)
+    })
+}
+
 /// The mode of debugfs's `stat` output (`Mode:  4111`), octal.
 pub fn debugfs_mode(out: &str) -> Option<u32> {
     let rest = out.split("Mode:").nth(1)?;
@@ -732,6 +753,28 @@ mod tests {
         );
         assert_eq!(command_default("${X}"), None);
         assert_eq!(command_default("$cmd"), None);
+    }
+
+    #[test]
+    fn a_private_key_is_told_by_its_armor() {
+        assert!(holds_private_key(
+            "-----BEGIN OPENSSH PRIVATE KEY-----\nabc\n"
+        ));
+        assert!(holds_private_key("x\n-----BEGIN RSA PRIVATE KEY-----\n"));
+        assert!(!holds_private_key("ssh-ed25519 AAAAC3Nza lab\n"));
+        assert!(!holds_private_key("-----BEGIN PUBLIC KEY-----\n"));
+        assert!(holds_private_key("  -----BEGIN OPENSSH PRIVATE KEY-----"));
+        assert!(holds_private_key(
+            "{\"k\":\"-----BEGIN EC PRIVATE KEY-----\\n\"}"
+        ));
+        assert!(holds_private_key_bytes(
+            b"\xff\x00-----BEGIN PRIVATE KEY-----"
+        ));
+        assert!(!holds_private_key_bytes(b"\xff\x00 nothing"));
+        // a program names the armor in its strings (ssh, sshd): not a key
+        assert!(!holds_private_key_bytes(
+            b"\x7fELF\x02\x01-----BEGIN PRIVATE KEY-----"
+        ));
     }
 
     #[test]

@@ -5245,3 +5245,24 @@ Rejected
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-21-walleye-builder-rootfs-lab-key"></a>
+### Alpine image with the lab ssh key
+
+Entry date
+: 2026-11-21
+
+Done
+: Made the lab-only ed25519 key (author's yes 2026-11-21), rebuilt the Alpine image twice with --authorized-key: sha256 57ea7152..., all checks ok. Added to walleye-rootfs: root's .ssh 0:0 700 and authorized_keys 0:0 600, and no private key in the image (every file read whole, unreadable fails, an ELF is skipped: ssh and sshd carry the armor words). The programmer review's four findings fixed. device.toml declares the new image as alpine-rootfs, v1 as alpine-rootfs-v1-no-key.
+
+Considered
+: Replacing v1's declaration outright: the item asked the old one to stay under its own name until the write.
+
+Rejected
+: Scanning only root/.ssh or only files under 16 KiB for a private key: a key could sit anywhere or in a bigger file.
+
+About
+: walleye-display-s6e3fa5
