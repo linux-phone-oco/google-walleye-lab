@@ -8541,10 +8541,10 @@ Rank
 ### UFS try 2 as ONE command: the matched-image procedure with the gear read under load and after 2 s idle, tested everywhere but the phone, so the author's go buys exactly that
 
 Status
-: open
+: in-progress
 
 Note
-: From the author's goal (2026-11-20: Linux installed and booting from its own storage) and the upstreams coordinator's ask (docs #714, the gear under load before an OPP table patch): UFS is on the critical path, so try 2 is the next UFS step. The OPP-table image (walleye-ufs-opp-table-image, rank 8) is a later boot of the same procedure and also needs the author's word; this item makes the FIRST one a single launch away, in the author's rule (2026-11-19): 'ask me to attend only when everything is prepared one launch sequence away', tests written as a program and run before. Starts after walleye-display-reset-image (B-r5).
+: Built and landed (host side): procedure on lpoco-attended 0.41.0, gear before/during/after, GPT before/after, slot flags before/after; dry run, check --host, 152 tests, clippy, fmt pass. Left for the keeper: run the parts that do not boot UFS-on (dry run, gates, way back from a fake stop), then the author's go text (research walleye-ufs-try-2-built-not-booted); the UFS-on boot waits for his word.
 
 About
 : walleye-ufs-match-android-z
@@ -8553,10 +8553,10 @@ Opened
 : 2026-11-20
 
 Needs
-: build
+: phone
 
 Proof
-: procedures/ufs-matched-image-on-the-pixel-2.rs on the current lpoco-attended (0.39 or newer), entry file one screen, keys at the top of main from device.toml, the sequence a plain checklist: the gates (battery, the UFS-off gate's one exception only through the go item walleye-try-ufs-match, the image sha), the boot of the matched UFS image from fastboot, the gadget up, the card read (identity, six LUNs, partition tables) as in try 1, THEN the new part: the link gear and the clock from power_info and the devfreq node BEFORE load, during a bounded read-only O_DIRECT read of sda (a few GB at most, a time limit, nothing written), and again 2 s after it ends; the GPT of sda read before and after and hash-equal; the way back to Android on any stop (also an unanswered ask), idle-android, both slots' flags unchanged; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; a keeper's run of every part that does not touch the UFS-on boot (the dry run, the gates, the way back from a fake stop) and the prompt text the Top Coordinator shows the author for his go: one command, what it reads, what it never writes, how long, the way back; NOT booted: the UFS-on boot waits for the author's word
+: procedures/ufs-matched-image-on-the-pixel-2.rs: keeper's run of every part that does not touch the UFS-on boot, then the author's go
 
 Rank
 : 3

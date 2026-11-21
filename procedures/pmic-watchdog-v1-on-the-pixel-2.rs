@@ -8,7 +8,7 @@
 //!
 //! ```cargo
 //! [dependencies]
-//! lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.35.1" }
+//! lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.41.0" }
 //! walleye-tries = { path = "../tools/walleye-tries" }
 //! ```
 // SPDX-License-Identifier: MIT OR Apache-2.0

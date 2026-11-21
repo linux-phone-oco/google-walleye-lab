@@ -182,7 +182,7 @@ pub(crate) mod fake {
         port
     }
 
-    /// Answers `cmd` lines. A line `echo WT-BEGIN-''N; CMD; echo WT-END-''N` answers with its markers around
+    /// Answers `cmd` lines (a row answering "a|||b" gives a first, then b). A line `echo WT-BEGIN-''N; CMD; echo WT-END-''N` answers with its markers around
     /// the answer of the first table row whose key `CMD` contains; a line with `od -An` streams `events`.
     pub fn phone(table: Vec<(&'static str, &'static str)>, events: Vec<String>) -> u16 {
         phone_marking(table, events, None)
@@ -212,6 +212,7 @@ pub(crate) mod fake {
                     let _ = c.write_all(&[255, 253, 1, b'\r', 0]); // negotiation noise first
                     let mut r = BufReader::new(c.try_clone().unwrap());
                     let mut line = String::new();
+                    let mut asked = vec![0usize; table.len()];
                     while r.read_line(&mut line).unwrap_or(0) > 0 {
                         let l = line.trim().to_string();
                         line.clear();
@@ -219,11 +220,21 @@ pub(crate) mod fake {
                             let (n, cmd) = rest.split_once("; ").unwrap();
                             let (cmd, _) = cmd.rsplit_once("; echo WT-END").unwrap();
                             let _ = write!(c, "WT-BEGIN-{n}\r\n");
+                            let row = table.iter().position(|(k, _)| cmd.contains(k));
                             let answer = table
                                 .iter()
                                 .find(|(k, _)| cmd.contains(k))
                                 .map(|(_, v)| *v)
                                 .unwrap_or("");
+                            // an answer "a|||b|||c" is a sequence: each time the row answers, the next part (the last one stays)
+                            let answer = match row {
+                                Some(i) if answer.contains("|||") => {
+                                    let parts: Vec<&str> = answer.split("|||").collect();
+                                    asked[i] += 1;
+                                    parts[(asked[i] - 1).min(parts.len() - 1)]
+                                }
+                                _ => answer,
+                            };
                             // an answer starting with ! is the last words of a phone that restarts: it hangs up
                             let (answer, restarts) = match answer.strip_prefix('!') {
                                 Some(a) => (a, true),
