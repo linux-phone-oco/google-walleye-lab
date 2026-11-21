@@ -8544,7 +8544,10 @@ Status
 : in-progress
 
 Note
-: Built and landed (host side): procedure on lpoco-attended 0.41.0, gear before/during/after, GPT before/after, slot flags before/after; dry run, check --host, 152 tests, clippy, fmt pass. Left for the keeper: run the parts that do not boot UFS-on (dry run, gates, way back from a fake stop), then the author's go text (research walleye-ufs-try-2-built-not-booted); the UFS-on boot waits for his word.
+: Keeper's host-side run done 2026-11-21: dry run passes (23 steps), walleye-tries 156 tests pass, and the real run to the first ask passed battery, matched-image checks, the fastboot visit and slot-flag read, and the say-what-to-expect text; it then stopped at check 6 because no go names image sha256 461077869fb2 on item walleye-try-ufs-match (by design). The phone is back on Android, slot b, nothing written. Left: the author's go text (on the coordinator's desk), then one command: procedures/ufs-matched-image-on-the-pixel-2.rs.
+
+Waits
+: the author's go on walleye-try-ufs-match naming image sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5
 
 About
 : walleye-ufs-match-android-z
