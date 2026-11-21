@@ -5305,3 +5305,39 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-21-install-rehearsal-run"></a>
+### Install rehearsal run for real
+
+Entry date
+: 2026-11-21
+
+Done
+: Linked build/images in the worktree; dry run passed (14 steps); real run passed 14 of 14, no partition written, phone on Android slot b, stage folder empty.
+
+Considered
+: next: the Top Coordinator brings the one command procedures/install-rootfs-on-the-pixel-2.rs to the author; then walleye-install-rootfs-boots-try.
+
+About
+: walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-21-0330-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-21
+
+Done
+: Android on slot b, stock kernel, nothing flashed or written; the install rehearsal passed for real (14 of 14); the stage folder is empty; fastboot reachable.
+
+Considered
+: next: the author's go for the UFS-on try (item walleye-ufs-try-2-one-command), and the one command install-rootfs-on-the-pixel-2.rs brought by the Top Coordinator; keeper worktrees need build/images linked to ~/Projects/walleye-build.
+
+About
+: walleye-display-s6e3fa5

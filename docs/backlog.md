@@ -9173,10 +9173,10 @@ Rank
 ### Rehearse the stage 1 write for real, up to but not including the dd: the slot read, the image staged, the target compared with its backup, the toybox dd proof on a temp file
 
 Status
-: open
+: done
 
 Note
-: The author's yes for stage 1 step 3 is given (decision 2026-11-20-walleye-install-stage-1-go) and the write command is built (PR 689); his rule is that every safe part runs for real before he is asked, so this rehearsal comes first. It writes only a temporary file under /data/local/tmp (about 1 GiB staged, removed after) and the toybox dd proof; no go is needed for it. The real run is item walleye-install-write-rootfs, which the Top Coordinator brings to the author as the one command after this passes.
+: proven by the real unattended run 2026-11-21: 14 of 14 steps passed, nothing written, phone on Android slot b; research walleye-install-rehearsal-run-passed. Next: walleye-install-write-rootfs, the one command, brought by the Top Coordinator.
 
 Blocked by
 : walleye-install-write-rehearse-flag
