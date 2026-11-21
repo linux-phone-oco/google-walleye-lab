@@ -5458,3 +5458,22 @@ Found
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-install-rehearsal-run-passed"></a>
+### walleye-install-rehearsal-run-passed
+
+Date
+: 2026-11-21
+
+Brief
+: The install stage 1 rehearsal ran for real, unattended: 14 of 14 steps pass, slots agree (b running, a target), target equals its backup, nothing written
+
+Question
+: Does every step of the install write except the dd work on the real phone, and does the toybox dd proof hold?
+
+Found
+: 2026-11-21, procedures/rehearse-install-rootfs-on-the-pixel-2.rs on lpoco-attended 0.41.0, dry run (14 steps) first, then real: battery, backup whole, image is the declared one (sha256 57ea7152...) all pass; one fastboot visit read current-slot, adb root; image staged and its copy hashed; fastboot and adb name the same slot; the target partition read now equals its stored backup (about 5 min of the run); the dd probe file read back equal; staged copy and probe file removed; phone ends on Android slot b (adb ro.boot.slot_suffix _b), /data/local/tmp empty. No partition written. The real write (item walleye-install-write-rootfs) is now one command for the Top Coordinator to bring: procedures/install-rootfs-on-the-pixel-2.rs.
+
+About
+: walleye-display-s6e3fa5
