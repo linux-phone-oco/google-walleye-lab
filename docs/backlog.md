@@ -9148,10 +9148,10 @@ Rank
 ### Add --rehearse to the write command: every step but the dd, plus the toybox dd proof on a temp file
 
 Status
-: open
+: done
 
 Note
-: Asked of the write-command builder directly (2026-11-21); this item is its record. Queued for the keeper as walleye-install-write-rehearsal.
+: Built as its own command, not a flag (the runner takes a fixed option set; a file with no write step cannot write): procedures/rehearse-install-rootfs-on-the-pixel-2.rs, landed 2026-11-21. Item walleye-install-rehearsal-procedure carries the record.
 
 About
 : walleye-display-s6e3fa5
@@ -9191,7 +9191,7 @@ Needs
 : phone
 
 Proof
-: procedures/install-rootfs-on-the-pixel-2.rs --rehearse (the flag of item walleye-install-write-rehearse-flag) run by a keeper for real, unattended: every step passes up to the one dd, which is not run; fastboot current-slot and the adb slot suffix agree and name the other slot (a, from the earlier read); the staged copy's sha256 equals the declared image (57ea7152...); the target partition read now equals its stored backup; the toybox dd proof file reads back; the staged copy and the proof file are gone after; nothing is written to any partition; the phone ends on Android slot b (idle-android); the keeper reads lpoco-lab keeper status back as free; the research row names the run time, the staging speed and the read speed, so the real run's duration is known
+: procedures/rehearse-install-rootfs-on-the-pixel-2.rs run by a keeper for real, unattended: every step passes (14 steps, no write step); fastboot current-slot and the adb slot suffix agree and name the other slot (a, from the earlier read); the staged copy's sha256 equals the declared image (57ea7152...); the target partition read now equals its stored backup; the dd probe file reads back; the staged copy and the probe file are gone after; the phone ends on Android; nothing is written
 
 Rank
 : 2
