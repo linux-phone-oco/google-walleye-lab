@@ -31,6 +31,7 @@ pub const DISPLAY_BOOT_PROCEDURE: &str = "display at boot on the Pixel 2";
 pub const UFS_PROCEDURE: &str = "UFS matched image on the Pixel 2";
 pub const DISPLAY_DELAY_PROCEDURE: &str = "display delay bisect on the Pixel 2";
 pub const INSTALL_PROCEDURE: &str = "install rootfs on the Pixel 2";
+pub const REHEARSE_INSTALL_PROCEDURE: &str = "rehearse install rootfs on the Pixel 2";
 
 /// Which try the settings are read for: each reads only its own procedure's values and images.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -449,6 +450,7 @@ mod tests {
             (Try::Ufs, UFS_PROCEDURE),
             (Try::DisplayDelay, DISPLAY_DELAY_PROCEDURE),
             (Try::Install, INSTALL_PROCEDURE),
+            (Try::Install, REHEARSE_INSTALL_PROCEDURE),
         ] {
             let name: Vec<String> = table
                 .split(|c: char| !c.is_ascii_alphanumeric())

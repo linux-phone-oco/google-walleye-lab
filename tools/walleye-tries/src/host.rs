@@ -59,6 +59,34 @@ fn sha256_of(file: &Path) -> Result<String, String> {
         .to_string())
 }
 
+/// The sha256 of the first `bytes` bytes of a file (all of it when it is shorter is an error: the bytes asked for must exist).
+pub fn sha256_of_head(file: &Path, bytes: u64) -> Result<String, String> {
+    use std::io::{Read, Write};
+    let mut head = Vec::new();
+    std::fs::File::open(file)
+        .and_then(|f| f.take(bytes).read_to_end(&mut head))
+        .map_err(|e| format!("{}: {e}", file.display()))?;
+    if head.len() as u64 != bytes {
+        return Err(format!("{} has fewer than {bytes} bytes", file.display()));
+    }
+    let mut c = Command::new("sha256sum")
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .spawn()
+        .map_err(|e| format!("cannot run sha256sum: {e}"))?;
+    c.stdin
+        .take()
+        .ok_or("sha256sum has no input")?
+        .write_all(&head)
+        .map_err(|e| format!("sha256sum: {e}"))?;
+    let out = c.wait_with_output().map_err(|e| e.to_string())?;
+    String::from_utf8_lossy(&out.stdout)
+        .split_whitespace()
+        .next()
+        .map(str::to_string)
+        .ok_or_else(|| "sha256sum gave no sum".to_string())
+}
+
 /// The image is the one built: its sha256 is the one its SHA256SUMS line (any SHA256SUMS* file beside it) records.
 pub fn image_is_the_built_one(image: &Path) -> Result<(), String> {
     let dir = image.parent().unwrap_or(Path::new("."));
