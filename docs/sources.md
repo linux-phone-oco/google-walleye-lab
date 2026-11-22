@@ -1399,3 +1399,48 @@ By
 
 Takes
 : WHERE THE AUTHOR SAW IT (2026-11-20), not the primary: a custom-ROM tree that keeps Google's device/google/wahoo history (its commits say 'Merged-In' and AOSP Change-Ids) and adds Elixir's own. Use it for what Google's tree lacks: proprietary-firmware.txt and proprietary-files*.txt (the lists of firmware and vendor blobs and their paths: modem, adsp, venus, wlan) and extract-files.sh, and for the REPARTITIONING custom ROMs do (its fstab.hardware and gpt-utils define a product partition as A/B: 'walleye and taimen require repartitioning'); that fstab is NOT the stock layout, so partition names and mount options of the STOCK phone are read from src-google-device-wahoo. The Dolby, powerhint and audio_effects files are Elixir's, not Google's. Read-only; GitHub shows it as not a fork.
+
+
+<a id="src-aosp-qcom-bootctrl"></a>
+### platform/hardware/qcom/bootctrl boot_control.cpp (AOSP main)
+
+Url
+: https://android.googlesource.com/platform/hardware/qcom/bootctrl/+/refs/heads/main/boot_control.cpp
+
+Author
+: Google
+
+By
+: Google (Apache 2.0)
+
+Takes
+: What Android's boot control HAL writes on setActiveBootSlot, markBootSuccessful, setSlotAsUnbootable: GPT attribute bits of every A/B partition on every LUN, GPT CRC, and the UFS boot LUN; read only, nothing copied
+
+
+<a id="src-caf-abl-partitiontableupdate"></a>
+### abl_tianocore_edk2 QcomModulePkg PartitionTableUpdate.c and FastbootCmds.c (CAF, commit 797918c)
+
+Url
+: https://gitlab.com/Codeaurora/abl_tianocore_edk2/blob/797918c3bf59e2d65b4acb2acdfd6883a0605ee1/QcomModulePkg/Library/BootLib/PartitionTableUpdate.c
+
+Author
+: Qualcomm / Code Aurora
+
+By
+: Qualcomm
+
+Takes
+: What a Qualcomm ABL's fastboot set_active and its boot-time retry counting do: attributes, type-GUID swap, boot LUN, GPT write; a stand-in: the Pixel 2's own ABL is proprietary
+
+
+<a id="src-aosp-ab-bootloader-updating"></a>
+### Implement OTA updates (bootloader slot rules)
+
+Url
+: https://source.android.com/docs/core/architecture/bootloader/updating
+
+Author
+: Google
+
+Takes
+: The slot contract: set_active clears unbootable and successful and resets the retry count; modifying a slot's partition clears successful; retry count decrements per unconfirmed boot
