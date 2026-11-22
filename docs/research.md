@@ -5599,3 +5599,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ramroot-b-a5-the-look-no-login-prompt"></a>
+### walleye-ramroot-b-a5-the-look-no-login-prompt
+
+Date
+: 2026-11-22
+
+Brief
+: The author's look at B-a5: kernel log and init text on the glass, last lines 'starting sshd', 'starting local', blinking cursor; no 'walleye login:' prompt
+
+Question
+: Does Alpine's login prompt show on the Pixel's glass after B-a5 boots from RAM?
+
+Found
+: Run 2026-11-22 (log ~/lab-material/walleye/alpine-look-1795374782.log): checks 1-15 passed (ssh, tmpfs root, 13/13 modules, fbcon, no purge/oops), deadman held, the author saw the display up with boot text ending in 'starting sshd', 'starting local' and a blinking cursor, no getty login prompt on tty0. Phone back on Android slot b, nothing flashed. Open: the tty0 getty either is not started by OpenRC's default runlevel on the glass, or its prompt is printed before the later init lines and scrolled; ssh works, so the userland is up. Next: read /etc/inittab and the getty line in the image, and the getty's tty on the ssh side of the next run; not rerun without that fix.
+
+About
+: walleye-display-s6e3fa5
