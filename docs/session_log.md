@@ -5503,3 +5503,33 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-walleye-keeper-ramroot-run1"></a>
+### Alpine in RAM: unattended run 1
+
+Entry date
+: 2026-11-22
+
+Done
+: Ran procedures/alpine-login-on-the-glass-on-the-pixel-2.rs unattended up to the look: 15 checks and the deadman hold passed, nothing flashed; phone back on Android. First attempt stopped at check 2 before touching the phone: my fresh worktree had no build/images (git-ignored), fixed by a symlink to ~/Projects/walleye-build.
+
+About
+: walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-2100-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-22
+
+Done
+: Alpine-in-RAM image B-a5 run unattended to the look: checks 1-15 passed, deadman held, nothing flashed. Phone back on Android slot b, stock kernel; fastboot not left (adb device); system_a untouched by this run. next: the author's look as the same one command on lpoco-attended with the answer file; coordinator reopens the go for the root boot (slot_suffix) separately
+
+About
+: walleye-display-s6e3fa5
