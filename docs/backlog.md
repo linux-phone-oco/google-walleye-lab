@@ -9223,31 +9223,6 @@ Rank
 : 4
 
 
-<a id="walleye-display-dts-any-order"></a>
-### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
-
-Status
-: open
-
-Note
-: 2026-11-20 (coordinator): B-r5 at 5 s is CLEAN: smmu 0, rcg 0, dsi -110 0, 13 of 13 (keeper, PR 657, research walleye-display-reset-image-b-r5-tried-signs-vanish): the MDSS reset is the handover (decision 2026-11-20-walleye-display-handover-reset-first stands). NOT measured: 2 s (display at boot) and another load order, and the glass was not looked at. So this item builds those images and then the keeper's try; it no longer waits on walleye-display-handover-driver. Rank 2 (the top build). 2026-11-20 (coordinator): rank 6: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time. 2026-11-22 (coordinator): rank 5, alongside the firmware front: B-r5 is clean at 5 s, the 2 s try and its upstream patch (the mdss reset property) are cheap and the author's look at the glass follows.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-22
-
-Needs
-: build
-
-Proof
-: the display at boot, in any load order: (1) the board dts carries resets = <&mmcc MDSS_BCR> on the mdss node in the form it would go upstream (an msm8998.dtsi patch for the reset property, and the board dts without any lab hack), tests/host/dtb-display-reset.sh passes on its dtb; (2) images that load the display modules EARLY on purpose: B-r2 (the same as B-r5 at 2 s, the earliest the init could load them), and one with the modules loaded in another order than L6/L7's (any order); declared in device.toml [images.*] with the sha256; (3) the keeper's unattended delay-bisect table at 2 s and in the other order: smmu_faults, rcg_warnings, dsi_110 all 0 and 13 of 13 modules ok (display-boot-clean); (4) the step display-boots-any-order marked from that run; the author's look is a later item (walleye-display-look-b2)
-
-Rank
-: 5
-
-
 <a id="walleye-wdt-pon-bites-procedure"></a>
 ### The four PMIC bites as one command: procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs (S2 type 0x07 and 0x01, cable in and out), the PON registers read after each
 
@@ -9271,3 +9246,81 @@ Proof
 
 Rank
 : 7
+
+
+<a id="walleye-display-alpine-ramroot-image"></a>
+### Alpine's login prompt on the Pixel's glass, with ssh over usb-network: B-r5's kernel and display modules with the Alpine userland as the root in RAM (UFS off), and the author's look as one command
+
+Status
+: open
+
+Note
+: THE AUTHOR'S WORD (2026-11-22, relayed by the Top Coordinator), verbatim: "i want to see the thing on pixel before we start the big housekeeping that will stop everything. as i understood we have everything to see a plain tty on the phones own display, connect to it with ssh and what not, right ?" (the author, 2026-11-22, relayed by the Top Coordinator). ANSWER FROM THE DATA: the stage 1 UFS-root image (35b60fda) does NOT carry the display. It is the matched UFS image's kernel and dtb byte for byte (UFS on, display nodes off: the try 2 text says the glass stays dark) with our own initramfs that mounts system_a; the 13 display modules, B-r5's mdss reset and the display kernel are not in it, and the display kernel's tree 'cannot compile today's board file' (build-display-reset-image.sh), so the two kernels are different trees and the modules of one cannot load into the other. Its rootfs inittab has getty on tty0 and ttyGS0, but there is no fbcon or display driver to put it on the glass. THE QUICK WAY (this item): B-r5 already shows the glass and fbcon (the author saw the console on L5 to L7); its UFS is off, so the Alpine root cannot come from the card: put the Alpine userland in RAM instead. It shows the login prompt on the glass and ssh over usb-network NOW, without waiting for the merged kernel; it is not 'from its own storage' (item walleye-install-ufs-root-display-image is that). The look is one command, tested first, run under his standing rules.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: build
+
+Proof
+: image B-a5 (UFS-off gate and AVB pass, rebuild identical, review): B-r5's kernel, dtb (mdss reset) and 13 display modules as they are, whose ramdisk adds the Alpine userland taken from the hardened rootfs build (the same tar and package list as the image written to system_a, with the lab's authorized key) unpacked into a tmpfs root, the display modules loaded at 5 s as B-r5 does, then switch_root to Alpine's /sbin/init: OpenRC starts, agetty on tty0 (the glass, through fbcon) and on ttyGS0, sshd over the usb gadget network (172.16.43.1, login by the lab key); the boot image fits what fastboot boot takes (say the size and the limit); a host check that the ramdisk holds the userland and the modules for THIS kernel; the keeper's unattended run (the delay bisect pattern: signs zero at 5 s, 13 of 13 modules, ssh answers, getty on tty0 running, the kernel log has fbcon) then the author's look as ONE command on lpoco-attended with the answer file, procedures/alpine-login-on-the-glass-on-the-pixel-2.rs: look_for 'do you see an Alpine login prompt on the screen?' (what to expect first), the way back to Android on any stop, an unanswered ask included; dry run, check --host, stand-in tests, clippy, fmt, review
+
+Rank
+: 1
+
+
+<a id="walleye-install-ufs-root-display-image"></a>
+### The stage 1 root on the glass: one kernel with UFS on AND the display (B-r5's reset and modules), the Alpine root from system_a, login prompt on tty0 and ssh over usb-network at once
+
+Status
+: open
+
+Note
+: THE AUTHOR'S WORD (2026-11-22), verbatim: "i want to see the thing on pixel before we start the big housekeeping that will stop everything. as i understood we have everything to see a plain tty on the phones own display, connect to it with ssh and what not, right ?" (the author, 2026-11-22, relayed by the Top Coordinator). This is the item the Top Coordinator asked for: the UFS-root kernel plus B-r5's display reset and modules in ONE image, so the stage 1 boot shows Alpine's login prompt on the glass, with ssh at the same time. It needs the board dts that carries the display (walleye-display-dts-any-order, rank raised to 2) because the display kernel cannot compile today's board file; the merge of the two kernel topics and the first display plus UFS boot together are the two unknowns (the SMMU with UFS on and the display reset: not seen). Rehearsed like the others; it runs under the author's standing go and rule.
+
+Blocked by
+: walleye-display-dts-any-order
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: build
+
+Proof
+: image U-d5 (the UFS gate's go marker only through the one command, AVB, rebuild identical, review): the matched UFS kernel tree (topic/ufs-match-android) with the display drivers and fbcon (DRM_MSM, the DSI PHY, the s6e3fa5 panel, FRAMEBUFFER_CONSOLE, DRM_FBDEV_EMULATION as the display kernel has them) as modules or built in, the 13 display modules built for THIS kernel in the initramfs, a dtb that is the matched UFS dtb PLUS the display nodes (mdss with resets = <&mmcc MDSS_BCR>, dsi, phy, the panel, no lab hacks: the board dts of item walleye-display-dts-any-order), our initramfs of walleye-install-ufs-root-image loading the display modules at the delay the try proves (5 s first) before it mounts system_a read-only with the tmpfs overlay and hands over to Alpine's /sbin/init; a QEMU test of the init as before; the first boot is the UFS-on read-only boot of walleye-install-boot-procedure's command (the same procedure, this image named in its go item), with the display signs read from the log and the author's look as one command after it
+
+Rank
+: 2
+
+
+<a id="walleye-display-dts-any-order"></a>
+### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
+
+Status
+: open
+
+Note
+: 2026-11-20 (coordinator): B-r5 at 5 s is CLEAN: smmu 0, rcg 0, dsi -110 0, 13 of 13 (keeper, PR 657, research walleye-display-reset-image-b-r5-tried-signs-vanish): the MDSS reset is the handover (decision 2026-11-20-walleye-display-handover-reset-first stands). NOT measured: 2 s (display at boot) and another load order, and the glass was not looked at. So this item builds those images and then the keeper's try; it no longer waits on walleye-display-handover-driver. Rank 2 (the top build). 2026-11-20 (coordinator): rank 6: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time. 2026-11-22 (coordinator): rank 5, alongside the firmware front: B-r5 is clean at 5 s, the 2 s try and its upstream patch (the mdss reset property) are cheap and the author's look at the glass follows. 2026-11-22 (coordinator): rank 2: the board dts with the display and its reset is the base of walleye-install-ufs-root-display-image (the UFS-root kernel cannot show the glass without it).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: build
+
+Proof
+: the display at boot, in any load order: (1) the board dts carries resets = <&mmcc MDSS_BCR> on the mdss node in the form it would go upstream (an msm8998.dtsi patch for the reset property, and the board dts without any lab hack), tests/host/dtb-display-reset.sh passes on its dtb; (2) images that load the display modules EARLY on purpose: B-r2 (the same as B-r5 at 2 s, the earliest the init could load them), and one with the modules loaded in another order than L6/L7's (any order); declared in device.toml [images.*] with the sha256; (3) the keeper's unattended delay-bisect table at 2 s and in the other order: smmu_faults, rcg_warnings, dsi_110 all 0 and 13 of 13 modules ok (display-boot-clean); (4) the step display-boots-any-order marked from that run; the author's look is a later item (walleye-display-look-b2)
+
+Rank
+: 2
