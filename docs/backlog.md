@@ -9158,31 +9158,6 @@ Rank
 : 7
 
 
-<a id="walleye-display-alpine-ramroot-image"></a>
-### Alpine's login prompt on the Pixel's glass, with ssh over usb-network: B-r5's kernel and display modules with the Alpine userland as the root in RAM (UFS off), and the author's look as one command
-
-Status
-: in-progress
-
-Note
-: Keeper's unattended run done 2026-11-22: checks 1-15 pass, stopped at the look, phone on Android. NEXT: the author's look as the same one command on lpoco-attended with the answer file (research walleye-ramroot-b-a5-unattended-run-1).
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-22
-
-Needs
-: phone
-
-Proof
-: alpine-login-on-the-glass-on-the-pixel-2
-
-Rank
-: 1
-
-
 <a id="walleye-install-ufs-root-display-image"></a>
 ### The stage 1 root on the glass: one kernel with UFS on AND the display (B-r5's reset and modules), the Alpine root from system_a, login prompt on tty0 and ssh over usb-network at once
 
@@ -9399,3 +9374,34 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-display-alpine-ramroot-image"></a>
+### Alpine's login prompt on the Pixel's glass, with ssh over usb-network: B-r5's kernel and display modules with the Alpine userland as the root in RAM (UFS off), and the author's look as one command
+
+Status
+: in-progress
+
+Note
+: Keeper's unattended run done 2026-11-22: checks 1-15 pass, stopped at the look, phone on Android. NEXT: the author's look as the same one command on lpoco-attended with the answer file (research walleye-ramroot-b-a5-unattended-run-1). THE LOOK IS A KEEPER'S RUN, NOT A WAIT (2026-11-22, coordinator): the author's go is open on this item (the Pixel is in his hand, screen facing him, when the go is opened); the keeper RUNS procedures/alpine-login-on-the-glass-on-the-pixel-2.rs for real, NOW, with --answer-limit 300 (the answer file ~/.cache/lpoco-attended/google-walleye/answer; the Top Coordinator reads the prompt file and writes his answer); no dry run, no other item first (not the sensor hub, not anything else: the author is waiting); a worktree of google-walleye-lab on origin/main with ln -s ~/Projects/walleye-build build/images; NO short timeout (the prompt comes about 3 minutes after the start and the run waits up to 300 s); tell the Top Coordinator (SendMessage to local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'look: at the prompt now' when the prompt file is written and ONE result line at the end (his answer, the phone back on Android). Whatever ends the run, the way back runs. If a check fails before the look: stop, tell the Top Coordinator and the coordinator, do not rerun. At the end release the lease INSIDE the worktree and read lpoco-lab keeper status back as free; if the land conflicts, do not make a third branch: tell the coordinator.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: phone
+
+Proof
+: alpine-login-on-the-glass-on-the-pixel-2
+
+Rank
+: 1
+
+Witness
+: person
+
+Go until
+: 2026-11-22T20:53:14+01:00
