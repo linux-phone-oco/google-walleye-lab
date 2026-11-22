@@ -5518,3 +5518,43 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-install-stage3-android-ufs-comparison-verdict"></a>
+### walleye-install-stage3-android-ufs-comparison-verdict
+
+Date
+: 2026-11-22
+
+Brief
+: VERDICT stage 3: with nodiscard, no fstrim, no mkfs, ufs_bsg unopened and the purge guard, our kernel sends the card no command class Android's did not; named differences are power/speed only
+
+Question
+: Does our kernel's write path to the UFS card (SK hynix H28U74301AMR D003) do anything Android's UFS path on this phone does not: UNMAP, purge, erase, quirks, write booster, power?
+
+Found
+: VERDICT: our kernel does nothing Android's did not, in command classes. Named differences are power and speed, none a command to the card. Read-only study of Google's wahoo 4.4 (android-msm-wahoo-4.4-android11 @52750b8f, GPL, clean room: facts only) against our v7.3 tree (3644090c7); nothing run on the phone.
+
+(1) COMMAND CLASSES on a plain ext4 rw mount, write and unmount, our options (ro->rw of ONE partition, nodiscard, no fstrim, no mkfs/resize):
+- WRITE(10)/READ(10) with FUA and flush: sd layer in both, same; Android's ext4/f2fs on userdata sends them all day.
+- SYNCHRONIZE CACHE: from ext4 journal commits (preflush) and sd shutdown; both kernels, same.
+- UNMAP: only from the filesystem (mount option discard, fstrim, mkfs, resize). Ours: none of them, the mount is nodiscard (ext4 default is off) and the procedure never runs mkfs or fstrim. Android DID send UNMAP (live counters: one UNMAP in normal operation, research walleye-ufs-android-way), we send none: fewer, not more. WRITE SAME (which could carry UNMAP, used by blkdev zeroout) is switched off by sdev->no_write_same=1 in BOTH ufshcd.c versions.
+- PURGE: Android never sets fPurgeEnable (live: flags set fDeviceInit only). Ours: the only setters are the ufs_bsg RPMB purge path and the raw query path; our init never opens ufs_bsg, and both are behind ufshcd_purge_refused (UFS_DEVICE_QUIRK_NO_PURGE on this model, ufshcd.c:3465..3506 and 7692, ufs-qcom.c:1315). Equal in effect, stricter in guard.
+- START STOP UNIT: runtime autosuspend of the LUN and system suspend/shutdown; Android sets sdev->autosuspend_delay and runs the same START_STOP to the device WLUN (ufshcd_set_dev_pwr_mode); mainline adds rpm_autosuspend = 1 (cap UFSHCD_CAP_RPM_AUTOSUSPEND). Same command, same card state (SLEEP/ACTIVE), different timing. HARMLESS.
+- Background operations: both kernels enable auto-BKOPS only through the UFSHCD_CAP_AUTO_BKOPS_SUSPEND path (bBackgroundOpsEn attribute): same.
+- Write booster: our host caps carry WB_EN and WB_WITH_CLK_SCALING, Android's 4.4 has no write-booster code. But ufshcd_wb_probe (ufshcd.c:8551) probes it only for wSpecVersion >= 0x310 or 0x220 or the SUPPORT_EXTENDED_FEATURES quirk; this card is UFS 2.1 (hba->ufs_version 0x210, device spec 0x0210) and has no such quirk (our tables: SAVECONFIGTIME for any Hynix, plus the model entry), so WB is disabled and no WB flag or attribute is ever written. EQUAL by the card's version.
+- ERASE / secure erase / DISCARD with secure bit: not in either path; sd only issues it on a filesystem request. None.
+
+(2) QUIRKS and the Sony mechanism: as each kernel applies them, this card gets HOST_PA_SAVECONFIGTIME on both (mainline's core table matches every Hynix; Android's matching entry), and ours adds the NO_PURGE guard. Sony's three quirks (DELAY_BEFORE_LPM, EXTEND_SYNC_LENGTH 0x48, one TX lane) are in neither (decision 2026-11-19-walleye-ufs-no-sync-length-quirk). Sony's mechanism is NOT PUBLISHED (research walleye-ufs-gap-sony-mechanism-public-record): the SODP view (bug 802) ties a loss to fPurgeEnable being set, with the sync-length setting a guess. A Sony-class lockup, as published, needs a purge request; our configuration cannot send one by any path read here (no ufs_bsg open, guard on the query builder, nodiscard, no fstrim, no erase path), and a plain write has no way to set it. Open honestly: the Pixel 2's card firmware D003 may react to something unlisted; Android's own year of writes on the same card with the same link settings is the evidence this is not the case here.
+
+(3) LINK and power: Android reaches HS-G3 2 lanes rate B; mainline negotiates the same as far as read (the read-only try shows it). Android 4.4 also scales gear (ufshcd_scale_gear, ufshcd.c:9651 of the vendor tree) and clocks and has hibern8 and clock gating; ours adds no extra command, only different thresholds (no OPP table in msm8998.dtsi, no bus votes). Whether gear scaling under load behaves is exactly what item walleye-ufs-try-2 measures (power_info and devfreq under a bounded O_DIRECT read). Not known yet: nothing about writes, only speed.
+
+(4) THE ONE TESTED COMMAND (walleye-install-rw-write-test, builder to write, keeper to run): ONE partition (system_a or system_b, the slot Android is not on, named by walleye.root and refused if it is the running slot), blockdev --setrw only that node, mount -t ext4 -o rw,nodiscard,noatime, a bounded write (a few hundred MB through dd conv=fsync and sync), umount, sync, fsck.ext4 -fn clean; the bootchain read-back (bootchain-readback.sh) before and after, bootchain-readback-check.sh must find every sha256 equal; the GPT digests before and after (read by Android and by us). Way back: the partition is rewritten from its verified backup (the install stage 1 dd and read-back); the bootloader files and GPT are never written so they need no way back; if the checks fail the phone is left charging in Android and the Top Coordinator is told. Never: erase, purge, discard, fstrim, mkfs, the GPT, xbl, abl or any bootloader partition.
+
+(5) VERDICT: our kernel does nothing Android's did not, for this step. Named differences (none a storage command): runtime-autosuspend timing, gear-scaling thresholds, no bus votes, ICE absent, PHY table of the sdm845 family; Android sends UNMAP, we do not. NOT KNOWN YET: the Lineage fork's UFS code (the running 4.4.302; Google's stock branch was read, as in the earlier android-way research), the card's own firmware reaction to any command, and discard capability of the LUN as the SCSI layer sees it (not in the saved sysfs). None of these is a command we would send. Stop rule held: no bootloader partition, GPT, erase or purge is needed by the step.
+
+Sources
+: wahoo-4-4-ufshcd-c,wahoo-4-4-ufs-qcom-c,src-google-wahoo-msm44-android11,src-mainline-v73-ufshcd,src-sony-bugtracker-802,src-sony-ufs-quirks-forward-port
+
+About
+: walleye-display-s6e3fa5

@@ -1444,3 +1444,29 @@ Author
 
 Takes
 : The slot contract: set_active clears unbootable and successful and resets the retry count; modifying a slot's partition clears successful; retry count decrements per unconfirmed boot
+
+
+<a id="wahoo-4-4-ufshcd-c"></a>
+### Google wahoo 4.4 kernel: drivers/scsi/ufs/ufshcd.c, ufshcd.h, ufs_quirks.[ch] (android-msm-wahoo-4.4-android11 @52750b8f)
+
+Url
+: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-wahoo-4.4-android11/drivers/scsi/ufs/ufshcd.c
+
+By
+: Google
+
+Takes
+: which commands the UFS core issues (START_STOP, bkops, query flags, gear scaling, no_write_same); read only, clean room
+
+
+<a id="src-mainline-v73-ufshcd"></a>
+### Linux v7.3 drivers/ufs/core/ufshcd.c, ufs_bsg.c, host/ufs-qcom.c and drivers/scsi/sd.c (our tree topic/ufs-match-android 3644090c7)
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/ufs/core/ufshcd.c?h=v7.3
+
+By
+: Linux kernel community, our purge guard
+
+Takes
+: write booster probe condition, purge guard, runtime autosuspend, gear scaling, quirk tables
