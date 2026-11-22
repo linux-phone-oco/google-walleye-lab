@@ -5656,3 +5656,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ramroot-b-a5-getty-tty1-prompt-is-mid-screen"></a>
+### walleye-ramroot-b-a5-getty-tty1-prompt-is-mid-screen
+
+Date
+: 2026-11-22
+
+Brief
+: B-a5 run 204417: check 15 passes by substring, but 'walleye login:' sits at screen row 84 with init output after it; the screen ends at 'Starting local', no prompt at the foot
+
+Question
+: Is the Alpine login prompt on the glass of the Pixel 2 where the author can use it?
+
+Found
+: Keeper's unattended run 2026-11-22 20:44-20:50 of procedures/alpine-login-on-the-glass-on-the-pixel-2.rs on B-a5 3cb5adb8: checks 1-16 pass, so the lab says the prompt is on the screen (/dev/vcs of tty1, 120 rows). But screen.txt (~/lab-material/walleye/alpine-login-20261122-204417) shows 'walleye login:' at row 84 on the same line as the start of ' * Binding the usb gadget ...', after which sshd and local lines print and the rest is blank: the getty wrote its prompt early, init output followed it, and the cursor sits below. That equals the author's look (last lines starting sshd, starting local, blinking cursor). So check 15 is too weak: it should require the prompt on the last non-blank row (the cursor row), not anywhere in the text. This refines item walleye-display-alpine-getty-experiments (the getty is not silent: its prompt is overwritten in order, not missing). Phone back on Android slot b after the run (adb device), nothing written. Worktree note: build/images must link to ~/Projects/walleye-build itself, not its images/ folder.
+
+About
+: walleye-display-s6e3fa5
