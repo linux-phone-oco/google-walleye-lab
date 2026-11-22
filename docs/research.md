@@ -5558,3 +5558,25 @@ Sources
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-rootfs-boots-run-1-slot-suffix-missing"></a>
+### walleye-rootfs-boots-run-1-slot-suffix-missing
+
+Date
+: 2026-11-22
+
+Brief
+: Root boot run 1: UFS-on image booted, usb-network and ssh login ok (checks 13-15); stopped at check 16: bootloader gave the init no androidboot.slot_suffix, guard failed open
+
+Question
+: Does the UFS-root image boot from RAM and mount the other slot's system read-only (docs step rootfs-boots)?
+
+Found
+: Run 2026-11-22 ~20:00: checks 1-15 passed (1d6b:0104 on bus, ssh as root, kernel 7.3.0-00013-g3644090c7f6d-dirty, network and services up). Check 16 failed: the init saw no androidboot.slot_suffix on the fastboot-from-RAM boot, so its slot guard failed open and the run stopped by itself. Nothing written to the card by design. Phone back on Android slot b by itself. Not rerun, per the item. The image cannot learn the slot from the cmdline; the procedure or init needs another slot witness (e.g. pass androidboot.slot_suffix=_b in the boot cmdline from fastboot, since adb and fastboot agree on the slot).
+
+Sources
+: null
+
+About
+: walleye-display-s6e3fa5
