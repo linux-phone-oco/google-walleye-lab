@@ -2887,3 +2887,37 @@ About
 
 Tracked by
 : walleye-install-boot-procedure
+
+
+<a id="2026-11-22-walleye-author-research-then-proceed"></a>
+### 2026-11-22-walleye-author-research-then-proceed
+
+Date
+: 2026-11-22
+
+Brief
+: A risky step needs no word of the author once research shows our code does nothing Android's kernel did not; bootloader, GPT, erase, purge never
+
+Decision
+: THE RULE: a step that waited for the author's approval because it is risky proceeds WITHOUT it once the research shows that our code does nothing Android's kernel (and OTA) did not do on THIS phone for THAT step. The comparison is recorded as research with its sources (clean room: read Android's kernel and drivers, never copy), and the step is ONE tested command, rehearsed, with a way back. The verdict goes to the Top Coordinator with the result, not as a question. IT COVERS stage 2 (flash our boot into the slot Android is not on, set_active with boot counting, the way Android's own OTA does it) and stage 3 (our kernel writing to the card exactly as Android's UFS path does, the purge guard kept): items walleye-install-stage2-android-comparison and walleye-install-stage3-android-ufs-comparison carry the verdicts. STILL NEVER, whatever the research says, because the phone has no EDL way back: xbl, abl and the other bootloader partitions, the GPT, erase, purge; if the work seems to need one, STOP and tell the Top Coordinator. THE LANE KEEPS BRINGING UP ON MORE THAN ONE FRONT, within 3 sessions (RAM), each part Android-derived and clean-room, mainlined as it proves out, along the chain to daily-usable-phone (firmware-reachable, remoteprocs, audio, Wi-Fi, modem, charging).
+
+Why
+: The author, "ok, make sure the work continues on bringing up, not only on that direction but those after. if something is blocking by my aproval because its risky, they do as much as possible by reading android kernel, drivers, doing clean room reverse engineering and so on, and when we are sure our code doesnt do something that android linux kernel didnt, we proceed, and mainline the thing. if its done this way, if best that could be have been researched, considered and done, there is no need for my approval, when its already best possible, and when we pass storage question i think there should be less of such places in the future." (the author, 2026-11-22, relayed by the Top Coordinator). He gave it after the per-stage go: asking, even once per stage, still blocks the bring-up; the best that can be researched, considered and done needs no approval. It rests on decision 2026-11-22-walleye-author-go-per-stage-not-per-step, which it amends, and on the lane's rule that Android is disposable but bricking is the one hard line (2026-11-18-walleye-android-disposable-no-bricking).
+
+Rejected
+: Waiting for his word on stage 2 and stage 3 (what he asked us to stop, once the research is done); treating 'research done' as a go for anything that writes the bootloader, the GPT, erases or purges (never: no EDL way back); a verdict without sources or a way back (the bar is unchanged: one tested command, rehearsed, a way back); stopping the other fronts of the bring-up while storage is settled (he asked for the work to continue on more than one).
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-install-stage-how-it-stands
+
+Amends
+: 2026-11-22-walleye-author-go-per-stage-not-per-step
+
+Scope
+: walleye lane: keeper, builder, researcher, coordinator; the author's approval
+
+Tracked by
+: walleye-install-stage2-android-comparison
