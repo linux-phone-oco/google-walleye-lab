@@ -9398,31 +9398,6 @@ Rank
 : 3
 
 
-<a id="walleye-display-alpine-getty-experiments"></a>
-### Why the login prompt on the glass is lost: it IS printed, mid-screen, and OpenRC's output follows it; fix the order and make check 15 require the prompt on the cursor row
-
-Status
-: open
-
-Note
-: THE AUTHOR'S WORDS, verbatim: "proc/sys/kernel/hotplug: nonexistand directory. everything else says ok on the kernel boot scroll. and i see the same last two lines after all ok's: starting sshd, starting local, and next line is blinking cursor" (the author, 2026-11-22, who watched the B-a5 3cb5adb8 boot, relayed by the Top Coordinator). THE CHECK'S OWN MEASUREMENT (keeper run alpine-login-20261122-204417, screen.txt and read.txt in ~/lab-material/walleye): the active VT is tty1 ('/sys/class/tty/tty0/active'), the console is tty0 (4:1), a getty runs (pid 716, '/sbin/getty 38400 tty1', tty 4:1) and so does the one on ttyGS0 ('-L 115200 ttyGS0 vt100'); the inittab has 'tty1::respawn:/sbin/getty 38400 tty1'; the SCREEN TEXT (/dev/vcs, 120 rows) ends '* Starting sshd ... [ ok ]', '* Starting local ... [ ok ]' and then blank rows: no 'walleye login:' and no issue text, exactly what the author saw. So the VT is right and the getty is alive but writes nothing visible. The mdev line the author read ('/proc/sys/kernel/hotplug: nonexistent directory', Alpine's mdev init script, no CONFIG_UEVENT_HELPER) concerns device nodes, not the getty, and is NOT the cause by the readings; it is a notice to fix later in the kernel config or the mdev script. Hypotheses for the experiments to separate: the busybox getty without -L waits for something on the VT (carrier or the DCD line), the first write is lost to a vhangup on a console that fbcon owns, the issue or hostname read blocks, or the prompt goes to a VT other than VT1. The same ttyGS0 getty runs with -L: on a virtual console it should not need it, but it is the one visible difference between the two lines. Run by a keeper after the stage 1 boot rerun; it is a RAM-only image (UFS off). 2026-11-22 (the keeper's run, research walleye-ramroot-b-a5-getty-tty1-prompt-is-mid-screen, PR 727): 'walleye login:' IS in the screen text, at row 84, on the same line as ' * Binding the usb gadget'; init output follows it and the screen ends at 'Starting local': the getty started alongside OpenRC's default runlevel (::once) and its prompt was scrolled mid-screen, which matches the author's look (last two lines 'starting sshd', 'starting local', blinking cursor). So the cause is the ORDER, not a dead getty, and check 15 was too weak. This overrides the earlier hypotheses list.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-22
-
-Needs
-: build
-
-Proof
-: (1) CHECK 15 TIGHTENED: the screen text must hold 'login:' on the LAST non-blank row (the cursor row), not anywhere; it fails on the keeper's run alpine-login-20261122-204417 (where the prompt sits at row 84 and 'Starting local' is last) and passes on a screen whose last line is the prompt: a stand-in test for both; (2) THE ORDER FIXED, proved by the keeper's run: the init output no longer follows the prompt: the simplest is a script in /etc/local.d (runs in the 'local' service at the END of the default runlevel) that makes init respawn the tty1 getty (kill it), so a fresh prompt prints BELOW all the init output; keep the inittab's ::once for 'openrc default' (a hanging service must not block the console), or ::wait as Alpine's own inittab has if you show it cannot hide the console; prove it first with the live experiment (kill the tty1 getty, wait 2 s, read the screen text: the prompt is the last row); (3) the live experiments (a plain write to /dev/tty1, getty -L, -n -l /bin/login, agetty) stay as a fallback for the case check 15 still fails; (4) the image rebuilt (new sha256 in device.toml [images.b-a5], identical twice), drop what only floods the console from the command line if the screen text shows it (the dyndbg gpio flood at 6 s); dry run, check --host, stand-in tests, clippy, fmt, review
-
-Rank
-: 1
-
-
 <a id="walleye-rootfs-boots-run-2-diagnose"></a>
 ### Why the init did not hand over to the root's /sbin/init in run 2: the boot procedure reads the evidence on a failed check, then a keeper reruns it
 
@@ -9480,3 +9455,28 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-display-alpine-getty-experiments"></a>
+### Why the login prompt on the glass is lost: it IS printed, mid-screen, and OpenRC's output follows it; fix the order and make check 15 require the prompt on the cursor row
+
+Status
+: open
+
+Note
+: THE AUTHOR'S WORDS, verbatim: "proc/sys/kernel/hotplug: nonexistand directory. everything else says ok on the kernel boot scroll. and i see the same last two lines after all ok's: starting sshd, starting local, and next line is blinking cursor" (the author, 2026-11-22, who watched the B-a5 3cb5adb8 boot, relayed by the Top Coordinator). THE CHECK'S OWN MEASUREMENT (keeper run alpine-login-20261122-204417, screen.txt and read.txt in ~/lab-material/walleye): the active VT is tty1 ('/sys/class/tty/tty0/active'), the console is tty0 (4:1), a getty runs (pid 716, '/sbin/getty 38400 tty1', tty 4:1) and so does the one on ttyGS0 ('-L 115200 ttyGS0 vt100'); the inittab has 'tty1::respawn:/sbin/getty 38400 tty1'; the SCREEN TEXT (/dev/vcs, 120 rows) ends '* Starting sshd ... [ ok ]', '* Starting local ... [ ok ]' and then blank rows: no 'walleye login:' and no issue text, exactly what the author saw. So the VT is right and the getty is alive but writes nothing visible. The mdev line the author read ('/proc/sys/kernel/hotplug: nonexistent directory', Alpine's mdev init script, no CONFIG_UEVENT_HELPER) concerns device nodes, not the getty, and is NOT the cause by the readings; it is a notice to fix later in the kernel config or the mdev script. Hypotheses for the experiments to separate: the busybox getty without -L waits for something on the VT (carrier or the DCD line), the first write is lost to a vhangup on a console that fbcon owns, the issue or hostname read blocks, or the prompt goes to a VT other than VT1. The same ttyGS0 getty runs with -L: on a virtual console it should not need it, but it is the one visible difference between the two lines. Run by a keeper after the stage 1 boot rerun; it is a RAM-only image (UFS off). 2026-11-22 (the keeper's run, research walleye-ramroot-b-a5-getty-tty1-prompt-is-mid-screen, PR 727): 'walleye login:' IS in the screen text, at row 84, on the same line as ' * Binding the usb gadget'; init output follows it and the screen ends at 'Starting local': the getty started alongside OpenRC's default runlevel (::once) and its prompt was scrolled mid-screen, which matches the author's look (last two lines 'starting sshd', 'starting local', blinking cursor). So the cause is the ORDER, not a dead getty, and check 15 was too weak. This overrides the earlier hypotheses list. 2026-11-22 (the Top Coordinator's order for the resume): rank 3, after the init handover fix and the stage 1 rerun.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: build
+
+Proof
+: (1) CHECK 15 TIGHTENED: the screen text must hold 'login:' on the LAST non-blank row (the cursor row), not anywhere; it fails on the keeper's run alpine-login-20261122-204417 (where the prompt sits at row 84 and 'Starting local' is last) and passes on a screen whose last line is the prompt: a stand-in test for both; (2) THE ORDER FIXED, proved by the keeper's run: the init output no longer follows the prompt: the simplest is a script in /etc/local.d (runs in the 'local' service at the END of the default runlevel) that makes init respawn the tty1 getty (kill it), so a fresh prompt prints BELOW all the init output; keep the inittab's ::once for 'openrc default' (a hanging service must not block the console), or ::wait as Alpine's own inittab has if you show it cannot hide the console; prove it first with the live experiment (kill the tty1 getty, wait 2 s, read the screen text: the prompt is the last row); (3) the live experiments (a plain write to /dev/tty1, getty -L, -n -l /bin/login, agetty) stay as a fallback for the case check 15 still fails; (4) the image rebuilt (new sha256 in device.toml [images.b-a5], identical twice), drop what only floods the console from the command line if the screen text shows it (the dyndbg gpio flood at 6 s); dry run, check --host, stand-in tests, clippy, fmt, review
+
+Rank
+: 3
