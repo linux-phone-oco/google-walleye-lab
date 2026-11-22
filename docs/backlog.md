@@ -9083,34 +9083,6 @@ Rank
 : 3
 
 
-<a id="walleye-install-rw-write-test"></a>
-### Stage 3: one rw mount (nodiscard, no fstrim, purge guard) of the rootfs partition under our kernel, a write run, and proof the bootloader files are unchanged
-
-Status
-: open
-
-Note
-: ~4 keeper-h. The only stage with the Sony-class hazard; no erase, purge or unmap is ever sent. 2026-11-22 (the author's standing rule, decision 2026-11-22-walleye-author-research-then-proceed): no word of his is waited for once the research verdict (item walleye-install-stage3-android-ufs-comparison) says our kernel does nothing Android's UFS path does not, on this phone; the step is then ONE tested command (one partition, no erase, no purge, the purge guard kept, the bootchain read-back identical after), rehearsed, with a way back; the coordinator opens the go; the result and the verdict go to the Top Coordinator. NEVER: bootloader partitions, the GPT, erase, purge.
-
-Blocked by
-: walleye-install-rootfs-boots-try,walleye-ufs-try-2,walleye-install-stage3-android-ufs-comparison
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-22
-
-Needs
-: phone
-
-Proof
-: bootchain-readback.sh then bootchain-readback-check.sh DIR_before DIR_after: same sha256 for every file; the card reports no errors; the partition's fsck is clean
-
-Rank
-: 9
-
-
 <a id="walleye-install-rootfs-pd-mapper"></a>
 ### pd-mapper for the Alpine image: a static aarch64 build from the upstream source (it is in no Alpine repo)
 
@@ -9264,34 +9236,6 @@ Rank
 : 2
 
 
-<a id="walleye-install-flash-boot"></a>
-### Stage 2: fastboot flash boot of the unused slot with our image and set_active; the phone starts Linux by itself; the fall back to Android proven
-
-Status
-: open
-
-Note
-: ~3 keeper-h. Read back boot, dtbo, vbmeta first (walleye-install-slot-readback). Way back: fastboot flash the stored boot, set_active the Android slot. 2026-11-22 (the author's standing rule, decision 2026-11-22-walleye-author-research-then-proceed): no word of his is waited for once the research verdict (item walleye-install-stage2-android-comparison) says our steps do nothing Android's OTA does not; the step is then ONE tested command, rehearsed, with a way back (fastboot set_active b; fastboot flash boot_a from the stored backup); the coordinator opens the go, a keeper runs it, the result and the verdict go to the Top Coordinator. NEVER, whatever the research says: xbl, abl and other bootloader partitions, the GPT, erase, purge. 2026-11-22 (research walleye-install-stage2-android-verdict, PR 703): VERDICT: our two steps (flash boot_<other>, then fastboot set_active) are what Android's OTA does in kind. ONE NAMED FACT: set_active is a GPT write (the slot attribute bits of the A/B entries, the type GUIDs swapped, the boot LUN set, both headers rewritten), done by the bootloader's own code, and the OTA's setActiveBootSlot is the same write; a failed boot's retry count is also decremented by the bootloader on every try boot. The decision's 'never the GPT' is read by the research as covering OUR writes to the table; whether it covers the bootloader's own slot switch is the author's reading to give: the research did not treat the verdict as a go. Not known yet: walleye's real ABL is proprietary and was not read (the open CAF ABL stands in), the AVB vbmeta flags for our boot slot. Cheap read-only check: fastboot getvar slot-successful, slot-unbootable, slot-retry-count for both slots before and after a RAM boot, none should change, and getvar all twice identical (the stage 1 boot already reads the slot flags before and after). 2026-11-22 (the Top Coordinator's reading, recorded on the decision): set_active by the bootloader is ALLOWED, 'never the GPT' is OUR edits of the table. The author is told; if he objects it stops. The waits for the reading is cleared; this item now waits for the stage 1 boot (blocked_by) and the one command with its rehearsal.
-
-Blocked by
-: walleye-install-rootfs-boots-try
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-22
-
-Needs
-: phone
-
-Proof
-: a power-on lands in Linux on ssh without fastboot boot; after a forced failed boot (retry count) it falls back to Android; avb behaviour recorded; and the conditions of the reading of 'never the GPT' (decision 2026-11-22-walleye-author-research-then-proceed): slot flags (getvar slot-* both slots) and both GPT LUN headers read and kept BEFORE; set_active only the slot whose boot was just flashed and read back; AFTER, the only changes are the slot attribute bits and the type-GUID and boot-LUN switch the open ABL describes; the way back (fastboot set_active b, the same operation in reverse) rehearsed BEFORE it is relied on
-
-Rank
-: 8
-
-
 <a id="walleye-install-rootfs-boots-try"></a>
 ### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
 
@@ -9321,3 +9265,109 @@ Witness
 
 Go until
 : 2026-11-22T22:40:30+01:00
+
+
+<a id="walleye-install-flash-boot-procedure"></a>
+### Stage 2 as ONE command: flash boot_<other> with our boot image, read it back, set_active that slot, the way back set_active b, every read before and after, and its rehearsal
+
+Status
+: open
+
+Note
+: From the stage 2 verdict (research walleye-install-stage2-android-verdict, PR 703) and the reading of 'never the GPT' (decision 2026-11-22-walleye-author-research-then-proceed): set_active by the bootloader is allowed with these conditions, the author is told. The flash of boot_<other> is a plain partition write. Runs after the stage 1 boot (walleye-install-rootfs-boots-try) proved the kernel and the root from the card. Never: bootloader partitions, the GPT written by us, erase, purge: if the work seems to need one, stop and tell the coordinator.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: build
+
+Proof
+: procedures/install-boot-on-the-pixel-2.rs on the current lpoco-attended, keys at the top of main from device.toml, a plain checklist: gates (battery; the slot Android runs from read by adb AND fastboot and equal; the boot image is the declared one, its sha256, AVB footer, built from the tree that booted in stage 1); BEFORE: fastboot getvar slot-* for both slots and the read-only read-back of the GPT LUN headers, kept; flash ONE partition, boot_<other> (never boot_<Android's>, never any other name; an allow-list in device.toml), read it back and its sha256 equal to the image; set_active the SAME slot; AFTER: the slot flags and GPT headers read again and the only changes are the slot attribute bits and the type-GUID and boot-LUN switch the open ABL describes (a check that fails on any other byte); then the boot of the new slot is observed (the phone comes up from the card on ssh without fastboot boot), and the WAY BACK fastboot set_active <Android's slot> (b), REHEARSED in the same run before the command ends and in a rehearsal command (procedures/rehearse-install-boot-on-the-pixel-2.rs: every step but the flash and set_active, plus the way back's set_active to the slot already active as a no-change write if the ABL accepts it, else the reads only), the phone ends on Android; dry run, check --host, stand-in tests, clippy, fmt, review
+
+Rank
+: 3
+
+
+<a id="walleye-install-rw-write-procedure"></a>
+### Stage 3 as ONE command: one bounded rw mount of system_<other> from our kernel, nodiscard, a bounded dd with fsync, umount, fsck, the bootchain read-back equal before and after, and its rehearsal
+
+Status
+: open
+
+Note
+: From the stage 3 verdict (research walleye-install-stage3-android-ufs-comparison-verdict, PR 708): for one rw mount with nodiscard, no fstrim, no mkfs, ufs_bsg unopened and the purge guard kept, our kernel sends the card no command class Android's did not (UNMAP: we send none, Android sent some; write SAME off in both; purge set by neither; the write booster never probed on this UFS 2.1 card; START STOP, background operations and the Hynix SAVECONFIGTIME quirk the same in both; link gear scaling in both; the differences left are power and speed). Not known yet: the Lineage fork's UFS code, the card firmware's own reactions, whether the LUN reports discard support. Runs after the stage 1 boot and UFS try 2 (item walleye-install-rw-write-test). Never: bootloader partitions, the GPT, erase, purge.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: build
+
+Proof
+: procedures/rw-write-on-the-pixel-2.rs on the current lpoco-attended, a plain checklist, on the UFS-root image's kernel (a variation of the stage 1 boot command whose init mounts the target rw instead of ro: a second image or an init switch named in device.toml, never the same sha as the ro image): gates (battery; the slot Android runs from read by adb and fastboot; the partition is system_<other> by NAME only, from an allow-list); BEFORE: the bootchain read-back (every file sha256) and the GPT of every disk kept; ONE rw mount, ext4 nodiscard (no discard, no fstrim, no mkfs, ufs_bsg never opened, the purge guard kept); a bounded dd with fsync into a file under a directory, then sync, umount, fsck.ext4 -n clean; AFTER: the bootchain read-back equal to BEFORE, the GPT equal, the card's error counters and dmesg free of UFS errors; the way back (the phone resets and returns to Android; the image's written file is removed or the partition restored from the stored backup, whichever the run needs); a rehearsal command of every step but the rw mount; dry run, check --host, stand-in tests, clippy, fmt, review
+
+Rank
+: 6
+
+
+<a id="walleye-install-rw-write-test"></a>
+### Stage 3: one rw mount (nodiscard, no fstrim, purge guard) of the rootfs partition under our kernel, a write run, and proof the bootloader files are unchanged
+
+Status
+: open
+
+Note
+: ~4 keeper-h. The only stage with the Sony-class hazard; no erase, purge or unmap is ever sent. 2026-11-22 (the author's standing rule, decision 2026-11-22-walleye-author-research-then-proceed): no word of his is waited for once the research verdict (item walleye-install-stage3-android-ufs-comparison) says our kernel does nothing Android's UFS path does not, on this phone; the step is then ONE tested command (one partition, no erase, no purge, the purge guard kept, the bootchain read-back identical after), rehearsed, with a way back; the coordinator opens the go; the result and the verdict go to the Top Coordinator. NEVER: bootloader partitions, the GPT, erase, purge. 2026-11-22 (research walleye-install-stage3-android-ufs-comparison-verdict, PR 708): the verdict is in: our kernel sends no command class Android's did not for this step; the one command is item walleye-install-rw-write-procedure; no word of the author's is waited for (decision 2026-11-22-walleye-author-research-then-proceed).
+
+Blocked by
+: walleye-install-rootfs-boots-try,walleye-ufs-try-2,walleye-install-rw-write-procedure
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: phone
+
+Proof
+: bootchain-readback.sh then bootchain-readback-check.sh DIR_before DIR_after: same sha256 for every file; the card reports no errors; the partition's fsck is clean
+
+Rank
+: 9
+
+
+<a id="walleye-install-flash-boot"></a>
+### Stage 2: fastboot flash boot of the unused slot with our image and set_active; the phone starts Linux by itself; the fall back to Android proven
+
+Status
+: open
+
+Note
+: ~3 keeper-h. Read back boot, dtbo, vbmeta first (walleye-install-slot-readback). Way back: fastboot flash the stored boot, set_active the Android slot. 2026-11-22 (the author's standing rule, decision 2026-11-22-walleye-author-research-then-proceed): no word of his is waited for once the research verdict (item walleye-install-stage2-android-comparison) says our steps do nothing Android's OTA does not; the step is then ONE tested command, rehearsed, with a way back (fastboot set_active b; fastboot flash boot_a from the stored backup); the coordinator opens the go, a keeper runs it, the result and the verdict go to the Top Coordinator. NEVER, whatever the research says: xbl, abl and other bootloader partitions, the GPT, erase, purge. 2026-11-22 (research walleye-install-stage2-android-verdict, PR 703): VERDICT: our two steps (flash boot_<other>, then fastboot set_active) are what Android's OTA does in kind. ONE NAMED FACT: set_active is a GPT write (the slot attribute bits of the A/B entries, the type GUIDs swapped, the boot LUN set, both headers rewritten), done by the bootloader's own code, and the OTA's setActiveBootSlot is the same write; a failed boot's retry count is also decremented by the bootloader on every try boot. The decision's 'never the GPT' is read by the research as covering OUR writes to the table; whether it covers the bootloader's own slot switch is the author's reading to give: the research did not treat the verdict as a go. Not known yet: walleye's real ABL is proprietary and was not read (the open CAF ABL stands in), the AVB vbmeta flags for our boot slot. Cheap read-only check: fastboot getvar slot-successful, slot-unbootable, slot-retry-count for both slots before and after a RAM boot, none should change, and getvar all twice identical (the stage 1 boot already reads the slot flags before and after). 2026-11-22 (the Top Coordinator's reading, recorded on the decision): set_active by the bootloader is ALLOWED, 'never the GPT' is OUR edits of the table. The author is told; if he objects it stops. The waits for the reading is cleared; this item now waits for the stage 1 boot (blocked_by) and the one command with its rehearsal. 2026-11-22: the one command is item walleye-install-flash-boot-procedure.
+
+Blocked by
+: walleye-install-rootfs-boots-try,walleye-install-flash-boot-procedure
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: phone
+
+Proof
+: a power-on lands in Linux on ssh without fastboot boot; after a forced failed boot (retry count) it falls back to Android; avb behaviour recorded; and the conditions of the reading of 'never the GPT' (decision 2026-11-22-walleye-author-research-then-proceed): slot flags (getvar slot-* both slots) and both GPT LUN headers read and kept BEFORE; set_active only the slot whose boot was just flashed and read back; AFTER, the only changes are the slot attribute bits and the type-GUID and boot-LUN switch the open ABL describes; the way back (fastboot set_active b, the same operation in reverse) rehearsed BEFORE it is relied on
+
+Rank
+: 8
