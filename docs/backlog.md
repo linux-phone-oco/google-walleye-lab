@@ -8512,31 +8512,6 @@ Rank
 : 1
 
 
-<a id="walleye-wdt-pon-bites-procedure"></a>
-### The four PMIC bites as one command: procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs (S2 type 0x07 and 0x01, cable in and out), the PON registers read after each
-
-Status
-: open
-
-Note
-: PARKED, NOT LANDED (2026-11-20, author's gentle pause): the build is whole on branch walleye-wdt-pon-bites-procedure (commit after 43f1090; fetch it from origin) but the programmer review found 3 blockers to fix before landing: (1) look_for in the dark-phone group: any answer but 'ok' stops the run and loses the observation: make the check text 'ok once you have looked' or drop it; (2) the_host_lost_the_phone passes after the bite already fired with the cable in: fail when armed.elapsed() >= bite_seconds, and print cable_out_s in the CABLE_OUT prompt; (3) a warm bite can run as hard when the PON registers do not read (probe trusts any type; the patch ignores device_property_read_u32's result): dev_dbg the chosen type in the patch and require that line in bite_type_reads when registers are unread, or fail the probe on an unreadable property. Also fix: after the author forces a reset the 'by itself' labels and reason.txt are false (record the intervention; keep the first seen.txt); charger_wait 60 is measured from the shell loss: use about 150 s from arming; comments claiming the registers are read before anything resets them and that fastboot boot is not a reset must say not known yet; pon_names uses gen1 offsets on a PM8998: disclaim; rename W in build-pmic-wdt-v1.sh one(); stale text in init-wdt2 (banner 'wdt1', 'seven', usage); tests should assert the command lines sent (wdt-bite 1 read 20, 7 read 45). The images wdt2-hard e7590705 and wdt2-warm 9b3b0394 are built in ~/Projects/walleye-build/images-wdt2-bites; fixing the patch changes the warm image (rebuild: kernel tree $AGENT_BUILD/k-wdt-warm of the shared linux clone, build/build-kernel.sh with EXTRA_CONFIG=build/walleye-wdt.config, then build-pmic-wdt-v1.sh with INIT_NAME=wdt2 PREFIX=wdt2 NAME_A=hard NAME_B=warm VERSION_B=next-20261118 DTB_PROP_B='qcom,s2-type 1'; update the sha256 in device.toml). Then land, and the keeper runs it unattended. Needs: phone (keeper), after the fixes. BRANCH: origin/walleye-wdt-pon-bites-procedure (4b83994), pushed, not landed, the pause 2026-11-20 at the author's word. 2026-11-20 (coordinator, the author resumes with the goal Linux installed and booting from its own storage): open again at rank 5, behind walleye-display-reset-image (B-r5, rank 2) and walleye-ufs-try-2's preparation; resume from the branch, fix the 3 blockers first.
-
-About
-: walleye-pmic-wdt-v1-image
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: image B = image A with the S2 reset type 0x01 (the way the series' reset-type hook allows: a DT property or the module's parameter, the smallest; UFS-off gate and AVB pass, rebuild identical, review) and procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs on the current lpoco-attended, keys at the top of main (device.toml [procedures.*], [images.*]), one screen of entry file; four bites as step groups (0x07 cable in, 0x07 cable out, 0x01 cable in, 0x01 cable out), each: battery rule, arm, bite, then the PON registers (PON_REASON1, PON_ON_REASON, POFF_REASON1, WARM_RESET_REASON1) read BEFORE anything resets them, then the way back to Android; a research row first says how the registers can be read after a bite on this phone (the bootloader's charger screen has no adb: what reads them? Android's dmesg after the power press is already a second boot) and the procedure follows it; the lab decides every part it can without the author (no adb within N s after the bite with the cable in = charger screen or off; adb up by itself = Android came back); the author is asked only for the physical steps (the cable moves, the power press, the look at the cable-in screen) and only through the lpoco-attended physical steps; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; then a keeper's unattended run of every part that needs nobody, ending at the first physical ask with 'nobody answered' and the phone back on Android BY ITS OWN WAY BACK; the answer file path printed
-
-Rank
-: 5
-
-
 <a id="walleye-ufs-try-2-one-command"></a>
 ### UFS try 2 as ONE command: the matched-image procedure with the gear read under load and after 2 s idle, tested everywhere but the phone, so the author's go buys exactly that
 
@@ -8563,99 +8538,6 @@ Proof
 
 Rank
 : 3
-
-
-<a id="walleye-install-flash-boot"></a>
-### Stage 2: fastboot flash boot of the unused slot with our image and set_active; the phone starts Linux by itself; the fall back to Android proven
-
-Status
-: open
-
-Note
-: ~3 keeper-h. Read back boot, dtbo, vbmeta first (walleye-install-slot-readback). Way back: fastboot flash the stored boot, set_active the Android slot.
-
-Waits
-: the author's yes to flashing boot of the unused slot and the slot switch
-
-Blocked by
-: walleye-install-rootfs-boots-try
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: phone
-
-Proof
-: a power-on lands in Linux on ssh without fastboot boot; after a forced failed boot (retry count) it falls back to Android; avb behaviour recorded
-
-Rank
-: 8
-
-Witness
-: person
-
-
-<a id="walleye-install-rw-write-test"></a>
-### Stage 3: one rw mount (nodiscard, no fstrim, purge guard) of the rootfs partition under our kernel, a write run, and proof the bootloader files are unchanged
-
-Status
-: open
-
-Note
-: ~4 keeper-h. The only stage with the Sony-class hazard; no erase, purge or unmap is ever sent.
-
-Waits
-: the author's yes to mainline writes to the UFS
-
-Blocked by
-: walleye-install-rootfs-boots-try,walleye-ufs-try-2
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: phone
-
-Proof
-: bootchain-readback.sh then bootchain-readback-check.sh DIR_before DIR_after: same sha256 for every file; the card reports no errors; the partition's fsck is clean
-
-Rank
-: 9
-
-Witness
-: person
-
-
-<a id="walleye-device-config-sources-read"></a>
-### Read Google's wahoo device configuration (and Project Elixir's tree) for what the bring-up steps need: firmware paths, WCD934x routing, vendor module order, thermal zones, touch config, Wi-Fi config
-
-Status
-: open
-
-Note
-: From the author, via the Top Coordinator (2026-11-20): he found ProjectElixir-Devices/device_google_walleye (branch udc, 2024), AOSP device configuration (not a kernel device tree) derived from Google's device/google/wahoo. Recorded as sources: src-google-device-wahoo (primary) and src-projectelixir-device-google-walleye (where the author saw it). Until now only crDroid's wahoo init.hardware.usb.rc was cited. The fstab.hardware and recovery part is folded into the install research walleye-install-stage-decision NOW; the rest waits for its step. Checked 2026-11-20 on both pages: the Elixir tree lists fstab.hardware, recovery, proprietary-firmware.txt, proprietary-files.txt and -vendor.txt, init.insmod.cfg, mixer_paths_tavil.xml, audio_platform_info_tavil.xml, thermal-engine.conf, thermal_info_config.json, synaptics_dsxv26.idc, WCNSS_qcom_cfg.ini; Google's googlesource page lists branches and tags (android11-release, main) but its file list was not read: whether each file exists there is not known yet.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: research
-
-Proof
-: one research row per area when its step comes due, each naming the file in src-google-device-wahoo (primary) or src-projectelixir-device-google-walleye (where noted) and what it gives, read only: (1) firmware: proprietary-firmware.txt and proprietary-files*.txt of the Elixir tree against the phone's own partitions (modem, adsp, slpi, venus, wlan; our read-only extraction) for step firmware-reachable and walleye-modem-mss-image; (2) audio: mixer_paths_tavil.xml and audio_platform_info_tavil.xml for the WCD934x (tavil) routing, for items walleye-adsp-q6-mi2s and walleye-tas2557-driver and the later ALSA UCM profile (step ucm-hifi-profile); (3) init.insmod.cfg: the vendor module order, against our own load orders (display, the L7 order); (4) thermal-engine.conf and thermal_info_config.json: the zones and limits, for step thermal-zones-sane; (5) synaptics_dsxv26.idc: the touch config against our Synaptics S3708AR node; (6) WCNSS_qcom_cfg.ini: for walleye-wifi-wcn3990; none of it is copied into git beyond what its licence allows (Apache 2.0 for Google's files: quote small, cite the path and commit)
-
-Rank
-: 25
 
 
 <a id="walleye-display-handover-driver"></a>
@@ -8789,31 +8671,6 @@ Rank
 : 3
 
 
-<a id="walleye-display-dts-any-order"></a>
-### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
-
-Status
-: open
-
-Note
-: 2026-11-20 (coordinator): B-r5 at 5 s is CLEAN: smmu 0, rcg 0, dsi -110 0, 13 of 13 (keeper, PR 657, research walleye-display-reset-image-b-r5-tried-signs-vanish): the MDSS reset is the handover (decision 2026-11-20-walleye-display-handover-reset-first stands). NOT measured: 2 s (display at boot) and another load order, and the glass was not looked at. So this item builds those images and then the keeper's try; it no longer waits on walleye-display-handover-driver. Rank 2 (the top build). 2026-11-20 (coordinator): rank 6: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: the display at boot, in any load order: (1) the board dts carries resets = <&mmcc MDSS_BCR> on the mdss node in the form it would go upstream (an msm8998.dtsi patch for the reset property, and the board dts without any lab hack), tests/host/dtb-display-reset.sh passes on its dtb; (2) images that load the display modules EARLY on purpose: B-r2 (the same as B-r5 at 2 s, the earliest the init could load them), and one with the modules loaded in another order than L6/L7's (any order); declared in device.toml [images.*] with the sha256; (3) the keeper's unattended delay-bisect table at 2 s and in the other order: smmu_faults, rcg_warnings, dsi_110 all 0 and 13 of 13 modules ok (display-boot-clean); (4) the step display-boots-any-order marked from that run; the author's look is a later item (walleye-display-look-b2)
-
-Rank
-: 6
-
-
 <a id="walleye-install-rootfs-alpine-min"></a>
 ### Build a minimal Alpine arm64 rootfs, the hardware-test layer, under 2.5 GiB: getty on tty and ttyGS0, sshd over usb-network, the Qualcomm services the steps need, lpoco-health; no UI, no firmware, no phone shell
 
@@ -8837,31 +8694,6 @@ Proof
 
 Rank
 : 2
-
-
-<a id="walleye-install-rootfs-pd-mapper"></a>
-### pd-mapper for the Alpine image: a static aarch64 build from the upstream source (it is in no Alpine repo)
-
-Status
-: open
-
-Note
-: From the Alpine builder's look-around (PR 664): Alpine's repos have qrtr, rmtfs and tqftpserv; pd-mapper is postmarketOS's package. Due when the remoteproc and firmware steps need it (step pd-mapper-before-remoteproc), not for stage 1. Look at how postmarketOS and the linux-msm tree make it before building: contribute back, do not copy a patch we do not understand.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: build
-
-Proof
-: pd-mapper (linux-msm/pd-mapper) built static for aarch64 with aarch64-linux-gnu-gcc, from a pinned commit, licence read and recorded, added to the Alpine image's file list and checked (file says aarch64 static); installed, not started without firmware
-
-Rank
-: 25
 
 
 <a id="walleye-install-current-slot-read"></a>
@@ -9233,3 +9065,209 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-install-stage2-android-comparison"></a>
+### Stage 2 against Android: does flashing our boot into the slot Android is not on and set_active with boot counting do anything Android's own OTA does not?
+
+Status
+: open
+
+Note
+: From the author's standing rule (decision 2026-11-22-walleye-author-research-then-proceed): a risky step proceeds without his word once research shows our code does nothing Android's kernel and OTA did not, on this phone, for that step. This item is that research for stage 2. The verdict goes to the Top Coordinator with the result, not as a question. If the work seems to need xbl, abl or another bootloader partition, the GPT, erase or purge: STOP and tell the coordinator (no EDL way back).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: research
+
+Proof
+: a research row with sources and a VERDICT, read from Android's own code and this phone's readings (clean room: read, never copy): (1) how Android's OTA (update_engine and the bootctrl HAL of walleye, hardware/qcom/bootctrl or the device tree's own, the A/B slot metadata in the bootloader's misc) writes boot_<other>, marks the other slot unbootable then active, sets the retry count and the successful flag, and when it marks the slot successful; (2) what the bootloader does with an unsigned boot image on this unlocked phone (the vbmeta flags, the AVB verification state, the rollback index, dm-verity) and that our boot image's footer and vbmeta handling is the same as the stock one's or differs in ONE named way; (3) what our one command would do, step by step, set against (1): fastboot flash boot_a from the lab, set_active a with the retry count, the fallback to b after a failed boot (the bootloader's own counting), and the way back (fastboot set_active b, fastboot flash boot_a from the stored backup); (4) the VERDICT: 'our steps do nothing the OTA does not' or the named difference; and the cheapest read-only checks that show it (the slot flags read before and after a RAM boot, the stored read-back); never touches bootloader partitions, the GPT, erase or purge
+
+Rank
+: 2
+
+
+<a id="walleye-install-stage3-android-ufs-comparison"></a>
+### Stage 3 against Android: does our kernel's write path to the UFS card do anything Android's UFS path on this phone does not (UNMAP, purge, erase, quirks, write booster, power)?
+
+Status
+: open
+
+Note
+: Stage 3 of the same standing rule (decision 2026-11-22-walleye-author-research-then-proceed). Builds on research walleye-ufs-hazard-research, walleye-ufs-gap-sony-mechanism and walleye-ufs-solution-table. The verdict goes to the Top Coordinator with the result. Stop and tell the coordinator if the work seems to need a bootloader partition, the GPT, erase or purge.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: research
+
+Proof
+: a research row with sources and a VERDICT, from the android-msm-wahoo-4.4 kernel's ufs-qcom and ufshcd (read, clean room) set against mainline v7.3's: (1) every command class each issues to this card on a plain ext4 write and on unmount (WRITE(10), SYNCHRONIZE CACHE, UNMAP through discard, PURGE through the purge hook, START STOP UNIT, the background operations and the write booster), with the mount options our rootfs uses (nodiscard, no fstrim, no online discard); (2) the card's quirks (SK hynix H28U74301AMR D003: walleye-ufs-hynix-quirks) as each kernel applies them, and the Sony mechanism (walleye-ufs-gap-sony-mechanism): the exact way a Sony-class lockup came about and why our configuration cannot reach it (the purge guard kept, discard off, no erase path); (3) the link: gear, power mode and clock scaling under load (the UFS try 2 reading, item walleye-ufs-try-2), set against Android's; (4) the one tested command (a bounded rw mount of ONE partition, no erase, no purge, the bootchain read-back identical before and after: item walleye-install-rw-write-test) and its way back; (5) the VERDICT: 'our kernel does nothing Android's did not' or the named difference; never touches bootloader partitions, the GPT, erase or purge
+
+Rank
+: 3
+
+
+<a id="walleye-install-flash-boot"></a>
+### Stage 2: fastboot flash boot of the unused slot with our image and set_active; the phone starts Linux by itself; the fall back to Android proven
+
+Status
+: open
+
+Note
+: ~3 keeper-h. Read back boot, dtbo, vbmeta first (walleye-install-slot-readback). Way back: fastboot flash the stored boot, set_active the Android slot. 2026-11-22 (the author's standing rule, decision 2026-11-22-walleye-author-research-then-proceed): no word of his is waited for once the research verdict (item walleye-install-stage2-android-comparison) says our steps do nothing Android's OTA does not; the step is then ONE tested command, rehearsed, with a way back (fastboot set_active b; fastboot flash boot_a from the stored backup); the coordinator opens the go, a keeper runs it, the result and the verdict go to the Top Coordinator. NEVER, whatever the research says: xbl, abl and other bootloader partitions, the GPT, erase, purge.
+
+Blocked by
+: walleye-install-rootfs-boots-try,walleye-install-stage2-android-comparison
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: phone
+
+Proof
+: a power-on lands in Linux on ssh without fastboot boot; after a forced failed boot (retry count) it falls back to Android; avb behaviour recorded
+
+Rank
+: 8
+
+
+<a id="walleye-install-rw-write-test"></a>
+### Stage 3: one rw mount (nodiscard, no fstrim, purge guard) of the rootfs partition under our kernel, a write run, and proof the bootloader files are unchanged
+
+Status
+: open
+
+Note
+: ~4 keeper-h. The only stage with the Sony-class hazard; no erase, purge or unmap is ever sent. 2026-11-22 (the author's standing rule, decision 2026-11-22-walleye-author-research-then-proceed): no word of his is waited for once the research verdict (item walleye-install-stage3-android-ufs-comparison) says our kernel does nothing Android's UFS path does not, on this phone; the step is then ONE tested command (one partition, no erase, no purge, the purge guard kept, the bootchain read-back identical after), rehearsed, with a way back; the coordinator opens the go; the result and the verdict go to the Top Coordinator. NEVER: bootloader partitions, the GPT, erase, purge.
+
+Blocked by
+: walleye-install-rootfs-boots-try,walleye-ufs-try-2,walleye-install-stage3-android-ufs-comparison
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: phone
+
+Proof
+: bootchain-readback.sh then bootchain-readback-check.sh DIR_before DIR_after: same sha256 for every file; the card reports no errors; the partition's fsck is clean
+
+Rank
+: 9
+
+
+<a id="walleye-install-rootfs-pd-mapper"></a>
+### pd-mapper for the Alpine image: a static aarch64 build from the upstream source (it is in no Alpine repo)
+
+Status
+: open
+
+Note
+: From the Alpine builder's look-around (PR 664): Alpine's repos have qrtr, rmtfs and tqftpserv; pd-mapper is postmarketOS's package. Due when the remoteproc and firmware steps need it (step pd-mapper-before-remoteproc), not for stage 1. Look at how postmarketOS and the linux-msm tree make it before building: contribute back, do not copy a patch we do not understand. 2026-11-22 (coordinator): rank 4: the step pd-mapper-before-remoteproc unlocks 44 steps of the bring-up chain (read off docs' bringup_step_edges), with firmware-reachable (47): the next front after stage 1.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: build
+
+Proof
+: pd-mapper (linux-msm/pd-mapper) built static for aarch64 with aarch64-linux-gnu-gcc, from a pinned commit, licence read and recorded, added to the Alpine image's file list and checked (file says aarch64 static); installed, not started without firmware
+
+Rank
+: 4
+
+
+<a id="walleye-device-config-sources-read"></a>
+### Read Google's wahoo device configuration (and Project Elixir's tree) for what the bring-up steps need: firmware paths, WCD934x routing, vendor module order, thermal zones, touch config, Wi-Fi config
+
+Status
+: open
+
+Note
+: From the author, via the Top Coordinator (2026-11-20): he found ProjectElixir-Devices/device_google_walleye (branch udc, 2024), AOSP device configuration (not a kernel device tree) derived from Google's device/google/wahoo. Recorded as sources: src-google-device-wahoo (primary) and src-projectelixir-device-google-walleye (where the author saw it). Until now only crDroid's wahoo init.hardware.usb.rc was cited. The fstab.hardware and recovery part is folded into the install research walleye-install-stage-decision NOW; the rest waits for its step. Checked 2026-11-20 on both pages: the Elixir tree lists fstab.hardware, recovery, proprietary-firmware.txt, proprietary-files.txt and -vendor.txt, init.insmod.cfg, mixer_paths_tavil.xml, audio_platform_info_tavil.xml, thermal-engine.conf, thermal_info_config.json, synaptics_dsxv26.idc, WCNSS_qcom_cfg.ini; Google's googlesource page lists branches and tags (android11-release, main) but its file list was not read: whether each file exists there is not known yet. 2026-11-22 (coordinator): rank 4, firmware part FIRST: step firmware-reachable unlocks 47 steps (modem, adsp, slpi, venus, wlan firmware paths and how the rootfs on system_a reaches them) with pd-mapper-before-remoteproc (44); the audio, thermal, touch and Wi-Fi parts follow as their steps come due.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: research
+
+Proof
+: one research row per area when its step comes due, each naming the file in src-google-device-wahoo (primary) or src-projectelixir-device-google-walleye (where noted) and what it gives, read only: (1) firmware: proprietary-firmware.txt and proprietary-files*.txt of the Elixir tree against the phone's own partitions (modem, adsp, slpi, venus, wlan; our read-only extraction) for step firmware-reachable and walleye-modem-mss-image; (2) audio: mixer_paths_tavil.xml and audio_platform_info_tavil.xml for the WCD934x (tavil) routing, for items walleye-adsp-q6-mi2s and walleye-tas2557-driver and the later ALSA UCM profile (step ucm-hifi-profile); (3) init.insmod.cfg: the vendor module order, against our own load orders (display, the L7 order); (4) thermal-engine.conf and thermal_info_config.json: the zones and limits, for step thermal-zones-sane; (5) synaptics_dsxv26.idc: the touch config against our Synaptics S3708AR node; (6) WCNSS_qcom_cfg.ini: for walleye-wifi-wcn3990; none of it is copied into git beyond what its licence allows (Apache 2.0 for Google's files: quote small, cite the path and commit)
+
+Rank
+: 4
+
+
+<a id="walleye-display-dts-any-order"></a>
+### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
+
+Status
+: open
+
+Note
+: 2026-11-20 (coordinator): B-r5 at 5 s is CLEAN: smmu 0, rcg 0, dsi -110 0, 13 of 13 (keeper, PR 657, research walleye-display-reset-image-b-r5-tried-signs-vanish): the MDSS reset is the handover (decision 2026-11-20-walleye-display-handover-reset-first stands). NOT measured: 2 s (display at boot) and another load order, and the glass was not looked at. So this item builds those images and then the keeper's try; it no longer waits on walleye-display-handover-driver. Rank 2 (the top build). 2026-11-20 (coordinator): rank 6: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time. 2026-11-22 (coordinator): rank 5, alongside the firmware front: B-r5 is clean at 5 s, the 2 s try and its upstream patch (the mdss reset property) are cheap and the author's look at the glass follows.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: build
+
+Proof
+: the display at boot, in any load order: (1) the board dts carries resets = <&mmcc MDSS_BCR> on the mdss node in the form it would go upstream (an msm8998.dtsi patch for the reset property, and the board dts without any lab hack), tests/host/dtb-display-reset.sh passes on its dtb; (2) images that load the display modules EARLY on purpose: B-r2 (the same as B-r5 at 2 s, the earliest the init could load them), and one with the modules loaded in another order than L6/L7's (any order); declared in device.toml [images.*] with the sha256; (3) the keeper's unattended delay-bisect table at 2 s and in the other order: smmu_faults, rcg_warnings, dsi_110 all 0 and 13 of 13 modules ok (display-boot-clean); (4) the step display-boots-any-order marked from that run; the author's look is a later item (walleye-display-look-b2)
+
+Rank
+: 5
+
+
+<a id="walleye-wdt-pon-bites-procedure"></a>
+### The four PMIC bites as one command: procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs (S2 type 0x07 and 0x01, cable in and out), the PON registers read after each
+
+Status
+: open
+
+Note
+: PARKED, NOT LANDED (2026-11-20, author's gentle pause): the build is whole on branch walleye-wdt-pon-bites-procedure (commit after 43f1090; fetch it from origin) but the programmer review found 3 blockers to fix before landing: (1) look_for in the dark-phone group: any answer but 'ok' stops the run and loses the observation: make the check text 'ok once you have looked' or drop it; (2) the_host_lost_the_phone passes after the bite already fired with the cable in: fail when armed.elapsed() >= bite_seconds, and print cable_out_s in the CABLE_OUT prompt; (3) a warm bite can run as hard when the PON registers do not read (probe trusts any type; the patch ignores device_property_read_u32's result): dev_dbg the chosen type in the patch and require that line in bite_type_reads when registers are unread, or fail the probe on an unreadable property. Also fix: after the author forces a reset the 'by itself' labels and reason.txt are false (record the intervention; keep the first seen.txt); charger_wait 60 is measured from the shell loss: use about 150 s from arming; comments claiming the registers are read before anything resets them and that fastboot boot is not a reset must say not known yet; pon_names uses gen1 offsets on a PM8998: disclaim; rename W in build-pmic-wdt-v1.sh one(); stale text in init-wdt2 (banner 'wdt1', 'seven', usage); tests should assert the command lines sent (wdt-bite 1 read 20, 7 read 45). The images wdt2-hard e7590705 and wdt2-warm 9b3b0394 are built in ~/Projects/walleye-build/images-wdt2-bites; fixing the patch changes the warm image (rebuild: kernel tree $AGENT_BUILD/k-wdt-warm of the shared linux clone, build/build-kernel.sh with EXTRA_CONFIG=build/walleye-wdt.config, then build-pmic-wdt-v1.sh with INIT_NAME=wdt2 PREFIX=wdt2 NAME_A=hard NAME_B=warm VERSION_B=next-20261118 DTB_PROP_B='qcom,s2-type 1'; update the sha256 in device.toml). Then land, and the keeper runs it unattended. Needs: phone (keeper), after the fixes. BRANCH: origin/walleye-wdt-pon-bites-procedure (4b83994), pushed, not landed, the pause 2026-11-20 at the author's word. 2026-11-20 (coordinator, the author resumes with the goal Linux installed and booting from its own storage): open again at rank 5, behind walleye-display-reset-image (B-r5, rank 2) and walleye-ufs-try-2's preparation; resume from the branch, fix the 3 blockers first. 2026-11-22 (coordinator): rank 7: the PMIC steps (watchdog-way-back, pon-reason-read, reset-types-right) unlock 13, 6 and 6 steps: the lab's unattended way back, after the firmware front.
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-22
+
+Needs
+: build
+
+Proof
+: image B = image A with the S2 reset type 0x01 (the way the series' reset-type hook allows: a DT property or the module's parameter, the smallest; UFS-off gate and AVB pass, rebuild identical, review) and procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs on the current lpoco-attended, keys at the top of main (device.toml [procedures.*], [images.*]), one screen of entry file; four bites as step groups (0x07 cable in, 0x07 cable out, 0x01 cable in, 0x01 cable out), each: battery rule, arm, bite, then the PON registers (PON_REASON1, PON_ON_REASON, POFF_REASON1, WARM_RESET_REASON1) read BEFORE anything resets them, then the way back to Android; a research row first says how the registers can be read after a bite on this phone (the bootloader's charger screen has no adb: what reads them? Android's dmesg after the power press is already a second boot) and the procedure follows it; the lab decides every part it can without the author (no adb within N s after the bite with the cable in = charger screen or off; adb up by itself = Android came back); the author is asked only for the physical steps (the cable moves, the power press, the look at the cable-in screen) and only through the lpoco-attended physical steps; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; then a keeper's unattended run of every part that needs nobody, ending at the first physical ask with 'nobody answered' and the phone back on Android BY ITS OWN WAY BACK; the answer file path printed
+
+Rank
+: 7
