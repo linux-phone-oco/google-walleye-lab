@@ -44,7 +44,7 @@ pub fn script(path: &Path, args: &[&str], env: &[(&str, &str)]) -> Result<String
 }
 
 /// The sha256 of a file, as `sha256sum` prints it.
-fn sha256_of(file: &Path) -> Result<String, String> {
+pub fn sha256_of(file: &Path) -> Result<String, String> {
     let mut c = Command::new("sha256sum");
     c.arg(file);
     let said = run(c)?;

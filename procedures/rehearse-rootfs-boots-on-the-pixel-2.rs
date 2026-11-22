@@ -1,8 +1,8 @@
 #!/usr/bin/env rust-script
 //! The rehearsal of the read-only UFS-on boot (item walleye-rootfs-boots-rehearsal; decision 2026-11-20-walleye-install-stage-1-go): every
 //! step of procedures/rootfs-boots-on-the-pixel-2.rs except the boot - the battery, the image and its root, the stored boot chain and the
-//! key, the card read from Android (the GPT of each disk, the root partition's hash), the guard with fastboot, the slots' flags - and
-//! after it the card, the boot chain and the flags read again and compared. It boots nothing, writes nothing, and needs no go.
+//! key, the card read from Android (the GPT of each disk, the root partition's hash), the guard with fastboot, the slots' flags, the run image made (the declared one with the slot read on its command line, checked equal in every other byte) - and
+//! after it the card, the boot chain and the flags read again and compared. It boots nothing, writes no partition (only the made run image, in its own folder), and needs no go.
 //! The phone ends on Android.
 //!   procedures/rehearse-rootfs-boots-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml [procedures.rehearse-rootfs-boots-on-the-pixel-2], [images.ufs-root])
 //!
@@ -33,6 +33,7 @@ fn main() {
     check("the card is read from Android: its partition tables and the root partition", root.the_card_is_read_before());
     step("take the phone to fastboot", root.phone_is_in_fastboot());
     check("fastboot agrees on the slot and the image's root is the other one", root.the_guard_holds());
+    step("make this run's image: the declared one with the slot read on its command line", root.the_run_image_is_made());
     check("the slots' flags are read", root.the_slot_flags_are_read());
     step("take the phone out of fastboot: Android, adbd as root", root.the_phone_is_on_android_as_root());
     check("the partition tables and the root partition are as before", root.the_card_is_as_before());

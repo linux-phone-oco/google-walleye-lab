@@ -35,6 +35,9 @@ pub const INIT_TAG: &str = "walleye-ufs-root:";
 /// The word on the image's command line that names the partition the root is.
 pub const ROOT_KEY: &str = "walleye.root=";
 
+/// The made image's name in the run's folder (never where a queue looks: it has UFS on).
+pub const RUN_IMAGE: &str = "NOT-TO-BOOT-run-image.img";
+
 /// The disks of the card as Android names them (`/dev/block/sda` ...): `luns` of them, the letters a, b, c ... (a card has at most 26).
 pub fn disk_letters(luns: u64) -> Result<Vec<char>, String> {
     match u8::try_from(luns) {
@@ -102,6 +105,143 @@ pub fn guard(adb_suffix: &str, fastboot_slot: &str, image_root: &str) -> Result<
             "the image's root is {image_root} but the phone runs from slot {current}: the root must be {wanted}, the slot Android is not on: nothing is booted"
         ))
     }
+}
+
+/// The word the bootloader puts on the command line of a slotted boot (a fastboot boot from memory gets none), which the image's init needs.
+pub const SLOT_KEY: &str = "androidboot.slot_suffix=";
+
+/// Where the boot image header (version 0) keeps its command line: 512 bytes at 64, and 1024 more (`extra_cmdline`) at 608; the 32 bytes between are the id.
+const CMDLINE_AT: usize = 64;
+const CMDLINE_LEN: usize = 512;
+const EXTRA_AT: usize = 608;
+const EXTRA_LEN: usize = 1024;
+
+fn cstr(field: &[u8]) -> String {
+    let end = field.iter().position(|b| *b == 0).unwrap_or(field.len());
+    String::from_utf8_lossy(&field[..end]).into_owned()
+}
+
+/// The command line the image's header carries (`cmdline` then `extra_cmdline`, version 0); an image that is not a boot image is an error.
+pub fn header_cmdline(image: &[u8]) -> Result<String, String> {
+    if image.len() < EXTRA_AT + EXTRA_LEN || &image[..8] != b"ANDROID!" {
+        return Err("not a boot image: no ANDROID! header".into());
+    }
+    if word(image, 40) != 0 {
+        return Err(format!(
+            "the header is version {}: only version 0 is read here",
+            word(image, 40)
+        ));
+    }
+    let mut line = cstr(&image[CMDLINE_AT..CMDLINE_AT + CMDLINE_LEN]);
+    line.push_str(&cstr(&image[EXTRA_AT..EXTRA_AT + EXTRA_LEN]));
+    Ok(line)
+}
+
+/// The command line of THIS run's image: the declared one plus the slot the phone runs from, which the procedure read (`_a` or `_b`).
+/// A declared line that already names a slot, a suffix that is not `_a` or `_b`, or a line the header's own field cannot hold is an error.
+pub fn run_cmdline(declared: &str, suffix: &str) -> Result<String, String> {
+    if suffix != "_a" && suffix != "_b" {
+        return Err(format!(
+            "the slot suffix read is [{suffix}]: not _a or _b, no image is made"
+        ));
+    }
+    if declared.split_whitespace().any(|w| w.starts_with(SLOT_KEY)) {
+        return Err(format!("the declared command line already has a {SLOT_KEY} word: the slot is the run's, never the image's"));
+    }
+    let line = format!("{declared} {SLOT_KEY}{suffix}");
+    if line.len() >= CMDLINE_LEN {
+        return Err(format!(
+            "the command line would be {} bytes: the header's own field holds {}",
+            line.len(),
+            CMDLINE_LEN - 1
+        ));
+    }
+    Ok(line)
+}
+
+/// The bytes of the digest the AVB footer's hash descriptor holds (sha256), which `image swap` writes again for the new header.
+const DIGEST_LEN: usize = 32;
+
+fn word(image: &[u8], at: usize) -> usize {
+    u32::from_le_bytes([image[at], image[at + 1], image[at + 2], image[at + 3]]) as usize
+}
+
+/// Where the image's content ends and the AVB footer's area begins: the header's page, then kernel, ramdisk and second, each rounded up to a page.
+fn content_end(image: &[u8]) -> Result<usize, String> {
+    header_cmdline(image)?;
+    let page = word(image, 36);
+    if page == 0 {
+        return Err("the header's page size is 0".into());
+    }
+    let pages = |n: usize| n.div_ceil(page) * page;
+    Ok(page + pages(word(image, 8)) + pages(word(image, 16)) + pages(word(image, 24)))
+}
+
+/// The made image equals the declared one in every byte except the command line (the header's `cmdline` and `extra_cmdline`
+/// fields), and its command line is exactly `want`: kernel, ramdisk, device tree, header words and id are the same bytes, and after the content
+/// only the footer's one digest may differ (the tool signs what it made again).
+/// Returns what it counted, for the log.
+pub fn differs_only_in_the_command_line(
+    declared: &[u8],
+    made: &[u8],
+    want: &str,
+) -> Result<String, String> {
+    if declared.len() != made.len() {
+        return Err(format!(
+            "the made image is {} bytes, the declared one {}",
+            made.len(),
+            declared.len()
+        ));
+    }
+    let in_command_line = |i: usize| {
+        (CMDLINE_AT..CMDLINE_AT + CMDLINE_LEN).contains(&i)
+            || (EXTRA_AT..EXTRA_AT + EXTRA_LEN).contains(&i)
+    };
+    let differing: Vec<usize> = (0..declared.len())
+        .filter(|i| declared[*i] != made[*i])
+        .collect();
+    // the tool signs again what it made: the AVB footer's one sha256 digest (32 bytes) lies after the header, kernel, ramdisk and second
+    let signed_from = content_end(declared)?;
+    let outside: Vec<usize> = differing
+        .iter()
+        .copied()
+        .filter(|i| !in_command_line(*i))
+        .collect();
+    if let Some(first) = outside.iter().find(|i| **i < signed_from) {
+        return Err(format!("the made image differs from the declared one outside its command line, first at byte {first}"));
+    }
+    if let (Some(first), Some(last)) = (outside.first(), outside.last()) {
+        if last - first >= DIGEST_LEN {
+            return Err(format!("the made image differs after its content from byte {first} to byte {last}: more than the footer's one digest"));
+        }
+    }
+    // the command line stands alone in its field: a NUL ends it and nothing but zeros follows, and the extra field is empty
+    let used = cstr(&made[CMDLINE_AT..CMDLINE_AT + CMDLINE_LEN]).len();
+    let tail_is_zero = made[CMDLINE_AT + used..CMDLINE_AT + CMDLINE_LEN]
+        .iter()
+        .all(|b| *b == 0)
+        && made[EXTRA_AT..EXTRA_AT + EXTRA_LEN].iter().all(|b| *b == 0);
+    if !tail_is_zero {
+        return Err("the made image's command line field holds bytes after its end, or extra_cmdline is not empty".into());
+    }
+    if outside.len() > DIGEST_LEN {
+        return Err(format!("the made image differs from the declared one in {} bytes after its content: more than the footer's one digest", outside.len()));
+    }
+    let got = header_cmdline(made)?;
+    if got != want {
+        return Err(format!(
+            "the made image's command line is [{got}], not [{want}]"
+        ));
+    }
+    if differing.is_empty() {
+        return Err(
+            "the made image is the declared one: no slot was put on its command line".into(),
+        );
+    }
+    Ok(format!(
+        "{} bytes differ: the header's command line and, after the content, at most the footer's digest",
+        differing.len()
+    ))
 }
 
 /// What the image's init said to the kernel log.
@@ -338,6 +478,8 @@ pub struct RootfsBoot {
 struct Before {
     suffix: String,
     root: String,
+    /// THIS run's image once made (the declared one with the slot on its command line) and its sha256 as made: what is booted must be these bytes
+    run_image: Option<(std::path::PathBuf, String)>,
 }
 
 impl RootfsBoot {
@@ -550,6 +692,44 @@ impl RootfsBoot {
         }
     }
 
+    /// THIS run's image is made: the declared image with the slot adb read (and fastboot agreed on) put on its command line, by the
+    /// boot-image tool's own `image swap` (no byte edited here). A fastboot boot from memory gives the kernel no `androidboot.slot_suffix`,
+    /// and the image's init fails closed without it. The made image must equal the declared one in every byte but its command line; both
+    /// sha256 are kept (the declared one stays the one the go names). Nothing is booted, nothing written but the made image in the run's folder.
+    pub fn the_run_image_is_made(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            u.root()?;
+            let declared =
+                std::fs::read(&u.s.image).map_err(|e| format!("{}: {e}", u.s.image.display()))?;
+            let line = run_cmdline(&header_cmdline(&declared)?, &u.before.borrow().suffix)?;
+            std::fs::create_dir_all(&u.s.out).map_err(|e| format!("{}: {e}", u.s.out.display()))?;
+            let made = u.s.out.join(RUN_IMAGE);
+            let _ = std::fs::remove_file(&made); // a stale image never stands in for this run's
+            let mut c = Command::new(&u.s.bringup);
+            c.arg("--device")
+                .arg(u.s.device_toml())
+                .args(["image", "swap"])
+                .arg(&u.s.image)
+                .args(["--cmdline", &line, "--out"])
+                .arg(&made);
+            let said = host::run(c)?;
+            if !said.ok {
+                return Err(format!("the run image was not made: {}", said.text));
+            }
+            let bytes = std::fs::read(&made).map_err(|e| format!("{}: {e}", made.display()))?;
+            let counted = differs_only_in_the_command_line(&declared, &bytes, &line)?;
+            let (was, now) = (host::sha256_of(&u.s.image)?, host::sha256_of(&made)?);
+            u.lab.save(
+                "run-image.txt",
+                &format!("declared {was}\nmade {now}\ncommand line {line}\n{counted}"),
+            )?;
+            println!("  the run image {now} is the declared {was} with the slot on its command line ({counted})");
+            u.before.borrow_mut().run_image = Some((made, now));
+            Ok(())
+        }
+    }
+
     fn slots(&self, name: &str) -> Done {
         let flags = host::slot_flags(&self.s.fastboot, &self.lab.serial()?)?;
         self.lab.save(name, &flags)
@@ -601,6 +781,32 @@ impl RootfsBoot {
         move || u.go_is_open_now()
     }
 
+    /// The boot itself, after the gate's other checks: this run's made image is the file booted (never the declared one), and it is still the
+    /// bytes that were checked when it was made (their sha256) and still the declared image with only the slot added.
+    fn boot_the_made_image(&self) -> Done {
+        let (made, sha) = self.before.borrow().run_image.clone().ok_or(
+            "the run image is not made: the slot is not on its command line, nothing is booted",
+        )?;
+        self.the_made_image_is_this_runs(&made, &sha)?;
+        self.lab.boot_image(&made)
+    }
+
+    /// The gate right before the boot: the file about to boot is the file that was checked (its sha256), and still the declared image with
+    /// the slot adb read on its command line and nothing else changed.
+    fn the_made_image_is_this_runs(&self, made: &Path, sha: &str) -> Done {
+        let now = host::sha256_of(made)?;
+        if now != sha {
+            return Err(format!(
+                "the run image changed since it was made: {now}, made as {sha}"
+            ));
+        }
+        let declared =
+            std::fs::read(&self.s.image).map_err(|e| format!("{}: {e}", self.s.image.display()))?;
+        let bytes = std::fs::read(made).map_err(|e| format!("{}: {e}", made.display()))?;
+        let line = run_cmdline(&header_cmdline(&declared)?, &self.before.borrow().suffix)?;
+        differs_only_in_the_command_line(&declared, &bytes, &line).map(|_| ())
+    }
+
     /// The step that boots the UFS-on image from the phone's fastboot, from memory: nothing is written. It holds its own gate, right
     /// before the boot, whatever ran before: the battery, the image's sha256, the guard having read its slot, and the go.
     pub fn boot_the_root_image(&self) -> impl FnOnce() -> Done + 'static {
@@ -610,7 +816,7 @@ impl RootfsBoot {
             u.lab.battery_is_good()?;
             host::image_has_sha256(&u.s.image, &u.s.image_sha256)?;
             u.go_is_open_now()?;
-            u.lab.boot_image(&u.s.image)
+            u.boot_the_made_image()
         }
     }
 
@@ -1043,6 +1249,7 @@ mod tests {
         let before = Before {
             suffix: "_b".into(),
             root: "system_a".into(),
+            run_image: None,
         };
         *Rc::get_mut(&mut r.before).unwrap().borrow_mut() = before;
         r
@@ -1162,6 +1369,7 @@ mod tests {
             *r.before.borrow_mut() = Before {
                 suffix: "_b".into(),
                 root: "system_a".into(),
+                run_image: None,
             };
             r.boot_the_root_image()()
         };
@@ -1182,6 +1390,271 @@ mod tests {
         assert!(!boot(&s).unwrap_err().contains("tad"));
     }
 
+    /// A boot image header (version 0) with the command line, then 4 KiB of "kernel" (one page) and one page of footer.
+    fn boot_image(cmdline: &str) -> Vec<u8> {
+        let mut b = vec![0u8; 12288];
+        b[..8].copy_from_slice(b"ANDROID!");
+        b[8..12].copy_from_slice(&4096u32.to_le_bytes()); // kernel_size
+        b[36..40].copy_from_slice(&4096u32.to_le_bytes()); // page_size
+        b[CMDLINE_AT..CMDLINE_AT + cmdline.len()].copy_from_slice(cmdline.as_bytes());
+        for (i, x) in b[4096..8192].iter_mut().enumerate() {
+            *x = (i % 251) as u8;
+        }
+        b
+    }
+
+    #[test]
+    fn the_run_command_line_is_the_declared_one_plus_the_slot_read() {
+        assert_eq!(
+            run_cmdline("a b walleye.root=system_a", "_b").unwrap(),
+            "a b walleye.root=system_a androidboot.slot_suffix=_b"
+        );
+        for bad in ["", "b", "_c", "_b\n", "system_a"] {
+            assert!(
+                run_cmdline("a", bad).unwrap_err().contains("not _a or _b"),
+                "{bad}"
+            );
+        }
+        let e = run_cmdline("a androidboot.slot_suffix=_a", "_b").unwrap_err();
+        assert!(e.contains("already has"), "{e}");
+        let e = run_cmdline(&"x".repeat(500), "_b").unwrap_err();
+        assert!(e.contains("header's own field"), "{e}");
+    }
+
+    #[test]
+    fn the_header_gives_its_command_line_and_a_non_image_gives_none() {
+        assert_eq!(header_cmdline(&boot_image("a b")).unwrap(), "a b");
+        assert!(header_cmdline(b"short").is_err());
+        let mut bad = boot_image("a");
+        bad[0] = b'X';
+        assert!(header_cmdline(&bad)
+            .unwrap_err()
+            .contains("not a boot image"));
+    }
+
+    #[test]
+    fn the_made_image_may_differ_in_the_command_line_and_nowhere_else() {
+        let declared = boot_image("a walleye.root=system_a");
+        let want = run_cmdline("a walleye.root=system_a", "_b").unwrap();
+        let made = boot_image(&want);
+        assert!(differs_only_in_the_command_line(&declared, &made, &want)
+            .unwrap()
+            .contains("command line"));
+        // a byte of the kernel, of a header word, of the id: refused
+        for at in [4096usize, 8191, 8, 20, 600] {
+            let mut m = made.clone();
+            m[at] ^= 1;
+            let e = differs_only_in_the_command_line(&declared, &m, &want).unwrap_err();
+            assert!(e.contains("outside its command line"), "{at}: {e}");
+        }
+        // the footer's digest, signed again by the tool: 32 bytes after the content pass, 33 do not
+        let mut signed = made.clone();
+        signed[9000..9032].fill(7);
+        assert!(differs_only_in_the_command_line(&declared, &signed, &want).is_ok());
+        signed[9032] = 7;
+        let e = differs_only_in_the_command_line(&declared, &signed, &want).unwrap_err();
+        assert!(e.contains("more than the footer's one digest"), "{e}");
+        // another command line than the one asked for
+        let e = differs_only_in_the_command_line(
+            &declared,
+            &boot_image("a walleye.root=system_a androidboot.slot_suffix=_a"),
+            &want,
+        )
+        .unwrap_err();
+        assert!(e.contains("not ["), "{e}");
+        // the same image: no slot was put on it
+        let e = differs_only_in_the_command_line(&declared, &declared, "a walleye.root=system_a")
+            .unwrap_err();
+        assert!(e.contains("no slot was put"), "{e}");
+        // another size
+        assert!(differs_only_in_the_command_line(&declared, &made[..8000], &want).is_err());
+    }
+
+    /// A stand-in for `lpoco-bringup image swap IMG --cmdline TEXT --out OUT`: copies the image and writes the text in the header's command line.
+    fn bringup(d: &Path, also_change: Option<usize>) -> String {
+        let p = d.join("bringup");
+        let touch = also_change.map_or(String::new(), |at| {
+            format!("printf 'Z' | dd of=\"$OUT\" bs=1 seek={at} conv=notrunc status=none\n")
+        });
+        executable(
+            &p,
+            &format!("#!/bin/sh\nwhile [ $# -gt 0 ]; do case $1 in --cmdline) CL=$2; shift ;; --out) OUT=$2; shift ;; --device) shift ;; image|swap) ;; *) IMG=$1 ;; esac; shift; done\ncp \"$IMG\" \"$OUT\"\nprintf '%s' \"$CL\" | dd of=\"$OUT\" bs=1 seek=64 conv=notrunc status=none\n{touch}"),
+        );
+        p.to_string_lossy().into_owned()
+    }
+
+    #[test]
+    fn the_run_image_is_made_by_the_tool_and_kept_with_both_sha256() {
+        let r = rig("run-image", "", 0);
+        let d = r.s.out.parent().unwrap().to_path_buf();
+        let img = d.join("NOT-TO-BOOT-d.img");
+        std::fs::write(&img, boot_image("a walleye.root=system_a")).unwrap();
+        let mut s = (*r.s).clone();
+        s.image = img.clone();
+        s.bringup = bringup(&d, None);
+        let r = RootfsBoot::new(s.clone());
+        *r.before.borrow_mut() = Before {
+            suffix: "_b".into(),
+            root: "system_a".into(),
+            run_image: None,
+        };
+        (r.the_run_image_is_made())().unwrap();
+        let (made, sha) = r.before.borrow().run_image.clone().unwrap();
+        assert!(made.ends_with(RUN_IMAGE));
+        assert_eq!(
+            header_cmdline(&std::fs::read(&made).unwrap()).unwrap(),
+            "a walleye.root=system_a androidboot.slot_suffix=_b"
+        );
+        let kept = std::fs::read_to_string(s.out.join("run-image.txt")).unwrap();
+        assert!(
+            kept.contains("declared ")
+                && kept.contains("made ")
+                && kept.contains("androidboot.slot_suffix=_b"),
+            "{kept}"
+        );
+        assert_eq!(
+            std::fs::read(&img).unwrap(),
+            boot_image("a walleye.root=system_a"),
+            "the declared image is untouched"
+        );
+        // the gate before the boot accepts it, and sees a file changed since
+        r.the_made_image_is_this_runs(&made, &sha).unwrap();
+        let mut bytes = std::fs::read(&made).unwrap();
+        bytes[5000] ^= 1;
+        std::fs::write(&made, &bytes).unwrap();
+        assert!(r
+            .the_made_image_is_this_runs(&made, &sha)
+            .unwrap_err()
+            .contains("changed since"));
+    }
+
+    #[test]
+    fn a_tool_that_changes_more_than_the_command_line_makes_no_run_image() {
+        let r = rig("run-image-bad", "", 0);
+        let d = r.s.out.parent().unwrap().to_path_buf();
+        let img = d.join("NOT-TO-BOOT-d.img");
+        std::fs::write(&img, boot_image("a walleye.root=system_a")).unwrap();
+        let mut s = (*r.s).clone();
+        s.image = img;
+        s.bringup = bringup(&d, Some(5000));
+        let r = RootfsBoot::new(s);
+        *r.before.borrow_mut() = Before {
+            suffix: "_b".into(),
+            root: "system_a".into(),
+            run_image: None,
+        };
+        let e = (r.the_run_image_is_made())().unwrap_err();
+        assert!(e.contains("outside its command line"), "{e}");
+        assert!(r.before.borrow().run_image.is_none());
+        // no slot read, no guard: no image
+        let r2 = RootfsBoot::new((*r.s).clone());
+        assert!((r2.the_run_image_is_made())()
+            .unwrap_err()
+            .contains("slot is not read"));
+    }
+
+    #[test]
+    fn the_boot_step_wants_the_run_image_made() {
+        let r = rig("no-run-image", "", 0);
+        let d = r.s.out.parent().unwrap().to_path_buf();
+        let host = d.join("lab/tests/host");
+        std::fs::create_dir_all(&host).unwrap();
+        std::fs::write(host.join("battery-ok.sh"), "echo pass battery\nexit 0\n").unwrap();
+        // the stand-in's tad answers a go for this image's sha256
+        let img = d.join("NOT-TO-BOOT-g.img");
+        std::fs::write(&img, boot_image("a walleye.root=system_a")).unwrap();
+        let sha = host::sha256_of(&img).unwrap();
+        let mut s = (*r.s).clone();
+        s.lab = d.join("lab");
+        s.image = img;
+        s.image_sha256 = sha.clone();
+        s.lpoco = "/nonexistent/lpoco-must-not-run".into();
+        let e = {
+            // the go is read by the real `tad`, which is not told of this item: the run stops there, before any image is looked at
+            let rb = RootfsBoot::new(s);
+            *rb.before.borrow_mut() = Before {
+                suffix: "_b".into(),
+                root: "system_a".into(),
+                run_image: None,
+            };
+            rb.boot_the_root_image()().unwrap_err()
+        };
+        assert!(
+            e.contains("no go") || e.contains("tad") || e.contains("run image is not made"),
+            "{e}"
+        );
+    }
+
+    #[test]
+    fn the_made_image_and_not_the_declared_one_is_what_boots() {
+        let r = rig("boots-made", "", 0);
+        let d = r.s.out.parent().unwrap().to_path_buf();
+        let img = d.join("NOT-TO-BOOT-d.img");
+        std::fs::write(&img, boot_image("a walleye.root=system_a")).unwrap();
+        let lpoco = d.join("lpoco");
+        executable(
+            &lpoco,
+            &format!("#!/bin/sh\necho \"$@\" >> {}/lpoco.calls\n", d.display()),
+        );
+        let mut s = (*r.s).clone();
+        s.image = img.clone();
+        s.bringup = bringup(&d, None);
+        s.lpoco = lpoco.to_string_lossy().into_owned();
+        let r = RootfsBoot::new(s);
+        *r.before.borrow_mut() = Before {
+            suffix: "_b".into(),
+            root: "system_a".into(),
+            run_image: None,
+        };
+        // not made: nothing boots
+        assert!(r.boot_the_made_image().unwrap_err().contains("not made"));
+        assert!(!d.join("lpoco.calls").exists());
+        (r.the_run_image_is_made())().unwrap();
+        r.boot_the_made_image().unwrap();
+        let calls = std::fs::read_to_string(d.join("lpoco.calls")).unwrap();
+        assert!(calls.trim_end().ends_with(RUN_IMAGE), "{calls}");
+        assert!(!calls.contains("NOT-TO-BOOT-d.img"), "{calls}");
+        // a file changed after it was checked: nothing more boots
+        let (made, _) = r.before.borrow().run_image.clone().unwrap();
+        let mut b = std::fs::read(&made).unwrap();
+        b[5000] ^= 1;
+        std::fs::write(&made, b).unwrap();
+        assert!(r
+            .boot_the_made_image()
+            .unwrap_err()
+            .contains("changed since"));
+        assert_eq!(
+            std::fs::read_to_string(d.join("lpoco.calls"))
+                .unwrap()
+                .lines()
+                .count(),
+            1
+        );
+    }
+
+    #[test]
+    fn a_header_of_another_version_or_a_dirty_command_line_field_is_refused() {
+        let declared = boot_image("a");
+        let want = run_cmdline("a", "_b").unwrap();
+        let mut v1 = boot_image(&want);
+        v1[40] = 1;
+        assert!(header_cmdline(&v1).unwrap_err().contains("version 1"));
+        let mut dirty = boot_image(&want);
+        dirty[CMDLINE_AT + 400] = b'x'; // after the line's NUL
+        assert!(differs_only_in_the_command_line(&declared, &dirty, &want)
+            .unwrap_err()
+            .contains("after its end"));
+        let mut extra = boot_image(&want);
+        extra[EXTRA_AT] = b'x';
+        assert!(differs_only_in_the_command_line(&declared, &extra, &want).is_err());
+        // 32 bytes spread over the footer are not one digest
+        let mut spread = boot_image(&want);
+        spread[9000] = 1;
+        spread[9100] = 1;
+        assert!(differs_only_in_the_command_line(&declared, &spread, &want)
+            .unwrap_err()
+            .contains("one digest"));
+    }
     #[test]
     fn the_image_must_be_a_declared_not_to_boot_image_with_one_root() {
         let r = rig("image", "", 0);

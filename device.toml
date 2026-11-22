@@ -278,10 +278,11 @@ by_name = "/dev/block/by-name"
 # NOT to boot except by procedures/rootfs-boots-on-the-pixel-2.rs, which stops unless the author's go is recorded on its go_item for THIS sha256; tests/host/ufs-off-image.sh refuses it by design. Never booted until that go.
 [images.ufs-root]
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root/NOT-TO-BOOT-ufs-on-ufs-root.img"
-sha256 = "35b60fdaf0764e97e0b6de60cddc9a955a14928ba3577f7f110206387f966474"
+sha256 = "c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9"   # rebuilt 2026-11-22: the init fails CLOSED without androidboot.slot_suffix (item walleye-install-boot-slot-on-cmdline); was 35b60fda... (run 1: the init saw no suffix)
 
 # The read-only UFS-on boot of that image as ONE command (item walleye-install-boot-procedure; run by item walleye-install-rootfs-boots-try). The root is the system partition of the slot Android is NOT on, read at the run
 # (adb's ro.boot.slot_suffix equal to fastboot's current-slot, and equal to the root the image names); nothing here names a slot.
+# The image booted is THIS run's: the declared one with androidboot.slot_suffix=_<the slot read> on its command line (lpoco-bringup image swap, checked equal in every other byte); the declared sha256 above stays the one the go names.
 [procedures.rootfs-boots-on-the-pixel-2]
 go_item = "walleye-install-rootfs-boots-try"   # the item whose go_until holds the author's go AND whose row names the image's sha256: the boot runs only while the go is in the future
 identity = "~/lab-material/walleye/walleye-lab-ed25519"   # the lab-only ssh key (mode 600; its public half is root's authorized_keys in [images.alpine-rootfs]); the login is by this key alone

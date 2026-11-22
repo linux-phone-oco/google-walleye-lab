@@ -61,7 +61,7 @@ mkdir "$T/rd" && (cd "$T/rd" && gzip -dc "$T/ramdisk1.cpio.gz" | cpio -idm --qui
 ck "the initramfs' /init is build/initramfs-root/init, byte for byte" "$(cmp -s "$T/rd/init" "$HERE/build/initramfs-root/init" && echo same || echo differs)" same
 ck "the initramfs carries the arm64 busybox and no kernel module list" "$(cmp -s "$T/rd/bin/busybox" "$W/busybox-arm64" && [ ! -e "$T/rd/modules.list" ] && echo yes || echo no)" yes
 ck "the init's only mount of the card is read-only, nodiscard, noload; it has no mkfs, fsck, discard, trim, rw or remount" "$(grep -c -e 'mount -t ext4 -o ro,nodiscard,noload ' "$T/rd/init")/$(grep -v '^#' "$T/rd/init" | grep -c -w -e mkfs -e mke2fs -e fsck -e e2fsck -e dd -e fstrim -e blkdiscard -e 'remount' -e 'rw,')" 1/0
-ck "the init refuses without walleye.root, for a foreign name and for the slot Android runs from" "$(grep -v '^#' "$T/rd/init" | grep -c -e 'no walleye.root on the command line' -e 'is not system_a or system_b' -e 'the slot Android runs from')" 3
+ck "the init refuses without walleye.root, for a foreign name, without androidboot.slot_suffix (fails closed) and for the slot Android runs from" "$(grep -v '^#' "$T/rd/init" | grep -c -e 'no walleye.root on the command line' -e 'is not system_a or system_b' -e 'the slot Android runs from' -e 'no androidboot.slot_suffix on the command line')" 4
 ck "the proof of the init passes (tests/host/ufs-root-init.sh: QEMU on a loop-made test rootfs, read-only, overlay, refusals)" "$(GEN=$GEN sh "$HERE/tests/host/ufs-root-init.sh" "$W" | cut -d' ' -f1)" pass
 # the image, built twice
 make_image() { # OUTFILE

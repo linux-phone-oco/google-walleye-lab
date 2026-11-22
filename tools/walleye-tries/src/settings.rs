@@ -80,6 +80,8 @@ pub struct Settings {
     pub address: String,
     pub port: u16,
     pub lpoco: String,
+    /// the boot-image tool (`lpoco-bringup image swap` makes the run image: the declared one with only its command line changed)
+    pub bringup: String,
     pub adb: String,
     pub fastboot: String,
     /// the PMIC watchdog try: image A, image B, how long Android stays up, how long the bite may take
@@ -221,6 +223,7 @@ impl Settings {
             ))
             .expect("connection.shell_port in device.toml is a port number"),
             lpoco: "lpoco".into(),
+            bringup: "lpoco-bringup".into(),
             adb: dev("tools.adb"),
             fastboot: dev("tools.fastboot"),
             image_a: PathBuf::new(),
