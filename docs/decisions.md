@@ -2921,3 +2921,31 @@ Scope
 
 Tracked by
 : walleye-install-stage2-android-comparison
+
+
+<a id="2026-11-22-walleye-ramroot-userland-tar-in-the-ramdisk"></a>
+### 2026-11-22-walleye-ramroot-userland-tar-in-the-ramdisk
+
+Date
+: 2026-11-22
+
+Brief
+: Alpine on the glass with UFS off: the system_a userland is a tar in the ramdisk, unpacked into a tmpfs after the modules load, then switch_root
+
+Decision
+: Image B-a5 = B-r5's kernel, dtb, header, size and 13 modules as they are; its ramdisk adds /userland.tar, read out of the ext4 image written to system_a (debugfs rdump under fakeroot, setuid/sticky bits put back from the inodes), unpacked by build/initramfs-ramroot/init into a tmpfs after the 5 s module load; built by tools/walleye-ramroot (Rust, argenv), twice identical, checked by what is in the image. Ramdisk 6.8 MB, image 33554432 B = the boot partition (0x2000000); fastboot takes 0x20000000. Deadman 300 s, held by /run/walleye/hold for the look.
+
+Why
+: The author wants to see the login on the phone before the housekeeping; stage 1's UFS-root image has no display, B-r5 has the display and UFS off. The tar from the very image on system_a is the same userland, so what the author sees is what stage 1 wrote.
+
+Rejected
+: Userland as the ramdisk's own files (no tmpfs, no switch_root): the brief asks for a tmpfs root. A bigger image than the partition: not needed. Rebuilding the rootfs by apk: needs the network and gives another sha256 than system_a's. A shell build script: new programs are Rust with argenv. A 900 s deadman: longer than the lab's way-back wait (review finding).
+
+About
+: walleye-display-s6e3fa5
+
+Scope
+: walleye builder, keeper
+
+Tracked by
+: walleye-display-alpine-ramroot-image

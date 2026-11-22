@@ -9162,10 +9162,10 @@ Rank
 ### Alpine's login prompt on the Pixel's glass, with ssh over usb-network: B-r5's kernel and display modules with the Alpine userland as the root in RAM (UFS off), and the author's look as one command
 
 Status
-: open
+: in-progress
 
 Note
-: THE AUTHOR'S WORD (2026-11-22, relayed by the Top Coordinator), verbatim: "i want to see the thing on pixel before we start the big housekeeping that will stop everything. as i understood we have everything to see a plain tty on the phones own display, connect to it with ssh and what not, right ?" (the author, 2026-11-22, relayed by the Top Coordinator). ANSWER FROM THE DATA: the stage 1 UFS-root image (35b60fda) does NOT carry the display. It is the matched UFS image's kernel and dtb byte for byte (UFS on, display nodes off: the try 2 text says the glass stays dark) with our own initramfs that mounts system_a; the 13 display modules, B-r5's mdss reset and the display kernel are not in it, and the display kernel's tree 'cannot compile today's board file' (build-display-reset-image.sh), so the two kernels are different trees and the modules of one cannot load into the other. Its rootfs inittab has getty on tty0 and ttyGS0, but there is no fbcon or display driver to put it on the glass. THE QUICK WAY (this item): B-r5 already shows the glass and fbcon (the author saw the console on L5 to L7); its UFS is off, so the Alpine root cannot come from the card: put the Alpine userland in RAM instead. It shows the login prompt on the glass and ssh over usb-network NOW, without waiting for the merged kernel; it is not 'from its own storage' (item walleye-install-ufs-root-display-image is that). The look is one command, tested first, run under his standing rules.
+: Builder part done: image B-a5 (device.toml [images.b-a5], sha256 575bbe43...76e0, deadman 300 s) built twice identical by tools/walleye-ramroot --build now, every check ok; init proof tests/host/ramroot-init.sh (QEMU) passes; procedure procedures/alpine-login-on-the-glass-on-the-pixel-2.rs dry run and lpoco-attended check --host ok; reviewed (7 findings fixed). NEXT: the keeper's unattended run of that procedure (stops at the look, way back runs), then the author's look as the same one command on lpoco-attended with the answer file. Not run on the phone yet.
 
 About
 : walleye-display-s6e3fa5
@@ -9174,10 +9174,10 @@ Opened
 : 2026-11-22
 
 Needs
-: build
+: phone
 
 Proof
-: image B-a5 (UFS-off gate and AVB pass, rebuild identical, review): B-r5's kernel, dtb (mdss reset) and 13 display modules as they are, whose ramdisk adds the Alpine userland taken from the hardened rootfs build (the same tar and package list as the image written to system_a, with the lab's authorized key) unpacked into a tmpfs root, the display modules loaded at 5 s as B-r5 does, then switch_root to Alpine's /sbin/init: OpenRC starts, agetty on tty0 (the glass, through fbcon) and on ttyGS0, sshd over the usb gadget network (172.16.43.1, login by the lab key); the boot image fits what fastboot boot takes (say the size and the limit); a host check that the ramdisk holds the userland and the modules for THIS kernel; the keeper's unattended run (the delay bisect pattern: signs zero at 5 s, 13 of 13 modules, ssh answers, getty on tty0 running, the kernel log has fbcon) then the author's look as ONE command on lpoco-attended with the answer file, procedures/alpine-login-on-the-glass-on-the-pixel-2.rs: look_for 'do you see an Alpine login prompt on the screen?' (what to expect first), the way back to Android on any stop, an unanswered ask included; dry run, check --host, stand-in tests, clippy, fmt, review
+: alpine-login-on-the-glass-on-the-pixel-2
 
 Rank
 : 1

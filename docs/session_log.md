@@ -5485,3 +5485,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-walleye-builder-ramroot-image"></a>
+### Alpine in RAM on the glass: image B-a5 and its one command
+
+Entry date
+: 2026-11-22
+
+Done
+: tools/walleye-ramroot (build/check, 11 unit tests), build/initramfs-ramroot/init (deadman 300 s), tests/host/ramroot-init.sh (QEMU, 4 cases), image B-a5 (sha256 575bbe43...76e0) built twice identical and checked, device.toml entries, CI step, procedure module walleye-tries ramroot.rs; control seen failing (--check on B-r5). Programmer review: 7 findings, all fixed.
+
+Rejected
+: Python; touching the phone.
+
+About
+: walleye-display-s6e3fa5

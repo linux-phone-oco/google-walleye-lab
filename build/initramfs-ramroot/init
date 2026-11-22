@@ -1,0 +1,80 @@
+#!/bin/busybox sh
+# The ramroot init (backlog walleye-display-alpine-ramroot-image; decisions 2026-11-20-walleye-distro-alpine-minimal, 2026-11-20-walleye-display-handover-reset-first): UFS is OFF in this image, so the Alpine root
+# cannot come from the card; it is the same userland as the image written to system_a (/userland.tar in this ramdisk, made by tools/walleye-ramroot from that very ext4 image), unpacked into a tmpfs.
+# Steps, each said to the kernel log as `walleye-ramroot: ...`: (1) wait until the uptime has reached /display-delay (5 s: the delay at which B-r5's modules were proven), then insmod every line of
+# /display-modules.list the way init-display-delay does (`walleye-display: LINE` / `walleye-display: ok` or `FAILED rc=N`, so the delay bisect's scorer reads this log unchanged); (2) a tmpfs on /newroot, the
+# userland unpacked into it, the tar removed; (3) the moves of /proc /sys /dev; (4) the petter of the SoC watchdog in the new root (its own copy of busybox), then switch_root to Alpine's /sbin/init:
+# OpenRC, agetty on tty0 (the glass, through fbcon) and on ttyGS0, the usb gadget unit, sshd. Nothing of the card is touched: there is no mount of a block device in this file.
+# The deadman: the petter pets the watchdog HOLD_SECONDS (300; walleye.hold=SECONDS changes it), longer while /run/walleye/hold exists in the root, then the phone resets itself (the way back to Android).
+# A refusal (no userland, a failed unpack, no /sbin/init in it) restarts the phone after a pause long enough to read the log. Never exits except by exec (an init that ends is a kernel panic).
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+HOLD_SECONDS=300   # the watchdog is petted this long after the hand-over, longer while /run/walleye/hold exists in the root (the lab holds it for the look); then the phone resets itself; walleye.hold=SECONDS changes it
+PAUSE_SECONDS=30   # after a refusal the log stays readable this long before the phone restarts (walleye.pause=SECONDS)
+say() { echo "walleye-ramroot: $*" > /dev/kmsg 2>/dev/null; echo "walleye-ramroot: $*"; }
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+mount -t devtmpfs dev /dev 2>/dev/null
+pet() { [ -e /dev/watchdog ] && echo > /dev/watchdog 2>/dev/null; }
+refuse() { # the phone restarts by itself after a pause long enough to read the log; the watchdog is petted meanwhile
+  say "refused: $*"
+  n=0
+  while [ $n -lt $((PAUSE_SECONDS / 2)) ]; do pet; sleep 2; n=$((n+1)); done
+  sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+  while :; do sleep 60; done
+}
+CMD=$(cat /proc/cmdline)
+arg() { for w in $CMD; do case $w in "$1="*) echo "${w#"$1="}"; return ;; esac; done; }
+for k in pause hold; do V=$(arg walleye.$k); case $V in ""|*[!0-9]*) ;; *) case $k in pause) PAUSE_SECONDS=$V ;; hold) HOLD_SECONDS=$V ;; esac ;; esac; done
+say "start, kernel $(uname -r)"
+[ -s /userland.tar ] || refuse "no /userland.tar in the ramdisk"
+# the display: the delay baked into the image, then the module list, as init-display-delay does (the kernel log lines are the same, so the same scorer reads them)
+D=$(cat /display-delay 2>/dev/null)
+case "$D" in ''|*[!0-9]*) D=0;; esac
+while [ "$(cut -d. -f1 /proc/uptime)" -lt "$D" ]; do pet; sleep 1; done
+echo "walleye-display: delay $D s reached at uptime $(cut -d. -f1 /proc/uptime) s" > /dev/kmsg 2>/dev/null
+if [ -r /display-modules.list ]; then
+  say "display modules: loading"
+  while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    pet
+    echo "walleye-display: $line" > /dev/kmsg 2>/dev/null
+    if $line < /dev/null; then echo "walleye-display: ok" > /dev/kmsg 2>/dev/null; else rc=$?; echo "walleye-display: FAILED rc=$rc" > /dev/kmsg 2>/dev/null; fi
+  done < /display-modules.list
+  say "display modules: done"
+else
+  say "NO /display-modules.list: no display modules loaded"
+fi
+# the root: a tmpfs, the userland unpacked into it as root (modes, links and owners as the tar has them), the tar freed
+mkdir -p /newroot
+mount -t tmpfs -o mode=755,size=512m tmpfs /newroot || refuse "no tmpfs for the root"
+pet
+tar -xf /userland.tar -C /newroot || refuse "the userland did not unpack"
+rm -f /userland.tar
+say "userland unpacked: $(ls /newroot | tr '\n' ' ')"
+pet
+if [ -L /newroot/sbin/init ]; then
+  t=$(readlink /newroot/sbin/init); case $t in /*) t=/newroot$t ;; *) t=/newroot/sbin/$t ;; esac
+  [ -e "$t" ] || refuse "/sbin/init is a symlink to nothing ($t)"
+else
+  [ -x /newroot/sbin/init ] || refuse "the userland holds no /sbin/init"
+fi
+mkdir -p /newroot/proc /newroot/sys /newroot/dev /newroot/run /newroot/.walleye /newroot/run/walleye
+# the watchdog petter lives in the new root (its own copy of busybox): the SoC watchdog resets the phone when nobody pets it
+cp /bin/busybox /newroot/.walleye/busybox
+cat > /newroot/.walleye/hold.sh <<EOH
+#!/.walleye/busybox sh
+exec 3> /dev/watchdog || exit 0
+n=0
+while [ \$n -lt $((HOLD_SECONDS / 2)) ] || [ -e /run/walleye/hold ]; do echo >&3 2>/dev/null; n=\$((n+1)); /.walleye/busybox sleep 2; done
+echo "<3>walleye-ramroot: hold over, the phone resets itself" > /dev/kmsg 2>/dev/null
+/.walleye/busybox sync; /.walleye/busybox reboot -f; /.walleye/busybox sleep 5; echo b > /proc/sysrq-trigger
+EOH
+chmod 755 /newroot/.walleye/hold.sh
+say "handing over to the userland's /sbin/init"
+mount --move /proc /newroot/proc
+mount --move /sys /newroot/sys
+mount --move /dev /newroot/dev
+chroot /newroot /.walleye/busybox setsid /.walleye/busybox sh /.walleye/hold.sh > /newroot/.walleye/hold.log 2>&1 &
+exec switch_root /newroot /sbin/init
+refuse "switch_root did not run"

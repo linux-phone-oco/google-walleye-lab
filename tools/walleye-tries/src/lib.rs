@@ -14,6 +14,7 @@ pub mod install;
 pub mod lab;
 pub mod phone;
 pub mod pmic;
+pub mod ramroot;
 pub mod reader;
 pub mod rootfs_boot;
 pub mod settings;

@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+[package]
+name = "walleye-ramroot"
+version = "0.1.0"
+edition = "2021"
+description = "The Pixel 2's Alpine-in-RAM boot image (B-a5): B-r5's kernel, dtb and display modules, the system_a userland as a tar in the ramdisk, built twice and checked by what is in the image"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[lib]
+name = "walleye_ramroot"
+
+[[bin]]
+name = "walleye-ramroot"
+path = "src/main.rs"
+
+[dependencies]
+# the command line is declared once (argenv), not parsed by hand
+argenv-resolve = "0.4"
