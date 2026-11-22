@@ -5647,3 +5647,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-2125-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-22
+
+Done
+: Ran the rootfs-boots rerun for real under the open go: checks 1-16 pass (booted, ssh login), stopped at check 17, the init did not hand over to the root's /sbin/init; not rerun. Phone on Android slot b, stock kernel, nothing flashed; post-run GPT/boot-chain read-back did not run (not known yet)
+
+Considered
+: next: coordinator decides; an item for why the init did not switch_root; run the bootchain read-back (tests/host/bootchain-readback.sh) before the next try
+
+About
+: walleye-display-s6e3fa5
