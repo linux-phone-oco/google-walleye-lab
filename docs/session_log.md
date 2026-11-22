@@ -5629,3 +5629,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-2330-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-22
+
+Done
+: Ran the Alpine login procedure on B-a5 for real, unattended: checks 1-16 pass, the screen text holds 'walleye login:'; items walleye-display-alpine-getty-on-the-glass and walleye-display-alpine-ramroot-image done. Phone on Android slot b, stock kernel, nothing flashed
+
+Considered
+: next: walleye-install-rootfs-boots-try (go open until 23:43, attended: one command, needs rootfs v3 written to system_a); then sensors, nfc, deep-sleep. Fresh worktree: ln -s ~/Projects/walleye-build build/images (the folder itself, not its images/)
+
+About
+: walleye-display-s6e3fa5

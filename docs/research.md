@@ -5656,3 +5656,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ramroot-b-a5-getty-tty1-run-passed"></a>
+### walleye-ramroot-b-a5-getty-tty1-run-passed
+
+Date
+: 2026-11-22
+
+Brief
+: B-a5 (getty on tty1) booted from RAM unattended: checks 1-16 pass, the glass's text (/dev/vcs, tty1) holds 'walleye login:'; phone back on Android, nothing flashed
+
+Question
+: Does the Alpine login prompt reach the glass of the Pixel 2, measured from the lab before anyone looks?
+
+Found
+: Run 2026-11-22 of procedures/alpine-login-on-the-glass-on-the-pixel-2.rs on image B-a5 (3cb5adb8, rootfs v3): check 11 tmpfs root, 12 display modules at 5 s with 13 of 13 ok and SMMU faults, rcg warnings and DSI -110 all zero, 13 getty on tty1 and ttyGS0 plus sshd, 14 fbcon (135x120), 15 the screen's text of tty1 holds 'walleye login:', 16 no purge/oops. The run stopped at the look (nobody answered in 300 s; the author said not to wait). Phone on Android (adb device, slot b), nothing written. Worktree note: build/images must link to ~/Projects/walleye-build itself, not its images/ folder.
+
+About
+: walleye-display-s6e3fa5
