@@ -5572,3 +5572,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-2050-walleye-keeper-the-look-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-22
+
+Done
+: The look ran (B-a5): checks 1-15 pass, the author saw boot text ending 'starting sshd', 'starting local', blinking cursor, no login prompt (research walleye-ramroot-b-a5-the-look-no-login-prompt). Phone on Android slot b, stock kernel, nothing flashed; lease released
+
+Considered
+: next: builder reads why no getty prompt shows on tty0 (inittab / OpenRC local) and rebuilds; then one more look
+
+About
+: walleye-display-s6e3fa5
