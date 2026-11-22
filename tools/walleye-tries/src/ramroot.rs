@@ -18,6 +18,7 @@
 
 use crate::display_boot::LOOP_DONE;
 use crate::display_delay::{score, Row};
+use crate::getty;
 use crate::lab::Lab;
 use crate::rootfs_boot::{identity_is_private, sections, ssh_args, RootfsBoot};
 use crate::settings::Settings;
@@ -469,12 +470,40 @@ impl Ramroot {
                             host.trim(),
                             u.s.device_wait.min(PROMPT_WAIT),
                             what_the_screen_shows(&active, &screen)
-                        ),
+                        ) + &format!("\n{}", u.the_getty_is_measured()), // read-only readings, then the live experiments; the finding is part of the failure
                     });
                 }
                 std::thread::sleep(Duration::from_secs(3));
             }
         }
+    }
+
+    /// The getty that runs and prints nothing, measured on the booted image (item walleye-display-alpine-getty-experiments): the read-only readings of
+    /// each getty into getty-readings.txt, then the live experiments, each followed by the screen's text 2 s later, into getty-experiments.txt; the inittab
+    /// is put back. Returns the finding for the failure's message; a step that cannot be run says so in the log and the next one goes on.
+    fn the_getty_is_measured(&self) -> String {
+        let said = |r: Result<String, String>| r.unwrap_or_else(|e| format!("not read: {e}"));
+        let readings = said(self.ssh(getty::READINGS, 30));
+        let _ = self.lab.save("getty-readings.txt", &redact(&readings));
+        let mut shown = Vec::new();
+        for (i, e) in getty::EXPERIMENTS.iter().enumerate() {
+            if i == getty::FIRST_FREED {
+                let freed = said(self.ssh(getty::FREE_TTY1, 15));
+                let _ = self.lab.save("getty-freed.txt", &redact(&freed));
+            }
+            shown.push(getty::shown_by(
+                e,
+                &said(self.ssh(&getty::command_of(e), 30)),
+            ));
+        }
+        let _ = self
+            .lab
+            .save("getty-experiments.txt", &redact(&getty::log_of(&shown)));
+        let restored = self.ssh(getty::RESTORE, 15);
+        if let Err(e) = restored {
+            return format!("the inittab could not be put back ({e}); the phone is sent back by the forced reboot all the same");
+        }
+        getty::verdict(&shown)
     }
 
     /// The kernel log has fbcon: the console is on the frame buffer, so the glass is where the login prompt goes.
@@ -785,5 +814,54 @@ mod command_quoting {
                 .unwrap();
             assert!(ok.success(), "{c}");
         }
+    }
+}
+
+#[cfg(test)]
+mod the_getty_that_prints_nothing {
+    use super::*;
+    use crate::fixture::executable;
+    use crate::settings::Try;
+    use std::os::unix::fs::PermissionsExt;
+
+    #[test]
+    fn a_failing_screen_check_runs_the_readings_and_six_experiments_and_says_the_finding() {
+        let d = std::env::temp_dir().join(format!("wt-gt-{}", std::process::id()));
+        std::fs::create_dir_all(&d).unwrap();
+        let ssh = d.join("ssh");
+        // the phone's answer to every command: a screen with no prompt
+        executable(
+            &ssh,
+            &format!(
+                "#!/bin/sh\necho \"$@\" >> {d}/ssh.calls\nprintf -- '---hostname\\nwalleye\\n---active\\ntty1\\n---screen-of-the-active-vt\\ntty1\\n* Starting local ... [ ok ]\\n---screen\\n* Starting local ... [ ok ]\\n---end\\n'\n",
+                d = d.display()
+            ),
+        );
+        let key = d.join("key");
+        std::fs::write(&key, "k").unwrap();
+        std::fs::set_permissions(&key, PermissionsExt::from_mode(0o600)).unwrap();
+        let mut s = Settings::stand_in(Try::Ramroot);
+        s.out = d.join("out");
+        s.identity = key;
+        s.address = "172.16.43.1".into();
+        s.device_wait = 1;
+        std::fs::create_dir_all(&s.out).unwrap();
+        let out = s.out.clone();
+        let r = Ramroot::with_ssh(s, &ssh.to_string_lossy());
+        let e = (r.the_screen_holds_the_login_prompt())().unwrap_err();
+        assert!(e.contains("not named yet"), "{e}");
+        let kept = std::fs::read_to_string(out.join("getty-experiments.txt")).unwrap();
+        for name in ["a-write-to-tty1", "f-after-vhangup", "=== verdict:"] {
+            assert!(kept.contains(name), "{kept}");
+        }
+        assert!(out.join("getty-readings.txt").exists());
+        let calls = std::fs::read_to_string(d.join("ssh.calls")).unwrap();
+        // the inittab is freed once, before experiment c, and put back at the end
+        assert_eq!(
+            calls.matches("cp /etc/inittab /run/inittab.orig").count(),
+            1,
+            "{calls}"
+        );
+        assert!(calls.contains("grep -v '^tty1::'"), "{calls}");
     }
 }

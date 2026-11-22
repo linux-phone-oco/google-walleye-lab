@@ -5647,3 +5647,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-getty-experiments-built-into-the-look-procedure"></a>
+### Getty experiments built into the look procedure
+
+Entry date
+: 2026-11-22
+
+Done
+: New walleye-tries module getty.rs (readings, six experiments, verdict) wired into the screen check's failure path in ramroot.rs; tests with a stand-in ssh; dry run 22/22; clippy and fmt clean.
+
+Considered
+: Rewriting the inittab in the tmpfs root and HUP-ing init so experiments c-f run without init's own getty competing; vhangup used only if the image has the program.
+
+Rejected
+: Running the experiments as separate checks: check 15 stops the run when it fails, so the diagnosis runs inside its failure path instead. Changing the image and the command line now: part (2) needs the winning experiment, so the rebuild waits for the keeper's run.
+
+About
+: walleye-display-s6e3fa5

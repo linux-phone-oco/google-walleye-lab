@@ -6,6 +6,7 @@
 //! a getty on tty1 (the glass: VT 1 under fbcon) and on ttyGS0, sshd up, fbcon in the kernel log, the root a tmpfs, no purge or oops, and the SCREEN'S TEXT (/dev/vcs of the VT the glass shows) holding `walleye login:` - measured before the author is asked; THEN the look: the deadman held,
 //! the author asked whether he sees the Alpine login prompt, the hold released; the phone sent back and Android checked. Each step stops the run when it fails;
 //! with nobody to answer (the keeper's unattended run) it stops at the look, and the watching parent still runs the way back to Android.
+//! When the screen check fails, the run measures why the getty prints nothing (item walleye-display-alpine-getty-experiments): read-only readings of each getty (getty-readings.txt) and six live experiments, each followed by the screen text (getty-experiments.txt), the inittab put back; the verdict names the cause.
 //! The person step uses the prompt and answer files: ~/.cache/lpoco-attended/<device>/prompt and answer.
 //!   procedures/alpine-login-on-the-glass-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml [procedures.alpine-login-on-the-glass-on-the-pixel-2])
 //!
