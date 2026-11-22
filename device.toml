@@ -235,6 +235,14 @@ sha256 = "6dc0239e93b4f4b3a01aa1fd3c308aa5208d16f9545b900bfcc38f1ea70904d8"
 path = "images-display-regs/boot-b-q5.img"
 sha256 = "86d0813a1ae47ab0d33803d4c4d5a1e24df0988aae760d83e0605b584e80596d"
 
+# The Alpine-in-RAM image B-a5 (item walleye-display-alpine-ramroot-image): B-r5's kernel, dtb (mdss reset), command line, header words, size and 13 display modules as they are; its ramdisk adds the userland of
+# [images.alpine-rootfs] (the image written to system_a, read out of it by tools/walleye-ramroot) as /userland.tar, which build/initramfs-ramroot/init unpacks into a tmpfs after the modules load at 5 s, then switch_root to
+# Alpine's /sbin/init: OpenRC, agetty on tty0 (the glass) and ttyGS0, sshd over the usb gadget network. UFS is OFF (the gate passes it): nothing of the card is touched. Built twice with this one sha256 and checked by
+# `walleye-ramroot --build now`; booted from memory only by procedures/alpine-login-on-the-glass-on-the-pixel-2.rs.
+[images.b-a5]
+path = "images-display-ramroot/boot-b-a5.img"
+sha256 = "575bbe433b20c82d62b8ac0563459f6d4877d2094f663db9dd239b3d658276e0"
+
 [procedures.display-delay-bisect-on-the-pixel-2]
 delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of uptime at which each image's init loads the display modules; an image b-dN must exist for each
 image_prefix = "b-d"                # the images are named PREFIX+delay in [images.*]: b-d5, b-d15 ...; the splash image B-s5 is run with delays = "5" and image_prefix = "b-s" (set both, run, put them back)
@@ -293,3 +301,13 @@ ssh_port = 22
 bootchain = "~/lab-material/walleye/bootchain-2026-11-19"
 by_name = "/dev/block/by-name"
 luns = 6
+
+# The Alpine login prompt on the glass (item walleye-display-alpine-ramroot-image; procedures/alpine-login-on-the-glass-on-the-pixel-2.rs): image B-a5, B-r5's kernel, dtb and 13 display modules with the
+# Alpine userland unpacked into a tmpfs root (UFS off), booted once from memory; ssh over usb-network by the lab key; then the author's look. Run unattended by the keeper it stops at the look; the way back runs after.
+[procedures.alpine-login-on-the-glass-on-the-pixel-2]
+image = "b-a5"                  # the name of its [images.NAME] (path, sha256)
+delay = 5                       # seconds of uptime at which the init loads the display modules (B-r5's own)
+modules = 13                    # the display modules the init must say ok for
+identity = "~/lab-material/walleye/walleye-lab-ed25519"   # the lab-only ssh key (mode 600; its public half is root's authorized_keys in the image's userland)
+ssh_user = "root"
+ssh_port = 22

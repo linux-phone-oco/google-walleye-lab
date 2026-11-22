@@ -18,6 +18,7 @@
 //! | the install write's values | `[images.alpine-rootfs]` (`path`, `sha256`), `[procedures.install-rootfs-on-the-pixel-2]` `backup`, `stage_dir`, `by_name` |
 //! | the root boot's values | `[images.ufs-root]` (`path`, `sha256`), `[procedures.rootfs-boots-on-the-pixel-2]` `go_item`, `identity`, `ssh_user`, `ssh_port`, `bootchain`, `by_name`, `luns` |
 //! | the display-at-boot try's values | `[images.b2]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules, hold` |
+//! | the Alpine-in-RAM login try's values | `[procedures.alpine-login-on-the-glass-on-the-pixel-2]` `image` (the name of its `[images.NAME]`: `path`, `sha256`), `delay`, `modules`, `identity`, `ssh_user`, `ssh_port` |
 //! | the display delay bisect's values | `[images.b-d5]` ... `[images.b-d50]` (or the images `image_prefix` names: `b-s` and delays 5 give `[images.b-s5]`) (`path`, `sha256`), `[procedures.display-delay-bisect-on-the-pixel-2] delays`, `image_prefix`, `modules` |
 
 use lpoco_attended::prelude::{dev, proc};
@@ -35,6 +36,7 @@ pub const INSTALL_PROCEDURE: &str = "install rootfs on the Pixel 2";
 pub const REHEARSE_INSTALL_PROCEDURE: &str = "rehearse install rootfs on the Pixel 2";
 pub const ROOTFS_BOOT_PROCEDURE: &str = "rootfs boots on the Pixel 2";
 pub const REHEARSE_ROOTFS_BOOT_PROCEDURE: &str = "rehearse rootfs boots on the Pixel 2";
+pub const RAMROOT_PROCEDURE: &str = "alpine login on the glass on the Pixel 2";
 
 /// The image of the root boot: the name of its `[images.NAME]` table.
 pub const ROOT_IMAGE: &str = "ufs-root";
@@ -50,6 +52,7 @@ pub enum Try {
     Ufs,
     Install,
     RootfsBoot,
+    Ramroot,
 }
 
 /// One image of the delay bisect: the seconds of uptime its init waits, its file and the sha256 `device.toml` records.
@@ -168,6 +171,13 @@ impl Settings {
     /// The root's boot try's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_rootfs_boot() -> Settings {
         Settings::read(Try::RootfsBoot, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
+    /// The Alpine-in-RAM login try's settings, read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_ramroot() -> Settings {
+        Settings::read(Try::Ramroot, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
@@ -309,6 +319,18 @@ impl Settings {
                 );
                 s.out = s.out_dir("rootfs-boots");
             }
+            Try::Ramroot => {
+                let name = proc("image");
+                s.image = image(&name);
+                s.image_sha256 = dev(&format!("images.{name}.sha256"));
+                s.delays = vec![number("delay", proc("delay"))];
+                s.modules = number("modules", proc("modules"));
+                s.identity = home_path(&proc("identity"));
+                s.ssh_user = proc("ssh_user");
+                s.ssh_port = u16::try_from(number("ssh_port", proc("ssh_port")))
+                    .expect("ssh_port in device.toml is a port number");
+                s.out = s.out_dir("alpine-login");
+            }
             Try::DisplayBoot => {
                 s.image = image("b2");
                 s.image_sha256 = dev("images.b2.sha256");
@@ -418,6 +440,10 @@ impl Settings {
             ("ssh_user", "root"),
             ("ssh_port", "22"),
             ("bootchain", "~/bootchain"),
+            ("image", "b-a5"),
+            ("delay", "5"),
+            ("images.b-a5.path", "images-display-ramroot/boot-b-a5.img"),
+            ("images.b-a5.sha256", "a5a5"),
             ("images.alpine-rootfs.path", "images-rootfs/rootfs.ext4"),
             ("images.alpine-rootfs.sha256", "a1b2"),
             ("backup", "~/backup"),
@@ -506,6 +532,7 @@ mod tests {
             (Try::Install, REHEARSE_INSTALL_PROCEDURE),
             (Try::RootfsBoot, ROOTFS_BOOT_PROCEDURE),
             (Try::RootfsBoot, REHEARSE_ROOTFS_BOOT_PROCEDURE),
+            (Try::Ramroot, RAMROOT_PROCEDURE),
         ] {
             let name: Vec<String> = table
                 .split(|c: char| !c.is_ascii_alphanumeric())
