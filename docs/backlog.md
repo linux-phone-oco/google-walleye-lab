@@ -9217,10 +9217,10 @@ Witness
 ### Rehearse the root boot for real: every step but the boot (card read from Android, GPT digests, guard, bootchain read-back), as install had
 
 Status
-: open
+: in-progress
 
 Note
-: From the programmer review of walleye-install-boot-procedure: the per-stage go decision wants every part that does not boot UFS-on run for real first. Build procedures/rehearse-rootfs-boots-on-the-pixel-2.rs like rehearse-install-rootfs-on-the-pixel-2: on Android the six GPT digests (/dev/block/sdX on real Android not yet seen), the root partition hash, the guard with fastboot, the bootchain read-back, slot flags; no boot. Then a keeper runs it. Also: disk letters from luns, one root_for(suffix), plain_path/BLOCK into android.rs.
+: Built (walleye-tries rootfs_boot.rs; procedures/rehearse-rootfs-boots-on-the-pixel-2.rs; own device.toml table and own out folder): 14 steps, dry run passes, 192 tests pass, reviewed by programmer (fastboot exit and shared out folder fixed). No go needed, nothing booted or written. Also done: disk letters from luns (1 to 26), one root_for, BLOCK and plain_path in android.rs. Next: a keeper runs it for real and records the result; done when that run passes.
 
 About
 : walleye-display-s6e3fa5
@@ -9229,10 +9229,10 @@ Opened
 : 2026-11-22
 
 Needs
-: build
+: phone
 
 Proof
-: the rehearsal's real run passes, nothing booted
+: procedures/rehearse-rootfs-boots-on-the-pixel-2.rs real run: all 14 steps pass, nothing booted, phone back on Android
 
 Rank
 : 3

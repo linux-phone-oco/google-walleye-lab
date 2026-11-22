@@ -282,3 +282,14 @@ ssh_port = 22
 bootchain = "~/lab-material/walleye/bootchain-2026-11-19"   # the stored boot chain read-back: the boot chain read again after the boot must equal it (tests/host/bootchain-readback-check.sh STORED NEW)
 by_name = "/dev/block/by-name"                              # the phone's partition names on Android: the root partition is hashed by name before and after
 luns = 6                                                    # the card's disks (sda to sdf): the partition table of each is hashed before and after
+
+# The rehearsal of that boot (procedures/rehearse-rootfs-boots-on-the-pixel-2.rs; item walleye-rootfs-boots-rehearsal): every step but the boot, the card read from Android, the guard, the slots' flags, the boot chain read back.
+# It boots nothing and needs no go (go_item is read into the settings and never asked); the keys are the boot's, read from this table, so a key renamed there fails in both.
+[procedures.rehearse-rootfs-boots-on-the-pixel-2]
+go_item = "walleye-install-rootfs-boots-try"
+identity = "~/lab-material/walleye/walleye-lab-ed25519"
+ssh_user = "root"
+ssh_port = 22
+bootchain = "~/lab-material/walleye/bootchain-2026-11-19"
+by_name = "/dev/block/by-name"
+luns = 6

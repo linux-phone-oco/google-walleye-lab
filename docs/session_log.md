@@ -5362,3 +5362,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-rootfs-boots-rehearsal-built"></a>
+### Root boot rehearsal built
+
+Entry date
+: 2026-11-22
+
+Done
+: procedures/rehearse-rootfs-boots-on-the-pixel-2.rs: 14 steps, the root boot's every step but the boot and the go (battery, image and its root, stored chain and key, card read from Android, fastboot guard, slot flags; then Android, card, boot chain and flags read again and compared). Own device.toml table and own out folder. Refactors: disk letters from luns (disk_letters, 1 to 26), one root_for, BLOCK and plain_path in android.rs. Dry run 14 of 14, cargo test 192 pass. Programmer review: two high findings fixed (the rehearsal stopped in fastboot before its re-read; it shared the real boot's out folder, which the boot chain read-back refuses when it has files). Queued for the keeper.
+
+Considered
+: A flag on the boot command (as the write got --rehearse): the install rehearsal is its own entry file, so the boot's entry stays one screen that boots; a check that the go row names the sha256 (review, medium) - left to the real run's own gate
+
+Rejected
+: Reading the go in the rehearsal: it boots nothing, so a go would be asked for nothing; ssh and the login steps: they need the booted image
+
+About
+: walleye-display-s6e3fa5

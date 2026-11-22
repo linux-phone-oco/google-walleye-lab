@@ -34,6 +34,7 @@ pub const DISPLAY_DELAY_PROCEDURE: &str = "display delay bisect on the Pixel 2";
 pub const INSTALL_PROCEDURE: &str = "install rootfs on the Pixel 2";
 pub const REHEARSE_INSTALL_PROCEDURE: &str = "rehearse install rootfs on the Pixel 2";
 pub const ROOTFS_BOOT_PROCEDURE: &str = "rootfs boots on the Pixel 2";
+pub const REHEARSE_ROOTFS_BOOT_PROCEDURE: &str = "rehearse rootfs boots on the Pixel 2";
 
 /// The image of the root boot: the name of its `[images.NAME]` table.
 pub const ROOT_IMAGE: &str = "ufs-root";
@@ -155,6 +156,13 @@ impl Settings {
         Settings::read(Try::Install, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
+    }
+
+    /// The root boot's rehearsal reads the boot's own keys, from its own table (call after `procedure(...)`).
+    pub fn for_rehearse_rootfs_boot() -> Settings {
+        let mut s = Settings::for_rootfs_boot();
+        s.out = s.out_dir("rootfs-boots-rehearsal"); // never the real boot's folder: its boot chain read-back refuses a folder with files
+        s
     }
 
     /// The root's boot try's settings, read from the device's `device.toml` (call after `procedure(...)`).
@@ -296,8 +304,8 @@ impl Settings {
                 s.by_name = proc("by_name");
                 s.luns = number("luns", proc("luns"));
                 assert!(
-                    s.by_name.starts_with('/') && s.luns >= 1,
-                    "by_name in device.toml is an absolute path on the phone, luns is at least 1"
+                    s.by_name.starts_with('/') && (1..=26).contains(&s.luns),
+                    "by_name in device.toml is an absolute path on the phone, luns is 1 to 26"
                 );
                 s.out = s.out_dir("rootfs-boots");
             }
@@ -497,6 +505,7 @@ mod tests {
             (Try::Install, INSTALL_PROCEDURE),
             (Try::Install, REHEARSE_INSTALL_PROCEDURE),
             (Try::RootfsBoot, ROOTFS_BOOT_PROCEDURE),
+            (Try::RootfsBoot, REHEARSE_ROOTFS_BOOT_PROCEDURE),
         ] {
             let name: Vec<String> = table
                 .split(|c: char| !c.is_ascii_alphanumeric())
