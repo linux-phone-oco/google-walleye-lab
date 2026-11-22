@@ -235,13 +235,13 @@ sha256 = "6dc0239e93b4f4b3a01aa1fd3c308aa5208d16f9545b900bfcc38f1ea70904d8"
 path = "images-display-regs/boot-b-q5.img"
 sha256 = "86d0813a1ae47ab0d33803d4c4d5a1e24df0988aae760d83e0605b584e80596d"
 
-# The Alpine-in-RAM image B-a5 (item walleye-display-alpine-ramroot-image): B-r5's kernel, dtb (mdss reset), command line, header words, size and 13 display modules as they are; its ramdisk adds the userland of
-# [images.alpine-rootfs] (the image written to system_a, read out of it by tools/walleye-ramroot) as /userland.tar, which build/initramfs-ramroot/init unpacks into a tmpfs after the modules load at 5 s, then switch_root to
-# Alpine's /sbin/init: OpenRC, agetty on tty0 (the glass) and ttyGS0, sshd over the usb gadget network. UFS is OFF (the gate passes it): nothing of the card is touched. Built twice with this one sha256 and checked by
+# The Alpine-in-RAM image B-a5 (item walleye-display-alpine-ramroot-image; rebuilt by item walleye-display-alpine-getty-on-the-glass with the getty on tty1): B-r5's kernel, dtb (mdss reset), command line, header words, size and 13 display modules as they are; its ramdisk adds the userland of
+# [images.alpine-rootfs-v3] (v2 with the glass getty on tty1 instead of tty0, read out of it by tools/walleye-ramroot) as /userland.tar, which build/initramfs-ramroot/init unpacks into a tmpfs after the modules load at 5 s, then switch_root to
+# Alpine's /sbin/init: OpenRC, getty on tty1 (the glass) and ttyGS0, sshd over the usb gadget network. UFS is OFF (the gate passes it): nothing of the card is touched. Built twice with this one sha256 and checked by
 # `walleye-ramroot --build now`; booted from memory only by procedures/alpine-login-on-the-glass-on-the-pixel-2.rs.
 [images.b-a5]
 path = "images-display-ramroot/boot-b-a5.img"
-sha256 = "575bbe433b20c82d62b8ac0563459f6d4877d2094f663db9dd239b3d658276e0"
+sha256 = "3cb5adb8dfc9c0176e096a0318c113c53a07e00493e1d4b47697f8f5cf68e235"
 
 [procedures.display-delay-bisect-on-the-pixel-2]
 delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of uptime at which each image's init loads the display modules; an image b-dN must exist for each
@@ -254,6 +254,12 @@ modules = 13                        # the display modules each init loads, each 
 [images.alpine-rootfs]
 path = "images-rootfs/walleye-alpine-v2-key.ext4"
 sha256 = "57ea715200ee68430d5417ae30334ae774eaef9028621209e10a1778e193de75"
+
+# The Alpine hardware-test rootfs v3 (item walleye-display-alpine-getty-on-the-glass): v2 with the glass's getty on tty1 (Alpine's own line, VT 1 under fbcon) instead of tty0, and tty1 in securetty;
+# built by tools/walleye-rootfs --build now --authorized-key, twice with this one sha256, every check ok. [images.alpine-rootfs] (v2) stays: it is what the stage 1 write put on system_a; the next write takes v3.
+[images.alpine-rootfs-v3]
+path = "images-rootfs/walleye-alpine-v3-key.ext4"
+sha256 = "886ef625690b22b1b26a3875753a02aa118e206dbf639dead3c624cfb8bbdfe2"
 
 # v1 without an ssh key, kept under its own name until the write (item walleye-install-write-procedure) has used the keyed image.
 [images.alpine-rootfs-v1-no-key]

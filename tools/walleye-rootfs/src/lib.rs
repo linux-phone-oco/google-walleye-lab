@@ -650,7 +650,7 @@ mod tests {
 
     #[test]
     fn what_inittab_and_conf_d_start_is_listed() {
-        let tab = "# c\n::sysinit:/sbin/openrc sysinit\ntty0::respawn:/sbin/getty 38400 tty0\n::ctrlaltdel:/sbin/reboot\n::once:\n";
+        let tab = "# c\n::sysinit:/sbin/openrc sysinit\ntty1::respawn:/sbin/getty 38400 tty1\n::ctrlaltdel:/sbin/reboot\n::once:\n";
         assert_eq!(
             inittab_programs(tab),
             vec!["/sbin/openrc", "/sbin/getty", "/sbin/reboot"]
@@ -676,7 +676,7 @@ mod tests {
                 .contains("respawn")
         );
         assert!(
-            getty_respawns("tty0::respawn:/sbin/getty 38400 tty0\n", "ttyGS0")
+            getty_respawns("tty1::respawn:/sbin/getty 38400 tty1\n", "ttyGS0")
                 .unwrap_err()
                 .contains("no line")
         );

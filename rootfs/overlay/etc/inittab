@@ -2,7 +2,7 @@
 ::sysinit:/sbin/openrc sysinit
 ::sysinit:/sbin/openrc boot
 ::once:/sbin/openrc default
-tty0::respawn:/sbin/getty 38400 tty0
+tty1::respawn:/sbin/getty 38400 tty1
 ttyGS0::respawn:/sbin/getty -L 115200 ttyGS0 vt100
 ::ctrlaltdel:/sbin/reboot
 ::shutdown:/sbin/openrc shutdown

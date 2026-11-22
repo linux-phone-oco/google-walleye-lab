@@ -9380,10 +9380,10 @@ Witness
 ### The login prompt on the glass: find on which VT the getty and the glass are, fix it, and MEASURE it from the lab (the screen's text through /dev/vcs) before the author is asked to look again
 
 Status
-: open
+: in-progress
 
 Note
-: THE AUTHOR'S LOOK, 2026-11-22 (relayed by the Top Coordinator), verbatim: "nice, i see the kernel log scroll !", then "last two lines say starting sshd and starting local, and blinking cursor". The glass shows the kernel log and OpenRC's boot text, ends with 'starting sshd' and 'starting local' and a blinking cursor: NO 'walleye login:' prompt, although the lab's check 14 found a getty running on tty0. The glass is VT1 under fbcon; the getty is on /dev/tty0 by the rootfs tool's inittab (busybox /sbin/getty, getty_respawns in tools/walleye-rootfs). Hypotheses, not facts: the getty prints to a VT other than the one fbcon shows; busybox getty on tty0 does a vhangup that detaches the console; the getty waits on something. The lab can SEE the screen's text without the author (/dev/vcs), so the next try is measured by the lab first, and the author is asked again only when the prompt is in the screen's text: that is the point of this item. Run by the keeper without the author until the screen's text is right.
+: Built 2026-11-22 (walleye-builder): host side done and landed; B-a5 sha 3cb5adb8, rootfs v3 886ef625. Open: the keeper's unattended run of procedures/alpine-login-on-the-glass-on-the-pixel-2.rs - check 15 must pass (prompt in the screen's text) and only then the run stops at the look; if it fails, screen.txt and read.txt (active VT, consoles, ps tty) name the next cause. Next write to system_a takes [images.alpine-rootfs-v3].
 
 About
 : walleye-display-s6e3fa5
@@ -9392,10 +9392,10 @@ Opened
 : 2026-11-22
 
 Needs
-: build
+: phone
 
 Proof
-: (1) the look procedure (procedures/alpine-login-on-the-glass-on-the-pixel-2.rs) gains read-only reads over ssh, kept in its log: /sys/class/tty/tty0/active (the VT the glass shows), /proc/consoles, ps with each getty's tty, /etc/inittab, the kernel's console= from /proc/cmdline, and the TEXT OF THE SCREEN: /dev/vcs of the active VT (or vcsa), which is what the glass shows; and a CHECK that the screen's text holds a login prompt (the hostname and 'login:'), run before the author's look is asked, so a look is only asked when the lab measured the prompt on the screen; (2) the fix the readings call for, in the rootfs tool (tools/walleye-rootfs) and/or the image's init and command line: Alpine's own default is getty on tty1 with the VT 1 the fbcon console, the hardware-test layer keeps ttyGS0 for the lab; whichever line it needs, the lab's check proves it, no guess; the ssh login stays; (3) the image B-a5 rebuilt (new sha256 in device.toml [images.b-a5], rebuild identical, ramdisk check, QEMU init proof; the QEMU run reads the VT's text too if the QEMU console allows) and then the keeper's unattended run shows the prompt in the screen's text and ONLY THEN stops at the look; dry run, check --host, stand-in tests, clippy, fmt, review
+: procedures/alpine-login-on-the-glass-on-the-pixel-2.rs
 
 Rank
 : 1

@@ -2949,3 +2949,28 @@ Scope
 
 Tracked by
 : walleye-display-alpine-ramroot-image
+
+
+<a id="2026-11-22-walleye-glass-getty-on-tty1-screen-measured"></a>
+### 2026-11-22-walleye-glass-getty-on-tty1-screen-measured
+
+Date
+: 2026-11-22
+
+Brief
+: The glass's getty moves to tty1 (Alpine's own line) and the lab reads the screen's text (/dev/vcs) before the author is asked to look
+
+Decision
+: inittab runs getty on tty1, not tty0 (securetty has both); rootfs v3 and B-a5 rebuilt from it; the look procedure gains check 15: the active VT's text holds 'HOSTNAME login:', polled over ssh, kept in screen.txt; the read also keeps the active VT, /proc/consoles, ps with tty, inittab, cmdline. A failed check stops the run before the look.
+
+Why
+: The look at B-a5 saw boot text and a cursor but no prompt though check 14 found a getty on tty0; Alpine's default is tty1 with VT 1 the fbcon console. The cause is not proven (hypotheses: vhangup on /dev/tty0, wrong VT); the screen check is what proves or refutes tty1 on the phone, and its saved readings name the next cause if it fails.
+
+Rejected
+: Guessing both tty0 and tty1 getties (muddies what the check proves); patching inittab inside the ramroot init only (the UFS root needs the same line); changing [images.alpine-rootfs] v2 in place (it is what system_a holds from the stage 1 write; v3 is declared beside it and the next write takes v3).
+
+About
+: walleye-display-s6e3fa5
+
+Tracked by
+: walleye-display-alpine-getty-on-the-glass

@@ -13,7 +13,7 @@ use walleye_ramroot::cli::{usage, Contract as C};
 use walleye_ramroot::*;
 
 const BASE_IMAGE: &str = "b-r5";
-const ROOTFS_IMAGE: &str = "alpine-rootfs";
+const ROOTFS_IMAGE: &str = "alpine-rootfs-v3";
 const IMAGE_NAME: &str = "boot-b-a5.img";
 const SUMS_NAME: &str = "SHA256SUMS-display-ramroot";
 const DELAY_SECONDS: &str = "5";
@@ -588,7 +588,7 @@ fn check_image(ctx: &Ctx, inp: &Inputs, img: &Path) -> Result<(), String> {
         &["-xOf", path(&rd.join("userland.tar")), "./etc/inittab"],
     )?;
     rep.ck(
-        "the inittab respawns a getty on tty0 (the glass) and on ttyGS0",
+        "the inittab respawns a getty on tty1 (the glass) and on ttyGS0",
         inittab_problem(&inittab).unwrap_or_default(),
         "",
     );

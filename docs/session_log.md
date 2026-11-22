@@ -5590,3 +5590,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-the-login-prompt-on-the-glass-tty1-and-the"></a>
+### The login prompt on the glass: tty1 and the screen read
+
+Entry date
+: 2026-11-22
+
+Done
+: Builder: getty on tty1 (inittab, securetty, rootfs and ramroot checks), rootfs v3 and B-a5 rebuilt and declared, tools/walleye-tries ramroot gains the wider read and the screen check (/dev/vcs polled until HOSTNAME login:), procedure check 15.
+
+Considered
+: tty0 kept with a second getty on tty1; reading the screen through fbgrab
+
+Rejected
+: see decision 2026-11-22-walleye-glass-getty-on-tty1-screen-measured
+
+About
+: walleye-display-s6e3fa5
