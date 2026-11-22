@@ -3,7 +3,7 @@
 # the x86_64 busybox stands in for the phone's arm64 one, the init is the same file) on a GPT disk whose partition `system_a` holds a loop-made test rootfs (mke2fs -d, no root needed).
 # Cases, each one boot: (1) the named partition is there: the init mounts it read-only, puts a tmpfs overlay on it, the root's /sbin/init runs, a write lands in the overlay and not on the disk;
 # (2) the disk is read-only to QEMU and its sha256 is the same after the run; (3) only a decoy `system_b` is there and `walleye.root=system_a` is asked: the init refuses and nothing is mounted;
-# (4) the running slot (androidboot.slot_suffix=_a) is asked for as the root: the init refuses even though the partition is there; (5) a name that is not system_a or system_b is refused.
+# (4) the running slot (androidboot.slot_suffix=_a) is asked for as the root: the init refuses even though the partition is there; (5) a name that is not system_a or system_b is refused; (9) no androidboot.slot_suffix: refused (fails closed); (10) a suffix that is not _a or _b: refused.
 #   ufs-root-init.sh WORK_DIR        (WORK_DIR holds busybox-x86_64 and out/b, as build/build-initramfs.sh wants)
 # Prints `pass|fail|skip walleye-ufs-root-init DETAIL`; exit 0 only on pass; a skip is not a pass.
 W=${1:-}
@@ -65,7 +65,7 @@ sha() { sha256sum "$1" | cut -d' ' -f1; }
 want() { grep -aq -e "$2" "$1.t" || say fail "$3: no '$2' in $1 (tail: $(tail -n3 "$1.t" | tr '\n' '|'))"; }
 refuse() { grep -aq "ROOT-INIT-RAN" "$1.t" && say fail "$2: the root's init ran"; grep -aq "walleye-ufs-root: refused.*$3" "$1.t" || say fail "$2: no refusal line (tail: $(tail -n3 "$1.t" | tr '\n' '|'))"; }
 A0=$(sha "$T/a.img")
-boot "$T/a.img" "walleye.root=system_a" "$T/ok.log"
+boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_b" "$T/ok.log"
 want "$T/ok.log" "ROOT-INIT-RAN" "case 1"
 want "$T/ok.log" "ROOT-MOUNT overlay / overlay .*rw" "case 1 (the root is an overlay)"
 want "$T/ok.log" "ROOT-LOWER /dev/vda2 /lower ext4 ro,.*norecovery" "case 1 (the card's partition is read-only, no journal replay)"
@@ -77,13 +77,15 @@ want "$T/ok.log" "ROOT-HAS-MARKER" "case 1 (the lower's files show)"
 want "$T/ok.log" "ROOT-HAS-HOLD-SCRIPT" "case 1 (the watchdog petter is in the root)"
 want "$T/ok.log" "ROOT-WATCHDOG-HELD" "case 1 (a process in the root holds /dev/watchdog open after the hand-over)"
 [ "$(sha "$T/a.img")" = "$A0" ] || say fail "case 2: the disk image changed"
-boot "$T/b.img" "walleye.root=system_a walleye.wait=3 walleye.pause=2" "$T/decoy.log"; refuse "$T/decoy.log" "case 3 (only system_b present)" "no partition named"
+boot "$T/b.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.wait=3 walleye.pause=2" "$T/decoy.log"; refuse "$T/decoy.log" "case 3 (only system_b present)" "no partition named"
 boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_a walleye.pause=2" "$T/running.log"; refuse "$T/running.log" "case 4 (the running slot)" "slot Android runs from"
-boot "$T/a.img" "walleye.root=userdata walleye.pause=2" "$T/name.log"; refuse "$T/name.log" "case 5 (a name that is not a system slot)" "is not system_a"
-boot "$T/a.img" "walleye.pause=2" "$T/none.log"; refuse "$T/none.log" "case 6 (no root asked)" "no walleye.root"
+boot "$T/a.img" "walleye.root=userdata androidboot.slot_suffix=_b walleye.pause=2" "$T/name.log"; refuse "$T/name.log" "case 5 (a name that is not a system slot)" "is not system_a"
+boot "$T/a.img" "androidboot.slot_suffix=_b walleye.pause=2" "$T/none.log"; refuse "$T/none.log" "case 6 (no root asked)" "no walleye.root"
+boot "$T/a.img" "walleye.root=system_a walleye.pause=2" "$T/nosuffix.log"; refuse "$T/nosuffix.log" "case 9 (no androidboot.slot_suffix: the bootloader of a fastboot boot gives none; the init fails CLOSED)" "no androidboot.slot_suffix"
+boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_c walleye.pause=2" "$T/badsuffix.log"; refuse "$T/badsuffix.log" "case 10 (a suffix that is not _a or _b)" "is not _a or _b"
 cp "$T/a.img" "$T/d.img"; start=$(sgdisk -i 2 "$T/d.img" | sed -n "s/^First sector: \([0-9]*\).*/\1/p"); dd if="$T/dangling.ext4" of="$T/d.img" bs=512 seek="$start" conv=notrunc status=none
-boot "$T/d.img" "walleye.root=system_a walleye.pause=2" "$T/dangling.log"; refuse "$T/dangling.log" "case 8 (/sbin/init is a symlink to nothing)" "symlink to nothing"
-boot "$T/a.img" "walleye.root=system_a walleye.hold=6 walleye.test=linger" "$T/hold.log"
+boot "$T/d.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.pause=2" "$T/dangling.log"; refuse "$T/dangling.log" "case 8 (/sbin/init is a symlink to nothing)" "symlink to nothing"
+boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.hold=6 walleye.test=linger" "$T/hold.log"
 want "$T/hold.log" "ROOT-LINGERS" "case 7"
 want "$T/hold.log" "walleye-ufs-root: hold over, the phone resets itself" "case 7 (after the hold the root is left to the watchdog: the phone restarts by itself)"
-say pass "the init mounts system_a read-only (nodiscard) under a tmpfs overlay and hands over to the root's init; the petter ends with the hold and the phone resets itself; it refuses a missing partition, the running slot, a foreign name, no name and a root without a working /sbin/init; the disk is unchanged ($A0)"
+say pass "the init mounts system_a read-only (nodiscard) under a tmpfs overlay and hands over to the root's init; the petter ends with the hold and the phone resets itself; it refuses a missing partition, a missing or foreign slot suffix, the running slot, a foreign name, no name and a root without a working /sbin/init; the disk is unchanged ($A0)"

@@ -4,7 +4,7 @@
 # keep the SoC watchdog petted for a bounded time, and hand over to the root's own /sbin/init (switch_root). Nothing is ever written to the card by this file: no mkfs, no fsck, no rw mount, no
 # discard, no purge (the kernel's purge guard stays in the image too).
 # Refuses (a line `walleye-ufs-root: refused ...` in the kernel log, which the ramoops console keeps for Android to read, then the phone restarts by itself) when: no walleye.root, a name that is not
-# system_a or system_b, the same slot as androidboot.slot_suffix (the slot Android runs from), no partition of that name, or two of them. It mounts nothing it was not named.
+# system_a or system_b, NO androidboot.slot_suffix (_a or _b; fails CLOSED: the procedure puts the slot it read from adb and fastboot on the command line), the same slot as androidboot.slot_suffix (the slot Android runs from), no partition of that name, or two of them. It mounts nothing it was not named.
 # The init of the root (Alpine's busybox init + OpenRC, with the usb gadget unit and sshd) brings the gadget up itself; this init does no gadget.
 # Never exits except by exec (an init that ends is a kernel panic).
 /bin/busybox --install -s /bin
@@ -36,7 +36,12 @@ case $ROOT in
   '') refuse "no walleye.root on the command line" ;;
   *) refuse "walleye.root=$ROOT is not system_a or system_b" ;;
 esac
-[ -z "$SLOT" ] || [ "$ROOT" != "system$SLOT" ] || refuse "$ROOT is the system of the slot Android runs from (androidboot.slot_suffix=$SLOT)"
+case $SLOT in
+  _a|_b) ;;
+  '') refuse "no androidboot.slot_suffix on the command line: the slot Android runs from is not known, nothing is mounted" ;;
+  *) refuse "androidboot.slot_suffix=$SLOT is not _a or _b" ;;
+esac
+[ "$ROOT" != "system$SLOT" ] || refuse "$ROOT is the system of the slot Android runs from (androidboot.slot_suffix=$SLOT)"
 # the partition: exactly one block device whose PARTNAME is the name asked, waited for
 found=
 n=0

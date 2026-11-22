@@ -4,7 +4,7 @@
 //! the UFS-root image booted once from fastboot, from memory; its init mounts the card's system partition of the slot Android is NOT on
 //! read-only under a tmpfs overlay; the lab logs in over usb-network by ssh with its declared key and reads the mounts and the kernel log
 //! (docs step rootfs-boots). Before the boot: adb's slot and fastboot's slot agree and the image's root is the other slot's system
-//! (the init's own guard fails open when the bootloader gives no slot suffix, so this command carries the guard), and the author's go is
+//! (a fastboot boot from memory gives the kernel no androidboot.slot_suffix: this command puts the slot it read on the command line of THIS run's image, made by lpoco-bringup image swap and checked equal to the declared one in every byte but the command line; the init fails closed without it), and the author's go is
 //! recorded on the item the manifest names for this image's sha256. After: the GPT of every disk, the root partition and the boot chain
 //! are read from Android and equal to before, and the slots' flags too. NOTHING is written to the card; the way back to Android runs on any stop.
 //! The UFS-off gate refuses this image by design and is neither run, weakened nor bypassed.
@@ -37,6 +37,7 @@ fn main() {
     check("the card is read from Android: its partition tables and the root partition", root.the_card_is_read_before());
     step("take the phone to fastboot", root.phone_is_in_fastboot());
     check("fastboot agrees on the slot and the image's root is the other one", root.the_guard_holds());
+    step("make this run's image: the declared one with the slot read on its command line", root.the_run_image_is_made());
     check("the slots' flags are read", root.the_slot_flags_are_read());
     check("the author's go is recorded on the item", root.author_has_said_go());
     step("boot the UFS-root image from memory, nothing flashed", root.boot_the_root_image());

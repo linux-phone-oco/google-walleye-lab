@@ -9346,10 +9346,10 @@ Rank
 ### The stage 1 boot passes the slot to the init: the procedure reads the running slot from adb and fastboot and puts it on the boot command line of THIS run's image, and the init fails CLOSED without it
 
 Status
-: open
+: in-progress
 
 Note
-: From the keeper's run 1 of the stage 1 boot (research walleye-rootfs-boots-run-1-slot-suffix-missing): checks 1 to 15 passed on our UFS-on kernel (booted, usb 1d6b:0104, ssh as root by the lab key, kernel 7.3.0-00013-g3644090c7f6d, network and services up), then the init saw no androidboot.slot_suffix (a fastboot boot from RAM passes none) and the root was not mounted; nothing was written; the phone returned to Android b by itself. The Top Coordinator's choice (2026-11-22): the procedure passes the slot explicitly, read at the run from adb and fastboot, by the boot args, not a typed value; either androidboot.slot_suffix=_b so the init picks the other slot, or walleye.root=system_a checked against that reading. After this lands and the rehearsal passes, the coordinator opens the go again naming the new image's sha256 and a keeper reruns the boot, under the author's standing go.
+: Built 2026-11-22 (builder): parts 1-3 and the rehearsal's code done, host proofs pass; image sha256 c3373d71...6c7ba9 installed at the declared path. Left: the keeper runs procedures/rehearse-rootfs-boots-on-the-pixel-2.rs for real (proof (4)), then the item is done; the coordinator opens the go naming the new sha.
 
 About
 : walleye-display-s6e3fa5
@@ -9358,7 +9358,7 @@ Opened
 : 2026-11-22
 
 Needs
-: build
+: phone
 
 Proof
 : (1) the init (build/initramfs-root/init) REFUSES to mount when androidboot.slot_suffix is missing (fail closed; its QEMU test fails first on the missing-suffix case and the stand-in covers it), and refuses when the suffix names the root's own slot; with the suffix naming the other slot it mounts read-only under the overlay as before; (2) the procedure (procedures/rootfs-boots-on-the-pixel-2.rs) reads the running slot from adb's ro.boot.slot_suffix and fastboot's current-slot (equal, as it checks already) and boots an image whose command line is the declared image's PLUS androidboot.slot_suffix=_<running slot>, made at the run by the library's own way (lpoco lab kernel try --cmdline or the lpoco-bringup image swap / boot args: look it up, do not hand-edit bytes), a step that checks the made image equals the declared one in every byte except the command line (kernel, ramdisk, dtb, header words) and records both sha256 (the declared image's sha stays the one the go item names; the made image's sha is logged); no typed slot anywhere; (3) the image is rebuilt (the init changed: new sha256 declared in device.toml [images.ufs-root], rebuild identical, the UFS gate still refuses it by design); (4) the rehearsal command (procedures/rehearse-rootfs-boots-on-the-pixel-2.rs) covers the new steps (it reads both slots, makes the run image, checks it differs only in the command line, boots nothing) and passes for real by a keeper; dry run, check --host, stand-in tests, clippy, fmt, review

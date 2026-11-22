@@ -5551,3 +5551,24 @@ Considered
 
 About
 : walleye-slpi-boot-qrtr
+
+---
+
+
+<a id="2026-11-22-walleye-builder-boot-slot-on-cmdline"></a>
+### The root boot puts the slot on the command line; the init fails closed
+
+Entry date
+: 2026-11-22
+
+Done
+: init refuses without androidboot.slot_suffix (_a/_b), QEMU cases 9 and 10; the root boot and its rehearsal make this run's image (lpoco-bringup image swap, declared cmdline + the slot adb read; checked equal in every byte but the command line and the one AVB digest; both sha256 kept); the boot gate boots only the made file, re-checked against its sha256; image rebuilt twice identical, sha256 c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9 in device.toml; 209 tests, clippy, fmt, dry runs pass; programmer review applied
+
+Considered
+: walleye.root checked against the reading (kept the suffix: Android's own bootloader gives it)
+
+Rejected
+: editing header bytes in our code; any byte change after the content; a typed slot
+
+About
+: walleye-display-s6e3fa5
