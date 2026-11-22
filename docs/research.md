@@ -5675,3 +5675,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-rootfs-boots-run-2-init-did-not-hand-over"></a>
+### walleye-rootfs-boots-run-2-init-did-not-hand-over
+
+Date
+: 2026-11-22
+
+Brief
+: Root boot run 2 (slot on cmdline): booted, ssh login ok (checks 13-16); stopped at check 17: init did not hand over to the root's /sbin/init
+
+Question
+: Does the UFS-on image with the slot on its command line mount system_a read-only under the overlay and hand over?
+
+Found
+: Run 2 on 2026-11-22 (image c3373d71, run image d594dcbe): pre-checks 1-12 pass, boot, usb-network, ssh login as root on kernel 7.3.0-00013-g3644090c7f6d-dirty pass; check 17 failed: the init did not hand over to the root's /sbin/init. The slot fix is in (slot seen by init is the next thing to read). The run stopped by itself and was not rerun; the post-run checks (GPT, boot chain, slot flags equal to before) did not run, so not known yet. Phone is back on Android (adb device). Log: ~/Projects/linux-phone-oco/rootfs-boots-run-2.out. Next: read the init's console/log on the image to see why the switch_root did not happen; coordinator decides.
+
+About
+: walleye-display-s6e3fa5
