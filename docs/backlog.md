@@ -9158,34 +9158,6 @@ Rank
 : 7
 
 
-<a id="walleye-install-ufs-root-display-image"></a>
-### The stage 1 root on the glass: one kernel with UFS on AND the display (B-r5's reset and modules), the Alpine root from system_a, login prompt on tty0 and ssh over usb-network at once
-
-Status
-: open
-
-Note
-: THE AUTHOR'S WORD (2026-11-22), verbatim: "i want to see the thing on pixel before we start the big housekeeping that will stop everything. as i understood we have everything to see a plain tty on the phones own display, connect to it with ssh and what not, right ?" (the author, 2026-11-22, relayed by the Top Coordinator). This is the item the Top Coordinator asked for: the UFS-root kernel plus B-r5's display reset and modules in ONE image, so the stage 1 boot shows Alpine's login prompt on the glass, with ssh at the same time. It needs the board dts that carries the display (walleye-display-dts-any-order, rank raised to 2) because the display kernel cannot compile today's board file; the merge of the two kernel topics and the first display plus UFS boot together are the two unknowns (the SMMU with UFS on and the display reset: not seen). Rehearsed like the others; it runs under the author's standing go and rule.
-
-Blocked by
-: walleye-display-dts-any-order
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-22
-
-Needs
-: build
-
-Proof
-: image U-d5 (the UFS gate's go marker only through the one command, AVB, rebuild identical, review): the matched UFS kernel tree (topic/ufs-match-android) with the display drivers and fbcon (DRM_MSM, the DSI PHY, the s6e3fa5 panel, FRAMEBUFFER_CONSOLE, DRM_FBDEV_EMULATION as the display kernel has them) as modules or built in, the 13 display modules built for THIS kernel in the initramfs, a dtb that is the matched UFS dtb PLUS the display nodes (mdss with resets = <&mmcc MDSS_BCR>, dsi, phy, the panel, no lab hacks: the board dts of item walleye-display-dts-any-order), our initramfs of walleye-install-ufs-root-image loading the display modules at the delay the try proves (5 s first) before it mounts system_a read-only with the tmpfs overlay and hands over to Alpine's /sbin/init; a QEMU test of the init as before; the first boot is the UFS-on read-only boot of walleye-install-boot-procedure's command (the same procedure, this image named in its go item), with the display signs read from the log and the author's look as one command after it
-
-Rank
-: 2
-
-
 <a id="walleye-display-dts-any-order"></a>
 ### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
 
@@ -9342,40 +9314,6 @@ Rank
 : 1
 
 
-<a id="walleye-install-rootfs-boots-try"></a>
-### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
-
-Status
-: open
-
-Note
-: 2-3 tries, ~3 keeper-h. The phone returns to Android by reboot; end state recorded with idle-android.sh. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. THE AUTHOR'S STANDING GO (2026-11-22, relayed by the Top Coordinator), verbatim: "when its ready, you have my go, dont come back to me with go'es like this, blocking the process of bringing up with my go'es on every little step" (the author, 2026-11-22, relayed by the Top Coordinator). For this item: when the one command (walleye-install-boot-procedure) is built and rehearsed (every non-UFS-on part run for real, check --host, dry run), the coordinator opens the go (a short until) and a keeper runs it, WITHOUT asking him again; the result goes to the Top Coordinator. Decision 2026-11-22-walleye-author-go-per-stage-not-per-step. THE GO IS OPEN (2026-11-22, the coordinator, under the author's standing go: decision 2026-11-22-walleye-author-go-per-stage-not-per-step): the one command procedures/rootfs-boots-on-the-pixel-2.rs (lpoco-attended run rootfs-boots-on-the-pixel-2) for the image whose sha256 is 35b60fdaf0764e97e0b6de60cddc9a955a14928ba3577f7f110206387f966474, and ONLY that image; the rehearsal passed 14 of 14 (item walleye-rootfs-boots-rehearsal, PR 707); the way back runs on any stop. THE RUN, for the keeper: a worktree of google-walleye-lab with ln -s ~/Projects/walleye-build build/images; battery rule first; give the run NO short timeout (the rehearsal took about 15 minutes); tell the Top Coordinator (SendMessage to local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'boot: starting' when the UFS-on boot starts and ONE result line at the end: booted, ssh login by the lab key, the root mounted read-only with the overlay, the GPT and the boot chain equal before and after, the phone on Android; if anything is doubtful the run stops by itself and the keeper does not rerun, and tells the Top Coordinator. Release the lease inside the worktree and read lpoco-lab keeper status back as free; if the land conflicts, do NOT make a third branch: tell the coordinator, who replays the records. Run 1 done 2026-11-22: booted, ssh login ok; stopped at check 16 (no androidboot.slot_suffix from the bootloader, guard failed open). Phone on Android slot b. Needs the slot passed on the cmdline (or another witness) then a new go; coordinator decides. See research walleye-rootfs-boots-run-1-slot-suffix-missing.
-
-Waits
-: the fix walleye-install-boot-slot-on-cmdline landed and its rehearsal passed; the go is then opened again naming the new image's sha256 (the one under the author's standing go, decision 2026-11-22-walleye-author-go-per-stage-not-per-step)
-
-Blocked by
-: walleye-install-boot-slot-on-cmdline
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-22
-
-Needs
-: phone
-
-Proof
-: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
-
-Rank
-: 7
-
-Witness
-: person
-
-
 <a id="walleye-display-alpine-getty-on-the-glass"></a>
 ### The login prompt on the glass: find on which VT the getty and the glass are, fix it, and MEASURE it from the lab (the screen's text through /dev/vcs) before the author is asked to look again
 
@@ -9430,3 +9368,65 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-install-rootfs-boots-try"></a>
+### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
+
+Status
+: open
+
+Note
+: 2-3 tries, ~3 keeper-h. The phone returns to Android by reboot; end state recorded with idle-android.sh. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. THE AUTHOR'S STANDING GO (2026-11-22, relayed by the Top Coordinator), verbatim: "when its ready, you have my go, dont come back to me with go'es like this, blocking the process of bringing up with my go'es on every little step" (the author, 2026-11-22, relayed by the Top Coordinator). For this item: when the one command (walleye-install-boot-procedure) is built and rehearsed (every non-UFS-on part run for real, check --host, dry run), the coordinator opens the go (a short until) and a keeper runs it, WITHOUT asking him again; the result goes to the Top Coordinator. Decision 2026-11-22-walleye-author-go-per-stage-not-per-step. THE GO IS OPEN (2026-11-22, the coordinator, under the author's standing go: decision 2026-11-22-walleye-author-go-per-stage-not-per-step): the one command procedures/rootfs-boots-on-the-pixel-2.rs (lpoco-attended run rootfs-boots-on-the-pixel-2) for the image whose sha256 is 35b60fdaf0764e97e0b6de60cddc9a955a14928ba3577f7f110206387f966474, and ONLY that image; the rehearsal passed 14 of 14 (item walleye-rootfs-boots-rehearsal, PR 707); the way back runs on any stop. THE RUN, for the keeper: a worktree of google-walleye-lab with ln -s ~/Projects/walleye-build build/images; battery rule first; give the run NO short timeout (the rehearsal took about 15 minutes); tell the Top Coordinator (SendMessage to local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'boot: starting' when the UFS-on boot starts and ONE result line at the end: booted, ssh login by the lab key, the root mounted read-only with the overlay, the GPT and the boot chain equal before and after, the phone on Android; if anything is doubtful the run stops by itself and the keeper does not rerun, and tells the Top Coordinator. Release the lease inside the worktree and read lpoco-lab keeper status back as free; if the land conflicts, do NOT make a third branch: tell the coordinator, who replays the records. Run 1 done 2026-11-22: booted, ssh login ok; stopped at check 16 (no androidboot.slot_suffix from the bootloader, guard failed open). Phone on Android slot b. Needs the slot passed on the cmdline (or another witness) then a new go; coordinator decides. See research walleye-rootfs-boots-run-1-slot-suffix-missing. 2026-11-22 21:50 (coordinator): RERUN after the slot fix (PR 715): the image is now sha256 c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9 (declared as [images.ufs-root]; the run makes its own image with the slot adb read on the command line and byte-checks it against this one); run 1 stopped at check 16 on the missing slot suffix and wrote nothing. The go that will be opened names c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9 and ONLY that image.
+
+Waits
+: the rehearsal of the slot fix passed for real (item walleye-install-boot-slot-on-cmdline); the go is then opened naming the new image's sha256, under the author's standing go
+
+Blocked by
+: walleye-install-boot-slot-on-cmdline
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: phone
+
+Proof
+: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
+
+Rank
+: 7
+
+Witness
+: person
+
+
+<a id="walleye-install-ufs-root-display-image"></a>
+### The stage 1 root on the glass: one kernel with UFS on AND the display (B-r5's reset and modules), the Alpine root from system_a, login prompt on tty0 and ssh over usb-network at once
+
+Status
+: open
+
+Note
+: THE AUTHOR'S WORD (2026-11-22), verbatim: "i want to see the thing on pixel before we start the big housekeeping that will stop everything. as i understood we have everything to see a plain tty on the phones own display, connect to it with ssh and what not, right ?" (the author, 2026-11-22, relayed by the Top Coordinator). This is the item the Top Coordinator asked for: the UFS-root kernel plus B-r5's display reset and modules in ONE image, so the stage 1 boot shows Alpine's login prompt on the glass, with ssh at the same time. It needs the board dts that carries the display (walleye-display-dts-any-order, rank raised to 2) because the display kernel cannot compile today's board file; the merge of the two kernel topics and the first display plus UFS boot together are the two unknowns (the SMMU with UFS on and the display reset: not seen). Rehearsed like the others; it runs under the author's standing go and rule. 2026-11-22 (builder, PR 720): the glass getty moved to tty1 (Alpine's default), so the rootfs is v3 (sha 886ef625, [images.alpine-rootfs-v3]) and system_a still holds v2 (tty0). The merged UFS plus display image needs system_a WRITTEN with v3 first: one more run of procedures/install-rootfs-on-the-pixel-2.rs naming the v3 image, under the author's standing go (decision 2026-11-22-walleye-author-go-per-stage-not-per-step); then the root of the stage 1 boot on the glass is v3.
+
+Blocked by
+: walleye-display-dts-any-order
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: build
+
+Proof
+: image U-d5 (the UFS gate's go marker only through the one command, AVB, rebuild identical, review): the matched UFS kernel tree (topic/ufs-match-android) with the display drivers and fbcon (DRM_MSM, the DSI PHY, the s6e3fa5 panel, FRAMEBUFFER_CONSOLE, DRM_FBDEV_EMULATION as the display kernel has them) as modules or built in, the 13 display modules built for THIS kernel in the initramfs, a dtb that is the matched UFS dtb PLUS the display nodes (mdss with resets = <&mmcc MDSS_BCR>, dsi, phy, the panel, no lab hacks: the board dts of item walleye-display-dts-any-order), our initramfs of walleye-install-ufs-root-image loading the display modules at the delay the try proves (5 s first) before it mounts system_a read-only with the tmpfs overlay and hands over to Alpine's /sbin/init; a QEMU test of the init as before; the first boot is the UFS-on read-only boot of walleye-install-boot-procedure's command (the same procedure, this image named in its go item), with the display signs read from the log and the author's look as one command after it
+
+Rank
+: 2
