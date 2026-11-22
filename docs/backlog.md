@@ -9314,31 +9314,6 @@ Rank
 : 1
 
 
-<a id="walleye-display-alpine-getty-on-the-glass"></a>
-### The login prompt on the glass: find on which VT the getty and the glass are, fix it, and MEASURE it from the lab (the screen's text through /dev/vcs) before the author is asked to look again
-
-Status
-: in-progress
-
-Note
-: Built 2026-11-22 (walleye-builder): host side done and landed; B-a5 sha 3cb5adb8, rootfs v3 886ef625. Open: the keeper's unattended run of procedures/alpine-login-on-the-glass-on-the-pixel-2.rs - check 15 must pass (prompt in the screen's text) and only then the run stops at the look; if it fails, screen.txt and read.txt (active VT, consoles, ps tty) name the next cause. Next write to system_a takes [images.alpine-rootfs-v3].
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-22
-
-Needs
-: phone
-
-Proof
-: procedures/alpine-login-on-the-glass-on-the-pixel-2.rs
-
-Rank
-: 1
-
-
 <a id="walleye-install-ufs-root-display-image"></a>
 ### The stage 1 root on the glass: one kernel with UFS on AND the display (B-r5's reset and modules), the Alpine root from system_a, login prompt on tty0 and ssh over usb-network at once
 
@@ -9424,3 +9399,56 @@ Witness
 
 Go until
 : 2026-11-22T23:43:49+01:00
+
+
+<a id="walleye-display-alpine-getty-experiments"></a>
+### Why the getty on tty1 prints no login prompt although it runs: measure on the booted image, over ssh, with live experiments, and fix by the one that makes 'walleye login:' appear in the screen's text
+
+Status
+: open
+
+Note
+: THE AUTHOR'S WORDS, verbatim: "proc/sys/kernel/hotplug: nonexistand directory. everything else says ok on the kernel boot scroll. and i see the same last two lines after all ok's: starting sshd, starting local, and next line is blinking cursor" (the author, 2026-11-22, who watched the B-a5 3cb5adb8 boot, relayed by the Top Coordinator). THE CHECK'S OWN MEASUREMENT (keeper run alpine-login-20261122-204417, screen.txt and read.txt in ~/lab-material/walleye): the active VT is tty1 ('/sys/class/tty/tty0/active'), the console is tty0 (4:1), a getty runs (pid 716, '/sbin/getty 38400 tty1', tty 4:1) and so does the one on ttyGS0 ('-L 115200 ttyGS0 vt100'); the inittab has 'tty1::respawn:/sbin/getty 38400 tty1'; the SCREEN TEXT (/dev/vcs, 120 rows) ends '* Starting sshd ... [ ok ]', '* Starting local ... [ ok ]' and then blank rows: no 'walleye login:' and no issue text, exactly what the author saw. So the VT is right and the getty is alive but writes nothing visible. The mdev line the author read ('/proc/sys/kernel/hotplug: nonexistent directory', Alpine's mdev init script, no CONFIG_UEVENT_HELPER) concerns device nodes, not the getty, and is NOT the cause by the readings; it is a notice to fix later in the kernel config or the mdev script. Hypotheses for the experiments to separate: the busybox getty without -L waits for something on the VT (carrier or the DCD line), the first write is lost to a vhangup on a console that fbcon owns, the issue or hostname read blocks, or the prompt goes to a VT other than VT1. The same ttyGS0 getty runs with -L: on a virtual console it should not need it, but it is the one visible difference between the two lines. Run by a keeper after the stage 1 boot rerun; it is a RAM-only image (UFS off).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: build
+
+Proof
+: (1) the look procedure (procedures/alpine-login-on-the-glass-on-the-pixel-2.rs) gains, after check 15 fails, READ-ONLY readings for each getty pid: /proc/PID/wchan, /proc/PID/stack, /proc/PID/fd listing, /proc/PID/stat's tty, stty -F /dev/tty1 -a, ls -l /dev/tty1 /dev/console /dev/vcs*, /etc/issue, /etc/hostname, /var/run/utmp state, the init log (/run/openrc, dmesg tail); and LIVE EXPERIMENTS, each followed by a read of the screen text from /dev/vcs of the active VT after 2 s and the result kept in the log: (a) echo marker > /dev/tty1 (does the VT accept a write and show it), (b) kill the tty1 getty and let init respawn it (does a respawn print), (c) /sbin/getty -L 38400 tty1 started by hand with its output to /dev/tty1, (d) /sbin/getty -n -l /bin/login 38400 tty1 linux, (e) /sbin/agetty --noclear tty1 linux (agetty is in the image), (f) the same getty started with its stdout from /dev/tty1 after a vhangup of the console: the experiment that makes 'walleye login:' appear names the cause; none of them touches storage (the root is a tmpfs); (2) the fix in the rootfs tool's inittab (or the image) that the winning experiment calls for, with a rebuilt image and its new sha256, no guess; (3) the keeper's unattended run then shows 'walleye login:' in the screen text (check 15 passes); also drop what is only a diagnostic from B-a5's command line if it floods the console (the screen text shows a dyndbg gpio flood at 6 s), keeping the signs' reading intact; dry run, check --host, stand-in tests, clippy, fmt, review
+
+Rank
+: 1
+
+
+<a id="walleye-display-alpine-getty-on-the-glass"></a>
+### The login prompt on the glass: find on which VT the getty and the glass are, fix it, and MEASURE it from the lab (the screen's text through /dev/vcs) before the author is asked to look again
+
+Status
+: in-progress
+
+Note
+: Built 2026-11-22 (walleye-builder): host side done and landed; B-a5 sha 3cb5adb8, rootfs v3 886ef625. Open: the keeper's unattended run of procedures/alpine-login-on-the-glass-on-the-pixel-2.rs - check 15 must pass (prompt in the screen's text) and only then the run stops at the look; if it fails, screen.txt and read.txt (active VT, consoles, ps tty) name the next cause. Next write to system_a takes [images.alpine-rootfs-v3]. 2026-11-22 (the second look, B-a5 3cb5adb8 with getty on tty1): the check's own measurement and the author's words are in item walleye-display-alpine-getty-experiments: the getty on tty1 is alive and the VT is the right one, yet no prompt on the screen text; the experiments item finds the cause.
+
+Blocked by
+: walleye-display-alpine-getty-experiments
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: phone
+
+Proof
+: procedures/alpine-login-on-the-glass-on-the-pixel-2.rs
+
+Rank
+: 3
