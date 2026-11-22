@@ -5629,3 +5629,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-2300-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-22
+
+Done
+: Ran the Alpine login procedure on B-a5 for real, unattended: checks 1-16 pass, but the prompt is mid-screen (row 84) and init output follows it, so the glass shows no prompt at the foot: items not marked done. Phone on Android slot b, stock kernel, nothing flashed
+
+Considered
+: next: walleye-install-rootfs-boots-try (go open until 23:43, attended: one command, needs rootfs v3 in system_a); walleye-display-alpine-getty-experiments (build) takes the new finding: check 15 must read the cursor row. Fresh worktree: ln -s ~/Projects/walleye-build build/images (the folder itself)
+
+About
+: walleye-display-s6e3fa5
