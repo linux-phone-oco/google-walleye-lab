@@ -46,13 +46,15 @@ pub const LOOK_FOR: &str = "do you see an Alpine login prompt on the screen? (`w
 pub const GLASS_TTY: &str = "tty1";
 /// The tty of the gadget's serial, the lab's second console.
 pub const GADGET_TTY: &str = "ttyGS0";
+/// The most the lab waits for the prompt in the screen's text, seconds: the getty is up before this step, and the deadman (300 s from the hand-over) must not be reached.
+pub const PROMPT_WAIT: u64 = 30;
 
 /// The one read the lab makes after the login, read-only and kept whole in read.txt: the VT the glass shows (the active one), the consoles, every process
 /// with its tty, the inittab, the kernel's command line and the hostname - what the next try needs if the screen's check fails.
 pub const READ_COMMAND: &str = "echo ---id; id -u; echo ---kernel; uname -r; echo ---mounts; cat /proc/mounts; echo ---ps; (ps -o pid,args 2>&1 || ps 2>&1); echo ---pstty; (ps -o pid,tty,args 2>&1 || true); echo ---active; cat /sys/class/tty/tty0/active 2>&1; echo ---consoles; cat /proc/consoles 2>&1; echo ---inittab; cat /etc/inittab 2>&1; echo ---cmdline; cat /proc/cmdline 2>&1; echo ---hostname; hostname; echo ---dmesg; dmesg; echo ---services; rc-status --crashed 2>&1 || true; echo ---net; ip -o addr show usb0 2>&1; echo ---end";
 
 /// The screen's text, read by the lab: the hostname, the VT the glass shows, then that VT's text (/dev/vcs is the active VT's), one line per screen row.
-pub const SCREEN_COMMAND: &str = "echo ---hostname; hostname; echo ---active; cat /sys/class/tty/tty0/active 2>&1; echo ---screen; c=$(stty size </dev/tty0 2>/dev/null | cut -d' ' -f2); if [ -n \"$c\" ]; then fold -w \"$c\" /dev/vcs 2>&1; else cat /dev/vcs 2>&1; fi; echo ---end";
+pub const SCREEN_COMMAND: &str = "echo ---hostname; hostname; echo ---active; cat /sys/class/tty/tty0/active 2>&1; echo ---screen; c=$(stty size </dev/tty0 2>/dev/null | cut -d' ' -f2); if [ \"${c:-0}\" -gt 0 ] && fold -w \"$c\" /dev/vcs 2>/dev/null; then :; else cat /dev/vcs 2>&1; fi; echo ---end";
 
 /// The screen's text holds the login prompt of this host: `HOSTNAME login:` on one row (white space between the words counts as one space).
 pub fn screen_has_login_prompt(screen: &str, hostname: &str) -> bool {
@@ -443,7 +445,7 @@ impl Ramroot {
     pub fn the_screen_holds_the_login_prompt(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
-            let until = Instant::now() + Duration::from_secs(u.s.device_wait);
+            let until = Instant::now() + Duration::from_secs(u.s.device_wait.min(PROMPT_WAIT));
             loop {
                 let read = u.ssh(SCREEN_COMMAND, 20);
                 let seen = read.as_ref().map(|t| sections(t)).unwrap_or_default();
@@ -465,7 +467,7 @@ impl Ramroot {
                         Ok(_) => format!(
                             "the login prompt `{} login:` is not in the screen's text after {} s; {}",
                             host.trim(),
-                            u.s.device_wait,
+                            u.s.device_wait.min(PROMPT_WAIT),
                             what_the_screen_shows(&active, &screen)
                         ),
                     });
@@ -767,5 +769,21 @@ mod tests {
             e.contains("no ssh login within 1 s as root@172.16.43.1"),
             "{e}"
         );
+    }
+}
+
+#[cfg(test)]
+mod command_quoting {
+    use super::*;
+
+    #[test]
+    fn the_commands_the_phone_runs_are_valid_shell() {
+        for c in [READ_COMMAND, SCREEN_COMMAND] {
+            let ok = std::process::Command::new("sh")
+                .args(["-n", "-c", c])
+                .status()
+                .unwrap();
+            assert!(ok.success(), "{c}");
+        }
     }
 }
