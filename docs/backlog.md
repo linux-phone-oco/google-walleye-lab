@@ -9117,34 +9117,6 @@ Rank
 : 3
 
 
-<a id="walleye-install-flash-boot"></a>
-### Stage 2: fastboot flash boot of the unused slot with our image and set_active; the phone starts Linux by itself; the fall back to Android proven
-
-Status
-: open
-
-Note
-: ~3 keeper-h. Read back boot, dtbo, vbmeta first (walleye-install-slot-readback). Way back: fastboot flash the stored boot, set_active the Android slot. 2026-11-22 (the author's standing rule, decision 2026-11-22-walleye-author-research-then-proceed): no word of his is waited for once the research verdict (item walleye-install-stage2-android-comparison) says our steps do nothing Android's OTA does not; the step is then ONE tested command, rehearsed, with a way back (fastboot set_active b; fastboot flash boot_a from the stored backup); the coordinator opens the go, a keeper runs it, the result and the verdict go to the Top Coordinator. NEVER, whatever the research says: xbl, abl and other bootloader partitions, the GPT, erase, purge.
-
-Blocked by
-: walleye-install-rootfs-boots-try,walleye-install-stage2-android-comparison
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-22
-
-Needs
-: phone
-
-Proof
-: a power-on lands in Linux on ssh without fastboot boot; after a forced failed boot (retry count) it falls back to Android; avb behaviour recorded
-
-Rank
-: 8
-
-
 <a id="walleye-install-rw-write-test"></a>
 ### Stage 3: one rw mount (nodiscard, no fstrim, purge guard) of the rootfs partition under our kernel, a write run, and proof the bootloader files are unchanged
 
@@ -9324,3 +9296,34 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-install-flash-boot"></a>
+### Stage 2: fastboot flash boot of the unused slot with our image and set_active; the phone starts Linux by itself; the fall back to Android proven
+
+Status
+: open
+
+Note
+: ~3 keeper-h. Read back boot, dtbo, vbmeta first (walleye-install-slot-readback). Way back: fastboot flash the stored boot, set_active the Android slot. 2026-11-22 (the author's standing rule, decision 2026-11-22-walleye-author-research-then-proceed): no word of his is waited for once the research verdict (item walleye-install-stage2-android-comparison) says our steps do nothing Android's OTA does not; the step is then ONE tested command, rehearsed, with a way back (fastboot set_active b; fastboot flash boot_a from the stored backup); the coordinator opens the go, a keeper runs it, the result and the verdict go to the Top Coordinator. NEVER, whatever the research says: xbl, abl and other bootloader partitions, the GPT, erase, purge. 2026-11-22 (research walleye-install-stage2-android-verdict, PR 703): VERDICT: our two steps (flash boot_<other>, then fastboot set_active) are what Android's OTA does in kind. ONE NAMED FACT: set_active is a GPT write (the slot attribute bits of the A/B entries, the type GUIDs swapped, the boot LUN set, both headers rewritten), done by the bootloader's own code, and the OTA's setActiveBootSlot is the same write; a failed boot's retry count is also decremented by the bootloader on every try boot. The decision's 'never the GPT' is read by the research as covering OUR writes to the table; whether it covers the bootloader's own slot switch is the author's reading to give: the research did not treat the verdict as a go. Not known yet: walleye's real ABL is proprietary and was not read (the open CAF ABL stands in), the AVB vbmeta flags for our boot slot. Cheap read-only check: fastboot getvar slot-successful, slot-unbootable, slot-retry-count for both slots before and after a RAM boot, none should change, and getvar all twice identical (the stage 1 boot already reads the slot flags before and after).
+
+Waits
+: one reading of the rule 'never the GPT' by the author, through the Top Coordinator: does it cover fastboot set_active, which the BOOTLOADER performs as a GPT slot-attribute write exactly as Android's OTA does (research walleye-install-stage2-android-verdict)? The flash of boot_<other> is a plain partition write and needs no such word
+
+Blocked by
+: walleye-install-rootfs-boots-try
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: phone
+
+Proof
+: a power-on lands in Linux on ssh without fastboot boot; after a forced failed boot (retry count) it falls back to Android; avb behaviour recorded
+
+Rank
+: 8
