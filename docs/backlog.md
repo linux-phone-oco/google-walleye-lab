@@ -9062,10 +9062,10 @@ Rank
 ### Stage 3 against Android: does our kernel's write path to the UFS card do anything Android's UFS path on this phone does not (UNMAP, purge, erase, quirks, write booster, power)?
 
 Status
-: open
+: done
 
 Note
-: Stage 3 of the same standing rule (decision 2026-11-22-walleye-author-research-then-proceed). Builds on research walleye-ufs-hazard-research, walleye-ufs-gap-sony-mechanism and walleye-ufs-solution-table. The verdict goes to the Top Coordinator with the result. Stop and tell the coordinator if the work seems to need a bootloader partition, the GPT, erase or purge.
+: Verdict (research walleye-install-stage3-android-ufs-comparison-verdict): our kernel does nothing Android's UFS path did not, for the one rw mount with nodiscard, no fstrim, no mkfs, ufs_bsg unopened, purge guard kept. Unblocks walleye-install-rw-write-test once rootfs-boots-try and ufs-try-2 land. Not known yet: the Lineage fork's UFS code. Result and verdict go to the Top Coordinator.
 
 About
 : walleye-display-s6e3fa5
