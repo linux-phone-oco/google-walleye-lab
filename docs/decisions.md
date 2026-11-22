@@ -2828,3 +2828,37 @@ Scope
 
 Tracked by
 : walleye-install-write-rootfs
+
+
+<a id="2026-11-22-walleye-author-go-per-stage-not-per-step"></a>
+### 2026-11-22-walleye-author-go-per-stage-not-per-step
+
+Date
+: 2026-11-22
+
+Brief
+: The author's go covers each step inside a stage he approved, and read-only tries of the same kind; his word is asked once per stage, never per step
+
+Decision
+: COVERED, no further ask: every step of install stage 1 (the boot of the UFS-root image from RAM, read-only, with the tmpfs overlay and the login over usb-network), and read-only UFS-on tries of the same kind (UFS try 2 runs after the stage 1 boot). STILL HIS WORD, once per stage and not per step: stage 2 (flash a boot partition, set_active) and stage 3 (our kernel writing to the card). NEVER: the bootloader, the GPT, erase, purge. THE BAR FOR RUNNING IS UNCHANGED: one tested command, rehearsed (every part that does not boot UFS-on run for real, check --host, dry run), and a way back; the coordinator opens the go on the item with a short until and a keeper runs it; the result goes to the Top Coordinator. Only the asking goes.
+
+Why
+: The author, "when its ready, you have my go, dont come back to me with go'es like this, blocking the process of bringing up with my go'es on every little step" (the author, 2026-11-22, relayed by the Top Coordinator). He said it after the stage 1 write: his go came back to him on every step and slowed the bring-up. Decision 2026-11-20-walleye-install-stage-1-go gave stage 1 its yes; this one says the steps inside an approved stage need no more.
+
+Rejected
+: Asking him again for each phone step inside stage 1 (what he asked us to stop); treating this as a go for stage 2 or stage 3 (his word: once per stage, those stay his); widening the go to anything that writes the bootloader, the GPT, erases or purges (never, by the lane's rule: there is no EDL way back); dropping the bar (a one-command, rehearsed, with-a-way-back run stays the condition for every run).
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-install-stage-how-it-stands
+
+Amends
+: 2026-11-20-walleye-install-stage-1-go
+
+Scope
+: walleye lane: keeper, builder, coordinator; the author's go
+
+Tracked by
+: walleye-install-rootfs-boots-try

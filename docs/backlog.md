@@ -8565,40 +8565,6 @@ Rank
 : 3
 
 
-<a id="walleye-ufs-try-2"></a>
-### UFS try 2: the same read-only boot again, with the questions of try 1 added, and the proof that the card is unharmed
-
-Status
-: open
-
-Note
-: A second boot of the same image confirms the first was no fluke and that the card is unharmed. NOT started without the author's word. 2026-11-19 ASK from the upstreams coordinator (docs #714): before they take an OPP table for msm8998.dtsi up as a patch, a measurement: the gear under load, or a dtsi with an OPP table holding G3. Both belong to this try or its image (walleye-ufs-opp-table-image). Still needs the author's word for a second try. 2026-11-20 (coordinator): blocked on walleye-ufs-try-2-one-command (the one command, tested first); then the Top Coordinator brings it to the author for his go.
-
-Waits
-: the author's word for a second try (his go bought one try, spent 2026-11-19 21:05 CET), brought by the Top Coordinator; and walleye-ufs-link-check-works-slow, walleye-ufs-why-gear1 done
-
-Blocked by
-: walleye-ufs-try-2-one-command
-
-About
-: walleye-ufs-match-android-z
-
-Opened
-: 2026-11-20
-
-Needs
-: phone
-
-Proof
-: through procedures/ufs-matched-image-on-the-pixel-2.rs: the same boot read only, the card's identity and LUNs again, the readings that walleye-ufs-why-gear1 names; and the unharmed proof: the partition tables (GPT) read by Android as root before and after, and by the mainline boot, hash-equal; Android boots normally afterwards (idle-android), both slots' flags unchanged; nothing is written; and the upstreams lane's measurement: the link gear UNDER LOAD (a bounded read-only O_DIRECT read of sda) and again after 2 s idle, from power_info and the devfreq node, so the clock scale-down reading is measured
-
-Rank
-: 3
-
-Witness
-: person
-
-
 <a id="walleye-install-flash-boot"></a>
 ### Stage 2: fastboot flash boot of the unused slot with our image and set_active; the phone starts Linux by itself; the fall back to Android proven
 
@@ -8796,40 +8762,6 @@ Proof
 
 Rank
 : 3
-
-
-<a id="walleye-install-rootfs-boots-try"></a>
-### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
-
-Status
-: open
-
-Note
-: 2-3 tries, ~3 keeper-h. The phone returns to Android by reboot; end state recorded with idle-android.sh. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback.
-
-Waits
-: the one command walleye-install-boot-procedure built and tested, the root written, and the Top Coordinator bringing it: the author's go is given for step 4 (decision 2026-11-20-walleye-install-stage-1-go)
-
-Blocked by
-: walleye-install-write-rootfs,walleye-install-ufs-root-image,walleye-install-boot-procedure
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: phone
-
-Proof
-: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
-
-Rank
-: 7
-
-Witness
-: person
 
 
 <a id="walleye-install-ufs-root-image"></a>
@@ -9214,3 +9146,68 @@ Witness
 
 Go until
 : 2026-11-22T21:06:08+01:00
+
+
+<a id="walleye-install-rootfs-boots-try"></a>
+### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
+
+Status
+: open
+
+Note
+: 2-3 tries, ~3 keeper-h. The phone returns to Android by reboot; end state recorded with idle-android.sh. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. THE AUTHOR'S STANDING GO (2026-11-22, relayed by the Top Coordinator), verbatim: "when its ready, you have my go, dont come back to me with go'es like this, blocking the process of bringing up with my go'es on every little step" (the author, 2026-11-22, relayed by the Top Coordinator). For this item: when the one command (walleye-install-boot-procedure) is built and rehearsed (every non-UFS-on part run for real, check --host, dry run), the coordinator opens the go (a short until) and a keeper runs it, WITHOUT asking him again; the result goes to the Top Coordinator. Decision 2026-11-22-walleye-author-go-per-stage-not-per-step.
+
+Waits
+: the one command walleye-install-boot-procedure built and rehearsed (every non-UFS-on part run for real); the author's go is given and standing (decision 2026-11-22-walleye-author-go-per-stage-not-per-step): the coordinator opens the go with a short until, no further ask
+
+Blocked by
+: walleye-install-write-rootfs,walleye-install-ufs-root-image,walleye-install-boot-procedure
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: phone
+
+Proof
+: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
+
+Rank
+: 7
+
+Witness
+: person
+
+
+<a id="walleye-ufs-try-2"></a>
+### UFS try 2: the same read-only boot again, with the questions of try 1 added, and the proof that the card is unharmed
+
+Status
+: open
+
+Note
+: A second boot of the same image confirms the first was no fluke and that the card is unharmed. NOT started without the author's word. 2026-11-19 ASK from the upstreams coordinator (docs #714): before they take an OPP table for msm8998.dtsi up as a patch, a measurement: the gear under load, or a dtsi with an OPP table holding G3. Both belong to this try or its image (walleye-ufs-opp-table-image). Still needs the author's word for a second try. 2026-11-20 (coordinator): blocked on walleye-ufs-try-2-one-command (the one command, tested first); then the Top Coordinator brings it to the author for his go. THE AUTHOR'S STANDING GO (2026-11-22, relayed by the Top Coordinator): "when its ready, you have my go, dont come back to me with go'es like this, blocking the process of bringing up with my go'es on every little step" (the author, 2026-11-22, relayed by the Top Coordinator). It covers read-only UFS-on tries of the same kind: this one writes nothing, is tested first and is one command (procedures/ufs-matched-image-on-the-pixel-2.rs, built PR 683, host-side half run PR 685). It runs AFTER the stage 1 boot (item walleye-install-rootfs-boots-try); the coordinator opens the go on walleye-try-ufs-match for the matched image's sha256 with a short until and a keeper runs it, no further ask. Decision 2026-11-22-walleye-author-go-per-stage-not-per-step.
+
+Blocked by
+: walleye-install-rootfs-boots-try
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-22
+
+Needs
+: phone
+
+Proof
+: through procedures/ufs-matched-image-on-the-pixel-2.rs: the same boot read only, the card's identity and LUNs again, the readings that walleye-ufs-why-gear1 names; and the unharmed proof: the partition tables (GPT) read by Android as root before and after, and by the mainline boot, hash-equal; Android boots normally afterwards (idle-android), both slots' flags unchanged; nothing is written; and the upstreams lane's measurement: the link gear UNDER LOAD (a bounded read-only O_DIRECT read of sda) and again after 2 s idle, from power_info and the devfreq node, so the clock scale-down reading is measured
+
+Rank
+: 3
+
+Witness
+: person
