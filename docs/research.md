@@ -5499,3 +5499,22 @@ Sources
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-rootfs-boots-rehearsal-run-passed"></a>
+### walleye-rootfs-boots-rehearsal-run-passed
+
+Date
+: 2026-11-22
+
+Brief
+: The root boot rehearsal ran for real, unattended: 14 of 14 steps pass; card (6 disks, system_a) and bootchain and slot flags equal before/after; nothing booted or written
+
+Question
+: Does every step of the read-only UFS-root boot except the boot itself pass on the real phone?
+
+Found
+: procedures/rehearse-rootfs-boots-on-the-pixel-2.rs, 2026-11-22, phone on Android slot b, image names root system_a (sha 35b60fda). Battery, image, stored set and key, adb slot b = fastboot slot, guard, flags read, card GPTs of 6 disks and system_a hash identical before and after, boot chain equals stored set, flags as before. Run takes ~15 min (two hashes of system_a over adb): a first run under a 580 s timeout was killed at step 12 by the keeper, not a failure of the phone. A fresh worktree needs build/images linked to ~/Projects/walleye-build (device.toml says so; git-ignored) or check 2 stops with no file. Phone ended on Android, fastboot not needed.
+
+About
+: walleye-display-s6e3fa5

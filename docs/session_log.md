@@ -5425,3 +5425,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-1945-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-22
+
+Done
+: Root boot rehearsal run for real, 14 of 14 pass, item done. Phone on Android slot b, stock kernel; Alpine in system_a unchanged (card hash equal before and after); fastboot not left; nothing booted.
+
+Considered
+: next: the install go step 4, boot ufs-root from RAM, needs the author's go (item walleye-ufs-try-2-one-command / walleye-install-rootfs-boots-try); a fresh worktree needs build/images linked to ~/Projects/walleye-build; a rehearsal run takes ~15 min, give it no short timeout
+
+About
+: walleye-display-s6e3fa5

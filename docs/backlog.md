@@ -9018,10 +9018,10 @@ Witness
 ### Rehearse the root boot for real: every step but the boot (card read from Android, GPT digests, guard, bootchain read-back), as install had
 
 Status
-: in-progress
+: done
 
 Note
-: Built (walleye-tries rootfs_boot.rs; procedures/rehearse-rootfs-boots-on-the-pixel-2.rs; own device.toml table and own out folder): 14 steps, dry run passes, 192 tests pass, reviewed by programmer (fastboot exit and shared out folder fixed). No go needed, nothing booted or written. Also done: disk letters from luns (1 to 26), one root_for, BLOCK and plain_path in android.rs. Next: a keeper runs it for real and records the result; done when that run passes.
+: proven by a real run 2026-11-22: all 14 steps pass, nothing booted, phone back on Android (research walleye-rootfs-boots-rehearsal-run-passed)
 
 About
 : walleye-display-s6e3fa5
