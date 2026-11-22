@@ -5611,3 +5611,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-2200-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-22
+
+Done
+: Rehearsal with slot on cmdline passed 15/15 for real; item walleye-install-boot-slot-on-cmdline done. Phone on Android slot b, stock kernel, nothing flashed or booted
+
+Considered
+: next: item walleye-display-alpine-getty-on-the-glass (rank 1, unattended run, needs rootfs v3 written to system_a first); coordinator opens the go for the root boot. a fresh worktree needs link build/images -> ~/Projects/walleye-build
+
+About
+: walleye-display-s6e3fa5
