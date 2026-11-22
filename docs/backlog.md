@@ -9293,10 +9293,10 @@ Rank
 ### The stage 1 boot passes the slot to the init: the procedure reads the running slot from adb and fastboot and puts it on the boot command line of THIS run's image, and the init fails CLOSED without it
 
 Status
-: in-progress
+: done
 
 Note
-: Built 2026-11-22 (builder): parts 1-3 and the rehearsal's code done, host proofs pass; image sha256 c3373d71...6c7ba9 installed at the declared path. Left: the keeper runs procedures/rehearse-rootfs-boots-on-the-pixel-2.rs for real (proof (4)), then the item is done; the coordinator opens the go naming the new sha.
+: proven by the rehearsal run for real 2026-11-22: 15 of 15 steps pass (research walleye-rootfs-boots-rehearsal-slot-cmdline-run-passed). Next: the coordinator opens the go naming the current image sha for the root boot.
 
 About
 : walleye-display-s6e3fa5

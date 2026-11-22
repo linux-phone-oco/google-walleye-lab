@@ -5637,3 +5637,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-rootfs-boots-rehearsal-slot-cmdline-run-passed"></a>
+### walleye-rootfs-boots-rehearsal-slot-cmdline-run-passed
+
+Date
+: 2026-11-22
+
+Brief
+: The root boot rehearsal with the slot on the command line ran for real, unattended: 15 of 15 steps pass; run image made, card/bootchain/slot flags equal before/after; nothing booted or written
+
+Question
+: Does the rehearsal with the new steps (slot read from adb and fastboot, run image made with androidboot.slot_suffix) pass for real on the phone?
+
+Found
+: Image sha256 c3373d71...6c7ba9 (declared at the worktree's main 7fd9b58). Android on slot b; adb and fastboot agree; run image made and checked equal to the declared one in every byte but the command line; 6 disks and system_a hashed equal before and after; boot chain equals stored set; both slots' flags as before. Phone left on Android. Note: a fresh worktree needs the ignored link build/images -> ~/Projects/walleye-build.
+
+About
+: walleye-display-s6e3fa5
