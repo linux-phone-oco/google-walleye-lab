@@ -9165,7 +9165,7 @@ Status
 : in-progress
 
 Note
-: Builder part done: image B-a5 (device.toml [images.b-a5], sha256 575bbe43...76e0, deadman 300 s) built twice identical by tools/walleye-ramroot --build now, every check ok; init proof tests/host/ramroot-init.sh (QEMU) passes; procedure procedures/alpine-login-on-the-glass-on-the-pixel-2.rs dry run and lpoco-attended check --host ok; reviewed (7 findings fixed). NEXT: the keeper's unattended run of that procedure (stops at the look, way back runs), then the author's look as the same one command on lpoco-attended with the answer file. Not run on the phone yet.
+: Keeper's unattended run done 2026-11-22: checks 1-15 pass, stopped at the look, phone on Android. NEXT: the author's look as the same one command on lpoco-attended with the answer file (research walleye-ramroot-b-a5-unattended-run-1).
 
 About
 : walleye-display-s6e3fa5

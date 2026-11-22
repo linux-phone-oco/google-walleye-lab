@@ -5580,3 +5580,22 @@ Sources
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ramroot-b-a5-unattended-run-1"></a>
+### walleye-ramroot-b-a5-unattended-run-1
+
+Date
+: 2026-11-22
+
+Brief
+: B-a5 booted from RAM unattended: checks 1-15 pass (tmpfs root, 13 of 13 display modules at 5 s, three signs zero, fbcon, getty, sshd); stopped at the author's look
+
+Question
+: Does the Alpine-in-RAM image B-a5 boot UFS-off and show every readable sign of a login on the glass, before the author looks?
+
+Found
+: Run 2026-11-22 by lpoco-attended run ... --until FIRST_PROMPT: battery, sha256, UFS-off, key ok; fastboot boot from memory, usb gadget 1d6b:0104, ssh login as root; kernel 7.3.0-00007-g7430c717a94c-dirty; / is tmpfs, init said handing over to /sbin/init at 6.6 s; modules loaded at 5 s, SMMU faults 0, rcg warnings 0, DSI -110 0, 13 of 13 ok; getty on tty0 and ttyGS0, sshd up; fbcon 135x120 in the kernel log; no purge/oops/panic; deadman held for the look. Phone back on Android (adb device). Not yet known: whether the author sees walleye login: on the glass. Note for fresh worktrees: build/images is git-ignored, link it to ~/Projects/walleye-build.
+
+About
+: walleye-display-s6e3fa5
