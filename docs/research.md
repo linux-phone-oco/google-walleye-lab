@@ -5477,3 +5477,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-install-stage2-android-verdict"></a>
+### walleye-install-stage2-android-verdict
+
+Date
+: 2026-11-22
+
+Brief
+: Stage 2 vs Android OTA: flash boot_other plus set_active equals the OTA's own steps in kind, BUT set_active IS a GPT write (attributes, type GUIDs, UFS boot LUN): named difference, coordinator's call
+
+Question
+: Does flashing our boot into the slot Android is not on and set_active with boot counting do anything Android's own OTA does not?
+
+Found
+: VERDICT: no step of ours is outside what Android's OTA does, with ONE named fact the standing rule must see: fastboot set_active (and the OTA's setActiveBootSlot) is a write to the GPT. (1) OTA: update_engine writes boot_<other> (and the rest of that slot), the HAL then calls setSlotAsUnbootable/setActiveBootSlot; the Qualcomm HAL (hardware/qcom/bootctrl, boot_control.cpp) sets attribute bits in the GPT entries of every A/B partition on every LUN, recomputes the GPT CRCs, and on UFS switches the boot LUN (xbl_a/xbl_b) through gpt_utils_set_xbl_boot_partition; markBootSuccessful sets the successful bit of the running slot, called by Android after a boot completes (update_verifier then the HAL). (2) Fastboot set_active (CAF ABL, CmdSetActive and SwitchPtnSlots, the stand-in for walleye's proprietary ABL): boot_<x> gets active+priority+retry count 7, successful and unbootable cleared; the other slot loses active and priority; SwitchPtnSlots swaps the partition TYPE GUIDS of every _a/_b pair; on UFS it sets the boot LUN; UpdatePartitionAttributes rewrites both GPT headers and entries with CRCs. At boot FindBootableSlot decrements the retry count of an unconfirmed slot and marks it unbootable at zero, then the other slot boots: that is the fall back, and it writes the GPT every boot of a try. (3) So our one command (flash boot_<other>, set_active other) does exactly the OTA's two moves; the way back (set_active <android>) is the same call; the fall back is the bootloader's own. Named difference: the GPT write is done by the bootloader's code, not ours, but it is a GPT write, and the lane's rule says GPT never: the verdict goes to the coordinator, not a go. AVB (item 2): not read from the phone's ABL (proprietary); known from the lane's readings: unlocked, orange state allowed, our boot image carries the AVB footer and passes the lane's AVB check; whether stock vbmeta flags must be disabled is NOT KNOWN yet: read-only check: fastboot getvar slot-successful/unbootable/retry-count for both slots before and after a RAM boot (a RAM boot must change none), and getvar all twice identical. NOT READ: walleye's real ABL (Google build), its HAL build (Lineage wahoo uses qcom-caf bootctrl; stock used a Qualcomm bootctrl of the same family): behaviour measured, not source, is the proof: the ONE cheap check is the slot flags read before and after.
+
+Sources
+: src-aosp-qcom-bootctrl,src-caf-abl-partitiontableupdate,src-aosp-ab-bootloader-updating
+
+About
+: walleye-display-s6e3fa5

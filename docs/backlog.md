@@ -9071,10 +9071,10 @@ Witness
 ### Stage 2 against Android: does flashing our boot into the slot Android is not on and set_active with boot counting do anything Android's own OTA does not?
 
 Status
-: open
+: done
 
 Note
-: From the author's standing rule (decision 2026-11-22-walleye-author-research-then-proceed): a risky step proceeds without his word once research shows our code does nothing Android's kernel and OTA did not, on this phone, for that step. This item is that research for stage 2. The verdict goes to the Top Coordinator with the result, not as a question. If the work seems to need xbl, abl or another bootloader partition, the GPT, erase or purge: STOP and tell the coordinator (no EDL way back).
+: 2026-11-22 research walleye-install-stage2-android-verdict: our steps equal the OTA's in kind; named difference: set_active writes the GPT (attributes, type GUIDs, UFS boot LUN) by the bootloader's own code, as the OTA does; verdict to the coordinator, who decides whether the standing rule's GPT exclusion reads as our code or the bootloader's. Unread: walleye's own ABL; settle by slot flags read before/after a RAM boot.
 
 About
 : walleye-display-s6e3fa5
