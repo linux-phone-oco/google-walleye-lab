@@ -4,12 +4,30 @@
 //! both read the card from Android before and after they act (item walleye-install-boot-procedure).
 
 use crate::host;
-use crate::install::{plain_path, BLOCK};
 use crate::lab::Lab;
 use crate::settings::Settings;
 use std::process::{Command, Stdio};
 use std::rc::Rc;
 use std::time::{Duration, Instant};
+
+/// The block the image and the partitions are written and read back in (dd's `bs` for a read).
+pub const BLOCK: u64 = 4096;
+
+/// A path on the phone that goes into a command as it is: absolute, only letters, digits and `. _ - /`, no `..`.
+pub(crate) fn plain_path(path: &str) -> Result<&str, String> {
+    let plain = path.starts_with('/')
+        && path.split('/').all(|p| p != "..")
+        && path
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || "._-/".contains(c));
+    if plain {
+        Ok(path)
+    } else {
+        Err(format!(
+            "{path:?} is not a plain absolute path (letters, digits, . _ - /)"
+        ))
+    }
+}
 
 /// How long adbd has to answer as root after `adb root` restarts it.
 const ROOT_WAIT: Duration = Duration::from_secs(40);

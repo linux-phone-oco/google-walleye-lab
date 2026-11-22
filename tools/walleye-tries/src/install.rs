@@ -10,7 +10,7 @@
 //! system_b. The way back: Android's own slot is never touched, so leaving the written slot as it is leaves a phone that runs as
 //! before; putting the backup back is a dd, said when a stop needs it and run by hand.
 
-use crate::android::Android;
+use crate::android::{plain_path, Android, BLOCK};
 use crate::lab::Lab;
 use crate::settings::Settings;
 use crate::{host, watch};
@@ -19,9 +19,6 @@ use std::process::Command;
 use std::rc::Rc;
 
 type Done = Result<(), String>;
-
-/// The block the image and the partitions are written and read back in (dd's `bs` for a read).
-pub const BLOCK: u64 = 4096;
 
 /// The flags of the one write, and of the rehearsal's probe: the same, so the probe proves this dd.
 const DD_FLAGS: &str = "conv=fsync,notrunc";
@@ -83,22 +80,6 @@ pub fn partition_for_write(name: &str) -> Result<String, String> {
         other => Err(format!(
             "{other:?} is not system_a or system_b: this program writes no other partition"
         )),
-    }
-}
-
-/// A path on the phone that goes into a command as it is: absolute, only letters, digits and `. _ - /`, no `..`.
-pub(crate) fn plain_path(path: &str) -> Result<&str, String> {
-    let plain = path.starts_with('/')
-        && path.split('/').all(|p| p != "..")
-        && path
-            .chars()
-            .all(|c| c.is_ascii_alphanumeric() || "._-/".contains(c));
-    if plain {
-        Ok(path)
-    } else {
-        Err(format!(
-            "{path:?} is not a plain absolute path (letters, digits, . _ - /)"
-        ))
     }
 }
 

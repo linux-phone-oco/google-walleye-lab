@@ -35,12 +35,29 @@ pub const INIT_TAG: &str = "walleye-ufs-root:";
 /// The word on the image's command line that names the partition the root is.
 pub const ROOT_KEY: &str = "walleye.root=";
 
-/// The disks of the card, as Android names them (`/dev/block/sda`), whose partition tables are hashed before and after.
-const DISKS: &str = "abcdef";
+/// The disks of the card as Android names them (`/dev/block/sda` ...): `luns` of them, the letters a, b, c ... (a card has at most 26).
+pub fn disk_letters(luns: u64) -> Result<Vec<char>, String> {
+    match u8::try_from(luns) {
+        Ok(n) if (1..=26).contains(&n) => Ok((b'a'..b'a' + n).map(char::from).collect()),
+        _ => Err(format!("the card has {luns} disks: expected 1 to 26")),
+    }
+}
+
+/// The root partition the image boots for the phone that runs from this slot: the system partition of the OTHER slot. `_b` and `b` both name slot b.
+pub fn root_for(current: &str) -> Result<String, String> {
+    let slot = current.trim();
+    let slot = slot.strip_prefix('_').unwrap_or(slot);
+    Ok(format!("system_{}", other_slot(slot)?))
+}
 
 /// What the author is told before the boot: the numbers are the settings', never typed twice.
 pub fn expect(s: &Settings) -> String {
     format!("One command, about 10 minutes: the phone boots our UFS-on image once, from memory; its root is the Alpine system partition of the slot Android is NOT on, mounted READ-ONLY with an overlay in memory. The lab logs in over usb-network by ssh and reads the mounts and the kernel log; NOTHING is written to the card (the partition tables of its {} disks, the root partition and the boot chain are hashed before and after and must be equal). The glass stays dark. The phone returns to Android by itself; if it is not on Android after 4 minutes, hold the power button about 15 seconds.", s.luns)
+}
+
+/// What the author is told before the rehearsal.
+pub fn expect_rehearsal(s: &Settings) -> String {
+    format!("The rehearsal of the root boot, about 5 minutes: every step of the boot except the boot itself, run for real - the card read from Android (the partition tables of its {} disks and the root partition hashed), the image, the guard with fastboot, the slots' flags, the boot chain read back and compared with the stored set. Nothing is booted and nothing is written to the card; the phone is in fastboot for a minute and ends on Android. The author's go is not needed and not read.", s.luns)
 }
 
 /// The partition the image names as its root on its command line (`walleye.root=system_a`), read from the image file's bytes.
@@ -77,7 +94,7 @@ pub fn root_in_image(image: &[u8]) -> Result<String, String> {
 /// the system partition of the OTHER slot. Returns that partition. Any doubt is an error and nothing is booted.
 pub fn guard(adb_suffix: &str, fastboot_slot: &str, image_root: &str) -> Result<String, String> {
     let current = slots_agree(adb_suffix, fastboot_slot)?;
-    let wanted = format!("system_{}", other_slot(&current)?);
+    let wanted = root_for(&current)?;
     if image_root == wanted {
         Ok(wanted)
     } else {
@@ -220,8 +237,8 @@ pub fn mounts_are_read_only(proc_mounts: &str) -> Result<String, String> {
 
 /// The command that hashes the primary and the backup GPT of one disk as Android names it: a read, never a write.
 pub fn gpt_command(letter: char) -> Result<String, String> {
-    if !DISKS.contains(letter) {
-        return Err(format!("{letter:?} is not a disk of the card (a to f)"));
+    if !letter.is_ascii_lowercase() {
+        return Err(format!("{letter:?} is not a disk letter (a to z)"));
     }
     let d = format!("/dev/block/sd{letter}");
     Ok(format!(
@@ -427,6 +444,27 @@ impl RootfsBoot {
         }
     }
 
+    /// Say what to expect of the rehearsal.
+    pub fn rehearsal_is_told(&self) -> impl FnOnce() -> Done + 'static {
+        let text = expect_rehearsal(&self.s);
+        move || {
+            println!("  {text}");
+            Ok(())
+        }
+    }
+
+    /// The rehearsal's way back: nothing was booted, so the phone is on Android or in fastboot and the shared way back is all it needs
+    /// (no ssh is tried). Only the watching parent runs it, after the child ends, whatever ended it; the run itself leaves fastboot by its own step.
+    pub fn rehearsal_way_back(&self) -> impl FnOnce() -> Done + 'static {
+        let lab = self.lab.clone();
+        move || {
+            if std::env::var_os(watch::CHILD).is_some() {
+                return Ok(());
+            }
+            lab.way_back()
+        }
+    }
+
     /// The phone is on Android with adbd as root (the first act on the phone, so the watcher owns the way back).
     pub fn the_phone_is_on_android_as_root(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
@@ -469,20 +507,19 @@ impl RootfsBoot {
 
     fn read_the_card(&self, name: &str) -> Done {
         let mut text = String::new();
-        for letter in DISKS.chars() {
-            let said = self.android.adb(&["shell", &gpt_command(letter)?])?;
+        let letters = disk_letters(self.s.luns)?;
+        for letter in &letters {
+            let said = self.android.adb(&["shell", &gpt_command(*letter)?])?;
             let digest = crate::ufs::load::digest_of(&said)
                 .filter(|d| d != crate::ufs::load::EMPTY_INPUT)
                 .ok_or_else(|| format!("sd{letter}: no GPT digest in {said:?}"))?;
             text.push_str(&format!("gpt sd{letter} {digest}\n"));
         }
-        let suffix = self.before.borrow().suffix.clone();
-        let current = suffix.trim().trim_start_matches('_');
-        let root = format!("system_{}", other_slot(current)?);
+        let root = root_for(&self.before.borrow().suffix)?;
         let digest = self.android.sha256(&self.by_name_of(&root), None)?;
         text.push_str(&format!("root {root} {digest}\n"));
         self.lab.save(name, text.trim_end())?;
-        println!("  {} disks and {root} hashed", DISKS.len());
+        println!("  {} disks and {root} hashed", letters.len());
         Ok(())
     }
 
@@ -776,6 +813,61 @@ mod tests {
     }
 
     #[test]
+    fn the_disks_come_from_the_count_and_the_root_from_the_slot() {
+        assert_eq!(disk_letters(6).unwrap(), vec!['a', 'b', 'c', 'd', 'e', 'f']);
+        assert_eq!(disk_letters(1).unwrap(), vec!['a']);
+        assert_eq!(disk_letters(26).unwrap().last(), Some(&'z'));
+        for bad in [0, 27, 300] {
+            assert!(disk_letters(bad).is_err(), "{bad}");
+        }
+        assert_eq!(root_for("_b\n").unwrap(), "system_a");
+        assert_eq!(root_for("a").unwrap(), "system_b");
+        for doubt in ["", "_", "_c", "system_a"] {
+            assert!(root_for(doubt).is_err(), "{doubt:?}");
+        }
+    }
+
+    #[test]
+    fn the_rehearsal_says_it_boots_nothing_and_needs_no_go() {
+        let said = expect_rehearsal(&Settings::stand_in(crate::settings::Try::RootfsBoot));
+        assert!(
+            said.contains("6 disks") && said.contains("Nothing is booted"),
+            "{said}"
+        );
+        assert!(
+            said.contains("no go") || said.contains("go is not needed"),
+            "{said}"
+        );
+    }
+
+    #[test]
+    fn the_rehearsal_has_no_step_that_boots_and_its_own_folder() {
+        let entry = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../procedures/rehearse-rootfs-boots-on-the-pixel-2.rs"
+        ))
+        .unwrap();
+        for boots in [
+            "boot_the_root_image",
+            "author_has_said_go",
+            "the_phone_is_sent_back",
+            "boot_image",
+            "the_login_works",
+        ] {
+            assert!(
+                !entry.contains(boots),
+                "the rehearsal's entry names {boots}"
+            );
+        }
+        let (boot, rehearsal) = (
+            Settings::stand_in(crate::settings::Try::RootfsBoot).out,
+            crate::settings::Settings::stand_in(crate::settings::Try::RootfsBoot)
+                .out_dir("rootfs-boots-rehearsal"),
+        );
+        assert_ne!(boot, rehearsal);
+    }
+
+    #[test]
     fn the_guard_wants_two_readings_that_agree_and_the_other_slots_system() {
         assert_eq!(guard("_b\n", "b", "system_a").unwrap(), "system_a");
         assert_eq!(guard("_a", "a", "system_b").unwrap(), "system_b");
@@ -853,7 +945,7 @@ mod tests {
 
     #[test]
     fn the_gpt_command_reads_a_disk_and_writes_nothing() {
-        for letter in DISKS.chars() {
+        for letter in disk_letters(6).unwrap() {
             let c = gpt_command(letter).unwrap();
             assert!(c.contains(&format!("if=/dev/block/sd{letter}")), "{c}");
             assert!(!crate::ufs::load::writes_to_the_card(&c), "{c}");
@@ -863,7 +955,7 @@ mod tests {
                 .unwrap()
                 .success());
         }
-        for bad in ['g', 'z', '/', 'A'] {
+        for bad in ['/', 'A', '0'] {
             assert!(gpt_command(bad).is_err());
         }
     }
