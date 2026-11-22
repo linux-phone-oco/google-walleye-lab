@@ -9452,3 +9452,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-rootfs-boots-run-2-diagnose"></a>
+### Why the init did not hand over to the root's /sbin/init in run 2: the boot procedure reads the evidence on a failed check, then a keeper reruns it
+
+Status
+: open
+
+Note
+: From the keeper's run 2 (research walleye-rootfs-boots-run-2-init-did-not-hand-over, PR 730): image c3373d71 with the slot on its command line (run image d594dcbe): checks 1 to 16 pass (adb slot _b, fastboot agrees, the root is system_a, usb 1d6b:0104, ssh as root by the lab key, network and services up on kernel 7.3.0-00013-g3644090c7f6d-dirty), then check 17 'the init saw the slot adb saw and mounted the named partition': the init did not hand over to the root's /sbin/init. The run stopped by itself, nothing was written, the phone is on Android b. NOT KNOWN YET: whether the init saw the slot (the slot fix's first proof), whether the card's system_a was found, whether the mount failed or the switch_root; and the post-run equality of the GPT, boot chain and slot flags was NOT measured. The run's out file is ~/Projects/linux-phone-oco/rootfs-boots-run-2.out. This item is a build because the procedure stops without reading the evidence. The go on walleye-install-rootfs-boots-try is spent for this image's run.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: build
+
+Proof
+: procedures/rootfs-boots-on-the-pixel-2.rs, when a check after the boot fails (check 17 and later), FIRST reads over ssh and keeps in its log, read-only: dmesg (the tail and the init's own lines), /proc/mounts, /proc/cmdline, ps, ls -l / and /new_root or wherever the init mounts the root, the init's console log if it keeps one, /sys/class/block for the card's disks and PARTNAME of system_a, and df; THEN the way back as now; the stand-in test covers the on-failure reads; the post-run equality (GPT, boot chain, slot flags) is measured even after a failed check 17 (tests/host/bootchain-readback.sh before and after) so it is known, not unknown; then a keeper reruns the boot (a new go naming the image) and the log names why switch_root did not happen: the research row says so before any fix; dry run, check --host, stand-in tests, clippy, fmt, review
+
+Rank
+: 1

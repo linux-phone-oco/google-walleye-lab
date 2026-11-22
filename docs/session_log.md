@@ -5665,3 +5665,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-walleye-stable-pause-for-the-steward"></a>
+### walleye at a stable pause for the structure review, 2026-11-22
+
+Entry date
+: 2026-11-22
+
+Done
+: The Top Coordinator asked for a stable pause after the stage 1 boot rerun's result. WHERE THINGS STAND. DONE TODAY: install stage 1 step 1 (read-back of both slots, twice, equal) and the write (the Alpine rootfs v2 with the lab key written to system_a: one dd, read back equal, every other partition equal, PR 700); the stage 1 boot as a command (procedures/rootfs-boots-on-the-pixel-2.rs, rehearsed 14/14 and 15/15) and its first two runs on the real phone (run 1: booted, ssh login by the lab key, stopped on the missing slot suffix; run 2 with the slot on the command line: booted, ssh login passes, stopped at check 17, the init did not hand over to the root's init, nothing written); the quick glass image B-a5 (Alpine in RAM under B-r5's display kernel): the author SAW the kernel log and OpenRC's text on the glass, the lab measured the login prompt on the screen but mid-screen (row 84) with init output after it; the stage 2 and stage 3 verdicts (research against Android: set_active is the bootloader's own GPT write, allowed by the Top Coordinator's reading with conditions; our kernel sends no command class Android's UFS path did not for one rw mount with nodiscard); the author's standing rules (go per stage, research-then-proceed, no attended look); lpoco 0.41 installed with login = key and the declared transport. LANDED and read back from main; no PR of the lane is open. PHONE: Android slot b, stock kernel, nothing armed, no go open (the boot rerun go is spent), no session of the lane running. RESUME ORDER (the queue's own ranks): (1) item walleye-rootfs-boots-run-2-diagnose: the boot procedure reads the evidence on a failed check, then a keeper reruns; (2) item walleye-display-alpine-getty-experiments: check 15 on the cursor row and the prompt respawned at the end of the default runlevel, rebuild B-a5, a keeper's run; (3) UFS try 2 (one command, its go is the standing go); (4) walleye-install-flash-boot-procedure (stage 2: flash boot_a, set_active a with the conditions, the way back rehearsed) and walleye-install-rw-write-procedure (stage 3); (5) the firmware front (firmware-reachable, pd-mapper), the display any-order image and the merged UFS-plus-display image (needs rootfs v3 written first); (6) the PMIC four-bites command (parked branch walleye-wdt-pon-bites-procedure). OPEN FOR THE AUTHOR: nothing waits on his word now. SIGNS FOR THE STRUCTURE REVIEW: any two sessions landing within minutes conflict on the generated data and docs (I closed and replayed six times today); keeper runs left a lease held three times (cause: release from a folder without device.toml; fixed in lab-tools 0.42); a launcher refuses a new session while an old one is still open (a stopped keeper stayed 'running' until its queue drained); a queued message to a running keeper was not acted on before the keeper ended; the app pauses a session's messages to others after 20 without a user message (this session wrote notes to the shared folder instead); lane-next lists a dropped item first and prefers in-progress items to ranks.
+
+Considered
+: Starting the glass builder before the pause (it can finish after: no phone run); a diagnostic keeper run of the init before the pause (new phone work after the result, the Top Coordinator said to run nothing new).
+
+Rejected
+: Rerunning the boot with the same go (the go is spent for the run and the cause is not read yet).
+
+About
+: walleye-display-s6e3fa5
