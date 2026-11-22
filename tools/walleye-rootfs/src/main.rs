@@ -749,7 +749,7 @@ fn check_started_programs(rep: &mut Report, dump: &Path, files: &[String]) -> Re
             missing.join("; ")
         ),
     );
-    for tty in ["tty0", "ttyGS0"] {
+    for tty in ["tty1", "ttyGS0"] {
         match getty_respawns(&inittab, tty) {
             Ok(()) => rep.ok(
                 true,

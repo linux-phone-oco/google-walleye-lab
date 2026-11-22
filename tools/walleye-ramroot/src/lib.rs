@@ -153,14 +153,14 @@ pub const MUST_BE_IN_THE_USERLAND: &[&str] = &[
     "bin/busybox",
 ];
 
-/// Why the inittab does not give the glass and the serial a login, if it does not: a respawned getty on tty0 and one on ttyGS0.
+/// Why the inittab does not give the glass and the serial a login, if it does not: a respawned getty on tty1 (the glass) and one on ttyGS0.
 pub fn inittab_problem(inittab: &str) -> Option<String> {
     let has = |tty: &str| {
         inittab.lines().map(str::trim).any(|l| {
             !l.starts_with('#') && l.starts_with(&format!("{tty}::respawn:")) && l.contains("getty")
         })
     };
-    for tty in ["tty0", "ttyGS0"] {
+    for tty in ["tty1", "ttyGS0"] {
         if !has(tty) {
             return Some(format!("/etc/inittab has no respawned getty on {tty}"));
         }
@@ -281,18 +281,18 @@ mod tests {
 
     #[test]
     fn the_inittab_needs_both_gettys() {
-        let ok = "tty0::respawn:/sbin/getty 38400 tty0\nttyGS0::respawn:/sbin/getty -L 115200 ttyGS0 vt100\n";
+        let ok = "tty1::respawn:/sbin/getty 38400 tty1\nttyGS0::respawn:/sbin/getty -L 115200 ttyGS0 vt100\n";
         assert_eq!(inittab_problem(ok), None);
         assert!(inittab_problem("ttyGS0::respawn:/sbin/getty ttyGS0\n")
             .unwrap()
-            .contains("tty0"));
+            .contains("tty1"));
         assert!(inittab_problem(
-            "#tty0::respawn:/sbin/getty tty0\nttyGS0::respawn:/sbin/getty x\n"
+            "#tty1::respawn:/sbin/getty tty1\nttyGS0::respawn:/sbin/getty x\n"
         )
         .unwrap()
-        .contains("tty0"));
+        .contains("tty1"));
         assert!(
-            inittab_problem("tty0::once:/sbin/getty tty0\nttyGS0::respawn:/sbin/getty x\n")
+            inittab_problem("tty1::once:/sbin/getty tty1\nttyGS0::respawn:/sbin/getty x\n")
                 .is_some()
         );
     }

@@ -4,7 +4,7 @@
 # Steps, each said to the kernel log as `walleye-ramroot: ...`: (1) wait until the uptime has reached /display-delay (5 s: the delay at which B-r5's modules were proven), then insmod every line of
 # /display-modules.list the way init-display-delay does (`walleye-display: LINE` / `walleye-display: ok` or `FAILED rc=N`, so the delay bisect's scorer reads this log unchanged); (2) a tmpfs on /newroot, the
 # userland unpacked into it, the tar removed; (3) the moves of /proc /sys /dev; (4) the petter of the SoC watchdog in the new root (its own copy of busybox), then switch_root to Alpine's /sbin/init:
-# OpenRC, agetty on tty0 (the glass, through fbcon) and on ttyGS0, the usb gadget unit, sshd. Nothing of the card is touched: there is no mount of a block device in this file.
+# OpenRC, getty on tty1 (the glass, through fbcon) and on ttyGS0, the usb gadget unit, sshd. Nothing of the card is touched: there is no mount of a block device in this file.
 # The deadman: the petter pets the watchdog HOLD_SECONDS (300; walleye.hold=SECONDS changes it), longer while /run/walleye/hold exists in the root, then the phone resets itself (the way back to Android).
 # A refusal (no userland, a failed unpack, no /sbin/init in it) restarts the phone after a pause long enough to read the log. Never exits except by exec (an init that ends is a kernel panic).
 /bin/busybox --install -s /bin

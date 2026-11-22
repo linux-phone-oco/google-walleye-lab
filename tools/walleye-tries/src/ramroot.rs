@@ -3,7 +3,7 @@
 //! 2026-11-22: "i want to see the thing on pixel"): image B-a5 (B-r5's kernel, dtb and 13 display modules, the Alpine userland unpacked
 //! into a tmpfs root by the image's own init, UFS off) booted once from the phone's fastboot, from memory. The lab logs in over
 //! usb-network by ssh with its declared key and proves, from what the phone says, that the display modules loaded at the delay with none
-//! of the three signs, that a getty runs on the glass (tty0) and on the gadget serial (ttyGS0), that sshd runs, that the kernel log has
+//! of the three signs, that a getty runs on the glass (tty1) and on the gadget serial (ttyGS0), that sshd runs, that the kernel log has
 //! fbcon, and that the root is a tmpfs; then the author looks at the glass. Each method is one step of
 //! procedures/alpine-login-on-the-glass-on-the-pixel-2.rs.
 //!
@@ -41,8 +41,47 @@ pub const EXPECT: &str = "The run boots the phone from memory (nothing is writte
 /// What the author is asked to look for.
 pub const LOOK_FOR: &str = "do you see an Alpine login prompt on the screen? (`walleye login:` after the boot text; say what you see instead if it is blank, dark or something else)";
 
-/// The one read the lab makes after the login.
-pub const READ_COMMAND: &str = "echo ---id; id -u; echo ---kernel; uname -r; echo ---mounts; cat /proc/mounts; echo ---ps; (ps -o pid,args 2>&1 || ps 2>&1); echo ---dmesg; dmesg; echo ---services; rc-status --crashed 2>&1 || true; echo ---net; ip -o addr show usb0 2>&1; echo ---end";
+/// The VT the glass's getty runs on: Alpine's own default (VT 1 is the console fbcon shows at boot). Busybox getty on /dev/tty0 printed no prompt in
+/// the look at B-a5 (research walleye-ramroot-b-a5-the-look-no-login-prompt); the lab's screen check below says whether this line is right.
+pub const GLASS_TTY: &str = "tty1";
+/// The tty of the gadget's serial, the lab's second console.
+pub const GADGET_TTY: &str = "ttyGS0";
+/// The most the lab waits for the prompt in the screen's text, seconds: the getty is up before this step, and the deadman (300 s from the hand-over) must not be reached.
+pub const PROMPT_WAIT: u64 = 30;
+
+/// The one read the lab makes after the login, read-only and kept whole in read.txt: the VT the glass shows (the active one), the consoles, every process
+/// with its tty, the inittab, the kernel's command line and the hostname - what the next try needs if the screen's check fails.
+pub const READ_COMMAND: &str = "echo ---id; id -u; echo ---kernel; uname -r; echo ---mounts; cat /proc/mounts; echo ---ps; (ps -o pid,args 2>&1 || ps 2>&1); echo ---pstty; (ps -o pid,tty,args 2>&1 || true); echo ---active; cat /sys/class/tty/tty0/active 2>&1; echo ---consoles; cat /proc/consoles 2>&1; echo ---inittab; cat /etc/inittab 2>&1; echo ---cmdline; cat /proc/cmdline 2>&1; echo ---hostname; hostname; echo ---dmesg; dmesg; echo ---services; rc-status --crashed 2>&1 || true; echo ---net; ip -o addr show usb0 2>&1; echo ---end";
+
+/// The screen's text, read by the lab: the hostname, the VT the glass shows, then that VT's text (/dev/vcs is the active VT's), one line per screen row.
+pub const SCREEN_COMMAND: &str = "echo ---hostname; hostname; echo ---active; cat /sys/class/tty/tty0/active 2>&1; echo ---screen; c=$(stty size </dev/tty0 2>/dev/null | cut -d' ' -f2); if [ \"${c:-0}\" -gt 0 ] && fold -w \"$c\" /dev/vcs 2>/dev/null; then :; else cat /dev/vcs 2>&1; fi; echo ---end";
+
+/// The screen's text holds the login prompt of this host: `HOSTNAME login:` on one row (white space between the words counts as one space).
+pub fn screen_has_login_prompt(screen: &str, hostname: &str) -> bool {
+    let want = format!("{} login:", hostname.trim());
+    !hostname.trim().is_empty()
+        && screen.lines().any(|l| {
+            l.split_whitespace()
+                .collect::<Vec<_>>()
+                .join(" ")
+                .contains(&want)
+        })
+}
+
+/// What the lab saw instead, for the log: the VT the glass shows and the last non-blank rows of its text.
+pub fn what_the_screen_shows(active: &str, screen: &str) -> String {
+    let rows: Vec<&str> = screen
+        .lines()
+        .map(str::trim_end)
+        .filter(|l| !l.is_empty())
+        .collect();
+    let tail = &rows[rows.len().saturating_sub(6)..];
+    format!(
+        "the glass shows {}; its last rows:\n{}",
+        active.trim(),
+        tail.join("\n")
+    )
+}
 
 /// The hold: the file is made and removed again by the phone's own shell after [`HOLD_SECONDS`], so a lab that dies leaves the deadman in the end.
 pub fn hold_command() -> String {
@@ -95,7 +134,7 @@ pub fn sshd_runs(ps: &str) -> bool {
     })
 }
 
-/// The kernel log says the console is on the frame buffer: fbcon took tty0.
+/// The kernel log says the console is on the frame buffer: fbcon took the VTs.
 pub fn fbcon_said(dmesg: &str) -> Option<String> {
     dmesg
         .lines()
@@ -278,10 +317,11 @@ impl Ramroot {
                             secs.iter().any(|(n, t)| n == name && f(t))
                         };
                         // the modules are through, and both gettys run (busybox init starts them after OpenRC's default level, sshd answers inside it)
-                        let done =
-                            said("dmesg", &|t| {
-                                t.lines().any(|l| l.trim_end().ends_with(LOOP_DONE))
-                            }) && said("ps", &|t| getty_on(t, "tty0") && getty_on(t, "ttyGS0"));
+                        let done = said("dmesg", &|t| {
+                            t.lines().any(|l| l.trim_end().ends_with(LOOP_DONE))
+                        }) && said("ps", &|t| {
+                            getty_on(t, GLASS_TTY) && getty_on(t, GADGET_TTY)
+                        });
                         last = Ok(text);
                         if done {
                             break;
@@ -383,12 +423,12 @@ impl Ramroot {
         }
     }
 
-    /// A getty runs on the glass (tty0) and on the gadget serial (ttyGS0), and sshd runs.
+    /// A getty runs on the glass (tty1) and on the gadget serial (ttyGS0), and sshd runs.
     pub fn the_getties_and_sshd_run(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
             let ps = u.read_section("ps")?;
-            for tty in ["tty0", "ttyGS0"] {
+            for tty in [GLASS_TTY, GADGET_TTY] {
                 if !getty_on(&ps, tty) {
                     return Err(format!("no getty runs on {tty}:\n{}", ps.trim()));
                 }
@@ -397,6 +437,43 @@ impl Ramroot {
                 return Err(format!("sshd does not run:\n{}", ps.trim()));
             }
             Ok(())
+        }
+    }
+
+    /// The SCREEN's text holds the login prompt: /dev/vcs of the VT the glass shows, read over ssh until `HOSTNAME login:` is on a row (the getty is
+    /// respawned until it is there), kept in screen.txt. The author is asked to look only after this passes: a look is asked when the lab measured the prompt.
+    pub fn the_screen_holds_the_login_prompt(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let until = Instant::now() + Duration::from_secs(u.s.device_wait.min(PROMPT_WAIT));
+            loop {
+                let read = u.ssh(SCREEN_COMMAND, 20);
+                let seen = read.as_ref().map(|t| sections(t)).unwrap_or_default();
+                let part = |n: &str| section(&seen, n).unwrap_or_default().to_string();
+                let (host, active, screen) = (part("hostname"), part("active"), part("screen"));
+                if screen_has_login_prompt(&screen, &host) {
+                    u.lab.save("screen.txt", &redact(&screen))?;
+                    println!(
+                        "  the screen's text ({}) holds `{} login:`",
+                        active.trim(),
+                        host.trim()
+                    );
+                    return Ok(());
+                }
+                if Instant::now() >= until {
+                    u.lab.save("screen.txt", &redact(&screen))?;
+                    return Err(match read {
+                        Err(e) => format!("the screen could not be read: {e}"),
+                        Ok(_) => format!(
+                            "the login prompt `{} login:` is not in the screen's text after {} s; {}",
+                            host.trim(),
+                            u.s.device_wait.min(PROMPT_WAIT),
+                            what_the_screen_shows(&active, &screen)
+                        ),
+                    });
+                }
+                std::thread::sleep(Duration::from_secs(3));
+            }
         }
     }
 
@@ -456,7 +533,7 @@ mod tests {
     use std::os::unix::fs::PermissionsExt;
 
     const MOUNTS: &str = "tmpfs / tmpfs rw,relatime,size=1048576k 0 0\nproc /proc proc rw 0 0\n";
-    const PS: &str = "  PID COMMAND\n    1 {init} /sbin/init\n  210 /usr/sbin/sshd\n  240 /sbin/getty 38400 tty0\n  241 /sbin/getty -L 115200 ttyGS0 vt100\n";
+    const PS: &str = "  PID COMMAND\n    1 {init} /sbin/init\n  210 /usr/sbin/sshd\n  240 /sbin/getty 38400 tty1\n  241 /sbin/getty -L 115200 ttyGS0 vt100\n";
     const DMESG: &str = "[    1.0] walleye-ramroot: start\n[    5.1] walleye-display: delay 5 s reached at uptime 5 s\n[    5.2] walleye-display: insmod /lib/modules/m1.ko\n[    5.3] walleye-display: ok\n[    5.2] walleye-display: insmod /lib/modules/m2.ko\n[    5.3] walleye-display: ok\n[    5.2] walleye-display: insmod /lib/modules/m3.ko\n[    5.3] walleye-display: ok\n[    5.2] walleye-display: insmod /lib/modules/m4.ko\n[    5.3] walleye-display: ok\n[    5.2] walleye-display: insmod /lib/modules/m5.ko\n[    5.3] walleye-display: ok\n[    5.2] walleye-display: insmod /lib/modules/m6.ko\n[    5.3] walleye-display: ok\n[    5.2] walleye-display: insmod /lib/modules/m7.ko\n[    5.3] walleye-display: ok\n[    5.2] walleye-display: insmod /lib/modules/m8.ko\n[    5.3] walleye-display: ok\n[    5.2] walleye-display: insmod /lib/modules/m9.ko\n[    5.3] walleye-display: ok\n[    5.2] walleye-display: insmod /lib/modules/m10.ko\n[    5.3] walleye-display: ok\n[    5.2] walleye-display: insmod /lib/modules/m11.ko\n[    5.3] walleye-display: ok\n[    5.2] walleye-display: insmod /lib/modules/m12.ko\n[    5.3] walleye-display: ok\n[    5.2] walleye-display: insmod /lib/modules/m13.ko\n[    5.3] walleye-display: ok\n[    5.9] fbcon: msm-drmdrmfb (fb0) is primary device\n[    6.0] Console: switching to colour frame buffer device 135x120\n[    6.1] walleye-ramroot: display modules: done\n";
     const NET: &str = "5: usb0    inet 172.16.43.1/24 brd 172.16.43.255 scope global usb0";
 
@@ -474,10 +551,69 @@ mod tests {
 
     #[test]
     fn a_getty_is_found_by_its_whole_tty_word() {
-        assert!(getty_on(PS, "tty0") && getty_on(PS, "ttyGS0"));
+        assert!(getty_on(PS, "tty1") && getty_on(PS, "ttyGS0"));
         let only_gs = "  241 /sbin/getty -L 115200 ttyGS0 vt100\n";
-        assert!(!getty_on(only_gs, "tty0"), "tty0 is not ttyGS0");
-        assert!(!getty_on("  300 /sbin/agetty tty1\n", "tty0"));
+        assert!(!getty_on(only_gs, "tty1"), "tty1 is not ttyGS0");
+        assert!(!getty_on("  300 /sbin/agetty tty0\n", "tty1"));
+    }
+
+    const SCREEN: &str = "---hostname\nwalleye\n---active\ntty1\n---screen\n[    6.0] Console: switching to colour frame buffer device 135x120\n * Starting local ...\n\nwalleye login:                \n---end\n";
+
+    #[test]
+    fn the_prompt_is_a_hostname_and_login_on_one_row() {
+        let on = "boot text\nwalleye   login: \n";
+        assert!(screen_has_login_prompt(on, "walleye\n"));
+        assert!(
+            !screen_has_login_prompt(on, "other"),
+            "another host's prompt"
+        );
+        assert!(!screen_has_login_prompt(
+            " * Starting local ... [ ok ]\n_\n",
+            "walleye"
+        ));
+        assert!(
+            !screen_has_login_prompt("login:\n", ""),
+            "no hostname, no proof"
+        );
+        let shown = what_the_screen_shows("tty1\n", "a\n\n  \nb\nc\nd\ne\nf\ng\nh\n");
+        assert!(
+            shown.contains("tty1") && shown.ends_with("h") && !shown.contains("\na\n"),
+            "{shown}"
+        );
+    }
+
+    #[test]
+    fn the_screen_check_passes_on_a_prompt_and_stops_without_one() {
+        let r = rig("screen-ok", SCREEN);
+        (r.the_screen_holds_the_login_prompt())().unwrap();
+        let kept = std::fs::read_to_string(r.s.out.join("screen.txt")).unwrap();
+        assert!(kept.contains("walleye login:"));
+        let c = calls(&r);
+        assert!(c.contains("/dev/vcs"), "{c}");
+        let none = SCREEN.replace("walleye login:", "_");
+        let r = rig("screen-none", &none);
+        let e = (r.the_screen_holds_the_login_prompt())().unwrap_err();
+        assert!(
+            e.contains("walleye login:") && e.contains("tty1") && e.contains("Starting local"),
+            "{e}"
+        );
+        let r = rig("screen-empty", "---end\n");
+        assert!((r.the_screen_holds_the_login_prompt())().is_err());
+    }
+
+    #[test]
+    fn the_read_asks_for_the_vt_the_consoles_and_the_screen() {
+        for want in [
+            "/sys/class/tty/tty0/active",
+            "/proc/consoles",
+            "ps -o pid,tty,args",
+            "/etc/inittab",
+            "/proc/cmdline",
+        ] {
+            assert!(READ_COMMAND.contains(want), "{want}");
+        }
+        assert!(SCREEN_COMMAND.contains("/dev/vcs") && !SCREEN_COMMAND.contains(" > "));
+        assert_eq!((GLASS_TTY, GADGET_TTY), ("tty1", "ttyGS0"));
     }
 
     #[test]
@@ -487,7 +623,7 @@ mod tests {
             "  300 sshd: /usr/sbin/sshd [listener] 0 of 10-100 startups\n"
         ));
         assert!(!sshd_runs("  300 sshd: root@notty\n"));
-        assert!(!sshd_runs("  240 /sbin/getty 38400 tty0\n  1 ssh-keygen\n"));
+        assert!(!sshd_runs("  240 /sbin/getty 38400 tty1\n  1 ssh-keygen\n"));
     }
 
     #[test]
@@ -605,7 +741,7 @@ mod tests {
         );
         assert!((r.the_getties_and_sshd_run())()
             .unwrap_err()
-            .contains("tty0"));
+            .contains("tty1"));
         // no fbcon
         let r = bad("nofb", "[ 1.0] walleye-ramroot: x\n", MOUNTS, PS);
         assert!((r.the_kernel_log_has_fbcon())().is_err());
@@ -633,5 +769,21 @@ mod tests {
             e.contains("no ssh login within 1 s as root@172.16.43.1"),
             "{e}"
         );
+    }
+}
+
+#[cfg(test)]
+mod command_quoting {
+    use super::*;
+
+    #[test]
+    fn the_commands_the_phone_runs_are_valid_shell() {
+        for c in [READ_COMMAND, SCREEN_COMMAND] {
+            let ok = std::process::Command::new("sh")
+                .args(["-n", "-c", c])
+                .status()
+                .unwrap();
+            assert!(ok.success(), "{c}");
+        }
     }
 }

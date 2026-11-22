@@ -5618,3 +5618,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ramroot-b-a5-getty-tty1-rebuilt"></a>
+### walleye-ramroot-b-a5-getty-tty1-rebuilt
+
+Date
+: 2026-11-22
+
+Brief
+: Rootfs v3 (getty on tty1) and B-a5 rebuilt, reproducible; host proofs pass; the screen check awaits the keeper's run
+
+Question
+: Can the lab measure the login prompt on the glass before the author looks, and is the image with tty1 built reproducibly?
+
+Found
+: Rootfs v3 sha256 886ef625690b22b1b26a3875753a02aa118e206dbf639dead3c624cfb8bbdfe2 (built twice identical, all checks ok incl. getty on tty1 and ttyGS0); B-a5 rebuilt twice identical sha256 3cb5adb8dfc9c0176e096a0318c113c53a07e00493e1d4b47697f8f5cf68e235 (old image kept as boot-b-a5-tty0.img, 575bbe43...), ramdisk checks all pass, QEMU init proof (x86 stand-in) pass, 212+22+11 unit tests, clippy -D warnings, fmt clean, procedure dry run 22 steps. NOT measured: whether tty1 puts the prompt on the glass - that is the keeper's unattended run's check 15 (needs the phone).
+
+About
+: walleye-display-s6e3fa5
