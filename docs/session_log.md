@@ -5341,3 +5341,36 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-walleye-keeper-install-written"></a>
+### Install stage 1 run: Alpine written to system_a
+
+Entry date
+: 2026-11-22
+
+Done
+: Battery ok (4352 mV), dry run 16/16, then the real run: one dd to system_a, read back equal to the image, other partitions equal to backup, phone on Android slot b. Told the Top Coordinator at the dd and at the end. Lease released, status free.
+
+About
+: walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-1815-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-22
+
+Done
+: Android on slot b, stock kernel; Alpine rootfs (sha256 57ea7152) written to system_a and read back equal; every other partition of both slots equal to the backup; stage empty; fastboot reachable; lease free.
+
+Considered
+: next: step 4 of the install go - boot our kernel from RAM with UFS on, mount system_a read-only with tmpfs overlay, log in over usb-network (needs the author's go for the UFS-on try, item walleye-ufs-try-2-one-command). Way back for system_a: the stored backup in ~/lab-material/walleye/slot-readback-2026-11-20-2, only on the coordinator's word.
+
+About
+: walleye-display-s6e3fa5
