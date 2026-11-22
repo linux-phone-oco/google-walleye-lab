@@ -265,3 +265,20 @@ by_name = "/dev/block/by-name"                                 # the phone's par
 backup = "~/lab-material/walleye/slot-readback-2026-11-20-2"
 stage_dir = "/data/local/tmp"
 by_name = "/dev/block/by-name"
+
+# The UFS-root image (item walleye-install-ufs-root-image, PR 676): UFS ON, mounts the card's system partition named on its command line (walleye.root=system_a) read-only under a tmpfs overlay, then the Alpine root's init.
+# NOT to boot except by procedures/rootfs-boots-on-the-pixel-2.rs, which stops unless the author's go is recorded on its go_item for THIS sha256; tests/host/ufs-off-image.sh refuses it by design. Never booted until that go.
+[images.ufs-root]
+path = "NOT-TO-BOOT-ufs-on-images-ufs-root/NOT-TO-BOOT-ufs-on-ufs-root.img"
+sha256 = "35b60fdaf0764e97e0b6de60cddc9a955a14928ba3577f7f110206387f966474"
+
+# The read-only UFS-on boot of that image as ONE command (item walleye-install-boot-procedure; run by item walleye-install-rootfs-boots-try). The root is the system partition of the slot Android is NOT on, read at the run
+# (adb's ro.boot.slot_suffix equal to fastboot's current-slot, and equal to the root the image names); nothing here names a slot.
+[procedures.rootfs-boots-on-the-pixel-2]
+go_item = "walleye-install-rootfs-boots-try"   # the item whose go_until holds the author's go AND whose row names the image's sha256: the boot runs only while the go is in the future
+identity = "~/lab-material/walleye/walleye-lab-ed25519"   # the lab-only ssh key (mode 600; its public half is root's authorized_keys in [images.alpine-rootfs]); the login is by this key alone
+ssh_user = "root"
+ssh_port = 22
+bootchain = "~/lab-material/walleye/bootchain-2026-11-19"   # the stored boot chain read-back: the boot chain read again after the boot must equal it (tests/host/bootchain-readback-check.sh STORED NEW)
+by_name = "/dev/block/by-name"                              # the phone's partition names on Android: the root partition is hashed by name before and after
+luns = 6                                                    # the card's disks (sda to sdf): the partition table of each is hashed before and after

@@ -5341,3 +5341,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-walleye-builder-rootfs-boots"></a>
+### Root boot as one command
+
+Entry date
+: 2026-11-22
+
+Done
+: Built procedures/rootfs-boots-on-the-pixel-2.rs and walleye_tries::rootfs_boot (guard, go, ssh login, mounts, init lines, card read before/after); android.rs extracted from install.rs; device.toml [images.ufs-root], [procedures.rootfs-boots-on-the-pixel-2]. Reviewed by programmer; findings applied.
+
+Considered
+: pre_boot gates and boot_once
+
+Rejected
+: pre_boot (global), boot_once (gadget serial mismatch): see decision 2026-11-22-walleye-rootfs-boot-gates-in-the-program
+
+About
+: walleye-display-s6e3fa5

@@ -2862,3 +2862,28 @@ Scope
 
 Tracked by
 : walleye-install-rootfs-boots-try
+
+
+<a id="2026-11-22-walleye-rootfs-boot-gates-in-the-program"></a>
+### 2026-11-22-walleye-rootfs-boot-gates-in-the-program
+
+Date
+: 2026-11-22
+
+Brief
+: The root boot carries its gates as its own steps, not [kernels] pre_boot, and logs in by its own ssh call
+
+Decision
+: procedures/rootfs-boots-on-the-pixel-2.rs boots the UFS-root image through Lab::boot_image after its own steps: battery, sha256, the slot guard (adb suffix = fastboot current-slot = the other slot of the image's walleye.root), the go for this sha256 on walleye-install-rootfs-boots-try. The login is ssh by the declared key from [procedures.rootfs-boots-on-the-pixel-2] (identity, ssh_user, ssh_port), after the lab's own gadget wait; the way back sends reboot -f over ssh, polled for a boot's length.
+
+Why
+: [kernels] pre_boot is global and gets no kernel name, so a UFS go gate there would stop every kernel; boot_once also checks the gadget serial walleye-first-boot while the Alpine gadget says walleye-alpine. The init's own slot guard fails open without androidboot.slot_suffix (PR 676), so the program carries it. Programmer review found no path to the boot without these gates.
+
+Rejected
+: pre_boot gate scripts (global, cannot tell the kernel); steps::boot_once (serial check fails on the Alpine gadget); changing [connection] to ssh/key (would switch the telnet tries' lpoco calls)
+
+About
+: walleye-display-s6e3fa5
+
+Tracked by
+: walleye-install-boot-procedure
