@@ -5533,3 +5533,21 @@ Done
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-22-2020-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-22
+
+Done
+: Phone on Android slot b, stock kernel, adb device, nothing changed by this run. Top ready item walleye-display-alpine-ramroot-image waits only on the author's look at the glass (unattended run already done, a rerun with nobody there adds nothing); took walleye-slpi-boot-qrtr host-first: stock Android's live /proc/device-tree lists pil_slpi_region@94300000 but reg is root-only; research fdt-compare already has slpi 0x94c00000 +0xf00000 vs our 0x94b00000 +0x700000; the slpi_v2.mdt program headers (the deciding fact) sit in /vendor/firmware, readable only with adb root, which no decision covers for this item
+
+Considered
+: next: coordinator decides whether adb root for read-only pulls of slpi_v2.mdt is within the recorded decisions (readbacks used it); then readelf -l gives the p_paddr and the carve-out is settled; empty dir ~/lab-material/walleye/slpi-firmware-20261122 left for it
+
+About
+: walleye-slpi-boot-qrtr
