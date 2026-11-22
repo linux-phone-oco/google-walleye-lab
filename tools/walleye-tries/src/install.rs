@@ -10,13 +10,13 @@
 //! system_b. The way back: Android's own slot is never touched, so leaving the written slot as it is leaves a phone that runs as
 //! before; putting the backup back is a dd, said when a stop needs it and run by hand.
 
+use crate::android::Android;
 use crate::lab::Lab;
 use crate::settings::Settings;
 use crate::{host, watch};
 use std::cell::RefCell;
-use std::process::{Command, Stdio};
+use std::process::Command;
 use std::rc::Rc;
-use std::time::{Duration, Instant};
 
 type Done = Result<(), String>;
 
@@ -29,12 +29,6 @@ const DD_FLAGS: &str = "conv=fsync,notrunc";
 /// The rehearsal's probe: this file in the stage folder, this many blocks of the staged image.
 pub const PROBE_NAME: &str = "walleye-dd-probe";
 pub const PROBE_BLOCKS: u64 = 16;
-
-/// How long adbd has to answer as root after `adb root` restarts it.
-const ROOT_WAIT: Duration = Duration::from_secs(40);
-
-/// Empties the phone's page cache so a read-back reads the media (adb root).
-const DROP_CACHES: &str = "sync; echo 3 > /proc/sys/vm/drop_caches";
 
 /// The slot the phone's fastboot says it is on, from `fastboot getvar current-slot` (it answers on standard error).
 pub fn parse_current_slot(text: &str) -> Result<String, String> {
@@ -93,7 +87,7 @@ pub fn partition_for_write(name: &str) -> Result<String, String> {
 }
 
 /// A path on the phone that goes into a command as it is: absolute, only letters, digits and `. _ - /`, no `..`.
-fn plain_path(path: &str) -> Result<&str, String> {
+pub(crate) fn plain_path(path: &str) -> Result<&str, String> {
     let plain = path.starts_with('/')
         && path.split('/').all(|p| p != "..")
         && path
@@ -191,6 +185,7 @@ pub fn expect_rehearsal(s: &Settings) -> String {
 pub struct Install {
     s: Rc<Settings>,
     lab: Lab,
+    android: Android,
     /// the slot fastboot said Android runs from, once read
     current: Rc<RefCell<Option<String>>>,
 }
@@ -198,8 +193,10 @@ pub struct Install {
 impl Install {
     pub fn new(s: Settings) -> Install {
         let s = Rc::new(s);
+        let lab = Lab::new(s.clone());
         Install {
-            lab: Lab::new(s.clone()),
+            android: Android::new(s.clone(), lab.clone()),
+            lab,
             s,
             current: Rc::new(RefCell::new(None)),
         }
@@ -243,48 +240,16 @@ impl Install {
 
     /// One adb call for this lab's phone; what it said, or why it failed.
     fn adb(&self, args: &[&str]) -> Result<String, String> {
-        let mut c = Command::new(&self.s.adb);
-        c.args(["-s", &self.lab.serial()?]).args(args);
-        let said = host::run(c)?;
-        if said.ok {
-            Ok(said.text)
-        } else {
-            Err(format!("adb {}: {}", args.join(" "), said.text))
-        }
+        self.android.adb(args)
     }
 
     fn adb_suffix(&self) -> Result<String, String> {
-        self.adb(&["shell", "getprop ro.boot.slot_suffix"])
+        self.android.slot_suffix()
     }
 
     /// The sha256 of `blocks` blocks of a file or partition on the phone (all of it when None), read as root over adb and hashed here.
     fn phone_sha256(&self, path: &str, blocks: Option<u64>) -> Result<String, String> {
-        let path = plain_path(path)?;
-        // a read must come from the media, not from the page cache the write just filled
-        self.adb(&["shell", DROP_CACHES])?;
-        let read = match blocks {
-            Some(n) => format!("dd if={path} bs={BLOCK} count={n} 2>/dev/null"),
-            None => format!("dd if={path} bs={BLOCK} 2>/dev/null"),
-        };
-        let mut adb = Command::new(&self.s.adb)
-            .args(["-s", &self.lab.serial()?, "exec-out", &read])
-            .stdout(Stdio::piped())
-            .stderr(Stdio::null())
-            .spawn()
-            .map_err(|e| format!("cannot run {}: {e}", self.s.adb))?;
-        let feed = adb.stdout.take().ok_or("adb has no output to read")?;
-        let sum = Command::new("sha256sum").stdin(Stdio::from(feed)).output();
-        let status = adb.wait().map_err(|e| e.to_string())?;
-        let sum = sum.map_err(|e| format!("cannot run sha256sum: {e}"))?;
-        if !status.success() {
-            return Err(format!("the read of {path} did not finish (adb {status})"));
-        }
-        String::from_utf8_lossy(&sum.stdout)
-            .split_whitespace()
-            .next()
-            .filter(|h| h.len() == 64)
-            .map(str::to_string)
-            .ok_or_else(|| format!("sha256sum gave no sum for {path}"))
+        self.android.sha256(path, blocks)
     }
 
     /// What the backup records for `name.img`, and how big the file is.
@@ -370,28 +335,7 @@ impl Install {
     /// The phone is on Android again (out of fastboot if it is there) and adbd answers as root.
     pub fn the_phone_is_on_android_as_root(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
-        move || {
-            if u.lab.in_fastboot()? {
-                let mut c = Command::new(&u.s.fastboot);
-                c.args(["-s", &u.lab.serial()?, "reboot"]);
-                host::run(c)?;
-            }
-            u.lab.android_is_back()?;
-            let _ = u.adb(&["root"]);
-            let until = Instant::now() + ROOT_WAIT;
-            loop {
-                match u.adb(&["shell", "id -u"]) {
-                    Ok(id) if id.trim() == "0" => return Ok(()),
-                    other if Instant::now() >= until => {
-                        return Err(format!(
-                            "adbd does not answer as root within {} s (adb root): {other:?}",
-                            ROOT_WAIT.as_secs()
-                        ))
-                    }
-                    _ => std::thread::sleep(Duration::from_secs(2)),
-                }
-            }
-        }
+        move || u.android.is_up_as_root()
     }
 
     /// adb's slot suffix and fastboot's current slot are the same slot.

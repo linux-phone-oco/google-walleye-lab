@@ -133,6 +133,11 @@ impl Lab {
         }
     }
 
+    /// Android answers now (one look, no waiting).
+    pub fn is_on_android_now(&self) -> bool {
+        self.android_within(0, Duration::from_secs(1)).is_ok()
+    }
+
     /// The phone is back on Android (adb device, boot completed, not parked in fastboot).
     pub fn android_is_back(&self) -> Done {
         self.android_within(self.s.back_wait, Duration::from_secs(5))
