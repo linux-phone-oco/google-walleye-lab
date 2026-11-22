@@ -8982,40 +8982,6 @@ Rank
 : 2
 
 
-<a id="walleye-install-write-rootfs"></a>
-### Write the rootfs image to the unused slot's system partition from Android over adb root; read it back and compare sha256
-
-Status
-: open
-
-Note
-: ~1 keeper-h. Way back: dd the stored system read-back. The Android slot is not touched. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. The write goes from Android, with the partition's sha256 read back after it. Read fastboot getvar current-slot first; the write goes only to the other slot's system partition. 2026-11-21 (keeper, PR 669): adb ro.boot.slot_suffix _b and fastboot getvar current-slot b agree: Android runs from slot b, the other slot is a, so stage 1 writes system_a. The command still reads both itself and refuses on any doubt (the slot name is read, never typed).
-
-Waits
-: the one command walleye-install-write-procedure built and tested, the Alpine image built, and the Top Coordinator bringing it: the author's yes is given (decision 2026-11-20-walleye-install-stage-1-go), the run is not a keeper's to start before
-
-Blocked by
-: walleye-install-slot-readback,walleye-install-rootfs-alpine-min,walleye-install-write-procedure
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-20
-
-Needs
-: phone
-
-Proof
-: the partition's read-back sha256 equals the image's; slot-readback-check on a fresh read still passes for every other partition; battery-ok.sh passed first
-
-Rank
-: 6
-
-Witness
-: person
-
-
 <a id="walleye-install-rootfs-health-binary"></a>
 ### lpoco-health for the Alpine image: an aarch64 static (musl) build without root and without installing a system Rust target
 
@@ -9217,3 +9183,34 @@ Needs
 
 Proof
 : tools/walleye-tries install tests: the_rehearsal_writes_a_file_in_the_stage_folder_and_no_partition, a_probe_that_reads_back_wrong_fails_the_rehearsal
+
+
+<a id="walleye-install-write-rootfs"></a>
+### Write the rootfs image to the unused slot's system partition from Android over adb root; read it back and compare sha256
+
+Status
+: open
+
+Note
+: ~1 keeper-h. Way back: dd the stored system read-back. The Android slot is not touched. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. The write goes from Android, with the partition's sha256 read back after it. Read fastboot getvar current-slot first; the write goes only to the other slot's system partition. 2026-11-21 (keeper, PR 669): adb ro.boot.slot_suffix _b and fastboot getvar current-slot b agree: Android runs from slot b, the other slot is a, so stage 1 writes system_a. The command still reads both itself and refuses on any doubt (the slot name is read, never typed). THE AUTHOR'S GO (2026-11-22, relayed by the Top Coordinator), verbatim: "Go, write it", in answer to 'Run the write of Alpine to system_a now?' after the go text: about 20 minutes, one dd to system_a, read-back, re-read of both slots against the backup, nothing else written. THE RUN: procedures/install-rootfs-on-the-pixel-2.rs (not the rehearsal), from a worktree of google-walleye-lab with ln -s ~/Projects/walleye-build build/images, battery rule first, the image [images.alpine-rootfs] sha256 57ea7152 (the one with the lab key). TELL THE TOP COORDINATOR (SendMessage to local_12b18c70-1b6d-4783-bb6f-50113ab63250): the words 'install: writing' when the dd starts, and ONE result line at the end: written, the sha256 equal, every other partition equal, the phone on Android. IF ANYTHING IS DOUBTFUL the run stops before the dd (the procedure does) and the keeper tells the Top Coordinator and does NOT rerun: the way back for system_a is the stored backup, put back by hand only on the coordinator's word. Release the keeper lease inside the worktree and read lpoco-lab keeper status back as free. The go covers this run only.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: phone
+
+Proof
+: the partition's read-back sha256 equals the image's; slot-readback-check on a fresh read still passes for every other partition; battery-ok.sh passed first
+
+Rank
+: 1
+
+Witness
+: person
+
+Go until
+: 2026-11-22T21:06:08+01:00
