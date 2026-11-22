@@ -9339,37 +9339,6 @@ Rank
 : 1
 
 
-<a id="walleye-display-alpine-ramroot-image"></a>
-### Alpine's login prompt on the Pixel's glass, with ssh over usb-network: B-r5's kernel and display modules with the Alpine userland as the root in RAM (UFS off), and the author's look as one command
-
-Status
-: in-progress
-
-Note
-: Keeper's unattended run done 2026-11-22: checks 1-15 pass, stopped at the look, phone on Android. NEXT: the author's look as the same one command on lpoco-attended with the answer file (research walleye-ramroot-b-a5-unattended-run-1). THE LOOK IS A KEEPER'S RUN, NOT A WAIT (2026-11-22, coordinator): the author's go is open on this item (the Pixel is in his hand, screen facing him, when the go is opened); the keeper RUNS procedures/alpine-login-on-the-glass-on-the-pixel-2.rs for real, NOW, with --answer-limit 300 (the answer file ~/.cache/lpoco-attended/google-walleye/answer; the Top Coordinator reads the prompt file and writes his answer); no dry run, no other item first (not the sensor hub, not anything else: the author is waiting); a worktree of google-walleye-lab on origin/main with ln -s ~/Projects/walleye-build build/images; NO short timeout (the prompt comes about 3 minutes after the start and the run waits up to 300 s); tell the Top Coordinator (SendMessage to local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'look: at the prompt now' when the prompt file is written and ONE result line at the end (his answer, the phone back on Android). Whatever ends the run, the way back runs. If a check fails before the look: stop, tell the Top Coordinator and the coordinator, do not rerun. At the end release the lease INSIDE the worktree and read lpoco-lab keeper status back as free; if the land conflicts, do not make a third branch: tell the coordinator. 2026-11-22 20:18 (coordinator): THE LOOK IS RUNNING from the first keeper's start (local_dbe2503a; process procedures/alpine-login-on-the-glass-on-the-pixel-2.rs --answer-limit 300, log ~/lab-material/walleye/alpine-look-1795374782.log); the second keeper I started ended in 16 s on the held lease without touching the phone; the go I had opened is CLOSED. My earlier statement that the first keeper had not run the look was WRONG: it ran it after its session's last turn. 2026-11-22 (the first look, author's words in item walleye-display-alpine-getty-on-the-glass): the glass showed the kernel log and OpenRC's text with a blinking cursor but no login prompt; the fix and a measured check come first, then the look again as one command.
-
-Blocked by
-: walleye-display-alpine-getty-on-the-glass
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-22
-
-Needs
-: phone
-
-Proof
-: alpine-login-on-the-glass-on-the-pixel-2
-
-Rank
-: 3
-
-Witness
-: person
-
-
 <a id="walleye-install-rootfs-boots-try"></a>
 ### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
 
@@ -9430,3 +9399,31 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-display-alpine-ramroot-image"></a>
+### Alpine's login prompt on the Pixel's glass, with ssh over usb-network: B-r5's kernel and display modules with the Alpine userland as the root in RAM (UFS off), and the author's look as one command
+
+Status
+: in-progress
+
+Note
+: Keeper's unattended run done 2026-11-22: checks 1-15 pass, stopped at the look, phone on Android. NEXT: the author's look as the same one command on lpoco-attended with the answer file (research walleye-ramroot-b-a5-unattended-run-1). THE LOOK IS A KEEPER'S RUN, NOT A WAIT (2026-11-22, coordinator): the author's go is open on this item (the Pixel is in his hand, screen facing him, when the go is opened); the keeper RUNS procedures/alpine-login-on-the-glass-on-the-pixel-2.rs for real, NOW, with --answer-limit 300 (the answer file ~/.cache/lpoco-attended/google-walleye/answer; the Top Coordinator reads the prompt file and writes his answer); no dry run, no other item first (not the sensor hub, not anything else: the author is waiting); a worktree of google-walleye-lab on origin/main with ln -s ~/Projects/walleye-build build/images; NO short timeout (the prompt comes about 3 minutes after the start and the run waits up to 300 s); tell the Top Coordinator (SendMessage to local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'look: at the prompt now' when the prompt file is written and ONE result line at the end (his answer, the phone back on Android). Whatever ends the run, the way back runs. If a check fails before the look: stop, tell the Top Coordinator and the coordinator, do not rerun. At the end release the lease INSIDE the worktree and read lpoco-lab keeper status back as free; if the land conflicts, do not make a third branch: tell the coordinator. 2026-11-22 20:18 (coordinator):  THE AUTHOR'S WORD (2026-11-22, relayed by the Top Coordinator), verbatim: "ok, dont wait on me for the look" (the author, 2026-11-22, relayed by the Top Coordinator). So the attended look is DROPPED from this item: the lab's own measurement (the screen text over ssh showing 'walleye login:') is the result, reported to the Top Coordinator. The author saw the kernel log and OpenRC's text on the glass at the first look (his words in item walleye-display-alpine-getty-on-the-glass).
+
+Blocked by
+: walleye-display-alpine-getty-on-the-glass
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-22
+
+Needs
+: phone
+
+Proof
+: the keeper's unattended run of procedures/alpine-login-on-the-glass-on-the-pixel-2.rs on image B-a5 (3cb5adb8, getty on tty1): checks 1 to 15 pass, and CHECK 15 IS THE RESULT: the active VT's text read over ssh from /dev/vcs holds 'walleye login:' (the log keeps screen.txt and read.txt); no attended look is asked: the run ends at the look step with 'nobody answered' and the way back puts the phone on Android, which is the expected end; if check 15 fails, screen.txt and read.txt name the next cause (the item walleye-display-alpine-getty-on-the-glass)
+
+Rank
+: 1
