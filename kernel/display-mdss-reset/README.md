@@ -1,5 +1,7 @@
 # MDSS reset: the display block starts from a known state
 
+**The patch files are gone (2026-11-23): the series is the branch `topic/walleye-mdss-reset` of linux-phone-oco/linux, proved equal to them (kernel/README.md).** The numbering below follows the commits' order.
+
 Brief: one patch on kernel.org v7.3 (item walleye-display-dts-any-order; decision 2026-11-20-walleye-display-handover-reset-first): `resets = <&mmcc MDSS_BCR>` on the msm8998 `mdss` node.
 The bootloader leaves the display block scanning out; `msm_mdss_reset()` pulses the one unnamed reset at probe, so msm starts from a known state however early or late it loads.
 The common mdss binding (`mdss-common.yaml`) already allows `resets`, so no binding patch is needed. B-r5 proved the effect with the same property put in by fdtput (research walleye-display-reset-image-b-r5-tried-signs-vanish).

@@ -1,6 +1,6 @@
 #!/bin/sh
 # The boot image of the haptics try (item walleye-drv2624-image): z21's image with the kernel that holds the TI DRV2624 driver and the dtb that carries the walleye vibrator@5a node.
-#   Kernel: kernel.org v7.3 + the pmic-wdt topic and the fuel gauge RFC (as every image since fg1) + the four driver patches of kernel/drv2624/ (binding, driver, two fixes; its SHA256SUMS pins them).
+#   Kernel: kernel.org v7.3 + the pmic-wdt topic and the fuel gauge RFC (as every image since fg1) + the four driver commits of topic/walleye-drv2624 (binding, driver, two fixes).
 #   The dts patch 0005 is already in dt/msm8998-google-walleye.dts, which build-kernel.sh copies in. The driver is built in (the initramfs carries no modules).
 #   Ramdisk, header, size and AVB footer are z21's byte for byte (its init has the command loop, the telnet shell and the serial walleye-first-boot); the command line is z21's with its gpio dyndbg
 #   replaced by the driver's one dev_dbg, the chip id (dyndbg="file drivers/input/misc/drv2624.c +p"). UFS off by the gate. Built only - no phone run; the keeper reads the part over the mainline shell
@@ -30,14 +30,13 @@ case $OLDCMD in *' dyndbg="file drivers/gpio/gpiolib.c '*) NEWCMD="${OLDCMD%% dy
 echo "command line: $NEWCMD"
 ck "the new command line is z21's without its gpio dyndbg, plus the driver's" "$(printf '%s\n' "$NEWCMD" | sed "s/ $(printf '%s' "$DYN" | sed 's/[][\.*^$/]/\\&/g')\$//")" "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3"
 ck "the command line names no ufs" "$(printf '%s\n' "$NEWCMD" | grep -ci ufs || true)" 0
-ck "the driver patches match their checksums (kernel/drv2624/SHA256SUMS)" "$(cd "$HERE/kernel/drv2624" && sha256sum -c SHA256SUMS >/dev/null 2>&1 && echo yes || echo no)" yes
 for s in INPUT_DRV2624_HAPTICS DYNAMIC_DEBUG USB_CONFIGFS_ACM USB_CONFIGFS_ECM I2C_QUP; do
   ck "CONFIG_$s is y" "$(sed -n "s/^CONFIG_$s=//p" "$K/.config")" y
 done
 zcat "$K/Image.gz" > "$T/kernel"
 ck "the kernel holds the driver (its compatible)" "$(grep -ac 'ti,drv2624' "$T/kernel" | sed 's/^[1-9][0-9]*$/yes/')" yes
 ck "the kernel is v7.3-based" "$(grep -ao 'Linux version [^ ]*' "$T/kernel" | head -n1 | sed -n 's/.*\(7\.3\.0\).*/\1/p')" 7.3.0
-ck "the kernel holds patch 0004 (its range-check message; the tree must carry kernel/drv2624/0001-0004 as commits)" "$(grep -ac 'gives a drive time the register cannot hold' "$T/kernel" | sed 's/^[1-9][0-9]*$/yes/')" yes
+ck "the kernel holds patch 0004 (its range-check message; the tree must carry topic/walleye-drv2624)" "$(grep -ac 'gives a drive time the register cannot hold' "$T/kernel" | sed 's/^[1-9][0-9]*$/yes/')" yes
 GCC=/soc@0/clock-controller@100000
 D=$T/dtb
 cp "$K/msm8998-google-walleye.dtb" "$D"

@@ -1,5 +1,7 @@
 # ADSP, q6 and Quaternary MI2S: the series and the part's record
 
+**Patches 0001-0008 are gone (2026-11-23): they are the branch `topic/walleye-audio-adsp-q6` of linux-phone-oco/linux, proved equal to them (kernel/README.md); 0009, the walleye dts, stays here as a file.** The numbering below follows the commits' order.
+
 Brief: the audio DSP path of the Pixel 2 (item walleye-adsp-q6-mi2s), taken from porthole's tree onto kernel.org v7.3 as nine patches in four groups, each upstreamable on its own (decision 2026-11-19-walleye-audio-port-shape).
 `tests/host/audio-adsp-q6-builds.sh KERNEL_GIT_TREE` proves the first eight apply, the sound objects build without a warning and the walleye dtb carries the nodes; `SHA256SUMS` pins all nine.
 
