@@ -10169,3 +10169,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-transport-real-phone-run"></a>
+### The declared transports on the real Pixel 2 (lab-tools' docs item transport-real-phone-run): reboot to the bootloader per transport, Phone::at with the declared addr, the adb serial equal to adb's
+
+Status
+: open
+
+Note
+: From orchestration (2026-11-23): an item lab-tools left that only a real phone closes; recorded in docs, so it is put on walleye's phone queue here at LOW rank (15): walleye's own path (stage 2 rehearsal and go, the UFS silence) comes first. Knowledge for lab-tools from our lane: busybox 'reboot bootloader' drops the argument (reboot(RB_AUTOBOOT)), so it is not honoured on a busybox transport; a static reboot(2) RESTART2 'bootloader' tool (tools/walleye-reboot, PR 809) reached the bootloader on our kernel in rerun 7 (PR 814).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: from docs' item transport-real-phone-run (read it: tad q row --id transport-real-phone-run in docs): a keeper's run on the phone on Android, read-mostly: (1) over each transport the lab declares for walleye (adb on Android; ssh on our image) the shell is reached; (2) 'reboot bootloader' over ADB on Android is honoured (Android's init reads the argument) and fastboot lists the phone with current-slot b, then 'fastboot reboot' and Android returns on the same slot (the excursion rerun 7 made from our kernel, here from Android); over busybox it is NOT honoured (research walleye-reboot-reason-bootloader-read: busybox drops the argument; the walleye-reboot RESTART2 tool is the way from our kernel); (3) Phone::at uses the declared addr, not a default; (4) the adb serial from [fastboot] equals adb's own; the result is one research row with the text each printed; nothing is written, flashed or set; the phone ends on Android slot b
+
+Rank
+: 15
