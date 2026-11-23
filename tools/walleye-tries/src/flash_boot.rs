@@ -199,15 +199,17 @@ pub fn way_back_restored(before: &str, after: &str, android: &str) -> Result<(),
 // ---------------------------------------------------------------------------------------------------------------------
 
 const GB: usize = 4096;
-const HEAD_BLOCKS: usize = 6;
-const TAIL_BLOCKS: usize = 5;
-/// The bytes of one disk's dump: its first six blocks (the protective MBR, the header, 16 KiB of entries), then its last five (16 KiB of entries, the backup header).
+const HEAD_BLOCKS: usize = 2 + ENTRY_BLOCKS;
+const TAIL_BLOCKS: usize = ENTRY_BLOCKS + 1;
+/// The bytes of one disk's dump: its first six blocks (the protective MBR, the header, room for 128 entries), then its last five (room for 128 entries, the backup header). A table of fewer entries fills fewer blocks of that room: the backup copy lies just before the backup header.
 pub const DUMP_LEN: usize = (HEAD_BLOCKS + TAIL_BLOCKS) * GB;
-const ENTRIES: usize = 128;
+/// The blocks of entries each copy has room for in the dump.
+const ENTRY_BLOCKS: usize = 4;
 const ENTRY: usize = 128;
+/// The most entries a table can have and be read whole.
+const ENTRIES: usize = ENTRY_BLOCKS * GB / ENTRY;
 const P_HDR: usize = GB;
 const P_ENT: usize = 2 * GB;
-const B_ENT: usize = HEAD_BLOCKS * GB;
 const B_HDR: usize = (HEAD_BLOCKS + 4) * GB;
 
 /// The command that prints one disk's dump as hex: the same blocks `rootfs_boot::gpt_command` hashes, kept whole. `dev` is the node prefix on the phone (`/dev/block/sd` on Android, `/dev/sd` on our root).
@@ -259,33 +261,100 @@ fn le32(d: &[u8], at: usize) -> u32 {
     u32::from_le_bytes([d[at], d[at + 1], d[at + 2], d[at + 3]])
 }
 
-/// The dump is a GPT as the bootloader writes it: both headers say "EFI PART", 128 entries of 128 bytes, and the header and entries CRCs are right.
-pub fn gpt_is_whole(d: &[u8]) -> Result<(), String> {
-    for (which, hdr, ent) in [("primary", P_HDR, P_ENT), ("backup", B_HDR, B_ENT)] {
+fn le64(d: &[u8], at: usize) -> u64 {
+    let mut b = [0u8; 8];
+    b.copy_from_slice(&d[at..at + 8]);
+    u64::from_le_bytes(b)
+}
+
+/// How many entries a disk's GPT has and where its two copies lie in the dump: what the headers say, parsed once, then carried (the bootloader sizes the table to the disk: the phone's six
+/// LUNs have 48, 4, 4, 20, 8 and 8 entries, not the 128 of a generic table).
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct Layout {
+    /// entries in the table, 1 to `ENTRIES` (the most the dump's four blocks of entries hold), each `ENTRY` bytes
+    count: usize,
+    /// where the backup copy of the entries starts: in the blocks just before the backup header, as many as the table fills
+    b_ent: usize,
+}
+
+impl Layout {
+    fn primary(&self) -> std::ops::Range<usize> {
+        P_ENT..P_ENT + self.count * ENTRY
+    }
+    fn backup(&self) -> std::ops::Range<usize> {
+        self.b_ent..self.b_ent + self.count * ENTRY
+    }
+}
+
+/// The layout of a dump that is a GPT as the bootloader writes it: both headers say "EFI PART", the same count of 1 to 128 entries of exactly 128 bytes, the entries lie where the headers' LBAs put them
+/// (the primary's at LBA 2, the backup's in the one to four blocks before the backup header, enough for the table), and the header and entries CRCs are right.
+fn gpt_layout(d: &[u8]) -> Result<Layout, String> {
+    if d.len() != DUMP_LEN {
+        return Err(format!(
+            "the GPT dump is {} bytes, a whole one is {DUMP_LEN}",
+            d.len()
+        ));
+    }
+    let mut seen: Vec<(usize, usize)> = vec![];
+    for (which, hdr) in [("primary", P_HDR), ("backup", B_HDR)] {
         if &d[hdr..hdr + 8] != b"EFI PART" {
             return Err(format!("the {which} GPT header has no EFI PART signature"));
         }
-        if le32(d, hdr + 80) as usize != ENTRIES || le32(d, hdr + 84) as usize != ENTRY {
+        let (count, size) = (le32(d, hdr + 80) as usize, le32(d, hdr + 84) as usize);
+        if !(1..=ENTRIES).contains(&count) || size != ENTRY {
             return Err(format!(
-                "the {which} GPT header does not say {ENTRIES} entries of {ENTRY} bytes"
+                "the {which} GPT header says {count} entries of {size} bytes, not 1 to {ENTRIES} entries of {ENTRY} bytes"
             ));
         }
-        let size = le32(d, hdr + 12) as usize;
-        if !(92..=GB).contains(&size) {
+        let hsize = le32(d, hdr + 12) as usize;
+        if !(92..=GB).contains(&hsize) {
             return Err(format!(
-                "the {which} GPT header size {size} is not 92 to {GB}"
+                "the {which} GPT header size {hsize} is not 92 to {GB}"
             ));
         }
-        let mut h = d[hdr..hdr + size].to_vec();
+        let mut h = d[hdr..hdr + hsize].to_vec();
         h[16..20].fill(0);
         if crc32(&h) != le32(d, hdr + 16) {
             return Err(format!("the {which} GPT header CRC is wrong"));
         }
-        if crc32(&d[ent..ent + ENTRIES * ENTRY]) != le32(d, hdr + 88) {
+        let (here, entries_at) = (le64(d, hdr + 24), le64(d, hdr + 72));
+        let ent = if hdr == P_HDR {
+            if (here, entries_at) != (1, 2) {
+                return Err(format!(
+                    "the primary GPT header is at LBA {here} and its entries at LBA {entries_at}, not 1 and 2"
+                ));
+            }
+            P_ENT
+        } else {
+            let blocks = here.saturating_sub(entries_at) as usize;
+            if !(1..=ENTRY_BLOCKS).contains(&blocks) || blocks * GB < count * ENTRY {
+                return Err(format!(
+                    "the backup GPT header at LBA {here} puts its {count} entries at LBA {entries_at}: not within the {} blocks before it that the dump holds, nor enough for them",
+                    ENTRY_BLOCKS
+                ));
+            }
+            B_HDR - blocks * GB
+        };
+        if crc32(&d[ent..ent + count * ENTRY]) != le32(d, hdr + 88) {
             return Err(format!("the {which} GPT entries CRC is wrong"));
         }
+        seen.push((count, ent));
     }
-    Ok(())
+    if seen[0].0 != seen[1].0 {
+        return Err(format!(
+            "the primary GPT header says {} entries and the backup {}: the copies disagree",
+            seen[0].0, seen[1].0
+        ));
+    }
+    Ok(Layout {
+        count: seen[0].0,
+        b_ent: seen[1].1,
+    })
+}
+
+/// The dump is a whole GPT as the bootloader writes it (see `gpt_layout`).
+pub fn gpt_is_whole(d: &[u8]) -> Result<(), String> {
+    gpt_layout(d).map(|_| ())
 }
 
 fn entry_name(d: &[u8], at: usize) -> String {
@@ -314,16 +383,18 @@ pub fn gpt_switch_only(before: &[u8], after: &[u8]) -> Result<String, String> {
     if before.len() != DUMP_LEN || after.len() != DUMP_LEN {
         return Err("a GPT dump is not whole".into());
     }
-    gpt_is_whole(before).map_err(|e| format!("before: {e}"))?;
-    gpt_is_whole(after).map_err(|e| format!("after: {e}"))?;
+    let lay = gpt_layout(before).map_err(|e| format!("before: {e}"))?;
+    if gpt_layout(after).map_err(|e| format!("after: {e}"))? != lay {
+        return Err("the GPT has another count of entries (or another place for them) after than before: a switch changes neither".into());
+    }
     let allowed = |at: usize| -> bool {
         for hdr in [P_HDR, B_HDR] {
             if (hdr + 16..hdr + 20).contains(&at) || (hdr + 88..hdr + 92).contains(&at) {
                 return true;
             }
         }
-        for base in [P_ENT, B_ENT] {
-            if (base..base + ENTRIES * ENTRY).contains(&at) {
+        for (base, span) in [(P_ENT, lay.primary()), (lay.b_ent, lay.backup())] {
+            if span.contains(&at) {
                 let inside = (at - base) % ENTRY;
                 return inside < 16 || inside == 54;
             }
@@ -333,16 +404,16 @@ pub fn gpt_switch_only(before: &[u8], after: &[u8]) -> Result<String, String> {
     if let Some(at) = (0..DUMP_LEN).find(|&i| before[i] != after[i] && !allowed(i)) {
         return Err(format!("byte {at} of the dump changed and it is not a slot bit, a type GUID or a CRC (block {}, offset {})", at / GB, at % GB));
     }
-    let whole = |d: &[u8], base: usize| d[base..base + ENTRIES * ENTRY].to_vec();
-    if whole(after, P_ENT) != whole(after, B_ENT) && whole(before, P_ENT) == whole(before, B_ENT) {
+    let same = |d: &[u8]| d[lay.primary()] == d[lay.backup()];
+    if !same(after) && same(before) {
         return Err("the primary and the backup entries agreed before and disagree now".into());
     }
     let (mut attrs, mut swaps) = (0usize, 0usize);
-    for (copy, base) in [("primary", P_ENT), ("backup", B_ENT)] {
-        let names: Vec<String> = (0..ENTRIES)
+    for (copy, base) in [("primary", P_ENT), ("backup", lay.b_ent)] {
+        let names: Vec<String> = (0..lay.count)
             .map(|i| entry_name(before, base + i * ENTRY))
             .collect();
-        for i in 0..ENTRIES {
+        for i in 0..lay.count {
             let at = base + i * ENTRY;
             let name = &names[i];
             let twin = partner(name).and_then(|p| names.iter().position(|n| *n == p));
@@ -1162,6 +1233,9 @@ pub fn init_of_ramdisk(ramdisk: &std::path::Path) -> Result<String, String> {
 mod tests {
     use super::*;
 
+    /// The backup entries of a table of 128 entries.
+    const B_ENT: usize = HEAD_BLOCKS * GB;
+
     // ---- the flash target and the commands ----
 
     #[test]
@@ -1299,17 +1373,33 @@ mod tests {
         name.encode_utf16().flat_map(u16::to_le_bytes).collect()
     }
 
-    /// A synthetic dump of one disk with the A/B pairs given, each entry: type GUID filled with a byte, attributes filled with a byte.
-    fn dump(entries: &[(&str, u8, u8)]) -> Vec<u8> {
+    /// The blocks the entry array of `count` entries fills (4096-byte blocks, 128-byte entries).
+    fn blocks_for(count: usize) -> usize {
+        (count * ENTRY).div_ceil(GB)
+    }
+
+    /// Where the backup copy of `count` entries lies in the dump: in the blocks just before the backup header.
+    fn b_ent_of(count: usize) -> usize {
+        B_HDR - blocks_for(count) * GB
+    }
+
+    /// A synthetic dump of one disk whose headers say `count` entries, with the A/B pairs given (at most `count`), each entry: type GUID filled with a byte, attributes filled with a byte.
+    fn dump_n(count: usize, entries: &[(&str, u8, u8)]) -> Vec<u8> {
         let mut d = vec![0u8; DUMP_LEN];
-        for hdr in [P_HDR, B_HDR] {
+        let last_lba: u64 = 1000;
+        for (hdr, cur, ent) in [
+            (P_HDR, 1, 2),
+            (B_HDR, last_lba, last_lba - blocks_for(count) as u64),
+        ] {
             d[hdr..hdr + 8].copy_from_slice(b"EFI PART");
             d[hdr + 12..hdr + 16].copy_from_slice(&92u32.to_le_bytes());
-            d[hdr + 80..hdr + 84].copy_from_slice(&128u32.to_le_bytes());
+            d[hdr + 24..hdr + 32].copy_from_slice(&u64::to_le_bytes(cur));
+            d[hdr + 72..hdr + 80].copy_from_slice(&u64::to_le_bytes(ent));
+            d[hdr + 80..hdr + 84].copy_from_slice(&(count as u32).to_le_bytes());
             d[hdr + 84..hdr + 88].copy_from_slice(&128u32.to_le_bytes());
         }
-        for (i, (name, guid, attr)) in entries.iter().enumerate() {
-            for base in [P_ENT, B_ENT] {
+        for (i, (name, guid, attr)) in entries.iter().enumerate().take(count) {
+            for base in [P_ENT, b_ent_of(count)] {
                 let at = base + i * ENTRY;
                 d[at..at + 16].fill(*guid);
                 d[at + 16..at + 32].fill(0x77); // the partition's own GUID: never changes
@@ -1322,9 +1412,18 @@ mod tests {
         d
     }
 
+    /// The CRCs as a writer makes them: the entries' over what the header says (count, and where its entry LBA puts them), then the header's own.
     fn fix_crcs(d: &mut [u8]) {
-        for (hdr, ent) in [(P_HDR, P_ENT), (B_HDR, B_ENT)] {
-            let ec = crc32(&d[ent..ent + ENTRIES * ENTRY]);
+        for hdr in [P_HDR, B_HDR] {
+            let count = u32::from_le_bytes(d[hdr + 80..hdr + 84].try_into().unwrap()) as usize;
+            let ent = if hdr == P_HDR {
+                P_ENT
+            } else {
+                let back = u64::from_le_bytes(d[hdr + 24..hdr + 32].try_into().unwrap())
+                    - u64::from_le_bytes(d[hdr + 72..hdr + 80].try_into().unwrap());
+                hdr - back as usize * GB
+            };
+            let ec = crc32(&d[ent..(ent + count * ENTRY).min(d.len())]);
             d[hdr + 88..hdr + 92].copy_from_slice(&ec.to_le_bytes());
             d[hdr + 16..hdr + 20].fill(0);
             let hc = crc32(&d[hdr..hdr + 92]);
@@ -1332,20 +1431,27 @@ mod tests {
         }
     }
 
+    fn before_n(count: usize) -> Vec<u8> {
+        dump_n(
+            count,
+            &[
+                ("boot_a", 1, 0x10),
+                ("boot_b", 2, 0x20),
+                ("system_a", 3, 0x10),
+                ("system_b", 4, 0x20),
+                ("userdata", 9, 0),
+            ],
+        )
+    }
+
     fn before() -> Vec<u8> {
-        dump(&[
-            ("boot_a", 1, 0x10),
-            ("boot_b", 2, 0x20),
-            ("system_a", 3, 0x10),
-            ("system_b", 4, 0x20),
-            ("userdata", 9, 0),
-        ])
+        before_n(128)
     }
 
     /// What the bootloader's switch to slot a does: the type GUIDs of every A/B pair swap, the attributes change, the CRCs are recomputed, in both copies.
-    fn switched() -> Vec<u8> {
-        let mut d = before();
-        for base in [P_ENT, B_ENT] {
+    fn switched_n(count: usize) -> Vec<u8> {
+        let mut d = before_n(count);
+        for base in [P_ENT, b_ent_of(count)] {
             for (x, y) in [(0usize, 1usize), (2, 3)] {
                 let (ax, ay) = (base + x * ENTRY, base + y * ENTRY);
                 let gx: Vec<u8> = d[ax..ax + 16].to_vec();
@@ -1358,6 +1464,10 @@ mod tests {
         }
         fix_crcs(&mut d);
         d
+    }
+
+    fn switched() -> Vec<u8> {
+        switched_n(128)
     }
 
     #[test]
@@ -1463,6 +1573,102 @@ mod tests {
         assert!(gpt_switch_only(&before(), &[0u8; 10]).is_err());
         assert!(dump_bytes("").is_err());
         assert!(dump_bytes("zz").is_err());
+    }
+
+    #[test]
+    fn a_gpt_says_how_many_entries_it_has_and_the_switch_passes_on_one_with_few() {
+        // the phone's disks: 48 entries (sda), 4 (sdb, sdc), 20, 8 - all of 128 bytes
+        for count in [4, 5, 8, 20, 48, 128] {
+            assert!(gpt_is_whole(&before_n(count)).is_ok(), "{count}");
+            assert!(gpt_switch_only(&before_n(count), &before_n(count)).is_ok());
+            let said = gpt_switch_only(&before_n(count), &switched_n(count)).unwrap();
+            let attrs = count.min(4);
+            assert!(
+                said.contains(&format!(
+                    "{attrs} entries' slot bits and {attrs} type GUIDs"
+                )),
+                "{count}: {said}"
+            );
+        }
+        // the bytes after the last entry (the rest of its block) are no slot bit
+        let mut d = switched_n(4);
+        d[P_ENT + 4 * ENTRY + 5] = 1;
+        assert!(gpt_switch_only(&before_n(4), &d)
+            .unwrap_err()
+            .contains("not a slot bit"));
+        // the entry array of the backup is where its header puts it, not at a fixed place
+        let mut d = switched_n(4);
+        d[b_ent_of(4)..b_ent_of(4) + 16].fill(0xEE);
+        fix_crcs(&mut d);
+        assert!(gpt_switch_only(&before_n(4), &d).is_err());
+        // a disk that had 48 entries and has 4 has been repartitioned, not switched
+        assert!(gpt_switch_only(&before_n(48), &before_n(4))
+            .unwrap_err()
+            .contains("entries"));
+    }
+
+    #[test]
+    fn a_gpt_with_a_count_a_size_a_crc_or_a_place_that_is_wrong_is_not_whole() {
+        let edit = |f: &dyn Fn(&mut Vec<u8>)| {
+            let mut d = before_n(48);
+            f(&mut d);
+            d
+        };
+        // 129 entries do not fit the 4 blocks the dump holds; none is no table
+        for count in [129u32, 0] {
+            let d = edit(&|d| {
+                for hdr in [P_HDR, B_HDR] {
+                    d[hdr + 80..hdr + 84].copy_from_slice(&count.to_le_bytes());
+                }
+                fix_crcs(d);
+            });
+            assert!(gpt_is_whole(&d).unwrap_err().contains("entries"), "{count}");
+        }
+        // an entry size of 64 (or any but 128)
+        let d = edit(&|d| {
+            for hdr in [P_HDR, B_HDR] {
+                d[hdr + 84..hdr + 88].copy_from_slice(&64u32.to_le_bytes());
+            }
+            fix_crcs(d);
+        });
+        assert!(gpt_is_whole(&d).unwrap_err().contains("entries"));
+        // a wrong entries CRC, in either copy
+        for hdr in [P_HDR, B_HDR] {
+            let mut d = before_n(48);
+            d[hdr + 88] ^= 1;
+            // the header CRC is made right again, so only the entries' is wrong
+            d[hdr + 16..hdr + 20].fill(0);
+            let hc = crc32(&d[hdr..hdr + 92]);
+            d[hdr + 16..hdr + 20].copy_from_slice(&hc.to_le_bytes());
+            assert!(gpt_is_whole(&d).unwrap_err().contains("entries CRC"));
+        }
+        // the entries CRC covers count*128 bytes and no more
+        let mut d = before_n(48);
+        d[P_ENT + 48 * ENTRY + 1] = 1;
+        assert!(gpt_is_whole(&d).is_ok());
+        // the two copies of a disk agree on the count
+        let d = edit(&|d| {
+            d[B_HDR + 80..B_HDR + 84].copy_from_slice(&40u32.to_le_bytes());
+            fix_crcs(d);
+        });
+        assert!(gpt_is_whole(&d).unwrap_err().contains("disagree"));
+        // the backup's entries lie within the four blocks before its header and hold the table
+        for blocks in [1u64, 5] {
+            let d = edit(&|d| {
+                let cur = u64::from_le_bytes(d[B_HDR + 24..B_HDR + 32].try_into().unwrap());
+                d[B_HDR + 72..B_HDR + 80].copy_from_slice(&(cur - blocks).to_le_bytes());
+                fix_crcs(d);
+            });
+            assert!(gpt_is_whole(&d).unwrap_err().contains("backup"), "{blocks}");
+        }
+        // the primary's entries start at LBA 2
+        let d = edit(&|d| {
+            d[P_HDR + 72..P_HDR + 80].copy_from_slice(&3u64.to_le_bytes());
+            fix_crcs(d);
+        });
+        assert!(gpt_is_whole(&d).is_err());
+        // a short dump is an error, not a panic
+        assert!(gpt_is_whole(&[0u8; 10]).is_err());
     }
 
     #[test]
