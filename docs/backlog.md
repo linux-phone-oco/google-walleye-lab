@@ -10008,3 +10008,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-lpoco-attended-0-44-procedures"></a>
+### The procedures meet lpoco-attended 0.44.x: PR 790 (rhizoid bump 0.41.0 to 0.44.3) lands, with every procedure still proving itself
+
+Status
+: open
+
+Note
+: From orchestration (2026-11-23): PR 790 is a rhizoid bump of the lpoco-attended pin in tools/walleye-tries (the only way a pin moves, decision 2026-11-23-pins-stay-with-their-readers); its check fails with the panic above. A procedure that keepers run on the phone must be unchanged in what it does; a keeper does not run on a half-bumped tree (keepers work from worktrees of main, so the branch does not touch a run). Not urgent for the phone path: after the kernel items and the reboot-reason tool.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: on the bump branch rhizoid/bump/lpoco-attended-0.44.3 (google-walleye-lab PR 790; push the fix there, do not make a second pin PR): the CI check 'the attended tries prove themselves' passes; the cause is read first from lab-tools' changelog/source between 0.41.0 and 0.44.3 (the panic is 'lpoco-attended: call procedure(name, device) before the first step', attended/src/lib.rs:217: touch-events-on-z21 and ufs-matched-image-on-the-pixel-2 reach a step before procedure(name, device); say if 0.41.0 behaves the same or whether 0.4x moved the requirement, and if it is a lab-tools regression say so with the line and stop for orchestration); every one of the 13 procedures/*.rs still dry-runs (step counts equal to today's: rootfs-boots 26, install-boot 17 in the rehearsal, ufs-matched 23, alpine-login 22, install-rootfs 16), tools/walleye-tries' tests, clippy, fmt pass; NO behavior of a phone run changes (gates, go reads, way backs, timeouts): the diff of the procedures is the API move only, said in the PR; no procedure is run against the phone by the builder; review
+
+Rank
+: 4
