@@ -11097,10 +11097,10 @@ Rank
 ### The bootloader cut our command line at about 1363 characters, so androidboot.slot_suffix was lost: shorten the header cmdline under a budget, let the init find the slot from root=PARTUUID as a second source, rebuild the debug image, rehearse, run
 
 Status
-: in-progress
+: done
 
 Note
-: BUILT 2026-11-23 (walleye-builder): header cmdline 149 characters (budget 160, margin 126 under the 1363 cut run 8 got, an observed cut, cause unproven; checked from run 8's and Android b's captured lines); the init reads the slot from androidboot.slot_suffix, device tree, bootconfig, then root=PARTUUID (UNPROVEN on the phone: no capture shows PARTN there; agree or refuse, fail closed, the log names the source); QEMU cases 15-20 plus the root, debug and display init proofs pass; cargo test, clippy, fmt pass; programmer review done and answered; the debug image rebuilt: [images.ufs-root-booted-slot-debug] sha256 a0a55cd0 (built twice identical, 35 checks) in device.toml; its dyndbg lines are written at run time (probe-time messages not caught). NOT DONE: the rehearsal and the run (the keeper, phone).
+: proven by run 11 (all 29 steps passed with debug image a0a55cd0, header cmdline 149 chars, slot read by the init); the production image b74af863 keeps the same short header
 
 About
 : walleye-bootimage
@@ -11172,10 +11172,10 @@ Rank
 ### Stage 2's step 21 accepts the booted slot from what the BOOTLOADER supplies, in the working system's own order: androidboot.slot_suffix, else the bootloader's root=PARTUUID mapped through the GPT, else the DT firmware/android slot_suffix, and it must equal fastboot's current-slot
 
 Status
-: in-progress
+: done
 
 Note
-: BUILT 2026-11-23 (walleye-builder, reviewed by programmer, 5 of 7 findings fixed): step 21 takes the slot from androidboot.slot_suffix, else root=PARTUUID (strict form) through the GPT, else the device tree, equal to current-slot, refusing none/disagreement/header with root= or slot_suffix=; 332 tests, clippy, fmt, check --host, dry run pass; research walleye-stage2-step21-slot-source-built. NOT DONE: step 21 is not in the four-start-state walk (its bench has no ssh login; step 21 reads only the flags' current-slot, which the walk's states do not change); header check runs at step 21, not at the image check (stand-in images there have no header). LEFT FOR THE KEEPER: one rehearsal, one run under a fresh go with OUTCOMES.
+: proven by run 11: step 21 passed on the real phone with the slot from the bootloader's sources
 
 About
 : walleye-bootimage
@@ -11372,7 +11372,7 @@ Status
 : in-progress
 
 Note
-: BUILT 2026-11-23 (walleye-builder) WITH THE SCRIPT, as the Top's order allows: the recipe rows (walleye-image-recipe-z21, walleye-declares-its-kernel-build) had not landed; the recipe follows in walleye-retire-build-scripts. After the programmer review (petting deadline 420 s, dead petters restarted, SIGKILL at the hold's end, stricter test, tag identity): [images.ufs-root-booted-slot-production] sha256 b74af863e4b49e2b3ff6e656c2f9ba3b92033b1e0f74063c3c2d47b81c83d570, kernel_tag int/walleye/ufs-on/v7.3/1 (commit 5caddde2d), built twice identical by build/build-ufs-root-production.sh, 37 checks ok; init build/initramfs-root-production/init (petters first, no gadget/telnet), tests/host/ufs-root-production-init.sh passes (QEMU). install-boot-on-the-pixel-2 and its rehearsal name it by one line each; dry runs 29 and 18 steps ok. NOT DONE (phone, keeper): the rehearsal for real (read only), the four-state walk, then ONE run under a go with outcomes naming b74af863. Open for the author: boot Linux by default or return to Android b. Not read: the supervisor's deadline and the SIGKILL end on the phone (QEMU proves petting only).
+: built; rehearsal 8 passed 18 of 18 (2026-11-23). Remaining: the four-state walk, then ONE run under a go naming b74af863 with outcomes (walleye-install-flash-boot-run)
 
 About
 : walleye-bootimage
@@ -11419,10 +11419,10 @@ Rank
 ### The stage 2 rehearsal for real with the production image declared: read only, the whole stdout kept
 
 Status
-: open
+: done
 
 Note
-: Before the run, as for every earlier image. The run (walleye-install-flash-boot-run) follows with a go naming b74af863 and outcomes: (1) all 29 steps pass with the production image: stage 2 is done for the image that stays (kernel from int/walleye/ufs-on/v7.3/1, petter first, no telnet gadget); (2) the boot fails or ssh does not answer: with no debug gadget the host's USB log and the way back's reads are the evidence: the finding says which of the supervisor's petting, the slot, or the root; (3) a later step stops: its text; the supervisor's 420 s deadline and SIGKILL end have never run on a phone.
+: proven by rehearsal 8 (2026-11-23 ~21:55): 18 of 18 passed with production image b74af863 declared, nothing written, phone on Android b; research walleye-install-flash-boot-rehearsal-8-passed. Next: walleye-install-flash-boot-run under a go naming b74af863
 
 About
 : walleye-bootimage

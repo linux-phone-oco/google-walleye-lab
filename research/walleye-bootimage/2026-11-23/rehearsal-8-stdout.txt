@@ -1,0 +1,47 @@
+check 1: the battery is good enough
+check 2: the image is the declared one, a whole boot partition, its AVB footer verifies
+  the image names its root: system_a
+check 3: the image's init accepts the slot it is booted from
+check 4: the stored boot chain is whole, the ssh key is private and the reboot tool is the declared one
+step 5: say what to expect
+  The rehearsal of stage 2, about 5 minutes: every step of the flash except the flash and the set_active - the image checked, the slot read two ways, the flash target built and its command shown, the slot flags and the GPT of 6 disks read twice and equal, the boot chain as stored - and nothing written. set_active to the slot already active is not written: whether the bootloader takes it as a no-change write is not known yet. The phone ends on Android.
+step 6: the phone is on Android, adbd as root
+check 7: adb reads the slot Android runs from
+  adb: slot suffix _b
+check 8: the boot partition to be flashed, read now, is recorded (its backup, the declared image or other content) and the stock backup is on file and hashes to its record; the boot, dtbo and vbmeta partitions are hashed
+  kept a copy of what boot_a held: /home/mll/lab-material/walleye/install-boot-rehearsal-20261123-215434/boot_a-before-the-flash.img
+  boot_a holds content not recorded here (a0a55cd060343d7acc1af07247c48b930789e2318afb77cfe31ea83acba25751); the stock backup is on file and hashes to its record (2a5cd3b20ef0da2b272d2dac460f868d4764d8bdb8cb426d62eee568f1344fb5): the flash can be undone
+check 9: the GPT of every disk is read whole and kept
+  6 disks' GPT kept, each whole with the right CRCs
+step 10: take the phone to fastboot
+check 11: fastboot agrees on the slot and the flash target is the other slot's boot partition (its command is shown, not run)
+  Android runs from slot b; the one flash would be: fastboot -s SERIAL flash boot_a /home/mll/.local/share/agent-worktrees/google-walleye-lab/walleye-keeper-1795467228/build/images/NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-production/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production.img
+check 12: the slot flags are read before, and the slot Android runs from is successful and bootable (the way back)
+check 13: the slot flags read again are kept beside the first (a difference is said, not refused)
+step 14: the phone is on Android, adbd as root
+check 15: the phone is back on Android
+check 16: the GPT read again is the same, whole, and passes the switch checker unchanged
+check 17: the read of a failed boot (the pstore first, the command line, the boot reason, the slot) works on Android as it is: read only, nothing sent
+---pstore-listing
+total 0
+drwxr-x--- 2 system log  0 2026-11-23 21:55 .
+drwxr-xr-x 8 root   root 0 1970-07-27 08:48 ..
+---uptime
+21:55:49 up 0 min,  0 users,  load average: 3.32, 0.73, 0.24
+---id
+uid=0(root) gid=0(root) groups=0(root),1004(input),1007(log),1011(adb),1015(sdcard_rw),1028(sdcard_r),1078(ext_data_rw),1079(ext_obb_rw),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats),3009(readproc),3011(uhid),3012(readtracefs) context=u:r:su:s0
+---cmdline
+rcupdate.rcu_expedited=1 androidboot.hardware=walleye androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 service_locator.enable=1 swiotlb=2048 firmware_class.path=/vendor/firmware loop.max_part=7 raid=noautodetect usbcore.autosuspend=7 androidboot.dtbo_idx=3 androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=0000002b-0000-0000-0000-000000000000 androidboot.bootdevice=1da4000.ufshc androidboot.serialno=REDACTED androidboot.wificountrycode=00 androidboot.boottime=1BLL:221,1BLE:766,2BLL:870,2BLE:267,SW:10023,KL:0,KD:94,ODT:144,AVB:163 androidboot.baseband=msm mdss_mdp.panel=1:dsi:0:htc,mdss_dsi_samsung_s6e3fa5_1080p_cmd:1:none:cfg:single_dsi androidboot.fpsensor=fpc1075 androidboot.fpmodule=ofilm androidboot.usbradioflag=0 androidboot.temp_protect_ignore=0 androidboot.hardware.ufs=64GB,Hynix androidboot.mid=G011A androidboot.hardware.sku=G011A androidboot.revision=MP1 androidboot.ddrsize=4GB androidboot.ddrinfo=000000FF androidboot.hardware.ddr=4096MB,Micron,LPDDR4 androidboot.bootloader=mw8998-003.0085.00 androidboot.bootreason=reboot androidboot.cid=00000000 androidboot.hardware.color=VEN00 androidboot.theme=1 androidboot.sf=1 androidboot.msm.hw_ver_id=2005E0E1 androidboot.qf.st=2 androidboot.pk=g-pxl-p androidboot.slot_suffix=_b want_initramfs rootwait ro init=/init androidboot.force_normal_boot=1
+---bootreason
+reboot
+---sys-bootreason
+bootloader
+---slot-suffix
+_b
+---verifiedbootstate
+orange
+---end
+check 18: the boot chain read again equals the stored set
+rehearse install boot on the Pixel 2: all 18 steps passed
+the phone goes back to Android if it is not there
+way back: the phone is on Android already; nothing sent

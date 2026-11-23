@@ -7012,3 +7012,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-install-flash-boot-rehearsal-8-passed"></a>
+### walleye-install-flash-boot-rehearsal-8-passed
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 rehearsal 8 with the production image b74af863 declared: 18 of 18 passed, nothing written; boot_a holds the debug image a0a55cd0, stock backup on file; phone on Android b
+
+Question
+: Does the read-only rehearsal pass with the production image declared (init gate, header cmdline under budget, AVB footer, boot_a content, stock backup, GPTs, boot chain)?
+
+Found
+: Read only on main c42e8d9 (after PR 938): no flash, set_active, erase or oem verb. All 18 checks passed with [images.ufs-root-booted-slot-production] declared (sha256 b74af863e4b49e2b3ff6e656c2f9ba3b92033b1e0f74063c3c2d47b81c83d570; the file via build/images, a link to ~/Projects/walleye-build, an untracked build output whose sha equals device.toml's). The image names root system_a; the init accepts the slot; adb slot _b; boot_a holds a0a55cd0 (run 11's debug image); stock backup 2a5cd3b2 on file and hashing to its record; 6 disks' GPT read twice and equal; boot chain equals the stored set; the flash would be fastboot flash boot_a with the production image (shown, not run). Phone ends on Android slot b. A first try stopped at check 2 because build/images was linked to walleye-build/images; the right link is ~/Projects/walleye-build itself. Whole stdout in rehearsal-8-stdout.txt.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/

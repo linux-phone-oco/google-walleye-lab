@@ -7183,3 +7183,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-2200-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Rehearsal 8 (read only) passed 18 of 18 with production image b74af863 declared; the four-state walk (cargo test walk, 57) passes; items cmdline-too-long and step21-slot-source closed on run 11's proof. Phone on Android slot b, adb device, boot_a holds a0a55cd0, nothing written. build/images must be a link to ~/Projects/walleye-build itself (not its images/ folder)
+
+Considered
+: next: the ONE stage 2 run with the production image needs a new go naming b74af863 and outcomes (walleye-install-flash-boot-run is done by run 11; a new item or reopening is the coordinator's); then walleye-wdt0-first-instant-read
+
+About
+: walleye-bootimage
