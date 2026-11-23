@@ -9431,34 +9431,6 @@ Rank
 : 3
 
 
-<a id="walleye-kernel-clone-move"></a>
-### The kernel clone and the wt-k-* worktrees move to ~/Projects/linux-phone-oco/linux and the worktree home, in one change that covers every path
-
-Status
-: open
-
-Note
-: From the steward's rules (2026-11-23-structure-*, amended after walleye's objections): the clone and the worktrees move in ONE builder change, between phone runs, after the series are topics. The shared clone today is the shallow one under ~/Projects/surya-audio/linux per the steward's check; the 155 paths were counted in device.toml, build/, tools/, procedures/ and AGENTS.md.
-
-Blocked by
-: walleye-kernel-series-to-topics
-
-About
-: walleye-kernel-dts
-
-Opened
-: 2026-11-23
-
-Needs
-: build
-
-Proof
-: every path that names ~/Projects/walleye-build/wt-k-* or the old clone (device.toml [images.ufs-root] kernel_tree, tests/host/ufs-match-android.sh, build/*.sh, build/README.md, tools, procedures, AGENTS.md: 155 places) names the new place in the same change; tests/host/ufs-match-android.sh passes from there; no [images.*] sha256 changes; done between phone runs (the lease free, the phone on Android, no go open); review
-
-Rank
-: 8
-
-
 <a id="walleye-rootfs-boots-check-17-live-state"></a>
 ### Check 17 of the stage 1 boot proves the hand-over from the live state (PID 1, the overlay root, the card read-only), not from a log line the init cannot write after it moved /dev
 
@@ -10597,3 +10569,106 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-kernel-clone-move"></a>
+### The kernel clone and the wt-k-* worktrees move to ~/Projects/linux-phone-oco/linux and the worktree home, in one change that covers every path
+
+Status
+: open
+
+Note
+: THE AUTHOR'S WORD, 2026-11-23 (relayed by the Top Coordinator): 'i think they arent as productive as they can be because they still use old ways': walleye goes fully onto the new structure, at the FRONT of the builder queue right after the stage 2 watchdog/USB fix that stage 2 run 6 decides; none of it needs the phone, so a builder runs on it alongside the phone work. First piece of the new structure (the Top Coordinator's list, item 1). The three commits that lived only on detached worktrees are on archive/ refs already (PR 800 era); the topic branches are pushed (PR 787). | From the steward's rules (2026-11-23-structure-*, amended after walleye's objections): the clone and the worktrees move in ONE builder change, between phone runs, after the series are topics. The shared clone today is the shallow one under ~/Projects/surya-audio/linux per the steward's check; the 155 paths were counted in device.toml, build/, tools/, procedures/ and AGENTS.md.
+
+About
+: walleye-kernel-dts
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) BEFORE any removal: every tip of the 11 wt-k-* worktrees (and of the clone's local branches) is on a PUSHED topic/ or archive/ ref of the fork (git ls-remote read back; list each worktree, its tip, the ref that holds it; a tip held by none gets an archive/ branch first); (2) the kernel clone and the 11 worktrees move out of ~/Projects/walleye-build / ~/Projects/surya-audio into ~/Projects/linux-phone-oco/linux (the one clone) and ~/.local/share/agent-worktrees/linux/ (docs MAP.md), in ONE change that covers every path that names them (device.toml [images.ufs-root] kernel_tree, tests/host/ufs-match-android.sh, build/*.sh, build/README.md, tools, procedures, AGENTS.md: the 155 places): grep for the old paths finds none outside history rows; (3) tests/host/ufs-match-android.sh passes from the new place; no [images.*] sha256 changes; the surya lane's use of the clone is asked first (their coordinator: the clone is shared); done between keeper runs: ask the coordinator for the moment; review
+
+Rank
+: 2
+
+
+<a id="walleye-kernel-patches-removed"></a>
+### The kernel/*.patch files go: each series is proved equal to its topic branch, then removed with a pointer in kernel/README.md
+
+Status
+: open
+
+Note
+: THE AUTHOR'S WORD, 2026-11-23 (relayed by the Top Coordinator): 'i think they arent as productive as they can be because they still use old ways': walleye goes fully onto the new structure, at the FRONT of the builder queue right after the stage 2 watchdog/USB fix that stage 2 run 6 decides; none of it needs the phone, so a builder runs on it alongside the phone work. Item 2 of the Top Coordinator's list.
+
+About
+: walleye-kernel-dts
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: for each of the series files under kernel/ (audio-adsp-q6, drv2624, fuel-gauge-rfc, the panel driver panel-samsung-s6e3fa5.c and any other .patch: 18 .patch files at the time of the order): FIRST prove the series' content equals its pushed branch (git format-patch of topic/ITEM or git diff of the files against the series' bytes: equal, or the difference named and judged: a branch that is NEWER is fine, a series that is NEWER than its branch is pushed first); THEN remove the files, keep kernel/README.md with one line per series naming its topic/ITEM branch and the commit it was proved equal at; build/build-kernel.sh and every script or test that applied or read a kernel/ .patch (the fuel gauge 'git am -3' path) follows the branch instead or is retired with the item that owns it, said in the PR; the images already declared still rebuild: no [images.*] sha256 changes; dry run, check --host, tests, review
+
+Rank
+: 2
+
+
+<a id="walleye-next-image-from-an-int-tag"></a>
+### The next image (the stage 2 fix image, decided by run 6) is built from a live list's int/ tag, and its [images.*] row names the tag; from then on no new kernel comes from a worktree by hand
+
+Status
+: open
+
+Note
+: THE AUTHOR'S WORD, 2026-11-23 (relayed by the Top Coordinator): 'i think they arent as productive as they can be because they still use old ways': walleye goes fully onto the new structure, at the FRONT of the builder queue right after the stage 2 watchdog/USB fix that stage 2 run 6 decides; none of it needs the phone, so a builder runs on it alongside the phone work. Item 3 of the Top Coordinator's list; the Top wants ONE report, when this image exists. Blocked on nothing: if the stage 2 fix is not decided yet, the live lists' tags are made first.
+
+About
+: walleye-kernel-dts
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) the live lists ufs-off and ufs-on of kernel/topics.toml are assembled to tags int/walleye/LIST/v7.3/N and pushed (rhizoid assemble, or lpoco bringup kernel assemble once lab-tools' kernel-assemble-reproduces-and-names lands: v0.45.0), read back with ls-remote; (2) the next image (the one the stage 2 fix needs: its kernel change is a topic or a wip branch on the fork, never an edit of a worktree) is built from the tag by build scripts that take the tag, not a tree path; its [images.*] row carries kernel_tag and the sha256, built twice identical; (3) 'rhizoid status' shows no walleye kernel on a worktree by hand; the report to the Top Coordinator comes when this image exists
+
+Rank
+: 3
+
+
+<a id="walleye-retire-build-scripts"></a>
+### Each build-*.sh is retired once its image rebuilds from an int/ tag, byte for byte, and the [images.*] row says so
+
+Status
+: open
+
+Note
+: THE AUTHOR'S WORD, 2026-11-23 (relayed by the Top Coordinator): 'i think they arent as productive as they can be because they still use old ways': walleye goes fully onto the new structure, at the FRONT of the builder queue right after the stage 2 watchdog/USB fix that stage 2 run 6 decides; none of it needs the phone, so a builder runs on it alongside the phone work. Item 5 of the Top Coordinator's list (the decision of the steward's review: a build script an [images.*] row names retires only when the image rebuilds byte for byte from an int/ tag).
+
+Blocked by
+: walleye-next-image-from-an-int-tag
+
+About
+: walleye-kernel-dts
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: for each build script that an [images.*] row names: rebuild that image from its kernel_tag with the new build and compare sha256 with the declared one: equal: the script is removed in the same change and the row says it is rebuilt from the tag; different: the difference is named (the script stays); the display, ramroot and bisect scripts of the dead experiments are listed and judged one by one (kept as history in research, or removed with a recorded reason); nothing retires a script whose image has not rebuilt equal
+
+Rank
+: 4
