@@ -6363,3 +6363,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-stage2-repeat-audit-29-steps"></a>
+### walleye-stage2-repeat-audit-29-steps
+
+Date
+: 2026-11-23
+
+Brief
+: Of the 29 steps of stage 2, three assumed a first run (9, 16, 18) and are amended; every other step is state-independent or a first-run expectation of the boot itself
+
+Question
+: Which steps of the stage 2 command assume the state of a first run, against the phone's state after rerun 3?
+
+Found
+: Walked every step: 9 (amended PR 841), 16 (amended now: boot_a reads back as the image, no other partition changed, whether or not boot_a changed) and 18 (amended PR 836) were the only ones comparing against a first-run value; 8, 12-14, 19, 20, 23, 24 walked by a test against stand-in adb and fastboot with the post-run-1 flags and boot_a = image; GPT checks hold no bit value. Steps 21-28 after set_active are first-run expectations of the boot itself, listed with what each expects. What the bootloader leaves after set_active of Android's slot is not known yet.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/

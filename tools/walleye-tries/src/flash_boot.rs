@@ -526,6 +526,48 @@ fn boot_partition_can_be_flashed(
     }
 }
 
+/// Check 16's decision on the six partitions' hashes read before and after the flash (`name sha256` per line): no partition other than `target` changed. `target` itself may have changed
+/// (a stock boot partition that took the image) or not (it already held the image, and a flash of the same bytes changes nothing: rerun 3 of 2026-11-23 stopped on demanding a change). That `target`
+/// reads back as the image is checked by the caller from its own read.
+fn only_the_target_may_change(
+    before: &str,
+    after: &str,
+    target: &str,
+    image: &str,
+) -> Result<String, String> {
+    let (b, a): (Vec<&str>, Vec<&str>) = (before.lines().collect(), after.lines().collect());
+    let name = |l: &str| l.split_whitespace().next().unwrap_or("?").to_string();
+    if b.is_empty()
+        || !b.iter().any(|l| name(l) == target)
+        || b.len() != a.len()
+        || b.iter().zip(&a).any(|(x, y)| name(x) != name(y))
+    {
+        return Err(format!("the partitions read after the flash are not the ones read before:\n{before}\nthen\n{after}"));
+    }
+    if !a.iter().any(|l| {
+        l.split_whitespace()
+            .eq([target, image.to_lowercase().as_str()])
+    }) {
+        return Err(format!(
+            "{target} does not read as {image} in the list read after the flash:\n{after}"
+        ));
+    }
+    let changed: Vec<String> = b
+        .iter()
+        .zip(&a)
+        .filter(|(x, y)| x != y)
+        .map(|(x, _)| name(x))
+        .collect();
+    if let Some(other) = changed.iter().find(|n| *n != target) {
+        return Err(format!("the partitions that changed with the flash are {changed:?}, expected none but {target}: {other} changed"));
+    }
+    Ok(if changed.is_empty() {
+        format!("{target} held the image already and the flash changed no partition")
+    } else {
+        format!("only {target} changed, no other boot, dtbo or vbmeta partition")
+    })
+}
+
 /// The line an init carries when it is made for stage 2: it mounts the system partition of the slot it is booted from. The gate wants this declared, not only the old refusal gone
 /// (an init whose refusal is worded differently would pass a gate that only looks for the old words).
 pub const BOOTED_SLOT_MARK: &str = "walleye-init: mounts-the-booted-slot";
@@ -984,16 +1026,8 @@ impl FlashBoot {
             }
             u.read_parts("parts-readback.txt")?;
             let (a, b) = (u.saved("parts-before.txt")?, u.saved("parts-readback.txt")?);
-            let changed: Vec<String> = a
-                .lines()
-                .zip(b.lines())
-                .filter(|(x, y)| x != y)
-                .map(|(x, _)| x.split_whitespace().next().unwrap_or("?").to_string())
-                .collect();
-            if changed != [target.clone()] {
-                return Err(format!("the partitions that changed with the flash are {changed:?}, expected only {target}"));
-            }
-            println!("  {target} reads back as the image; no other boot, dtbo or vbmeta partition changed");
+            let said = only_the_target_may_change(&a, &b, &target, &u.s.image_sha256)?;
+            println!("  {target} reads back as the image; {said}");
             Ok(())
         }
     }
@@ -1208,7 +1242,7 @@ impl FlashBoot {
         move || lab.android_is_back()
     }
 
-    /// On Android again: the boot, dtbo and vbmeta partitions are as the flash left them (only the flashed boot differs from before) and the GPT is read again.
+    /// On Android again: the boot, dtbo and vbmeta partitions are as the flash left them (nothing differs from the read after the flash) and the GPT is read again.
     pub fn the_partitions_are_as_the_flash_left_them(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
@@ -2207,6 +2241,211 @@ mod tests {
                 || said.contains("key"),
             "{said}"
         );
+    }
+
+    // ---- check 16 against a stand-in phone: partitions are files, `adb exec-out CMD` runs CMD here (item walleye-stage2-check-16-and-repeat-audit) ----
+
+    const PARTS: [&str; 6] = [
+        "boot_a", "boot_b", "dtbo_a", "dtbo_b", "vbmeta_a", "vbmeta_b",
+    ];
+
+    /// A bench whose phone holds the six partitions as files: boot_a is `boot_a_holds` ("image" or "stock"), the others a line of their own.
+    fn phone_with_partitions(name: &str, boot_a_holds: &str) -> (FlashBoot, std::path::PathBuf) {
+        let (f, d) = bench(name, "b");
+        let by = d.join("by-name");
+        std::fs::create_dir_all(&by).unwrap();
+        let adb = d.join("adb");
+        executable(
+            &adb,
+            "#!/bin/sh\nshift 2\ncase \"$1\" in exec-out) shift; exec sh -c \"$*\";; esac\nexit 0\n",
+        );
+        let mut s = (*f.s).clone();
+        s.adb = adb.to_string_lossy().into_owned();
+        s.by_name = by.to_string_lossy().into_owned();
+        let f = FlashBoot::with_programs(s, "ssh", &d.join("tad").to_string_lossy());
+        f.lab.save(ANDROID_SLOT_FILE, "b").unwrap();
+        for p in PARTS {
+            let bytes = match (p, boot_a_holds) {
+                ("boot_a", "image") => std::fs::read(&f.s.image).unwrap(),
+                _ => format!("{p} as the phone has it, {boot_a_holds}").into_bytes(),
+            };
+            std::fs::write(by.join(p), bytes).unwrap();
+        }
+        (f, d)
+    }
+
+    /// The text `read_parts` keeps, from the files now in the by-name folder.
+    fn parts_text(f: &FlashBoot) -> String {
+        PARTS
+            .iter()
+            .map(|p| {
+                let sum = host::sha256_of(std::path::Path::new(&f.by_name_of(p))).unwrap();
+                format!("{p} {sum}")
+            })
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
+    #[test]
+    fn a_flash_of_the_image_boot_a_already_holds_changes_nothing_and_check_16_passes() {
+        // rerun 3: boot_a was e337de53 before the flash and after it
+        let (f, _d) = phone_with_partitions("c16-repeat", "image");
+        f.lab.save("parts-before.txt", &parts_text(&f)).unwrap();
+        (f.the_partition_reads_back_as_the_image())().unwrap();
+    }
+
+    #[test]
+    fn a_flash_that_replaced_the_stock_boot_a_still_passes_check_16() {
+        let (f, _d) = phone_with_partitions("c16-first", "stock");
+        f.lab.save("parts-before.txt", &parts_text(&f)).unwrap();
+        std::fs::copy(&f.s.image, f.by_name_of("boot_a")).unwrap();
+        (f.the_partition_reads_back_as_the_image())().unwrap();
+    }
+
+    #[test]
+    fn check_16_fails_when_boot_a_differs_from_the_image_after_the_flash() {
+        let (f, _d) = phone_with_partitions("c16-differs", "image");
+        f.lab.save("parts-before.txt", &parts_text(&f)).unwrap();
+        std::fs::write(f.by_name_of("boot_a"), b"not the image").unwrap();
+        let said = (f.the_partition_reads_back_as_the_image())().unwrap_err();
+        assert!(said.contains("reads back as"), "{said}");
+    }
+
+    #[test]
+    fn check_16_fails_when_dtbo_changed_with_the_flash_even_though_boot_a_holds_the_image() {
+        let (f, _d) = phone_with_partitions("c16-dtbo", "image");
+        f.lab.save("parts-before.txt", &parts_text(&f)).unwrap();
+        std::fs::write(f.by_name_of("dtbo_a"), b"a dtbo the flash changed").unwrap();
+        let said = (f.the_partition_reads_back_as_the_image())().unwrap_err();
+        assert!(said.contains("dtbo_a"), "{said}");
+    }
+
+    #[test]
+    fn check_16_fails_when_the_other_slots_boot_changed_with_the_flash() {
+        let (f, _d) = phone_with_partitions("c16-boot-b", "image");
+        f.lab.save("parts-before.txt", &parts_text(&f)).unwrap();
+        std::fs::write(f.by_name_of("boot_b"), b"boot_b the flash changed").unwrap();
+        let said = (f.the_partition_reads_back_as_the_image())().unwrap_err();
+        assert!(said.contains("boot_b"), "{said}");
+    }
+
+    // ---- THE REPEAT AUDIT (item walleye-stage2-check-16-and-repeat-audit): the command's steps that read or write a partition, a flag or the slot, run in order against the state the phone is in after
+    // rerun 3: boot_a holds the image (e337de53), slot a's flags are what the flash of run 1 left (retry 1, successful no: research walleye-display-s6e3fa5, stage2-run.log), Android on b, the stock backup on file ----
+
+    /// What `fastboot getvar all` said after run 1's flash (printed in that run's log), sorted as `slot_lines` keeps it.
+    const FLAGS_AFTER_RUN_1: &str = "current-slot:b\nslot-retry-count:a:1\nslot-retry-count:b:0\nslot-successful:a:no\nslot-successful:b:yes\nslot-unbootable:a:no\nslot-unbootable:b:no\n";
+
+    /// The phone of the repeat: partitions as files, a stateful fastboot (flags in a file; `flash` copies the image, `set_active X` does what run 1's reading says the bootloader does), adb answering the slot, the stock backup on file.
+    fn the_phone_after_rerun_3(name: &str, flags: &str) -> (FlashBoot, std::path::PathBuf) {
+        let (f, d) = phone_with_partitions(name, "image");
+        std::fs::write(d.join("fb-state"), flags).unwrap();
+        executable(
+            &d.join("adb"),
+            "#!/bin/sh\nshift 2\ncase \"$1\" in\n exec-out) shift; exec sh -c \"$*\";;\n shell) case \"$2\" in 'getprop ro.boot.slot_suffix') echo _b;; esac;;\nesac\nexit 0\n",
+        );
+        executable(
+            &d.join("fastboot"),
+            &"#!/bin/sh\nD=@D@\necho \"$@\" >> $D/fastboot.calls\nS=$D/fb-state\ncase \"$1\" in devices) printf 'SER1\\tfastboot\\n'; exit 0;; esac\ncase \"$3\" in\n getvar) case \"$4\" in\n  current-slot) echo \"current-slot: $(sed -n 's/^current-slot://p' $S)\" >&2;;\n  all) sed 's/^/(bootloader) /' $S >&2;;\n esac;;\n flash) cp \"$5\" \"$D/by-name/$4\"; X=\"${4#boot_}\"; sed -i -e \"s/^slot-successful:$X:.*/slot-successful:$X:no/\" -e \"s/^slot-retry-count:$X:.*/slot-retry-count:$X:1/\" $S;;\n set_active) X=\"$4\"; sed -i -e \"s/^current-slot:.*/current-slot:$X/\" -e \"s/^slot-successful:$X:.*/slot-successful:$X:no/\" -e \"s/^slot-retry-count:$X:.*/slot-retry-count:$X:7/\" -e \"s/^slot-unbootable:$X:.*/slot-unbootable:$X:no/\" $S;;\nesac\nexit 0\n"
+                .replace("@D@", &d.to_string_lossy()),
+        );
+        let backup = d.join("backup");
+        std::fs::create_dir_all(&backup).unwrap();
+        std::fs::write(backup.join("boot_a.img"), b"the stock boot_a").unwrap();
+        let stock = host::sha256_of(&backup.join("boot_a.img")).unwrap();
+        std::fs::write(backup.join("sha256sums"), format!("{stock}  boot_a.img\n")).unwrap();
+        let mut s = (*f.s).clone();
+        s.backup = backup;
+        (
+            FlashBoot::with_programs(s, "ssh", &d.join("tad").to_string_lossy()),
+            d,
+        )
+    }
+
+    #[test]
+    fn every_step_that_reads_or_writes_the_slot_passes_against_the_phone_after_rerun_3() {
+        let (f, d) = the_phone_after_rerun_3("repeat-walk", FLAGS_AFTER_RUN_1);
+        (f.the_slot_is_read_by_adb())().unwrap(); // 8
+        (f.the_slot_partitions_are_read_before())().unwrap(); // 9: boot_a holds the image, the backup on file
+        (f.the_guard_holds())().unwrap(); // 12
+        (f.the_slot_flags_are_read("slots-before.txt"))().unwrap(); // 13
+        (f.the_boot_image_is_flashed())().unwrap(); // 14
+        (f.the_partition_reads_back_as_the_image())().unwrap(); // 16
+        (f.the_flash_changed_no_flag())().unwrap(); // 18: a stays retry 1, successful no
+        (f.the_slot_is_made_active())().unwrap(); // 19
+        (f.the_flags_are_the_switch_and_nothing_else())().unwrap(); // 20: a: successful no, retry 7; b untouched
+        (f.the_switch_is_made_back())().unwrap(); // the way back, in fastboot
+        (f.the_flags_are_back())().unwrap();
+        let c = calls(&d);
+        assert_eq!(
+            c.lines().filter(|l| l.contains(" flash ")).count(),
+            1,
+            "{c}"
+        );
+        assert!(
+            c.contains("set_active a") && c.contains("set_active b"),
+            "{c}"
+        );
+    }
+
+    #[test]
+    fn the_same_walk_passes_from_the_first_run_state_too() {
+        let first = FLAGS_AFTER_RUN_1
+            .replace("retry-count:a:1", "retry-count:a:0")
+            .replace("successful:a:no", "successful:a:yes");
+        let (f, _d) = the_phone_after_rerun_3("first-walk", &first);
+        std::fs::write(f.by_name_of("boot_a"), b"the stock boot_a").unwrap(); // stock, as before any flash
+        (f.the_slot_is_read_by_adb())().unwrap();
+        (f.the_slot_partitions_are_read_before())().unwrap();
+        (f.the_guard_holds())().unwrap();
+        (f.the_slot_flags_are_read("slots-before.txt"))().unwrap();
+        // the flash resets slot a's flags as run 1 printed
+        (f.the_boot_image_is_flashed())().unwrap();
+        (f.the_partition_reads_back_as_the_image())().unwrap();
+        (f.the_flash_changed_no_flag())().unwrap();
+        (f.the_slot_is_made_active())().unwrap();
+        (f.the_flags_are_the_switch_and_nothing_else())().unwrap();
+        (f.the_switch_is_made_back())().unwrap();
+        (f.the_flags_are_back())().unwrap();
+    }
+
+    #[test]
+    fn leftovers_of_an_earlier_run_are_cleared_at_step_8_and_an_unfinished_switch_stops_it() {
+        let (f, _d) = the_phone_after_rerun_3("leftovers", FLAGS_AFTER_RUN_1);
+        f.lab.save("flashed.txt", "boot_a old").unwrap();
+        f.lab.save("parts-before.txt", "boot_a old").unwrap();
+        (f.the_slot_is_read_by_adb())().unwrap();
+        assert!(f.marked("flashed.txt").is_none() && f.marked("parts-before.txt").is_none());
+        f.lab.save(SWITCHED_FILE, "a").unwrap();
+        assert!((f.the_slot_is_read_by_adb())()
+            .unwrap_err()
+            .contains("never switched back"));
+    }
+
+    #[test]
+    fn only_the_target_may_change_decides_on_lists_the_target_is_in() {
+        let (img, other) = ("ab".repeat(32), "cd".repeat(32));
+        let list = |a: &str, d: &str| format!("boot_a {a}\nboot_b {other}\ndtbo_a {d}");
+        let held = list(&img, &other);
+        assert!(only_the_target_may_change(&held, &held, "boot_a", &img).is_ok());
+        assert!(only_the_target_may_change(&list(&other, &other), &held, "boot_a", &img).is_ok());
+        assert!(only_the_target_may_change(&held, &list(&img, &img), "boot_a", &img).is_err());
+        assert!(only_the_target_may_change(&held, &list(&other, &other), "boot_a", &img).is_err());
+        assert!(only_the_target_may_change("", "", "boot_a", &img).is_err());
+        assert!(only_the_target_may_change(&held, "boot_a ab", "boot_a", &img).is_err());
+        assert!(only_the_target_may_change(&held, &held, "boot_x", &img).is_err());
+    }
+
+    #[test]
+    fn the_gpt_checker_takes_the_slot_bits_of_a_repeat_as_it_takes_a_first_run() {
+        // slot a's bits after run 1's flash differ from the stock ones; the checker holds no value of the bits, only where they may change
+        let mut repeat = before();
+        for base in [P_ENT, b_ent_of(128)] {
+            repeat[base + 54] = 0x01;
+        }
+        fix_crcs(&mut repeat);
+        assert!(gpt_switch_only(&repeat, &repeat).is_ok());
+        assert!(gpt_switch_only(&repeat, &switched()).is_ok());
+        assert!(gpt_switch_only(&switched(), &repeat).is_ok());
     }
 }
 

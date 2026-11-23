@@ -10400,10 +10400,10 @@ Rank
 ### Stage 2's check 16 accepts a flash that changes nothing because boot_a already holds the image, and EVERY step of the command is audited for the state of a repeat, against the state the phone is in now
 
 Status
-: open
+: done
 
 Note
-: Rerun 3 (keeper local_176f0d5f, go to 14:33; PR 845) stopped at check 16 AFTER one fastboot flash of the same bytes: checks 1-15 passed, nothing past the flash ran (no set_active, no way back needed), Android on b. The keeper's second option (flash the stock boot_a back first) is rejected: an extra write to restore a precondition when the check, not the phone, is wrong. The coordinator asks for the audit because each stop so far was a different first-run assumption met by a repeat (run 1 check 18, rerun 2 check 9, rerun 3 check 16) and a fourth would burn the go: the whole command is walked against the phone's state now before the next rerun. The run item is off the phone queue until this lands; the coordinator puts it back and extends the go (14:33).
+: DONE 2026-11-23 (walleye-builder): check 16 now passes when boot_a already held the image and fails when boot_a does not read back as it or any other partition changed (only_the_target_may_change, 5 tests on a stand-in adb); THE REPEAT AUDIT is research walleye-stage2-repeat-audit-29-steps (steps 9, 16, 18 were the first-run assumptions, all amended; steps 8-20 and the way back walked by a test against the state after rerun 3); dry run 29/29, lpoco-attended check --host ok, 299 tests, clippy, fmt. The run item can go back on the phone queue.
 
 About
 : walleye-bootimage
