@@ -10640,7 +10640,7 @@ Proof
 : (1) the live lists ufs-off and ufs-on of kernel/topics.toml are assembled to tags int/walleye/LIST/v7.3/N and pushed (rhizoid assemble, or lpoco bringup kernel assemble once lab-tools' kernel-assemble-reproduces-and-names lands: v0.45.0), read back with ls-remote; (2) the next image (the one the stage 2 fix needs: its kernel change is a topic or a wip branch on the fork, never an edit of a worktree) is built from the tag by build scripts that take the tag, not a tree path; its [images.*] row carries kernel_tag and the sha256, built twice identical; (3) 'rhizoid status' shows no walleye kernel on a worktree by hand; the report to the Top Coordinator comes when this image exists
 
 Rank
-: 4
+: 1
 
 
 <a id="walleye-retire-build-scripts"></a>
@@ -11258,9 +11258,6 @@ About
 Opened
 : 2026-11-23
 
-Needs
-: build
-
 Proof
 : test walleye-stage2-no-wdt-reset (still to write: a stage 2 boot stays up 120 s with bootreason not watchdog)
 
@@ -11366,3 +11363,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-stage2-production-image"></a>
+### The production stage 2 image: the debug init's petters first, no telnet gadget, the kernel from a live list's int/ tag, a short cmdline, the slot from the bootloader's sources; one rehearsal, one run
+
+Status
+: open
+
+Note
+: Next after stage 2 run 11 (PR 933): the debug image is for finding out, the production image is for staying. Also from run 11: build outputs (the image, walleye-reboot) are untracked and absent in a fresh worktree: the keepers link ~/Projects/walleye-build; a small item (walleye-build-images-link) makes that link part of the worktree setup. A question for the author that is NOT this item's: whether the phone should boot Linux by default (set_active a kept) or return to Android: today the way back always returns to Android b.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) the init for the image that STAYS on the phone: the petter as its FIRST act (reuse the debug init's supervisor over every /dev/watchdog*: item walleye-init-pets-from-first-act, research walleye-android-watchdog-read-fix: Android pets one non-secure WDT0, bark 11 s, bite 14 s, pet 10 s), NO telnet and no debug gadget (the lab's ssh by the Alpine root is the way in), the slot read from the bootloader's sources as in PR 907, the header cmdline under the budget; (2) the kernel taken from the live list's int/ tag (walleye-next-image-from-an-int-tag: int/walleye/ufs-on/v7.3/N, assembled by rhizoid assemble, pushed, read back; the two pm8916_wdt review fixes included) with kernel_tag in the image's [images.*] row; the image built twice identical, declared in device.toml, the stage 2 command and its rehearsal name it by one line each; (3) the rehearsal for real (read only) passes, the four-state walk runs again, then ONE run under a go with outcomes: all 29 steps pass with the production image: STAGE 2 IS DONE for the image that stays; (4) dry run, check --host, tests, clippy, fmt, review; no phone for the builder
+
+Rank
+: 1

@@ -7141,3 +7141,24 @@ Done
 
 Considered
 : next: production init image (petter first, no telnet) as the next stage 2 image under a new go; make fresh worktrees find build/images (untracked) so a keeper need not link ~/Projects/walleye-build
+
+---
+
+
+<a id="2026-11-23-walleye-stage2-done-for-the-debug-image"></a>
+### Stage 2 done for the debug image: our kernel and Alpine root boot from the phone's own storage on slot a and the way back returns
+
+Entry date
+: 2026-11-23
+
+Done
+: Stage 2 run 11 (image a0a55cd0, PR 933) passed all 29 steps: boot_a holds our image, set_active a by the bootloader's own switch, the kernel started (host USB log: the debug gadget, then Alpine), the slot read from the bootloader's root=PARTUUID equal to fastboot's current-slot, /dev/sda22 mounted read-only under the overlay, ssh login as root, the GPT of the new slot differing only by the switch (check 22 pairs by name across six disks: 44 entries' slot bits and 42 type GUIDs, CRCs right), the way back (the RESTART2 tool, set_active b, fastboot reboot) bringing Android b home, the boot chain read again equal to the stored set. The road: runs 1-7 stopped on checks that assumed the state of a first run (18, 9, 16, 18 again, 8: five stops, one sign), on a watchdog we never saw (run 7: no ssh, bootreason watchdog), run 8 (the debug image, kernel runs, telnet) found the bootloader cuts the command line at the same word (slot_suffix lost) and the init refused for want of the slot, run 9 (slot from root=PARTUUID) booted our root, run 10 passed step 21 and stopped on check 22's per-disk pairing, run 11 passed all. The tools that made it possible: the lab host's USB log, the debug init's gadget, the by-state walk, the rehearsals, the Android kernel as a read-only reference (LineageOS 22.1, 113bd1cfa6f5).
+
+Considered
+: Opening a go for e337de53 a third time (no: it could not tell anything new apart, the debug image could). A hardcoded slot in the image (no: it hides the cause and works in slot a only).
+
+Rejected
+: Restoring the stock boot_a before each run (a write to satisfy a check). Reading the pstore as the evidence channel after a watchdog bite (a hard reset keeps nothing).
+
+About
+: walleye-bootimage
