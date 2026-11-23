@@ -7705,10 +7705,10 @@ Rank
 ### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
 
 Status
-: done
+: in-progress
 
 Note
-: DONE 2026-11-19 (about 21:05 CET): the author's go bought ONE try and it ran: the card is readable on mainline. Result: research walleye-ufs-try1-card-readable. The go is spent: a second try needs the author's word again (through the Top Coordinator), after the fix and the questions of items walleye-ufs-link-check-works-slow and walleye-ufs-why-gear1.
+: THE GO IS OPEN FOR UFS TRY 2 (2026-11-23, the coordinator, under the author's standing go, decision 2026-11-22-walleye-author-go-per-stage-not-per-step; the stage 1 boot passed all 26 steps on 2026-11-23, research walleye-rootfs-boots-run-5-passed): the one command procedures/ufs-matched-image-on-the-pixel-2.rs (item walleye-ufs-try-2-one-command, host half run, dry run 23 steps) for the matched UFS-on image whose sha256 is 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 and ONLY that image (device.toml [images.ufs-match], verified on disk). It writes nothing: the same read-only boot as try 1 with the questions of try 1 added (the gear under load and after 2 s idle, the card's identity and LUNs) and the proof the card is unharmed (the GPT read before and after, hash-equal, the boot chain and both slots' flags equal, Android back). KEEPER: a worktree from main with ln -s ~/Projects/walleye-build build/images, the lease, battery rule first, no short timeout; tell the Top Coordinator (local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'boot: starting' and ONE result line; if a check fails the run stops and its way back runs: write the research row naming why, release the lease, no second run without the coordinator; if it passes, record the result as research walleye-ufs-try-2-... (the gear readings in it) and mark items walleye-ufs-try-2 and walleye-ufs-try-2-one-command done. If land refuses on generated-data conflicts tell the coordinator the branch. Never the bootloader partitions, the GPT written by our code, erase or purge. | HISTORY: DONE 2026-11-19 (about 21:05 CET): the author's go bought ONE try and it ran: the card is readable on mainline. Result: research walleye-ufs-try1-card-readable. The go is spent: a second try needs the author's word again (through the Top Coordinator), after the fix and the questions of items walleye-ufs-link-check-works-slow and walleye-ufs-why-gear1.
 
 Waits
 : the lane coordinator's decision on a second try: the one try is spent (research walleye-ufs-match-tried-version-ok-link-stays-gear1); the link stayed HS_GEAR1/HIBERN8; no retry without a new go and a reason
@@ -7726,13 +7726,13 @@ Proof
 : the image's own dmesg: UFS_HW_VERSION line, PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge
 
 Rank
-: 1
+: 4
 
 Witness
 : person
 
 Go until
-: 2026-11-19T21:39:31+01:00
+: 2026-11-23T10:24:15+01:00
 
 
 <a id="walleye-ci-check-device-toml"></a>
@@ -8956,7 +8956,7 @@ Status
 : open
 
 Note
-: A second boot of the same image confirms the first was no fluke and that the card is unharmed. NOT started without the author's word. 2026-11-19 ASK from the upstreams coordinator (docs #714): before they take an OPP table for msm8998.dtsi up as a patch, a measurement: the gear under load, or a dtsi with an OPP table holding G3. Both belong to this try or its image (walleye-ufs-opp-table-image). Still needs the author's word for a second try. 2026-11-20 (coordinator): blocked on walleye-ufs-try-2-one-command (the one command, tested first); then the Top Coordinator brings it to the author for his go. THE AUTHOR'S STANDING GO (2026-11-22, relayed by the Top Coordinator): "when its ready, you have my go, dont come back to me with go'es like this, blocking the process of bringing up with my go'es on every little step" (the author, 2026-11-22, relayed by the Top Coordinator). It covers read-only UFS-on tries of the same kind: this one writes nothing, is tested first and is one command (procedures/ufs-matched-image-on-the-pixel-2.rs, built PR 683, host-side half run PR 685). It runs AFTER the stage 1 boot (item walleye-install-rootfs-boots-try); the coordinator opens the go on walleye-try-ufs-match for the matched image's sha256 with a short until and a keeper runs it, no further ask. Decision 2026-11-22-walleye-author-go-per-stage-not-per-step.
+: A second boot of the same image confirms the first was no fluke and that the card is unharmed. NOT started without the author's word. 2026-11-19 ASK from the upstreams coordinator (docs #714): before they take an OPP table for msm8998.dtsi up as a patch, a measurement: the gear under load, or a dtsi with an OPP table holding G3. Both belong to this try or its image (walleye-ufs-opp-table-image). Still needs the author's word for a second try. 2026-11-20 (coordinator): blocked on walleye-ufs-try-2-one-command (the one command, tested first); then the Top Coordinator brings it to the author for his go. THE AUTHOR'S STANDING GO (2026-11-22, relayed by the Top Coordinator): "when its ready, you have my go, dont come back to me with go'es like this, blocking the process of bringing up with my go'es on every little step" (the author, 2026-11-22, relayed by the Top Coordinator). It covers read-only UFS-on tries of the same kind: this one writes nothing, is tested first and is one command (procedures/ufs-matched-image-on-the-pixel-2.rs, built PR 683, host-side half run PR 685). It runs AFTER the stage 1 boot (item walleye-install-rootfs-boots-try); the coordinator opens the go on walleye-try-ufs-match for the matched image's sha256 with a short until and a keeper runs it, no further ask. Decision 2026-11-22-walleye-author-go-per-stage-not-per-step. | 2026-11-23: the stage 1 boot passed; the go for this try is open on walleye-try-ufs-match until 2026-11-23T10:24:15+01:00 (matched image 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5); a keeper runs it.
 
 Blocked by
 : walleye-install-rootfs-boots-try
