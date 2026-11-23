@@ -10297,10 +10297,10 @@ Rank
 ### Stage 2 run 1: what exactly changed in the GPT when fastboot flash boot_a reset slot a's flags? Read it again from Android and compare with the run's GPT read before the flash
 
 Status
-: open
+: done
 
 Note
-: The Top Coordinator's order after stage 2 run 1 (PR 829 replayed): check exactly what changed in the GPT; if anything other than slot a's attribute bits changed, STOP and tell the Top.
+: proven by research walleye-stage2-run-1-gpt-after-flash-finding: only sda boot_a attribute byte and its CRCs differ; other five disks equal; chain equal; phone on Android slot b
 
 About
 : walleye-bootimage
