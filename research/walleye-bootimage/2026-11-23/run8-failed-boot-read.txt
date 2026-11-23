@@ -1,0 +1,12 @@
+---host-usb-log (journalctl -k --since @1795451799, lines with '3-2')
+Nov 23 17:36:39 grig kernel: usb 3-2: USB disconnect, device number 51
+Nov 23 17:36:55 grig kernel: usb 3-2: new high-speed USB device number 52 using xhci_hcd
+Nov 23 17:36:55 grig kernel: usb 3-2: New USB device found, idVendor=1d6b, idProduct=0104, bcdDevice= 1.00
+Nov 23 17:36:55 grig kernel: usb 3-2: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+Nov 23 17:36:55 grig kernel: usb 3-2: Product: Pixel 2 walleye (stage 2 debug init)
+Nov 23 17:36:55 grig kernel: usb 3-2: Manufacturer: linux-phone-oco
+Nov 23 17:36:55 grig kernel: usb 3-2: SerialNumber: REDACTED
+Nov 23 17:36:55 grig kernel: cdc_acm 3-2:1.0: ttyACM0: USB ACM device
+Nov 23 17:36:55 grig kernel: cdc_ether 3-2:1.2 usb0: register 'cdc_ether' at usb-0000:0a:00.3-2, CDC Ethernet Device, 02:42:ac:10:2b:02
+Nov 23 17:36:55 grig kernel: cdc_ether 3-2:1.2 enp10s0f3u2i2: renamed from usb0
+
