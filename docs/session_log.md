@@ -7219,3 +7219,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-check-22-xbl-cross-disk-item-closed-on-run-12"></a>
+### Check 22 xbl cross-disk item closed on run 12
+
+Entry date
+: 2026-11-23
+
+Done
+: Read the item on main: the checker fix (gpt_switch_only_across) is already landed, and run 12 passed all 29 steps with check 22 and 28 (6 disks, 0 slot-bit/type-GUID diffs). Marked the item done; no code change needed.
+
+Considered
+: Rebuilding the fix: not needed, it is on main with its tests.
+
+About
+: walleye-bootimage
