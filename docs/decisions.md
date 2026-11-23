@@ -3027,3 +3027,31 @@ About
 
 Tracked by
 : walleye-install-stage2-boot-image
+
+
+<a id="2026-11-23-walleye-reboot-reason-send-the-string-first"></a>
+### 2026-11-23-walleye-reboot-reason-send-the-string-first
+
+Date
+: 2026-11-23
+
+Brief
+: First fix: the rootfs sends 'bootloader' through reboot(2) RESTART2; no dts change; IMEM word and warm reset only if that one try still misses
+
+Decision
+: Put a small static reboot-with-command tool in the Alpine rootfs and use it in the stage 1 way back instead of busybox 'reboot bootloader'. Prove offline from the tool's strace-free text and the dtb check; try once in the RAM boot. Only if the bootloader still does not stop, add the syscon-reboot-mode IMEM node (0x146bf000+0x65c = 0x77665500) and reboot=warm, one change per try.
+
+Why
+: Busybox source shows the argument is dropped, so the existing dtb was never exercised; the PMIC byte already equals Android's (qcom-pon.c vs qpnp_pon_set_restart_reason); a userland fix is the cheapest, certain-progress step and settles the biggest unknown (does the PMIC byte alone work).
+
+Rejected
+: Adding the IMEM syscon node and warm reset first: two unproven changes at once, and the imem node is unneeded if the PMIC byte works. Kernel patch to pass a default command: hides the cause, not upstreamable. Writing the PMIC register by hand from userland (spmi debugfs): bypasses the driver we want to prove. Using fastboot-less way back only: stage 2 safety is the other item.
+
+About
+: walleye-bootimage
+
+Research
+: walleye-reboot-reason-bootloader-read-finding
+
+Scope
+: walleye lane builder and keeper
