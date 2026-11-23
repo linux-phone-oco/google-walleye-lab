@@ -6557,3 +6557,25 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-23/
+
+
+<a id="walleye-stage2-run7-stops-at-step-21-no-ssh-watchdog-fallback"></a>
+### walleye-stage2-run7-stops-at-step-21-no-ssh-watchdog-fallback
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 run 7 (e337de53): steps 1-20 pass incl. the read-back; slot a gave no ssh in 170 s; phone back on Android b by itself in about 1 min, bootreason watchdog, pstore empty
+
+Question
+: Does slot a boot our stage 2 image to ssh in the one rerun after run 6's adb stall?
+
+Found
+: Run 7 (15:10 to 15:15, image e337de53, under the go of PR 870): checks 1-20 passed, boot_a read back equal (flash a no-op), set_active a at 15:12:32, flags as the switch. Step 21: no ssh at 172.16.43.1 within 170 s; sending nothing, adb answered at once - Android b was already back (uptime 2 min at 15:15:35, so the reset came about 60 s after set_active). failed-boot-read.txt (whole): bootreason and sys.boot.reason both 'watchdog', slot suffix _b, verifiedbootstate orange, pstore listing EMPTY as root (no console of our kernel in it), cmdline is Android's. As run 4: the bite came about 1 min after set_active; no console recovered. Way back found the phone on Android; nothing sent; no second run.
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-23/

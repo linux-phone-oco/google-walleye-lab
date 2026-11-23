@@ -6775,3 +6775,18 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-23-1530-walleye-keeper-stage2-run-7"></a>
+### Stage 2 run 7
+
+Entry date
+: 2026-11-23
+
+Done
+: Ran stage 2 once under the go of PR 870: stops at step 21 as run 4 did (no ssh, watchdog reset to Android b in ~1 min, pstore empty); log, out and failed-boot-read.txt kept in the research folder; phone on Android b, no second run
+
+About
+: walleye-display-s6e3fa5
