@@ -6526,3 +6526,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-stage-2-check-16-amended-and-the-29-steps"></a>
+### Stage 2 check 16 amended and the 29 steps audited for a repeat
+
+Entry date
+: 2026-11-23
+
+Done
+: Check 16 no longer demands that boot_a changed: only_the_target_may_change, tests on a stand-in adb (repeat passes, first run passes, boot_a differs fails, dtbo changed fails, boot_b changed fails); a walk of steps 8-20 and the way back against the phone's state after rerun 3 (stand-in stateful fastboot); the audit of all 29 steps recorded as research.
+
+Considered
+: Flashing the stock boot_a back first (the keeper's second option).
+
+Rejected
+: Restoring the stock boot_a before the run: an extra write to restore a precondition when the check, not the phone, was wrong.
+
+About
+: walleye-bootimage
