@@ -190,7 +190,7 @@ sha256 = "461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5"   # 
 
 [procedures.ufs-matched-image-on-the-pixel-2]
 dtb = "NOT-TO-BOOT-ufs-on-images-ufs-match2/msm8998-google-walleye-ufs-match.dtb"   # the dtb in that image (a path under [images] dir), for tests/host/ufs-match-android.sh
-kernel_tree = "~/Projects/walleye-build/wt-k-ufsm"   # the tree the image was built from (topic/ufs-match-android), for tests/host/ufs-match-android.sh
+kernel_tree = "~/.local/share/agent-worktrees/linux/wt-k-ufsm"   # the tree the image was built from (topic/ufs-match-android), for tests/host/ufs-match-android.sh
 go_item = "walleye-try-ufs-match"                    # the item whose go_until holds the author's go: the UFS-on boot runs only while it is in the future
 lun = "sda"          # the disk try 2 reads (read only, O_DIRECT): its GPT is hashed before and after
 load_mb = 1024       # the last step of the ramp: the most MiB one read takes (item walleye-ufs-silent-ramped-pinned-build; runs 1 and 2 read 4096, run 3 2048: all silent at about 4.5 s)

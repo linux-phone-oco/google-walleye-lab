@@ -1,7 +1,7 @@
 #!/bin/sh
 # The kernel of the display late probe (item walleye-display-late-probe-image): build-display.sh's tree and files, but the display path as MODULES (build/walleye-display-late.config) and netconsole built in.
 # Built only: nothing here touches a phone. The modules the probe loads are staged with depmod output for the ramdisk (build-display-late-image.sh).
-#   build-display-late.sh KERNEL_TREE OUT_DIR      (KERNEL_TREE: the display worktree, e.g. ~/Projects/walleye-build/wt-k-display)
+#   build-display-late.sh KERNEL_TREE OUT_DIR      (KERNEL_TREE: the display worktree, e.g. ~/.local/share/agent-worktrees/linux/wt-k-display)
 # Writes OUT_DIR/{Image.gz,msm8998-google-walleye-display.dtb,modroot/lib/modules/KVER/... (the display modules and what they need, depmod run),display-modules.list (insmod lines, dependency order),.config,SHA256SUMS-display-late}; checks stop the build.
 set -eu
 K=$(cd "${1:?usage: build-display-late.sh KERNEL_TREE OUT_DIR}" && pwd)

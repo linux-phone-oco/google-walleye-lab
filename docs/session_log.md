@@ -6694,3 +6694,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-builder-the-eleven-kernel-worktrees"></a>
+### walleye-builder: the eleven kernel worktrees moved to the worktree home (part A of the clone move)
+
+Entry date
+: 2026-11-23
+
+Done
+: git worktree move of wt-k-display, drv, fg, next, pmicb, ufsm, ufsroot, upstream-dts, z12, z20, z8 from ~/Projects/walleye-build to ~/.local/share/agent-worktrees/linux/; tips identical before and after, uncommitted dts files carried along. Four files name the new place (device.toml kernel_tree, two build scripts' usage lines, build/README.md). tests/host/ufs-match-android.sh passes from the new place. Part B (the clone itself, linux-v7.3 worktree, the ~30 build scripts naming it) left for the surya coordinator's ok.
+
+Considered
+: moving the clone and linux-v7.3 in the same change (the coordinator split it; surya's paths would change)
+
+Rejected
+: removing the dirty trees (their dts files are only in the worktrees); touching images-* or NOT-TO-BOOT-* while stage 2 run 6 is live
+
+About
+: walleye-kernel-dts

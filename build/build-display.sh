@@ -2,7 +2,7 @@
 # Build the walleye kernel WITH the display path (item walleye-display-s6e3fa5): build-kernel.sh's tree and config plus kernel/panel-samsung-s6e3fa5.c
 # (Kconfig and Makefile lines added to the drivers/gpu/drm/panel of the tree copy), build/walleye-display.config, and dt/msm8998-google-walleye-display.dts.
 # Built only: nothing here touches a phone; the keeper tries the image (item walleye-try-display) after the UFS-off gate.
-#   build-display.sh KERNEL_TREE OUT_DIR      (KERNEL_TREE: a worktree of the pmic-wdt topic, e.g. ~/Projects/walleye-build/wt-k-display)
+#   build-display.sh KERNEL_TREE OUT_DIR      (KERNEL_TREE: a worktree of the pmic-wdt topic, e.g. ~/.local/share/agent-worktrees/linux/wt-k-display)
 # Writes OUT_DIR/{Image.gz,msm8998-google-walleye-display.dtb,panel-samsung-s6e3fa5.o,.config,SHA256SUMS-display}; checks stop the build.
 set -eu
 K=$(cd "${1:?usage: build-display.sh KERNEL_TREE OUT_DIR}" && pwd)
