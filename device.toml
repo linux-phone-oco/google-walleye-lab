@@ -139,6 +139,7 @@ dir = "build/images"
 
 [images.z21]
 path = "images-z21/boot-z21.img"
+kernel_tag = "int/walleye/ufs-off-e123d3bff/v7.3/1"
 sha256 = "bdc0a89179d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff"
 
 [images.l6]
@@ -184,6 +185,7 @@ hold = 60                           # seconds the drawer holds the four stripes 
 
 [images.ufs-match]
 path = "NOT-TO-BOOT-ufs-on-images-ufs-match2/NOT-TO-BOOT-ufs-on-ufs-match.img"
+kernel_tag = "int/walleye/ufs-on-3644090c7/v7.3/1"
 sha256 = "461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5"   # the matched UFS-ON image (PR 555): NOT to boot without the author's go; tests/host/ufs-off-image.sh refuses it by design
 
 [procedures.ufs-matched-image-on-the-pixel-2]
@@ -297,6 +299,7 @@ by_name = "/dev/block/by-name"
 # NOT to boot except by procedures/rootfs-boots-on-the-pixel-2.rs, which stops unless the author's go is recorded on its go_item for THIS sha256; tests/host/ufs-off-image.sh refuses it by design. Never booted until that go.
 [images.ufs-root]
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root/NOT-TO-BOOT-ufs-on-ufs-root.img"
+kernel_tag = "int/walleye/ufs-on-3644090c7/v7.3/1"
 sha256 = "c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9"   # rebuilt 2026-11-22: the init fails CLOSED without androidboot.slot_suffix (item walleye-install-boot-slot-on-cmdline); was 35b60fda... (run 1: the init saw no suffix)
 
 # The UFS-root image WITH THE DISPLAY, U-d5 (item walleye-install-ufs-root-display-image, 2026-11-23): UFS ON and the display in one image. Kernel: branch wip/walleye/ufs-root-display of linux-v7.3 (ac7eefecb) = topic/ufs-match-android
@@ -314,6 +317,7 @@ sha256 = "a45588272b11fed90d7d13e9ed0c3a00d1c2208b9758d01ed968587978582747"
 # refuses it by design. Never booted.
 [images.ufs-root-booted-slot]
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot.img"
+kernel_tag = "int/walleye/ufs-on-3644090c7/v7.3/1"
 sha256 = "e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1"
 
 # The read-only UFS-on boot of that image as ONE command (item walleye-install-boot-procedure; run by item walleye-install-rootfs-boots-try). The root is the system partition of the slot Android is NOT on, read at the run
