@@ -5716,3 +5716,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-any-order-b-r2-b-rp2-clean"></a>
+### walleye-display-any-order-b-r2-b-rp2-clean
+
+Date
+: 2026-11-23
+
+Brief
+: B-r2 and B-rp2 (mdss reset from the kernel's own dts form) at 2 s, unattended: smmu_faults, rcg_warnings, dsi_110 all 0, 13 of 13 modules ok; phone back on Android
+
+Question
+: Does the display come up clean when its modules load at 2 s, in B-r5's order (B-r2) and with the panel before msm (B-rp2), on the dtb with the upstream-form mdss reset?
+
+Found
+: Delay bisect, delays=2, image_prefix b-r then b-rp, nothing flashed, phone back on Android slot b each time. Tables in ~/lab-material/walleye/display-delay-b-r-20261123-060903 and display-delay-b-rp-20261123-061013: 2 s reached 2 s, smmu_faults 0, rcg_warnings 0, dsi_110 0, modules_ok 13, clean. dtb test tests/host/dtb-display-reset.sh passes. Remaining for the step display-any-order: modules autoloaded by modalias with no ordering list, three cold boots, the author's look (item walleye-display-look-b2). The builder's note that the dtb also differs from B-r5 (drv2624 node, dsi pinctrl label) did not change the result.
+
+About
+: walleye-display-s6e3fa5
