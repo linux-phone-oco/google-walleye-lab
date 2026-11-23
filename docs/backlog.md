@@ -10675,10 +10675,10 @@ Rank
 ### Stage 2's read-back of boot_a (and the other hashed partitions) over adb is bounded: a timeout or a chunked read, so a stalled adb stream fails the step in seconds, not after a human kills it
 
 Status
-: open
+: done
 
 Note
-: From stage 2 run 6 (PR 868): the step stalled 25 minutes on an adb exec-out stream until the keeper killed the host adb child; the keeper suggested the bound. Lands between keeper runs (it changes the stage 2 command's files).
+: DONE 2026-11-23 (walleye-builder): android.rs reads (sha256, copy_to) are bounded by ReadBound (floor 120 s + bytes at 4 MiB/s; size by blockdev --getsize64, stat for a plain file, since a block device's st_size is 0), kill their adb child, retry a stall once, and say partition and bytes got; 5 stand-in tests; 338 pass, clippy, fmt. NOT bounded (review): the adb shell drop_caches call and the size call run through host::run without a deadline; no phone-side proof (needs a keeper run).
 
 About
 : walleye-bootimage

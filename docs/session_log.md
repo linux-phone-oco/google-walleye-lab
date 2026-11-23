@@ -7105,3 +7105,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-stage-2-reads-over-adb-are-bounded"></a>
+### Stage 2 reads over adb are bounded
+
+Entry date
+: 2026-11-23
+
+Done
+: Bounded sha256 and copy_to reads in tools/walleye-tries android.rs, retried once on a stall, with stand-in tests of a stalled stream
+
+Considered
+: The first row (walleye-next-image-from-an-int-tag) waits on a stage 2 kernel fix that was not decided (the fix chosen is a rootfs reboot string, no dts change), so the next ranked buildable item was taken
+
+Rejected
+: stat -L for size: a block device reports 0 (found in review); a per-chunk deadline: a whole-read deadline from size is simpler
+
+About
+: walleye-bootimage
