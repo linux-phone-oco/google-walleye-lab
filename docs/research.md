@@ -7034,3 +7034,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stage2-run12-production-image-all-29-passed"></a>
+### walleye-stage2-run12-production-image-all-29-passed
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 run 12 with the production image b74af863 (petters first, no telnet gadget, short cmdline): all 29 steps passed; ssh answered on the new slot; phone back on Android b, boot chain as stored
+
+Question
+: Does the production image, with no debug gadget, boot from the phone's own storage on the new slot and does the way back return to Android b?
+
+Found
+: install-boot-on-the-pixel-2.rs under the coordinator's go ran 2026-11-23 22:05-22:2x: 'all 29 steps passed'. Flash of boot_a with b74af863 read back whole (check 16: no other boot/dtbo/vbmeta changed); set_active a gave current slot new with tries left (20); step 21 the new slot booted from the card and the lab logged in by ssh; GPT changed only by the slot switch (22, 28: 0 slot-bit/type-GUID diffs on 6 disks, CRCs right); way back set_active b, Android b current (24, 26); boot chain equals the stored set (29). Phone on Android slot b by adb afterwards. Whole stdout kept in the keeper's build dir run12/stdout.txt.
+
+About
+: walleye-bootimage
