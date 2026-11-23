@@ -68,7 +68,7 @@ jobs:
           cargo fmt --check
           cargo clippy --locked --all-targets -- -D warnings
       - name: every procedure walks its steps in a dry run (lpoco-attended check)
-        run: cargo install --locked rust-script && cargo install --locked --git https://github.com/linux-phone-oco/lab-tools --tag lpoco-attended-v0.41.0 lpoco-attended && lpoco-attended check
+        run: cargo install --locked rust-script && cargo install --locked --git https://github.com/linux-phone-oco/lab-tools --tag lpoco-attended-v0.44.3 lpoco-attended && lpoco-attended check
       - name: the stripe drawer (frame, struct sizes), clippy clean (no phone)
         run: |
           cd tools/walleye-stripes
