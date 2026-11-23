@@ -5986,3 +5986,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-1130-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Took walleye-install-flash-boot (first ready): the stage 2 rehearsal dry-runs 17 of 17 but stops at check 2 for real - the declared ufs-root image has no boot.img and the stage 2 image item is open (build). Added that blocker to the item. Nothing written to the phone: Android slot b, stock kernel, nothing flashed, fastboot reachable (phone-state.sh: adb device)
+
+Considered
+: next: the build lane makes walleye-install-stage2-boot-image; then the rehearsal (no go), then the coordinator's go naming its sha256 on walleye-install-flash-boot-run. Next ready items after it: walleye-slpi-boot-qrtr (rank 21), nfc node, display-late-probe-poll
+
+About
+: walleye-display-s6e3fa5
