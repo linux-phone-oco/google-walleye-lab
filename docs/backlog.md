@@ -9162,10 +9162,10 @@ Rank
 ### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
 
 Status
-: open
+: in-progress
 
 Note
-: 2026-11-20 (coordinator): B-r5 at 5 s is CLEAN: smmu 0, rcg 0, dsi -110 0, 13 of 13 (keeper, PR 657, research walleye-display-reset-image-b-r5-tried-signs-vanish): the MDSS reset is the handover (decision 2026-11-20-walleye-display-handover-reset-first stands). NOT measured: 2 s (display at boot) and another load order, and the glass was not looked at. So this item builds those images and then the keeper's try; it no longer waits on walleye-display-handover-driver. Rank 2 (the top build). 2026-11-20 (coordinator): rank 6: the stage 1 builds are the critical path to the author's goal (Linux installed and booting from its own storage), so they go before the display any-order images; a builder takes one item at a time. 2026-11-22 (coordinator): rank 5, alongside the firmware front: B-r5 is clean at 5 s, the 2 s try and its upstream patch (the mdss reset property) are cheap and the author's look at the glass follows. 2026-11-22 (coordinator): rank 2: the board dts with the display and its reset is the base of walleye-install-ufs-root-display-image (the UFS-root kernel cannot show the glass without it).
+: 2026-11-23 (builder): BUILT. Images B-r2 (c05ae4ec...) and B-rp2 (29fce8b7...) in ~/Projects/walleye-build/images-display-any-order, in device.toml; the reset patch is kernel/display-mdss-reset (dtb test passes). For the keeper: the delay bisect at delays="2" with image_prefix="b-r" (B-r2) and then image_prefix="b-rp" (B-rp2), expect smmu_faults, rcg_warnings, dsi_110 0 and 13 of 13 (display-boot-clean); then step display-boots-any-order. Note the dtb is built from the current board dts, so it also differs from B-r5's by the drv2624 node and the dsi pinctrl label form; a change in result is the first thing to read.
 
 About
 : walleye-display-s6e3fa5
@@ -9174,7 +9174,7 @@ Opened
 : 2026-11-22
 
 Needs
-: build
+: phone
 
 Proof
 : the display at boot, in any load order: (1) the board dts carries resets = <&mmcc MDSS_BCR> on the mdss node in the form it would go upstream (an msm8998.dtsi patch for the reset property, and the board dts without any lab hack), tests/host/dtb-display-reset.sh passes on its dtb; (2) images that load the display modules EARLY on purpose: B-r2 (the same as B-r5 at 2 s, the earliest the init could load them), and one with the modules loaded in another order than L6/L7's (any order); declared in device.toml [images.*] with the sha256; (3) the keeper's unattended delay-bisect table at 2 s and in the other order: smmu_faults, rcg_warnings, dsi_110 all 0 and 13 of 13 modules ok (display-boot-clean); (4) the step display-boots-any-order marked from that run; the author's look is a later item (walleye-display-look-b2)
