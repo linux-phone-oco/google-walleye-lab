@@ -10906,10 +10906,10 @@ Rank
 ### Read the exact kernel build Android b runs: /proc/version and the build fingerprint, read only, into a research row
 
 Status
-: open
+: done
 
 Note
-: For item walleye-android-kernel-reference (the Top Coordinator's order 2026-11-23: Android's kernel as a read-only reference fixed at the exact build the phone runs). Cheap and read only; a keeper does it now.
+: proven by research walleye-android-b-kernel-build (PR 886)
 
 About
 : walleye-bootimage
