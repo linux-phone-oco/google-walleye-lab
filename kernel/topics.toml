@@ -1,0 +1,35 @@
+# The Pixel 2's test kernels: lists for `rhizoid assemble` (decision 2026-11-23-structure-kernel-topics-and-integration).
+# Each list is a base and topic branches of linux-phone-oco/linux, merged in this order into a tag int/walleye/LIST/BASE/N.
+# Two lists, two tags: never one tag for both.
+
+name = "walleye"
+tag = "int/{name}/{list}/{base}/{n}"
+branches = ["topic/ITEM", "backport/ITEM/BASE"]
+
+# The kernel with the UFS storage off: the image's root is on the SD card or USB.
+[lists.ufs-off]
+base = "v7.3"
+
+[[lists.ufs-off.entries]]
+branch = "topic/pmic-wdt-wake-in-suspend"
+for = "the PMIC watchdog that keeps running through suspend"
+state = "trying"
+
+# The kernel with the UFS storage on, matched to the Android kernel's setup.
+[lists.ufs-on]
+base = "v7.3"
+
+[[lists.ufs-on.entries]]
+branch = "topic/pmic-wdt-wake-in-suspend"
+for = "the PMIC watchdog that keeps running through suspend"
+state = "trying"
+
+[[lists.ufs-on.entries]]
+branch = "topic/walleye-fuel-gauge-rfc"
+for = "the PMI8998 fuel gauge (carried: others' patches)"
+state = "trying"
+
+[[lists.ufs-on.entries]]
+branch = "topic/ufs-match-android"
+for = "UFS storage on the Pixel 2: reset pin, PHY tables, the card's one quirk, the purge guard"
+state = "trying"
