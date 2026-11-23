@@ -10103,10 +10103,10 @@ Go until
 ### Stage 2's way back reaches the bootloader with the RESTART2 tool, as stage 1's does: the same code path, tested against the text rerun 7 printed, so the run never ends in a hand step
 
 Status
-: open
+: done
 
 Note
-: From the coordinator's check before opening the stage 2 go (2026-11-23 10:50): rerun 7 reached the bootloader with the RESTART2 tool (PR 814), which satisfies the Top Coordinator's rule, BUT the stage 2 command's own way back (flash_boot.rs switch_back, to_bootloader = 'reboot bootloader') still asks busybox and would end in the hand step like rerun 6: the tool was only wired into stage 1. The go is opened after this lands and its rehearsal passes. The go itself, per the Top's rule: opened by the coordinator for image e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1, explicit set_active b as the way back, the retry counter the second path.
+: Landed 2026-11-23: switch_back calls the one function of tools/walleye-tries/src/reboot_tool.rs that stage 1 uses (sha256 check, push to /tmp, run --command bootloader); the tool's sha256 is also checked in the stored-set step before the flash; to_bootloader names the tool and must equal its command; a failure after the bootloader is reached carries the hand command; lab.way_back prints which leg ran (it is the lab's shared way back: android already / fastboot reboot then Android within back_wait / the image shell's reboot -f and sysrq; the keeper's after-stop run of it is the one that brought Android home in rerun 7, cause of fastboot reboot staying in fastboot NOT KNOWN YET). Host-side proof: 268 tests, clippy, fmt, 13 procedures dry-run ok, rehearsal 17 steps; nothing run on the phone. The go is the coordinator's.
 
 About
 : walleye-bootimage

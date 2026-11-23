@@ -165,9 +165,14 @@ impl Lab {
     pub fn way_back(&self) -> Done {
         let poll = Duration::from_secs(1);
         if self.android_within(0, poll).is_ok() {
+            println!("way back: the phone is on Android already; nothing sent");
             return Ok(());
         }
         if self.in_fastboot().unwrap_or(false) {
+            println!(
+                "way back: leg 1, `fastboot reboot`, then Android within {} s",
+                self.s.back_wait
+            );
             let mut c = std::process::Command::new(&self.s.fastboot);
             c.args(["-s", &self.serial().unwrap_or_default(), "reboot"]);
             let _ = host::run(c);
@@ -179,6 +184,10 @@ impl Lab {
         for command in [REBOOT_NOW, SYSRQ_REBOOT] {
             let Ok(mut sh) = self.shell(3) else { continue };
             shell_answered = true;
+            println!(
+                "way back: leg on the image's shell, `{command}`, then Android within {} s",
+                self.s.back_wait
+            );
             // the phone hangs up as it goes down: its answer is not read
             let _ = sh.run_partial(command, Duration::from_secs(3));
             if self.android_within(self.s.back_wait, poll).is_ok() {

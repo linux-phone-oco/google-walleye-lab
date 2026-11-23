@@ -491,9 +491,10 @@ pub const EVIDENCE_FILE: &str = "evidence.txt";
 /// The way back's first try (items walleye-way-back-reboot-bootloader-first, walleye-reboot-reason-restart2-tool): busybox's `reboot bootloader`
 /// drops the argument, so the lab pushes its static walleye-reboot over ssh into the phone's tmpfs (`/tmp` of the overlay: nothing touches the card)
 /// and runs it there; the tool hands `bootloader` to reboot(2) RESTART2. The file is the one device.toml's `[images.walleye-reboot]` names, by sha256.
-pub const REBOOT_TOOL_ON_PHONE: &str = "/tmp/walleye-reboot";
-pub const SEND_TOOL_COMMAND: &str = "cat > /tmp/walleye-reboot && chmod 755 /tmp/walleye-reboot";
-pub const BOOTLOADER_COMMAND: &str = "/tmp/walleye-reboot --command bootloader";
+/// (one copy for both stages: [`crate::reboot_tool`])
+pub use crate::reboot_tool::{
+    BOOTLOADER_COMMAND, ON_PHONE as REBOOT_TOOL_ON_PHONE, SEND_COMMAND as SEND_TOOL_COMMAND,
+};
 
 /// How long fastboot has to list the phone after [`BOOTLOADER_COMMAND`].
 pub const BOOTLOADER_WAIT: Duration = Duration::from_secs(60);
@@ -624,29 +625,7 @@ impl RootfsBoot {
         seconds: u64,
         stdin: Option<&std::path::Path>,
     ) -> Result<String, String> {
-        let mut c = Command::new("timeout");
-        if let Some(file) = stdin {
-            let f = std::fs::File::open(file).map_err(|e| format!("{}: {e}", file.display()))?;
-            c.stdin(f);
-        }
-        c.args([
-            "--kill-after=5".to_string(),
-            seconds.to_string(),
-            self.ssh.clone(),
-        ])
-        .args(ssh_args(
-            &self.s.identity,
-            &self.s.ssh_user,
-            &self.s.address,
-            self.s.ssh_port,
-            command,
-        ));
-        let said = host::run(c)?;
-        if said.ok {
-            Ok(said.text)
-        } else {
-            Err(format!("ssh: {}", host::last_line(&said.text)))
-        }
+        crate::reboot_tool::ssh_from(&self.s, &self.ssh, command, seconds, stdin)
     }
 
     fn saved(&self, name: &str) -> Result<String, String> {
@@ -1113,11 +1092,7 @@ impl RootfsBoot {
     /// The tool is checked against its declared sha256, sent to the phone's tmpfs over ssh, and run with `bootloader`.
     /// An error names the step that failed (the forced way back follows in every case).
     fn the_bootloader_is_asked_for(&self) -> Result<String, String> {
-        host::image_has_sha256(&self.s.reboot_tool, &self.s.reboot_tool_sha256)
-            .map_err(|e| format!("the reboot tool is not the declared one: {e}"))?;
-        self.ssh_from(SEND_TOOL_COMMAND, 30, Some(&self.s.reboot_tool))
-            .map_err(|e| format!("sending the reboot tool to {REBOOT_TOOL_ON_PHONE}: {e}"))?;
-        self.ssh(BOOTLOADER_COMMAND, 10)
+        crate::reboot_tool::ask_for_the_bootloader(&self.s, &self.ssh, BOOTLOADER_COMMAND)
     }
 
     /// In the bootloader: its current slot against the one adb read at the start (equal is the proof the way back changed no slot).
@@ -2434,6 +2409,15 @@ mod bootloader_way_back {
         }
     }
 
+    #[test]
+    fn the_sentence_for_a_reached_bootloader_is_the_one_rerun_7_printed() {
+        let (r, _d) = rig("fixture", true, "_b");
+        assert!(r.the_bootloader_is_tried());
+        assert_eq!(
+            r.saved(BOOTLOADER_FILE).unwrap().trim(),
+            include_str!("../fixtures/bootloader-way-back-reached.txt").trim()
+        );
+    }
     #[test]
     fn a_tool_that_is_not_the_declared_one_is_never_sent() {
         let (mut r, d) = rig("wrongtool", true, "_b");

@@ -385,6 +385,8 @@ impl Settings {
                 s.luns = number("luns", proc("luns"));
                 s.flash_allow = proc("flash_allow");
                 s.to_bootloader = proc("to_bootloader");
+                s.reboot_tool = image(REBOOT_TOOL);
+                s.reboot_tool_sha256 = dev(&format!("images.{REBOOT_TOOL}.sha256"));
                 assert!(
                     s.by_name.starts_with('/') && (1..=26).contains(&s.luns),
                     "by_name in device.toml is an absolute path on the phone, luns is 1 to 26"
@@ -392,6 +394,10 @@ impl Settings {
                 assert!(
                     !s.flash_allow.trim().is_empty() && !s.to_bootloader.trim().is_empty(),
                     "flash_allow and to_bootloader in device.toml are not empty"
+                );
+                assert!(
+                    s.to_bootloader == crate::reboot_tool::BOOTLOADER_COMMAND,
+                    "to_bootloader in device.toml is the reboot tool's command (busybox reboot drops the bootloader argument)"
                 );
                 s.out = s.out_dir("install-boot");
             }
@@ -520,7 +526,7 @@ impl Settings {
             ("stage_dir", "/data/local/tmp"),
             ("by_name", "/dev/block/by-name"),
             ("flash_allow", "boot_a boot_b"),
-            ("to_bootloader", "reboot bootloader"),
+            ("to_bootloader", "/tmp/walleye-reboot --command bootloader"),
         ]
         .into_iter()
         .collect();
