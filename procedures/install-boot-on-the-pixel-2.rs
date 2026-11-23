@@ -43,7 +43,7 @@ fn main() {
     step("the phone is on Android, adbd as root (Android's slot is still the active one)", boot.the_phone_is_on_android_as_root());
     check("the partition reads back as the image, and no other boot, dtbo or vbmeta partition changed", boot.the_partition_reads_back_as_the_image());
     step("take the phone to fastboot", boot.phone_is_in_fastboot());
-    check("the flash changed no slot flag", boot.the_flash_changed_no_flag());
+    check("the flash reset only the flashed slot's successful and retry count", boot.the_flash_changed_no_flag());
     step("make the flashed slot active: the bootloader's own set_active", boot.the_slot_is_made_active());
     check("the flags changed as the bootloader's switch describes and nothing else", boot.the_flags_are_the_switch_and_nothing_else());
     step("the new slot boots from the card and the lab logs in by ssh; its GPT is read", boot.the_new_slot_boots_and_the_lab_logs_in());
