@@ -4,6 +4,7 @@
 //! and after. Nothing is written to the card: the read's output goes to /dev/null, nothing is mounted.
 
 use super::{Link, Speed, Ufs};
+use crate::phone::Shell;
 use crate::touch::redact;
 use std::time::{Duration, Instant};
 
@@ -72,9 +73,30 @@ pub fn load_start_command(lun: &str, mb: u64, limit: u64) -> Result<String, Stri
     ))
 }
 
-/// The command that reads the load's state and, with it, the gear.
-pub fn load_sample_command() -> String {
-    format!("cat /tmp/load.done 2>/dev/null; {}", gear_command())
+/// The command that reads only the load's state (no sysfs): it must answer even when a gear read is stuck, so it has its own shell.
+pub fn load_state_command() -> &'static str {
+    "cat /tmp/load.done 2>/dev/null; echo state-$((6*7))"
+}
+
+/// Run 1 (research walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load): eight gear reads answered under load, the ninth,
+/// sent on the one shell together with the read of /tmp/load.done, was not answered in 10 s. A sysfs read of power_info goes
+/// through the UFS host's runtime power management, so it can wait for the link as the load ends. Hence the read's state has
+/// a shell of its own and no sysfs, a gear read has `gear_wait` seconds (device.toml), and one not answered is written down
+/// as not known yet. What the stall was is read from gear-load.txt of the next run: each sample carries its time.
+/// One gear sample, written into gear-load.txt: when it was asked, how long it took, and what it said or that it was not answered.
+pub fn sample_line(at: Duration, took: Duration, said: Option<&str>) -> String {
+    match said {
+        Some(t) => format!(
+            "--- sample at {:.1} s, answered in {:.1} s\n{t}\n",
+            at.as_secs_f32(),
+            took.as_secs_f32()
+        ),
+        None => format!(
+            "--- sample at {:.1} s, not answered in {:.1} s (not known yet)\n",
+            at.as_secs_f32(),
+            took.as_secs_f32()
+        ),
+    }
 }
 
 /// The command that hashes the primary and the backup GPT of the disk, reading only.
@@ -122,7 +144,7 @@ pub fn writes_to_the_card(cmd: &str) -> bool {
 impl Ufs {
     fn read_gear(&self, name: &str) -> Result<Gear, String> {
         let mut sh = self.lab.shell(10)?;
-        let said = sh.run(&gear_command(), Duration::from_secs(10))?;
+        let said = sh.run(&gear_command(), Duration::from_secs(self.s.gear_wait))?;
         let gear = Gear::of(&said);
         self.lab.save(name, &said)?;
         println!("  {name}: {}", gear.line());
@@ -139,44 +161,80 @@ impl Ufs {
     }
 
     /// The bounded read-only read of the disk, the gear and the clock sampled while it runs (at least one sample must fall inside it).
+    /// The read's state is asked on a shell of its own, so a gear read that waits cannot hide the read's end; a gear read that is
+    /// not answered is written down with its time and the sampling goes on on a fresh shell. The samples are saved however the step ends.
     pub fn the_gear_is_read_under_load(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
             let start = load_start_command(&u.s.lun, u.s.load_mb, u.s.load_limit)?;
-            let mut sh = u.lab.shell(10)?;
-            if !sh
+            let mut state_sh = u.lab.shell(10)?;
+            let began = Instant::now();
+            if !state_sh
                 .run(&start, Duration::from_secs(10))?
                 .contains("load-started-42")
             {
                 return Err("the read did not start".into());
             }
-            let until = Instant::now() + Duration::from_secs(u.s.load_limit + 15);
-            let (mut samples, mut inside, mut rc) = (String::new(), 0, None);
-            while rc.is_none() {
-                if Instant::now() >= until {
-                    return Err("the read did not end within its time limit and 15 s".into());
-                }
-                std::thread::sleep(Duration::from_millis(500));
-                let said = sh.run(&load_sample_command(), Duration::from_secs(10))?;
-                rc = load_rc(&said);
-                if rc.is_none() {
-                    inside += 1;
-                    println!("  under load: {}", Gear::of(&said).line());
-                }
-                samples.push_str(&format!("--- sample {}\n{said}\n", inside));
-            }
+            let mut samples = String::new();
+            let sampled = u.sample_until_the_read_ends(&mut state_sh, began, &mut samples);
             u.lab.save("gear-load.txt", &redact(&samples))?;
-            let out = sh.run("cat /tmp/load.out", Duration::from_secs(10))?;
+            let (rc, inside) = sampled?;
+            let out = state_sh.run("cat /tmp/load.out", Duration::from_secs(10))?;
             u.lab.save("load.txt", &out)?;
             println!("  read: {}", out.lines().last().unwrap_or(""));
             match rc {
-                Some(0) | Some(124) if inside > 0 => Ok(()),
-                Some(0) | Some(124) => Err(
+                0 | 124 if inside > 0 => Ok(()),
+                0 | 124 => Err(
                     "the read ended before the gear could be read under load: not known yet".into(),
                 ),
-                other => Err(format!("the read ended with {other:?}: {out}")),
+                other => Err(format!("the read ended with {other}: {out}")),
             }
         }
+    }
+
+    /// Ask the read's state on its own shell until it ends (at most its limit and 15 s, checked between samples; a gear read in
+    /// flight may run on to `gear_wait` after that), read the gear in between. Returns the exit code and the answered gear reads.
+    fn sample_until_the_read_ends(
+        &self,
+        state_sh: &mut Shell,
+        began: Instant,
+        samples: &mut String,
+    ) -> Result<(i32, u32), String> {
+        let until = began + Duration::from_secs(self.s.load_limit + 15);
+        let mut gear_sh = self.lab.shell(10)?;
+        let (mut inside, mut unanswered) = (0, 0);
+        let rc = loop {
+            if Instant::now() >= until {
+                return Err("the read did not end within its time limit and 15 s".into());
+            }
+            std::thread::sleep(Duration::from_millis(500));
+            if let Some(rc) = load_rc(&state_sh.run(load_state_command(), Duration::from_secs(10))?)
+            {
+                break rc;
+            }
+            let (at, asked) = (began.elapsed(), Instant::now());
+            match gear_sh.run(&gear_command(), Duration::from_secs(self.s.gear_wait)) {
+                Ok(said) => {
+                    inside += 1;
+                    println!("  under load: {}", Gear::of(&said).line());
+                    samples.push_str(&sample_line(at, asked.elapsed(), Some(&said)));
+                }
+                Err(e) => {
+                    unanswered += 1;
+                    println!(
+                        "  under load: a gear read was not answered in {} s (not known yet): {e}",
+                        self.s.gear_wait
+                    );
+                    samples.push_str(&sample_line(at, asked.elapsed(), None));
+                    gear_sh = self.lab.shell(10)?;
+                }
+            }
+        };
+        samples.push_str(&format!(
+            "--- the read ended at {:.1} s with rc={rc}; {inside} gear reads answered, {unanswered} not\n",
+            began.elapsed().as_secs_f32()
+        ));
+        Ok((rc, inside))
     }
 
     /// The gear and the clock again, 2 s after the read ended.
@@ -334,7 +392,7 @@ mod tests {
         let cmds = [
             gear_command(),
             load_start_command("sda", 4096, 60).unwrap(),
-            load_sample_command(),
+            load_state_command().to_string(),
             gpt_command("sda").unwrap(),
         ];
         for c in &cmds {
@@ -378,17 +436,76 @@ mod tests {
         assert!(!crate::host::slot_lines(a).contains("XYZ"));
     }
 
+    /// What the phone printed under load in run 1 (research walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load).
+    const RUN1_G3: &str = "dev_pm=ACTIVE\ngear=HS_GEAR3\nlane=2\nlink_state=ACTIVE\nmode=FAST_MODE\nrate=HS_RATE_B\nclock_1da4000.ufshc=200000000";
+    const NOT_DONE: &str = "state-42";
+    const DONE0: &str = "rc=0\nstate-42";
+
     #[test]
     fn a_read_that_is_sampled_under_load_passes() {
         let t = vec![
             ("load-started-", "load-started-42"),
-            ("/tmp/load.done", "gear=HS_GEAR3\nlane=2\nmode=FAST_MODE\nlink_state=ACTIVE|||gear=HS_GEAR3\nlane=2\nmode=FAST_MODE\nlink_state=ACTIVE\nrc=0"),
-            ("cat /tmp/load.out", "4096+0 records out\n4294967296 bytes (4.0GB) copied, 12.1 seconds, 338.5MB/s"),
+            (
+                "echo state-",
+                Box::leak(format!("{NOT_DONE}|||{NOT_DONE}|||{DONE0}").into_boxed_str()),
+            ),
+            ("power_info", RUN1_G3),
+            (
+                "cat /tmp/load.out",
+                "4096+0 records out\n4294967296 bytes (4.0GB) copied, 12.1 seconds, 338.5MB/s",
+            ),
         ];
         let u = ufs(t, "load");
         u.the_gear_is_read_under_load()().unwrap();
+        let saved = std::fs::read_to_string(out("load").join("gear-load.txt")).unwrap();
+        assert!(out("load").join("load.txt").exists());
         assert!(
-            out("load").join("gear-load.txt").exists() && out("load").join("load.txt").exists()
+            saved.contains("answered in") && saved.contains("2 gear reads answered, 0 not"),
+            "{saved}"
+        );
+    }
+
+    #[test]
+    fn a_gear_read_that_is_not_answered_is_written_down_and_the_read_still_ends_the_step() {
+        let t = vec![
+            ("load-started-", "load-started-42"),
+            (
+                "echo state-",
+                Box::leak(
+                    format!("{NOT_DONE}|||{NOT_DONE}|||{NOT_DONE}|||{DONE0}").into_boxed_str(),
+                ),
+            ),
+            ("power_info", "?"),
+            ("cat /tmp/load.out", "x"),
+        ];
+        let e = ufs(t, "silent").the_gear_is_read_under_load()().unwrap_err();
+        assert!(e.contains("not known yet"), "{e}");
+        let saved = std::fs::read_to_string(out("silent").join("gear-load.txt")).unwrap();
+        assert!(
+            saved.contains("not answered") && saved.contains("0 gear reads answered, 3 not"),
+            "{saved}"
+        );
+    }
+
+    #[test]
+    fn a_hung_gear_read_is_dropped_and_sampling_goes_on_a_fresh_shell() {
+        let t = vec![
+            ("load-started-", "load-started-42"),
+            (
+                "echo state-",
+                Box::leak(format!("{NOT_DONE}|||{NOT_DONE}|||{DONE0}").into_boxed_str()),
+            ),
+            (
+                "power_info",
+                Box::leak(format!("?once={RUN1_G3}").into_boxed_str()),
+            ),
+            ("cat /tmp/load.out", "x"),
+        ];
+        ufs(t, "hung").the_gear_is_read_under_load()().unwrap();
+        let saved = std::fs::read_to_string(out("hung").join("gear-load.txt")).unwrap();
+        assert!(
+            saved.contains("not answered in") && saved.contains("1 gear reads answered, 1 not"),
+            "{saved}"
         );
     }
 
@@ -396,10 +513,7 @@ mod tests {
     fn a_read_that_ended_before_any_sample_is_not_known_yet() {
         let t = vec![
             ("load-started-", "load-started-42"),
-            (
-                "/tmp/load.done",
-                "gear=HS_GEAR3\nlane=2\nmode=FAST_MODE\nlink_state=ACTIVE\nrc=0",
-            ),
+            ("echo state-", DONE0),
             ("cat /tmp/load.out", "x"),
         ];
         let e = ufs(t, "fast").the_gear_is_read_under_load()().unwrap_err();
@@ -411,13 +525,34 @@ mod tests {
         let run = |rc: &'static str, name: &str| {
             let t = vec![
                 ("load-started-", "load-started-42"),
-                ("/tmp/load.done", Box::leak(format!("gear=3\nlane=2\nmode=FAST_MODE\nlink_state=ACTIVE|||gear=3\nlane=2\nmode=FAST_MODE\nlink_state=ACTIVE\nrc={rc}").into_boxed_str())),
+                (
+                    "echo state-",
+                    Box::leak(format!("{NOT_DONE}|||rc={rc}\nstate-42").into_boxed_str()),
+                ),
+                ("power_info", RUN1_G3),
                 ("cat /tmp/load.out", "dd: I/O error"),
             ];
             ufs(t, name).the_gear_is_read_under_load()()
         };
         assert!(run("124", "to").is_ok());
         assert!(run("1", "err").unwrap_err().contains("I/O error"));
+    }
+
+    #[test]
+    fn the_whole_after_load_part_is_reachable_in_the_stand_in() {
+        // checks 16-19 of run 1: the gear 2 s after, the GPT hashed again and equal
+        let t = vec![
+            ("power_info", RUN1_G3),
+            (
+                "sha256sum",
+                Box::leak(format!("{HEX}  -").into_boxed_str()) as &'static str,
+            ),
+        ];
+        let u = ufs(t, "after");
+        u.the_gpt_is_hashed_before()().unwrap();
+        u.the_gear_is_read_two_seconds_after()().unwrap();
+        u.the_gpt_is_unchanged()().unwrap();
+        assert!(out("after").join("gear-after.txt").exists());
     }
 
     #[test]

@@ -6076,3 +6076,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-23-ufs-try-2-sample-step-fixed"></a>
+### UFS try 2 sample step fixed
+
+Entry date
+: 2026-11-23
+
+Done
+: load state and gear read split onto two shells, gear_wait=30 s in device.toml, unanswered reads recorded with times, samples saved on every ending, stand-in phone gained a stuck-read row; 254 tests, clippy, fmt, dry run 23 steps, check --host ok; programmer review: samples-on-error and hung-read test taken, silent pass with unanswered reads left (the stall is shown in gear-load.txt)
+
+Considered
+: a bigger timeout alone
+
+Rejected
+: a bigger timeout alone: it would not tell the cause and would still block the state poll
+
+About
+: walleye-display-s6e3fa5

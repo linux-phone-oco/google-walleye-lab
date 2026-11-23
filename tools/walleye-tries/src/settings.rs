@@ -109,6 +109,8 @@ pub struct Settings {
     pub lun: String,
     pub load_mb: u64,
     pub load_limit: u64,
+    /// the most seconds one gear read may take (`gear_wait`): a sysfs read can wait on the link's power management as the load ends
+    pub gear_wait: u64,
     pub luns: u64,
     /// the install write: the folder of the slots' read-back (the way back), the folder on the phone the image is staged in,
     /// the folder of the phone's partition names
@@ -262,6 +264,7 @@ impl Settings {
             lun: String::new(),
             load_mb: 0,
             load_limit: 0,
+            gear_wait: 0,
             luns: 0,
             backup: PathBuf::new(),
             stage_dir: String::new(),
@@ -308,10 +311,11 @@ impl Settings {
                 );
                 s.load_mb = number("load_mb", proc("load_mb"));
                 s.load_limit = number("load_limit", proc("load_limit"));
+                s.gear_wait = number("gear_wait", proc("gear_wait"));
                 s.luns = number("luns", proc("luns"));
                 assert!(
-                    s.load_mb >= 1 && s.load_limit >= 1 && s.luns >= 1,
-                    "load_mb, load_limit and luns in device.toml are at least 1"
+                    s.load_mb >= 1 && s.load_limit >= 1 && s.gear_wait >= 1 && s.luns >= 1,
+                    "load_mb, load_limit, gear_wait and luns in device.toml are at least 1"
                 );
                 s.out = s.out_dir("ufs");
             }
@@ -484,6 +488,7 @@ impl Settings {
             ("lun", "sda"),
             ("load_mb", "4"),
             ("load_limit", "20"),
+            ("gear_wait", "1"),
             ("luns", "6"),
             ("images.ufs-root.path", "NOT-TO-BOOT-x/NOT-TO-BOOT-root.img"),
             ("images.ufs-root.sha256", "35b6"),

@@ -5963,3 +5963,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ufs-try-2-sample-silent-cause"></a>
+### walleye-ufs-try-2-sample-silent-cause
+
+Date
+: 2026-11-23
+
+Brief
+: UFS try 2 sample silent 10 s: one shell carried the load state and the sysfs gear read; the log cannot say which stalled, the step now records each read's time
+
+Question
+: Why was the sample command (cat /tmp/load.done plus the power_info and devfreq loop) not answered in 10 s in run 1?
+
+Found
+: From run 1's log and saved files: the shell is telnet on the gadget, one command at a time; 8 gear reads answered under load (so the shell was not starved), the 9th, sent together with the read of /tmp/load.done, was silent for over 10 s as the 4 GB read ended (step started 08:11, failed 15 s later). Most likely cause: a sysfs power_info read goes through the UFS host's runtime power management and waits on the link as the load ends; not proven, the log has no timings per read. Fix: the read's state is asked on its own shell with no sysfs; a gear read has gear_wait=30 s (device.toml); an unanswered read is written to gear-load.txt as not known yet and sampling goes on on a fresh shell; every sample carries its time, so run 2 shows whether the stall meets the load's end. Stand-in tests use run 1's printed text, incl. a hung read.
+
+About
+: walleye-display-s6e3fa5

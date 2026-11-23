@@ -9780,10 +9780,10 @@ Rank
 ### UFS try 2: the step that samples the gear after the load answers: find why the sample command was silent for 10 s and give the step a timeout that fits, then the 2 s-after reading, the GPT hash-equal and no-purge checks run
 
 Status
-: open
+: done
 
 Note
-: Run 1 (keeper local_e7126294, 2026-11-23 08:08): checks 1-15 passed (UFS_HW_VERSION 3.1.0, 6 disks, GPT hashed, HS-G1 2 lanes 50 MHz before load, HS-G3 2 lanes rate B 200 MHz under load in 8 samples); stopped at step 16. The upstreams lane's question (the gear under load) is answered by the 8 samples; the 2 s-after-load reading is not known yet. The go on walleye-try-ufs-match is open until 2026-11-23T11:05:10+01:00; a second run starts when this lands, and the coordinator reopens a go if the window has passed.
+: landed with the research walleye-ufs-try-2-sample-silent-cause; a second run needs the coordinator's reopened go on walleye-try-ufs-match
 
 About
 : walleye-display-s6e3fa5

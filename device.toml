@@ -193,6 +193,7 @@ go_item = "walleye-try-ufs-match"                    # the item whose go_until h
 lun = "sda"          # the disk try 2 reads (read only, O_DIRECT): its GPT is hashed before and after
 load_mb = 4096       # the most MiB the bounded read takes (a few GB at most)
 load_limit = 60      # the most seconds the bounded read may take (timeout)
+gear_wait = 30       # the most seconds one read of the link gear may take: the read goes through the link's power management and run 1 of try 2 saw one wait longer than 10 s as the load ended
 luns = 6             # the disks the card has (sda to sdf, as in try 1)
 
 # The delay bisect (item walleye-display-delay-bisect-build): B2 whose init waits the number of seconds of uptime in its own /display-delay before it loads the
