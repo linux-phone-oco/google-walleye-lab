@@ -10197,10 +10197,10 @@ Go until
 ### Why 'fastboot reboot' left the phone in fastboot for 240 s after our kernel reached the bootloader by RESTART2 (rerun 7), and what the reliable last leg of the way back is
 
 Status
-: open
+: done
 
 Note
-: Orchestration: 'the 240 s left in fastboot stays yours to find out' (2026-11-23). Not urgent for stage 2's safety (the after-stop way back brought Android home, and stage 2's last leg uses the same way) but it decides how long a stage 2 way back takes and whether it can ever need a hand: ranked 3, after the stage 2 run, whose way back gives a second text of the same step.
+: Answered 2026-11-23 by research walleye-fastboot-reboot-stays-in-fastboot-causes-ranked; the try is item walleye-fastboot-reboot-twice-timed-try
 
 About
 : walleye-bootimage
@@ -10772,3 +10772,31 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-fastboot-reboot-twice-timed-try"></a>
+### One stage 1 excursion at the bootloader: fastboot reboot twice, each timed, then the way back (tells the reboot-reason persistence from a bootloader rule)
+
+Status
+: open
+
+Note
+: From research walleye-fastboot-reboot-stays-in-fastboot-causes-ranked. Keep the lines of every fastboot call with its time; then a second excursion with fastboot continue; then PMIC PON_SOFT_RB_SPARE read (no write) in our kernel before RESTART2. Stage 2's own way back is the cheaper second text; do this only if it too stays in fastboot.
+
+Blocked by
+: walleye-install-flash-boot-run
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: walleye-idle-android (check 22 of the rootfs boots try)
+
+Rank
+: 5
