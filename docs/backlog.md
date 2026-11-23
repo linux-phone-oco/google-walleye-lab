@@ -11413,3 +11413,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-install-flash-boot-rehearsal-8"></a>
+### The stage 2 rehearsal for real with the production image declared: read only, the whole stdout kept
+
+Status
+: open
+
+Note
+: Before the run, as for every earlier image. The run (walleye-install-flash-boot-run) follows with a go naming b74af863 and outcomes: (1) all 29 steps pass with the production image: stage 2 is done for the image that stays (kernel from int/walleye/ufs-on/v7.3/1, petter first, no telnet gadget); (2) the boot fails or ssh does not answer: with no debug gadget the host's USB log and the way back's reads are the evidence: the finding says which of the supervisor's petting, the slot, or the root; (3) a later step stops: its text; the supervisor's 420 s deadline and SIGKILL end have never run on a phone.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: procedures/rehearse-install-boot-on-the-pixel-2.rs on main after PR 937, read only, nothing written, no flash/set_active/erase/oem verb; rust-script --force; build/images linked to ~/Projects/walleye-build (the image and walleye-reboot are untracked build outputs: say that the shas equal device.toml's); the WHOLE stdout and stderr tee'd into research material: every step passes with [images.ufs-root-booted-slot-production] (sha256 b74af863e4b49e2b3ff6e656c2f9ba3b92033b1e0f74063c3c2d47b81c83d570) declared: the init gate accepts it, the header cmdline is under the budget, the AVB footer verifies, boot_a holds the debug image of runs 9-11 and the stock backup hashes to its record; one research row; the phone left on Android slot b
+
+Rank
+: 1
