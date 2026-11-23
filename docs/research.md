@@ -6322,3 +6322,25 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-23-stage2-rerun2/
+
+
+<a id="walleye-install-boot-rehearsal-3-passed"></a>
+### walleye-install-boot-rehearsal-3-passed
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 rehearsal 3 on main after PR 841: 17 of 17 passed, nothing written; boot_a holds e337de53, its stock backup on file and hashing to its record
+
+Question
+: With check 9 accepting a boot_a that already holds the declared image, does the real rehearsal pass, in particular the boot partition check (backup path, argument order)?
+
+Found
+: Yes: 17 of 17. Check 8 (boot partition read now is its backup or the declared image with the backup on file): boot_a holds e337de53, the stock backup is on file and hashes to its record 2a5cd3b2, so the flash can be undone. adb slot b agrees with fastboot; flash target shown (boot_a), not run; six GPTs kept whole, read again equal and through the switch checker; slot flags equal twice; boot chain equals the stored set; phone back on Android slot b, no way-back needed. Log: rehearsal-3.log. Needed build/images linked to ~/Projects/walleye-build in a fresh worktree (untracked).
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/

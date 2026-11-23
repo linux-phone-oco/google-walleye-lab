@@ -10375,10 +10375,10 @@ Rank
 ### The stage 2 rehearsal for real once more, now that check 9 accepts a boot_a that already holds the image: its wiring (backup path, arg order) has no test of its own
 
 Status
-: open
+: done
 
 Note
-: Asked for by the coordinator (2026-11-23): the builder says check 9's wiring (the backup path, the argument order) has no test of its own, and the earlier rehearsals found checker bugs the real run would have hit twice (PRs 798 and 801-era). The rehearsal reads boot_a and the backup for real. The stage 2 run (walleye-install-flash-boot-run) stays off the queue until this passes.
+: proven by procedures/rehearse-install-boot-on-the-pixel-2.rs, 17 of 17, research walleye-install-boot-rehearsal-3-passed
 
 About
 : walleye-bootimage
