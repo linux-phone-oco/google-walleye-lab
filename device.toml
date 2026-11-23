@@ -198,7 +198,7 @@ load_limit = 60      # the most seconds ONE step of the ramped read may take (ti
 gear_wait = 30       # the most seconds one read of the link gear may take: the read goes through the link's power management and run 1 of try 2 saw one wait longer than 10 s as the load ended
 luns = 6             # the disks the card has (sda to sdf, as in try 1)
 ramp_mb = "64,256,1024"    # the ramp: each step is one bounded read of this many MiB, a RAM log line before it, the shell polled every second (decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try)
-devfreq = "1da4000.ufshc"  # the UFS host's devfreq node: its governor is set to powersave before the first step; absent, or no powersave: the run stops before any load
+devfreq = "1da4000.ufshc"  # the UFS host's devfreq node: its clock is pinned at 50 MHz (userspace governor) before the first step and read back; absent, or not 50 MHz: the run stops before any load
 
 # The delay bisect (item walleye-display-delay-bisect-build): B2 whose init waits the number of seconds of uptime in its own /display-delay before it loads the
 # display modules (build/build-display-delay-images.sh; kernel, dtb, modules, header and size are B2's). One RAM boot per image; the signs are read from the kernel log.
