@@ -7318,3 +7318,39 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-24-0020-ufs-try-2-run-6"></a>
+### UFS try 2 run 6 stopped at step 16
+
+Entry date
+: 2026-11-23
+
+Done
+: Linked build/images to ~/Projects/walleye-build (the top level, not its images/ folder: the first rerun stopped at check 2, phone untouched). Run 6 passed checks 1-15, stopped at step 16: pin read back 100 MHz not 50 MHz, no load ran, phone returned to Android.
+
+Considered
+: next: coordinator decides the pin (read min_freq/available_frequencies, retry set_freq after min/max_freq write) - no second run without the coordinator
+
+About
+: walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-24-0025-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Phone on Android slot b, adb device, nothing flashed, nothing written; run 6 of UFS try 2 stopped at step 16 (pin read back 100 MHz), no load ran.
+
+Considered
+: next: coordinator decides the pin change (capture min_freq and available_frequencies; why 50 MHz at check 15 but 100 MHz after the write) and re-issues the go; build/images in a fresh worktree is a link to ~/Projects/walleye-build itself
+
+About
+: walleye-first-fastboot-boot

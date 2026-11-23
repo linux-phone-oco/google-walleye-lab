@@ -7313,3 +7313,22 @@ Sources
 
 About
 : walleye-device-config-sources-read
+
+
+<a id="walleye-ufs-try-2-run-6-pin-reads-back-100mhz"></a>
+### walleye-ufs-try-2-run-6-pin-reads-back-100mhz
+
+Date
+: 2026-11-23
+
+Brief
+: UFS try 2 run 6 (ramped, pinned): stopped at step 16 before any load - userspace governor set, set_freq 50 MHz read back as 100 MHz (max_freq 200 MHz); nothing written
+
+Question
+: Does the userspace governor with set_freq 50000000 hold the UFS host clock at 50 MHz on the matched image (PR 960 pin)?
+
+Found
+: Run 6 2026-11-24 00:10, matched image 461077869fb2 (full sha verified), go on walleye-try-ufs-match. Probe: UFS_HW_VERSION 3.1.0, PHY table 3.1.0, 6 disks, sda 45 partitions, GPT hash before 6cd7e48c...0174. Link read at check 11: HS_GEAR1 2 lanes, HIBERN8 (works, slow); check 15: gear HS_GEAR1, ACTIVE, clock 50000000 (the clock already at 50 MHz before the pin). Step 16: governor userspace, but the read-back after the write was clock 100000000 (max_freq 200000000), wanted 50000000: the pin refused BEFORE any load, as designed. Phone back on Android (adb). The GPT-after comparison was not made: the run stopped before load, read only. NOT KNOWN YET: why the clock reads 100 MHz after the write while 50 MHz one check earlier (set_freq not honoured, min_freq above 50 MHz, or devfreq re-evaluated between write and read) - available_frequencies and min_freq were not printed in the stop line; the next run must capture them. Also gear at this boot read HS_GEAR1 already, unlike runs 1-3 (HS-G3).
+
+About
+: walleye-first-fastboot-boot
