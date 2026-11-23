@@ -11122,3 +11122,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-install-flash-boot-rehearsal-7"></a>
+### The stage 2 rehearsal for real with the rebuilt debug image declared (short cmdline, the slot from four sources): read only, the whole stdout kept
+
+Status
+: open
+
+Note
+: The declared image changed again (PR 907); the rehearsal is the bar before the go, as for every earlier image: it found bugs the real run would have hit five times. The run (walleye-install-flash-boot-run) is opened after it with the OUTCOMES: (1) ssh from slot a answers: the short cmdline brought the slot suffix and the root mounted: the kernel, init and root work on a normal boot, the truncation was the cause, stage 2 proceeds; (2) telnet answers but ssh does not: the init now gets the slot and the log says which of the four sources gave it, and why the root or the Alpine services did not come up; (3) the init still refuses for want of the slot: the cmdline is still cut or the slot sources are all missing: the log says what /proc/cmdline holds and its length, and the next read is the DT firmware/android node; (4) no USB device of ours: the kernel did not run (not expected after run 8).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: procedures/rehearse-install-boot-on-the-pixel-2.rs on main after PR 907, read only, nothing written, no flash/set_active/erase/oem verb; rust-script --force; build/images linked; the WHOLE stdout and stderr tee'd into research material: every step passes with the rebuilt [images.ufs-root-booted-slot-debug] (sha256 a0a55cd0..., the full value is in device.toml) declared: the init gate accepts it, the header cmdline is under the budget, the AVB footer verifies, boot_a holds the debug image of run 8 and the stock backup hashes to its record; one research row; the phone left on Android slot b
+
+Rank
+: 1
