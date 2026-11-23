@@ -7414,3 +7414,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-step-16-prints-its-evidence-and-asserts-the"></a>
+### Step 16 prints its evidence and asserts the holding setting
+
+Entry date
+: 2026-11-23
+
+Done
+: walleye-tries step 16 captures the node at three points plus the scaling log, asserts userspace/set_freq 50 MHz/HS_GEAR1/cur_freq 50 or 100 MHz; tests from run 6's captured text; review fixes: write output kept, gear compared by number.
+
+Considered
+: Review notes left: step closure length, a typed Gear newtype, tests for set_freq=undefined.
+
+Rejected
+: Typed stand-in fixture of the new capture format: no run has printed it yet.
+
+About
+: walleye-bootimage

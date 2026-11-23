@@ -165,33 +165,65 @@ pub fn is_a_node_name(n: &str) -> bool {
 /// `freq-table-hz` core_clk 50 MHz..200 MHz; run 4's `gear-before.txt` read `clock 50000000` at idle).
 pub const PIN_HZ: &str = "50000000";
 
-/// The command that reads the node's governor, the governors it has, the clocks it offers and its clock; a node that is not there
-/// says `no-governor-node`.
+/// What `cur_freq` reads for a pin in force while clock scaling is idle-suspended: `ufshcd_devfreq_target` rounds the request through
+/// `clk_round_rate(GCC_UFS_AXI_CLK)`, whose mainline table starts at 100 MHz (research walleye-ufs-pin-100mhz-read, (1); runs 6 and 7 read it).
+pub const ROUNDED_HZ: &str = "100000000";
+
+/// The link gear the low state gives on this card (research walleye-ufs-pin-100mhz-read, (4); runs 6 and 7's `gear-before.txt` read it).
+pub const PIN_GEAR: &str = "HS_GEAR1";
+
+/// The command that reads the node's governor, the governors it has, the clocks it offers, its floor, ceiling and clock, and the
+/// userspace governor's `set_freq` where there is one; a node that is not there says `no-governor-node`.
 pub fn governor_read_command(node: &str) -> Result<String, String> {
     if !is_a_node_name(node) {
         return Err(format!("devfreq node {node:?} is not a node name"));
     }
     Ok(format!(
-        "d=/sys/class/devfreq/{node}; if [ -e $d/governor ]; then echo governor=$(cat $d/governor); echo available=$(cat $d/available_governors); echo frequencies=$(cat $d/available_frequencies); echo cur_freq=$(cat $d/cur_freq); echo max_freq=$(cat $d/max_freq 2>/dev/null); else echo no-governor-node; fi"
+        "d=/sys/class/devfreq/{node}; if [ -e $d/governor ]; then echo governor=$(cat $d/governor); echo available=$(cat $d/available_governors); echo frequencies=$(cat $d/available_frequencies); echo min_freq=$(cat $d/min_freq 2>/dev/null); echo max_freq=$(cat $d/max_freq 2>/dev/null); echo cur_freq=$(cat $d/cur_freq); echo set_freq=$(cat $d/userspace/set_freq 2>/dev/null); else echo no-governor-node; fi"
     ))
 }
 
-/// The one sysfs write of the try, the way both trees support (research walleye-ufs-hold-the-clock-read, §4): the UFS host's devfreq
-/// node on the userspace governor with `set_freq` at [`PIN_HZ`]; a node without userspace gets `max_freq` clamped to the same clock.
-/// A runtime setting of the phone's RAM kernel: nothing flashed, nothing written to the card.
-pub fn clock_pin_command(node: &str, g: &Governor) -> Result<String, String> {
+/// One capture of the pin's evidence (research walleye-ufs-pin-100mhz-read, "the next run must capture"): the governor read, the node's
+/// `trans_stat`, the link's `power_info` lines (gear, mode, lanes) and the debugfs clock `gcc_ufs_axi_clk` where debugfs is mounted
+/// (`not-known-yet` where it is not). Reads only.
+pub fn pin_evidence_command(node: &str) -> Result<String, String> {
+    Ok(format!(
+        "{}; echo trans_stat_begin; cat /sys/class/devfreq/{node}/trans_stat 2>&1; echo trans_stat_end; {}; echo gcc_ufs_axi_clk_rate=$(cat /sys/kernel/debug/clk/gcc_ufs_axi_clk/clk_rate 2>/dev/null || echo not-known-yet)",
+        governor_read_command(node)?,
+        super::LINK_COMMAND
+    ))
+}
+
+/// The kernel log's scaling lines, read AFTER the write: the 'clock scaling is suspended, skip' line proves the rounding directly
+/// (runs 6 and 7's dmesg.txt was taken at boot, before the write). An empty answer is a reading: no scaling line.
+pub fn scaling_log_command() -> String {
+    "dmesg | grep -i scaling | tail -n 20; echo scaling-log-read-$((6*7))".to_string()
+}
+
+/// The writes of the pin, in order, each with the name of the capture taken after it: the userspace governor, then `set_freq` at
+/// [`PIN_HZ`] (the way mainline takes); a node without userspace gets `max_freq` clamped to the same clock. A runtime setting of the
+/// phone's RAM kernel: nothing flashed, nothing written to the card.
+pub fn clock_pin_steps(node: &str, g: &Governor) -> Result<Vec<(&'static str, String)>, String> {
     if !is_a_node_name(node) {
         return Err(format!("devfreq node {node:?} is not a node name"));
     }
     let d = format!("/sys/class/devfreq/{node}");
     if g.can_userspace() {
-        Ok(format!(
-            "echo userspace > {d}/governor; echo {PIN_HZ} > {d}/userspace/set_freq; echo pinned-$((6*7))"
-        ))
+        Ok(vec![
+            (
+                "pin-after-governor-write.txt",
+                format!("echo userspace > {d}/governor; echo pinned-$((6*7))"),
+            ),
+            (
+                "pin-after-set-freq.txt",
+                format!("echo {PIN_HZ} > {d}/userspace/set_freq; echo pinned-$((6*7))"),
+            ),
+        ])
     } else {
-        Ok(format!(
-            "echo {PIN_HZ} > {d}/max_freq; echo pinned-$((6*7))"
-        ))
+        Ok(vec![(
+            "pin-after-max-freq.txt",
+            format!("echo {PIN_HZ} > {d}/max_freq; echo pinned-$((6*7))"),
+        )])
     }
 }
 
@@ -202,8 +234,10 @@ pub struct Governor {
     pub current: Option<String>,
     pub available: Vec<String>,
     pub frequencies: Vec<String>,
+    pub min_freq: Option<String>,
     pub cur_freq: Option<String>,
     pub max_freq: Option<String>,
+    pub set_freq: Option<String>,
 }
 
 impl Governor {
@@ -224,8 +258,10 @@ impl Governor {
             current: value("governor"),
             available: words("available"),
             frequencies: words("frequencies"),
+            min_freq: value("min_freq"),
             cur_freq: value("cur_freq"),
             max_freq: value("max_freq"),
+            set_freq: value("set_freq"),
         }
     }
 
@@ -238,15 +274,51 @@ impl Governor {
         self.frequencies.is_empty() || self.frequencies.iter().any(|f| f == PIN_HZ)
     }
 
-    /// Whether the pin TOOK: the clock is 50 MHz AND the setting that holds it is there (the userspace governor, or max_freq clamped), because the
-    /// idle clock is already 50 MHz (run 4) and a clock alone proves nothing about a write that failed.
-    pub fn is_pinned(&self, by_userspace: bool) -> bool {
-        self.cur_freq.as_deref() == Some(PIN_HZ)
-            && if by_userspace {
-                self.current.as_deref() == Some("userspace")
-            } else {
-                self.max_freq.as_deref() == Some(PIN_HZ)
+    /// What is wrong with a pin read back, empty when it holds. The pin is judged by the setting that holds it and the state it gives
+    /// (decision 2026-11-24-walleye-ufs-pin-asserts-the-holding-setting, research walleye-ufs-pin-100mhz-read): the userspace governor
+    /// with `set_freq` at [`PIN_HZ`] (or `max_freq` at it on a node without userspace), the link gear [`PIN_GEAR`], and `cur_freq` at
+    /// [`PIN_HZ`] or [`ROUNDED_HZ`] (core_clk's rounding while scaling is idle-suspended). Never `cur_freq` == 50 MHz alone, never
+    /// `min_freq`. A value not read is "not known yet" and does not pass.
+    pub fn pin_flaws(&self, by_userspace: bool, gear: &str) -> Vec<String> {
+        let known = |v: Option<&str>| {
+            v.filter(|s| !s.is_empty())
+                .unwrap_or("not known yet")
+                .to_string()
+        };
+        let mut flaws = vec![];
+        if by_userspace {
+            if self.current.as_deref() != Some("userspace") {
+                flaws.push(format!(
+                    "governor {} (wanted userspace)",
+                    known(self.current.as_deref())
+                ));
             }
+            if self.set_freq.as_deref() != Some(PIN_HZ) {
+                flaws.push(format!(
+                    "userspace/set_freq {} (wanted {PIN_HZ})",
+                    known(self.set_freq.as_deref())
+                ));
+            }
+        } else if self.max_freq.as_deref() != Some(PIN_HZ) {
+            flaws.push(format!(
+                "max_freq {} (wanted {PIN_HZ})",
+                known(self.max_freq.as_deref())
+            ));
+        }
+        if !matches!(self.cur_freq.as_deref(), Some(PIN_HZ | ROUNDED_HZ)) {
+            flaws.push(format!(
+                "cur_freq {} (wanted {PIN_HZ}, or {ROUNDED_HZ} as core_clk's rounding)",
+                known(self.cur_freq.as_deref())
+            ));
+        }
+        let number = |g: &str| {
+            g.trim_start_matches(|c: char| !c.is_ascii_digit())
+                .to_string()
+        };
+        if number(gear) != number(PIN_GEAR) {
+            flaws.push(format!("gear {} (wanted {PIN_GEAR})", known(Some(gear))));
+        }
+        flaws
     }
 
     pub fn line(&self) -> String {
@@ -254,6 +326,21 @@ impl Governor {
             "governor {}, clock {}",
             self.current.as_deref().unwrap_or("not known yet"),
             self.cur_freq.as_deref().unwrap_or("not known yet")
+        )
+    }
+
+    /// Every reading of the node, for the stop line: what the next reader needs to see why a pin was refused.
+    pub fn evidence(&self, gear: &str) -> String {
+        let k = |v: &Option<String>| v.clone().unwrap_or_else(|| "not known yet".to_string());
+        format!(
+            "governor {}, available_frequencies [{}], min_freq {}, max_freq {}, cur_freq {}, set_freq {}, gear {}",
+            k(&self.current),
+            self.frequencies.join(" "),
+            k(&self.min_freq),
+            k(&self.max_freq),
+            k(&self.cur_freq),
+            k(&self.set_freq),
+            if gear.is_empty() { "not known yet" } else { gear }
         )
     }
 }
@@ -333,6 +420,14 @@ pub fn ramp_result(done: &[(u64, Step)], steps: &[u64], gear: &str) -> String {
 }
 
 impl Ufs {
+    /// One capture of the pin's evidence, kept whole in `name`, read as the node and the link's gear name (empty: not known yet).
+    fn pin_capture(&self, sh: &mut Shell, name: &str) -> Result<(Governor, String), String> {
+        let wait = Duration::from_secs(self.s.gear_wait);
+        let said = sh.run(&pin_evidence_command(&self.s.devfreq)?, wait)?;
+        self.lab.save(name, &said)?;
+        Ok((Governor::of(&said), Link::of(&said).gear))
+    }
+
     fn read_gear(&self, name: &str) -> Result<Gear, String> {
         let mut sh = self.lab.shell(10)?;
         let said = sh.run(&gear_command(), Duration::from_secs(self.s.gear_wait))?;
@@ -351,17 +446,19 @@ impl Ufs {
         move || u.read_gear("gear-before.txt").map(|_| ())
     }
 
-    /// The UFS host's devfreq clock is held low BEFORE any load, the way both trees support (research walleye-ufs-hold-the-clock-read, §4):
-    /// the node's governors, clocks and clock are read and kept; the userspace governor gets `set_freq` 50 MHz (a node without userspace,
-    /// `max_freq`); `cur_freq` is READ BACK and the run stops before any load if it is not 50 MHz. The gear after the pin is read and kept:
-    /// whether the link drops to HS-G1 and the change succeeds is NOT KNOWN YET (the research, §5), the log says what it read.
+    /// The UFS host's devfreq clock is held low BEFORE any load (research walleye-ufs-pin-100mhz-read, decision
+    /// 2026-11-24-walleye-ufs-pin-asserts-the-holding-setting): the node, its link and the debugfs clock are captured before the write, after
+    /// the governor write and after `set_freq` 50 MHz (a node without userspace: after `max_freq`), each to its own file, and the scaling
+    /// lines of the kernel log after the write. The pin holds when the governor reads userspace, `set_freq` reads 50 MHz, the gear reads
+    /// HS_GEAR1 and `cur_freq` reads 50 or 100 MHz (core_clk's rounding); otherwise the run stops before any load and its stop line prints
+    /// every reading. Whether the 100 MHz core clock bears on the silence under load is NOT KNOWN YET.
     pub fn the_clock_is_pinned_low(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
             let node = &u.s.devfreq;
             let mut sh = u.lab.shell(10)?;
             let wait = Duration::from_secs(u.s.gear_wait);
-            let before = Governor::of(&sh.run(&governor_read_command(node)?, wait)?);
+            let (before, before_gear) = u.pin_capture(&mut sh, "pin-before.txt")?;
             u.lab.save("governor-before.txt", &before.line())?;
             if !before.present {
                 return Err(format!(
@@ -380,17 +477,41 @@ impl Ufs {
                     before.frequencies.join(" ")
                 ));
             }
-            sh.run(&clock_pin_command(node, &before)?, wait)?;
-            let after = Governor::of(&sh.run(&governor_read_command(node)?, wait)?);
+            let mut seen = vec![format!("before: {}", before.evidence(&before_gear))];
+            let mut last = (before.clone(), before_gear);
+            for (name, write) in clock_pin_steps(node, &before)? {
+                let wrote = sh.run(&write, wait)?;
+                u.lab
+                    .save(&name.replace("pin-after", "pin-write"), &wrote)?;
+                let (g, gear) = u.pin_capture(&mut sh, name)?;
+                seen.push(format!(
+                    "{}: {}",
+                    name.trim_end_matches(".txt"),
+                    g.evidence(&gear)
+                ));
+                last = (g, gear);
+            }
+            let scaling = sh.run(&scaling_log_command(), wait)?;
+            u.lab.save("pin-scaling-log-after.txt", &scaling)?;
+            let (after, after_gear) = last;
             u.lab.save("governor-after.txt", &after.line())?;
-            if !after.is_pinned(before.can_userspace()) {
+            let flaws = after.pin_flaws(before.can_userspace(), &after_gear);
+            if !flaws.is_empty() {
+                let skip = scaling
+                    .lines()
+                    .find(|l| l.contains("clock scaling is suspended"))
+                    .unwrap_or("no 'clock scaling is suspended' line");
                 return Err(format!(
-                    "the pin did not take ({}; max_freq {}; wanted {PIN_HZ} Hz held by the userspace governor, or max_freq): the run stops before any load",
-                    after.line()
-                    ,after.max_freq.as_deref().unwrap_or("not known yet")
+                    "the pin did not take ({}); readings: {}; kernel log: {skip}; the run stops before any load",
+                    flaws.join("; "),
+                    seen.join(" | ")
                 ));
             }
-            println!("  {node}: {} -> {}", before.line(), after.line());
+            println!(
+                "  {node}: {} -> {} (gear {after_gear})",
+                before.line(),
+                after.line()
+            );
             u.read_gear("gear-pinned.txt")?;
             Ok(())
         }
@@ -1272,11 +1393,12 @@ mod ramp_tests {
         assert_eq!(run4_governors(), "userspace simple_ondemand");
         assert_eq!(run4_idle_clock(), PIN_HZ);
         let g = Governor::of(&read_text("simple_ondemand", "", &run4_idle_clock()));
+        assert!(g.can_userspace() && g.offers_the_pin());
+        // the node as run 4 found it is not a pin: the governor and set_freq say so, whatever the clock reads
         assert!(
-            g.can_userspace()
-                && !g.is_pinned(true)
-                && Governor::of(&read_text("userspace", "", PIN_HZ)).is_pinned(true)
-                && g.offers_the_pin()
+            g.pin_flaws(true, PIN_GEAR).len() >= 2,
+            "{:?}",
+            g.pin_flaws(true, PIN_GEAR)
         );
         assert!(!Governor::of("no-governor-node").can_userspace());
         assert!(!Governor::of("governor=a\navailable=performance\ncur_freq=1").can_userspace());
@@ -1284,6 +1406,88 @@ mod ramp_tests {
             !Governor::of(&read_text("simple_ondemand", "200000000", "200000000")).offers_the_pin()
         );
         assert!(Governor::of("").line().contains("not known yet"));
+        let all = Governor::of(&with_set_freq(
+            &read_text("userspace", "50000000 200000000", "100000000"),
+            "50000000",
+        ));
+        assert!(
+            all.evidence(PIN_GEAR).contains("set_freq 50000000")
+                && all.evidence("").contains("gear not known yet")
+        );
+    }
+
+    /// Run 6's captured text (~/lab-material/walleye/ufs-20261124-000728, run 7's is the same, saved as fixtures; research
+    /// walleye-ufs-pin-100mhz-read): the node's governor and clock before and after the old pin, and the link's gear read idle before.
+    const RUN6_GOV_AFTER: &str = include_str!("../../fixtures/ufs-try2-run6-governor-after.txt");
+    const RUN6_GOV_BEFORE: &str = include_str!("../../fixtures/ufs-try2-run6-governor-before.txt");
+    const RUN6_GEAR: &str = include_str!("../../fixtures/ufs-try2-run6-gear-before.txt");
+
+    /// The governor read of run 6's `governor-after.txt` line ("governor userspace, clock 100000000"): what the old step read back.
+    fn run6_after() -> Governor {
+        let (gov, clock) = RUN6_GOV_AFTER
+            .trim()
+            .strip_prefix("governor ")
+            .and_then(|t| t.split_once(", clock "))
+            .expect("run 6's governor-after line");
+        Governor::of(&format!("governor={gov}\ncur_freq={clock}"))
+    }
+
+    /// `text` with the userspace governor's `set_freq` line.
+    fn with_set_freq(text: &str, hz: &str) -> String {
+        format!("{text}\nset_freq={hz}")
+    }
+
+    #[test]
+    fn run_6s_100_mhz_read_is_the_clock_passing_and_asks_for_set_freq_and_the_gear() {
+        assert_eq!(
+            RUN6_GOV_BEFORE.trim(),
+            "governor simple_ondemand, clock 50000000"
+        );
+        let gear = Link::of(RUN6_GEAR).gear;
+        assert_eq!(gear, PIN_GEAR); // run 6's gear before the write: the low state's gear
+        let after = run6_after();
+        assert_eq!(after.cur_freq.as_deref(), Some(ROUNDED_HZ));
+        // the old step refused this read on the clock; under the new assertion only the set_freq read is missing (it was not captured)
+        let flaws = after.pin_flaws(true, &gear);
+        assert_eq!(flaws.len(), 1, "{flaws:?}");
+        assert!(
+            flaws[0].contains("userspace/set_freq not known yet"),
+            "{flaws:?}"
+        );
+        // with set_freq read back at 50 MHz the same text is a pin
+        let held = Governor {
+            set_freq: Some(PIN_HZ.into()),
+            ..after.clone()
+        };
+        assert!(held.pin_flaws(true, &gear).is_empty());
+        // the clock passes as the lowest OPP too, and fails at anything else
+        let low = Governor {
+            cur_freq: Some(PIN_HZ.into()),
+            ..held.clone()
+        };
+        assert!(low.pin_flaws(true, &gear).is_empty());
+        let up = Governor {
+            cur_freq: Some("200000000".into()),
+            ..held.clone()
+        };
+        assert!(up.pin_flaws(true, &gear)[0].contains("cur_freq 200000000"));
+        // a gear above the low state fails, whatever the clock
+        assert!(held.pin_flaws(true, "HS_GEAR3")[0].contains("gear HS_GEAR3"));
+        assert!(held.pin_flaws(true, "")[0].contains("gear not known yet"));
+        // the governor that is not userspace fails
+        let free = Governor {
+            current: Some("simple_ondemand".into()),
+            ..held
+        };
+        assert!(free.pin_flaws(true, &gear)[0].contains("governor simple_ondemand"));
+    }
+
+    #[test]
+    fn a_node_without_userspace_is_pinned_by_max_freq_and_the_same_gear() {
+        let g = Governor::of("governor=simple_ondemand\navailable=simple_ondemand\ncur_freq=100000000\nmax_freq=50000000");
+        assert!(g.pin_flaws(false, PIN_GEAR).is_empty());
+        let open = Governor::of("governor=simple_ondemand\navailable=simple_ondemand\ncur_freq=100000000\nmax_freq=200000000");
+        assert!(open.pin_flaws(false, PIN_GEAR)[0].contains("max_freq 200000000"));
     }
 
     #[test]
@@ -1291,13 +1495,18 @@ mod ramp_tests {
         let with = Governor::of(&read_text("simple_ondemand", "", "1"));
         let without =
             Governor::of("governor=simple_ondemand\navailable=simple_ondemand\ncur_freq=1");
-        let cmds = [
-            governor_read_command("1da4000.ufshc").unwrap(),
-            clock_pin_command("1da4000.ufshc", &with).unwrap(),
+        let node = "1da4000.ufshc";
+        let userspace = clock_pin_steps(node, &with).unwrap();
+        let clamp = clock_pin_steps(node, &without).unwrap();
+        let mut cmds = vec![
+            governor_read_command(node).unwrap(),
+            pin_evidence_command(node).unwrap(),
+            scaling_log_command(),
             ramp_step_command("sda", 2, 3, 256, 60).unwrap(),
             ram_log_command(),
-            clock_pin_command("1da4000.ufshc", &without).unwrap(),
         ];
+        cmds.extend(userspace.iter().map(|(_, c)| c.clone()));
+        cmds.extend(clamp.iter().map(|(_, c)| c.clone()));
         for c in &cmds {
             assert!(
                 std::process::Command::new("sh")
@@ -1309,7 +1518,7 @@ mod ramp_tests {
             );
             assert!(!writes_to_the_card(c), "{c}");
         }
-        let step = &cmds[2];
+        let step = &cmds[3];
         assert!(
             step.contains("iflag=direct")
                 && step.contains("count=256")
@@ -1320,16 +1529,41 @@ mod ramp_tests {
             "the RAM log line is written BEFORE the read"
         );
         let d = "/sys/class/devfreq/1da4000.ufshc";
+        // the governor and set_freq are two writes, each followed by its own capture
+        assert_eq!(userspace.len(), 2);
         assert!(
-            cmds[1].contains(&format!("userspace > {d}/governor"))
-                && cmds[1].contains(&format!("{PIN_HZ} > {d}/userspace/set_freq"))
+            userspace[0]
+                .1
+                .contains(&format!("userspace > {d}/governor"))
+                && !userspace[0].1.contains("set_freq")
         );
+        assert!(userspace[1]
+            .1
+            .contains(&format!("{PIN_HZ} > {d}/userspace/set_freq")));
+        assert_eq!(clamp.len(), 1);
         assert!(
-            cmds[4].contains(&format!("{PIN_HZ} > {d}/max_freq")) && !cmds[4].contains("governor")
+            clamp[0].1.contains(&format!("{PIN_HZ} > {d}/max_freq"))
+                && !clamp[0].1.contains("governor")
         );
+        // the evidence names everything the research asks for
+        let e = &cmds[1];
+        for key in [
+            "governor=",
+            "available=",
+            "frequencies=",
+            "min_freq=",
+            "max_freq=",
+            "cur_freq=",
+            "set_freq=",
+            "trans_stat",
+            "power_info",
+            "gcc_ufs_axi_clk/clk_rate",
+        ] {
+            assert!(e.contains(key), "{key}");
+        }
         for bad in ["", "../x", "a b", "a;b", "A"] {
             assert!(
-                governor_read_command(bad).is_err() && clock_pin_command(bad, &with).is_err(),
+                governor_read_command(bad).is_err() && clock_pin_steps(bad, &with).is_err(),
                 "{bad}"
             );
         }
@@ -1364,47 +1598,119 @@ mod ramp_tests {
         );
     }
 
-    #[test]
-    fn the_clock_is_pinned_low_and_read_back() {
-        // the first read is the node as run 4 found it (scaled up under simple_ondemand), the second the node after the pin
-        let before = read_text("simple_ondemand", "50000000 200000000", "200000000");
-        let after = read_text("userspace", "50000000 200000000", &run4_idle_clock());
-        let t = vec![
-            (
-                "cat $d/governor",
-                Box::leak(format!("{before}|||{after}").into_boxed_str()) as &'static str,
-            ),
+    /// A capture of the evidence command as the phone prints it: the governor read, then the link's lines (run 6's real
+    /// `gear-before.txt`, its gear swapped when a test gives another) - the rest of the capture format is NOT KNOWN YET from a run.
+    fn evidence(governor: &str, cur: &str, set_freq: Option<&str>, gear: &str) -> String {
+        let node = read_text(governor, "50000000 200000000", cur);
+        let node = set_freq.map_or(node.clone(), |hz| with_set_freq(&node, hz));
+        format!("{node}\n{}", RUN6_GEAR.replace(PIN_GEAR, gear))
+    }
+
+    /// The step's table: the three captures in order, the scaling log, the writes' echo, the gear read after.
+    fn pin_table(captures: [&str; 3], scaling: &str) -> Vec<(&'static str, &'static str)> {
+        let leak = |s: String| -> &'static str { Box::leak(s.into_boxed_str()) };
+        vec![
+            ("cat $d/governor", leak(captures.join("|||"))),
+            ("dmesg", leak(format!("{scaling}\nscaling-log-read-42"))),
             ("pinned-", "pinned-42"),
             ("power_info", RUN3_BEFORE),
-        ];
-        let u = ufs(t, "pin");
+        ]
+    }
+
+    #[test]
+    fn the_clock_is_pinned_low_and_the_evidence_is_captured_at_each_point() {
+        let before = evidence("simple_ondemand", "200000000", None, PIN_GEAR);
+        let gov = evidence("userspace", "100000000", None, PIN_GEAR);
+        let set = evidence("userspace", "100000000", Some(PIN_HZ), PIN_GEAR);
+        let u = ufs(pin_table([&before, &gov, &set], ""), "pin");
         u.the_clock_is_pinned_low()().unwrap();
+        // each point has its own file: before, after the governor write, after set_freq, and the kernel log after
+        assert!(saved(&u, "pin-before.txt").contains("governor=simple_ondemand"));
+        assert!(saved(&u, "pin-after-governor-write.txt").contains("governor=userspace"));
+        assert!(saved(&u, "pin-after-set-freq.txt").contains("set_freq=50000000"));
+        assert!(saved(&u, "pin-scaling-log-after.txt").contains("scaling-log-read-42"));
         assert!(
             saved(&u, "governor-before.txt").contains("simple_ondemand")
-                && saved(&u, "governor-after.txt").contains("userspace, clock 50000000")
+                && saved(&u, "governor-after.txt").contains("userspace, clock 100000000")
                 && saved(&u, "gear-pinned.txt").contains("clock_1da4000.ufshc=50000000")
         );
-        // a clock that is not 50 MHz after the pin stops the run before any load
-        let t = vec![
-            ("cat $d/governor", &*Box::leak(before.into_boxed_str())),
-            ("pinned-", "pinned-42"),
-        ];
-        let e = ufs(t, "notaken").the_clock_is_pinned_low()().unwrap_err();
+    }
+
+    #[test]
+    fn a_pin_that_is_not_in_force_stops_the_run_before_any_load_and_prints_its_readings() {
+        let before = evidence("simple_ondemand", "200000000", None, PIN_GEAR);
+        let gov = evidence("userspace", "100000000", None, PIN_GEAR);
+        let refused = |name: &str, set: String, scaling: &str| {
+            let u = ufs(pin_table([&before, &gov, &set], scaling), name);
+            u.the_clock_is_pinned_low()().unwrap_err()
+        };
+        // set_freq not read back: not known yet, the readings of all three points are in the line
+        let e = refused(
+            "noset",
+            evidence("userspace", "100000000", None, PIN_GEAR),
+            "",
+        );
         assert!(
-            e.contains("pin did not take") && e.contains("before any load"),
+            e.contains("userspace/set_freq not known yet") && e.contains("before any load"),
             "{e}"
         );
-        // run 4 found the clock at 50 MHz already: a pin whose write failed (governor unchanged) is refused all the same
-        let idle = read_text("simple_ondemand", "50000000 200000000", &run4_idle_clock());
-        let t = vec![
-            ("cat $d/governor", &*Box::leak(idle.into_boxed_str())),
-            ("pinned-", "pinned-42"),
-        ];
-        let e = ufs(t, "idlenotpinned").the_clock_is_pinned_low()().unwrap_err();
         assert!(
-            e.contains("pin did not take") && e.contains("simple_ondemand"),
+            e.contains("before: governor simple_ondemand")
+                && e.contains("pin-after-governor-write: governor userspace")
+                && e.contains("pin-after-set-freq: governor userspace")
+                && e.contains("no 'clock scaling is suspended' line"),
             "{e}"
         );
+        // the write failed (governor unchanged): refused, naming the governor
+        let e = refused(
+            "unchanged",
+            evidence("simple_ondemand", "50000000", Some("0"), PIN_GEAR),
+            "",
+        );
+        assert!(
+            e.contains("governor simple_ondemand (wanted userspace)") && e.contains("set_freq 0"),
+            "{e}"
+        );
+        // the clock above the low state, and a gear above it, are each refused
+        let e = refused(
+            "fast",
+            evidence("userspace", "200000000", Some(PIN_HZ), PIN_GEAR),
+            "",
+        );
+        assert!(e.contains("cur_freq 200000000"), "{e}");
+        let e = refused(
+            "gear",
+            evidence("userspace", "100000000", Some(PIN_HZ), "HS_GEAR3"),
+            "",
+        );
+        assert!(e.contains("gear HS_GEAR3 (wanted HS_GEAR1)"), "{e}");
+        // the kernel log's line is printed when it is there (the phrase is the decision's; the line itself is NOT KNOWN YET from a run)
+        let e = refused(
+            "logged",
+            evidence("userspace", "200000000", Some(PIN_HZ), PIN_GEAR),
+            "ufshcd-qcom 1da4000.ufshc: clock scaling is suspended, skip",
+        );
+        assert!(
+            e.contains("kernel log: ufshcd-qcom 1da4000.ufshc: clock scaling is suspended, skip"),
+            "{e}"
+        );
+    }
+
+    #[test]
+    fn a_node_without_userspace_is_clamped_and_read_back_by_max_freq() {
+        let node = |max: &str| {
+            format!(
+                "governor=simple_ondemand\navailable=simple_ondemand\nfrequencies=50000000 200000000\ncur_freq=100000000\nmax_freq={max}\n{RUN6_GEAR}"
+            )
+        };
+        let (open, clamped) = (node("200000000"), node(PIN_HZ));
+        let t = pin_table([&open, &clamped, &clamped], "");
+        let u = ufs(t, "clamp");
+        u.the_clock_is_pinned_low()().unwrap();
+        assert!(saved(&u, "pin-after-max-freq.txt").contains("max_freq=50000000"));
+        let t = pin_table([&open, &open, &open], "");
+        let e = ufs(t, "clampfailed").the_clock_is_pinned_low()().unwrap_err();
+        assert!(e.contains("max_freq 200000000 (wanted 50000000)"), "{e}");
     }
 
     #[test]
