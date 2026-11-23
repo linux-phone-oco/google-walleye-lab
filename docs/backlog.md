@@ -11713,3 +11713,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-gpt-hash-from-android-read"></a>
+### Read sda's GPT hash from Android as root (read only): the same dd and sha256sum as the UFS try, expect 6cd7e48c...0174
+
+Status
+: open
+
+Note
+: From research walleye-sda-gpt-hash-changed-after-stage-2 (the run 7 keeper's open question). Same visit as the vendor firmware pull; no go needed, nothing is written.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: from Android b (adb root, read only, no reboot, nothing written): sz=$(cat /sys/block/sda/size); (dd if=/dev/block/sda bs=4096 count=6 2>/dev/null; dd if=/dev/block/sda bs=4096 skip=$((sz/8-5)) count=5 2>/dev/null) | sha256sum, taken in the same visit as walleye-vendor-firmware-pull: expect 6cd7e48c21bc7a1f2cea8c12dc773003ca71a8681f2b3f0c43f428d55d250174; one research row quoting the digest: equal means the debug image and Android read the disk alike and stage 2 is what changed it; different means the debug image reads it differently (stop, tell the coordinator)
+
+Rank
+: 4

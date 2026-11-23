@@ -7351,3 +7351,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-sda-gpt-hash-changed-after-stage-2"></a>
+### walleye-sda-gpt-hash-changed-after-stage-2
+
+Date
+: 2026-11-24
+
+Brief
+: The sda GPT hash 6cd7e48c (runs 4, 6, 7) differs from 2de02f2b (runs 1-3, rootfs-boots 11-22): in time order it is stage 2's own change; one read from Android settles it
+
+Question
+: UFS run 7's keeper asked: the sda GPT hash before the try is 6cd7e48c...0174, runs 1-3 recorded 2de02f2b...57cb: did the disk or the hashing change?
+
+Found
+: COUNTED from the lab files: 2de02f2b is in runs 1-3 (ufs-20261123-080827 to -105319, 08:08-10:53) and the rootfs-boots runs of 2026-11-22; 6cd7e48c is in run 4 (22:46), run 6 (00:07) and run 7 (00:15) of the UFS try: the same value three times, all after stage 2. Stage 2 (install-boot-20261123-112709 to -220443, 11:27-22:04) flashed boot_a and set_active a then b: the bootloader itself changes slot a's attribute bits in sda's GPT (flash resets tries and successful: research walleye-stage2-flash-resets-flags-documented; switch: walleye-stage2-run11-all-29-steps-passed). The hash covers the first 6 and last 5 blocks of 4096 bytes of sda (ufs/load.rs:111), which hold the GPT headers, entries and their CRCs, so a flag change shows. So the change is stage 2's, between run 3 and run 4, and 6cd7e48c is stable after it. NOT counted: the stage 2 files hold raw hex of a different range, so 6cd7e48c was not recomputed from them; the same dd and sha256sum read from Android as root would show whether the debug image reads the disk as Android does. Queued: item walleye-gpt-hash-from-android-read, read only.
+
+About
+: walleye-bootimage
