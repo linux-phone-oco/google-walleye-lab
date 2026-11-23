@@ -6196,3 +6196,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-install-boot-rehearsal-2-passed"></a>
+### walleye-install-boot-rehearsal-2-passed
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 rehearsal 2 after PR 817: 17 of 17 passed, nothing written; slot b, image e337de53 declared, six GPTs equal, boot chain as stored
+
+Question
+: Does the stage 2 rehearsal still pass on the code of PR 817 (RESTART2 way back, stored-set reboot tool check)?
+
+Found
+: Yes: 17 of 17 steps. Battery good; image e337de53 whole, AVB footer verifies, names system_a; init accepts the booted slot; stored chain, key and reboot tool as declared; adb slot b agrees with fastboot; boot_a equals its backup; six GPTs kept whole, read again equal and through the switch checker; slot flags equal twice; boot chain equals the stored set. The flash command was shown, not run. Phone ends on Android slot b. The run needed build/images linked to ~/Projects/walleye-build in the worktree (untracked).
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/

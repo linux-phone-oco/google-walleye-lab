@@ -10125,10 +10125,10 @@ Rank
 ### The stage 2 rehearsal again for real, after PR 817 changed the way back: every step but the flash, the set_active, the new slot's boot and the switch back; nothing is written
 
 Status
-: open
+: done
 
 Note
-: Asked for by the coordinator (2026-11-23 11:05): PR 817 changed stage 2's way back and the stored-set step; the first rehearsal (PR 798) found two checker bugs that the real run would have hit, so the changed code is rehearsed for real before any go. Runs AFTER UFS try 2 run 3 (one lease). Next: the coordinator opens the stage 2 go on walleye-install-flash-boot-run for image e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1.
+: proven by rehearse-install-boot-on-the-pixel-2.rs, 17 of 17, nothing written (research walleye-install-boot-rehearsal-2-passed). Next: the coordinator opens the stage 2 go on walleye-install-flash-boot-run for e337de53
 
 About
 : walleye-bootimage
