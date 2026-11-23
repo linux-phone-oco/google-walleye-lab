@@ -10197,7 +10197,7 @@ Status
 : in-progress
 
 Note
-: STOPPED at check 18 (keeper, 2026-11-23 14:2x, run 5): the no-op flash of boot_a clears slot-unbootable a (yes->no) as well as retry 0->1; check 18 allows only successful+retry, so it stops before set_active; phone on Android b, no set_active sent. Research walleye-stage2-run5-stops-at-check-18-flash-resets-unbootable-too. Coordinator: widen check 18 to the unbootable bit (measured twice) or decide otherwise; NO second run by the keeper. | previous: run 4 steps 1-20 passed, slot a no ssh in 170 s, fallback by bootloader counter.
+: TAKE THIS ITEM NOW: STAGE 2 RUN 6 (the coordinator, 2026-11-23 14:30): run 5 stopped at check 18 because the flash also cleared slot a's unbootable (PR 859); check 18 now lets the flash clear unbootable yes to no, never no to yes (PR 862), the stage 2 command was walked by state from all four starting states (research walleye-stage2-walk-by-state), and run 5's GPT read from Android shows only boot_a's attribute byte (0xb2 to 0x3b) and the CRCs it implies (PR 861). STATE: Android b, boot_a holds e337de53, slot a retry 1 unbootable no successful no, b successful and current, NO set_active yet. Everything else in the run 5 paragraph below stands: during step 21's wait do NOT touch the phone (no adb, no fastboot verb, no usb reset, no reboot); afterwards copy failed-boot-read.txt (pstore, cmdline, bootreason) WHOLE into the research row and say whether our kernel's console is in it and when the bite came; if slot a answers ssh the full stage 2 proceeds; if it stops again: research row with every text the phone printed, release the lease, no second run. The go is for image e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1 ONLY, to the go_until of this row. | STOPPED at check 18 (keeper, 2026-11-23 14:2x, run 5): the no-op flash of boot_a clears slot-unbootable a (yes->no) as well as retry 0->1; check 18 allows only successful+retry, so it stops before set_active; phone on Android b, no set_active sent. Research walleye-stage2-run5-stops-at-check-18-flash-resets-unbootable-too. Coordinator: widen check 18 to the unbootable bit (measured twice) or decide otherwise; NO second run by the keeper. | previous: run 4 steps 1-20 passed, slot a no ssh in 170 s, fallback by bootloader counter.
 
 Blocked by
 : walleye-stage2-pstore-first-on-fallback
@@ -10207,6 +10207,9 @@ About
 
 Opened
 : 2026-11-23
+
+Needs
+: phone
 
 Proof
 : the one command passes every step: the boot of the new slot from the card on ssh, the GPT changed only by the slot switch, the way back set_active, the phone on Android, the boot chain as stored
@@ -10218,7 +10221,7 @@ Witness
 : person
 
 Go until
-: 2026-11-23T16:00:07+01:00
+: 2026-11-23T16:26:36+01:00
 
 
 <a id="walleye-fastboot-reboot-stays-in-fastboot"></a>
