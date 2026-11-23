@@ -6301,3 +6301,18 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-23-1040-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel, nothing flashed. Rerun 7 of stage 1 (RESTART2): checks 1-21 passed, bootloader reached, but Android not back in 240 s after fastboot reboot; after-stop way back home, GPT/boot chain/slot flags equal (research walleye-rootfs-boots-run-7-bootloader-reached-android-late)
+
+Considered
+: next: the coordinator decides on the Top's rule (bootloader reached -> stage 2 go; why fastboot reboot stayed in fastboot 240 s is not known yet); no second run without the coordinator; then walleye-install-flash-boot, slpi-boot-qrtr, nfc node

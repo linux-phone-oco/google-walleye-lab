@@ -6155,3 +6155,25 @@ Material
 
 Supersedes
 : walleye-sensors-way
+
+
+<a id="walleye-rootfs-boots-run-7-bootloader-reached-android-late"></a>
+### walleye-rootfs-boots-run-7-bootloader-reached-android-late
+
+Date
+: 2026-11-23
+
+Brief
+: Run 7 (RESTART2 way back): checks 1-21 passed, the bootloader WAS reached (fastboot listed the phone, current-slot b = start), but Android was not back within 240 s after fastboot reboot
+
+Question
+: Does the static reboot tool pushed to /tmp send the phone to its bootloader (RESTART2), and does the way back then return to Android?
+
+Found
+: Image c3373d71 (run image d594dcbe): stage 1 passed through check 19 (init mounted /dev/sda22 system_a ro under the overlay, slot suffix _b, kernel log clean). The way back's bootloader step worked: fastboot listed the phone, current-slot b equalled the slot at the start, fastboot reboot ran at 10:21:16. Check 22 then failed: no Android within 240 s (walleye-idle-android said the phone is in fastboot). The after-stop way back brought Android home (up since about 10:34); GPT of 6 disks and system_a, the boot chain and both slots' flags measured equal after the stop. Nothing flashed, set_active or erased. Not known yet: why fastboot reboot left the phone in fastboot for the 240 s. The tool did run from /tmp (the bootloader was reached).
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-23/
