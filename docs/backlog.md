@@ -9663,10 +9663,14 @@ Rank
 ### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
 
 Status
-: done
+: in-progress
 
 Note
-: UFS TRY 2 CLOSED ON THE FACTS (the coordinator, 2026-11-23, after run 3 (PR 819) stopped at step 16 as run 2 did): three runs, matched image 461077869fb2, read only, nothing written. MEASURED: UFS_HW_VERSION 3.1.0, PHY table 3.1.0, 6 disks, sda 45 partitions, GPT hash before 2de02f2bb790342885ebb3d70683d3db6d0cf70ead73a4b3cf738ca9b4cd57cb; the link HS_GEAR1 2 lanes 50 MHz idle and HS_GEAR3 2 lanes rate B 200 MHz under load (8, 8 and 7 samples in runs 1-3: the gear scales with load); the GPT of sda read again from Android after runs 1, 2 and 3: EQUAL each time (PRs 776, 789, 819), the boot chain's 32 partitions the same bytes. NOT MEASURED: the gear 2 s after load, the no-purge check, the slot flags after. FOUND: under a sustained O_DIRECT read of sda (4 GiB in runs 1-2, 2 GiB in run 3) the phone's shell and usb network go silent and do not come back within the read's limit plus 60 s; the phone-side cause is NOT KNOWN YET (item walleye-ufs-silent-under-load-cause). Not a pass of the proof 'the card is unharmed under load' but a finding. | RUN 3 done 2026-11-23 (walleye-keeper): stopped at step 16 the same way as run 2 (research walleye-ufs-try-2-run-3-silent-shell-gpt-equal); GPT EQUAL after. No fourth run without the coordinator; the coordinator closes try 2 on these facts.
+: TAKE THIS ITEM NOW (the coordinator, 22:41 2026-11-23): THE RAMPED, PINNED-LOW UFS TRY (item walleye-ufs-silent-ramped-pinned-try, decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try, procedure change PR 835), read only, the matched UFS-on image whose sha256 is 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 and ONLY it (the go gate of procedures/ufs-matched-image-on-the-pixel-2.rs reads THIS item: the author's standing go covers a read-only UFS try of the same kind, decision 2026-11-22-walleye-author-go-per-stage-not-per-step). Why now: stage 3 (rw writes) is blocked on the cause of the shell going silent under a sustained read (runs 1-3 of UFS try 2), and stage 2 is done (run 12), so the phone is free. THE KEEPER: the 25-step procedure ramps 64, 256, 1024 MiB with the devfreq governor pinned to powersave first, a RAM log line before and after each step and the shell polled every second; the first silent step is a RESULT; tee the whole stdout; the watch rule (no ok or FAIL for 3 minutes outside the ramp's own waits is a stall: kill the stalled host adb child, tell the coordinator); build/images linked to ~/Projects/walleye-build itself; tell the Top Coordinator (local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'ufs try: starting' and ONE result line naming the outcome; no second run. | UFS TRY 2 CLOSED ON THE FACTS (the coordinator, 2026-11-23, after run 3 (PR 819) stopped at step 16 as run 2 did): three runs, matched image 461077869fb2, read only, nothing written. MEASURED: UFS_HW_VERSION 3.1.0, PHY table 3.1.0, 6 disks, sda 45 partitions, GPT hash before 2de02f2bb790342885ebb3d70683d3db6d0cf70ead73a4b3cf738ca9b4cd57cb; the link HS_GEAR1 2 lanes 50 MHz idle and HS_GEAR3 2 lanes rate B 200 MHz under load (8, 8 and 7 samples in runs 1-3: the gear scales with load); the GPT of sda read again from Android after runs 1, 2 and 3: EQUAL each time (PRs 776, 789, 819), the boot chain's 32 partitions the same bytes. NOT MEASURED: the gear 2 s after load, the no-purge check, the slot flags after. FOUND: under a sustained O_DIRECT read of sda (4 GiB in runs 1-2, 2 GiB in run 3) the phone's shell and usb network go silent and do not come back within the read's limit plus 60 s; the phone-side cause is NOT KNOWN YET (item walleye-ufs-silent-under-load-cause). Not a pass of the proof 'the card is unharmed under load' but a finding. | RUN 3 done 2026-11-23 (walleye-keeper): stopped at step 16 the same way as run 2 (research walleye-ufs-try-2-run-3-silent-shell-gpt-equal); GPT EQUAL after. No fourth run without the coordinator; the coordinator closes try 2 on these facts.
+go until 2026-11-24T00:41:15+01:00, outcomes: if the 1024 MiB ramp finishes with the shell answering every second at gear 3 then the silence of runs 1-3 needs the longer 2048 or 4096 MiB read or a second reader: the ramp's own gear, clock and governor lines are the baseline and stage 3 is not blocked by a 1 GiB read
+if a step goes silent then the first silent step (64, 256 or 1024 MiB), its gear and its clock are the finding and the RAM log's last line before the silence says where the host or the bus stopped: that step size is the bound the stage 3 write test must stay under until the cause is read
+if the governor pin (powersave) is missing or refused then the run stops before any load and says so: the devfreq node is the next read
+if the way back after a silent ramp needs the forced leg then the PON reason read on Android (pon-reason.txt) is the evidence of what ended the phone
 
 About
 : walleye-first-fastboot-boot
@@ -9674,17 +9678,20 @@ About
 Opened
 : 2026-11-23
 
+Needs
+: phone
+
 Proof
 : the image's own dmesg: UFS_HW_VERSION line, PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge
 
 Rank
-: 2
+: 1
 
 Witness
 : person
 
 Go until
-: 2026-11-23T10:00:00+01:00
+: 2026-11-24T00:41:15+01:00
 
 
 <a id="walleye-ufs-try-2-run-1-gpt-equal"></a>
