@@ -1,7 +1,7 @@
 #!/bin/sh
 # The boot image of the fuel gauge try (item walleye-fuel-gauge): z21's image with the kernel that holds the PMI8998 fuel gauge driver and the dtb that enables its node.
 #   Kernel: kernel.org v7.3 + the pmic-wdt topic (as every image) + three patches of the RFC "Qualcomm 3rd gen fuel gauge support" (lore 20251124-pmi8998_fuel_gauge-v1-0-dd3791f61478@ixit.cz):
-#   1/8 the binding, 2/8 the driver, 3/8 the pmi8998.dtsi node (kernel/fuel-gauge-rfc/, with its checksums). The others are other boards' dts.
+#   1/8 the binding, 2/8 the driver, 3/8 the pmi8998.dtsi node (topic/walleye-fuel-gauge-rfc). The others are other boards' dts.
 #   Ramdisk, header, size and AVB footer are z21's byte for byte (its init has the command loop and the serial walleye-first-boot); the command line is z21's with its gpio dyndbg
 #   replaced by the driver's own dev_dbg lines (dyndbg="file drivers/power/supply/pmi8998_fg.c +p"). UFS off by the gate. Built only - no phone run; the keeper tries it once
 #   (walleye-try-fuel-gauge); tests/host/fuel-gauge-check.sh judges the reader's output against battery-ok.sh's fastboot reading.
@@ -30,7 +30,6 @@ case $OLDCMD in *' dyndbg="file drivers/gpio/gpiolib.c '*) NEWCMD="${OLDCMD%% dy
 echo "command line: $NEWCMD"
 ck "the new command line is z21's without its gpio dyndbg, plus the driver's" "$(printf '%s\n' "$NEWCMD" | sed "s/ $(printf '%s' "$DYN" | sed 's/[][\.*^$/]/\\&/g')\$//")" "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3"
 ck "the command line names no ufs" "$(printf '%s\n' "$NEWCMD" | grep -ci ufs || true)" 0
-ck "the carried patches match their checksums (kernel/fuel-gauge-rfc/SHA256SUMS)" "$(cd "$HERE/kernel/fuel-gauge-rfc" && sha256sum -c SHA256SUMS >/dev/null 2>&1 && echo yes || echo no)" yes
 for s in BATTERY_PMI8998_FG DYNAMIC_DEBUG USB_CONFIGFS_ACM USB_CONFIGFS_ECM CHARGER_QCOM_SMB2 QCOM_SPMI_RRADC SCSI_UFS_QCOM; do
   ck "CONFIG_$s is y" "$(sed -n "s/^CONFIG_$s=//p" "$K/.config")" y
 done

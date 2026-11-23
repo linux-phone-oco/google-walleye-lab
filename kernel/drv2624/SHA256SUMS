@@ -1,5 +1,0 @@
-97c67fab6294bd9bf3ab7c5adf4aa0bdda3e4541c157d71f018eeef66e344861  0001-dt-bindings-input-Add-TI-DRV2624-haptics-driver.patch
-d294d42753b4727928709e341be0640ee20bb9ccb0ec5a4d73ef4bf2109abc22  0002-Input-drv2624-add-TI-DRV2624-haptics-driver.patch
-f9046fd9d58a585c73acd21fd57042224a59df702698ba5e49a08a847fb11839  0003-Input-drv2624-stop-playback-on-unbind-guard-a-zero-o.patch
-e08995ce001be6cf98641f834643b2855f605c88231effac1328315af77841fa  0004-Input-drv2624-range-check-the-frequencies-read-rtp-o.patch
-9303aa5ef4b3c2eabaf0ab927f29d61a24a12091d0b33316f05d9904f9945a90  0005-arm64-dts-qcom-msm8998-google-walleye-Add-the-DRV2624-vibrator.patch

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build the walleye kernel WITH the display path (item walleye-display-s6e3fa5): build-kernel.sh's tree and config plus kernel/panel-samsung-s6e3fa5.c
+# Build the walleye kernel WITH the display path (item walleye-display-s6e3fa5): build-kernel.sh's tree and config plus the panel driver of topic/walleye-panel-s6e3fa5
 # (Kconfig and Makefile lines added to the drivers/gpu/drm/panel of the tree copy), build/walleye-display.config, and dt/msm8998-google-walleye-display.dts.
 # Built only: nothing here touches a phone; the keeper tries the image (item walleye-try-display) after the UFS-off gate.
 #   build-display.sh KERNEL_TREE OUT_DIR      (KERNEL_TREE: a worktree of the pmic-wdt topic, e.g. ~/.local/share/agent-worktrees/linux/wt-k-display)
@@ -11,7 +11,8 @@ HERE=$(cd "$(dirname "$0")/.." && pwd)
 QCOM=$K/arch/arm64/boot/dts/qcom
 PANEL=$K/drivers/gpu/drm/panel
 cp "$HERE/dt/msm8998-google-walleye-overlay-stubs.dtsi" "$HERE/dt/msm8998-google-walleye.dts" "$HERE/dt/msm8998-google-walleye-display.dts" "$QCOM/"
-cp "$HERE/kernel/panel-samsung-s6e3fa5.c" "$PANEL/"
+git -C "$K" show "${PANEL_TOPIC:-topic/walleye-panel-s6e3fa5}:drivers/gpu/drm/panel/panel-samsung-s6e3fa5.c" > "$PANEL/panel-samsung-s6e3fa5.c"   # the driver is the commit of its topic branch, never a copy in this lab
+[ "$(sha256sum "$PANEL/panel-samsung-s6e3fa5.c" | cut -d" " -f1)" = 7f30b0e4ee7048bf11f9be1a000e80dbdb848c3173767ea496734ec4fff05641 ] || { echo "$(basename "$0"): the panel driver of ${PANEL_TOPIC:-topic/walleye-panel-s6e3fa5} is not the pinned one (7f30b0e4ee7048bf11f9be1a000e80dbdb848c3173767ea496734ec4fff05641); a newer driver is a new image, pin it here" >&2; exit 1; }
 grep -q 'msm8998-google-walleye-display.dtb' "$QCOM/Makefile" || printf 'dtb-$(CONFIG_ARCH_QCOM)\t+= msm8998-google-walleye-display.dtb\n' >> "$QCOM/Makefile"
 grep -q 'panel-samsung-s6e3fa5' "$PANEL/Makefile" || printf 'obj-$(CONFIG_DRM_PANEL_SAMSUNG_S6E3FA5) += panel-samsung-s6e3fa5.o\n' >> "$PANEL/Makefile"
 if ! grep -q 'DRM_PANEL_SAMSUNG_S6E3FA5' "$PANEL/Kconfig"; then

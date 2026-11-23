@@ -1,3 +1,0 @@
-04ed6a005b5f9c1e7cbb1bdba1140daaecba5543174c9af6daa85d8197381447  0001-dt-bindings-power-supply-Add-schema-for-Qualcomm-pmi.patch
-df240673c0a0f1e402933b4cb552620def70257ad4880a91b05c43643ecdb315  0002-power-supply-Add-driver-for-Qualcomm-PMI8998-fuel-ga.patch
-0d3488562f4df94c289424e21d616962b03cdfcfab620393064e9837bd603640  0003-arm64-dts-qcom-pmi8998-Add-fuel-gauge.patch

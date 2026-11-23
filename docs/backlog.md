@@ -10600,10 +10600,10 @@ Rank
 ### The kernel/*.patch files go: each series is proved equal to its topic branch, then removed with a pointer in kernel/README.md
 
 Status
-: open
+: done
 
 Note
-: THE AUTHOR'S WORD, 2026-11-23 (relayed by the Top Coordinator): 'i think they arent as productive as they can be because they still use old ways': walleye goes fully onto the new structure, at the FRONT of the builder queue right after the stage 2 watchdog/USB fix that stage 2 run 6 decides; none of it needs the phone, so a builder runs on it alongside the phone work. Item 2 of the Top Coordinator's list.
+: DONE 2026-11-23 (walleye-builder). Each series proved equal to its pushed topic branch with git patch-id --stable per commit, in order: audio-adsp-q6 0001-0008 = topic/walleye-audio-adsp-q6 (a8be02235, 8 commits), drv2624 0001-0004 = topic/walleye-drv2624 (51274968e), fuel-gauge-rfc 0001-0003 = topic/walleye-fuel-gauge-rfc (064940411), display-mdss-reset 0001 = topic/walleye-mdss-reset (58d8fd902); panel-samsung-s6e3fa5.c byte for byte (cmp) = topic/walleye-panel-s6e3fa5 (db21bdf17), also on wip/walleye/ufs-root-display. drv2624 0005 equals the lines of dt/msm8998-google-walleye.dts (reverse-applies). 17 patch files, 3 SHA256SUMS and the panel .c removed; kernel/README.md has the table. KEPT with the judgement in kernel/README.md: audio-adsp-q6/0009 (the walleye board dts, in no branch and not yet in dt/) with its SHA256SUMS. Followed the branches: build-kernel.sh cherry-picks topic/walleye-fuel-gauge-rfc (3 commits asserted), build-display.sh and build-display-late.sh read the panel driver from its topic (sha256 pinned), the audio and drv2624 host tests check the topic out (audio test passes: 8 commits build warning-free, dtb nodes ok; drv2624 builds the driver, skips the node check without DTB as before). No [images.*] changed, no image rebuilt. Programmer review: no defect; its findings (moving-branch pins, stale README prose) are fixed; not changed: tests/host/drv2624-builds.sh no longer reverse-checks 0005 against dt/ (build-drv2624.sh checks the node in the built dtb); LICENSES/BSD-3-Clause.txt is now unused (left, a licence text is not removed in this change).
 
 About
 : walleye-kernel-dts
@@ -10625,10 +10625,10 @@ Rank
 ### The next image (the stage 2 fix image, decided by run 6) is built from a live list's int/ tag, and its [images.*] row names the tag; from then on no new kernel comes from a worktree by hand
 
 Status
-: open
+: in-progress
 
 Note
-: THE AUTHOR'S WORD, 2026-11-23 (relayed by the Top Coordinator): 'i think they arent as productive as they can be because they still use old ways': walleye goes fully onto the new structure, at the FRONT of the builder queue right after the stage 2 watchdog/USB fix that stage 2 run 6 decides; none of it needs the phone, so a builder runs on it alongside the phone work. Item 3 of the Top Coordinator's list; the Top wants ONE report, when this image exists. Blocked on nothing: if the stage 2 fix is not decided yet, the live lists' tags are made first.
+: STEP (1) DONE 2026-11-23 (walleye-builder): the live lists are assembled and pushed, read back with ls-remote: int/walleye/ufs-off/v7.3/1 (tag 816351bf0, commit 41f3b5fd6: v7.3 + topic/pmic-wdt-wake-in-suspend 8b2283da3) and int/walleye/ufs-on/v7.3/1 (tag 27a61af0c, commit 5caddde2d: + topic/walleye-fuel-gauge-rfc 064940411 + topic/ufs-match-android 0f3429f65); every topic tip is on origin; the recipes were unchanged (rhizoid assemble reused the tags), no worktree is left. Pushed with git push of the two tags (lpoco bringup kernel publish pushes only a tag a manifest's kernel_tag names; no image names these yet). NOT DONE: (2) the image waits for the stage 2 fix that run 7 decides (its kernel change must be a topic or wip branch added to the list, then reassembled as .../2 and built from the tag by scripts that take the tag, with kernel_tag and sha256 in the [images.*] row, built twice identical); (3) rhizoid status check. No report to the Top Coordinator yet: it comes when the image exists.
 
 About
 : walleye-kernel-dts
