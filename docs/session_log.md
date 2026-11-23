@@ -6790,3 +6790,21 @@ Done
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-walleye-research-fastboot-reboot"></a>
+### walleye-research: why fastboot reboot stayed in fastboot
+
+Entry date
+: 2026-11-23
+
+Done
+: Read rerun 7's kept log, out and the way back code; public LK sources; ranked four causes; queued the smallest try for the keeper; item done
+
+Considered
+: web search found nothing specific to Pixel 2's closed bootloader; kept the LK reading marked as generic
+
+About
+: walleye-bootimage

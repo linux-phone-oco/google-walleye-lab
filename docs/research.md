@@ -6598,3 +6598,31 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-fastboot-reboot-stays-in-fastboot-causes-ranked"></a>
+### walleye-fastboot-reboot-stays-in-fastboot-causes-ranked
+
+Date
+: 2026-11-23
+
+Brief
+: fastboot reboot stayed in fastboot 240 s: ranked (a) our PMIC reason byte persists, (b) bootloader rule, (c) slot state, (d) USB; smallest try: fastboot reboot twice, timed
+
+Question
+: Why did 'fastboot reboot' leave the phone in fastboot for 240 s after our kernel reached the bootloader by RESTART2 (rerun 7), and what is the reliable last leg?
+
+Found
+: Kept facts (rerun 7, run log and out): stage 1's kernel took the phone to fastboot by RESTART2 'bootloader'; fastboot listed it, current-slot b = start; `fastboot reboot` was sent (log clock 10:24:36; the row's 10:21:16 is another clock); check 22 failed at 10:28:37, 240 s later, the host saying the phone was in fastboot. Slot flags, GPTs and boot chain equal after. The after-stop way back (lab.rs way_back: in fastboot it sends `fastboot reboot` again, then shell legs) brought Android home; its own lines were not kept, so the number of resets and the time it took are NOT KNOWN YET (the row's 'up about 10:34' is an uptime estimate).
+Public source (generic LK, Google/CAF; walleye's bootloader is closed, its being LK-derived is NOT KNOWN YET): fastboot reboot = reboot_device(0), reboot-bootloader = reboot_device(FASTBOOT_MODE), continue is a separate command that boots the active slot without a reset. LK reads the IMEM restart word and zeroes it at once; it reads PON_SOFT_RB_SPARE and scrubs only bits 7:5 (value & 0x1f). Our byte (mode-bootloader 2 at shift 1 = 0x04, bit 2) lies outside bits 7:5, and the PMIC register lives through warm and cold resets; only if walleye's bootloader scrubs it too does it clear.
+Ranking: (a) the reason our RESTART2 wrote persists and sends the next reset(s) back to fastboot - FIRST: it explains why the phone was in fastboot after a reset that Android's own reboot would not have sent there, and an LK-style scrub that is one boot late would also explain why a second `fastboot reboot` (after-stop way back) worked; against it: the after-stop count of resets is unmeasured. (b) fastboot reboot re-enters fastboot after a bootloader-requested entry as a bootloader rule - SECOND: indistinguishable from (a) by the rerun alone; the public LK has no such rule. (c) slot or retry state - THIRD, weak: flags equal before and after, b successful yes, and the stage 1 run flashed nothing; but retry 0 is not excluded for the slot the bootloader would pick. (d) USB or timing - LAST: 240 s of the host seeing a listed phone is not a late enumeration.
+The tries, each read-only or RAM-only, one phone excursion each: (1) the same excursion, at fastboot send `fastboot continue` instead of `reboot`: Android within 240 s = the last leg that needs no reset, and if it also fails the cause is not the register (b/c/d). (2) the same excursion with `fastboot reboot` twice, each timed: Android only after the second = (a) with a one-boot-late scrub (and the way back's last leg is 'reboot twice'); both stay in fastboot = (b) or (c). (3) read PMIC PON_SOFT_RB_SPARE (0x88F) from our kernel before the RESTART2 and once more on the next boot of our image after a 'fastboot continue'/reboot (regmap read, no write): the byte 0x04 present after the first reset = (a) proved. Order: (2) first: it needs no new tool and its two timings settle (a) vs (b)/(c); then (1). The reliable last leg known to work today: a second `fastboot reboot` (what the after-stop way back did), untimed.
+
+Sources
+: src-aosp-lk-aboot,src-lk-qcom-reboot-mode-scrub,src-wahoo-qpnp-power-on,src-mainline-qcom-pon,src-wahoo-msm-poweroff
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-23/

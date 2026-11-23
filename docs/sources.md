@@ -1676,3 +1676,29 @@ By
 
 Takes
 : ro.boot.bootreason=watchdog is the bootloader's reading of a hardware watchdog reset, in the kernel set of reasons: it says a watchdog bit, not that our kernel panicked or started
+
+
+<a id="src-aosp-lk-aboot"></a>
+### kernel/lk app/aboot/aboot.c (Google's LK tree): cmd_reboot, cmd_continue, check_reboot_mode
+
+Url
+: https://android.googlesource.com/kernel/lk/+/4f99a881317afabdbdb387065189e1895a47b027/app/aboot/aboot.c
+
+By
+: Google, Qualcomm CAF
+
+Takes
+: fastboot reboot is reboot_device(0), reboot-bootloader is reboot_device(FASTBOOT_MODE), continue is its own command; a generic LK, not walleye's closed bootloader
+
+
+<a id="src-lk-qcom-reboot-mode-scrub"></a>
+### Qualcomm platform shutdown process (quotes LK check_hard_reboot_mode / check_reboot_mode)
+
+Url
+: https://www.programmersought.com/article/18822967982/
+
+By
+: an article quoting CAF LK
+
+Takes
+: LK reads PON_SOFT_RB_SPARE, scrubs only bits 7:5 (value & 0x1f), and zeroes the IMEM restart reason word when it reads it; secondary source, CAF LK not read directly
