@@ -9606,7 +9606,7 @@ Waits
 : the stage 1 proof, UFS try 2, and the coordinator's go naming the boot image's sha256 (ikb backlog-go on this item); the rehearsal first (procedures/rehearse-install-boot-on-the-pixel-2.rs, no go needed)
 
 Blocked by
-: walleye-install-stage2-boot-image,walleye-reboot-bootloader-from-linux-try,walleye-stage2-forced-way-back-argument
+: walleye-install-stage2-boot-image,walleye-install-stage2-way-back-restart2
 
 About
 : walleye-display-s6e3fa5
@@ -10100,3 +10100,28 @@ Witness
 
 Go until
 : 2026-11-23T13:13:26+01:00
+
+
+<a id="walleye-install-stage2-way-back-restart2"></a>
+### Stage 2's way back reaches the bootloader with the RESTART2 tool, as stage 1's does: the same code path, tested against the text rerun 7 printed, so the run never ends in a hand step
+
+Status
+: open
+
+Note
+: From the coordinator's check before opening the stage 2 go (2026-11-23 10:50): rerun 7 reached the bootloader with the RESTART2 tool (PR 814), which satisfies the Top Coordinator's rule, BUT the stage 2 command's own way back (flash_boot.rs switch_back, to_bootloader = 'reboot bootloader') still asks busybox and would end in the hand step like rerun 6: the tool was only wired into stage 1. The go is opened after this lands and its rehearsal passes. The go itself, per the Top's rule: opened by the coordinator for image e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1, explicit set_active b as the way back, the retry counter the second path.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) tools/walleye-tries/src/flash_boot.rs switch_back (today: ssh of device.toml [procedures.install-boot-on-the-pixel-2] to_bootloader = 'reboot bootloader', which busybox turns into reboot(RB_AUTOBOOT): it would end in hand_step() exactly as rerun 6 did) uses the SAME way as stage 1's way back (PR 809): check the sha256 of tools/walleye-reboot's static binary ([images.walleye-reboot]), push it over ssh into /tmp, run it there (it passes only 'bootloader' to reboot(2) RESTART2), wait for fastboot to list the phone, read current-slot; one shared function, not a copy; the to_bootloader line of device.toml names the tool, not busybox's reboot; (2) then 'fastboot set_active <Android's slot>' as before and the way back's last leg: 'fastboot reboot' and Android back; BECAUSE rerun 7 (research walleye-rootfs-boots-run-7-bootloader-reached-android-late) found that fastboot reboot left the phone in fastboot for 240 s (cause NOT KNOWN YET), the last leg is the lab's SAME after-stop way back that brought Android home in rerun 7 (read in lab-tools or the keeper's log what it does and say it), with a bounded wait, and the log says which leg ran; (3) offline: the stand-in tests use the text rerun 7 printed (the fastboot listing, bootloader-way-back.txt) as fixtures, copied from the research material, not typed; a test where the tool will not run (noexec /tmp) ends in hand_step with the exact command, a test where fastboot lists the phone passes the switch; (4) the rehearsal command and the dry run (17 and the run's steps) still pass; nothing is run against the phone by the builder; dry run, check --host, tests, clippy, fmt, review
+
+Rank
+: 1
