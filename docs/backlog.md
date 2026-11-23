@@ -10519,3 +10519,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-install-flash-boot-rehearsal-4"></a>
+### The stage 2 rehearsal for real after PR 855: the pstore-first read is check 17 of the rehearsal and its wiring has never run on the phone
+
+Status
+: open
+
+Note
+: Asked for by the coordinator (2026-11-23 13:50): PR 855 gave stage 2's step 21 a bounded wait that sends nothing and a read of pstore first; the same read is the rehearsal's check 17, so the rehearsal runs the wiring for real before the stage 2 run, as the earlier rehearsals did for checks 9 and 18 (each found bugs the real run would have hit). The stage 2 run item (walleye-install-flash-boot-run) stays off the queue until this passes; its go is open until 15:00 and is extended if the run needs it.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: procedures/rehearse-install-boot-on-the-pixel-2.rs run by a keeper against the phone on Android (no go needed; nothing written; no fastboot flash, set_active, erase, oem or reboot verb; NO reboot of the phone): every step passes on main after PR 855, rust-script --force; its read-only pstore read (ls -la and cat of /sys/fs/pstore/*, /proc/cmdline, the boot-reason props) works over adb as root on the Android that is running and its text is kept as research material (whatever pstore holds now: it may be empty); one research row; the phone left as found
+
+Rank
+: 1
