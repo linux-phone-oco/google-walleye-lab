@@ -6993,3 +6993,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stage2-run11-all-29-steps-passed"></a>
+### walleye-stage2-run11-all-29-steps-passed
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 run 11 (image a0a55cd0): all 29 steps passed - our kernel and Alpine root boot from the phone's own storage on slot a, the way back brings Android b home
+
+Question
+: Does the debug image boot from boot_a on the phone's storage, and does the one command return to Android with GPT, flags and boot chain as stored?
+
+Found
+: Run 11 under the coordinator's go: checks 1-6 pass; step 21 booted slot _a from root=PARTUUID (equal to fastboot current-slot), /dev/sda22 mounted read-only under the overlay, ssh login; check 22 (PR 930, pairs by name across six disks) passed: 44 entries' slot bits and 42 type GUIDs changed, CRCs right, nothing else; way back by RESTART2 then set_active b; checks 24-29 pass: Android b current, GPT after differs by 0 entries, boot chain read again equals the stored set. Stage 2 is done for the debug image; next is the production init (petter first, no telnet). Two stops before the run, phone untouched: the image and walleye-reboot are untracked build outputs missing from a fresh worktree - linked build/images/ to ~/Projects/walleye-build (check 2/4 verify the hash themselves); a gap for the item that builds the worktree.
+
+About
+: walleye-display-s6e3fa5
