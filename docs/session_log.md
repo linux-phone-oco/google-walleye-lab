@@ -6925,3 +6925,33 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-keeper-rehearsal-6"></a>
+### walleye-keeper: stage 2 rehearsal 6 with the whole stdout kept
+
+Entry date
+: 2026-11-23
+
+Done
+: Took walleye-install-flash-boot-rehearsal-6 (first ready row), linked build/images, ran the rehearsal: 18 of 18, read only, phone on Android slot b (idle-android pass). Kept the stdout and the slot files as a fixture; research row and backlog done.
+
+About
+: walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-keeper-how-the-phone-stands-2"></a>
+### walleye-keeper: how the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Phone on Android slot b, adb device, nothing flashed or set. boot_a holds e337de53 (unbootable yes, retry 0); b successful. Next ready: walleye-transport-real-phone-run (rank 15); ufs-matched try still waits on the author's go naming image 461077869fb2.
+
+About
+: walleye-bootimage

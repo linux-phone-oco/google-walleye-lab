@@ -1,0 +1,19 @@
+---pstore-listing
+total 0
+drwxr-x--- 2 system log  0 2026-11-23 17:25 .
+drwxr-xr-x 8 root   root 0 1970-07-27 04:19 ..
+---uptime
+17:26:04 up 0 min,  0 users,  load average: 3.71, 0.82, 0.27
+---id
+uid=0(root) gid=0(root) groups=0(root),1004(input),1007(log),1011(adb),1015(sdcard_rw),1028(sdcard_r),1078(ext_data_rw),1079(ext_obb_rw),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats),3009(readproc),3011(uhid),3012(readtracefs) context=u:r:su:s0
+---cmdline
+rcupdate.rcu_expedited=1 androidboot.hardware=walleye androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 service_locator.enable=1 swiotlb=2048 firmware_class.path=/vendor/firmware loop.max_part=7 raid=noautodetect usbcore.autosuspend=7 androidboot.dtbo_idx=3 androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=0000002b-0000-0000-0000-000000000000 androidboot.bootdevice=1da4000.ufshc androidboot.serialno=REDACTED androidboot.wificountrycode=00 androidboot.boottime=1BLL:221,1BLE:775,2BLL:870,2BLE:269,SW:10024,KL:0,KD:94,ODT:144,AVB:163 androidboot.baseband=msm mdss_mdp.panel=1:dsi:0:htc,mdss_dsi_samsung_s6e3fa5_1080p_cmd:1:none:cfg:single_dsi androidboot.fpsensor=fpc1075 androidboot.fpmodule=ofilm androidboot.usbradioflag=0 androidboot.temp_protect_ignore=0 androidboot.hardware.ufs=64GB,Hynix androidboot.mid=G011A androidboot.hardware.sku=G011A androidboot.revision=MP1 androidboot.ddrsize=4GB androidboot.ddrinfo=000000FF androidboot.hardware.ddr=4096MB,Micron,LPDDR4 androidboot.bootloader=mw8998-003.0085.00 androidboot.bootreason=reboot androidboot.cid=00000000 androidboot.hardware.color=VEN00 androidboot.theme=1 androidboot.sf=1 androidboot.msm.hw_ver_id=2005E0E1 androidboot.qf.st=2 androidboot.pk=g-pxl-p androidboot.slot_suffix=_b want_initramfs rootwait ro init=/init androidboot.force_normal_boot=1
+---bootreason
+reboot
+---sys-bootreason
+bootloader
+---slot-suffix
+_b
+---verifiedbootstate
+orange
+---end
