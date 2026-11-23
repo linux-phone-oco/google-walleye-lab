@@ -10205,9 +10205,6 @@ About
 Opened
 : 2026-11-23
 
-Needs
-: phone
-
 Proof
 : the one command passes every step: the boot of the new slot from the card on ssh, the GPT changed only by the slot switch, the way back set_active, the phone on Android, the boot chain as stored
 
@@ -10394,6 +10391,31 @@ Needs
 
 Proof
 : procedures/rehearse-install-boot-on-the-pixel-2.rs run by a keeper against the phone on Android (no go needed, nothing written; no fastboot flash, set_active, erase, oem or reboot verb): every step passes on main after PR 841, in particular the step 'the boot partition to be flashed, read now, is its backup or the declared image': boot_a read now is e337de53 (run 1's flash), the stock backup boot_a.img is on file and hashes to its record 2a5cd3b2; rust-script --force; the log kept as research material; one research row; the phone stays on Android slot b; NOT a go: the bar before the stage 2 run item goes back on the phone queue
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-check-16-and-repeat-audit"></a>
+### Stage 2's check 16 accepts a flash that changes nothing because boot_a already holds the image, and EVERY step of the command is audited for the state of a repeat, against the state the phone is in now
+
+Status
+: open
+
+Note
+: Rerun 3 (keeper local_176f0d5f, go to 14:33; PR 845) stopped at check 16 AFTER one fastboot flash of the same bytes: checks 1-15 passed, nothing past the flash ran (no set_active, no way back needed), Android on b. The keeper's second option (flash the stock boot_a back first) is rejected: an extra write to restore a precondition when the check, not the phone, is wrong. The coordinator asks for the audit because each stop so far was a different first-run assumption met by a repeat (run 1 check 18, rerun 2 check 9, rerun 3 check 16) and a fourth would burn the go: the whole command is walked against the phone's state now before the next rerun. The run item is off the phone queue until this lands; the coordinator puts it back and extends the go (14:33).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) tools/walleye-tries/src/flash_boot.rs check 16 ('the partition reads back as the image, and no other boot/dtbo/vbmeta changed'): passes when boot_a reads back as the declared image and boot_b, dtbo and vbmeta (both slots) and every other hashed partition equal their values before the flash, whether or not boot_a changed (a flash of an image the partition already holds changes nothing); fails when boot_a does not read back as the image, or any other partition changed; stand-in tests from the printed text of rerun 3 (research walleye-stage2-rerun-3-stops-at-check-16-flash-changes-nothing, the run's log stage2-run3.log): fails on today's code with boot_a already the image, passes on the amended one, one test each for 'boot_a differs from the image after the flash' and 'dtbo changed'; (2) THE REPEAT AUDIT, the point of this item: this is the THIRD stop of the same class (check 18: slot a's flags after the first flash, PR 836; check 9: boot_a already the image, PR 841; now check 16): read every one of the command's 29 steps and its rehearsal's 17 and for each say whether it assumes the state of a FIRST run (boot_a stock, slot a flags as before any flash, boot_a.img backup equal to boot_a, no earlier flash), and run the whole step list OFFLINE through the stand-in against the state the phone is in NOW, built from the printed text of the keeper's rerun 3 log and the rehearsal 3 material (research walleye-install-boot-rehearsal-3-passed): boot_a = e337de53, slot a retry 1 successful no, b untouched and successful, Android on b, stock backup on file: every step up to and including the flash and the checks after it must pass in that state, and the steps after set_active (the boot of the new slot, the way back) are walked against the first-run expectation they were written for and listed in the PR with what each expects; any step that assumes a first run is amended or says why not; (3) dry run, check --host, tests, clippy, fmt, review; no phone
 
 Rank
 : 1
