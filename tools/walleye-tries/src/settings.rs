@@ -118,7 +118,7 @@ pub struct Settings {
     /// the most seconds one gear read may take (`gear_wait`): a sysfs read can wait on the link's power management as the load ends
     pub gear_wait: u64,
     pub luns: u64,
-    /// the ramped read (`ramp_mb`, "64,256,1024"): the MiB of each step, rising, the last is `load_mb`; the devfreq node of the UFS host (`devfreq`) is pinned to powersave first
+    /// the ramped read (`ramp_mb`, "64,256,1024"): the MiB of each step, rising, the last is `load_mb`; the devfreq node of the UFS host (`devfreq`) is held at 50 MHz first
     pub ramp_mb: Vec<u64>,
     pub devfreq: String,
     /// the install write: the folder of the slots' read-back (the way back), the folder on the phone the image is staged in,

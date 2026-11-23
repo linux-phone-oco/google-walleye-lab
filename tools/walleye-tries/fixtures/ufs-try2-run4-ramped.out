@@ -1,0 +1,31 @@
+check 1: the battery is good enough
+check 2: the image is the matched one, its tests pass
+step 3: take the phone to fastboot
+check 4: the slots' flags are read
+step 5: say what to expect
+  One command, about 5 minutes: the phone boots the matched UFS-on image once, from memory. It reads the card (its 6 disks and their partition tables), first pins the UFS host's devfreq governor to powersave, then reads sda in steps of 64, 256, 1024 MiB (at most 60 seconds each), read only, a line in its RAM log before each step and the shell polled every second, while the link gear and the clock are noted; the first silent step is a result, the ramp stops there; the disk's partition table is hashed before and after. NOTHING is written to the card. The glass stays dark. The phone returns to Android by itself and visits fastboot once more to read the slot flags; if it is not on Android after 4 minutes, hold the power button about 15 seconds.
+check 6: the author's go is recorded on the item
+step 7: boot the matched UFS-on image from memory, nothing flashed
+check 8: USB device 1d6b:0104 is on the bus
+step 9: the shell answers and the hold is on
+check 10: the probe lines are in the kernel log
+  [    1.349414] ufshcd-qcom 1da4000.ufshc: UFS_HW_VERSION 3.1.0
+  [    1.349461] ufshcd-qcom 1da4000.ufshc: UFS_HOST_LEFT HCS 0x0000010f HCE 0x00000001
+  [    1.349515] qcom-qmp-ufs-phy 1da7000.phy: UFS host 3.1.0: MSM8998 PHY table 3.1.0
+  [    1.360128] qcom-qmp-ufs-phy 1da7000.phy: UFS_PHY_LINECFG_DISABLE 0x00000000
+check 11: the link is read
+  link: gear HS_GEAR1 lanes 2 rate HS_RATE_B mode FAST_MODE link_state HIBERN8 dev_pm SLEEP
+  works, slow (below HS-G3 on 2 lanes; the link is up)
+check 12: the card's disks are listed, read only
+  disks listed: sda sdb sdc sdd sde sdf
+check 13: the card's six disks and the partition tables are read
+  6 disks, sda has 45 partitions
+check 14: the GPT of the disk is hashed
+  gpt-before.txt: 6cd7e48c21bc7a1f2cea8c12dc773003ca71a8681f2b3f0c43f428d55d250174
+check 15: the gear and the clock, before any load
+  gear-before.txt: gear HS_GEAR1 lanes 2 rate HS_RATE_B mode FAST_MODE link_state ACTIVE dev_pm ACTIVE; clock 50000000
+step 16: the UFS host's devfreq governor is pinned to powersave, before any load
+UFS matched image on the Pixel 2: stopped at step 16 "the UFS host's devfreq governor is pinned to powersave, before any load": devfreq 1da4000.ufshc has no powersave to pin (node there; governors: userspace simple_ondemand): the run stops before any load
+the run stopped (exit 1)
+the phone goes back to Android if it is not there
+way back: leg on the image's shell, `reboot -f`, then Android within 240 s

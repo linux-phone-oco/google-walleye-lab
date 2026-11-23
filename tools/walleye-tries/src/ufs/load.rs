@@ -161,24 +161,38 @@ pub fn is_a_node_name(n: &str) -> bool {
             .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || matches!(c, '.' | '-' | '_'))
 }
 
-/// The command that reads the node's governor, the governors it has and its clock; a node that is not there says `no-governor-node`.
+/// The clock the ramped try holds the UFS host at: the lowest of the node's two OPPs (research walleye-ufs-hold-the-clock-read, §1-2:
+/// `freq-table-hz` core_clk 50 MHz..200 MHz; run 4's `gear-before.txt` read `clock 50000000` at idle).
+pub const PIN_HZ: &str = "50000000";
+
+/// The command that reads the node's governor, the governors it has, the clocks it offers and its clock; a node that is not there
+/// says `no-governor-node`.
 pub fn governor_read_command(node: &str) -> Result<String, String> {
     if !is_a_node_name(node) {
         return Err(format!("devfreq node {node:?} is not a node name"));
     }
     Ok(format!(
-        "d=/sys/class/devfreq/{node}; if [ -e $d/governor ]; then echo governor=$(cat $d/governor); echo available=$(cat $d/available_governors); echo cur_freq=$(cat $d/cur_freq); else echo no-governor-node; fi"
+        "d=/sys/class/devfreq/{node}; if [ -e $d/governor ]; then echo governor=$(cat $d/governor); echo available=$(cat $d/available_governors); echo frequencies=$(cat $d/available_frequencies); echo cur_freq=$(cat $d/cur_freq); echo max_freq=$(cat $d/max_freq 2>/dev/null); else echo no-governor-node; fi"
     ))
 }
 
-/// The one sysfs write of the try: the governor of the UFS host's devfreq node set to powersave (a runtime setting of the phone's RAM kernel: nothing flashed, nothing written to the card).
-pub fn governor_pin_command(node: &str) -> Result<String, String> {
+/// The one sysfs write of the try, the way both trees support (research walleye-ufs-hold-the-clock-read, §4): the UFS host's devfreq
+/// node on the userspace governor with `set_freq` at [`PIN_HZ`]; a node without userspace gets `max_freq` clamped to the same clock.
+/// A runtime setting of the phone's RAM kernel: nothing flashed, nothing written to the card.
+pub fn clock_pin_command(node: &str, g: &Governor) -> Result<String, String> {
     if !is_a_node_name(node) {
         return Err(format!("devfreq node {node:?} is not a node name"));
     }
-    Ok(format!(
-        "echo powersave > /sys/class/devfreq/{node}/governor; echo pinned-$((6*7))"
-    ))
+    let d = format!("/sys/class/devfreq/{node}");
+    if g.can_userspace() {
+        Ok(format!(
+            "echo userspace > {d}/governor; echo {PIN_HZ} > {d}/userspace/set_freq; echo pinned-$((6*7))"
+        ))
+    } else {
+        Ok(format!(
+            "echo {PIN_HZ} > {d}/max_freq; echo pinned-$((6*7))"
+        ))
+    }
 }
 
 /// What the governor read said.
@@ -187,7 +201,9 @@ pub struct Governor {
     pub present: bool,
     pub current: Option<String>,
     pub available: Vec<String>,
+    pub frequencies: Vec<String>,
     pub cur_freq: Option<String>,
+    pub max_freq: Option<String>,
 }
 
 impl Governor {
@@ -198,18 +214,39 @@ impl Governor {
                 .map(|v| v.trim().to_string())
                 .filter(|v| !v.is_empty())
         };
+        let words = |k: &str| {
+            value(k)
+                .map(|v| v.split_whitespace().map(str::to_string).collect())
+                .unwrap_or_default()
+        };
         Governor {
             present: !text.contains("no-governor-node") && value("governor").is_some(),
             current: value("governor"),
-            available: value("available")
-                .map(|v| v.split_whitespace().map(str::to_string).collect())
-                .unwrap_or_default(),
+            available: words("available"),
+            frequencies: words("frequencies"),
             cur_freq: value("cur_freq"),
+            max_freq: value("max_freq"),
         }
     }
 
-    pub fn can_powersave(&self) -> bool {
-        self.present && self.available.iter().any(|g| g == "powersave")
+    pub fn can_userspace(&self) -> bool {
+        self.present && self.available.iter().any(|g| g == "userspace")
+    }
+
+    /// Whether the node offers the clock to pin at; an empty list is not known yet, so it does not refuse (the read-back does).
+    pub fn offers_the_pin(&self) -> bool {
+        self.frequencies.is_empty() || self.frequencies.iter().any(|f| f == PIN_HZ)
+    }
+
+    /// Whether the pin TOOK: the clock is 50 MHz AND the setting that holds it is there (the userspace governor, or max_freq clamped), because the
+    /// idle clock is already 50 MHz (run 4) and a clock alone proves nothing about a write that failed.
+    pub fn is_pinned(&self, by_userspace: bool) -> bool {
+        self.cur_freq.as_deref() == Some(PIN_HZ)
+            && if by_userspace {
+                self.current.as_deref() == Some("userspace")
+            } else {
+                self.max_freq.as_deref() == Some(PIN_HZ)
+            }
     }
 
     pub fn line(&self) -> String {
@@ -314,9 +351,11 @@ impl Ufs {
         move || u.read_gear("gear-before.txt").map(|_| ())
     }
 
-    /// The governor of the UFS host's devfreq node is read and set to powersave, BEFORE any load: no node, or no powersave among its
-    /// governors, stops the run here; what was read before and after is saved, and the clock it holds is said.
-    pub fn the_governor_is_pinned_to_powersave(&self) -> impl FnOnce() -> Done + 'static {
+    /// The UFS host's devfreq clock is held low BEFORE any load, the way both trees support (research walleye-ufs-hold-the-clock-read, §4):
+    /// the node's governors, clocks and clock are read and kept; the userspace governor gets `set_freq` 50 MHz (a node without userspace,
+    /// `max_freq`); `cur_freq` is READ BACK and the run stops before any load if it is not 50 MHz. The gear after the pin is read and kept:
+    /// whether the link drops to HS-G1 and the change succeeds is NOT KNOWN YET (the research, §5), the log says what it read.
+    pub fn the_clock_is_pinned_low(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
             let node = &u.s.devfreq;
@@ -324,23 +363,35 @@ impl Ufs {
             let wait = Duration::from_secs(u.s.gear_wait);
             let before = Governor::of(&sh.run(&governor_read_command(node)?, wait)?);
             u.lab.save("governor-before.txt", &before.line())?;
-            if !before.can_powersave() {
+            if !before.present {
                 return Err(format!(
-                    "devfreq {node} has no powersave to pin ({}; governors: {}): the run stops before any load",
-                    if before.present { "node there" } else { "no governor node" },
+                    "devfreq {node} has no governor node: the run stops before any load"
+                ));
+            }
+            if !before.can_userspace() && before.available.iter().all(|g| g != "simple_ondemand") {
+                return Err(format!(
+                    "devfreq {node} offers no governor to clamp ({}): the run stops before any load",
                     before.available.join(" ")
                 ));
             }
-            sh.run(&governor_pin_command(node)?, wait)?;
+            if !before.offers_the_pin() {
+                return Err(format!(
+                    "devfreq {node} does not offer {PIN_HZ} Hz (it offers {}): the run stops before any load",
+                    before.frequencies.join(" ")
+                ));
+            }
+            sh.run(&clock_pin_command(node, &before)?, wait)?;
             let after = Governor::of(&sh.run(&governor_read_command(node)?, wait)?);
             u.lab.save("governor-after.txt", &after.line())?;
-            if after.current.as_deref() != Some("powersave") {
+            if !after.is_pinned(before.can_userspace()) {
                 return Err(format!(
-                    "the governor did not take powersave: {}",
+                    "the pin did not take ({}; max_freq {}; wanted {PIN_HZ} Hz held by the userspace governor, or max_freq): the run stops before any load",
                     after.line()
+                    ,after.max_freq.as_deref().unwrap_or("not known yet")
                 ));
             }
             println!("  {node}: {} -> {}", before.line(), after.line());
+            u.read_gear("gear-pinned.txt")?;
             Ok(())
         }
     }
@@ -1042,7 +1093,7 @@ mod more_tests {
         assert!(
             t.contains("6 disks")
                 && t.contains("sda in steps of 1, 2, 4 MiB (at most 20 seconds each)")
-                && t.contains("governor to powersave"),
+                && t.contains("userspace governor"),
             "{t}"
         );
     }
@@ -1099,11 +1150,36 @@ mod ramp_tests {
     const RUN3_BEFORE: &str = include_str!("../../fixtures/ufs-try2-run3-gear-before.txt");
     const NOT_DONE: &str = "state-42";
     const DONE0: &str = "rc=0\nstate-42";
-    /// ASSUMED text, not phone-printed: no governor read has come from the phone yet (the first run prints the real one); the clocks are run 3's idle 50 MHz and load 200 MHz at best
-    /// ASSUMED text, not phone-printed: no governor read has come from the phone yet (the first run prints the real one)
-    const POWERSAVE: &str = "governor=simple_ondemand\navailable=powersave performance simple_ondemand\ncur_freq=300000000";
-    const PINNED: &str =
-        "governor=powersave\navailable=powersave performance simple_ondemand\ncur_freq=50000000";
+    /// What the phone printed in run 4 of try 2 (~/lab-material/walleye/ufs-try2-run4-ramped.out, saved as a fixture, research row
+    /// walleye-ufs-try-2-run-4-no-powersave-governor): the governors of devfreq 1da4000.ufshc and the idle clock.
+    const RUN4: &str = include_str!("../../fixtures/ufs-try2-run4-ramped.out");
+
+    /// The governors run 4's stop line printed ("governors: userspace simple_ondemand)").
+    fn run4_governors() -> String {
+        RUN4.split("governors: ")
+            .nth(1)
+            .and_then(|t| t.split(')').next())
+            .expect("run 4's stop line names the governors")
+            .to_string()
+    }
+
+    /// The idle clock run 4's check 15 printed ("clock 50000000").
+    fn run4_idle_clock() -> String {
+        RUN4.split("; clock ")
+            .nth(1)
+            .and_then(|t| t.split_whitespace().next())
+            .expect("run 4's check 15 names the clock")
+            .to_string()
+    }
+
+    /// A governor read of the phone's node as the read command prints it: governors and idle clock are run 4's; the clock the node
+    /// offers is not known yet from any capture (the first listing of the pinned try prints it), so `offers` says what a test gives it.
+    fn read_text(governor: &str, offers: &str, cur: &str) -> String {
+        format!(
+            "governor={governor}\navailable={}\nfrequencies={offers}\ncur_freq={cur}",
+            run4_governors()
+        )
+    }
 
     fn ufs(table: Vec<(&'static str, &'static str)>, name: &str) -> Ufs {
         let mut s = Settings::stand_in(Try::Ufs);
@@ -1192,25 +1268,35 @@ mod ramp_tests {
     }
 
     #[test]
-    fn the_governor_is_read_and_a_missing_node_or_powersave_is_said() {
-        let g = Governor::of(POWERSAVE);
+    fn the_governor_is_read_from_the_text_the_phone_printed() {
+        assert_eq!(run4_governors(), "userspace simple_ondemand");
+        assert_eq!(run4_idle_clock(), PIN_HZ);
+        let g = Governor::of(&read_text("simple_ondemand", "", &run4_idle_clock()));
         assert!(
-            g.can_powersave()
-                && g.current.as_deref() == Some("simple_ondemand")
-                && g.cur_freq.as_deref() == Some("300000000")
+            g.can_userspace()
+                && !g.is_pinned(true)
+                && Governor::of(&read_text("userspace", "", PIN_HZ)).is_pinned(true)
+                && g.offers_the_pin()
         );
-        assert!(!Governor::of("no-governor-node").can_powersave());
-        assert!(!Governor::of("governor=a\navailable=performance\ncur_freq=1").can_powersave());
+        assert!(!Governor::of("no-governor-node").can_userspace());
+        assert!(!Governor::of("governor=a\navailable=performance\ncur_freq=1").can_userspace());
+        assert!(
+            !Governor::of(&read_text("simple_ondemand", "200000000", "200000000")).offers_the_pin()
+        );
         assert!(Governor::of("").line().contains("not known yet"));
     }
 
     #[test]
     fn the_commands_of_the_ramp_are_shell_and_read_only() {
+        let with = Governor::of(&read_text("simple_ondemand", "", "1"));
+        let without =
+            Governor::of("governor=simple_ondemand\navailable=simple_ondemand\ncur_freq=1");
         let cmds = [
             governor_read_command("1da4000.ufshc").unwrap(),
-            governor_pin_command("1da4000.ufshc").unwrap(),
+            clock_pin_command("1da4000.ufshc", &with).unwrap(),
             ramp_step_command("sda", 2, 3, 256, 60).unwrap(),
             ram_log_command(),
+            clock_pin_command("1da4000.ufshc", &without).unwrap(),
         ];
         for c in &cmds {
             assert!(
@@ -1233,10 +1319,17 @@ mod ramp_tests {
             step.find(RAM_LOG).unwrap() < step.find("dd if=").unwrap(),
             "the RAM log line is written BEFORE the read"
         );
-        assert!(cmds[1].contains("powersave > /sys/class/devfreq/1da4000.ufshc/governor"));
+        let d = "/sys/class/devfreq/1da4000.ufshc";
+        assert!(
+            cmds[1].contains(&format!("userspace > {d}/governor"))
+                && cmds[1].contains(&format!("{PIN_HZ} > {d}/userspace/set_freq"))
+        );
+        assert!(
+            cmds[4].contains(&format!("{PIN_HZ} > {d}/max_freq")) && !cmds[4].contains("governor")
+        );
         for bad in ["", "../x", "a b", "a;b", "A"] {
             assert!(
-                governor_read_command(bad).is_err() && governor_pin_command(bad).is_err(),
+                governor_read_command(bad).is_err() && clock_pin_command(bad, &with).is_err(),
                 "{bad}"
             );
         }
@@ -1244,11 +1337,11 @@ mod ramp_tests {
     }
 
     #[test]
-    fn a_node_without_powersave_stops_the_run_before_any_load() {
+    fn a_node_that_cannot_be_pinned_stops_the_run_before_any_load() {
         let u = ufs(vec![("cat $d/governor", "no-governor-node")], "nonode");
-        let e = u.the_governor_is_pinned_to_powersave()().unwrap_err();
+        let e = u.the_clock_is_pinned_low()().unwrap_err();
         assert!(
-            e.contains("no powersave to pin") && e.contains("before any load"),
+            e.contains("no governor node") && e.contains("before any load"),
             "{e}"
         );
         let u = ufs(
@@ -1256,34 +1349,62 @@ mod ramp_tests {
                 "cat $d/governor",
                 "governor=performance\navailable=performance\ncur_freq=1",
             )],
-            "nops",
+            "nogov",
         );
-        assert!(u.the_governor_is_pinned_to_powersave()()
+        assert!(u.the_clock_is_pinned_low()()
             .unwrap_err()
-            .contains("no powersave"));
+            .contains("no governor to clamp"));
+        let offered =
+            Box::leak(read_text("simple_ondemand", "200000000", "200000000").into_boxed_str());
+        let e = ufs(vec![("cat $d/governor", &*offered)], "nooffer").the_clock_is_pinned_low()()
+            .unwrap_err();
+        assert!(
+            e.contains("does not offer 50000000") && e.contains("before any load"),
+            "{e}"
+        );
     }
 
     #[test]
-    fn the_governor_is_pinned_and_read_back() {
-        // the first read says simple_ondemand, the second (after the pin) powersave at 50 MHz
+    fn the_clock_is_pinned_low_and_read_back() {
+        // the first read is the node as run 4 found it (scaled up under simple_ondemand), the second the node after the pin
+        let before = read_text("simple_ondemand", "50000000 200000000", "200000000");
+        let after = read_text("userspace", "50000000 200000000", &run4_idle_clock());
         let t = vec![
             (
                 "cat $d/governor",
-                Box::leak(format!("{POWERSAVE}|||{PINNED}").into_boxed_str()) as &'static str,
+                Box::leak(format!("{before}|||{after}").into_boxed_str()) as &'static str,
             ),
             ("pinned-", "pinned-42"),
+            ("power_info", RUN3_BEFORE),
         ];
         let u = ufs(t, "pin");
-        u.the_governor_is_pinned_to_powersave()().unwrap();
+        u.the_clock_is_pinned_low()().unwrap();
         assert!(
             saved(&u, "governor-before.txt").contains("simple_ondemand")
-                && saved(&u, "governor-after.txt").contains("powersave")
+                && saved(&u, "governor-after.txt").contains("userspace, clock 50000000")
+                && saved(&u, "gear-pinned.txt").contains("clock_1da4000.ufshc=50000000")
         );
-        // a pin that did not take is an error
-        let t = vec![("cat $d/governor", POWERSAVE), ("pinned-", "pinned-42")];
-        assert!(ufs(t, "notaken").the_governor_is_pinned_to_powersave()()
-            .unwrap_err()
-            .contains("did not take powersave"));
+        // a clock that is not 50 MHz after the pin stops the run before any load
+        let t = vec![
+            ("cat $d/governor", &*Box::leak(before.into_boxed_str())),
+            ("pinned-", "pinned-42"),
+        ];
+        let e = ufs(t, "notaken").the_clock_is_pinned_low()().unwrap_err();
+        assert!(
+            e.contains("pin did not take") && e.contains("before any load"),
+            "{e}"
+        );
+        // run 4 found the clock at 50 MHz already: a pin whose write failed (governor unchanged) is refused all the same
+        let idle = read_text("simple_ondemand", "50000000 200000000", &run4_idle_clock());
+        let t = vec![
+            ("cat $d/governor", &*Box::leak(idle.into_boxed_str())),
+            ("pinned-", "pinned-42"),
+        ];
+        let e = ufs(t, "idlenotpinned").the_clock_is_pinned_low()().unwrap_err();
+        assert!(
+            e.contains("pin did not take") && e.contains("simple_ondemand"),
+            "{e}"
+        );
     }
 
     #[test]

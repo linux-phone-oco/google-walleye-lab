@@ -7276,3 +7276,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-builder-ufs-ramp-pin-userspace"></a>
+### The ramped UFS try pins the clock low with userspace
+
+Entry date
+: 2026-11-23
+
+Done
+: Step 16 follows the research row walleye-ufs-hold-the-clock-read: userspace governor, set_freq 50 MHz, read back; refuse before any load unless the clock is 50 MHz and the governor is userspace (max_freq on a node without it); gear after the pin kept. Review found the first read-back passed on the idle 50 MHz when the write failed; fixed and tested. Tests use run 4's captured log. No phone.
+
+Considered
+: max_freq only (kept as the fallback); reading min_freq to choose the clock (the research names 50 MHz and run 4's idle clock is 50 MHz: a constant with its source)
+
+Rejected
+: adding DEVFREQ_GOV_POWERSAVE to the config to pass the step (the research and the item forbid it); trusting cur_freq alone as the read-back (already 50 MHz at idle).
+
+About
+: walleye-first-fastboot-boot
