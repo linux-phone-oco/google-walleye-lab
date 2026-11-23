@@ -11078,10 +11078,10 @@ Rank
 ### Android's watchdog driver and the walleye dts read from the reference tree: what arms which watchdog, which one bites, and what a mainline kernel must do about it
 
 Status
-: open
+: done
 
 Note
-: The Top Coordinator's order (2026-11-23): the Android kernel reference first (done, PR 897), then Android's watchdog driver and dts read from it, then the image from a live list with kernel_tag. This is the reading: findings cite android:path@commit from the local tree, not web pages. A note for the builder: the reference tree is LineageOS' (the phone runs lineage_walleye), not Google's android-msm-wahoo (that tree tops at 4.4.223).
+: Read 2026-11-23: research walleye-android-watchdog-read-fix; next walleye-wdt0-first-instant-read (phone), then walleye-init-pets-from-first-act.
 
 About
 : walleye-bootimage
@@ -11219,6 +11219,59 @@ Needs
 
 Proof
 : a research row, from source and captured text, not memory: the cut is at the same word in two runs of different length, so it is NOT a length limit: something content-based drops the tail the bootloader adds after androidboot.pk, likely tied to AVB or vbmeta state for an image with no AVB footer or a footer the bootloader cannot verify (the boot_a image of the run carries a footer 'algorithm NONE' made by avbtool 1.4); read: (1) the LineageOS wahoo reference tree android:PATH@113bd1cfa6f5 (what the kernel does with these words, the avb/verity-related cmdline users), (2) AOSP libavb's avb_slot_verify cmdline assembly (what it appends and when: androidboot.vbmeta.*, the slot suffix, the verity/dm-verity words) and the bootloader's use of it, (3) Android b's own line (research/walleye-bootimage/2026-11-23/android-b-cmdline-and-boot-props.txt) against run 8's and run 9's lines (research/walleye-bootimage/2026-11-23/run8-telnet-debug-read.txt and the run 9 material) word by word: which words are present, which are absent, in what order; (4) whether image-avb-footer-in-rust (lab-tools) is the real fix (a footer the bootloader accepts) and what would show it (a chained image, hash descriptor, rollback index); ends in: the cause, or the ranked candidates with the smallest read-only or RAM-only check; no phone
+
+Rank
+: 2
+
+
+<a id="walleye-wdt0-first-instant-read"></a>
+### Read WDT0 (0x17817000: EN, STS, BARK, BITE) at our kernel's first instant: what does the bootloader arm?
+
+Status
+: open
+
+Note
+: From research walleye-android-watchdog-read-fix (6): the one unknown the source cannot settle. Read-only; the keeper's try.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: test walleye-wdt0-state-at-boot (still to write: init's first act logs the four registers to the console/pstore, reads only, one boot of the existing image, nothing flashed beyond the keeper's own try)
+
+Rank
+: 2
+
+
+<a id="walleye-init-pets-from-first-act"></a>
+### Init pets /dev/watchdog from its first instruction through switch_root (Android's pet never depends on userspace)
+
+Status
+: open
+
+Note
+: Research walleye-android-watchdog-read-fix FIX-2/3; blocked on the wdt0 read to choose between FIX-2 and not opening the device.
+
+Blocked by
+: walleye-wdt0-first-instant-read
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: test walleye-stage2-no-wdt-reset (still to write: a stage 2 boot stays up 120 s with bootreason not watchdog)
 
 Rank
 : 2
