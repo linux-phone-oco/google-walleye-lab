@@ -6281,3 +6281,22 @@ Sources
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-stage2-run-1-gpt-after-flash-finding"></a>
+### walleye-stage2-run-1-gpt-after-flash-finding
+
+Date
+: 2026-11-23
+
+Brief
+: Run 1's flash changed only boot_a's attribute byte (0x72 to 0x3b) and the CRCs it implies, on sda; five other disks byte equal; boot chain as flashed; the run never read the GPT after
+
+Question
+: What exactly changed in the GPT when fastboot flash boot_a reset slot a's flags, read again from Android against run 1's gpt-before.txt?
+
+Found
+: Read from Android 2026-11-23 (adb root, read only, nothing written, no fastboot verb) the six disks' GPT with the stage 2 dump command, compared with install-boot-20261123-112709/gpt-before.txt by the stage 2 checker (gpt_switch_only, PR 817 code) and byte by byte. sdb to sdf: 0 bytes differ. sda: 18 bytes differ, all classed: primary header CRC (block 1 off 16-19) and entries CRC (off 88-91); the same two CRCs in the backup header (block 10); ONE entry byte in each copy of the entries (block 2 and block 6, offset 1078 = entry 8 boot_a, byte 54, attribute bits 48-55): 0x72 to 0x3b. No other entry's bytes, no type GUID, nothing else. Checker: 1 entries' slot bits and 0 type GUIDs changed, the CRCs are right, nothing else. By the ABL layout the byte reads priority 2 to 3, retry field 6 to 7, successful 1 to 0; fastboot getvar printed retry 0 then 1, successful yes then no, so the retry field's decoding is not known yet; the raw byte is the fact. Verdict: ONLY slot a's attribute bits and the CRCs they imply differ; the Top's STOP condition did not occur. 'GPT kept' meant the table before the flash was kept (gpt-before.txt only): the run's folder has no gpt-after (check 18 stopped it before that read) and the after-flash flags came from fastboot getvar (slots-after-flash.txt). This read is after the run's way back, so it is the net change of the run; boot_b's entry is unchanged. Boot chain: boot_a e337de53 (the flashed image), boot_b, dtbo_a/b, vbmeta_a/b equal to the run's parts-readback.txt. Phone on Android slot b. Material kept in ~/lab-material/walleye/install-boot-20261123-112709/ as gpt-read-after-return.txt and parts-after-return.txt.
+
+About
+: walleye-bootimage

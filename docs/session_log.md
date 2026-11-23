@@ -6391,3 +6391,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-1500-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel; boot_a holds the stage 2 image e337de53 (run 1's flash), its slot bits reset by the flash; read from Android, nothing written: only sda's boot_a attribute byte and its CRCs differ from before the flash, five disks equal, chain as flashed; item walleye-stage2-run-1-gpt-after-flash done
+
+Considered
+: next: the coordinator settles check 18 (the flash's flag reset is allowed) and decides the stage 2 rerun; then transport-real-phone-run, nfc node
+
+About
+: walleye-bootimage
