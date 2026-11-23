@@ -3254,3 +3254,31 @@ Research
 
 Tracked by
 : walleye-stage2-debug-image
+
+
+<a id="2026-11-23-walleye-reuse-android-kernel-gpl"></a>
+### 2026-11-23-walleye-reuse-android-kernel-gpl
+
+Date
+: 2026-11-23
+
+Brief
+: Clean-room only for sources we have no licence to; Android's Pixel 2 kernel (msm-4.4, GPL-2.0) may be reused with its copyright, author and Signed-off-by kept
+
+Decision
+: Clean-room reverse engineering is for sources we have no licence to: the bootloader, firmware blobs and closed userspace. Android's Pixel 2 kernel (msm-4.4, android-msm-wahoo) is GPL-2.0, so its working parts may be reused in our lab kernel, as a first working step by direct copy, and for upstream by a port onto mainline's interfaces. Rules: keep the original copyright and author lines; the commit message says 'based on FILE from ANDROID-COMMIT'; keep the original Signed-off-by where a commit is taken whole (DCO (b)); check each file's licence before it is copied (GPL-2.0 or dual BSD/GPL is fine, anything else is read for behaviour only). AOSP userspace (Apache-2.0, e.g. boot_control.cpp) is read for behaviour only and never goes into the kernel. Android's tree is held as a read-only remote 'android' of the kernel clone, fixed at the exact build the phone runs, tagged reference/android-walleye/BUILD, never merged into a topic and never pushed; findings cite android:path@commit from the local tree, not web pages. This supersedes any 'no vendor code is copied' line in briefs or research of this lane.
+
+Why
+: The Top Coordinator's decision with the author agreeing, 2026-11-23: 'isnt it the best we can do ?' (the author, relayed by the Top Coordinator): the kernel that runs on the phone works, is GPL-2.0, and reusing it with its authorship kept is what the licence is for; clean-room work stays where no licence exists. It also settles how the watchdog work reads msm_watchdog.c and the stock dts: from the tree, at the commit the phone runs.
+
+Rejected
+: Clean-room for the kernel as well (the author's words of 2026-11-22 spoke of clean-room reverse engineering where research could not reach: it is kept for the bootloader, firmware and closed userspace): it would re-derive working GPL code at the cost of time and bugs, with no licence reason. Merging Android's branch into a topic or pushing it to the fork: it is a reference, not our history.
+
+About
+: walleye-bootimage
+
+Amends
+: 2026-11-22-walleye-author-research-then-proceed
+
+Scope
+: walleye lane, builders, researchers; briefs that say no vendor code
