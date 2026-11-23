@@ -6451,3 +6451,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-1215-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel; boot_a holds e337de53 (run 1's flash); stage 2 rerun 2 stopped at check 9 before any flash, nothing written, phone healthy on Android
+
+Considered
+: next: the coordinator amends check 9 (boot_a already the image); no further run by the keeper on this item
+
+About
+: walleye-display-s6e3fa5
