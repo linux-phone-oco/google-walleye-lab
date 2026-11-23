@@ -273,19 +273,6 @@ Takes
 : SBU1 = TX, SBU2 = RX, DIP 1.8/3.3 V (a wrong setting can damage the target), orientation-specific, archived 2023-01-10, not an official Google product
 
 
-<a id="src-wahoo-msm-poweroff"></a>
-### msm-poweroff.c, kernel/msm android-msm-wahoo-4.4-android11 (vendor restart path)
-
-Url
-: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-wahoo-4.4-android11/drivers/power/reset/msm-poweroff.c
-
-By
-: Google/Qualcomm
-
-Takes
-: msm_restart_prepare: PMIC reset type is WARM only if download mode is on (panic sets it) or the reboot command is non-empty; a plain reboot is a PMIC HARD reset, 'unless memory contents must be maintained'; panic path can bite the watchdog; PS_HOLD de-asserted through TZ
-
-
 <a id="src-linux-psci-sys-reset"></a>
 ### drivers/firmware/psci/psci.c psci_sys_reset (mainline)
 
@@ -1470,3 +1457,114 @@ By
 
 Takes
 : write booster probe condition, purge guard, runtime autosuspend, gear scaling, quirk tables
+
+
+<a id="src-wahoo-msm-poweroff"></a>
+### msm-poweroff.c, android-msm-wahoo-4.4-android11
+
+Url
+: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-wahoo-4.4-android11/drivers/power/reset/msm-poweroff.c
+
+Author
+: The Linux Foundation / Google
+
+Year
+: 2017
+
+By
+: Google
+
+Takes
+: msm_restart_prepare: for 'bootloader' it sets PMIC restart reason 2 and writes 0x77665500 to the IMEM restart_reason word, and a warm reset for any non-empty command
+
+
+<a id="src-wahoo-qpnp-power-on"></a>
+### qpnp-power-on.c, android-msm-wahoo-4.4-android11
+
+Url
+: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-wahoo-4.4-android11/drivers/input/misc/qpnp-power-on.c
+
+Author
+: The Linux Foundation / Google
+
+Year
+: 2017
+
+By
+: Google
+
+Takes
+: qpnp_pon_set_restart_reason writes PON base+0x8F bits 7:1 = reason<<1 on gen2 (PM8998); enum value BOOTLOADER = 2 (include/linux/input/qpnp-power-on.h)
+
+
+<a id="src-wahoo-msm8998-dtsi"></a>
+### msm8998.dtsi, android-msm-wahoo-4.4-android11 (arch/arm/boot/dts/qcom)
+
+Url
+: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-wahoo-4.4-android11/arch/arm/boot/dts/qcom/msm8998.dtsi
+
+Author
+: The Linux Foundation / Google
+
+Year
+: 2017
+
+By
+: Google
+
+Takes
+: IMEM at 0x146bf000, restart_reason@65c (qcom,msm-imem-restart_reason); pshold restart node; pm8998 pon has qcom,store-hard-reset-reason
+
+
+<a id="src-mainline-qcom-pon"></a>
+### drivers/power/reset/qcom-pon.c, Linux mainline
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/plain/drivers/power/reset/qcom-pon.c
+
+Author
+: Linaro
+
+Year
+: 2018
+
+By
+: Linux kernel
+
+Takes
+: reboot-mode driver: writes PON 0x8f, mask 7:shift, magic<<shift; pm8998-pon shift 1, so mode-bootloader <2> writes the same byte as Android
+
+
+<a id="src-mainline-reboot-mode"></a>
+### drivers/power/reset/reboot-mode.c, Linux mainline
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/plain/drivers/power/reset/reboot-mode.c
+
+Author
+: Andy Yan
+
+Year
+: 2016
+
+By
+: Linux kernel
+
+Takes
+: reboot notifier: looks the command string up in the mode-* properties; no command means no write
+
+
+<a id="src-busybox-halt-init"></a>
+### busybox init/halt.c and init/init.c (the version in walleye-build)
+
+Url
+: https://git.busybox.net/busybox/tree/init/halt.c
+
+Author
+: busybox
+
+By
+: busybox
+
+Takes
+: reboot applet ignores its arguments and signals init with SIGTERM; init and halt call reboot(RB_AUTOBOOT), never LINUX_REBOOT_CMD_RESTART2 with a string

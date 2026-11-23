@@ -6023,3 +6023,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-reboot-reason-bootloader-read-finding"></a>
+### walleye-reboot-reason-bootloader-read-finding
+
+Date
+: 2026-11-23
+
+Brief
+: 'reboot bootloader' never reached the kernel: busybox reboot drops the argument, so no reboot reason was written. The PMIC byte our dtb writes equals Android's; IMEM word and warm reset are unknown
+
+Question
+: Why did 'reboot bootloader' over ssh not reach fastboot on our kernel (rerun 6), and what must our kernel write?
+
+Found
+: (1) Android (wahoo msm-poweroff.c, msm_restart_prepare): for cmd 'bootloader' it writes PMIC PON 0x800+0x8F bits7:1 = 2 (qpnp_pon_set_restart_reason, PM8998 is gen2: byte 0x04) AND the IMEM word 0x77665500 at 0x146bf000+0x65c (dtsi restart_reason@65c), and any non-empty cmd gives a WARM reset (qpnp_pon_system_pwr_off WARM_RESET) then deasserts PS_HOLD. Which of the two the bootloader reads is NOT KNOWN YET (ABL is closed). (2) Our kernel: restart is PSCI SYSTEM_RESET (cold unless reboot=warm; psci.c), no msm-poweroff, no pshold node; mainline qcom-pon.c with pm8998-pon shift 1 writes the same PMIC byte (mode-bootloader <2> => 2<<1) from a reboot notifier that runs before the restart handler, but ONLY if the kernel receives the string 'bootloader'. (3) The cause found: the image is Alpine with busybox init; busybox 'reboot' ignores its arguments and signals init with SIGTERM, init calls reboot(RB_AUTOBOOT): LINUX_REBOOT_CMD_RESTART with no command. reboot-mode then finds no command and writes nothing, so the PMIC byte was never written in rerun 6 - the dtb and config were never tested by that run. (4) The kept log has one line only (bootloader-way-back.txt); no kernel line from the reboot was kept (the phone has no console on that path): the claim rests on the busybox source, not on a print. (5) Smallest change: send the command string through reboot(2) LINUX_REBOOT_CMD_RESTART2 'bootloader' (a small static tool in the rootfs, no dts change); this exercises the PMIC byte alone. If the bootloader still does not stop: add the IMEM word with a syscon-reboot-mode node (offset 0x65c, mode-bootloader 0x77665500, IMEM 0x146bf000 mapped as syscon) and/or reboot=warm so PSCI uses SYSTEM_RESET2/warm. (6) NOT KNOWN YET: whether PMIC byte alone suffices; whether a cold PSCI reset keeps the PMIC byte (Android used warm); whether IMEM is writable from EL1 under this firmware.
+
+Sources
+: src-wahoo-msm-poweroff,src-wahoo-qpnp-power-on,src-wahoo-msm8998-dtsi,src-mainline-qcom-pon,src-mainline-reboot-mode,src-busybox-halt-init
+
+About
+: walleye-bootimage

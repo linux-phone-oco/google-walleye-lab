@@ -9839,7 +9839,7 @@ Go until
 ### Why 'reboot bootloader' over ssh did not reach fastboot on our kernel (rerun 6): what Android's kernel writes so the bootloader stops in fastboot, and whether our kernel and device tree do the same
 
 Status
-: open
+: done
 
 Note
 : The Top Coordinator's order after rerun 6 (PR 781: 26 of 26 passed, 'reboot bootloader' never reached fastboot, the forced way back worked, phone on Android b, nothing flashed): research BEFORE any phone time. The likely cause is the reboot reason. Android's kernel tells the bootloader to stop in fastboot by writing a reboot reason; on msm8998 a magic value in IMEM restart_reason and/or the PMIC PON soft-reboot register, via the qcom reboot-mode and pon drivers. Check whether our kernel and device tree do the same. Record with sources from Android's kernel for walleye.
@@ -9885,17 +9885,14 @@ Rank
 : 2
 
 
-<a id="walleye-reboot-reason-fix"></a>
-### The fix for the reboot reason: our kernel and dtb write what the bootloader reads for 'stop in fastboot', with an offline check that reads text the phone printed, then ONE RAM-boot try
+<a id="walleye-reboot-reason-restart2-tool"></a>
+### A static reboot-with-command tool in the rootfs (LINUX_REBOOT_CMD_RESTART2 'bootloader'), used by the stage 1 way back
 
 Status
 : open
 
 Note
-: Queued behind the research (the Top Coordinator's order after rerun 6). Nothing here touches the phone.
-
-Blocked by
-: walleye-reboot-reason-bootloader-read
+: From research walleye-reboot-reason-bootloader-read-finding. Rust, no libc beyond reboot(2). Nothing touches the phone.
 
 About
 : walleye-bootimage
@@ -9907,7 +9904,35 @@ Needs
 : build
 
 Proof
-: from the research row of item walleye-reboot-reason-bootloader-read: the dts node and/or config change in the board dts and the kernel config fragment (build/walleye*.config) that make the same write Android's kernel makes; an offline check (a host test, run on the real text the phone printed in rerun 6's kept logs and on what the new image prints: the dtb's nodes via fdtdump, /proc/config.gz lines, dmesg lines of the reboot-mode driver) that fails on today's image and passes on the new one; the image built twice identical and declared in device.toml (a RAM-boot image for stage 1's procedure, UFS-on ufs-root kernel family); the try is then item walleye-reboot-bootloader-from-linux-try (one run of the stage 1 procedure on that image under a go naming its sha256); dry run, check --host, tests, clippy, fmt, review
+: an offline host check that the tool passes the string given to reboot(2) (stand-in syscall), that the rootfs contains it, and that the procedure's way back calls it; then item walleye-reboot-bootloader-from-linux-try
+
+Rank
+: 2
+
+
+<a id="walleye-reboot-reason-fix"></a>
+### The fix for the reboot reason: the restart2 tool first; the IMEM syscon node and warm reset only if one RAM-boot try still misses
+
+Status
+: open
+
+Note
+: Narrowed by decision 2026-11-23-walleye-reboot-reason-send-the-string-first: step 2, only if the try with the tool misses. IMEM 0x146bf000 offset 0x65c value 0x77665500.
+
+Blocked by
+: walleye-reboot-reason-restart2-tool
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: unchanged: offline check on rerun 6 text and the new image, image built twice identical, then the one try
 
 Rank
 : 2
