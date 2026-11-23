@@ -112,8 +112,8 @@ pub fn flags_of(lines: &str) -> BTreeMap<String, String> {
         .collect()
 }
 
-/// After `set_active TO` (from `FROM`): the flags changed exactly as the bootloader's own switch describes (research walleye-install-stage2-android-verdict): `current-slot` is TO, TO is
-/// not successful, not unbootable and has a retry count of 1 to 7; every other flag - FROM's too - is what it was, and no flag appeared or went.
+/// After `set_active TO` (from `FROM`; check 20, relaxed by research walleye-stage2-checks-should-they-exist, row 20): the goal itself - `current-slot` is TO, TO is not unbootable and has tries left (a retry count above 0).
+/// Every other flag, FROM's included, is the bootloader's to set (it "may reset the successful bit": update_attempter_android.cc l.368): recorded in the flags file, never required equal here; FROM's state is judged at the way back (24).
 pub fn switch_is_the_abls(before: &str, after: &str, from: &str, to: &str) -> Result<(), String> {
     let (b, a) = (flags_of(before), flags_of(after));
     if b.keys().ne(a.keys()) {
@@ -126,45 +126,31 @@ pub fn switch_is_the_abls(before: &str, after: &str, from: &str, to: &str) -> Re
             "before the switch the current slot was not {from}: {before}"
         ));
     }
-    let own = [
-        "current-slot".to_string(),
-        format!("slot-successful:{to}"),
-        format!("slot-unbootable:{to}"),
-        format!("slot-retry-count:{to}"),
-    ];
-    for (k, v) in &b {
-        if !own.contains(k) && a[k] != *v {
-            return Err(format!("{k} changed from {v} to {}: the switch changes only slot {to}'s own flags and the current slot", a[k]));
-        }
-    }
     let want = |k: &str, w: &str| -> Done {
         match a.get(k).map(String::as_str) {
             Some(v) if v == w => Ok(()),
             other => Err(format!(
-                "after the switch {k} is {other:?}, the bootloader's switch leaves {w:?}"
+                "after the switch {k} is {other:?}, the switch leaves {w:?}"
             )),
         }
     };
     want("current-slot", to)?;
-    want(&format!("slot-successful:{to}"), "no")?;
     want(&format!("slot-unbootable:{to}"), "no")?;
-    let retry = a
+    match a
         .get(&format!("slot-retry-count:{to}"))
         .and_then(|v| v.parse::<u8>().ok())
-        .ok_or("no retry count for the new slot")?;
-    if !(1..=7).contains(&retry) {
-        return Err(format!(
-            "the new slot's retry count is {retry}: the switch leaves 1 to 7"
-        ));
+    {
+        Some(n) if n >= 1 => Ok(()),
+        other => Err(format!(
+            "the new slot's retry count is {other:?}: the switch leaves tries to boot with (above 0)"
+        )),
     }
-    Ok(())
 }
 
-/// After the flash of `boot_X` (check 18; research walleye-stage2-flash-resets-flags-documented, AOSP's A/B spec): a write to a slot's partition makes
-/// the bootloader clear that slot's `successful` and reset its retry count. So EXACTLY slot X's `slot-successful` ends `no` and its
-/// `slot-retry-count` ends a positive number (observed 1, AOSP says usually 3: the number is not fixed here); `slot-unbootable:X` stays or clears (yes to
-/// no, observed in run 5 after a failed boot; never no to yes), the other slot's every flag, the current slot and every name are what they were, and no flag appeared or went.
-pub fn flash_resets_only_the_flashed_slots_flags(
+/// After the flash of `boot_X` (check 18; research walleye-stage2-checks-should-they-exist, row 18, after AOSP's update_engine, which puts the target slot in any flag state itself): what the flash may do to the FLASHED slot's flags
+/// (successful, retry count, unbootable) is the bootloader's own and asserted nowhere - three stops came from asserting a value of it (runs 1 and 5). What stays asserted is the invariant: Android's slot, the current slot and every other flag
+/// are what they were, and no flag appeared or went.
+pub fn flash_leaves_androids_slot_alone(
     before: &str,
     after: &str,
     flashed: &str,
@@ -175,31 +161,37 @@ pub fn flash_resets_only_the_flashed_slots_flags(
             "the flags' names changed:\n{before}\nthen\n{after}"
         ));
     }
-    let (successful, retry) = (
+    let own = [
         format!("slot-successful:{flashed}"),
         format!("slot-retry-count:{flashed}"),
-    );
-    let unbootable = format!("slot-unbootable:{flashed}");
+        format!("slot-unbootable:{flashed}"),
+    ];
     for (k, v) in &b {
-        let clears_unbootable = *k == unbootable && v == "yes" && a[k] == "no"; // run 5: the flash cleared a's unbootable bit; the other way never
-        if *k != successful && *k != retry && !clears_unbootable && a[k] != *v {
-            return Err(format!("{k} changed from {v} to {}: the flash changes only slot {flashed}'s successful and retry count, and may clear its unbootable bit (yes to no)\n{before}\nthen\n{after}", a[k]));
+        if !own.contains(k) && a[k] != *v {
+            return Err(format!("{k} changed from {v} to {}: the flash may change slot {flashed}'s own flags, nothing else\n{before}\nthen\n{after}", a[k]));
         }
     }
-    match a.get(&successful).map(String::as_str) {
-        Some("no") => {}
-        other => {
-            return Err(format!(
-                "after the flash {successful} is {other:?}, the bootloader's reset leaves \"no\"\n{before}\nthen\n{after}"
-            ))
+    Ok(())
+}
+
+/// Before anything is written: the slot Android runs from is the way back, so it must be good as the bootloader has it - successful, not unbootable (research walleye-stage2-walk-by-state-v-earlier-image: a slot b that is not
+/// successful passed every step of the walk, the one unsafe state nothing stopped). The flags are the lines of [`host::slot_lines`].
+pub fn android_slot_is_a_safe_way_back(flags: &str, android: &str) -> Result<(), String> {
+    let f = flags_of(flags);
+    for (key, want) in [
+        (format!("slot-successful:{android}"), "yes"),
+        (format!("slot-unbootable:{android}"), "no"),
+    ] {
+        match f.get(&key).map(String::as_str) {
+            Some(v) if v == want => {}
+            other => {
+                return Err(format!(
+                    "{key} is {other:?}, not {want:?}: the slot Android runs from is the way back and the bootloader does not count it good - nothing is written\n{flags}"
+                ))
+            }
         }
     }
-    match a.get(&retry).and_then(|v| v.parse::<u8>().ok()) {
-        Some(n) if n >= 1 => Ok(()),
-        other => Err(format!(
-            "after the flash {retry} is {other:?}, the bootloader's reset leaves a positive count\n{before}\nthen\n{after}"
-        )),
-    }
+    Ok(())
 }
 
 /// After the way back: Android's slot is the current one and is not unbootable, and no flag appeared or went. (The flags of its boot counting, successful and the retry count, are the bootloader's and Android's own to set.)
@@ -505,8 +497,8 @@ pub fn init_refuses_its_own_slot(init: &str) -> bool {
         .any(|l| l.contains("the slot Android runs from"))
 }
 
-/// Check 9's decision: the partition read now is the stock backup (`want`, from the backup's sha256sums), or it already holds the declared image (a flash that read back equal)
-/// while the backup file is on file and still hashes to `want`, so the flash can still be undone. Anything else fails, and says which way.
+/// Check 9's decision (research walleye-stage2-checks-should-they-exist, row 9; after fastboot and update_engine, which ask nothing of what a target held): what the partition holds now protects nothing - the flash overwrites it whatever it is -
+/// so it is RECORDED (the stock backup `want`, the declared image, or content not recorded: said, never refused). What protects the way back is the stock backup: `backup_file` must be on file and still hash to `want`.
 fn boot_partition_can_be_flashed(
     target: &str,
     now: &str,
@@ -519,16 +511,17 @@ fn boot_partition_can_be_flashed(
         want.to_lowercase(),
         declared.trim().to_lowercase(),
     );
-    if now == want {
-        return Ok(format!("{target} is its backup ({want})"));
-    }
-    if now != declared {
-        return Err(format!("{target} read now is {now}, neither the stored backup ({want}) nor the declared image ({declared}): the flash could not be undone"));
-    }
+    let holds = if now == want {
+        format!("its backup ({want})")
+    } else if now == declared {
+        format!("the declared image ({declared})")
+    } else {
+        format!("content not recorded here ({now})")
+    };
     match backup_file {
-        Err(e) => Err(format!("{target} holds the declared image, but the stock backup {target}.img is not on file or unreadable: {e}: the flash could not be undone")),
-        Ok(on_file) if on_file.to_lowercase() != want => Err(format!("{target} holds the declared image, but the backup file {target}.img hashes to {on_file}, not the recorded {want}: the flash could not be undone")),
-        Ok(_) => Ok(format!("{target} already holds the declared image ({declared}); the stock backup is on file and hashes to its record ({want}): the flash can be undone")),
+        Err(e) => Err(format!("{target} holds {holds}, but the stock backup {target}.img is not on file or unreadable: {e}: the flash could not be undone")),
+        Ok(on_file) if on_file.to_lowercase() != want => Err(format!("{target} holds {holds}, but the backup file {target}.img hashes to {on_file}, not the recorded {want}: the flash could not be undone")),
+        Ok(_) => Ok(format!("{target} holds {holds}; the stock backup is on file and hashes to its record ({want}): the flash can be undone")),
     }
 }
 
@@ -826,12 +819,9 @@ impl FlashBoot {
             let suffix = u.android.slot_suffix()?;
             let slot = suffix.trim().strip_prefix('_').unwrap_or("").to_string();
             other_slot(&slot)?;
+            // research walleye-stage2-checks-should-they-exist, row 8: a host marker of an earlier unfinished switch is the host's memory of an intention, not the phone's state (the phone is on Android now: adb answered); the flags and the GPT are read at 10 and 13 and are the truth, so the marker only gets a note
             if u.marked(SWITCHED_FILE).is_some() && u.marked(RESTORED_FILE).is_none() {
-                return Err(format!(
-                    "an earlier run of this day switched to a slot and never switched back: the phone is on Android now, so it was put back by hand; remove {} and {} and run again",
-                    u.s.out.join(SWITCHED_FILE).display(),
-                    u.s.out.join(ANDROID_SLOT_FILE).display()
-                ));
+                println!("  note: an earlier run of this day switched to a slot and never wrote its way back; the phone is on Android now, and its flags and GPT are read below");
             }
             // the folder is cleared whole: files and folders (the boot chain read-back refuses a folder with files)
             if let Ok(entries) = std::fs::read_dir(&u.s.out) {
@@ -850,7 +840,7 @@ impl FlashBoot {
         }
     }
 
-    /// The boot partition about to be overwritten, read now from Android, is what the stored backup recorded, or the declared image with the backup on file and still hashing to its record: the flash can be undone. The partition not flashed, its dtbo and vbmeta, and the
+    /// The boot partition about to be overwritten, read now from Android, is what the stored backup recorded, (recorded, never refused: research walleye-stage2-checks-should-they-exist row 9), the backup being on file and still hashing to its record: the flash can be undone. The partition not flashed, its dtbo and vbmeta, and the
     /// flashed slot's dtbo and vbmeta are hashed too, kept for the end.
     pub fn the_slot_partitions_are_read_before(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
@@ -984,22 +974,25 @@ impl FlashBoot {
     /// The slots' flags, read in fastboot, kept.
     pub fn the_slot_flags_are_read(&self, file: &'static str) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
-        move || u.flags(file)
+        move || {
+            u.flags(file)?;
+            if file == "slots-before.txt" {
+                android_slot_is_a_safe_way_back(&u.saved(file)?, &u.android_slot()?)?;
+            }
+            Ok(())
+        }
     }
 
-    /// The rehearsal: the flags read again equal the first (nothing was asked of the bootloader).
+    /// The rehearsal: the flags read again are kept beside the first and a difference is SAID, not refused (research walleye-stage2-checks-should-they-exist, rehearsal note: Android may mark its slot successful on its own, so equality is no invariant).
     pub fn the_slot_flags_are_the_same(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
             u.flags("slots-again.txt")?;
             let (a, b) = (u.saved("slots-before.txt")?, u.saved("slots-again.txt")?);
-            if a == b {
-                Ok(())
-            } else {
-                Err(format!(
-                    "the slot flags changed with nothing asked:\n{a}\nthen\n{b}"
-                ))
+            if a != b {
+                println!("  note: the slot flags changed with nothing asked of the bootloader (Android may mark its slot successful on its own):\n{a}\nthen\n{b}");
             }
+            Ok(())
         }
     }
 
@@ -1051,7 +1044,7 @@ impl FlashBoot {
                 u.saved("slots-after-flash.txt")?,
             );
             let target = u.target()?; // boot_a or boot_b: the slot is its last letter
-            flash_resets_only_the_flashed_slots_flags(&a, &b, &target[target.len() - 1..])
+            flash_leaves_androids_slot_alone(&a, &b, &target[target.len() - 1..])
         }
     }
 
@@ -1722,28 +1715,23 @@ mod tests {
     #[test]
     fn the_bootloaders_switch_is_accepted_and_anything_else_is_not() {
         assert!(switch_is_the_abls(BEFORE, &after_switch(), "b", "a").is_ok());
-        // the other slot's own flags changed
-        let bad = after_switch().replace("slot-successful:b:yes", "slot-successful:b:no");
-        assert!(switch_is_the_abls(BEFORE, &bad, "b", "a")
-            .unwrap_err()
-            .contains("slot-successful:b"));
-        // the new slot is unbootable, or still successful, or has no tries left
+        // research walleye-stage2-checks-should-they-exist, row 20: the other flags (the new slot's successful, Android's slot's own) are the bootloader's, recorded and judged at the way back, not here
+        for ok in [
+            after_switch().replace("slot-successful:b:yes", "slot-successful:b:no"),
+            after_switch().replace("slot-successful:a:no", "slot-successful:a:yes"),
+            after_switch().replace("slot-retry-count:a:6", "slot-retry-count:a:9"),
+        ] {
+            assert!(switch_is_the_abls(BEFORE, &ok, "b", "a").is_ok(), "{ok}");
+        }
+        // the new slot is unbootable or has no tries left, or the switch did not happen
         for (what, v) in [
             (
                 "unbootable",
                 after_switch().replace("slot-unbootable:a:no", "slot-unbootable:a:yes"),
             ),
             (
-                "successful",
-                after_switch().replace("slot-successful:a:no", "slot-successful:a:yes"),
-            ),
-            (
                 "retry 0",
                 after_switch().replace("slot-retry-count:a:6", "slot-retry-count:a:0"),
-            ),
-            (
-                "retry 9",
-                after_switch().replace("slot-retry-count:a:6", "slot-retry-count:a:9"),
             ),
             (
                 "not switched",
@@ -2772,17 +2760,174 @@ mod tests {
         }
     }
 
+    /// STATE (v) of the audit by state (item walleye-stage2-check-8-earlier-images; rehearsal 5, research walleye-install-flash-boot-rehearsal-5-stops-at-check-8): boot_a holds an EARLIER image of ours, recorded in device.toml as an [images.*] row,
+    /// neither the stock backup nor the declared image; slot a's flags are those after a failed boot (unbootable yes, retry 0, successful no: run 5's printed before-state) and those after a flash (retry 1, successful no). The whole walk of the command passes against both.
     #[test]
-    fn leftovers_of_an_earlier_run_are_cleared_at_step_8_and_an_unfinished_switch_stops_it() {
+    fn the_whole_walk_passes_when_boot_a_holds_an_earlier_image_of_ours() {
+        let flags = |retry: &str, unbootable: &str| {
+            format!(
+                "current-slot:b\nslot-retry-count:a:{retry}\nslot-retry-count:b:0\nslot-successful:a:no\nslot-successful:b:yes\nslot-unbootable:a:{unbootable}\nslot-unbootable:b:no\n"
+            )
+        };
+        for (name, state) in [
+            ("failed-boot", flags("0", "yes")),
+            ("after-a-flash", flags("1", "no")),
+        ] {
+            let (f, d) = the_phone_after_rerun_3(&format!("by-state-v-{name}"), &state);
+            let earlier = b"an earlier image of ours, not the declared one";
+            std::fs::write(f.by_name_of("boot_a"), earlier).unwrap();
+            let at =
+                |step: &str, r: Done| r.unwrap_or_else(|e| panic!("state v {name}, {step}: {e}"));
+            at("8", (f.the_slot_is_read_by_adb())());
+            at("9", (f.the_slot_partitions_are_read_before())());
+            at("12", (f.the_guard_holds())());
+            at("13", (f.the_slot_flags_are_read("slots-before.txt"))());
+            at("14", (f.the_boot_image_is_flashed())());
+            at("16", (f.the_partition_reads_back_as_the_image())());
+            at("18", (f.the_flash_changed_no_flag())());
+            at("19", (f.the_slot_is_made_active())());
+            at("20", (f.the_flags_are_the_switch_and_nothing_else())());
+            at("way back", (f.the_switch_is_made_back())());
+            at("way back flags", (f.the_flags_are_back())());
+            assert!(calls(&d).contains("set_active b"), "state v {name}");
+        }
+    }
+
+    // ---- THE STATE MODEL (item walleye-stage2-state-model-walk): every start state the command can meet, the whole offline walk over each, one table ----
+    // Sources of the flag states: stock = what the bootloader had before any flash (research walleye-stage2-walk-by-state state i); after one flash = run 1's printed `getvar all` (FLAGS_AFTER_RUN_1);
+    // failed boot = run 5's printed before-state (retry 0, successful no, unbootable yes); after a successful stage 2 = state iv of that research (retry 7). b not successful: slot b with `successful no`, retry 0 - not a state any run printed, the unsafe case.
+    // boot_a contents: the stock backup (what the backup folder holds), an earlier image of ours (e337de53 in rehearsal 5), the declared image, any other bytes.
+
+    /// One step of the walk: its name and what it runs.
+    type WalkStep = (&'static str, Box<dyn FnOnce() -> Done>);
+
+    #[derive(Clone, Copy, Debug)]
+    enum BootA {
+        Stock,
+        Earlier,
+        Declared,
+        Unknown,
+    }
+
+    /// Slot a's flags (retry, successful, unbootable) of each start state, and slot b's successful bit.
+    const A_STATES: [(&str, (&str, &str, &str)); 5] = [
+        ("stock", ("0", "yes", "no")),
+        ("after-one-flash", ("1", "no", "no")),
+        ("after-a-failed-boot", ("0", "no", "yes")),
+        ("after-a-flash-that-cleared-unbootable", ("1", "no", "no")),
+        ("after-a-successful-stage-2", ("7", "no", "no")),
+    ];
+
+    /// The offline walk over one state: the first step that stopped, and why (None: every step passed).
+    fn walk_state(
+        name: &str,
+        boot_a: BootA,
+        a: (&str, &str, &str),
+        b_successful: &str,
+    ) -> Option<(&'static str, String)> {
+        let flags = format!(
+            "current-slot:b\nslot-retry-count:a:{}\nslot-retry-count:b:0\nslot-successful:a:{}\nslot-successful:b:{b_successful}\nslot-unbootable:a:{}\nslot-unbootable:b:no\n",
+            a.0, a.1, a.2
+        );
+        let (f, _d) = the_phone_after_rerun_3(name, &flags);
+        let content: &[u8] = match boot_a {
+            BootA::Stock => b"the stock boot_a",
+            BootA::Earlier => b"an earlier image of ours, not the declared one",
+            BootA::Declared => b"",
+            BootA::Unknown => b"bytes nobody recorded",
+        };
+        if !matches!(boot_a, BootA::Declared) {
+            std::fs::write(f.by_name_of("boot_a"), content).unwrap();
+        }
+        let steps: Vec<WalkStep> = vec![
+            (
+                "8 adb reads the slot",
+                Box::new(f.the_slot_is_read_by_adb()),
+            ),
+            (
+                "9 boot_a is flashable",
+                Box::new(f.the_slot_partitions_are_read_before()),
+            ),
+            ("12 the guard", Box::new(f.the_guard_holds())),
+            (
+                "13 flags read",
+                Box::new(f.the_slot_flags_are_read("slots-before.txt")),
+            ),
+            ("14 flash", Box::new(f.the_boot_image_is_flashed())),
+            (
+                "16 reads back as the image",
+                Box::new(f.the_partition_reads_back_as_the_image()),
+            ),
+            (
+                "18 the flash changed no flag",
+                Box::new(f.the_flash_changed_no_flag()),
+            ),
+            ("19 set_active", Box::new(f.the_slot_is_made_active())),
+            (
+                "20 the flags are the switch",
+                Box::new(f.the_flags_are_the_switch_and_nothing_else()),
+            ),
+            ("way back", Box::new(f.the_switch_is_made_back())),
+            ("way back flags", Box::new(f.the_flags_are_back())),
+        ];
+        for (step, run) in steps {
+            if let Err(e) = run() {
+                return Some((step, e));
+            }
+        }
+        None
+    }
+
+    #[test]
+    fn the_state_model_walks_every_start_state_and_the_table_is_the_decision() {
+        let mut table = String::new();
+        let mut surprises = Vec::new();
+        for boot_a in [
+            BootA::Stock,
+            BootA::Earlier,
+            BootA::Declared,
+            BootA::Unknown,
+        ] {
+            for (a_name, a) in A_STATES {
+                for (b_name, b_successful) in [("b-successful", "yes"), ("b-not-successful", "no")]
+                {
+                    let name = format!("model-{boot_a:?}-{a_name}-{b_name}");
+                    let got = walk_state(&name, boot_a, a, b_successful);
+                    table.push_str(&format!(
+                        "{boot_a:?} | {a_name} | {b_name} | {}\n",
+                        match &got {
+                            None => "passes".to_string(),
+                            Some((step, why)) =>
+                                format!("stops at {step}: {}", why.lines().next().unwrap_or("")),
+                        }
+                    ));
+                    // the decision (research walleye-stage2-checks-should-they-exist, rows 8, 9, 18, 20): what boot_a held and the flags of the flashed slot never stop the command; the one unsafe start state is Android's slot not counted good (no way back)
+                    let must_stop = b_successful == "no";
+                    if got.is_some() != must_stop {
+                        surprises.push(format!("{boot_a:?} | {a_name} | {b_name}: {got:?}"));
+                    }
+                }
+            }
+        }
+        std::fs::write(std::env::temp_dir().join("walleye-state-model.txt"), &table).ok();
+        assert!(
+            surprises.is_empty(),
+            "states that stop or pass against the decision:\n{}\n\nthe table:\n{table}",
+            surprises.join("\n")
+        );
+    }
+    #[test]
+    fn leftovers_of_an_earlier_run_are_cleared_at_step_8_and_an_unfinished_switch_marker_is_a_note_not_a_stop(
+    ) {
         let (f, _d) = the_phone_after_rerun_3("leftovers", FLAGS_AFTER_RUN_1);
         f.lab.save("flashed.txt", "boot_a old").unwrap();
         f.lab.save("parts-before.txt", "boot_a old").unwrap();
         (f.the_slot_is_read_by_adb())().unwrap();
         assert!(f.marked("flashed.txt").is_none() && f.marked("parts-before.txt").is_none());
         f.lab.save(SWITCHED_FILE, "a").unwrap();
-        assert!((f.the_slot_is_read_by_adb())()
-            .unwrap_err()
-            .contains("never switched back"));
+        // research walleye-stage2-checks-should-they-exist, row 8: the marker is the host's memory, the phone is on Android (adb answered); the step goes on and clears it
+        (f.the_slot_is_read_by_adb())().unwrap();
+        assert!(f.marked(SWITCHED_FILE).is_none());
     }
 
     #[test]
@@ -3206,63 +3351,56 @@ mod flash_flag_tests {
 
     #[test]
     fn what_run_1_printed_is_the_flash_resetting_slot_a() {
-        flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, RUN1_AFTER, "a").unwrap();
+        flash_leaves_androids_slot_alone(RUN1_BEFORE, RUN1_AFTER, "a").unwrap();
     }
 
+    // research walleye-stage2-checks-should-they-exist, row 18: the flashed slot's own flags are the bootloader's, asserted nowhere
     #[test]
-    fn the_retry_count_is_any_positive_number_not_one() {
-        for n in ["1", "3", "7"] {
+    fn the_flashed_slots_own_retry_count_is_not_asserted() {
+        for n in ["0", "1", "3", "7", "x"] {
             let after = with(
                 RUN1_AFTER,
                 "slot-retry-count:a:1",
                 &format!("slot-retry-count:a:{n}"),
             );
-            flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, &after, "a").unwrap();
+            flash_leaves_androids_slot_alone(RUN1_BEFORE, &after, "a").unwrap();
         }
-        let zero = with(RUN1_AFTER, "slot-retry-count:a:1", "slot-retry-count:a:0");
-        assert!(
-            flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, &zero, "a")
-                .unwrap_err()
-                .contains("positive")
-        );
-        let junk = with(RUN1_AFTER, "slot-retry-count:a:1", "slot-retry-count:a:x");
-        assert!(flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, &junk, "a").is_err());
     }
 
     #[test]
     fn nothing_else_may_change() {
         let bad = |from: &str, to: &str| {
-            flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, &with(RUN1_AFTER, from, to), "a")
+            flash_leaves_androids_slot_alone(RUN1_BEFORE, &with(RUN1_AFTER, from, to), "a")
                 .unwrap_err()
         };
         assert!(bad("slot-retry-count:b:0", "slot-retry-count:b:1").contains("slot-retry-count:b")); // b's count
         assert!(bad("slot-successful:b:yes", "slot-successful:b:no").contains("slot-successful:b")); // b's flags
         assert!(bad("slot-unbootable:b:no", "slot-unbootable:b:yes").contains("slot-unbootable:b"));
-        assert!(bad("slot-unbootable:a:no", "slot-unbootable:a:yes").contains("slot-unbootable:a")); // the flashed slot becomes unbootable
         assert!(bad("current-slot:b", "current-slot:a").contains("current-slot"));
         // the current slot moved
     }
 
     #[test]
-    fn the_flashed_slot_must_end_not_successful() {
-        let still = with(RUN1_AFTER, "slot-successful:a:no", "slot-successful:a:yes");
-        assert!(
-            flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, &still, "a")
-                .unwrap_err()
-                .contains("slot-successful:a")
-        );
+    fn the_flashed_slot_may_end_successful_or_unbootable_whatever_it_was() {
+        for (from, to) in [
+            ("slot-successful:a:no", "slot-successful:a:yes"),
+            ("slot-unbootable:a:no", "slot-unbootable:a:yes"),
+        ] {
+            flash_leaves_androids_slot_alone(RUN1_BEFORE, &with(RUN1_AFTER, from, to), "a")
+                .unwrap();
+        }
     }
 
     #[test]
     fn a_flag_that_appeared_or_went_is_an_error_and_the_other_slot_is_not_allowed_to_reset() {
         let gone = RUN1_AFTER.replace("slot-unbootable:b:no", "");
         assert!(
-            flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, gone.trim(), "a")
+            flash_leaves_androids_slot_alone(RUN1_BEFORE, gone.trim(), "a")
                 .unwrap_err()
                 .contains("names changed")
         );
         // the same text is NOT allowed for slot b: b's flags would be the ones that changed nothing, a's would have changed
-        assert!(flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, RUN1_AFTER, "b").is_err());
+        assert!(flash_leaves_androids_slot_alone(RUN1_BEFORE, RUN1_AFTER, "b").is_err());
     }
 
     /// Stage 2 run 5's own printed flags (research/walleye-display-s6e3fa5/2026-11-23/stage2-run5.log.out, check 18): a after a failed boot (unbootable yes, retry 0), then after a no-op flash.
@@ -3271,89 +3409,69 @@ mod flash_flag_tests {
 
     #[test]
     fn what_run_5_printed_is_the_flash_clearing_unbootable_too() {
-        flash_resets_only_the_flashed_slots_flags(RUN5_BEFORE, RUN5_AFTER, "a").unwrap();
+        flash_leaves_androids_slot_alone(RUN5_BEFORE, RUN5_AFTER, "a").unwrap();
     }
 
     #[test]
-    fn unbootable_may_go_yes_to_no_never_no_to_yes_and_slot_b_stays() {
-        // yes staying yes is what it was
+    fn unbootable_of_the_flashed_slot_may_go_either_way_and_slot_bs_stays() {
         let stays = with(RUN5_AFTER, "slot-unbootable:a:no", "slot-unbootable:a:yes");
-        flash_resets_only_the_flashed_slots_flags(RUN5_BEFORE, &stays, "a").unwrap();
-        // no to yes on the flashed slot
-        let went_yes = flash_resets_only_the_flashed_slots_flags(
-            RUN1_BEFORE,
-            &with(RUN1_AFTER, "slot-unbootable:a:no", "slot-unbootable:a:yes"),
-            "a",
-        )
-        .unwrap_err();
-        assert!(
-            went_yes.starts_with("slot-unbootable:a changed from no to yes"),
-            "{went_yes}"
-        );
-        // slot b's unbootable clears: not allowed
+        flash_leaves_androids_slot_alone(RUN5_BEFORE, &stays, "a").unwrap();
+        // slot b's unbootable clears: not allowed (Android's slot is the way back)
         let b_before = with(RUN5_BEFORE, "slot-unbootable:b:no", "slot-unbootable:b:yes");
-        assert!(
-            flash_resets_only_the_flashed_slots_flags(&b_before, RUN5_AFTER, "a")
-                .unwrap_err()
-                .starts_with("slot-unbootable:b changed from yes to no")
-        );
+        assert!(flash_leaves_androids_slot_alone(&b_before, RUN5_AFTER, "a")
+            .unwrap_err()
+            .starts_with("slot-unbootable:b changed from yes to no"));
+    }
+
+    // check 9 on the printed text of rehearsal 5 (research walleye-install-flash-boot-rehearsal-5-stops-at-check-8): boot_a read now e337de53, the stored backup 2a5cd3b2, the declared ec741a98
+    const R5_BACKUP: &str = "2a5cd3b20ef0da2b272d2dac460f868d4764d8bdb8cb426d62eee568f1344fb5";
+    const R5_NOW: &str = "e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1";
+    const R5_DECLARED: &str = "ec741a98476c6b59d1e3875d9604ad225ca1cc7c2b9d9a81f320bc5ea556ed5d";
+
+    fn check_9(now: &str, backup_file: Result<String, String>) -> Result<String, String> {
+        boot_partition_can_be_flashed("boot_a", now, R5_BACKUP, R5_DECLARED, backup_file)
     }
 
     #[test]
-    fn successful_going_no_to_yes_is_still_refused_after_a_failed_boot() {
-        let bad = with(RUN5_AFTER, "slot-successful:a:no", "slot-successful:a:yes");
-        assert!(
-            flash_resets_only_the_flashed_slots_flags(RUN5_BEFORE, &bad, "a")
-                .unwrap_err()
-                .starts_with("after the flash slot-successful:a is")
-        );
-    }
-
-    const STOCK: &str = "2a5cd3b20ef0aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-    const DECLARED: &str = "e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1";
-
-    // check 9 on the values of rerun 2 (the stock sha is the printed prefix 2a5cd3b2 padded): boot_a read now is e337de53 (the declared image, flashed and read back equal by run 1), the stored backup says 2a5cd3b2
-    #[test]
-    fn boot_a_that_holds_the_declared_image_passes_while_the_backup_is_on_file() {
-        let said =
-            boot_partition_can_be_flashed("boot_a", DECLARED, STOCK, DECLARED, Ok(STOCK.into()));
-        assert!(said.unwrap().contains("can be undone"));
-    }
-
-    #[test]
-    fn boot_a_that_is_the_backup_passes_as_before() {
-        let said =
-            boot_partition_can_be_flashed("boot_a", STOCK, STOCK, DECLARED, Err("not read".into()));
-        assert!(said.unwrap().contains("is its backup"));
-    }
-
-    #[test]
-    fn boot_a_that_is_neither_fails_and_says_so() {
+    fn what_boot_a_holds_is_recorded_and_never_refused_while_the_backup_is_on_file() {
+        // rehearsal 5's own state: an earlier image of ours, neither the backup nor the declared image
+        let said = check_9(R5_NOW, Ok(R5_BACKUP.into())).unwrap();
+        assert!(said.contains("content not recorded here"), "{said}");
+        assert!(said.contains("can be undone"), "{said}");
+        assert!(check_9(R5_BACKUP, Ok(R5_BACKUP.into()))
+            .unwrap()
+            .contains("its backup"));
+        assert!(check_9(R5_DECLARED, Ok(R5_BACKUP.into()))
+            .unwrap()
+            .contains("the declared image"));
         let other = "ab".repeat(32);
-        let said =
-            boot_partition_can_be_flashed("boot_a", &other, STOCK, DECLARED, Ok(STOCK.into()))
-                .unwrap_err();
-        assert!(said.contains("neither the stored backup"), "{said}");
+        assert!(check_9(&other, Ok(R5_BACKUP.into())).is_ok());
     }
 
     #[test]
-    fn the_declared_image_without_the_backup_file_fails() {
-        let said = boot_partition_can_be_flashed(
-            "boot_a",
-            DECLARED,
-            STOCK,
-            DECLARED,
-            Err("boot_a.img: No such file".into()),
-        )
-        .unwrap_err();
-        assert!(said.contains("not on file"), "{said}");
+    fn without_the_backup_on_file_and_equal_to_its_record_nothing_is_flashable_whatever_boot_a_holds(
+    ) {
+        for now in [R5_BACKUP, R5_DECLARED, R5_NOW] {
+            let said = check_9(now, Err("boot_a.img: No such file".into())).unwrap_err();
+            assert!(said.contains("not on file"), "{said}");
+            let said = check_9(now, Ok("cd".repeat(32))).unwrap_err();
+            assert!(said.contains("hashes to"), "{said}");
+        }
     }
 
+    // the way back must be good before the flash: run 1's printed flags (b successful yes, unbootable no), and the two ways b is not
+    const FLAGS_AFTER_RUN_1: &str = "current-slot:b\nslot-retry-count:a:1\nslot-retry-count:b:0\nslot-successful:a:no\nslot-successful:b:yes\nslot-unbootable:a:no\nslot-unbootable:b:no\n";
     #[test]
-    fn the_declared_image_with_a_changed_backup_file_fails() {
-        let changed = "cd".repeat(32);
-        let said = boot_partition_can_be_flashed("boot_a", DECLARED, STOCK, DECLARED, Ok(changed))
-            .unwrap_err();
-        assert!(said.contains("hashes to"), "{said}");
+    fn android_slot_must_be_successful_and_bootable_before_anything_is_written() {
+        assert!(android_slot_is_a_safe_way_back(FLAGS_AFTER_RUN_1, "b").is_ok());
+        let not_successful = FLAGS_AFTER_RUN_1.replace("successful:b:yes", "successful:b:no");
+        assert!(android_slot_is_a_safe_way_back(&not_successful, "b")
+            .unwrap_err()
+            .contains("slot-successful:b"));
+        let unbootable = FLAGS_AFTER_RUN_1.replace("unbootable:b:no", "unbootable:b:yes");
+        assert!(android_slot_is_a_safe_way_back(&unbootable, "b")
+            .unwrap_err()
+            .contains("slot-unbootable:b"));
+        assert!(android_slot_is_a_safe_way_back("current-slot:b", "b").is_err());
     }
 }

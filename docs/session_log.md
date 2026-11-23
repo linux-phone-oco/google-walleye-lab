@@ -6865,3 +6865,24 @@ Considered
 
 About
 : walleye-ufs-match-android-z
+
+---
+
+
+<a id="2026-11-23-walleye-builder-state-model"></a>
+### walleye-builder: the stage 2 state model, the table applied
+
+Entry date
+: 2026-11-23
+
+Done
+: Check 9 patched for earlier images, then superseded by the coordinator's order: state-model harness over 40 start states, the research table applied (8, 9, 18, 20, rehearsal flags), one hole closed (the way back must be good at check 13); programmer review of the first part clean but for stale comments.
+
+Considered
+: Keeping an earlier_images list: dropped, the research says what boot_a held is not asserted. Comparing Android's slot flags equal at 24: no, a set_active may reset successful (AOSP update_attempter_android l.368), that would be a new first-run expectation.
+
+Rejected
+: Patching check 8 alone (the five stops are one sign); folding 29 into 27 in this change (a relax, not a state).
+
+About
+: walleye-bootimage

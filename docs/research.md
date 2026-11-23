@@ -6719,3 +6719,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stage2-state-model-table"></a>
+### walleye-stage2-state-model-table
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 state model walked offline over 40 start states after applying the keep/relax/drop table: only a slot Android runs from that is not good stops the command
+
+Question
+: Over every start state the command can meet, which steps stop, and is each stop wanted?
+
+Found
+: Harness: test the_state_model_walks_every_start_state_and_the_table_is_the_decision (tools/walleye-tries/src/flash_boot.rs) walks steps 8, 9, 12, 13, 14, 16, 18, 19, 20, way back and its flags over boot_a in {stock backup, an earlier image of ours (rehearsal 5's e337de53), declared, unknown bytes} x slot a in {stock, after one flash, after a failed boot (run 5's printed before-state), after a flash that cleared unbootable, after a successful stage 2 (retry 7)} x slot b in {successful, not successful}. Flag states are those printed in research walleye-stage2-walk-by-state and run 5; boot_a shas are rehearsal 5's (walleye-install-flash-boot-rehearsal-5-stops-at-check-8). Before (with check 9 amended only for earlier images): 10 unknown-content states stopped at 9; slot b NOT successful passed all 20 (the hole: nothing asked whether the way back is good). Applied from research walleye-stage2-checks-should-they-exist: 8 the host marker is a note, not a stop; 9 records what boot_X holds (backup, declared, other), refuses only a missing or changed backup file; 18 asserts only that Android's slot, the current slot and every other flag are unchanged (the flashed slot's own flags are the bootloader's); 20 asks for current slot = new, new slot not unbootable, retry above 0; rehearsal flags-again is a note. Added: check 13 stops, nothing written, when the slot Android runs from is not successful or is unbootable (the way back; android_slot_is_a_safe_way_back). Now by test: 15 states pass (every boot_a content x every slot-a flag state with b good, unknown content included), the 25 with b not good stop at 13. Not done: step 29 folded into 27 (a relax, not a state); steps 1-7, 10-11, 15, 17, 21-29 read no per-state content and are walked online only. Sources of each relaxed check are the research row and AOSP lines it cites, named in the code comments (no SOURCES.toml on main yet: item walleye-checks-name-their-sources). 322 tests, clippy 0, fmt, lpoco-attended check, rehearsal dry run 18 steps. No phone.
+
+About
+: walleye-bootimage
