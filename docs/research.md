@@ -7141,3 +7141,25 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-cmdline-tail-cut-candidates"></a>
+### walleye-cmdline-tail-cut-candidates
+
+Date
+: 2026-11-23
+
+Brief
+: The cut is not length, header or footer; it travels with flashed normal boot on slot a (every cut line is slot a, every whole line slot b); three RAM-or-flash checks tell the candidates apart
+
+Question
+: What cuts the bootloader's command line after androidboot.pk=g-pxl-p?
+
+Found
+: Cause not proven; the bootloader is closed and not read. Counted from captured lines (cmdline-cut-cause-evidence.md): cut lines are 1122 and 1136 characters while whole lines reach 1393 and 1401, so not total length; headers of 135, 149 and 373 characters all cut at the same word, and the bootloader's own words up to pk are 986 characters each time, so not our header; fastboot-boot images carrying the same AVB footer (algorithm NONE, avbtool 1.4) get the whole tail, so not the footer alone. What is left travels together in every capture: flashed normal boot, and slot a (all cut lines slot a, all whole lines slot b; no line with slot_suffix=_a was ever read from any image). Ranked candidates: (1) the normal-boot path on slot a drops the slot words for any image; (2) something in our image (header os version 15 / patch 2026-11 against stock 11 / 2025-11, kernel or ramdisk size, DTB) on the normal path; (3) the AVB-footer-as-fix idea (image-avb-footer-in-rust) is the weakest: the footer is the same on the whole-tail RAM boots. Smallest checks in cmdline-cut-checks.md: C1 fastboot boot with current slot a, C2 stock image on slot a, C3 our image with stock header fields. Consequence meanwhile: step 21 takes the slot from root=PARTUUID (run 12 passed that way); do not wait on slot_suffix.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/
