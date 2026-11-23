@@ -9656,11 +9656,14 @@ Rank
 ### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
 
 Status
-: open
+: in-progress
 
 Note
-: run 6 stopped at step 16 (pin reads back 100 MHz); research walleye-ufs-try-2-run-6-pin-reads-back-100mhz; needs a procedure change and a new go; no second run without the coordinator
-go until 2026-11-24T00:00:00+01:00, outcomes: ENDED by the coordinator 2026-11-24 00:25: the go was used by run 6 (local_ca73871e, step 16 refused, pin read back 100 MHz) and run 7 (local_4cf13bce); the pin changes after the research walleye-ufs-pin-100mhz-read, then the coordinator opens a new go with outcomes
+: THE GO NAMES THE IMAGE BY ITS FULL sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 (device.toml [images.ufs-match]). ONE RUN: the keeper's landing of the run ends this go (ikb backlog-go --until the run's end, outcomes 'used by run N') in the same change; no second run without the coordinator. THE PIN (PR 975, decision 2026-11-24-walleye-ufs-pin-asserts-the-holding-setting, research walleye-ufs-pin-100mhz-read): runs 6 and 7 stopped on a CORRECT pin (core_clk rounds 50 MHz to 100 MHz on mainline; at idle scaling is suspended and cur_freq keeps 100 MHz); step 16 now asserts governor userspace, set_freq 50000000, gear HS_GEAR1, cur_freq 50 or 100 MHz (200 fails) and captures pin-*.txt at three points plus dmesg and debugfs gcc_ufs_axi_clk. The ramped read-only load follows; the gear and the clock are read at every ramp step. Never xbl, abl, GPT, erase, purge. If the shell goes silent or the gear reaches 3 under load: stop at the procedure's own way back, record the printed text and the pin files, no second run. | EARLIER: runs 6 and 7 stopped at step 16 (100 MHz read back); run 4 at the old step 16 (no powersave governor).
+go until 2026-11-24T04:30:00+01:00, outcomes: if step 16 passes (governor userspace, set_freq 50000000, gear HS_GEAR1, cur_freq 50 or 100 MHz) then the pin holds the link in the low state as the research says and the ramped read-only load runs; if it refuses then nothing ran under load and the pin-*.txt files and the dmesg say which of the four assertions failed
+if the gear stays HS_GEAR1 at every ramp step and the shell answers at each one then the silence under load was the fast gear or high clock and the pin cures it (stage 3 can run pinned low); if the gear reaches HS_GEAR3 under load although the pin held then the pin does not hold under load and the gear change comes from the driver's own scaling
+if the shell goes silent at a ramp step while the gear is still HS_GEAR1 then the silence is not the gear alone, the 100 MHz core clock against Android's 50 MHz and the read path are next, and the last printed line plus the pin files are the evidence
+if the GPT hash of sda after equals the hash before (6cd7e48c... 0174) and the boot chain is equal then the run changed nothing (read only)
 
 About
 : walleye-first-fastboot-boot
@@ -9681,7 +9684,7 @@ Witness
 : person
 
 Go until
-: 2026-11-24T00:00:00+01:00
+: 2026-11-24T04:30:00+01:00
 
 
 <a id="walleye-ufs-try-2-run-1-gpt-equal"></a>
