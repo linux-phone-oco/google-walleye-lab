@@ -9789,3 +9789,53 @@ Witness
 
 Go until
 : 2026-11-23T11:05:10+01:00
+
+
+<a id="walleye-ufs-try-2-run-1-gpt-equal"></a>
+### UFS try 2 run 1: is the card's GPT unchanged? Read it again from Android as root and compare with the hash the run took before
+
+Status
+: open
+
+Note
+: UFS try 2 run 1 stopped at step 16 (PR 772), so the run's own GPT hash-equal check (17) did not run and 'unharmed' is NOT KNOWN YET. The run wrote nothing (read only, UFS-on kernel from RAM) but the check is cheap and read only, so it is made now: a keeper on Android, no boot.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: from Android (adb root, read only, nothing written): sha256 of sda's GPT read the way the procedure ufs-matched-image-on-the-pixel-2 reads it equals 2de02f2b...57cb (the full value is in the run's log ufs-try2.log, build area of the keeper, and in research walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load); tests/host/bootchain-readback.sh equal against the stored set; both slots' flags unchanged; the result is one research row that says EQUAL or NOT EQUAL with both hashes; the phone stays on Android
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-try-2-sample-step"></a>
+### UFS try 2: the step that samples the gear after the load answers: find why the sample command was silent for 10 s and give the step a timeout that fits, then the 2 s-after reading, the GPT hash-equal and no-purge checks run
+
+Status
+: open
+
+Note
+: Run 1 (keeper local_e7126294, 2026-11-23 08:08): checks 1-15 passed (UFS_HW_VERSION 3.1.0, 6 disks, GPT hashed, HS-G1 2 lanes 50 MHz before load, HS-G3 2 lanes rate B 200 MHz under load in 8 samples); stopped at step 16. The upstreams lane's question (the gear under load) is answered by the 8 samples; the 2 s-after-load reading is not known yet. The go on walleye-try-ufs-match is open until 2026-11-23T11:05:10+01:00; a second run starts when this lands, and the coordinator reopens a go if the window has passed.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: from the keeper's log of run 1 (ufs-try2.log, build area; research walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load) the builder says WHY the sample command (cat /tmp/load.done plus the sysfs loop over ssh) was not answered in 10 s: still loading, ssh starved by the load, or the command itself; the step then has a timeout that fits that cause (not just a bigger number), the stand-in test uses the text the phone printed in that log, checks 16-19 (sample under load, 2 s after idle, GPT hash equal, no purge) are reachable in the stand-in and in the dry run (23 steps); the image 461077869fb2 and the go item are NOT changed; dry run, check --host, tests, clippy, fmt, review
+
+Rank
+: 2
