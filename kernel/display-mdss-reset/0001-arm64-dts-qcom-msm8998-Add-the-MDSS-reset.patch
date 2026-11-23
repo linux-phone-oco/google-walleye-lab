@@ -1,0 +1,31 @@
+From 696188aed52b84d80882239a284dde81cadd3f1f Mon Sep 17 00:00:00 2001
+From: "walleye-builder.cad730" <idunerg+walleye-builder.cad730@gmail.com>
+Date: Mon, 23 Nov 2026 05:45:21 +0100
+Subject: [PATCH] arm64: dts: qcom: msm8998: Add the MDSS reset
+
+The display subsystem block is left running by the bootloader (it scans
+out its splash). msm_mdss_reset() resets the block at probe when the
+node carries an unnamed reset, so that the driver starts from a known
+state however late or early it loads. The mmcc already provides MDSS_BCR
+as a reset; the common mdss binding already allows resets.
+
+Signed-off-by: grenudi <idunerg@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/msm8998.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/msm8998.dtsi b/arch/arm64/boot/dts/qcom/msm8998.dtsi
+index 5038d0009..aea4b809d 100644
+--- a/arch/arm64/boot/dts/qcom/msm8998.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8998.dtsi
+@@ -2835,6 +2835,7 @@ mdss: display-subsystem@c900000 {
+ 
+ 			power-domains = <&mmcc MDSS_GDSC>;
+ 			iommus = <&mmss_smmu 0>;
++			resets = <&mmcc MDSS_BCR>;
+ 
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+-- 
+2.56.1
+

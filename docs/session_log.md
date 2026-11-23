@@ -5749,3 +5749,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-any-order-display-images-built-b-r2-and-b-rp2-on"></a>
+### Any-order display images built: B-r2 and B-rp2 on a dtb with the kernel's own mdss reset
+
+Entry date
+: 2026-11-23
+
+Done
+: kernel/display-mdss-reset: one msm8998.dtsi patch (resets = <&mmcc MDSS_BCR> on mdss). The dtb is built from v7.3 plus the fuel-gauge dts patch and today's board dts, so it also enables i2c@c17a000 with the drv2624 node (checked as the only new node). build/build-display-any-order-images.sh makes B-r2 (modules not before 2 s, B-r5's order) and B-rp2 (panel before msm; the panel's modinfo depends are checked to load before it), each built twice identical, AVB, UFS-off gate, single-claimant and overlay tests pass; in device.toml with sha256. Review by the programmer subagent: three findings fixed.
+
+Considered
+: The lab levers (dsi vdd-supply, mdss_dsi0 stub, clock_gcc) stay binary levers as in every display image; only the reset moved into the kernel's tree.
+
+Rejected
+: A reversed module list for the other order: insmod needs dependencies first.
+
+About
+: walleye-display-s6e3fa5

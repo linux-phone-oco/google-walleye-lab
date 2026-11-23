@@ -318,3 +318,14 @@ modules = 13                    # the display modules the init must say ok for
 identity = "~/lab-material/walleye/walleye-lab-ed25519"   # the lab-only ssh key (mode 600; its public half is root's authorized_keys in the image's userland)
 ssh_user = "root"
 ssh_port = 22
+
+# The any-order images (item walleye-display-dts-any-order; build/build-display-any-order-images.sh): B-r5's kernel, command line, header words, size and modules, on a dtb built from the kernel tree with kernel/display-mdss-reset
+# (the mdss reset as the kernel's own msm8998.dtsi has it; the lab levers the display dtbs carry are added as before) and the modules loaded at 2 s of uptime. B-r2 keeps B-r5's module order; B-rp2 loads the panel module BEFORE msm.
+# Run with delays = "2" and image_prefix = "b-r" (B-r2) or "b-rp" (B-rp2), as the delay bisect runs B-r5.
+[images.b-r2]
+path = "images-display-any-order/boot-b-r2.img"
+sha256 = "c05ae4ec273b8c1245eb5c98197832a8c2fe9b6282e486ac706a4b5ca8ac779b"
+
+[images.b-rp2]
+path = "images-display-any-order/boot-b-rp2.img"
+sha256 = "29fce8b7a9720302583d42d52f5756756ff38a2d66280f4546280b9541301ce6"
