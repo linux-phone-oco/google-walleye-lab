@@ -5869,3 +5869,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-getty-console-loglevel-v5"></a>
+### Rootfs v5 and B-a5 rebuilt with the console loglevel lowered
+
+Entry date
+: 2026-11-23
+
+Done
+: dmesg -n 3 added to the local.d script before the getty respawn; walleye-rootfs's glass_prompt_respawn now fails without it or with it after the pkill or at a level above 3 (test seen failing first); dmesg-in-image check; ROOTFS_IMAGE v5 in walleye-ramroot; v5 and B-a5 built (each twice identical); the procedure made executable.
+
+Considered
+: loglevel=3 on the kernel command line (a header word, kernel-side: the item's own fallback); printk.devkmsg or console_loglevel in sysctl (needs procfs tools beyond the script).
+
+Rejected
+: Filtering the sync_state lines (they are the kernel's honest report; only the console is quieted).
+
+About
+: walleye-display-s6e3fa5
