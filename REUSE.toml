@@ -17,7 +17,7 @@ SPDX-License-Identifier = "MIT OR Apache-2.0"
 
 # The data, the docs and the research (what the phone said, as it said it), where they overlap the paths above they win.
 [[annotations]]
-path = ["LICENSE", "README.md", "AGENTS.md", "data/**", "docs/**", "research/**", "tests/results/**", "tests/health/README.md", "device.toml", "build/fdt-bisect-xa-left.txt"]
+path = ["LICENSE", "README.md", "**/README.md", "AGENTS.md", "data/**", "docs/**", "research/**", "tests/results/**", "tests/health/README.md", "device.toml", "build/fdt-bisect-xa-left.txt"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 grenudi"
 SPDX-License-Identifier = "CC-BY-SA-4.0"

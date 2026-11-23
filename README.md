@@ -1,54 +1,38 @@
-# Device template
+---
+what: the bring-up lab of the Google Pixel 2 (walleye, MSM8998) - mainline Linux on it, Android kept as the reference
+kept by: walleye coordinator (the lane); records by every role working on walleye
+records in: this repository's own base (data/, through ikb); what helps every phone in linux-phone-oco/docs
+branches: ROLE/WHAT (keeper/, builder/, research/, coord/), one change each, deleted when landed
+project map: linux-phone-oco/docs MAP.md
+---
 
-**A new phone's lab is a new `device.toml`.** Use this template to make `VENDOR-CODENAME-lab` for a phone
-running postmarketOS; everything else - reaching the phone, flashing, provisioning, a test kernel tried
-once and falling back by itself, the phone checking its own health after every boot, gathering its
-reports into the picture, and a door for agents - comes from
-[lpoco lab](https://github.com/linux-phone-oco/lab-tools), which reads this manifest. Surya
-([linux-phone-oco/surya-lab](https://github.com/linux-phone-oco/surya-lab)) is the first phone made
-this way, not the mould.
+# google-walleye-lab
 
-## Start
+The Pixel 2's lab: what the phone is (`device.toml`), what is queued, tried and learned about it (its own
+base), the procedures a keeper runs on it, and how its root filesystem, kernel and boot images are built.
+The tools it runs on are [lab-tools](https://github.com/linux-phone-oco/lab-tools)' `lpoco`; this lab was
+made from [device-template](https://github.com/linux-phone-oco/device-template), whose README explains the
+conveyor. Start with `AGENTS.md`; ask the base with `tad q phone-stands` and `tad q phone-queue`.
 
-1. **Use this template**, name it `VENDOR-CODENAME-lab`; give it the topics `oco-project` and
-   `oco-kind-device-lab` so the observatory finds it.
-2. Fill `device.toml`: every value marked `CHANGE`, and `[health]` - what the phone has, what it lacks,
-   what has never worked yet. Unknown fields are refused, so a typo cannot pass silently.
-3. Put the phone user's password in `~/.config/devlab/CODENAME/password` (mode 600) on the lab machine.
+## Map
 
-## The base
+| folder or file | what it is |
+|---|---|
+| `device.toml` | the phone as facts: transports, partitions, images (`[images.*]`, by sha256), kernel, health |
+| `procedures/` | one whole try per file, as one command a keeper runs under a go |
+| `tools/` | this lab's own programs (rootfs and boot images, the tries' plumbing) |
+| `build/` | scripts that build the kernel, initramfs and boot images into `~/Projects/walleye-build/` |
+| `kernel/` | what the kernel is made of; becomes `topics.toml`, the list the test kernel is assembled from |
+| `dt/` | device-tree sources; moving to kernel branches |
+| `rootfs/` | the Alpine root filesystem: packages, pins, runlevels, overlay |
+| `provision/` | what a freshly flashed phone is given |
+| `tests/` | checks by where they run: CI, the lab machine, the phone; and the phone's reports |
+| `research/` | the material behind research rows, `research/ABOUT/DATE/` |
+| `data/`, `queries/`, `records/`, `tables.toml`, `idealkb.toml`, `devicebase.toml` | the base: its rows, its named queries and records, its schema and pins |
+| `docs/` | pages rendered from data/, for people |
+| `bin/` | the base's small install and check scripts |
 
-A device made from this template has its own open base (tad, `data/`): its queue, tries, measurements, decisions,
-research and parts. `make setup` installs tad and `ikb`; `ikb --help` lists what can be recorded, `ikb help RECORD`
-how. The standing tables follow [grenudi/ideal-knowledge-base](https://github.com/grenudi/ideal-knowledge-base)
-(`idealkb.toml`); the device's own are in `tables.toml`. Fill the device (`ikb device ...`) and declare what is
-claimed of each part (`ikb part`: status, evidence, date) - [linux-phone-oco/docs](https://github.com/linux-phone-oco/docs)
-pulls `parts` (contract in `devicebase.toml`) and derives the device's support status from them; it types nothing of
-its own. The phone's queue is `tad q phone-queue`, its keeper's next item `tad q phone-next`; `lpoco lab gather` files runs
-with the `test-run` record.
-
-## The conveyor
-
-    lpoco lab flash now IMAGE BOOTLOADER      an image onto the phone, the manifest's fixes baked in
-    lpoco lab provision now                   packages and Wi-Fi - and then the phone's health
-    lpoco lab suite put now --runner FILE     the health suite onto the phone: it checks itself after every boot
-    lpoco lab kernel install NAME ... / try NAME   a test kernel beside stock, booted once - then its health
-    lpoco lab phone reboot                    and wait - then the new boot's health
-    lpoco lab gather now                      the phone's reports into tests/results and the picture's tables
-    lpoco lab mcp                             the phone for any agent (MCP, stdio)
-
-Every change lpoco lab makes ends with the phone's own health report: nobody has to remember to check.
-A part the phone never had working is a `gap` - measured on every boot, but not ill health.
-
-## What lives here
-
-- `device.toml` - the phone, as facts.
-- `tests/health/` - this phone's own checks, if any, beside the generic ones (see its README).
-- `tests/results/` - every health report the phone wrote, as it wrote it (`lpoco lab gather now`).
-- `provision/packages.txt` - what a freshly flashed phone gets.
-- its backlog, decisions, milestones and log are kept in
-  [linux-phone-oco/docs](https://github.com/linux-phone-oco/docs), the project's one database (project =
-  `linux-phone-oco/device-template`), and shown on [its face](https://linux-phone-oco.github.io/docs/).
+Never at the top: run logs, worktrees, copies of other repositories. Each folder's README says what belongs in it.
 
 ## Licence
 
