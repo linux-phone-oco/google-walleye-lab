@@ -6151,3 +6151,33 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-23-walleye-keeper-run-2-gpt-equal"></a>
+### walleye keeper: run 2 GPT re-read EQUAL
+
+Entry date
+: 2026-11-23
+
+Done
+: Took walleye-ufs-try-2-run-2-gpt-equal (first ready): read sda's GPT from Android as root, read only; hash 2de02f2b...57cb equals the run's; boot chain 32 partitions same bytes as bootchain-2026-11-19-2; slot b active; nothing written. Phone left on Android, fastboot reachable.
+
+About
+: walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-1300-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel, nothing flashed, nothing written this stretch. UFS try 2 run 2 left the card's GPT unchanged (research walleye-ufs-try-2-run-2-gpt-equal-result, EQUAL). Next: the install stage 2 image from the build lane; the silent shell under load is a builder item; then walleye-install-flash-boot, slpi-boot-qrtr, nfc node
+
+About
+: walleye-display-s6e3fa5
