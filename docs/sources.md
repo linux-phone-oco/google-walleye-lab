@@ -1568,3 +1568,13 @@ By
 
 Takes
 : reboot applet ignores its arguments and signals init with SIGTERM; init and halt call reboot(RB_AUTOBOOT), never LINUX_REBOOT_CMD_RESTART2 with a string
+
+
+<a id="src-pmaports-mr3190-slot-switch"></a>
+### pmaports MR 3190 (Pixel 2 / A-B boot: after 7 unsuccessful boots the bootloader switches slot)
+
+Url
+: https://gitlab.postmarketos.org/postmarketOS/pmaports/-/merge_requests/3190
+
+Takes
+: Reported fall back after unsuccessful boots; the count 7 is the Qualcomm default, this phone measured 1

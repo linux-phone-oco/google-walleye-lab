@@ -9859,10 +9859,10 @@ Rank
 ### Can stage 2 be made safe on the forced way back alone? The argument, every failure branch, and the bootloader's own A/B boot-count fallback, for the Top Coordinator to read before any stage 2 go
 
 Status
-: open
+: done
 
 Note
-: The Top Coordinator's order after rerun 6: 'if stage 2 can be made safe on the forced way back alone, write that up as its own research row and show me the argument. Don't open the stage 2 go on it until I've seen it.' The stage 2 go stays CLOSED. Never the bootloader partitions, the GPT written by our code, erase or purge.
+: Argument written: research walleye-stage2-forced-way-back-argument-finding. Recommendation: not on the forced way back alone; after the rehearsal and one restart2 try; residual cost a hand, not a brick. Go stays closed.
 
 About
 : walleye-bootimage
