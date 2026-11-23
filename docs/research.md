@@ -6127,3 +6127,31 @@ Sources
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-slpi-carveout-answer"></a>
+### walleye-slpi-carveout-answer
+
+Date
+: 2026-11-23
+
+Brief
+: SLPI carve-out: the image needs 15 MiB (relocatable); the phone's layout is 0x94c00000/0xf00000; our 7 MiB node is too small
+
+Question
+: Which memory carve-out was the phone's SLPI firmware made for, and what does remoteproc_slpi need in our dtb?
+
+Found
+: slpi_v2.mdt: 15 program headers, every LOAD relocatable (flag bit 27), span 0x93800000-0x94700000 = 0xf00000 (15 MiB). Walleye's own dtbo and running fdt put pil_slpi_mem at 0x94c00000/0xf00000 (other dtbo entries 0x94b00000/0xf00000, source dtsi and mainline 0x94300000/0xf00000): the size is 15 MiB everywhere; our dts holds 7 MiB at 0x94b00000, too small by 8 MiB, and the overlay never overwrites it because our pil_slpi_mem is a stub label. The block 0x94c00000-0x95b00000 swallows our inherited ipa_fw/ipa_gsi/gpu/wlan_msa nodes (0x95200000-0x957fffff): delete them, add the running layout's ipa/gpu 0x95b00000/1 MiB, shift mba to 0x94500000 and video to 0x94700000. Vendor SSC node matches mainline's remoteproc_slpi on interrupt 390, pas-id 12, px=lvs2, cx via SSCCX, smp2p pid 3; mainline reg is 0x5800000 where the vendor says 0x5c00000 (NOT KNOWN YET which is right). Firmware: slpi_v2.mdt and .b00-.b14 under /lib/firmware/qcom/msm8998/google/walleye/ from vendor_a, never git. Not known yet: that TZ accepts the image at 0x94c00000 on our boot.
+
+Sources
+: vendor-walleye-slpi-firmware-header,vendor-walleye-dtbo-pil-fragments,linux-v7-3-msm8998-dtsi-slpi,lkml-slpi-msm8998-pas-2019
+
+About
+: sensors
+
+Material
+: research/walleye-slpi-carveout-read/2026-11-23/
+
+Supersedes
+: walleye-sensors-way

@@ -3083,3 +3083,31 @@ Scope
 
 Tracked by
 : walleye-kernel-series-to-topics
+
+
+<a id="2026-11-23-walleye-slpi-carveout-running-layout"></a>
+### 2026-11-23-walleye-slpi-carveout-running-layout
+
+Date
+: 2026-11-23
+
+Brief
+: slpi_mem is 0x94c00000/15 MiB with mba, video and ipa/gpu moved to the running layout; our ipa/gpu/wlan nodes inside it go
+
+Decision
+: In our dts: slpi_mem 0x94c00000 size 0xf00000; mba_mem 0x94500000/0x200000; venus_mem 0x94700000/0x500000; delete ipa_fw_mem, ipa_gsi_mem, gpu_mem, wlan_msa_mem and add the phone's 0x95b00000/0x100000 ipa/gpu block; enable remoteproc_slpi with firmware-name qcom/msm8998/google/walleye/slpi_v2.mdt; the firmware files come from vendor_a at image build, never git.
+
+Why
+: The firmware needs 15 MiB (research walleye-slpi-carveout-answer); the phone's own dtbo and fdt place it at 0x94c00000 and shift its neighbours; one self-consistent layout avoids overlap.
+
+Rejected
+: Keeping 0x94b00000 and enlarging to 15 MiB: overlaps the shifted video/ipa layout the rest of the phone's TZ/ABL expect, no evidence it is accepted. 0x94300000 (mainline): overlaps our video and mba nodes and is not the walleye layout. 7 MiB as the earlier row said: too small for the image.
+
+About
+: sensors
+
+Research
+: walleye-slpi-carveout-answer
+
+Tracked by
+: walleye-slpi-boot-qrtr

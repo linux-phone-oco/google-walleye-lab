@@ -1578,3 +1578,42 @@ Url
 
 Takes
 : Reported fall back after unsuccessful boots; the count 7 is the Qualcomm default, this phone measured 1
+
+
+<a id="linux-v7-3-msm8998-dtsi-slpi"></a>
+### Linux v7.3 arch/arm64/boot/dts/qcom/msm8998.dtsi: remoteproc_slpi, smp2p-slpi, slpi_mem
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/arch/arm64/boot/dts/qcom/msm8998.dtsi?h=v7.3
+
+By
+: mainline (Sankar, 2019, and later)
+
+Takes
+: the remoteproc node and its properties; slpi_mem 0x94300000/0xf00000 (the vendor source's original, before the dtbo)
+
+
+<a id="vendor-walleye-slpi-firmware-header"></a>
+### The phone's own slpi_v2 firmware, read on the lab machine (vendor_a /firmware): ELF program headers
+
+Url
+: https://source.android.com/docs/setup/build/building-pixel-kernels
+
+By
+: Google/Qualcomm firmware, proprietary: read only, never in git
+
+Takes
+: link span 0x93800000-0x94700000 = 15 MiB; relocatable flag on every LOAD segment (the image itself is a lab-machine file)
+
+
+<a id="vendor-walleye-dtbo-pil-fragments"></a>
+### The phone's own dtbo and running fdt: pil_slpi_mem and the sibling PIL regions
+
+Url
+: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-wahoo-4.4-android11/arch/arm64/boot/dts/qcom/msm8998.dtsi
+
+By
+: Google (GPL kernel dts; the dtbo is read from the phone)
+
+Takes
+: slpi base 0x94c00000 size 0xf00000 in the walleye entries, 0x94b00000 in the other seven; the SSC node's supplies, smp2p, pas-id
