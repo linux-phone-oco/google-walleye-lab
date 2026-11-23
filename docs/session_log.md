@@ -5809,3 +5809,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-0620-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Delay bisect at 2 s on B-r2 and B-rp2, unattended, nothing flashed: 0/0/0 and 13 of 13 on both; item walleye-display-dts-any-order done; step display-any-order partial. Phone on Android slot b, stock kernel, fastboot reachable on demand, nothing written
+
+Considered
+: next: coordinator's open call on rootfs-boots check 17 (say before mount --move, or read PID 1) still waits; then walleye-display-alpine-getty-experiments (built, unmeasured), the author's look walleye-display-look-b2
+
+About
+: walleye-display-s6e3fa5

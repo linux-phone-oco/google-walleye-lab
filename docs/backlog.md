@@ -9162,10 +9162,10 @@ Rank
 ### The display comes up in any load order: the board dts fixes found by research walleye-display-b2-dsi-clock-warning, an image with the modules autoloaded and no ordering list in the init
 
 Status
-: in-progress
+: done
 
 Note
-: 2026-11-23 (builder): BUILT. Images B-r2 (c05ae4ec...) and B-rp2 (29fce8b7...) in ~/Projects/walleye-build/images-display-any-order, in device.toml; the reset patch is kernel/display-mdss-reset (dtb test passes). For the keeper: the delay bisect at delays="2" with image_prefix="b-r" (B-r2) and then image_prefix="b-rp" (B-rp2), expect smmu_faults, rcg_warnings, dsi_110 0 and 13 of 13 (display-boot-clean); then step display-boots-any-order. Note the dtb is built from the current board dts, so it also differs from B-r5's by the drv2624 node and the dsi pinctrl label form; a change in result is the first thing to read.
+: proven by the delay bisect at 2 s on B-r2 and B-rp2, 2026-11-23 (keeper): smmu_faults, rcg_warnings, dsi_110 all 0, 13 of 13; dtb test passes; research walleye-display-any-order-b-r2-b-rp2-clean
 
 About
 : walleye-display-s6e3fa5

@@ -1583,27 +1583,6 @@ Updated
 ### Row 112
 
 Step
-: display-any-order
-
-Status
-: open
-
-Proof
-: display-boots-any-order
-
-Run
-: research walleye-display-b2-dsi-clock-warning; items walleye-display-delay-bisect, walleye-display-splash-region-dts, walleye-display-dts-any-order
-
-Notes
-: Not yet: B2 loaded at 2 s fails (SMMU faults at the splash buffer, pclk0 rcg warnings, DSI -110), clean at 66 s; the dts reserves nothing at 0x9d400000. The cause is the bootloader's scan-out still live; the fix is the splash region in the dts (decision 2026-11-19-walleye-display-early-load-splash-handover).
-
-Updated
-: 2026-11-19
-
-
-### Row 113
-
-Step
 : storage-full-speed
 
 Status
@@ -1622,7 +1601,7 @@ Updated
 : 2026-11-19
 
 
-### Row 114
+### Row 113
 
 Step
 : watchdog-way-back
@@ -1646,7 +1625,7 @@ Updated
 : 2026-11-19
 
 
-### Row 115
+### Row 114
 
 Step
 : pmic-bound
@@ -1670,7 +1649,7 @@ Updated
 : 2026-11-19
 
 
-### Row 116
+### Row 115
 
 Step
 : display-boots-any-order
@@ -1692,3 +1671,27 @@ Notes
 
 Updated
 : 2026-11-20
+
+
+### Row 116
+
+Step
+: display-any-order
+
+Status
+: partial
+
+Proof
+: display-boots-any-order
+
+Run
+: walleye-display-any-order-b-r2-b-rp2-clean
+
+Proven on
+: B-r2 c05ae4ec, B-rp2 29fce8b7
+
+Notes
+: two orders at 2 s clean (0/0/0, 13 of 13); autoload by modalias and three cold boots not yet
+
+Updated
+: 2026-11-23
