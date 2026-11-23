@@ -3282,3 +3282,31 @@ Amends
 
 Scope
 : walleye lane, builders, researchers; briefs that say no vendor code
+
+
+<a id="2026-11-23-slot-from-android-sources-short-header"></a>
+### 2026-11-23-slot-from-android-sources-short-header
+
+Date
+: 2026-11-23
+
+Brief
+: The init reads the slot as Android does and the header command line is under a budget, never a hardcoded slot
+
+Decision
+: The header command line of a stage 2 image is under 160 characters and must leave 100 characters under the 1363 the bootloader passes (checked from captured lines at build). The init takes the slot from androidboot.slot_suffix, the device tree, bootconfig, then root=PARTUUID as a last resort; sources that disagree, or none, refuse; the log says which source gave it. dyndbg moves to a run-time write in the debug init.
+
+Why
+: Run 8: the bootloader cut our command line and the slot suffix with it, so the init refused. The Top Coordinator's additions of 2026-11-23 18:05 ask for exactly this order (fs_mgr) and no hardcoded slot.
+
+Rejected
+: Hardcoding the slot in the image: works in one slot only and hides the cause. root=PARTUUID as the only source: the booted slot only, and it hides a missing word. Keeping dyndbg on the command line: about 200 characters for a diagnostic the init can write later.
+
+About
+: walleye-bootimage
+
+Research
+: walleye-stage2-cmdline-budget-and-slot-sources
+
+Tracked by
+: walleye-stage2-cmdline-too-long

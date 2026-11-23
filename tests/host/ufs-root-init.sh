@@ -5,7 +5,7 @@
 # (2) the disk is read-only to QEMU and its sha256 is the same after the run; (3) only a decoy `system_b` is there and `walleye.root=system_a` is asked: the init refuses and nothing is mounted;
 # (4) the running slot (androidboot.slot_suffix=_a) is asked for as the root: the init refuses even though the partition is there; (5) a name that is not system_a or system_b is refused; (9) no androidboot.slot_suffix: refused (fails closed); (10) a suffix that is not _a or _b: refused.
 #   ufs-root-init.sh WORK_DIR        (WORK_DIR holds busybox-x86_64 and out/b, as build/build-initramfs.sh wants)
-# (12) stage 2: the word walleye.booted-slot, root system_a, booted as slot _a: the init mounts the booted slot read-only under the overlay and hands over; (13) the word with a root that is not the booted slot's: refused; (14) the word with no suffix: refused; (1) also: the "handing over" line is in the kernel log (said before the moves).
+# (15)-(20) the slot sources: root=PARTUUID as the last resort (15), agreeing (16), disagreeing (17), naming no system partition (18); bootconfig (19); the device-tree line (20). (12) stage 2: the word walleye.booted-slot, root system_a, booted as slot _a: the init mounts the booted slot read-only under the overlay and hands over; (13) the word with a root that is not the booted slot's: refused; (14) the word with no suffix: refused; (1) also: the "handing over" line is in the kernel log (said before the moves).
 # Prints `pass|fail|skip walleye-ufs-root-init DETAIL`; exit 0 only on pass; a skip is not a pass.
 W=${1:-}
 export GEN=${GEN:-}
@@ -105,6 +105,37 @@ want "$T/booted.log" "ROOT-DEV-READONLY" "case 12 (the kernel refuses writes to 
 [ "$(sha "$T/a.img")" = "$A0" ] || say fail "case 12: the disk image changed"
 boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.booted-slot walleye.pause=2" "$T/bootedother.log"; refuse "$T/bootedother.log" "case 13 (the word is given but the root is not the booted slot's own)" "is not the system of the booted slot"
 boot "$T/a.img" "walleye.root=system_a walleye.booted-slot walleye.pause=2" "$T/bootednosuffix.log"; refuse "$T/bootednosuffix.log" "case 14 (the word is given but no androidboot.slot_suffix: the booted slot is not known)" "no androidboot.slot_suffix"
+# the slot sources (item walleye-stage2-cmdline-too-long; research walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing: the bootloader cut our command line and androidboot.slot_suffix with it). Order of Android's fs_mgr: the word, the
+# device tree, bootconfig; root=PARTUUID=0000NNNN-... (NNNN the partition number, here 2 = the partition named system_a/system_b of the test disk) is the last resort and must agree with any other source.
+PU="root=PARTUUID=00000002-0000-0000-0000-000000000000"
+boot "$T/a.img" "walleye.root=system_a $PU walleye.booted-slot" "$T/pu.log"
+want "$T/pu.log" "walleye-ufs-root: slot source: root=PARTUUID gave \[_a\]" "case 15 (no androidboot.slot_suffix: the slot comes from root=PARTUUID, and the log says so)"
+want "$T/pu.log" "walleye-init: mounts-the-booted-slot" "case 15 (the PARTUUID-given slot is the root's own)"
+want "$T/pu.log" "ROOT-INIT-RAN" "case 15"
+boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_a $PU walleye.booted-slot" "$T/puagree.log"
+want "$T/puagree.log" "walleye-ufs-root: slot source: androidboot.slot_suffix gave \[_a\]" "case 16 (the word first; root=PARTUUID agrees)"
+want "$T/puagree.log" "ROOT-INIT-RAN" "case 16"
+boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_b $PU walleye.booted-slot walleye.pause=2" "$T/pudisagree.log"; refuse "$T/pudisagree.log" "case 17 (the word says _b, root=PARTUUID names system_a)" "the slot sources disagree"
+boot "$T/a.img" "walleye.root=system_a root=PARTUUID=00000001-0000-0000-0000-000000000000 walleye.booted-slot walleye.wait=3 walleye.pause=2" "$T/pumiss.log"; refuse "$T/pumiss.log" "case 18 (root=PARTUUID names the userdata partition: no slot)" "no androidboot.slot_suffix"
+# bootconfig: the initramfs with a bootconfig block appended (data, size and checksum as 32-bit little-endian, #BOOTCONFIG\n; Documentation/admin-guide/bootconfig.rst) and the word `bootconfig`
+bc() { # BOOTCONFIG_TEXT OUT: the initramfs with the text as its bootconfig
+  printf '%s\n\0\0\0\0' "$1" | head -c $(( ( $(printf '%s\n' "$1" | wc -c) + 1 + 3 ) / 4 * 4 )) > "$T/bc.data"
+  sz=$(stat -c %s "$T/bc.data"); cs=$(od -An -v -tu1 "$T/bc.data" | awk '{for(i=1;i<=NF;i++)s+=$i} END{print s}')
+  le32() { printf '%b' "$(printf '\\0%03o\\0%03o\\0%03o\\0%03o' $(($1 & 255)) $((($1 >> 8) & 255)) $((($1 >> 16) & 255)) $((($1 >> 24) & 255)))"; }
+  { cat "$T/initramfs.cpio.gz" "$T/bc.data"; le32 "$sz"; le32 "$cs"; printf '#BOOTCONFIG\n'; } > "$2"
+}
+bc 'androidboot.slot_suffix = "_a"' "$T/initramfs-bc.cpio.gz"
+IR=$T/initramfs.cpio.gz; cp "$IR" "$T/initramfs-plain.cpio.gz"; cp "$T/initramfs-bc.cpio.gz" "$IR"
+boot "$T/a.img" "bootconfig walleye.root=system_a walleye.booted-slot" "$T/bootconfig.log"
+cp "$T/initramfs-plain.cpio.gz" "$IR"
+if grep -aq "bootconfig: " "$T/bootconfig.log.t" && ! grep -aq "walleye-ufs-root: start" "$T/bootconfig.log.t"; then say fail "case 19: the host kernel did not take the bootconfig block (tail: $(tail -n3 "$T/bootconfig.log.t" | tr '\n' '|'))"; fi
+want "$T/bootconfig.log" "walleye-ufs-root: slot source: bootconfig gave \[_a\]" "case 19 (no word on the command line: the slot comes from bootconfig)"
+want "$T/bootconfig.log" "ROOT-INIT-RAN" "case 19"
+# the device tree: QEMU x86 has none, so the init's own line is run against a file made as the kernel makes the property (the value and a NUL)
+DTLINE=$(grep -F 'device-tree) V=$(' "$INIT" | head -n1 | sed 's/^ *device-tree) V=//; s/ ;;$//')
+[ -n "$DTLINE" ] || say fail "case 20: the init has no device-tree source line"
+printf '_b\0' > "$T/dt-slot"
+[ "$(sh -c "V=$(printf '%s' "$DTLINE" | sed "s#/proc/device-tree/firmware/android/slot_suffix#$T/dt-slot#"); printf '%s' \"\$V\"")" = "_b" ] || say fail "case 20: the init's device-tree line does not read _b from a property file made as the kernel makes it (value and NUL)"
 cp "$T/a.img" "$T/d.img"; start=$(sgdisk -i 2 "$T/d.img" | sed -n "s/^First sector: \([0-9]*\).*/\1/p"); dd if="$T/dangling.ext4" of="$T/d.img" bs=512 seek="$start" conv=notrunc status=none
 boot "$T/d.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.pause=2" "$T/dangling.log"; refuse "$T/dangling.log" "case 8 (/sbin/init is a symlink to nothing)" "symlink to nothing"
 boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.hold=6 walleye.test=linger" "$T/hold.log"

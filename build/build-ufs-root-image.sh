@@ -56,7 +56,25 @@ field() { printf '%s\n' "$INFO" | sed -n "s/^$1: *//p" | head -n1; }
 split "$T/m/kernel" "$T/mk"
 PSIZE=$(stat -c %s "$MATCHED")
 AV=$(avbtool info_image --image "$MATCHED")
-CMDLINE="$(field 'command line args') walleye.root=$ROOT_PART$WORD"
+# THE HEADER COMMAND LINE IS UNDER A BUDGET (item walleye-stage2-cmdline-too-long; research walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing): the bootloader appends its own words (about 1100 characters, androidboot.slot_suffix
+# among the last) after the header's and the kernel got only 1363 characters in run 8, the slot suffix cut off. The matched image's own header carries the diagnostic dyndbg="..." string (about 200 characters; the debug init writes the same
+# lines to /sys/kernel/debug/dynamic_debug/control instead) and androidboot.console (Android's, which no init of ours reads): both are left out here.
+BUDGET=${CMDLINE_BUDGET:-160}   # characters of the header command line; the margin check below is what decides, this refuses an image that grows back
+CUT=1363        # the length of the command line run 8 got (research walleye-bootimage/2026-11-23/run8-telnet-debug-read.txt: 1363 characters, 1364 with the newline): an OBSERVED cut for our image, its cause (a fixed buffer or a total) not proven; the next phone run is the proof
+MARGIN=100      # characters that must stay free after the bootloader's own words
+HDR=$(field 'command line args' | sed 's/ *dyndbg="[^"]*"//g' | tr ' ' '\n' | grep -v -e '^androidboot\.console=' -e '^$' | paste -sd' ')
+CMDLINE="$HDR walleye.root=$ROOT_PART$WORD"
+# the budget and the margin, from captured text: run 8's /proc/cmdline (our header's words first, then the bootloader's, cut at 1364 characters) and Android b's (the bootloader's words to the end, which run 8's lost)
+R8=$HERE/research/walleye-bootimage/2026-11-23/run8-telnet-debug-read.txt
+AB=$HERE/research/walleye-bootimage/2026-11-23/android-b-cmdline-and-boot-props.txt
+for f in "$R8" "$AB"; do [ -s "$f" ] || { echo "build-ufs-root-image: missing $f" >&2; exit 1; }; done
+R8LINE=$(grep -a '^clk_ignore_unused' "$R8" | head -n1 | tr -d '\r')
+ck "run 8's captured command line is the 1363 characters the bootloader passed (1364 with the newline of /proc/cmdline), and it ends after androidboot.pk=g-pxl-p, before androidboot.slot_suffix" "${#R8LINE} $(printf '%s' "$R8LINE" | grep -c 'androidboot\.pk=g-pxl-p$')" "$CUT 1"
+BLWORDS="${R8LINE#* walleye.debug }$(head -n1 "$AB" | sed 's/.*androidboot\.pk=g-pxl-p//')"   # every word the bootloader adds after ours: run 8's, then the ones its cut lost, from Android b's line
+ck "the header command line is within the budget of $BUDGET characters" "$([ ${#CMDLINE} -le "$BUDGET" ] && echo yes || echo "no: ${#CMDLINE}")" yes
+ck "the header command line and the bootloader's words fit under the $CUT the bootloader passes with at least $MARGIN to spare (header ${#CMDLINE} + 1 + bootloader words ${#BLWORDS})" "$([ $((CUT - ${#CMDLINE} - 1 - ${#BLWORDS})) -ge "$MARGIN" ] && echo yes || echo "no: $((CUT - ${#CMDLINE} - 1 - ${#BLWORDS})) left")" yes
+ck "the header command line has no dyndbg and no androidboot.console (run 8's line shows both in the part the bootloader cut at)" "$(printf '%s' "$CMDLINE" | grep -c -e dyndbg -e 'androidboot\.console')/$(printf '%s' "$R8LINE" | grep -c -e 'dyndbg=' -e 'androidboot\.console=')" 0/1
+ck "the bootloader's last words, androidboot.slot_suffix among them, are in Android b's line and not in run 8's (what the cut lost)" "$(printf '%s' "$R8LINE" | grep -c 'androidboot\.slot_suffix')/$(head -n1 "$AB" | grep -c 'androidboot\.slot_suffix=_b want_initramfs rootwait ro init=/init')" 0/1
 # the kernel: the tree it was built from, the code the matched image proved, the options this image needs
 ck "the ufs, phy and pinctrl files of the tree are committed (clean against HEAD)" "$(git -C "$KT" diff --quiet HEAD -- drivers include && [ -z "$(git -C "$KT" ls-files --others -- drivers include)" ] && echo clean || echo dirty)" clean
 HEADHASH=$(git -C "$KT" rev-parse --short=12 HEAD)
@@ -106,7 +124,7 @@ hdr() { printf '%s\n' "$1" | grep -v -e '^kernel_size' -e 'ramdisk size' -e 'ker
 ck "the image's Image.gz is the new build's, byte for byte" "$(cmp -s "$T/uk.gz" "$KO/Image.gz" && echo same || echo differs)" same
 ck "the image's dtb is the matched image's (UFS on), byte for byte" "$(cmp -s "$T/uk.dtb" "$T/mk.dtb" && echo same || echo differs)" same
 ck "the image's header equals the matched one's but the sizes and the command line" "$(hdr "$U")" "$(hdr "$INFO")"
-ck "the image's command line is the matched one plus walleye.root=$ROOT_PART$WORD, and nothing else" "$(printf '%s\n' "$U" | sed -n 's/^command line args: *//p' | head -n1)" "$CMDLINE"
+ck "the image's command line is the matched one's without its dyndbg string and androidboot.console, plus walleye.root=$ROOT_PART$WORD, and nothing else" "$(printf '%s\n' "$U" | sed -n 's/^command line args: *//p' | head -n1)" "$CMDLINE"
 ck "the command line carries the word walleye.booted-slot exactly when this is the stage 2 variant (BOOTED_SLOT=$BOOTED_SLOT)" "$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -c -x walleye.booted-slot)" "$([ -n "$BOOTED_SLOT" ] && echo 1 || echo 0)"
 ck "the command line names no ufs but the bootloader's own words, and no root=, no init=, no rw" "$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -v '^androidboot\.' | grep -i -c -e ufs -e '^root=' -e '^init=' -e '^rw$')" 0
 ck "the image's ramdisk is the initramfs built here, byte for byte" "$(cmp -s "$T/u/ramdisk" "$T/ramdisk1.cpio.gz" && echo same || echo differs)" same

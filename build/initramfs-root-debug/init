@@ -10,7 +10,7 @@
 # keep the SoC watchdog petted for a bounded time, and hand over to the root's own /sbin/init (switch_root). Nothing is ever written to the card by this file: no mkfs, no fsck, no rw mount, no
 # discard, no purge (the kernel's purge guard stays in the image too).
 # Refuses (a line `walleye-ufs-root: refused ...` in the kernel log, which the ramoops console keeps for Android to read, then the phone restarts by itself) when: no walleye.root, a name that is not
-# system_a or system_b, NO androidboot.slot_suffix (_a or _b; fails CLOSED: the procedure puts the slot it read from adb and fastboot on the command line), the same slot as androidboot.slot_suffix (the slot Android runs from), no partition of that name, or two of them. It mounts nothing it was not named.
+# system_a or system_b, NO slot (from androidboot.slot_suffix, the device tree, bootconfig or, last, root=PARTUUID; _a or _b; fails CLOSED: sources that disagree refuse too), the same slot as androidboot.slot_suffix (the slot Android runs from), no partition of that name, or two of them. It mounts nothing it was not named.
 # The init of the root (Alpine's busybox init + OpenRC, with the usb gadget unit and sshd) brings the gadget up itself; this init does no gadget.
 # Stage 2 (item walleye-install-stage2-init-booted-slot): with the word walleye.booted-slot on the command line (the bootloader booted this image from the root's own slot) the root MUST be system$SLOT, the booted slot's own partition, and the init says
 # `walleye-init: mounts-the-booted-slot`; without the word the stage 1 guard above is unchanged. The line `walleye-init: mounts-the-booted-slot` is what procedures/install-boot-on-the-pixel-2.rs's init gate looks for.
@@ -36,7 +36,6 @@ if [ -f /modules.list ]; then while read -r m; do insmod "$m" || say "insmod $m 
 CMD=$(cat /proc/cmdline)
 arg() { for w in $CMD; do case $w in "$1="*) echo "${w#"$1="}"; return ;; esac; done; }
 ROOT=$(arg walleye.root)
-SLOT=$(arg androidboot.slot_suffix)
 BOOTED=; for w in $CMD; do [ "$w" = walleye.booted-slot ] && BOOTED=1; done   # the word of stage 2: the bootloader booted this image from the root's own slot
 for k in wait pause hold; do V=$(arg walleye.$k); case $V in ""|*[!0-9]*) ;; *) case $k in wait) WAIT_SECONDS=$V ;; pause) PAUSE_SECONDS=$V ;; hold) HOLD_SECONDS=$V ;; esac ;; esac; done
 # DEBUG-BLOCK-BEGIN (1: the watchdogs, the gadget and the log; every call below is made only with the word walleye.debug)
@@ -95,6 +94,12 @@ debug_gadget() { # ECM + ACM on the first controller that probes (up to 60 s), 1
   telnetd -l /bin/sh -b $DEBUG_NET.1 && dsay "telnetd on $DEBUG_NET.1:23 (cat /tmp/walleye-debug.log)"
   if [ -c /dev/ttyGS0 ]; then ( while :; do setsid sh -c 'echo $$ > /tmp/acm.pid; exec sh </dev/ttyGS0 >/dev/ttyGS0 2>&1'; sleep 1; done ) & echo $! >> /tmp/dbg.pids; fi
 }
+debug_dyndbg() { # (messages printed while the drivers probe, before this init runs, are not caught: a probe-time read needs the word back or a kernel config default) the five dyndbg lines the matched image carried on its command line (dyndbg="..."), which made the header too long for the bootloader (research walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing): written at run time instead; they land in the kernel log the lab reads
+  mount -t debugfs none /sys/kernel/debug 2>/dev/null
+  C=/sys/kernel/debug/dynamic_debug/control
+  [ -w "$C" ] || { dsay "no $C: dynamic debug lines not set"; return 0; }
+  for f in drivers/gpio/gpiolib.c drivers/gpio/gpiolib-of.c drivers/pinctrl/core.c drivers/pinctrl/devicetree.c drivers/pinctrl/qcom/pinctrl-spmi-gpio.c; do echo "file $f +p" > "$C" 2>/dev/null && dsay "dyndbg: file $f +p" || dsay "dyndbg: file $f +p FAILED"; done
+}
 debug_snapshots() { while :; do dmesg > /tmp/walleye-dmesg.txt 2>/dev/null; cp /proc/mounts /tmp/walleye-mounts.txt 2>/dev/null; sleep 2; done; }
 debug_end() { kill $(cat /tmp/wd.pids 2>/dev/null) 2>/dev/null; sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger; while :; do sleep 60; done; }
 debug_hold() { # a refusal holds, so the lab can read why; the petters run meanwhile; the test's selftest runs here too
@@ -119,11 +124,44 @@ if [ -n "$DEBUG" ]; then
   wd_supervise &
   echo $! >> /tmp/dbg.pids   # the supervisor ends at the release; the petters go on
   dsay "walleye.debug: the watchdogs are petted from uptime $(cut -d. -f1 /proc/uptime) s, the log is /tmp/walleye-debug.log"
+  debug_dyndbg
   debug_gadget
   debug_snapshots &
   echo $! >> /tmp/dbg.pids
 fi
 # DEBUG-BLOCK-END
+# the running slot, from the sources Android's own init reads (AOSP fs_mgr: fs_mgr_get_slot_suffix, in this order): the command line word androidboot.slot_suffix, then the device tree /proc/device-tree/firmware/android/slot_suffix,
+# then bootconfig (androidboot.slot_suffix = "_a"); the root=PARTUUID of the command line is a last resort (below). Sources that give a value must agree: two that differ refuse. The bootloader cuts our command line at about 1363
+# characters (research walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing), so the word can be missing: the line `walleye-ufs-root: slot source` says which one gave the slot. Nothing is assumed: none gives it, nothing is mounted.
+# root=PARTUUID is UNPROVEN on the phone (no capture shows PARTN of system_a/b there; the QEMU disk is made by sgdisk): a wrong mapping only waits (petting) and refuses, it never mounts. A missing word with a PARTUUID that names a system partition no longer refuses; the log says so.
+SLOT=; SLOT_SOURCE=
+for s in androidboot.slot_suffix device-tree bootconfig; do
+  case $s in
+    androidboot.slot_suffix) V=$(arg androidboot.slot_suffix) ;;
+    device-tree) V=$({ tr -d '\000' < /proc/device-tree/firmware/android/slot_suffix; } 2>/dev/null) ;;
+    bootconfig) V=$(sed -n 's/^androidboot\.slot_suffix *= *"\(.*\)".*/\1/p' /proc/bootconfig 2>/dev/null | head -n1) ;;
+  esac
+  [ -n "$V" ] || continue
+  if [ -z "$SLOT" ]; then SLOT=$V; SLOT_SOURCE=$s; elif [ "$V" != "$SLOT" ]; then refuse "the slot sources disagree: $SLOT_SOURCE says [$SLOT], $s says [$V]"; fi
+done
+partuuid_slot() { # the slot of the system partition whose number is the root=PARTUUID=0000NNNN-... of the command line (the bootloader names the booted slot's system so): exactly one partition with that number and a PARTNAME system_a or system_b
+  P=$(arg root); case $P in PARTUUID=*) ;; *) return 0 ;; esac
+  P=${P#PARTUUID=}; P=${P%%-*}; case $P in ""|*[!0-9a-fA-F]*) return 0 ;; esac; [ ${#P} -le 8 ] || return 0
+  PN=$((0x$P)); FOUND=
+  for u in /sys/class/block/*/uevent; do
+    [ -e "$u" ] || continue
+    grep -qx "PARTN=$PN" "$u" || continue
+    case $(sed -n 's/^PARTNAME=//p' "$u") in system_a) FOUND="$FOUND _a" ;; system_b) FOUND="$FOUND _b" ;; esac
+  done
+  set -- $FOUND; [ $# -eq 1 ] && echo "$1"
+  return 0
+}
+n=0; while [ -z "$SLOT" ] && [ $n -lt $WAIT_SECONDS ] && case $(arg root) in PARTUUID=*) true ;; *) false ;; esac; do   # no other source: the card's probe takes time, wait for the partition the PARTUUID names
+  V=$(partuuid_slot); [ -z "$V" ] || { SLOT=$V; SLOT_SOURCE=root=PARTUUID; break; }
+  [ -e /dev/watchdog ] && echo > /dev/watchdog 2>/dev/null; sleep 1; n=$((n+1))
+done
+if [ -n "$SLOT" ] && [ "$SLOT_SOURCE" != root=PARTUUID ]; then V=$(partuuid_slot); [ -z "$V" ] || [ "$V" = "$SLOT" ] || refuse "the slot sources disagree: $SLOT_SOURCE says [$SLOT], root=PARTUUID says [$V]"; fi
+[ -z "$SLOT" ] || say "slot source: $SLOT_SOURCE gave [$SLOT]"
 say "start, kernel $(uname -r), root=[$ROOT] running slot suffix=[$SLOT]"
 case $ROOT in
   system_a|system_b) ;;
@@ -132,7 +170,7 @@ case $ROOT in
 esac
 case $SLOT in
   _a|_b) ;;
-  '') refuse "no androidboot.slot_suffix on the command line: the slot Android is on is not known, nothing is mounted" ;;
+  '') refuse "no androidboot.slot_suffix on the command line: the slot Android is on is not known (no device tree, bootconfig or root=PARTUUID gives it either), nothing is mounted" ;;
   *) refuse "androidboot.slot_suffix=$SLOT is not _a or _b" ;;
 esac
 if [ -n "$BOOTED" ]; then
