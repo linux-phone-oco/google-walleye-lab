@@ -10425,10 +10425,10 @@ Rank
 ### URGENT, read only, NO REBOOT: what slot a's boot left in pstore/ramoops, read from the Android that is running now, and what the bootloader put on the command line
 
 Status
-: open
+: done
 
 Note
-: From stage 2 run 4 (PR 849): steps 1-20 passed (flash a no-op, set_active a ok, flags as the switch describes), slot a never answered ssh at 172.16.43.1 in 170 s, the phone fell back to Android b BY ITSELF (bootreason watchdog): set_active a spent slot a's tries (retry 1 to 0) and the bootloader marked a unbootable and booted b: the count-zero fall back that the forced-way-back research had NOT measured is now MEASURED and needs no hand. NOT KNOWN YET: whether our kernel started at all. WHY URGENT: our dts has the stock ramoops region (0xa1100000, console 0x20000): the Android kernel exposes the previous boot's console as /sys/fs/pstore/console-ramoops-0 at ITS boot; any further reboot of the phone overwrites it. So: no reboot, no walleye-idle-android that restarts anything, no other phone item first. The stage 2 run item stays off the queue and its go (open to 15:00) is not used until the cause is read.
+: proven by the read: pstore empty (the phone rebooted since run 4), cmdline and header compared; see research walleye-stage2-run4-pstore-read-finding. Next: a stage 2 rerun must be followed by a pstore read BEFORE any reboot of Android b
 
 About
 : walleye-bootimage

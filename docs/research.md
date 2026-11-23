@@ -6404,3 +6404,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-stage2-run4-pstore-read-finding"></a>
+### walleye-stage2-run4-pstore-read-finding
+
+Date
+: 2026-11-23
+
+Brief
+: pstore was empty: the phone had rebooted since run 4 (up 10 min), so slot a's console is gone; Android's normal-boot cmdline is the stock header's plus bootloader words
+
+Question
+: What did slot a's boot leave in pstore/ramoops, and what does the bootloader add to a normal boot's command line?
+
+Found
+: Read from Android b by adb root, nothing written, no reboot. /sys/fs/pstore is empty (dir made 13:13, uptime 10 min): the phone rebooted after run 4, which overwrote the console of slot a's try; nothing says whether our kernel started. /data/vendor_ce/0/ramoops holds only priv.pem/pub.pem (not read); other paths absent. Android's kernel enables pstore (console [pstore0]), so the next try can be read the same way if Android b is not rebooted first. Normal-boot cmdline = the stock boot_a header's cmdline (androidboot.hardware=walleye ... dtbo_idx=3) plus bootloader words: verifiedbootstate=orange, keymaster=1, root=PARTUUID=0000002b-..., bootdevice=1da4000.ufshc, serialno, boottime, mdss_mdp.panel, fpsensor, ddr/ufs, bootloader=mw8998-003.0085.00, bootreason, slot_suffix=_b, want_initramfs rootwait ro init=/init androidboot.force_normal_boot=1. Slot suffix by adb: _b. Phone left as found.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/

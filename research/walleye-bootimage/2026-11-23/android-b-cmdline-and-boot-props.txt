@@ -1,0 +1,58 @@
+rcupdate.rcu_expedited=1 androidboot.hardware=walleye androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 service_locator.enable=1 swiotlb=2048 firmware_class.path=/vendor/firmware loop.max_part=7 raid=noautodetect usbcore.autosuspend=7 androidboot.dtbo_idx=3 androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=0000002b-0000-0000-0000-000000000000 androidboot.bootdevice=1da4000.ufshc androidboot.serialno=FA81N1A00790 androidboot.wificountrycode=00 androidboot.boottime=1BLL:221,1BLE:752,2BLL:871,2BLE:270,SW:10024,KL:0,KD:95,ODT:143,AVB:165 androidboot.baseband=msm mdss_mdp.panel=1:dsi:0:htc,mdss_dsi_samsung_s6e3fa5_1080p_cmd:1:none:cfg:single_dsi androidboot.fpsensor=fpc1075 androidboot.fpmodule=ofilm androidboot.usbradioflag=0 androidboot.temp_protect_ignore=0 androidboot.hardware.ufs=64GB,Hynix androidboot.mid=G011A androidboot.hardware.sku=G011A androidboot.revision=MP1 androidboot.ddrsize=4GB androidboot.ddrinfo=000000FF androidboot.hardware.ddr=4096MB,Micron,LPDDR4 androidboot.bootloader=mw8998-003.0085.00 androidboot.bootreason=reboot androidboot.cid=00000000 androidboot.hardware.color=VEN00 androidboot.theme=1 androidboot.sf=1 androidboot.msm.hw_ver_id=2005E0E1 androidboot.qf.st=2 androidboot.pk=g-pxl-p androidboot.slot_suffix=_b want_initramfs rootwait ro init=/init androidboot.force_normal_boot=1
+---
+[ro.boot.avb_version]: [1.3]
+[ro.boot.baseband]: [msm]
+[ro.boot.bootdevice]: [1da4000.ufshc]
+[ro.boot.bootloader]: [mw8998-003.0085.00]
+[ro.boot.bootreason]: [reboot]
+[ro.boot.boottime]: [1BLL:221,1BLE:752,2BLL:871,2BLE:270,SW:10024,KL:0,KD:95,ODT:143,AVB:165]
+[ro.boot.cid]: [00000000]
+[ro.boot.console]: [ttyMSM0]
+[ro.boot.ddrinfo]: [000000FF]
+[ro.boot.ddrsize]: [4GB]
+[ro.boot.dtbo_idx]: [3]
+[ro.boot.flash.locked]: [0]
+[ro.boot.force_normal_boot]: [1]
+[ro.boot.fpmodule]: [ofilm]
+[ro.boot.fpsensor]: [fpc1075]
+[ro.boot.hardware]: [walleye]
+[ro.boot.hardware.color]: [VEN00]
+[ro.boot.hardware.cpu.pagesize]: [4096]
+[ro.boot.hardware.ddr]: [4096MB,Micron,LPDDR4]
+[ro.boot.hardware.revision]: [1.0]
+[ro.boot.hardware.sku]: [G011A]
+[ro.boot.hardware.ufs]: [64GB,Hynix]
+[ro.boot.keymaster]: [1]
+[ro.boot.mid]: [G011A]
+[ro.boot.msm.hw_ver_id]: [2005E0E1]
+[ro.boot.phandle]: []
+[ro.boot.pk]: [g-pxl-p]
+[ro.boot.qf.st]: [2]
+[ro.boot.revision]: [MP1]
+[ro.boot.serialno]: [FA81N1A00790]
+[ro.boot.sf]: [1]
+[ro.boot.slot_suffix]: [_b]
+[ro.boot.temp_protect_ignore]: [0]
+[ro.boot.theme]: [1]
+[ro.boot.usbradioflag]: [0]
+[ro.boot.verifiedbootstate]: [orange]
+[ro.boot.wificountrycode]: [00]
+[ro.bootloader]: [mw8998-003.0085.00]
+[ro.bootmode]: [unknown]
+---
+ls: /proc/bootloader_log: No such file or directory
+total 0
+drwxr-xr-x  3 root root      0 2026-11-23 13:23 .
+dr-xr-xr-x 13 root root      0 1970-07-27 00:06 ..
+drwxr-xr-x  3 root root      0 2026-11-23 13:23 devicetree
+-r--------  1 root root 466565 2026-11-23 13:23 fdt
+[    0.000000] Reserved memory: reserved region for node 'ramoops_region': base 0x0000000000000000, size 2 MiB
+[    0.000000] Reserved memory: reserved region for node 'alt_ramoops_region': base 0x0000000000000000, size 2 MiB
+[    0.000000] Reserved memory: reserved region for node 'ramoops_meta_region@affff000': base 0x0000000000000000, size 0 MiB
+[    0.000000] Reserved memory: initialized node ramoops_region, compatible id removed-dma-pool
+[    0.000000] Reserved memory: initialized node alt_ramoops_region, compatible id removed-dma-pool
+[    0.000000] Reserved memory: initialized node ramoops_meta_region@affff000, compatible id removed-dma-pool
+[    0.339514] platform soc:access_ramoops@0: assigned reserved memory node ramoops_meta_region@affff000
+[    0.340113] platform soc:access_ramoops@1: assigned reserved memory node alt_ramoops_region
+[    0.343812] platform ramoops: assigned reserved memory node ramoops_region
+[    0.347569] console [pstore0] enabled
