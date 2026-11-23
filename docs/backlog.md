@@ -11468,7 +11468,10 @@ Status
 : open
 
 Note
-: From the keeper (walleye-try-ufs-match, 2026-11-23 22:55): the ramped pinned-low try stopped at step 16 before any load: no powersave governor: pin low via userspace plus set_freq = min_freq (read available_frequencies first). The go on walleye-try-ufs-match (until 2026-11-24T00:41, outcomes set) stays; if the fix lands after it, the coordinator reopens one. The hypothesis the pin tests: the shell silence of UFS try 2 comes with the scale-up to gear 3 / 200 MHz under load; at the minimum clock the ramp either finishes (then the scale-up is the cause) or goes silent at the same step (then it is the read itself).
+: REWRITTEN BY THE RESEARCH (the Top Coordinator, 2026-11-23 23:00): this item no longer assumes the userspace governor: it applies the ONE WAY that Android and mainline both support, as research walleye-ufs-hold-the-clock-read names it (possibly clkscale_enable, possibly the userspace governor with set_freq: the row decides), the step's expectation names that row as its source, tested offline against run 4's captured sysfs (PR 948) BEFORE the next run; no governor is added to the config to pass a step. | From the keeper (walleye-try-ufs-match, 2026-11-23 22:55): the ramped pinned-low try stopped at step 16 before any load: no powersave governor: pin low via userspace plus set_freq = min_freq (read available_frequencies first). The go on walleye-try-ufs-match (until 2026-11-24T00:41, outcomes set) stays; if the fix lands after it, the coordinator reopens one. The hypothesis the pin tests: the shell silence of UFS try 2 comes with the scale-up to gear 3 / 200 MHz under load; at the minimum clock the ramp either finishes (then the scale-up is the cause) or goes silent at the same step (then it is the read itself).
+
+Blocked by
+: walleye-ufs-hold-the-clock-read
 
 About
 : walleye-bootimage
@@ -11481,6 +11484,31 @@ Needs
 
 Proof
 : from the keeper's run of the ramped try (item walleye-try-ufs-match, PR 948): it stopped at step 16 BEFORE any load because /sys/class/devfreq/1da4000.ufshc has no powersave governor, available_governors are userspace and simple_ondemand (captured text in the keeper's log and research material, PR 948); tools/walleye-tries/src/ufs/load.rs (and the procedure's step 16): the pin reads available_governors, available_frequencies, min_freq, cur_freq first (kept in the log), sets the governor to userspace, writes the LOWEST of available_frequencies (min_freq) to userspace/set_freq, reads cur_freq back and the step says 'pinned at N Hz' or says why not and STOPS before any load; the gear reads of the ramp then say what the pin did (the link at the low clock: the gear may stay 1); the ramp 64, 256, 1024 MiB with the shell polled every second and the first silent step as a result is unchanged; stand-in tests from the captured governor text of PR 948 (no typed fixture); a test where userspace is absent stops before any load; dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-hold-the-clock-read"></a>
+### How to hold the UFS clock low on our kernel and on Android's: read the sources before the ramped try's pin is amended
+
+Status
+: open
+
+Note
+: The Top Coordinator's order (2026-11-23 23:00), after UFS run 4 stopped at step 16 (no powersave governor): the stop is right but it is a sign: the procedure expected a governor nobody had read from our config or the driver. Read first, then amend; the amendment is the builder item walleye-ufs-ramp-pin-by-userspace, which waits for this row.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row with sources and lines, the Top Coordinator's three reads: (1) OUR kernel: the config of int/walleye/ufs-on/v7.3/1 (the .config the image was built with, and build/walleye*.config): which DEVFREQ_GOV_* are built (the keeper's captured sysfs says available_governors = userspace, simple_ondemand: PR 948) and which UFS options (SCSI_UFS_*, clock scaling); (2) MAINLINE ufshcd (drivers/ufs/core/ufshcd.c at v7.3 in ~/Projects/linux-phone-oco/linux): how clock scaling is turned off or held: the clkscale_enable sysfs attribute (what writing 0 does to the clock and the gear: does it scale UP first, does it leave the current gear), the devfreq governor interface with the userspace governor and a fixed set_freq (what each does to the gear and whether the link is re-trained), and the host-side qcom hooks (ufs-qcom.c: ufs_qcom_clk_scale_notify, gear change, the clk_ignore_unused cmdline word of our image); (3) ANDROID's kernel (the read-only remote 'android', reference tag reference/android-walleye/4.4.302-g113bd1cfa6f5, drivers/scsi/ufs/): how Android holds UFS low or turns scaling off (the sysfs attributes, the devfreq governor, the ufs-qcom clock-scaling code and the DT properties qcom,devfreq/clock-scaling) and what its init.rc and vendor props set (cite android:PATH@113bd1cfa6f5, and the init scripts of the Lineage device tree if present); (4) THE ONE WAY that Android and mainline BOTH support, named, with the exact sysfs writes and what to read back to prove the hold (the clock and the gear), and what it does NOT hold (the link gear may stay 3): the ramped try's step 16 is amended to that and its expectation names this row as its source; (5) NOT KNOWN YET named; no phone beyond a read-only sysfs read if a value is needed (the keeper's PR 948 text is on file); do NOT add a governor to the config just to pass the step
 
 Rank
 : 1
