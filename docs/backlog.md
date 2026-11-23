@@ -11297,10 +11297,10 @@ Rank
 ### Check 22 pairs xbl_a and xbl_b ACROSS sdb and sdc: the bootloader's own set_active changes their slot bits (the boot-LUN switch), and the checker must judge the pair, not each disk alone
 
 Status
-: open
+: in-progress
 
 Note
-: THE TOP COORDINATOR'S ADDITIONS (2026-11-23 20:40): check 22 is the one that proves the boot chain is untouched (xbl, abl and the rest): that is our NEVER-LIST, so it stays STRICT. Its pairing gap is the same kind as checks 8, 9, 16 and 18: written for a layout assumed, not read. BEFORE the fix: run the check OFFLINE against EVERY GPT and boot-chain capture we already hold: stage 1 runs 5-7, stage 2 runs 1-10 (and rehearsals 1-7), and the Android reads (~/lab-material/walleye/, research material, the keepers' install-boot-* and rootfs-boots-* folders); PAIR PARTITIONS BY NAME across all six disks (xbl_a with xbl_b, abl_a with abl_b, and so on, wherever each lives), NEVER BY DISK. The fixed check passes on ALL of them, and FAILS on a DOCTORED copy: (a) one xbl byte changed in the boot-chain read-back (the content of xbl_a or xbl_b, any partition of the never-list: the stored-set comparison refuses it), (b) one GPT entry's data (name, first/last LBA, type GUID other than the A/B swap) changed, (c) one half of a pair moved and not the other; and say in the research row what every capture printed (a table: capture, disks, pairs found, pass or stop). Then ONE run under a fresh go. | Run 10 (keeper local_3a77cd35, go to 22:07): steps 1-21 passed, the first complete boot of slot a from the card with a checked slot; check 22 stopped because of the checker's pairing, not the phone. The way back ran, Android on b. NOTE for the next go: boot_a holds the debug image, slot a is retry 1 (the counter after one try boot), and a fresh go is needed. xbl_a/xbl_b here are the bootloader's partition ENTRIES' attribute bits in the GPT, which set_active changes by design (the author was told; the decision's conditions): the data of xbl is never written by us.
+: Checker fixed on branch builder/check22-xbl-cross-disk (flash_boot.rs gpt_switch_only_across, tests on run 10 captures, offline sweep research walleye-check22-pairs-by-name-across-disks, dry run 29 steps ok, clippy/fmt/342 tests). After landing: queue ONE run under a fresh go.
 
 About
 : walleye-bootimage

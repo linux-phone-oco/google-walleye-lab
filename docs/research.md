@@ -6971,3 +6971,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-check22-pairs-by-name-across-disks"></a>
+### walleye-check22-pairs-by-name-across-disks
+
+Date
+: 2026-11-23
+
+Brief
+: Check 22 pairs A/B entries by name across the six disks (xbl only across disks); run 10 and all 8 other readable captures pass, one-half and data changes fail
+
+Question
+: Does a checker that pairs A/B partitions by name across disks accept run 10's boot-LUN switch and every earlier capture, and refuse a doctored one?
+
+Found
+: gpt_switch_only_across pairs by name per copy over all disks; only the xbl_ family may pair over two disks (review: any other name pairs on its own disk). Run 10 passes (44 slot-bit entries, 42 GUID swaps; xbl_a/xbl_b have equal GUIDs and exchange attribute bytes across sdb/sdc). Sweep (check22-sweep.txt): 9 pairs pass, 3 ufs-* folders are not GPT dumps (skipped). Doctored fail: one xbl half alone, an LBA or name byte on sda/sdb/sdc/sdf, reordered or missing disks, a non-xbl pair split over disks. Known and kept: a one-sided slot-bit change of a same-disk pair passes (the 'read after return' capture, 1 entry); review item to decide: refuse duplicated A/B names outright. Boot chain content is check 29's read-back, unchanged. No phone touched.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/

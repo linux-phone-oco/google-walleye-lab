@@ -1,0 +1,13 @@
+install-boot-20261123-112709 gpt-read-after-return.txt: 6 disks: pass (1 entries' slot bits and 0 type GUIDs changed, the CRCs are right, nothing else)
+install-boot-20261123-201216 gpt-new-slot.txt: 6 disks: pass (44 entries' slot bits and 42 type GUIDs changed, the CRCs are right, nothing else)
+install-boot-rehearsal-20261123-093119 gpt-again.txt: 6 disks: pass (0 entries' slot bits and 0 type GUIDs changed, the CRCs are right, nothing else)
+install-boot-rehearsal-20261123-110914 gpt-again.txt: 6 disks: pass (0 entries' slot bits and 0 type GUIDs changed, the CRCs are right, nothing else)
+install-boot-rehearsal-20261123-122724 gpt-again.txt: 6 disks: pass (0 entries' slot bits and 0 type GUIDs changed, the CRCs are right, nothing else)
+install-boot-rehearsal-20261123-135509 gpt-again.txt: 6 disks: pass (0 entries' slot bits and 0 type GUIDs changed, the CRCs are right, nothing else)
+install-boot-rehearsal-20261123-170719 gpt-again.txt: 6 disks: pass (0 entries' slot bits and 0 type GUIDs changed, the CRCs are right, nothing else)
+install-boot-rehearsal-20261123-172447 gpt-again.txt: 6 disks: pass (0 entries' slot bits and 0 type GUIDs changed, the CRCs are right, nothing else)
+install-boot-rehearsal-20261123-190329 gpt-again.txt: 6 disks: pass (0 entries' slot bits and 0 type GUIDs changed, the CRCs are right, nothing else)
+/home/mll/lab-material/walleye/ufs-20261123-080827: gpt-before.txt is not a GPT dump (skipped)
+/home/mll/lab-material/walleye/ufs-20261123-085319: gpt-before.txt is not a GPT dump (skipped)
+/home/mll/lab-material/walleye/ufs-20261123-105319: gpt-before.txt is not a GPT dump (skipped)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 343 filtered out; finished in 1.61s
