@@ -10984,7 +10984,7 @@ Status
 : done
 
 Note
-: SUPERSEDED 2026-11-23 by walleye-stage2-state-model-walk and walleye-stage2-checks-should-they-exist (the Top Coordinator's order: five stops are one sign; no more one-at-a-time patches). Nothing of it was landed. | Rehearsal 5 (the keeper local_574b1b94, PR 888 era) stopped at check 8 on a real run, twice: boot_a holds e337de53 (an earlier stage 2 image), neither the stock backup 2a5cd3b2 nor the declared ec741a98: 'the flash could not be undone'. Nothing written, Android on b. Fifth stop of the first-run class (checks 18, 9, 16, 18 again, 8): the audit by state did not have 'boot_a holds a different image of ours'. Rejected: restoring the stock boot_a first (a write, a go of its own, to satisfy a check). The stage 2 run goes ahead after the rehearsal passes.
+: DONE 2026-11-23 (walleye-builder), superseded by walleye-stage2-state-model-walk: check 9 no longer asserts what boot_a held (research walleye-stage2-checks-should-they-exist), so no list of earlier images is needed; rehearsal 5's state passes; test from rehearsal 5's printed shas.
 
 About
 : walleye-bootimage
@@ -11028,10 +11028,10 @@ Rank
 ### Stage 2 as a whole, question (3): every start state the command can meet, all 29 steps (and the rehearsal's 17) walked offline over every combination from captured text, every failing state fixed at once, then ONE rehearsal
 
 Status
-: open
+: in-progress
 
 Note
-: THE TOP COORDINATOR'S ORDER (2026-11-23, under 0.3.71: five stops are one sign, not five fixes): before check 8 is patched, answer the three questions for the command AS A WHOLE, fix every state at once, then ONE rehearsal; no phone time on a sixth one-at-a-time stop. Question (3). Replaces the one-at-a-time patch of check 8. Start now with the model and the harness (they do not wait for the research); apply the keep/relax/drop table when walleye-stage2-checks-should-they-exist lands. The five stops so far: check 18 (flags after the flash), 9 (boot_a equals the stock backup), 16 (the flash changes boot_a), 18 again (unbootable clears), 8 (boot_a holds an earlier image of ours).
+: 2026-11-23 (walleye-builder): DONE the model and table-driven harness (40 start states, research walleye-stage2-state-model-table) and the keep/relax/drop table applied (8 marker a note, 9 recorded not asserted, 18 only Android's slot and the current slot, 20 relaxed, rehearsal flags-again a note) plus the one hole found: the slot Android runs from must be successful and bootable at check 13. Reviewed by programmer on the first part; the rest to review. LEFT: step 29 folded into 27; SOURCES.toml for the checks (item walleye-checks-name-their-sources); then ONE rehearsal for real queued for a keeper (walleye-install-flash-boot-rehearsal-5 is that item). No phone.
 
 About
 : walleye-bootimage

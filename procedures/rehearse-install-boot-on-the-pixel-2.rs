@@ -31,12 +31,12 @@ fn main() {
     step("say what to expect", boot.rehearsal_is_told());
     step("the phone is on Android, adbd as root", boot.the_phone_is_on_android_as_root());
     check("adb reads the slot Android runs from", boot.the_slot_is_read_by_adb());
-    check("the boot partition to be flashed, read now, is its backup, or the declared image with the backup on file; the boot, dtbo and vbmeta partitions are hashed", boot.the_slot_partitions_are_read_before());
+    check("the boot partition to be flashed, read now, is recorded (its backup, the declared image or other content) and the stock backup is on file and hashes to its record; the boot, dtbo and vbmeta partitions are hashed", boot.the_slot_partitions_are_read_before());
     check("the GPT of every disk is read whole and kept", boot.the_gpt_is_read_before());
     step("take the phone to fastboot", boot.phone_is_in_fastboot());
     check("fastboot agrees on the slot and the flash target is the other slot's boot partition (its command is shown, not run)", boot.the_guard_holds());
-    check("the slot flags are read before", boot.the_slot_flags_are_read("slots-before.txt"));
-    check("the slot flags read again are the same", boot.the_slot_flags_are_the_same());
+    check("the slot flags are read before, and the slot Android runs from is successful and bootable (the way back)", boot.the_slot_flags_are_read("slots-before.txt"));
+    check("the slot flags read again are kept beside the first (a difference is said, not refused)", boot.the_slot_flags_are_the_same());
     step("the phone is on Android, adbd as root", boot.the_phone_is_on_android_as_root());
     check("the phone is back on Android", boot.android_is_back());
     check("the GPT read again is the same, whole, and passes the switch checker unchanged", boot.the_gpt_reads_the_same_again());
