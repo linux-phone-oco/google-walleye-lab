@@ -1,0 +1,37 @@
+1795422679 start : rehearse install boot on the Pixel 2 on google-walleye
+1795422679 start : rehearse install boot on the Pixel 2 on google-walleye
+1795422679 begin the battery is good enough: check
+1795422679 ok the battery is good enough: 
+1795422679 begin the image is the declared one, a whole boot partition, its AVB footer verifies: check
+1795422679 ok the image is the declared one, a whole boot partition, its AVB footer verifies: 
+1795422679 begin the image's init accepts the slot it is booted from: check
+1795422679 ok the image's init accepts the slot it is booted from: 
+1795422679 begin the stored boot chain is whole and the ssh key is private: check
+1795422680 ok the stored boot chain is whole and the ssh key is private: 
+1795422680 begin say what to expect: step
+1795422680 ok say what to expect: 
+1795422680 begin the phone is on Android, adbd as root: step
+1795422680 ok the phone is on Android, adbd as root: 
+1795422680 begin adb reads the slot Android runs from: check
+1795422680 ok adb reads the slot Android runs from: 
+1795422680 begin the boot partition to be flashed, read now, is its backup; the boot, dtbo and vbmeta partitions are hashed: check
+1795422696 ok the boot partition to be flashed, read now, is its backup; the boot, dtbo and vbmeta partitions are hashed: 
+1795422696 begin the GPT of every disk is read whole and kept: check
+1795422697 ok the GPT of every disk is read whole and kept: 
+1795422697 begin take the phone to fastboot: step
+1795422712 ok take the phone to fastboot: 
+1795422712 begin fastboot agrees on the slot and the flash target is the other slot's boot partition (its command is shown, not run): check
+1795422712 ok fastboot agrees on the slot and the flash target is the other slot's boot partition (its command is shown, not run): 
+1795422712 begin the slot flags are read before: check
+1795422712 ok the slot flags are read before: 
+1795422712 begin the slot flags read again are the same: check
+1795422712 ok the slot flags read again are the same: 
+1795422712 begin the phone is on Android, adbd as root: step
+1795422748 ok the phone is on Android, adbd as root: 
+1795422748 begin the phone is back on Android: check
+1795422748 ok the phone is back on Android: 
+1795422748 begin the GPT read again is the same, whole, and passes the switch checker unchanged: check
+1795422748 ok the GPT read again is the same, whole, and passes the switch checker unchanged: 
+1795422748 begin the boot chain read again equals the stored set: check
+1795422752 ok the boot chain read again equals the stored set: 
+1795422752 end : all steps passed

@@ -6220,3 +6220,21 @@ Considered
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-23-1000-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel, nothing flashed, nothing written. Stage 2 rehearsal passed 17/17 after two walleye-tries fixes (AVB check via boot.img link; GPT entry count read per header: LUNs have 48/4/4/20/8/8 entries, not 128).
+
+Considered
+: next: walleye-install-flash-boot-run stays behind the Top Coordinator's go; then slpi-boot-qrtr, nfc node. Rebuilding procedures needs rust-script --force after a walleye-tries change.
+
+About
+: walleye-bootimage

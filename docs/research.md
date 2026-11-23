@@ -6083,3 +6083,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-install-boot-rehearsal-passed"></a>
+### walleye-install-boot-rehearsal-passed
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 rehearsal passed, 17 of 17, nothing written: slot b by adb and fastboot, six GPTs read twice and equal, boot chain as stored
+
+Question
+: Does every step of the stage 2 command but the flash, set_active and the switch pass on the phone on Android?
+
+Found
+: Yes after two checker fixes. Image e337de53 verifies (avbtool 1.4 wants a boot.img name beside the image; the check now links one), names root system_a. adb slot suffix _b, fastboot current-slot b, retry 0, successful yes on both, unbootable no. boot_a equals its backup. The six LUNs carry 48, 4, 4, 20, 8, 8 GPT entries (not 128; the checker reads the count from the header since); each read twice, whole, passing the switch checker unchanged. Boot chain equals the stored set. The flash that would run: fastboot flash boot_a IMAGE. fastboot printed getvar current-slot:b and slot-retry-count/successful/unbootable per slot (slots-before.txt). set_active to the active slot was not tried. Phone stays on Android slot b.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/

@@ -10012,10 +10012,10 @@ Rank
 ### The stage 2 rehearsal for real: every step of the stage 2 command but the flash, the set_active, the new slot's boot and the switch back; nothing is written
 
 Status
-: open
+: done
 
 Note
-: Split out by the coordinator (2026-11-23): the item walleye-install-flash-boot was read by a keeper as 'the rehearsal', and it is the stage 2 RUN umbrella; the rehearsal is this item and runs now. The stage 2 RUN is walleye-install-flash-boot-run and its go stays CLOSED (the Top Coordinator, after rerun 6: not before the Top has seen walleye-stage2-forced-way-back-argument). NEVER run procedures/install-boot-on-the-pixel-2.rs from this item.
+: proven by procedures/rehearse-install-boot-on-the-pixel-2.rs: all 17 steps passed 2026-11-23 (research walleye-install-boot-rehearsal-passed); needed two checker fixes (avbtool boot.img name, per-header GPT entry count)
 
 About
 : walleye-bootimage

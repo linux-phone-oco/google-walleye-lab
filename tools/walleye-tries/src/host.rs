@@ -197,6 +197,50 @@ pub fn to_fastboot(
     ))
 }
 
+/// A fresh directory that is removed when it is dropped, whichever way the work in it ends.
+struct Scratch(std::path::PathBuf);
+
+impl Scratch {
+    fn new(what: &str) -> Result<Self, String> {
+        // `create_dir` refuses a name that exists, so the directory is this run's own
+        let nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_or(0, |d| d.as_nanos());
+        let d = std::env::temp_dir().join(format!("{what}-{}-{nanos}", std::process::id()));
+        std::fs::create_dir(&d).map_err(|e| format!("{}: {e}", d.display()))?;
+        Ok(Scratch(d))
+    }
+}
+
+impl Drop for Scratch {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
+/// The image's AVB footer verifies (`avbtool verify_image`). avbtool reads the hash descriptor's partition name and looks for
+/// `<name>.img` beside the image unless the image is itself so named, so an image under any other name (a NOT-TO-BOOT one)
+/// is verified through a link named `boot.img` in a directory of its own, removed afterwards.
+pub fn avb_footer_verifies(avbtool: &str, image: &Path) -> Result<(), String> {
+    let real = image
+        .canonicalize()
+        .map_err(|e| format!("{}: {e}", image.display()))?;
+    let dir = Scratch::new("walleye-avb")?;
+    let link = dir.0.join("boot.img");
+    std::os::unix::fs::symlink(&real, &link).map_err(|e| format!("{}: {e}", link.display()))?;
+    let mut c = Command::new(avbtool);
+    c.args(["verify_image", "--image"]).arg(&link);
+    let said = run(c)?;
+    if said.ok {
+        Ok(())
+    } else {
+        Err(format!(
+            "the image's AVB footer does not verify: {}",
+            last_line(&said.text)
+        ))
+    }
+}
+
 pub fn last_line(text: &str) -> String {
     text.lines().last().unwrap_or("").to_string()
 }
@@ -265,6 +309,58 @@ mod tests {
             "pass x a me"
         );
         assert_eq!(script(&bad, &[], &[]).unwrap_err(), "fail x nope");
+        std::fs::remove_dir_all(d).ok();
+    }
+
+    /// A stand-in avbtool with the real one's habit: it looks for `<partition name>.img` in the image's directory
+    /// unless the image is itself so named (the partition here is `boot`), and writes the path it was given to `$0.saw`.
+    fn avbtool_like_the_real_one(d: &std::path::Path) -> String {
+        std::fs::create_dir_all(d).unwrap();
+        let p = d.join("avbtool");
+        crate::fixture::executable(
+            &p,
+            "#!/bin/sh\n\
+             [ \"$1\" = verify_image ] || exit 2\n\
+             img=$3\n\
+             echo \"$img\" > \"$0.saw\"\n\
+             [ \"${img##*/}\" = boot.img ] || { echo \"FileNotFoundError: ${img%/*}/boot.img\"; exit 1; }\n\
+             grep -q good \"$img\" || { echo \"Hash of data does not match digest\"; exit 1; }\n",
+        );
+        p.to_string_lossy().into_owned()
+    }
+
+    #[test]
+    fn an_image_not_named_for_its_partition_verifies_through_a_boot_img_link_removed_after() {
+        let d = std::env::temp_dir().join(format!("wt-avb-{}", std::process::id()));
+        let avbtool = avbtool_like_the_real_one(&d);
+        let saw = || {
+            std::path::PathBuf::from(
+                std::fs::read_to_string(d.join("avbtool.saw"))
+                    .unwrap()
+                    .trim(),
+            )
+        };
+        let good = d.join("NOT-TO-BOOT-x.img");
+        std::fs::write(&good, "good").unwrap();
+        avb_footer_verifies(&avbtool, &good).unwrap();
+        assert_eq!(saw().file_name().unwrap(), "boot.img");
+        assert!(
+            !saw().parent().unwrap().exists(),
+            "the temporary directory stays"
+        );
+        // a failing verify says what avbtool said, and still leaves nothing behind
+        let bad = d.join("NOT-TO-BOOT-y.img");
+        std::fs::write(&bad, "bad").unwrap();
+        assert_eq!(
+            avb_footer_verifies(&avbtool, &bad).unwrap_err(),
+            "the image's AVB footer does not verify: Hash of data does not match digest"
+        );
+        assert!(
+            !saw().parent().unwrap().exists(),
+            "the temporary directory stays after a failure"
+        );
+        // an image that is not there is refused before avbtool is asked
+        assert!(avb_footer_verifies(&avbtool, &d.join("missing.img")).is_err());
         std::fs::remove_dir_all(d).ok();
     }
 
