@@ -11072,3 +11072,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-android-watchdog-read"></a>
+### Android's watchdog driver and the walleye dts read from the reference tree: what arms which watchdog, which one bites, and what a mainline kernel must do about it
+
+Status
+: open
+
+Note
+: The Top Coordinator's order (2026-11-23): the Android kernel reference first (done, PR 897), then Android's watchdog driver and dts read from it, then the image from a live list with kernel_tag. This is the reading: findings cite android:path@commit from the local tree, not web pages. A note for the builder: the reference tree is LineageOS' (the phone runs lineage_walleye), not Google's android-msm-wahoo (that tree tops at 4.4.223).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row citing android:PATH@113bd1cfa6f5 from the local reference tree in ~/Projects/linux-phone-oco/linux (tag reference/android-walleye/4.4.302-g113bd1cfa6f5; the phone runs LineageOS android_kernel_google_wahoo lineage-22.1, research walleye-android-kernel-reference-matched; GPL-2.0 so reusable under decision 2026-11-23-walleye-reuse-android-kernel-gpl): (1) drivers/soc/qcom/watchdog_v2.c: how it arms and pets the apps watchdog (bark, bite = bark + 3 s, ipi-ping, pet-time), which registers, which clocks and interrupts, whether it calls TZ (a secure watchdog: scm calls), and what it does at suspend, panic and reboot; (2) the walleye dts under arch/arm64/boot/dts/htc/ and the msm8998 dtsi it includes: the watchdog node (address, interrupts, bark-time, pet-time, qcom,wdog-secure?), and the PMIC PON/wdt nodes (qpnp-power-on: pon-wdt, s3-reset-timer, restart reasons); (3) which of these a bootloader normally arms before the kernel (the msm8998 boot flow: sbl/xbl, abl) and how long a kernel has before the bite, from the code and the downstream docs; (4) our dts and driver against it field by field (research walleye-stage2-watchdog-prechecks-read has our side), and the FIX as a list of the smallest changes with the file and the Android commit each is 'based on' (reuse allowed with authorship kept: the decision); (5) what is NOT KNOWN YET (the bootloader's own arming is closed: say what would show it); no phone
+
+Rank
+: 1
