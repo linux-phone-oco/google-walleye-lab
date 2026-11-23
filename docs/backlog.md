@@ -10369,3 +10369,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-install-flash-boot-rehearsal-3"></a>
+### The stage 2 rehearsal for real once more, now that check 9 accepts a boot_a that already holds the image: its wiring (backup path, arg order) has no test of its own
+
+Status
+: open
+
+Note
+: Asked for by the coordinator (2026-11-23): the builder says check 9's wiring (the backup path, the argument order) has no test of its own, and the earlier rehearsals found checker bugs the real run would have hit twice (PRs 798 and 801-era). The rehearsal reads boot_a and the backup for real. The stage 2 run (walleye-install-flash-boot-run) stays off the queue until this passes.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: procedures/rehearse-install-boot-on-the-pixel-2.rs run by a keeper against the phone on Android (no go needed, nothing written; no fastboot flash, set_active, erase, oem or reboot verb): every step passes on main after PR 841, in particular the step 'the boot partition to be flashed, read now, is its backup or the declared image': boot_a read now is e337de53 (run 1's flash), the stock backup boot_a.img is on file and hashes to its record 2a5cd3b2; rust-script --force; the log kept as research material; one research row; the phone stays on Android slot b; NOT a go: the bar before the stage 2 run item goes back on the phone queue
+
+Rank
+: 1
