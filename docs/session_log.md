@@ -6826,3 +6826,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-builder-stage2-debug-image"></a>
+### walleye-builder: the stage 2 debug image built, its init proved in QEMU, step 21 keeps the host's USB log
+
+Entry date
+: 2026-11-23
+
+Done
+: Built build/initramfs-root-debug/init (root init + two blocks behind walleye.debug), tests/host/ufs-root-debug-init.sh (QEMU: D0 text, D1 watchdog petted and gadget up before the card with the host side leasing, pinging and speaking telnet and reading the log, then the root's init runs and the gadget is released; D2 the root never appears: the init holds with the gadget answering; D3 the root init's proof with this init in place), DEBUG_INIT=yes in build-ufs-root-image.sh and DEBUG_GADGET=1 in build-initramfs.sh. Image ec741a98 built twice identical, 30 checks ok, from a kernel worktree at 3644090c7 (the shared linux-v7.3 tree is at c03c1a14507d and dirty: not used). Rust: Settings.usb_log_match, SWITCHED_AT_FILE, keep_the_hosts_usb_log (journalctl -k --since @T, lines of 3-2, serial redacted) in step 21 on every path, tested against the real c5 host journal; 322 tests, fmt, clippy; the rehearsal dry run passes. device.toml: [images.ufs-root-booted-slot-debug], both stage 2 tables name it. Not done: the real run (a keeper, under a go that names ec741a98).
+
+Considered
+: The watchdog timeout from sysfs max_timeout against probing busybox -T values; chosen max_timeout (no probing, no daemon restarts).
+
+Rejected
+: A python test harness or ssh in the init: no python of our own; the lab key is in the root, not the initramfs.
+
+About
+: walleye-bootimage

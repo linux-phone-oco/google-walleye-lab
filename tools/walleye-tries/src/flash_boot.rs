@@ -33,6 +33,10 @@ type Done = Result<(), String>;
 pub const ANDROID_SLOT_FILE: &str = "android-slot.txt";
 pub const SWITCHED_FILE: &str = "switched-to.txt";
 pub const RESTORED_FILE: &str = "restored.txt";
+/// When the switch was made (epoch seconds): the lab host's kernel log is read from then on (item walleye-stage2-debug-image).
+pub const SWITCHED_AT_FILE: &str = "switched-at.txt";
+/// The lab host's USB log of a run's wait for the new slot, the lines of the phone's port.
+pub const HOST_USB_LOG_FILE: &str = "host-usb-log.txt";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // what may be flashed, and with what
@@ -618,6 +622,8 @@ pub struct FlashBoot {
     ssh: String,
     /// the tad program (`tad`; a test names a stand-in): the go is read from the item's row
     tad: String,
+    /// the journal program (`journalctl`; a test names a stand-in): the lab host's kernel log of the wait
+    journalctl: String,
 }
 
 impl FlashBoot {
@@ -638,6 +644,7 @@ impl FlashBoot {
             s,
             ssh: ssh.to_string(),
             tad: tad.to_string(),
+            journalctl: "journalctl".to_string(),
         }
     }
 
@@ -1065,6 +1072,12 @@ impl FlashBoot {
                 ));
             }
             u.lab.save(SWITCHED_FILE, &slot)?;
+            u.lab.save(
+                SWITCHED_AT_FILE,
+                &now_epoch()
+                    .ok_or("the clock could not be read")?
+                    .to_string(),
+            )?;
             u.fastboot(&set_active_args(&u.lab.serial()?, &slot)?)
                 .map(|_| ())
         }
@@ -1106,6 +1119,10 @@ impl FlashBoot {
             };
             u.lab
                 .save("new-slot-read.txt", &crate::touch::redact(&read))?;
+            match u.keep_the_hosts_usb_log() {
+                Ok(usb_lines) => println!("  the host's USB log of the wait: {usb_lines} lines of {} in {HOST_USB_LOG_FILE}", u.s.usb_log_match),
+                Err(e) => println!("  the host's USB log of the wait was not kept: {e}"),
+            }
             let parts = sections(&read);
             let get = |n: &str| {
                 parts
@@ -1170,6 +1187,50 @@ impl FlashBoot {
         }
     }
 
+    /// The lab host's kernel log since the switch, the lines of the phone's port (`usb_log_match`), kept as `host-usb-log.txt`: what the host saw of the phone's USB while the new slot booted
+    /// (a gadget of ours, Android's own, or nothing: run 7 saw nothing for 67 s). Read-only: `journalctl -k`; the phone is sent nothing.
+    fn keep_the_hosts_usb_log(&self) -> Result<usize, String> {
+        let since: i64 = self
+            .saved(SWITCHED_AT_FILE)?
+            .trim()
+            .parse()
+            .map_err(|e| format!("{SWITCHED_AT_FILE}: {e}"))?;
+        let mut c = Command::new(&self.journalctl);
+        c.args(["-k", "--no-pager", "--since", &format!("@{since}")]);
+        let said = host::run(c)?;
+        if !said.ok {
+            return Err(format!("journalctl: {}", said.text));
+        }
+        if !said.text.lines().any(|l| l.contains(" kernel: ")) {
+            return Err(format!(
+                "journalctl printed no kernel line at all (no right to read the journal?): {}",
+                said.text.lines().next().unwrap_or("")
+            ));
+        }
+        let (section, lines) = usb_log_section(&said.text, since, &self.s.usb_log_match);
+        self.lab.save(HOST_USB_LOG_FILE, &section)?;
+        Ok(lines)
+    }
+
+    /// The failed-boot file carries the host's USB log of the wait too (appended to what the phone said, or alone when Android did not answer); what was done, as words for the step's reason.
+    fn the_hosts_usb_log_with_the_failed_boot(&self) -> String {
+        let kept = self.keep_the_hosts_usb_log().and_then(|lines| {
+            let section = self.saved(HOST_USB_LOG_FILE)?;
+            let before = self.saved(FAILED_BOOT_FILE).unwrap_or_default();
+            let text = if before.trim().is_empty() {
+                section
+            } else {
+                format!("{}\n{section}", before.trim_end())
+            };
+            self.lab.save(FAILED_BOOT_FILE, &text)?;
+            Ok(lines)
+        });
+        match kept {
+            Ok(n) => format!("; the host's USB log of the wait ({n} lines of {}) is in {HOST_USB_LOG_FILE} and {FAILED_BOOT_FILE}", self.s.usb_log_match),
+            Err(e) => format!("; the host's USB log of the wait was not kept: {e}"),
+        }
+    }
+
     /// The new slot gave no ssh. Sends the phone NOTHING (no reboot, no fastboot verb, no way back) while it waits up to `fallback_wait` seconds for the bootloader's own
     /// fallback to bring Android up and adb to answer; the FIRST thing it does then is the read-only read of the failed boot (pstore first), kept and printed. What it did
     /// is appended to the reason the step stops with; the existing way back runs after, from the watching parent.
@@ -1180,13 +1241,19 @@ impl FlashBoot {
         );
         let waited = match self.android_answers_adb_within(self.s.fallback_wait) {
             Ok(w) => w,
-            Err(e) => return format!("{why}; {e}"),
+            Err(e) => {
+                return format!(
+                    "{why}; {e}{}",
+                    self.the_hosts_usb_log_with_the_failed_boot()
+                )
+            }
         };
         println!("  adb answered {waited} s after the wait began");
-        match self.read_the_failed_boot(FAILED_BOOT_FILE) {
+        let said = match self.read_the_failed_boot(FAILED_BOOT_FILE) {
             Ok(_) => format!("{why}; Android answered adb {waited} s after the wait began and the failed boot was read first: {FAILED_BOOT_FILE} in the run's folder (pstore, command line, boot reason, slot)"),
             Err(e) => format!("{why}; Android answered adb {waited} s after the wait began, but the read of the failed boot did not finish: {e}"),
-        }
+        };
+        format!("{said}{}", self.the_hosts_usb_log_with_the_failed_boot())
     }
 
     /// Waits, calling nothing that could restart the phone (`adb get-state` and the listing of fastboot's devices only read), until adb says `device`: the seconds it took. A phone that
@@ -1449,6 +1516,32 @@ impl FlashBoot {
 
 /// The file the read is kept in, in the run's folder (the console of the new slot's boot, when Android's kernel kept it).
 pub const FAILED_BOOT_FILE: &str = "failed-boot-read.txt";
+
+/// The lines of a journal text (`journalctl -k --since @SINCE`) that carry `matches` (`usb 3-2`), with the phone's serial number redacted, under a heading that says what they are; and how many there are.
+/// No line is said so: the host saw no USB event of the phone, which is itself the reading.
+pub fn usb_log_section(journal: &str, since: i64, matches: &str) -> (String, usize) {
+    let lines: Vec<String> = journal
+        .lines()
+        .filter(|l| l.contains(matches))
+        .map(|l| match l.find("SerialNumber: ") {
+            Some(at) if !l[at..].starts_with("SerialNumber: REDACTED") => {
+                format!("{}SerialNumber: REDACTED", &l[..at])
+            }
+            _ => l.to_string(),
+        })
+        .collect();
+    let head = format!("---host-usb-log (journalctl -k --since @{since}, lines with '{matches}')");
+    if lines.is_empty() {
+        (
+            format!(
+                "{head}\n(no line: the host saw no USB event of the phone's port since the switch)"
+            ),
+            0,
+        )
+    } else {
+        (format!("{head}\n{}", lines.join("\n")), lines.len())
+    }
+}
 
 /// The pstore of Android's kernel: the previous boot's console is `console-ramoops-0` there, until the next restart.
 const PSTORE: &str = "/sys/fs/pstore";
@@ -2225,6 +2318,29 @@ mod tests {
             .split_whitespace()
             .any(|w| w == "walleye.booted-slot"));
     }
+
+    /// The gate on the stage 2 DEBUG image of the lab (item walleye-stage2-debug-image): its init passes the gate too, and its command line carries both words, walleye.booted-slot and walleye.debug.
+    #[test]
+    fn the_init_gate_accepts_the_stage_2_debug_image_of_the_lab() {
+        let home = std::env::var("HOME").unwrap_or_default();
+        let root = format!("{home}/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-debug/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-debug.img");
+        if !std::path::Path::new(&root).exists()
+            || Command::new("lpoco-bringup")
+                .arg("--version")
+                .output()
+                .is_err()
+        {
+            eprintln!("NOT KNOWN YET: the lab's stage 2 debug image or lpoco-bringup is not on this machine: the init gate is not run on it here");
+            return;
+        }
+        let (f, _d) = bench_image("gate3", "b", Some(root));
+        (f.the_init_accepts_the_slot_it_is_booted_from())().unwrap();
+        let bytes = std::fs::read(&f.s.image).unwrap();
+        let cmdline = crate::rootfs_boot::header_cmdline(&bytes).unwrap();
+        for word in ["walleye.booted-slot", "walleye.debug"] {
+            assert!(cmdline.split_whitespace().any(|w| w == word), "{word}");
+        }
+    }
     #[test]
     fn an_init_passes_the_gate_only_when_it_declares_that_it_mounts_the_booted_slot() {
         let declared = format!(
@@ -2832,6 +2948,17 @@ mod tests {
         s.fallback_wait = fallback_wait;
         f.s = std::rc::Rc::new(s);
         f.lab = Lab::new(f.s.clone());
+        // the host side (item walleye-stage2-debug-image): the switch was made at a time, and the host's journal has the phone's port lines among others
+        f.lab.save(SWITCHED_AT_FILE, "1700000000").unwrap();
+        executable(
+            &d.join("journalctl"),
+            &format!(
+                "#!/bin/sh\necho \"$@\" >> {d}/journalctl.calls\ncat {d}/journal.txt\n",
+                d = d.display()
+            ),
+        );
+        std::fs::write(d.join("journal.txt"), host_journal()).unwrap();
+        f.journalctl = d.join("journalctl").to_string_lossy().into_owned();
         f.android = Android::new(f.s.clone(), f.lab.clone());
         (f, d)
     }
@@ -2893,7 +3020,9 @@ mod tests {
             "{said}"
         );
         assert!(!adb_calls(&d).contains(" shell "), "{}", adb_calls(&d));
-        assert!(!f.s.out.join(FAILED_BOOT_FILE).exists());
+        assert!(!std::fs::read_to_string(f.s.out.join(FAILED_BOOT_FILE))
+            .unwrap()
+            .contains("pstore"));
         assert!(!ssh_calls(&d).contains("walleye-reboot"));
     }
 
@@ -2945,6 +3074,120 @@ mod tests {
         assert!(text.contains("---pstore:priv.pem"), "{text}");
         let kept = std::fs::read_to_string(f.s.out.join("closed.txt")).unwrap();
         assert!(kept.contains("Permission denied") && kept.contains("---pstore:priv.pem"));
+    }
+
+    // ---- the host's USB log of the wait (item walleye-stage2-debug-image) ----
+
+    /// What the lab host's `journalctl -k` printed in a real run (research walleye-first-fastboot-boot, 2026-11-18, c5: 21 lines of 3-2, the phone's serial among them) and one line that is not the phone's.
+    fn host_journal() -> String {
+        format!(
+            "Nov 18 16:03:59 grig kernel: nvme nvme0: the line of another device\n{}",
+            include_str!(
+                "../../../research/walleye-first-fastboot-boot/2026-11-18/c5-host-journal.txt"
+            )
+        )
+    }
+
+    #[test]
+    fn the_hosts_log_keeps_the_lines_of_the_phones_port_and_redacts_its_serial() {
+        let (text, n) = usb_log_section(&host_journal(), 1_700_000_000, "usb 3-2");
+        assert_eq!(n, 21, "{text}");
+        assert!(
+            text.starts_with(
+                "---host-usb-log (journalctl -k --since @1700000000, lines with 'usb 3-2')\n"
+            ),
+            "{text}"
+        );
+        assert!(
+            !text.contains("nvme") && !text.contains("FA81N1A00790"),
+            "{text}"
+        );
+        assert!(
+            text.contains("usb 3-2: SerialNumber: REDACTED")
+                && text.contains("idVendor=18d1, idProduct=4ee0"),
+            "{text}"
+        );
+    }
+
+    #[test]
+    fn a_host_that_saw_no_usb_event_of_the_phone_says_so_in_words() {
+        let (text, n) =
+            usb_log_section("Nov 23 15:12:40 grig kernel: nvme nvme0: x\n", 5, "usb 3-2");
+        assert_eq!(n, 0);
+        assert!(
+            text.contains("no line: the host saw no USB event"),
+            "{text}"
+        );
+    }
+
+    #[test]
+    fn no_ssh_keeps_the_hosts_usb_log_in_its_own_file_and_in_the_failed_boot_file_after_the_pstore()
+    {
+        let (f, d) = bench_no_ssh("host-log", true, 5);
+        let said = (f.the_new_slot_boots_and_the_lab_logs_in())().unwrap_err();
+        assert!(
+            said.contains("21 lines of 3-2") && said.contains("host-usb-log.txt"),
+            "{said}"
+        );
+        let own = std::fs::read_to_string(f.s.out.join(HOST_USB_LOG_FILE)).unwrap();
+        assert!(
+            own.starts_with("---host-usb-log") && !own.contains("FA81N1A00790"),
+            "{own}"
+        );
+        let kept = std::fs::read_to_string(f.s.out.join(FAILED_BOOT_FILE)).unwrap();
+        assert!(
+            kept.starts_with("---pstore-listing") && kept.contains("\n---host-usb-log"),
+            "{kept}"
+        );
+        assert!(kept.find("---pstore-listing").unwrap() < kept.find("---host-usb-log").unwrap());
+        // the journal is read from the switch on, kernel messages only, and nothing is sent to the phone for it
+        let j = std::fs::read_to_string(d.join("journalctl.calls")).unwrap();
+        assert_eq!(j.trim(), "-k --no-pager --since @1700000000", "{j}");
+    }
+
+    #[test]
+    fn no_ssh_and_no_adb_still_keeps_the_hosts_usb_log_and_reads_nothing_of_the_phone() {
+        let (f, _d) = bench_no_ssh("host-log-no-adb", false, 1);
+        let said = (f.the_new_slot_boots_and_the_lab_logs_in())().unwrap_err();
+        assert!(
+            said.contains("nothing was read") && said.contains("host-usb-log.txt"),
+            "{said}"
+        );
+        let kept = std::fs::read_to_string(f.s.out.join(FAILED_BOOT_FILE)).unwrap();
+        assert!(
+            kept.starts_with("---host-usb-log") && !kept.contains("pstore"),
+            "{kept}"
+        );
+    }
+
+    #[test]
+    fn a_journal_that_cannot_be_read_is_said_and_does_not_hide_the_failed_boot_read() {
+        let (mut f, _d) = bench_no_ssh("host-log-broken", true, 5);
+        f.journalctl = "/nonexistent/journalctl".into();
+        let said = (f.the_new_slot_boots_and_the_lab_logs_in())().unwrap_err();
+        assert!(
+            said.contains("the host's USB log of the wait was not kept")
+                && said.contains("read first"),
+            "{said}"
+        );
+        assert!(std::fs::read_to_string(f.s.out.join(FAILED_BOOT_FILE))
+            .unwrap()
+            .starts_with("---pstore-listing"));
+    }
+
+    #[test]
+    fn the_switch_writes_the_time_the_host_log_starts_from() {
+        let (f, d) = bench("switch-time", "b");
+        f.lab.save(ANDROID_SLOT_FILE, "b").unwrap();
+        (f.the_boot_image_is_flashed())().unwrap();
+        std::fs::write(d.join("out").join("parts-readback.txt"), "read back\n").unwrap();
+        (f.the_slot_is_made_active())().unwrap();
+        let at: i64 = std::fs::read_to_string(d.join("out").join(SWITCHED_AT_FILE))
+            .unwrap()
+            .trim()
+            .parse()
+            .unwrap();
+        assert!((at - now_epoch().unwrap()).abs() < 60);
     }
 }
 

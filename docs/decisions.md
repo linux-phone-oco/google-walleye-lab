@@ -3226,3 +3226,31 @@ Scope
 
 Tracked by
 : walleye-stage2-pstore-first-on-fallback
+
+
+<a id="2026-11-23-walleye-stage2-debug-init-beside-the-root-init"></a>
+### 2026-11-23-walleye-stage2-debug-init-beside-the-root-init
+
+Date
+: 2026-11-23
+
+Brief
+: The stage 2 debug image has its own init file, build/initramfs-root-debug/init: the root init plus two blocks behind the word walleye.debug; the run declares it by one line of device.toml
+
+Decision
+: build/initramfs-root-debug/init is the root init, byte for byte, plus two DEBUG blocks that act only with walleye.debug on the command line. With the word: busybox watchdog petters on every watchdog device (looked for again every second; timeout = the driver's max_timeout, at most 600 s), a USB gadget (ECM+ACM, 172.16.43.1, telnet root shell, no password) up before the card is touched, every init line in /tmp/walleye-debug.log, a refusal HOLDS (walleye.hold, default 900 s, longer while /tmp/stay) instead of restarting; after the mount the gadget stays walleye.debugwait seconds (default 20) for a login, is RELEASED (the root's own unit takes the controller), the petters go on through the hand-over and end in the hold script. Image [images.ufs-root-booted-slot-debug] ec741a98 (kernel, dtb, header, footer e337de53's); install-boot-on-the-pixel-2 and its rehearsal name it by one line each; every run's step 21 keeps the host's journalctl -k lines of 3-2 since the set_active in host-usb-log.txt and failed-boot-read.txt (usb_log_match in device.toml). Proof: tests/host/ufs-root-debug-init.sh (QEMU, dummy_hcd) and the root init's whole proof with this init in its place.
+
+Why
+: Run 7 left no trace: no USB device of ours for 67 s and a watchdog bite after about 35-40 s; the gadget is brought up by the Alpine rootfs after switch_root, so a failure before it looks the same as no kernel. An image that makes the normal boot enterable lets the next run say what happened instead of guessing, and covers the two top causes at once (a watchdog the bootloader arms and our init does not pet; a cold USB or root mount that fails).
+
+Rejected
+: Editing build/initramfs-root/init in place: e337de53 and c3373d71 would no longer rebuild (decision 2026-11-23-walleye-display-init-beside-the-root-init). Keeping the debug gadget after the hand-over: the root's own gadget unit would find the controller taken, and a root that mounts is the case we already know. Setting the watchdog timeout by hand with a shell loop only: the driver's own longest timeout is the margin when the init is slow. A fix of a guessed cause (watchdog, reboot reason, UFS) before reading: decision 2026-11-23-walleye-stage2-no-ssh-read-pstore-first.
+
+About
+: walleye-bootimage
+
+Research
+: walleye-stage2-run7-host-usb-log-no-gadget
+
+Tracked by
+: walleye-stage2-debug-image
