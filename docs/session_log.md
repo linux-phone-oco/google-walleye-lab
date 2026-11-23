@@ -6058,3 +6058,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-0900-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Took walleye-ufs-try-2-run-1-gpt-equal (walleye-try-ufs-match is in-progress after run 1 and says no second run without the coordinator, so not rerun): sda GPT EQUAL, boot chain read-back equal, item done. Phone on Android slot b, stock kernel, nothing flashed, adb root left on (Android is throw-away).
+
+Considered
+: next: the coordinator decides try 2 run 2 (longer sample timeout on step 16) on walleye-try-ufs-match; walleye-install-flash-boot waits on the stage 2 image rehearsal; then walleye-slpi-boot-qrtr, nfc node
+
+About
+: walleye-first-fastboot-boot
