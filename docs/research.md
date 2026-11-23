@@ -5868,3 +5868,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ramroot-b-a5-v5-run-2-check-15-passes"></a>
+### walleye-ramroot-b-a5-v5-run-2-check-15-passes
+
+Date
+: 2026-11-23
+
+Brief
+: B-a5 83b9c4c6 unattended: checks 1-17 pass, the prompt is the last row of the glass text; it stops at the author's look (ask 18); phone back on Android
+
+Question
+: With the end-marker fix, does B-a5 on rootfs v5 pass check 15 and the rest before the look?
+
+Found
+: Run 2026-11-23 07:45: steps and checks 1-17 passed (13 of 13 modules, three signs zero, fbcon, getty tty1, check 15 'walleye login:' last non-blank row, kernel log clean, deadman held); ask 18 unanswered after 300 s as designed; phone sent back, Android adb device, slot b, nothing flashed. Two traps met: rust-script served a cached build of the procedure until run with --force (the fixed marker only took effect then); a fresh worktree needs build/images symlinked to ~/Projects/walleye-build. Not known yet: what the author sees on the glass (item walleye-display-look-b2 and the look for this image).
+
+About
+: walleye-display-s6e3fa5
