@@ -11634,3 +11634,81 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-ufs-pin-100mhz-read"></a>
+### Read why 'userspace + set_freq 50 MHz' reads back 100 MHz on our kernel, from our v7.3 source and the captured text, before the pin is changed again
+
+Status
+: open
+
+Note
+: Run 6 of the ramped try (the keeper local_ca73871e, PR 968) stopped at step 16 before any load: the pin read back 100 MHz. A stop is read before the fix (decision 2026-11-23-a-stop-is-read-before-the-fix): this research first, then the builder item walleye-ufs-pin-print-its-evidence. A turning point of the UFS cause: the capable model.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row with sources: (1) the v7.3 path from 'echo userspace > governor' and 'echo 50000000 > userspace/set_freq' to the ufshcd devfreq target (drivers/devfreq/governor_userspace.c, devfreq.c update_devfreq/min_freq/max_freq clamps, drivers/ufs/core/ufshcd.c ufshcd_devfreq_target, the OPP table or clk-scaling frequencies the driver registers) and what 50 MHz becomes there; (2) run 6's printed text (research walleye-ufs-try-2-run-6-pin-reads-back-100mhz): the clock was 50 MHz at idle (check 15), 100 MHz right after the governor change, max_freq 200 MHz: which line of the source explains each; (3) Android 4.4.302 for the same two writes (android:path@113bd1cfa6f5), same question; (4) says what the step must assert (the node's min_freq read back, not 50 MHz typed), whether 100 MHz is G1 or G3 on this card, and what the next run must capture (available_frequencies, min_freq, max_freq, governor, cur_freq, power_info/gear before and after the write); NOT KNOWN stays NOT KNOWN; no phone
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-pin-print-its-evidence"></a>
+### Step 16 prints its evidence in the stop line: available_frequencies, min/max_freq, governor and cur_freq before and after the write, power_info/gear; the asserted value comes from the research
+
+Status
+: open
+
+Note
+: After the research. Run 6 stopped with the evidence missing from its line (min_freq and available_frequencies were not printed): the next run must say them.
+
+Blocked by
+: walleye-ufs-pin-100mhz-read
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) the step captures to files and prints in its refusal line: governor, available_frequencies, min_freq, max_freq, cur_freq BEFORE the governor write, after the governor write, after set_freq, and power_info/gear before and after; (2) the value it asserts is what the research row walleye-ufs-pin-100mhz-read says (min_freq read from the node, or another way it names), with that row cited in the step's expectation; (3) a host test from run 6's captured text (the 100 MHz refusal) and a stand-in-free fixture of the new capture format once a run prints it; dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 1
+
+
+<a id="walleye-go-is-consumed-by-its-run"></a>
+### A go for one run ends with that run: the run's record closes the go in the same landing, so a second keeper session cannot reuse it
+
+Status
+: open
+
+Note
+: Why a second keeper could start (2026-11-24 00:07): the launcher task refuses a second run only while a session of it is RUNNING; local_4cf13bce was idle between turns waiting for the go, so my dispatch of local_ca73871e started a second live session. The phone lease (lpoco lab keeper take) was taken and released in turn, so no two touched the phone at once, but the one go was used twice (run 6, then run 7 by the older keeper which had not seen run 6). The coordinator's rule from now: before starting the keeper, list sessions of the task that are not ended and message the idle one instead of starting another; the author's rule of 2026-11-24 (one agent at a time) agrees.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) the keeper's rule in the item's note and the brief: the landing of a run under a go ends that go (ikb backlog-go --until the run's end) and says so in the record; (2) the procedures' go gate refuses a go whose item has a run recorded after the go was set (a research row or session-log entry of the run, read by id), with a message that names it: 'the go of ITEM was set at T and run R used it at T2: the coordinator re-issues it'; (3) a host test from the two keeper sessions of 2026-11-24 (run 6 by local_ca73871e at 00:10, run 7 started by local_4cf13bce at 00:15 on the same go): the second is refused; dry run, tests, clippy, fmt, review; no phone
+
+Rank
+: 2

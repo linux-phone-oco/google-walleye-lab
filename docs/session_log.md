@@ -7354,3 +7354,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-24-0020-two-keepers-one-go"></a>
+### Two keeper sessions were live, taking the phone lease in turn; the one go was used twice
+
+Entry date
+: 2026-11-24
+
+Done
+: Found at 00:17 on the Top Coordinator's word: local_4cf13bce (dispatched 22:47, stopped at check 6 by the short sha, idle waiting for the go) and local_ca73871e (my dispatch at 00:07, the launcher refused nothing because the first was not running): ca73871e ran run 6 (00:10, step 16 refused, pin read back 100 MHz, PR 968) and ended 00:18; 4cf13bce, woken by the re-issued go, started run 7 at 00:15 (RAM boot, hold on, at 'the link is read'). The phone lease was taken in turn, never at once. Not stopped: a kill mid-run leaves the phone held in the debug image; the older keeper was told to finish its way back, record only what differs, run nothing more, and end.
+
+Considered
+: Gap closed three ways: my rule (message the idle keeper, never dispatch a second), the go is consumed by its run (item walleye-go-is-consumed-by-its-run), and the author's one-agent-at-a-time rule; the launcher itself (refuse while a session of the task is not ended) is asked of orchestration.
+
+Rejected
+: Stopping the live run's session at once: it leaves the held RAM-booted phone without its way back.
+
+About
+: walleye-bootimage
