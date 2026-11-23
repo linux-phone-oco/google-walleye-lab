@@ -6426,3 +6426,25 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stage2-slot-a-no-ssh-causes-ranked"></a>
+### walleye-stage2-slot-a-no-ssh-causes-ranked
+
+Date
+: 2026-11-23
+
+Brief
+: Why slot a gave no ssh after a normal boot: ranked causes (bootloader-armed watchdog, cold USB, no start at all, init path) and ONE try that tells them apart: set_active a again, read pstore at once
+
+Question
+: Why did slot a not answer ssh after a normal boot of image e337de53 when fastboot boot of the same kernel (c3373d71, stage 1) did, in run 4?
+
+Found
+: FACTS (read in this lab, no phone): (1) Stage 1 from RAM: ssh login answered about 12 s after the boot started (rootfs-boots-run-7.log 31->32), so the 170 s window is not too short. (2) Same kernel, dtb and init in both; the stage 2 image differs by the word walleye.booted-slot and the bootloader's added words. (3) bootreason=watchdog (AOSP: the bootloader's reading of a hardware watchdog reset) with no panic= on our command line: something bit; a stuck kernel does not reset by itself. (4) A bite with the cable in boots the charger screen in our own earlier PMIC-wdt try (walleye-wdt-reset-boots-charger-mode), here the bootloader fell to b by itself: the fall-back came from the retry counter (slot a retry 1 before set_active, 0 and unbootable after), not a power press. (5) The dts has kpss-wdt (0x17817000) and pm8998_wdt enabled with wakeup-source but our init opens neither (the stage 2 init is the root's OpenRC), so no software of ours arms a watchdog. NOT KNOWN YET: whether our kernel started (pstore empty because the phone rebooted before it was read), when the bite came. RANKING by what each explains and its cost to test: (b-wdt) 1st: the bootloader arms the apps watchdog for a normal boot (it hands it to Android's msm_watchdog, which pets it) and does not for fastboot boot; our kernel never pets it, so it bites after tens of seconds: explains bootreason=watchdog, the fall-back, and why the same kernel is fine from RAM. Also fits a kernel that was running but the gadget never up. Test: pstore console after the next try: our init lines then a cut-off; and the stock fdt's qcom,bark-time and pet-time read from Android b (read-only). (b-usb) 2nd: cold USB: dwc3/qusb2phy from a cold start (in fastboot boot the bootloader's USB is up and handed over; a normal boot has it off). Cannot explain bootreason=watchdog alone (a missing gadget does not reset the phone) unless (b-wdt) also holds, so it ranks with (b-wdt), not above. Test: the same pstore: dwc3/udc lines and the gadget unit's lines after the root mount. (a) 3rd: the words root=PARTUUID, init=/init, want_initramfs, rootwait, ro: with an initramfs the kernel ignores root=, runs /init as the init= word says; our init reads only androidboot.slot_suffix (_a) and walleye.* words, so low. Same pstore shows it (init line mounts-the-booted-slot). (c) 4th: dtbo_idx=3 overlay on a normal boot: the same dtbo stage 1 got from the matched build; whether fastboot boot applies it is not known yet; a missing overlay changes nodes, shows in the kernel log. (d) 5th: AVB orange with algorithm NONE: an unlocked device boots a failed check with a warning (orange); the measured boottime SW:10024 ms in Android's own orange boot is the warning screen wait. A refusal would be Load Error (seen with stage-1-like images: walleye-try-s1-gadget-up) and no reset, so it does not explain the watchdog. (e) init booted-slot path never run on hardware: only a guard that fails closed (refuse), not a reset by itself. TO TELL APART with ONE try and no flash (boot_a already holds e337de53): the keeper makes slot a active again (fastboot set_active a, which gives slot a its tries back), waits for the fall-back to Android b WITHOUT any reboot of b, and reads /sys/fs/pstore/console-ramoops by adb root at once (ramoops 0xa1100000 is in our dts as in the stock one; the kernel prints into it). What it must show: NO file or no kernel lines = the kernel never started or ramoops not kept: candidates (c),(d),(e) or the region not surviving the bite (then the t3 proof walleye-pstore-t3 decides: its marker). Our lines up to the root mount and the usb-gadget unit then a cut-off = our kernel ran: (b-wdt) when the last line time is under about 60 s and no dwc3 error; (b-usb) when dwc3/qusb2 errors or no udc line appear; a refuse line = (e). Read-only, from Android b, before that: the stock fdt's watchdog nodes (/proc/device-tree wdt bark/pet), the stock kernel cmdline above, nothing else. Material: research/walleye-bootimage/2026-11-23/.
+
+Sources
+: src-android-boot-reason
+
+About
+: walleye-bootimage

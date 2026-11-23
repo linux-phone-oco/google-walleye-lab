@@ -1663,3 +1663,16 @@ By
 
 Takes
 : bootable and successful attributes per slot; an unsuccessful slot after several boot attempts is marked unbootable by the bootloader
+
+
+<a id="src-android-boot-reason"></a>
+### Canonical boot reason (AOSP)
+
+Url
+: https://source.android.com/docs/core/architecture/bootloader/boot-reason
+
+By
+: Android Open Source Project
+
+Takes
+: ro.boot.bootreason=watchdog is the bootloader's reading of a hardware watchdog reset, in the kernel set of reasons: it says a watchdog bit, not that our kernel panicked or started

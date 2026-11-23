@@ -10478,10 +10478,10 @@ Rank
 ### Why slot a did not answer ssh after a normal boot of our image when fastboot boot of the same kernel does: the causes ranked from sources and from what the bootloader adds to a normal boot
 
 Status
-: open
+: done
 
 Note
-: From stage 2 run 4: steps 1-20 passed, slot a never answered ssh at 172.16.43.1 in 170 s, bootreason=watchdog, the bootloader fell back to b by the retry counter (measured: no hand needed), NOT KNOWN YET whether our kernel started. The coordinator's own thought, to be tested not assumed: a normal boot starts from a cold USB state that a fastboot boot never has.
+: answered by research walleye-stage2-slot-a-no-ssh-causes-ranked; next: item walleye-stage2-slot-a-pstore-try
 
 About
 : walleye-bootimage
@@ -10497,3 +10497,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-stage2-slot-a-pstore-try"></a>
+### Stage 2 slot a try 2: set_active a again (no flash), read pstore from Android b before any reboot
+
+Status
+: open
+
+Note
+: From research walleye-stage2-slot-a-no-ssh-causes-ranked. boot_a already holds e337de53, no flash. set_active a, wait for the fall-back to b, do NOT reboot b, adb root: cat /sys/fs/pstore/console-ramoops*, ls /sys/fs/pstore, and the stock fdt's qcom,wdt bark/pet values. Under the stage 2 go and the way back of item walleye-install-flash-boot-run; the coordinator opens the go.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: tests/health: the kept text of /sys/fs/pstore/console-ramoops read from Android b after the fall-back, plus the stock fdt's watchdog nodes; slot flags and GPT as before except slot a's bits
+
+Rank
+: 2
