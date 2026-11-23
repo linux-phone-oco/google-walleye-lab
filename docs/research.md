@@ -7053,3 +7053,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-wifi-needs-the-modem"></a>
+### walleye-wifi-needs-the-modem
+
+Date
+: 2026-11-23
+
+Brief
+: Wi-Fi on the WCN3990 is a QMI client of the modem's WLFW service: walleye-wifi-wcn3990 cannot be proven before the modem runs (walleye-modem-mss-proof)
+
+Question
+: What must run before ath10k snoc can scan on the Pixel 2, and does walleye-wifi-wcn3990's blocked_by list say so?
+
+Found
+: Read in the kernel clone (linux-phone-oco/linux, 2e6c6521df86): msm8998.dtsi wifi@18800000 is qcom,wcn3990-wifi (disabled, memory-region wlan_msa_mem, no-msa-ready-indicator); drivers/net/wireless/ath/ath10k/qmi.c sends QMI_WLFW_MSA_INFO/MSA_READY/BDF_DOWNLOAD requests, so ath10k talks over qrtr to the WLFW service that the modem hosts; snoc.c ath10k_snoc_modem_notify waits for the modem's running event. So the item needs remoteproc_mss running (walleye-modem-mss-image, walleye-modem-mss-proof, both open), qrtr, and the board data file; the 2026-11-23 slpi decision deletes wlan_msa_mem, which this item must restore as the phone's own block. The item's blocked_by (ufs-readonly, dmesg-clean, both done) left out the modem, so the ready query shows it ready though it is not buildable. Not measured: the phone's wlan_msa_mem address and the firmware file names, to read from its own dtbo.
+
+About
+: walleye-first-fastboot-boot
