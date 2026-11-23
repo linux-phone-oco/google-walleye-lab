@@ -9730,7 +9730,7 @@ Status
 : in-progress
 
 Note
-: HELD 2026-11-23 (the coordinator): off the phone queue until item walleye-ufs-try-2-sample-step lands (run 1 stopped at step 16; GPT re-read EQUAL, research walleye-ufs-try-2-run-1-gpt-equal, PR 776). Then the coordinator puts it back on the phone queue (needs phone, rank 1) and reopens the go if the window of 2026-11-23T11:05:10+01:00 has passed. | Run 1 of try 2 stopped at step 16 (sample not answered in 10 s); research walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load. No second run without the coordinator.
+: UFS TRY 2 RUN 2 IS READY (the coordinator, 2026-11-23 08:36): the sample step is fixed (PR 778: the load state is polled on its own shell, gear reads wait up to 30 s, unanswered reads are kept with times in gear-load.txt; checks 16-19 are reachable in the 23-step dry run). The go is open until 2026-11-23T11:05:10+01:00 for the matched image 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 ONLY, under the author's standing go. Run 1 (PR 772) read 1-15 and the GPT re-read was EQUAL (PR 776). KEEPER: take it AFTER rerun 6 of walleye-install-rootfs-boots-try (one lease, one run at a time); the run sheet is below (battery rule first, worktree from main with ln -s ~/Projects/walleye-build build/images, 'boot: starting' and ONE result line to the Top Coordinator local_12b18c70-1b6d-4783-bb6f-50113ab63250); a failed check: the way back runs, write the research row, no third run without the coordinator. | HELD 2026-11-23 (the coordinator): off the phone queue until item walleye-ufs-try-2-sample-step lands (run 1 stopped at step 16; GPT re-read EQUAL, research walleye-ufs-try-2-run-1-gpt-equal, PR 776). Then the coordinator puts it back on the phone queue (needs phone, rank 1) and reopens the go if the window of 2026-11-23T11:05:10+01:00 has passed. | Run 1 of try 2 stopped at step 16 (sample not answered in 10 s); research walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load. No second run without the coordinator.
 
 About
 : walleye-first-fastboot-boot
@@ -9738,11 +9738,14 @@ About
 Opened
 : 2026-11-23
 
+Needs
+: phone
+
 Proof
 : the image's own dmesg: UFS_HW_VERSION line, PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge
 
 Rank
-: 1
+: 2
 
 Witness
 : person
