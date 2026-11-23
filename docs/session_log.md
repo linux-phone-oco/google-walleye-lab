@@ -7087,3 +7087,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-2025-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Stage 2 run 10 made: step 21 PASSED (slot _a from root=PARTUUID = current-slot, our Alpine root from sda22, ssh login); check 22 stopped on sdb: xbl_a/xbl_b are on different disks, the checker pairs per disk; way back ran, phone on Android slot b, adb device; boot_a holds image a0a55cd0
+
+Considered
+: next: builder makes check 22 pair xbl_a/xbl_b across sdb and sdc (test on the captured gpt files of install-boot-20261123-201216), then one more run needs a fresh go. Lease released.
+
+About
+: walleye-display-s6e3fa5

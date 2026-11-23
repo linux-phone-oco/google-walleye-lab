@@ -6952,3 +6952,22 @@ Stand-in phone: the repeat harness plus an ssh printing run 9 text and sda GPT, 
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-stage2-run10-step21-passes-check22-cross-disk-xbl"></a>
+### walleye-stage2-run10-step21-passes-check22-cross-disk-xbl
+
+Date
+: 2026-11-23
+
+Brief
+: Run 10 (a0a55cd0): step 21 passes (slot _a from root=PARTUUID = current-slot, ssh as root); check 22 stops: sdb holds only xbl_a, its A/B partner xbl_b is on sdc
+
+Question
+: With step 21 taking the slot from root=PARTUUID/DT, does the whole command pass, and is the phone's DT slot_suffix present?
+
+Found
+: Run 10, 2026-11-23 20:12-20:17, go open (to 22:07), image a0a55cd0 only. Before: adb root on Android b: /proc/device-tree/firmware/android has no slot_suffix (only compatible, name, phandle, vbmeta/), so on this phone the DT is NOT a slot source; ro.boot.slot_suffix _b. Setup note: build/ artifacts (image, walleye-reboot) are not in a fresh worktree; copied from ~/Projects/walleye-build, sha equal to device.toml's (a0a55cd0..., fd73925b...). Checks 1-20 passed (boot_a already held the image, flash a no-op, set_active a). Step 21: USB 20:14:06 debug init (21 s), 20:14:50 'Pixel 2 walleye (Alpine)'; log: booted slot _a from root=PARTUUID (answered: root=PARTUUID: _a), equal to fastboot's current-slot; /dev/sda22 ro under the overlay; cmdline carries root=PARTUUID=00000016-..., still cut at androidboot.pk=g-pxl-p (no slot_suffix). Check 22 (GPT changed only by the slot switch): sda passes (42 entries' slot bits and type GUIDs, CRCs right); stops at sdb: 'primary: the slot bits of xbl_a changed and it has no A/B partner'. READ: sdb holds only xbl_a and sdc only xbl_b (decoded from gpt-before/new-slot: the type-GUID bytes differ at the same offsets on both disks), so the bootloader's set_active flipped the xbl pair across two disks, which is what an OTA switch does; the checker pairs a/b within one disk, so it refuses the cross-disk pair. Not changed after the stop; the fix is a checker pairing across disks, for the builder, with a test on this captured text. Way back: ran after the stop (RESTART2, fastboot reboot leg 1); phone on Android, ro.boot.slot_suffix _b, boot_completed 1; flags before: a retry 1 successful no, b successful yes. Files: ~/lab-material/walleye/install-boot-20261123-201216 (new-slot-read.txt, new-slot-source.txt, host-usb-log.txt, gpt-before.txt, gpt-new-slot.txt, slots-*.txt); whole stdout in the keeper's build log stage2-run10.log.
+
+About
+: walleye-display-s6e3fa5
