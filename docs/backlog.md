@@ -9593,48 +9593,14 @@ Rank
 : 3
 
 
-<a id="walleye-install-flash-boot-run"></a>
-### Run stage 2 once: install-boot-on-the-pixel-2.rs under the coordinator's go (flash boot_<other>, set_active, observe, set_active back)
-
-Status
-: open
-
-Note
-: THE RULE FOR OPENING THE STAGE 2 GO (the Top Coordinator, 2026-11-23, after reading PRs 798 and 799 back as merged): keep the go CLOSED until the RESTART2 tool (item walleye-reboot-reason-restart2-tool) has had its ONE try in RAM (item walleye-reboot-bootloader-from-linux-try, a stage 1 run whose way back sends reboot(2) RESTART2 'bootloader'). If 'reboot bootloader' then REACHES FASTBOOT: the coordinator opens the go ITSELF under the standing rule (decision 2026-11-22-walleye-author-go-per-stage-not-per-step), naming the stage 2 image's sha256 (e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1) with a short until, the explicit fastboot set_active b as the way back and the bootloader's retry counter as the second path. If it does NOT reach fastboot: the coordinator brings the Top Coordinator the RESIDUAL COST IN ONE LINE (a hand on the power key in branch G, a hard hang; never a brick) and the Top takes it to the author; the go is not opened before his answer. Research: walleye-stage2-forced-way-back-argument-finding. | Built by item walleye-install-flash-boot-procedure. Never the bootloader partitions, the GPT written by our code, erase or purge. If the phone does not reach the bootloader from our kernel the run ends with the hand step and its exact fastboot command; the keeper does not improvise. | 2026-11-23: THE STAGE 2 GO STAYS CLOSED (the Top Coordinator, after rerun 6: the bootloader was not reached by 'reboot bootloader'): not opened before the Top has seen the argument of item walleye-stage2-forced-way-back-argument and/or the reboot reason works (item walleye-reboot-reason-fix, then the try).
-
-Waits
-: the stage 1 proof, UFS try 2, and the coordinator's go naming the boot image's sha256 (ikb backlog-go on this item); the rehearsal first (procedures/rehearse-install-boot-on-the-pixel-2.rs, no go needed)
-
-Blocked by
-: walleye-install-stage2-boot-image,walleye-install-stage2-way-back-restart2
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-23
-
-Needs
-: phone
-
-Proof
-: the one command passes every step: the boot of the new slot from the card on ssh, the GPT changed only by the slot switch, the way back set_active, the phone on Android, the boot chain as stored
-
-Rank
-: 3
-
-Witness
-: person
-
-
 <a id="walleye-reboot-bootloader-from-linux-try"></a>
 ### Our kernel reaches the bootloader again by itself: reboot-mode in the pon node, tried from a RAM boot, so stage 2's way back is not a hand step
 
 Status
-: open
+: done
 
 Note
-: From the stage 2 builder (PR 760, research walleye-install-flash-boot-procedure-built): the stage 2 command's way back needs our kernel to restart into the bootloader (fastboot set_active <Android's slot>), and that is NOT KNOWN YET (reboot-mode in the pon node; CONFIG_POWER_RESET_QCOM_PON=y is already in build/walleye.config). The coordinator's rule (the author's: attend only when the step is one command away): the run must not end in a hand step, so this try comes BEFORE the stage 2 run and is hands-free. The image with reboot-mode comes from item walleye-install-stage2-init-booted-slot (part two); a keeper tries it by RAM boot, one command. | 2026-11-23 UPDATE: no dts change needed (mode-bootloader=<2> is in the pon node from mainline, PR 765). The try is the NEXT STAGE 1 RUN on the rebuilt ufs-root image (item walleye-install-stage2-boot-image), whose way back tries reboot bootloader first (item walleye-way-back-reboot-bootloader-first): one command, no extra visit, a go naming the new image's sha256. | 2026-11-23: its run is RERUN 6 under item walleye-install-rootfs-boots-try (the go carrier of the stage 1 procedure); this item closes when that run's research row says whether the bootloader was reached.
+: DONE 2026-11-23: rerun 7 (PR 814) reached the bootloader from our kernel with the RESTART2 tool; fastboot reboot then left the phone in fastboot for 240 s (not known yet why). Stage 2's go follows on walleye-install-flash-boot-run.
 
 Blocked by
 : walleye-reboot-reason-fix
@@ -10219,3 +10185,34 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-install-flash-boot-run"></a>
+### Run stage 2 once: install-boot-on-the-pixel-2.rs under the coordinator's go (flash boot_<other>, set_active, observe, set_active back)
+
+Status
+: in-progress
+
+Note
+: THE GO IS OPEN FOR STAGE 2 (2026-11-23, the coordinator, under the author's standing go, decision 2026-11-22-walleye-author-go-per-stage-not-per-step, and the Top Coordinator's rule after rerun 7: the bootloader was reached by the RESTART2 tool): the one command procedures/install-boot-on-the-pixel-2.rs for the image whose sha256 is e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1 ([images.ufs-root-booted-slot], verified on disk) and ONLY that image. What it does: reads the slot Android runs from by adb AND fastboot (equal: b), flashes ONE partition, boot_a (allow-list in device.toml), reads it back equal to the image, the bootloader's own fastboot set_active a, the phone boots from the card on ssh (androidboot.slot_suffix=_a, walleye.booted-slot, root system_a read-only under the overlay), then the way back: the lab pushes tools/walleye-reboot to /tmp, runs it (RESTART2 bootloader), fastboot set_active b, fastboot reboot and Android on slot b; the GPT is read whole before and after and may change only by the bootloader's slot switch (slot bits, A/B type GUID swaps, CRCs). NEVER: the bootloader partitions (xbl, abl ...), a GPT write of ours, erase, purge, format, oem; any other partition name than boot_a. READY BECAUSE: the rehearsal passed 17 of 17 on the code of PR 817 (PR 823), the bootloader was reached from our kernel in rerun 7 (PR 814), stage 1 passed 26 of 26 (PR 759). KNOWN RISKS (research walleye-stage2-forced-way-back-argument-finding, PR 799): the counter is the second path (measured retry 1 after set_active, not 7; the behaviour at retry 0 is not measured); a hard hang (reboot -f and sysrq both ignored) needs a hand on the power key, never a brick; fastboot reboot left the phone in fastboot for 240 s in rerun 7 (cause not known yet), the lab's after-stop way back brought Android home. KEEPER: worktree from main with ln -s ~/Projects/walleye-build build/images, rust-script --force, battery rule first, no short timeout (about 15 minutes); tell the Top Coordinator (local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'stage 2: starting' and ONE result line at the end (flashed boot_a, set_active a, booted from the card on ssh, GPT changed only by the switch, way back set_active b, Android on b, boot chain as stored); IF A STEP FAILS the command's own way back runs; do NOT improvise: no other fastboot verb than the command's, no second run; if the command ends with the hand step, print its exact command to the coordinator and the Top and wait; write the research row with every text the phone printed (slots before and after, the fastboot listing, the tool's output) in its material, record, release the lease. If land refuses on generated-data conflicts tell the coordinator the branch. | EARLIER: THE RULE FOR OPENING THE STAGE 2 GO (the Top Coordinator, 2026-11-23, after reading PRs 798 and 799 back as merged): keep the go CLOSED until the RESTART2 tool (item walleye-reboot-reason-restart2-tool) has had its ONE try in RAM (item walleye-reboot-bootloader-from-linux-try, a stage 1 run whose way back sends reboot(2) RESTART2 'bootloader'). If 'reboot bootloader' then REACHES FASTBOOT: the coordinator opens the go ITSELF under the standing rule (decision 2026-11-22-walleye-author-go-per-stage-not-per-step), naming the stage 2 image's sha256 (e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1) with a short until, the explicit fastboot set_active b as the way back and the bootloader's retry counter as the second path. If it does NOT reach fastboot: the coordinator brings the Top Coordinator the RESIDUAL COST IN ONE LINE (a hand on the power key in branch G, a hard hang; never a brick) and the Top takes it to the author; the go is not opened before his answer. Research: walleye-stage2-forced-way-back-argument-finding. | Built by item walleye-install-flash-boot-procedure. Never the bootloader partitions, the GPT written by our code, erase or purge. If the phone does not reach the bootloader from our kernel the run ends with the hand step and its exact fastboot command; the keeper does not improvise. | 2026-11-23: THE STAGE 2 GO STAYS CLOSED (the Top Coordinator, after rerun 6: the bootloader was not reached by 'reboot bootloader'): not opened before the Top has seen the argument of item walleye-stage2-forced-way-back-argument and/or the reboot reason works (item walleye-reboot-reason-fix, then the try).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: the one command passes every step: the boot of the new slot from the card on ssh, the GPT changed only by the slot switch, the way back set_active, the phone on Android, the boot chain as stored
+
+Rank
+: 1
+
+Witness
+: person
+
+Go until
+: 2026-11-23T13:21:56+01:00
