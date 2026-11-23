@@ -1,0 +1,20 @@
+1795432023 start : install boot on the Pixel 2 on google-walleye
+1795432023 start : install boot on the Pixel 2 on google-walleye
+1795432023 begin the battery is good enough: check
+1795432023 ok the battery is good enough: 
+1795432023 begin the image is the declared one, a whole boot partition, its AVB footer verifies: check
+1795432023 ok the image is the declared one, a whole boot partition, its AVB footer verifies: 
+1795432023 begin the image's init accepts the slot it is booted from: check
+1795432023 ok the image's init accepts the slot it is booted from: 
+1795432023 begin the stored boot chain is whole, the ssh key is private and the reboot tool is the declared one: check
+1795432023 ok the stored boot chain is whole, the ssh key is private and the reboot tool is the declared one: 
+1795432023 begin say what to expect: step
+1795432023 ok say what to expect: 
+1795432023 begin the coordinator's go is recorded on the item for this image: check
+1795432023 ok the coordinator's go is recorded on the item for this image: 
+1795432023 begin the phone is on Android, adbd as root: step
+1795432024 ok the phone is on Android, adbd as root: 
+1795432024 begin adb reads the slot Android runs from: check
+1795432024 ok adb reads the slot Android runs from: 
+1795432024 begin the boot partition to be flashed, read now, is its backup; the boot, dtbo and vbmeta partitions are hashed: check
+1795432028 FAIL the boot partition to be flashed, read now, is its backup; the boot, dtbo and vbmeta partitions are hashed: boot_a read now is e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1, the stored backup says 2a5cd3b20ef0da2b272d2dac460f868d4764d8bdb8cb426d62eee568f1344fb5: the flash could not be undone

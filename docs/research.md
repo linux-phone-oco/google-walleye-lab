@@ -6300,3 +6300,25 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-stage2-rerun-2-stops-at-check-9-boot-a-is-the-image"></a>
+### walleye-stage2-rerun-2-stops-at-check-9-boot-a-is-the-image
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 rerun 2 stopped at check 9: boot_a already holds e337de53 (run 1's flash), so the stored backup (2a5cd3b2) no longer equals it; nothing written, phone on Android b
+
+Question
+: Does stage 2 rerun 2 pass with boot_a already flashed by run 1?
+
+Found
+: Checks 1-8 pass (battery, image, init, chain, go, adb slot _b). Check 9 compares boot_a read now with the stored backup of the stock boot_a: read now e337de53446a, backup 2a5cd3b20ef0; it stops 'the flash could not be undone'. The coordinator allowed reflashing the same image, but check 9 refuses before any flash. No fastboot verb ran, nothing written; phone on Android slot b. Per the rule, no third run. Fix is the coordinator's: check 9 must accept boot_a equal to the declared image when the stock backup is on file from before run 1. Full output in material run.log.
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-23-stage2-rerun2/
