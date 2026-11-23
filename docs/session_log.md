@@ -6733,3 +6733,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-walleye-builder-the-kernel-clone-moved-to"></a>
+### walleye-builder: the kernel clone moved to ~/Projects/linux-phone-oco/linux (part B)
+
+Entry date
+: 2026-11-23
+
+Done
+: Listed every branch and worktree of the clone against origin (ls-remote): two were on no remote and are pushed (archive/walleye-dts-polish, wip/walleye/ufs-root-display). mv of the clone, git worktree repair of 14 worktrees (tips and dirty files as before). Paths: google-walleye-lab build/README.md, surya-lab README.md plus a note item for its coordinator, docs rhizoid.graph.toml (paired PRs landed together).
+
+Considered
+: moving linux-v7.3 and surya's two worktrees to the worktree home too
+
+Rejected
+: moving linux-v7.3 (about 30 scripts compute it from WORK_DIR; no gain now) and surya's worktrees (surya is paused; kept in place is the Top's condition-1 option)
+
+About
+: walleye-kernel-dts
