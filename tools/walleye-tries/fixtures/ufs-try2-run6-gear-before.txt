@@ -1,0 +1,7 @@
+dev_pm=ACTIVE
+gear=HS_GEAR1
+lane=2
+link_state=ACTIVE
+mode=FAST_MODE
+rate=HS_RATE_B
+clock_1da4000.ufshc=50000000

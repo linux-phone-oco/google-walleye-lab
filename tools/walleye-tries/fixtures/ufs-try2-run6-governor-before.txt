@@ -1,0 +1,1 @@
+governor simple_ondemand, clock 50000000

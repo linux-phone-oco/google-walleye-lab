@@ -1,7 +1,7 @@
 #!/usr/bin/env rust-script
 //! UFS try 2 as ONE command (item walleye-ufs-try-2-one-command; decisions 2026-11-19-walleye-attended-tries-one-command,
 //! 2026-11-19-walleye-ufs-hold-second-path, 2026-11-19-walleye-ufs-android-derived-solution): the matched UFS-on image booted
-//! once from fastboot, from memory; the card read as in try 1; then the devfreq clock pinned low first (userspace governor, 50 MHz, read back); the link gear and the clock before, during (a ramped, bounded
+//! once from fastboot, from memory; the card read as in try 1; then the devfreq clock pinned low first (userspace governor, set_freq 50 MHz read back, gear HS_GEAR1; evidence kept at each point); the link gear and the clock before, during (a ramped, bounded
 //! read-only O_DIRECT read of one disk) and 2 s after it; the disk's GPT hashed before and after; the slots' flags before and after.
 //! The boot runs only while the author's go is recorded on the item the manifest names (no go: the run stops there and the phone
 //! goes back to Android). NOTHING is written to the card. The UFS-off gate refuses this image by design and is not run, weakened or bypassed.
@@ -39,7 +39,7 @@ fn main() {
     check("the card's six disks and the partition tables are read", card.the_card_is_identified());
     check("the GPT of the disk is hashed", card.the_gpt_is_hashed_before());
     check("the gear and the clock, before any load", card.the_gear_is_read_before_load());
-    step("the UFS host's devfreq clock is pinned low (userspace governor, 50 MHz) and read back, before any load", card.the_clock_is_pinned_low());
+    step("the UFS host's devfreq clock is pinned low (userspace governor, set_freq 50 MHz read back, gear HS_GEAR1, cur_freq 50 or 100 MHz as core_clk's rounding: research walleye-ufs-pin-100mhz-read) and its evidence kept, before any load", card.the_clock_is_pinned_low());
     step("a ramped, bounded, read-only read of the disk, a RAM log line before each step, the shell polled every second, the gear sampled", card.the_gear_is_read_under_load());
     check("the gear and the clock, 2 s after the read", card.the_gear_is_read_two_seconds_after());
     check("the GPT is hash-equal to before", card.the_gpt_is_unchanged());

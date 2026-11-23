@@ -11666,10 +11666,10 @@ Rank
 ### Step 16 prints its evidence in the stop line: available_frequencies, min/max_freq, governor and cur_freq before and after the write, power_info/gear; the asserted value comes from the research
 
 Status
-: open
+: done
 
 Note
-: Research walleye-ufs-pin-100mhz-read done 2026-11-24 and decision 2026-11-24-walleye-ufs-pin-asserts-the-holding-setting: step 16 asserts governor userspace, userspace/set_freq 50000000 read back (max_freq on the other path) and gear HS_GEAR1; cur_freq passes as 50000000 or 100000000 (core_clk's rounding while scaling is idle-suspended), fails otherwise. The capture adds userspace/set_freq, trans_stat, dmesg after the write (the 'clock scaling is suspended, skip' line) and debugfs gcc_ufs_axi_clk clk_rate where present. Runs 6 and 7's governor files (lab-material ufs-20261124-000728, -001519) are the 100 MHz fixture: under the new assertion they pass the clock and need the gear and set_freq read.
+: Built 2026-11-24: step 16 captures pin-before, pin-after-governor-write, pin-after-set-freq (+ pin-write-*, pin-scaling-log-after) and asserts governor userspace, set_freq 50000000 (max_freq on the clamp path), gear HS_GEAR1, cur_freq 50 or 100 MHz; stop line prints every reading. Host test reads run 6's captured text (fixtures ufs-try2-run6-*). Dry run, check --host, tests, clippy, fmt, programmer review done; no phone. The stand-in-free fixture of the new capture format waits for the keeper's next UFS run (item walleye-ufs-pin-capture-fixture).
 
 About
 : walleye-bootimage
@@ -11735,3 +11735,28 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-ufs-pin-capture-fixture"></a>
+### Save the first run's pin capture (pin-before/-after-*.txt, scaling log) as a fixture and test the step against it
+
+Status
+: open
+
+Waits
+: the keeper's next UFS try run printing the new capture
+
+Blocked by
+: walleye-ufs-pin-print-its-evidence
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: host test reading the captured pin-*.txt of that run, no typed stand-in
