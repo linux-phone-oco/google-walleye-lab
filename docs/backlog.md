@@ -8482,10 +8482,10 @@ Rank
 ### UFS try 2 as ONE command: the matched-image procedure with the gear read under load and after 2 s idle, tested everywhere but the phone, so the author's go buys exactly that
 
 Status
-: in-progress
+: done
 
 Note
-: Keeper's host-side run done 2026-11-21: dry run passes (23 steps), walleye-tries 156 tests pass, and the real run to the first ask passed battery, matched-image checks, the fastboot visit and slot-flag read, and the say-what-to-expect text; it then stopped at check 6 because no go names image sha256 461077869fb2 on item walleye-try-ufs-match (by design). The phone is back on Android, slot b, nothing written. Left: the author's go text (on the coordinator's desk), then one command: procedures/ufs-matched-image-on-the-pixel-2.rs.
+: Done as a command: it ran three times for real (PRs 772, 786, 819); see item walleye-ufs-try-2 for the facts.
 
 Waits
 : the author's go on walleye-try-ufs-match naming image sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5
@@ -8916,10 +8916,10 @@ Proof
 ### UFS try 2: the same read-only boot again, with the questions of try 1 added, and the proof that the card is unharmed
 
 Status
-: open
+: done
 
 Note
-: A second boot of the same image confirms the first was no fluke and that the card is unharmed. NOT started without the author's word. 2026-11-19 ASK from the upstreams coordinator (docs #714): before they take an OPP table for msm8998.dtsi up as a patch, a measurement: the gear under load, or a dtsi with an OPP table holding G3. Both belong to this try or its image (walleye-ufs-opp-table-image). Still needs the author's word for a second try. 2026-11-20 (coordinator): blocked on walleye-ufs-try-2-one-command (the one command, tested first); then the Top Coordinator brings it to the author for his go. THE AUTHOR'S STANDING GO (2026-11-22, relayed by the Top Coordinator): "when its ready, you have my go, dont come back to me with go'es like this, blocking the process of bringing up with my go'es on every little step" (the author, 2026-11-22, relayed by the Top Coordinator). It covers read-only UFS-on tries of the same kind: this one writes nothing, is tested first and is one command (procedures/ufs-matched-image-on-the-pixel-2.rs, built PR 683, host-side half run PR 685). It runs AFTER the stage 1 boot (item walleye-install-rootfs-boots-try); the coordinator opens the go on walleye-try-ufs-match for the matched image's sha256 with a short until and a keeper runs it, no further ask. Decision 2026-11-22-walleye-author-go-per-stage-not-per-step. | 2026-11-23: the stage 1 boot passed; the go for this try is open on walleye-try-ufs-match until 2026-11-23T10:24:15+01:00 (matched image 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5); a keeper runs it. | 2026-11-23: the RUN of UFS try 2 is item walleye-try-ufs-match (it carries the go the procedure reads); this item and walleye-ufs-try-2-one-command are off the queue and close when that run's research row is in.
+: UFS TRY 2 CLOSED ON THE FACTS (the coordinator, 2026-11-23, after run 3 (PR 819) stopped at step 16 as run 2 did): three runs, matched image 461077869fb2, read only, nothing written. MEASURED: UFS_HW_VERSION 3.1.0, PHY table 3.1.0, 6 disks, sda 45 partitions, GPT hash before 2de02f2bb790342885ebb3d70683d3db6d0cf70ead73a4b3cf738ca9b4cd57cb; the link HS_GEAR1 2 lanes 50 MHz idle and HS_GEAR3 2 lanes rate B 200 MHz under load (8, 8 and 7 samples in runs 1-3: the gear scales with load); the GPT of sda read again from Android after runs 1, 2 and 3: EQUAL each time (PRs 776, 789, 819), the boot chain's 32 partitions the same bytes. NOT MEASURED: the gear 2 s after load, the no-purge check, the slot flags after. FOUND: under a sustained O_DIRECT read of sda (4 GiB in runs 1-2, 2 GiB in run 3) the phone's shell and usb network go silent and do not come back within the read's limit plus 60 s; the phone-side cause is NOT KNOWN YET (item walleye-ufs-silent-under-load-cause). Not a pass of the proof 'the card is unharmed under load' but a finding.
 
 Blocked by
 : walleye-install-rootfs-boots-try
@@ -9203,7 +9203,7 @@ Note
 : ~4 keeper-h. The only stage with the Sony-class hazard; no erase, purge or unmap is ever sent. 2026-11-22 (the author's standing rule, decision 2026-11-22-walleye-author-research-then-proceed): no word of his is waited for once the research verdict (item walleye-install-stage3-android-ufs-comparison) says our kernel does nothing Android's UFS path does not, on this phone; the step is then ONE tested command (one partition, no erase, no purge, the purge guard kept, the bootchain read-back identical after), rehearsed, with a way back; the coordinator opens the go; the result and the verdict go to the Top Coordinator. NEVER: bootloader partitions, the GPT, erase, purge. 2026-11-22 (research walleye-install-stage3-android-ufs-comparison-verdict, PR 708): the verdict is in: our kernel sends no command class Android's did not for this step; the one command is item walleye-install-rw-write-procedure; no word of the author's is waited for (decision 2026-11-22-walleye-author-research-then-proceed).
 
 Blocked by
-: walleye-install-rootfs-boots-try,walleye-ufs-try-2,walleye-install-rw-write-procedure
+: walleye-install-rootfs-boots-try,walleye-ufs-try-2,walleye-install-rw-write-procedure,walleye-ufs-silent-under-load-cause
 
 About
 : walleye-display-s6e3fa5
@@ -9725,19 +9725,16 @@ Rank
 ### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
 
 Status
-: in-progress
+: done
 
 Note
-: RUN 3 done 2026-11-23 (walleye-keeper): stopped at step 16 the same way as run 2 (research walleye-ufs-try-2-run-3-silent-shell-gpt-equal); GPT EQUAL after. No fourth run without the coordinator; the coordinator closes try 2 on these facts.
+: UFS TRY 2 CLOSED ON THE FACTS (the coordinator, 2026-11-23, after run 3 (PR 819) stopped at step 16 as run 2 did): three runs, matched image 461077869fb2, read only, nothing written. MEASURED: UFS_HW_VERSION 3.1.0, PHY table 3.1.0, 6 disks, sda 45 partitions, GPT hash before 2de02f2bb790342885ebb3d70683d3db6d0cf70ead73a4b3cf738ca9b4cd57cb; the link HS_GEAR1 2 lanes 50 MHz idle and HS_GEAR3 2 lanes rate B 200 MHz under load (8, 8 and 7 samples in runs 1-3: the gear scales with load); the GPT of sda read again from Android after runs 1, 2 and 3: EQUAL each time (PRs 776, 789, 819), the boot chain's 32 partitions the same bytes. NOT MEASURED: the gear 2 s after load, the no-purge check, the slot flags after. FOUND: under a sustained O_DIRECT read of sda (4 GiB in runs 1-2, 2 GiB in run 3) the phone's shell and usb network go silent and do not come back within the read's limit plus 60 s; the phone-side cause is NOT KNOWN YET (item walleye-ufs-silent-under-load-cause). Not a pass of the proof 'the card is unharmed under load' but a finding. | RUN 3 done 2026-11-23 (walleye-keeper): stopped at step 16 the same way as run 2 (research walleye-ufs-try-2-run-3-silent-shell-gpt-equal); GPT EQUAL after. No fourth run without the coordinator; the coordinator closes try 2 on these facts.
 
 About
 : walleye-first-fastboot-boot
 
 Opened
 : 2026-11-23
-
-Needs
-: phone
 
 Proof
 : the image's own dmesg: UFS_HW_VERSION line, PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge
@@ -9749,7 +9746,7 @@ Witness
 : person
 
 Go until
-: 2026-11-23T13:28:32+01:00
+: 2026-11-23T10:00:00+01:00
 
 
 <a id="walleye-ufs-try-2-run-1-gpt-equal"></a>
@@ -10147,3 +10144,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-ufs-silent-under-load-cause"></a>
+### Why the phone's shell and usb network go silent under a sustained read of the card, and not for the first 7 or 8 samples: the cause on the phone's side, from sources and from a small falsifiable try
+
+Status
+: open
+
+Note
+: From UFS try 2 (three runs, PRs 772, 786, 819): the shell goes silent under a sustained O_DIRECT read of sda although the gear scales and the first 7-8 samples answer, and does not come back within limit+60 s; Android on the same card reads fine, so this is OUR kernel's behaviour. It matters for stage 3 (the rw write test): sustained writes must not run before this is understood, so walleye-install-rw-write-test is blocked on it. Stage 1 and stage 2 boot and read small amounts (the root's ssh and the checks passed twice over).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row with sources (Android's msm-4.4 ufs-qcom / ufshcd / clock scaling for walleye, mainline drivers/ufs/host/ufs-qcom.c and core/ufshcd.c: devfreq clock scaling, the gear switch HS_G1 to HS_G3 under load, the UIC command timeouts, the IRQ and threaded completion paths, interrupt affinity vs the dwc3 usb gadget, the host's completion workqueue) and the three runs' logs (the run logs ~/lab-material/walleye/ufs-try2*.log; the phone printed nothing after the samples, so what is NOT KNOWN YET is named) that ranks the candidate causes, each with the line it rests on: (a) the gear switch to HS_G3 or the clock scale-up hangs the link or the host under load; (b) the completion interrupt storm starves the usb gadget's CPU; (c) a bounded memory/page-cache effect of O_DIRECT; (d) the usb network's own bulk path; and ends in ONE falsifiable try that needs no new risk: a read-only RAM-boot try with the SAME image whose load is ramped (64, 256, 1024 MiB) with the shell polled every second AND the kernel log kept off the phone's network (pstore/ramoops if the ramoops-after-unlock item says it survives, or a log written before each step), and with clock scaling pinned low (devfreq governor) as the one changed variable; no writes, no flash
+
+Rank
+: 3
