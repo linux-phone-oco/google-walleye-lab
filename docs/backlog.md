@@ -10975,3 +10975,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-stage2-check-8-earlier-images"></a>
+### Stage 2's check on the boot partition accepts a boot_a that holds an EARLIER image of ours (not only the stock backup or the declared image), the stock backup on file; and the walk by state gets that state
+
+Status
+: open
+
+Note
+: Rehearsal 5 (the keeper local_574b1b94, PR 888 era) stopped at check 8 on a real run, twice: boot_a holds e337de53 (an earlier stage 2 image), neither the stock backup 2a5cd3b2 nor the declared ec741a98: 'the flash could not be undone'. Nothing written, Android on b. Fifth stop of the first-run class (checks 18, 9, 16, 18 again, 8): the audit by state did not have 'boot_a holds a different image of ours'. Rejected: restoring the stock boot_a first (a write, a go of its own, to satisfy a check). The stage 2 run goes ahead after the rehearsal passes.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) tools/walleye-tries/src/flash_boot.rs: the check that boot_a read now is its backup OR the declared image (check 8 of the rehearsal, 9 of the command) also passes when boot_a equals any EARLIER image of ours the lane recorded: the list is named in device.toml ([procedures.install-boot-on-the-pixel-2] earlier_images = the [images.*] names, today ufs-root-booted-slot = e337de53, never typed shas), each row's file and sha256 read from device.toml, WHILE the stock backup boot_a.img is on file and still hashes to its record 2a5cd3b2; it fails for any other content, a missing or changed backup, and says which; (2) stand-in tests from the printed text of rehearsal 5 (research walleye-install-flash-boot-rehearsal-5-stops-at-check-8: boot_a e337de53, backup 2a5cd3b2, declared ec741a98): fails on today's code, passes on the amended; one test each for the failing cases; (3) the walk by state (research walleye-stage2-walk-by-state) gets state (v): boot_a holds an earlier image of ours, slot a flags after a failed boot (unbootable, retry 0) AND after a flash; every step of the command and the rehearsal is walked against it offline and the table in the research row is extended; (4) the by-state audit of item walleye-checks-name-their-sources is NOT done here; dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 1
