@@ -10216,3 +10216,28 @@ Witness
 
 Go until
 : 2026-11-23T13:21:56+01:00
+
+
+<a id="walleye-fastboot-reboot-stays-in-fastboot"></a>
+### Why 'fastboot reboot' left the phone in fastboot for 240 s after our kernel reached the bootloader by RESTART2 (rerun 7), and what the reliable last leg of the way back is
+
+Status
+: open
+
+Note
+: Orchestration: 'the 240 s left in fastboot stays yours to find out' (2026-11-23). Not urgent for stage 2's safety (the after-stop way back brought Android home, and stage 2's last leg uses the same way) but it decides how long a stage 2 way back takes and whether it can ever need a hand: ranked 3, after the stage 2 run, whose way back gives a second text of the same step.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row with sources (Google's wahoo bootloader behaviour as far as it is open or described: the reboot-reason register's life (PMIC PON soft-reboot spare / IMEM restart_reason: who clears it, when), fastboot reboot vs fastboot continue vs reboot-bootloader semantics, A/B slot state after a RAM-boot or a stage 2 slot switch, lk/abl sources for walleye if present) and the kept texts of rerun 7 (PR 814: the fastboot listing, bootloader-way-back.txt, the times: fastboot reboot at 10:21:16, Android up about 10:34 by the after-stop way back; what that way back did) and of the stage 2 run's way back (the keeper's material, when it ran) that ranks the causes: (a) the reboot reason our RESTART2 wrote persists and sends every following reset back to fastboot until something clears it; (b) fastboot reboot on this bootloader re-enters fastboot after a bootloader-requested entry; (c) slot or retry state (b successful yes, retry 0) sends it to fastboot; (d) a USB or timing effect; and ends in the smallest read-only or RAM-only try that tells them apart (for example the same excursion with fastboot continue, or with the PMIC reason read before and after: the mode registers are readable from our kernel), plus the way back's last leg that is known to work (what the after-stop way back did, in words)
+
+Rank
+: 3
