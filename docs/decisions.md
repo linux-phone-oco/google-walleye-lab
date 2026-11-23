@@ -2974,3 +2974,31 @@ About
 
 Tracked by
 : walleye-display-alpine-getty-on-the-glass
+
+
+<a id="2026-11-23-walleye-display-init-beside-the-root-init"></a>
+### 2026-11-23-walleye-display-init-beside-the-root-init
+
+Date
+: 2026-11-23
+
+Brief
+: The init with the display is its own file, build/initramfs-root-display/init, equal to the root init plus the display block; the root init stays byte for byte until its own rebuild item
+
+Decision
+: U-d5 uses build/initramfs-root-display/init: the root init's text plus the display block (delay, module lines) and the 'handing over' line before the moves; tests/host/ufs-root-display-init.sh proves it is nothing else and runs every case of the root init's proof on it. build/initramfs-root/init is not edited, so [images.ufs-root] (c3373d71, the one a go names) stays reproducible.
+
+Why
+: The ufs-root image is declared by sha256 and a go names that sha256; editing its init would change what a rebuild gives. Item walleye-initramfs-root-say-before-the-moves rebuilds that image once on purpose; until then the display init carries the same fix.
+
+Rejected
+: Editing build/initramfs-root/init in place: a rebuild of c3373d71 would no longer match and the open go would name an image nobody can rebuild. Loading the display modules from the root's OpenRC after the hand-over: the glass would show nothing of the init and the delay of 5 s from uptime is not kept.
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-ufs-root-display-image-u-d5-built
+
+Tracked by
+: walleye-install-ufs-root-display-image

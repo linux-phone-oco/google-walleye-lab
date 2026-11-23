@@ -9318,10 +9318,10 @@ Rank
 ### The stage 1 root on the glass: one kernel with UFS on AND the display (B-r5's reset and modules), the Alpine root from system_a, login prompt on tty0 and ssh over usb-network at once
 
 Status
-: open
+: done
 
 Note
-: THE AUTHOR'S WORD (2026-11-22), verbatim: "i want to see the thing on pixel before we start the big housekeeping that will stop everything. as i understood we have everything to see a plain tty on the phones own display, connect to it with ssh and what not, right ?" (the author, 2026-11-22, relayed by the Top Coordinator). This is the item the Top Coordinator asked for: the UFS-root kernel plus B-r5's display reset and modules in ONE image, so the stage 1 boot shows Alpine's login prompt on the glass, with ssh at the same time. It needs the board dts that carries the display (walleye-display-dts-any-order, rank raised to 2) because the display kernel cannot compile today's board file; the merge of the two kernel topics and the first display plus UFS boot together are the two unknowns (the SMMU with UFS on and the display reset: not seen). Rehearsed like the others; it runs under the author's standing go and rule. 2026-11-22 (builder, PR 720): the glass getty moved to tty1 (Alpine's default), so the rootfs is v3 (sha 886ef625, [images.alpine-rootfs-v3]) and system_a still holds v2 (tty0). The merged UFS plus display image needs system_a WRITTEN with v3 first: one more run of procedures/install-rootfs-on-the-pixel-2.rs naming the v3 image, under the author's standing go (decision 2026-11-22-walleye-author-go-per-stage-not-per-step); then the root of the stage 1 boot on the glass is v3.
+: BUILT 2026-11-23 (builder): image U-d5 sha256 a45588272b11fed90d7d13e9ed0c3a00d1c2208b9758d01ed968587978582747, declared as [images.ufs-root-display]; build/build-ufs-root-display-image.sh, 42 checks ok, built twice identical, the UFS-off gate refuses it by design, never booted. Research walleye-ufs-root-display-image-u-d5-built; decision 2026-11-23-walleye-display-init-beside-the-root-init. The boot is item walleye-install-ufs-root-display-boots-try.
 
 Blocked by
 : walleye-display-dts-any-order
@@ -9636,3 +9636,37 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-install-ufs-root-display-boots-try"></a>
+### Boot image U-d5 (UFS root plus display) from RAM once: the Alpine login on the glass and ssh over usb-network, the author's look
+
+Status
+: open
+
+Note
+: Image: [images.ufs-root-display] (U-d5, item walleye-install-ufs-root-display-image, research walleye-ufs-root-display-image-u-d5-built). The one command is procedures/rootfs-boots-on-the-pixel-2.rs with its go_item pointed at THIS item and the image at [images.ufs-root-display]: the keeper edits those two settings of device.toml in the same change as the go. Never the bootloader partitions, the GPT written by our code, erase or purge. Not known yet: the SMMU with UFS on and the display reset together; on a failed display sign the keeper reads dmesg and stops (no second run without the coordinator).
+
+Waits
+: the author's go naming sha256 a45588272b11fed90d7d13e9ed0c3a00d1c2208b9758d01ed968587978582747 (the coordinator records it with ikb backlog-go under decision 2026-11-22-walleye-author-go-per-stage-not-per-step), and system_a written with rootfs v4 (procedures/install-rootfs-on-the-pixel-2.rs naming [images.alpine-rootfs-v4]; system_a holds v2 with the getty on tty0)
+
+Blocked by
+: walleye-install-rootfs-boots-try
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots) with the display signs read from the log (smmu_faults, rcg_warnings, dsi_110 all 0, 13 of 13 modules ok at 5 s); the bootchain read-back check passes again; the author's look: the login prompt on the glass
+
+Rank
+: 2
+
+Witness
+: person

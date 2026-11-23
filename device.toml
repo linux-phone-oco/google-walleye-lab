@@ -292,6 +292,14 @@ by_name = "/dev/block/by-name"
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root/NOT-TO-BOOT-ufs-on-ufs-root.img"
 sha256 = "c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9"   # rebuilt 2026-11-22: the init fails CLOSED without androidboot.slot_suffix (item walleye-install-boot-slot-on-cmdline); was 35b60fda... (run 1: the init saw no suffix)
 
+# The UFS-root image WITH THE DISPLAY, U-d5 (item walleye-install-ufs-root-display-image, 2026-11-23): UFS ON and the display in one image. Kernel: branch wip/walleye/ufs-root-display of linux-v7.3 (ac7eefecb) = topic/ufs-match-android
+# (3644090c7) + the MDSS reset (kernel/display-mdss-reset) + the panel driver; the display path as 13 modules built for it (loaded at 5 s by build/initramfs-root-display/init), fbcon built in; dtb = the display board dtb with the lab levers
+# and the matched image's UFS overlay merged in; header, command line (+ walleye.root=system_a) and AVB footer the matched image's. Built twice with this one sha256 by build/build-ufs-root-display-image.sh, 42 checks ok. NOT to boot except by
+# procedures/rootfs-boots-on-the-pixel-2.rs under the author's go that names THIS sha256; tests/host/ufs-off-image.sh refuses it by design. Never booted.
+[images.ufs-root-display]
+path = "NOT-TO-BOOT-ufs-on-images-ufs-root-display/NOT-TO-BOOT-ufs-on-ufs-root-display.img"
+sha256 = "a45588272b11fed90d7d13e9ed0c3a00d1c2208b9758d01ed968587978582747"
+
 # The read-only UFS-on boot of that image as ONE command (item walleye-install-boot-procedure; run by item walleye-install-rootfs-boots-try). The root is the system partition of the slot Android is NOT on, read at the run
 # (adb's ro.boot.slot_suffix equal to fastboot's current-slot, and equal to the root the image names); nothing here names a slot.
 # The image booted is THIS run's: the declared one with androidboot.slot_suffix=_<the slot read> on its command line (lpoco-bringup image swap, checked equal in every other byte); the declared sha256 above stays the one the go names.

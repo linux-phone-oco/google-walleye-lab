@@ -9,6 +9,8 @@
 W=${1:-}
 export GEN=${GEN:-}
 HERE=$(cd "$(dirname "$0")/../.." && pwd)
+INIT=${INIT_DIR:-$HERE/build/initramfs-root}/init   # INIT_DIR: the display init (build/initramfs-root-display); DISPLAY_FILES: its fake module list and delay (tests/host/ufs-root-display-init.sh)
+export INIT_DIR DISPLAY_FILES
 say() { echo "$1 walleye-ufs-root-init $2"; [ "$1" = pass ]; exit $?; }
 for c in qemu-system-x86_64 sgdisk mke2fs sha256sum zstd modprobe; do command -v "$c" >/dev/null || say skip "$c not installed: not known yet"; done
 [ -n "$W" ] || say fail "usage: ufs-root-init.sh WORK_DIR"
@@ -58,19 +60,26 @@ boot() { # DISK CMDLINE LOG
   timeout 240 qemu-system-x86_64 -machine accel=$ACCEL -cpu max -m 1024 -nographic -no-reboot \
     -kernel "$KERNEL" -initrd "$T/initramfs.cpio.gz" \
     -device i6300esb -action watchdog=poweroff -drive file="$1",if=virtio,format=raw \
-    -append "console=ttyS0 panic=-1 loglevel=4 $2" > "$3" 2>&1 </dev/null
+    -append "console=ttyS0 panic=-1 loglevel=4 ${DISPLAY_FILES:+ignore_loglevel} $2" > "$3" 2>&1 </dev/null
   tr -d '\r' < "$3" > "$3.t"
 }
 sha() { sha256sum "$1" | cut -d' ' -f1; }
 want() { grep -aq -e "$2" "$1.t" || say fail "$3: no '$2' in $1 (tail: $(tail -n3 "$1.t" | tr '\n' '|'))"; }
 refuse() { grep -aq "ROOT-INIT-RAN" "$1.t" && say fail "$2: the root's init ran"; grep -aq "walleye-ufs-root: refused.*$3" "$1.t" || say fail "$2: no refusal line (tail: $(tail -n3 "$1.t" | tr '\n' '|'))"; }
 A0=$(sha "$T/a.img")
+nodisplay() { [ -z "${DISPLAY_FILES:-}" ] || ! grep -aq "walleye-display:" "$1.t" || say fail "$2: the display modules were loaded although a guard refused (the block comes after the guards)"; }
 boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_b" "$T/ok.log"
 want "$T/ok.log" "ROOT-INIT-RAN" "case 1"
+if [ -n "${DISPLAY_FILES:-}" ]; then
+  want "$T/ok.log" "walleye-display: delay 2 s reached at uptime" "case 11 (the display delay is waited)"
+  [ "$(grep -ac "walleye-display: FAILED rc=" "$T/ok.log.t")" -eq 2 ] || say fail "case 11: both failing module lines were not tried and logged"
+  want "$T/ok.log" "walleye-ufs-root: display modules: done" "case 11"
+  grep -an "walleye-ufs-root: handing over" "$T/ok.log.t" | head -n1 | grep -q . || say fail "case 11: no handing over line in the log (that it comes BEFORE the moves is proven by the text test of ufs-root-display-init.sh)"
+fi
 want "$T/ok.log" "ROOT-MOUNT overlay / overlay .*rw" "case 1 (the root is an overlay)"
 want "$T/ok.log" "ROOT-LOWER /dev/vda2 /lower ext4 ro,.*norecovery" "case 1 (the card's partition is read-only, no journal replay)"
 grep -a "ROOT-LOWER" "$T/ok.log.t" | grep -aq "discard" && say fail "case 1: the lower mount names discard"
-grep -q -e "-o ro,nodiscard,noload" "$HERE/build/initramfs-root/init" || say fail "case 1: the init's ext4 mount does not say ro,nodiscard,noload (/proc/mounts shows no word for nodiscard: discard is simply absent)"
+grep -q -e "-o ro,nodiscard,noload" "$INIT" || say fail "case 1: the init's ext4 mount does not say ro,nodiscard,noload (/proc/mounts shows no word for nodiscard: discard is simply absent)"
 want "$T/ok.log" "ROOT-DEV-READONLY" "case 2 (the kernel refuses writes to the card partition: blockdev --setro)"
 want "$T/ok.log" "ROOT-WRITE-OK" "case 1 (a write lands in the overlay)"
 want "$T/ok.log" "ROOT-HAS-MARKER" "case 1 (the lower's files show)"
@@ -78,11 +87,11 @@ want "$T/ok.log" "ROOT-HAS-HOLD-SCRIPT" "case 1 (the watchdog petter is in the r
 want "$T/ok.log" "ROOT-WATCHDOG-HELD" "case 1 (a process in the root holds /dev/watchdog open after the hand-over)"
 [ "$(sha "$T/a.img")" = "$A0" ] || say fail "case 2: the disk image changed"
 boot "$T/b.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.wait=3 walleye.pause=2" "$T/decoy.log"; refuse "$T/decoy.log" "case 3 (only system_b present)" "no partition named"
-boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_a walleye.pause=2" "$T/running.log"; refuse "$T/running.log" "case 4 (the running slot)" "slot Android runs from"
-boot "$T/a.img" "walleye.root=userdata androidboot.slot_suffix=_b walleye.pause=2" "$T/name.log"; refuse "$T/name.log" "case 5 (a name that is not a system slot)" "is not system_a"
-boot "$T/a.img" "androidboot.slot_suffix=_b walleye.pause=2" "$T/none.log"; refuse "$T/none.log" "case 6 (no root asked)" "no walleye.root"
-boot "$T/a.img" "walleye.root=system_a walleye.pause=2" "$T/nosuffix.log"; refuse "$T/nosuffix.log" "case 9 (no androidboot.slot_suffix: the bootloader of a fastboot boot gives none; the init fails CLOSED)" "no androidboot.slot_suffix"
-boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_c walleye.pause=2" "$T/badsuffix.log"; refuse "$T/badsuffix.log" "case 10 (a suffix that is not _a or _b)" "is not _a or _b"
+boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_a walleye.pause=2" "$T/running.log"; refuse "$T/running.log" "case 4 (the running slot)" "slot Android runs from"; nodisplay "$T/running.log" "guard refusal running"
+boot "$T/a.img" "walleye.root=userdata androidboot.slot_suffix=_b walleye.pause=2" "$T/name.log"; refuse "$T/name.log" "case 5 (a name that is not a system slot)" "is not system_a"; nodisplay "$T/name.log" "guard refusal name"
+boot "$T/a.img" "androidboot.slot_suffix=_b walleye.pause=2" "$T/none.log"; refuse "$T/none.log" "case 6 (no root asked)" "no walleye.root"; nodisplay "$T/none.log" "guard refusal none"
+boot "$T/a.img" "walleye.root=system_a walleye.pause=2" "$T/nosuffix.log"; refuse "$T/nosuffix.log" "case 9 (no androidboot.slot_suffix: the bootloader of a fastboot boot gives none; the init fails CLOSED)" "no androidboot.slot_suffix"; nodisplay "$T/nosuffix.log" "guard refusal nosuffix"
+boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_c walleye.pause=2" "$T/badsuffix.log"; refuse "$T/badsuffix.log" "case 10 (a suffix that is not _a or _b)" "is not _a or _b"; nodisplay "$T/badsuffix.log" "guard refusal badsuffix"
 cp "$T/a.img" "$T/d.img"; start=$(sgdisk -i 2 "$T/d.img" | sed -n "s/^First sector: \([0-9]*\).*/\1/p"); dd if="$T/dangling.ext4" of="$T/d.img" bs=512 seek="$start" conv=notrunc status=none
 boot "$T/d.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.pause=2" "$T/dangling.log"; refuse "$T/dangling.log" "case 8 (/sbin/init is a symlink to nothing)" "symlink to nothing"
 boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.hold=6 walleye.test=linger" "$T/hold.log"
