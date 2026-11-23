@@ -6622,3 +6622,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-1400-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel, boot_a holds stage 2 image e337de53; rehearsal 4 passed 18 of 18, nothing written, pstore-first read works on Android (pstore empty after the rehearsal's own bootloader excursion); item walleye-install-flash-boot-rehearsal-4 done; phone back on Android slot b, adb device
+
+Considered
+: next: coordinator opens the stage 2 run (walleye-install-flash-boot-run) when it chooses; then walleye-ufs-silent-ramped-pinned-try, transport-real-phone-run, nfc node. Note: the item said NO reboot; I read it as no fastboot reboot verb because the procedure's step 10 is adb reboot bootloader and back, as rehearsals 1-3
+
+About
+: walleye-bootimage

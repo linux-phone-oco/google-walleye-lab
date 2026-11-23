@@ -7,8 +7,8 @@
 - [Devices](devices.md): 0
 - [Hardware](hardware.md): 4
 - [Parts](parts.md): 22
-- [Research](research.md): 303
-- [Session Log](session_log.md): 349
+- [Research](research.md): 304
+- [Session Log](session_log.md): 350
 - [Sources](sources.md): 122
 - [Steps](steps.md): 116
 - [Summaries](summaries.md): 0
