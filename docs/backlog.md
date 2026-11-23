@@ -10171,6 +10171,9 @@ Status
 Note
 : From walleye-ufs-silent-under-load-causes-ranked and decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try. Procedure change to walleye-tries/src/ufs/load.rs: ramp 64/256/1024 MiB, a RAM log line before each step, governor powersave set first (verify /sys/class/devfreq/1da4000.ufshc exists and governor_powersave is built; else the item says so and stops). Needs the author's go for the new procedure (same image sha). Read PON reason on the way back.
 
+Blocked by
+: walleye-ufs-silent-ramped-pinned-build
+
 About
 : walleye-ufs-match-android-z
 
@@ -10238,6 +10241,31 @@ Needs
 
 Proof
 : a research row with sources (Google's wahoo bootloader behaviour as far as it is open or described: the reboot-reason register's life (PMIC PON soft-reboot spare / IMEM restart_reason: who clears it, when), fastboot reboot vs fastboot continue vs reboot-bootloader semantics, A/B slot state after a RAM-boot or a stage 2 slot switch, lk/abl sources for walleye if present) and the kept texts of rerun 7 (PR 814: the fastboot listing, bootloader-way-back.txt, the times: fastboot reboot at 10:21:16, Android up about 10:34 by the after-stop way back; what that way back did) and of the stage 2 run's way back (the keeper's material, when it ran) that ranks the causes: (a) the reboot reason our RESTART2 wrote persists and sends every following reset back to fastboot until something clears it; (b) fastboot reboot on this bootloader re-enters fastboot after a bootloader-requested entry; (c) slot or retry state (b successful yes, retry 0) sends it to fastboot; (d) a USB or timing effect; and ends in the smallest read-only or RAM-only try that tells them apart (for example the same excursion with fastboot continue, or with the PMIC reason read before and after: the mode registers are readable from our kernel), plus the way back's last leg that is known to work (what the after-stop way back did, in words)
+
+Rank
+: 3
+
+
+<a id="walleye-ufs-silent-ramped-pinned-build"></a>
+### UFS try: the procedure change for the ramped, pinned-low read: tools/walleye-tries load.rs ramps 64/256/1024 MiB with a RAM log line before each step, devfreq powersave pinned first, the PON reason read on the way back, and the failing check tests/health/base/ufs-sustained-read.sh
+
+Status
+: open
+
+Note
+: Split by the coordinator (2026-11-23) from the researcher's phone item walleye-ufs-silent-ramped-pinned-try, which names a procedure change that no one had queued as a build: the keeper's try waits for this. After it lands the coordinator opens the go on walleye-try-ufs-match for the matched image (the author's standing go covers a read-only UFS try of the same kind, one command, tested first).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: from decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try and research walleye-ufs-silent-under-load-causes-ranked (PRs 824, 826): (1) tools/walleye-tries/src/ufs/load.rs (and procedures/ufs-matched-image-on-the-pixel-2.rs only as far as its steps need): the bounded read becomes a ramp 64, 256, 1024 MiB with the shell polled every second; before each step the phone writes one line to a RAM log (a file in /tmp the lab reads at once, then after a silence from the way back), the devfreq governor of /sys/class/devfreq/1da4000.ufshc is set to powersave FIRST (verify the node and governor_powersave exist; if not, the step says so and the run stops before any load), the first silent step with its gear and clock is kept as a result, not an error; the PON reason registers read on the way back (the reboot-mode/PON text, read only); (2) tests/health/base/ufs-sustained-read.sh is the failing check that passes when a 1024 MiB O_DIRECT read of sda finishes with the shell answering every second, or records the first silent step; (3) stand-in tests use the text the phone printed in run 3's log (~/lab-material/walleye/ufs-try2-run3.log; runs 1 and 2 logs are missing) as fixtures; (4) the image 461077869fb2 and its go item are unchanged; dry run (the step count says what it is), check --host, tests, clippy, fmt, review; the builder runs nothing on the phone
 
 Rank
 : 3
