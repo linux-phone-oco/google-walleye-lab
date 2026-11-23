@@ -10803,19 +10803,16 @@ Rank
 ### A run's go lists its outcomes and what each proves; ikb backlog-go refuses a go without them (idealkb's record, asked of orchestration), and until then every walleye go carries them in its item note
 
 Status
-: open
+: in-progress
 
 Note
-: THE ORDER (the Steward, relaying the Top Coordinator and the author's words of 2026-11-23, ideal-agent 0.3.71, decision 2026-11-23-a-stop-is-read-before-the-fix): walleye's procedure tests refuse unsourced checks; one report to the Steward when it has landed, nothing before. Part 3 of the order. Asked of orchestration 2026-11-23. The coordinator's rule from now: the item's note carries an OUTCOMES paragraph before the go is set; a go without outcomes opens no run.
+: DONE BY IDEALKB 0.26.0 (orchestration, 2026-11-23): 'ikb backlog-go --until' now refuses a go without --outcomes 'if X then it proves Y', and the outcomes go into the item's note. The local gate this item planned (tests/host/go-has-outcomes.sh) is NOT built and is not needed once this base's idealkb pin reaches 0.26.0 (the hourly pin job moves it). Until the pin moves the coordinator keeps writing the OUTCOMES paragraph in every go's note by hand (the rule stays); after it: every go is set with --outcomes. Closes when the pin shows 0.26.0 and one go has been set with --outcomes. | THE ORDER (the Steward, relaying the Top Coordinator and the author's words of 2026-11-23, ideal-agent 0.3.71, decision 2026-11-23-a-stop-is-read-before-the-fix): walleye's procedure tests refuse unsourced checks; one report to the Steward when it has landed, nothing before. Part 3 of the order. Asked of orchestration 2026-11-23. The coordinator's rule from now: the item's note carries an OUTCOMES paragraph before the go is set; a go without outcomes opens no run.
 
 About
 : walleye-bootimage
 
 Opened
 : 2026-11-23
-
-Needs
-: build
 
 Proof
 : (1) records/backlog-go.sql is idealkb's generic record (ideal-knowledge-base 0.21.0, not in this base's own list: tables.toml and records/backlog.sql are): the change (a required --outcomes option, one line per outcome as 'if X then it proves Y', refused when missing) belongs to idealkb and is ASKED of orchestration and the ikb session, not made here; (2) UNTIL THEN walleye's own rule, enforced by a gate in this repo: tests/host/go-has-outcomes.sh fails when an item with an open go (go_until in the future) has a note without an 'OUTCOMES:' paragraph listing at least two outcomes with what each proves, and it is a step of check.yml (the coordinator writes every go that way from now on); dry run, tests, review
