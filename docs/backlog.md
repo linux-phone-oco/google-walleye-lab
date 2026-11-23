@@ -10003,7 +10003,7 @@ Proof
 : (1) each procedures/*.rs takes lpoco-attended from the steps crate (tools/walleye-tries, by path, re-exported: no tag in any //! header); (2) .github/workflows/check.yml installs/runs the lpoco-attended CLI that tools/walleye-tries builds (cargo run --manifest-path tools/walleye-tries/Cargo.toml -- check ...), no 'cargo install --tag' line; (3) grep for the tag 'lpoco-attended-v' in the repo finds only tools/walleye-tries/Cargo.toml and Cargo.lock; (4) every one of the 13 procedures still dry-runs with today's step counts (rootfs-boots 26, install-boot 17 rehearsal, ufs-matched 23, alpine-login 22, install-rootfs 16) and the checks pass; NO phone-run behavior changes (gates, go reads, way backs, timeouts): the diff of the procedures is where the dependency comes from, said in the PR; no procedure is run against the phone by the builder; dry run, check --host, tests, clippy, fmt, review (0) FIRST, from orchestration (2026-11-23): a .gitattributes at the repo root with the two lines 'data/** rhizoid-records' and 'docs/** rhizoid-records', so rhizoid 0.3.7 reads the backlog's quoted tags as history, not as pin copies; only the real copies in procedures/*.rs and .github/workflows/check.yml stay until (1) and (2) are done; rhizoid status then shows no second copy.
 
 Rank
-: 3
+: 2
 
 
 <a id="walleye-install-rootfs-boots-try"></a>
@@ -11165,7 +11165,7 @@ Proof
 : device.toml [images.z21.recipe] in the form of decision 2026-11-23-image-recipes-on-nix-fixed-output-paths and lab-tools #368 (z20 plus z21's dtb is the proven example in lab-tools): 'lpoco bringup image ensure z21' (lab-tools released, installed on the host: v0.45.0 or later) rebuilds the image from the recipe, checks it against the declared sha256 of [images.z21] and serves it from the store afterwards; the inputs of the recipe are named (kernel_tag of the image: int/walleye/ufs-off-e123d3bff/v7.3/1, the dtb from the board dts at its commit, the ramdisk and header words), no tree path; nothing changes the declared sha256; then the same for the other images an [images.*] row names, one row per item or per change as the builder judges (these are the rebuild-identical proofs that let a build-*.sh retire: item walleye-retire-build-scripts); dry run, check --host, tests, review; no phone
 
 Rank
-: 3
+: 2
 
 
 <a id="walleye-stage2-step21-slot-source"></a>
@@ -11388,3 +11388,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-declares-its-kernel-build"></a>
+### walleye declares its kernel build so lpoco bringup image ensure can build it from an int/ tag: the board dtbs, our dts patch, the fuel-gauge commits as the recipe's inputs
+
+Status
+: open
+
+Note
+: From orchestration (2026-11-23): the follow-up 'walleye-declares-its-kernel-build' is this lane's. The measurement that remains is a keeper's RAM boot of z21 from the cache on the Pixel 2 (UFS off, read only, one command), which needs the z21 recipe row (item walleye-image-recipe-z21) and the lpoco-attended pin at the new release (item walleye-attended-pin-is-one-pin, done together with walleye-checks-name-their-sources).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: following orchestration's lab-tools #373 and #375/#376 (an [images.NAME.recipe] with no image file: the procedure's boot_once runs 'lpoco-bringup image ensure NAME' and boots the store path; ensure can build the kernel from an int/ tag): this lab's device.toml declares what that build needs beyond the tag: (1) the dtbs: the board dts files under dt/ (msm8998-google-walleye.dts and the variants an [images.*] row names) as recipe inputs, copied into the tree by the recipe (the way build/build-kernel.sh does: one Makefile line), not by hand; (2) the dts patch of the lab (kernel/ topic or dt/ overlay: whatever carries the display reset and the watchdog node), (3) the fuel-gauge commits (topic/walleye-fuel-gauge-rfc, in the live list already) named by the list, not by a script; the build is declared once and reproduces a declared image byte for byte: the proof is 'lpoco bringup image ensure z21' (and one UFS-on image) equal to the declared sha256 on this host; the build-*.sh that an [images.*] row names retire as each image rebuilds (item walleye-retire-build-scripts); dry run, check --host, tests, review; no phone
+
+Rank
+: 3
