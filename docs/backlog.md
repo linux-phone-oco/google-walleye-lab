@@ -10640,7 +10640,7 @@ Proof
 : (1) the live lists ufs-off and ufs-on of kernel/topics.toml are assembled to tags int/walleye/LIST/v7.3/N and pushed (rhizoid assemble, or lpoco bringup kernel assemble once lab-tools' kernel-assemble-reproduces-and-names lands: v0.45.0), read back with ls-remote; (2) the next image (the one the stage 2 fix needs: its kernel change is a topic or a wip branch on the fork, never an edit of a worktree) is built from the tag by build scripts that take the tag, not a tree path; its [images.*] row carries kernel_tag and the sha256, built twice identical; (3) 'rhizoid status' shows no walleye kernel on a worktree by hand; the report to the Top Coordinator comes when this image exists
 
 Rank
-: 3
+: 4
 
 
 <a id="walleye-retire-build-scripts"></a>
@@ -10828,7 +10828,7 @@ Status
 : open
 
 Note
-: Rescoped by the coordinator (2026-11-23 15:30) after the researcher's prechecks (PR 879): the proposal of the Top Coordinator, make the try itself the watchdog fix, is already in the image, so the try's novelty is the DEBUG INIT (petter first, gadget first, hold) and the kernel taken from a live list tag (the author's step 3: a kernel that is an int/ tag, no worktree by hand). Whether the kernel runs at all in a normal boot's first 40 s is what the debug image settles. | The Top Coordinator's order after run 7: build the watchdog try as the FIRST image from a live list (topic or wip branch plus rhizoid assemble, kernel_tag in its row), which is also step 3 of the author's structure list (walleye-next-image-from-an-int-tag). Then ONE stage 2 run; if slot a then answers ssh stage 2 proceeds; if it still resets, cold USB is next.
+: NO LONGER A BUILD ITEM (the coordinator, 2026-11-23 21:05): run 8 showed the kernel runs on a normal boot and run 9 booted our root from boot_a: the watchdog was not the cause and no kernel change is needed for stage 2; the kernel stays e337de53's family. The first image from a live list's int/ tag is item walleye-next-image-from-an-int-tag, which waits for the PRODUCTION stage 2 image (after one pass with the debug image). | Rescoped by the coordinator (2026-11-23 15:30) after the researcher's prechecks (PR 879): the proposal of the Top Coordinator, make the try itself the watchdog fix, is already in the image, so the try's novelty is the DEBUG INIT (petter first, gadget first, hold) and the kernel taken from a live list tag (the author's step 3: a kernel that is an int/ tag, no worktree by hand). Whether the kernel runs at all in a normal boot's first 40 s is what the debug image settles. | The Top Coordinator's order after run 7: build the watchdog try as the FIRST image from a live list (topic or wip branch plus rhizoid assemble, kernel_tag in its row), which is also step 3 of the author's structure list (walleye-next-image-from-an-int-tag). Then ONE stage 2 run; if slot a then answers ssh stage 2 proceeds; if it still resets, cold USB is next.
 
 Blocked by
 : walleye-stage2-cmdline-too-long
@@ -10838,9 +10838,6 @@ About
 
 Opened
 : 2026-11-23
-
-Needs
-: build
 
 Proof
 : (1) the watchdog prechecks (research walleye-stage2-watchdog-prechecks-read, PR 879) say the kernel-level petting is ALREADY in e337de53 and probes (dtb node watchdog@17817000 kpss-wdt, QCOM_WDT=y, WATCHDOG_HANDLE_BOOT_ENABLED=y, register layout as stock): so NO dts or config change is made; (2) the image's kernel comes from the live list ufs-on of kernel/topics.toml: the int/ tag int/walleye/ufs-on/v7.3/1 (pushed; it carries topic/pmic-wdt-wake-in-suspend at its tip, i.e. the two pm8916_wdt review fixes the shipped e337de53 lacks) or a newer N, assembled by rhizoid assemble; the build script takes the TAG, not a tree path; (3) the stage 2 debug init of item walleye-stage2-debug-image on top; the image is declared in device.toml with sha256 (built twice identical) and kernel_tag = that tag; the stage 2 command's image name points at it (one recorded line); (4) dry run, check --host, tests, clippy, fmt, review; no phone
