@@ -10150,10 +10150,10 @@ Rank
 ### Why the phone's shell and usb network go silent under a sustained read of the card, and not for the first 7 or 8 samples: the cause on the phone's side, from sources and from a small falsifiable try
 
 Status
-: open
+: done
 
 Note
-: From UFS try 2 (three runs, PRs 772, 786, 819): the shell goes silent under a sustained O_DIRECT read of sda although the gear scales and the first 7-8 samples answer, and does not come back within limit+60 s; Android on the same card reads fine, so this is OUR kernel's behaviour. It matters for stage 3 (the rw write test): sustained writes must not run before this is understood, so walleye-install-rw-write-test is blocked on it. Stage 1 and stage 2 boot and read small amounts (the root's ssh and the checks passed twice over).
+: Researched 2026-11-23: causes ranked in walleye-ufs-silent-under-load-causes-ranked; decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try; the try is on the phone queue as walleye-ufs-silent-ramped-pinned-try; the cause itself is not known yet
 
 About
 : walleye-bootimage
