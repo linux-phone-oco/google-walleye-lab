@@ -140,7 +140,6 @@ dir = "build/images"
 [images.z21]
 path = "images-z21/boot-z21.img"
 sha256 = "bdc0a89179d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff"
-kernel_tag = "int/walleye/ufs-off-e123d3bff/v7.3/1"   # v7.3 + topic/pmic-wdt-wake-in-suspend at e123d3bff (build-z20.sh); rhizoid assemble --reproduces e123d3bff says equal
 
 [images.l6]
 path = "images-display-stripes/boot-l6.img"
@@ -186,7 +185,6 @@ hold = 60                           # seconds the drawer holds the four stripes 
 [images.ufs-match]
 path = "NOT-TO-BOOT-ufs-on-images-ufs-match2/NOT-TO-BOOT-ufs-on-ufs-match.img"
 sha256 = "461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5"   # the matched UFS-ON image (PR 555): NOT to boot without the author's go; tests/host/ufs-off-image.sh refuses it by design
-kernel_tag = "int/walleye/ufs-on-3644090c7/v7.3/1"   # v7.3 + pmic-wdt e123d3bff + fuel gauge + topic/ufs-match-android; rhizoid assemble --reproduces 3644090c7 says equal
 
 [procedures.ufs-matched-image-on-the-pixel-2]
 dtb = "NOT-TO-BOOT-ufs-on-images-ufs-match2/msm8998-google-walleye-ufs-match.dtb"   # the dtb in that image (a path under [images] dir), for tests/host/ufs-match-android.sh
@@ -300,7 +298,6 @@ by_name = "/dev/block/by-name"
 [images.ufs-root]
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root/NOT-TO-BOOT-ufs-on-ufs-root.img"
 sha256 = "c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9"   # rebuilt 2026-11-22: the init fails CLOSED without androidboot.slot_suffix (item walleye-install-boot-slot-on-cmdline); was 35b60fda... (run 1: the init saw no suffix)
-kernel_tag = "int/walleye/ufs-on-3644090c7/v7.3/1"   # v7.3 + pmic-wdt e123d3bff + fuel gauge + topic/ufs-match-android; rhizoid assemble --reproduces 3644090c7 says equal
 
 # The UFS-root image WITH THE DISPLAY, U-d5 (item walleye-install-ufs-root-display-image, 2026-11-23): UFS ON and the display in one image. Kernel: branch wip/walleye/ufs-root-display of linux-v7.3 (ac7eefecb) = topic/ufs-match-android
 # (3644090c7) + the MDSS reset (kernel/display-mdss-reset) + the panel driver; the display path as 13 modules built for it (loaded at 5 s by build/initramfs-root-display/init), fbcon built in; dtb = the display board dtb with the lab levers
@@ -318,7 +315,6 @@ sha256 = "a45588272b11fed90d7d13e9ed0c3a00d1c2208b9758d01ed968587978582747"
 [images.ufs-root-booted-slot]
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot.img"
 sha256 = "e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1"
-kernel_tag = "int/walleye/ufs-on-3644090c7/v7.3/1"   # v7.3 + pmic-wdt e123d3bff + fuel gauge + topic/ufs-match-android; rhizoid assemble --reproduces 3644090c7 says equal
 
 # The read-only UFS-on boot of that image as ONE command (item walleye-install-boot-procedure; run by item walleye-install-rootfs-boots-try). The root is the system partition of the slot Android is NOT on, read at the run
 # (adb's ro.boot.slot_suffix equal to fastboot's current-slot, and equal to the root the image names); nothing here names a slot.
