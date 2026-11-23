@@ -11544,10 +11544,10 @@ Rank
 ### RAM-only try: the production image with Android b's header words by fastboot boot, no flash, no flag change: does the bootloader append its tail
 
 Status
-: open
+: done
 
 Note
-: From the researcher's row walleye-cmdline-tail-cut-cause-read (PR 957): the cut is one skipped block of the ABL, not a length limit; it blocks nothing (step 21 takes the slot from root=PARTUUID). Ranked after the UFS and stage 3 work; check C (stock boot_a on slot a) is not queued: it flashes.
+: SUPERSEDED, not run: research walleye-cmdline-tail-cut-candidates (PR 945) counted that our header (135, 149 and 373 chars) is cut at pk every time and fastboot-boot images with the same footer got the whole tail, so a header try (this item) tests what is already refuted; the discriminator is item walleye-cmdline-cut-check-slot-a (C1: fastboot boot the production image with current slot a, read /proc/cmdline). Two researchers' rows overlap (PR 945 and PR 957); both stand as sources.
 
 About
 : walleye-bootimage
