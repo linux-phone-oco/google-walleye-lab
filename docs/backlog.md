@@ -9730,16 +9730,13 @@ Status
 : in-progress
 
 Note
-: Run 1 of try 2 stopped at step 16 (sample not answered in 10 s); research walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load. No second run without the coordinator.
+: HELD 2026-11-23 (the coordinator): off the phone queue until item walleye-ufs-try-2-sample-step lands (run 1 stopped at step 16; GPT re-read EQUAL, research walleye-ufs-try-2-run-1-gpt-equal, PR 776). Then the coordinator puts it back on the phone queue (needs phone, rank 1) and reopens the go if the window of 2026-11-23T11:05:10+01:00 has passed. | Run 1 of try 2 stopped at step 16 (sample not answered in 10 s); research walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load. No second run without the coordinator.
 
 About
 : walleye-first-fastboot-boot
 
 Opened
 : 2026-11-23
-
-Needs
-: phone
 
 Proof
 : the image's own dmesg: UFS_HW_VERSION line, PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge
