@@ -1,0 +1,55 @@
+1795419017 start : rootfs boots on the Pixel 2 on google-walleye
+1795419017 start : rootfs boots on the Pixel 2 on google-walleye
+1795419017 begin the battery is good enough: check
+1795419017 ok the battery is good enough: 
+1795419017 begin the image is the declared one and names one root: check
+1795419017 ok the image is the declared one and names one root: 
+1795419017 begin the stored boot chain is whole and the ssh key is private: check
+1795419017 ok the stored boot chain is whole and the ssh key is private: 
+1795419017 begin say what to expect: step
+1795419017 ok say what to expect: 
+1795419017 begin the phone is on Android, adbd as root: step
+1795419017 ok the phone is on Android, adbd as root: 
+1795419017 begin adb reads the slot Android runs from: check
+1795419018 ok adb reads the slot Android runs from: 
+1795419018 begin the card is read from Android: its partition tables and the root partition: check
+1795419328 ok the card is read from Android: its partition tables and the root partition: 
+1795419328 begin take the phone to fastboot: step
+1795419343 ok take the phone to fastboot: 
+1795419343 begin fastboot agrees on the slot and the image's root is the other one: check
+1795419343 ok fastboot agrees on the slot and the image's root is the other one: 
+1795419343 begin make this run's image: the declared one with the slot read on its command line: step
+1795419343 ok make this run's image: the declared one with the slot read on its command line: 
+1795419343 begin the slots' flags are read: check
+1795419343 ok the slots' flags are read: 
+1795419343 begin the author's go is recorded on the item: check
+1795419343 ok the author's go is recorded on the item: 
+1795419343 begin boot the UFS-root image from memory, nothing flashed: step
+1795419383 ok boot the UFS-root image from memory, nothing flashed: 
+1795419383 begin USB device 1d6b:0104 is on the bus: check
+1795419383 ok USB device 1d6b:0104 is on the bus: 
+1795419383 begin log in over usb-network by ssh and read the phone: step
+1795419393 ok log in over usb-network by ssh and read the phone: 
+1795419393 begin it is root's login on the image, the network and the services are up: check
+1795419393 ok it is root's login on the image, the network and the services are up: 
+1795419393 begin the init saw the slot adb saw and mounted the named partition: check
+1795419393 ok the init saw the slot adb saw and mounted the named partition: 
+1795419393 begin the card is mounted read-only under the overlay: check
+1795419393 ok the card is mounted read-only under the overlay: 
+1795419393 begin the kernel log has no purge, oops or UFS failure: check
+1795419393 ok the kernel log has no purge, oops or UFS failure: 
+1795419393 begin send the phone back: to its bootloader first, the forced reboot if that is not reached: step
+1795419458 ok send the phone back: to its bootloader first, the forced reboot if that is not reached: 
+1795419458 begin the phone is on Android (the way back, if it is not): step
+1795419458 ok the phone is on Android (the way back, if it is not): 
+1795419458 begin the phone is back on Android: check
+1795419458 ok the phone is back on Android: 
+1795419458 begin Android answers as root again: step
+1795419459 ok Android answers as root again: 
+1795419459 begin the partition tables and the root partition are as before: check
+1795419747 ok the partition tables and the root partition are as before: 
+1795419747 begin the boot chain read again equals the stored set: check
+1795419753 ok the boot chain read again equals the stored set: 
+1795419753 begin both slots' flags are as before: check
+1795419797 ok both slots' flags are as before: 
+1795419797 end : all steps passed

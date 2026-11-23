@@ -6062,24 +6062,6 @@ About
 ---
 
 
-<a id="2026-11-23-0900-walleye-keeper-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-23
-
-Done
-: Took walleye-ufs-try-2-run-1-gpt-equal (walleye-try-ufs-match is in-progress after run 1 and says no second run without the coordinator, so not rerun): sda GPT EQUAL, boot chain read-back equal, item done. Phone on Android slot b, stock kernel, nothing flashed, adb root left on (Android is throw-away).
-
-Considered
-: next: the coordinator decides try 2 run 2 (longer sample timeout on step 16) on walleye-try-ufs-match; walleye-install-flash-boot waits on the stage 2 image rehearsal; then walleye-slpi-boot-qrtr, nfc node
-
-About
-: walleye-first-fastboot-boot
-
----
-
-
 <a id="2026-11-23-ufs-try-2-sample-step-fixed"></a>
 ### UFS try 2 sample step fixed
 
@@ -6097,3 +6079,18 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-0900-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Stage 1 rerun 6 (c3373d71) passed 26 of 26; bootloader way back not reached (fastboot saw no phone in 60 s), forced way back ran; card, boot chain, slot flags equal; phone on Android slot b, stock kernel, nothing flashed, fastboot reachable
+
+Considered
+: next: the coordinator decides on the bootloader way back (reboot bootloader from Linux does not reach fastboot - cause not known yet); walleye-install-flash-boot waits on the stage 2 boot image; then walleye-slpi-boot-qrtr
