@@ -6535,7 +6535,7 @@ Note
 : Research done (walleye-slpi-carveout-answer, decision 2026-11-23-walleye-slpi-carveout-running-layout): dts steps are in the decision (a build step), then the keeper's try: enable remoteproc_slpi with the firmware files and read /sys/class/remoteproc and qrtr-lookup.
 
 Blocked by
-: walleye-slpi-carveout-read,walleye-ufs-readonly
+: walleye-slpi-carveout-dts,walleye-ufs-readonly
 
 About
 : sensors
@@ -10050,3 +10050,28 @@ Opened
 
 Proof
 : on the bump branch rhizoid/bump/lpoco-attended-0.44.3 (google-walleye-lab PR 790; push the fix there, do not make a second pin PR): the CI check 'the attended tries prove themselves' passes; the cause is read first from lab-tools' changelog/source between 0.41.0 and 0.44.3 (the panic is 'lpoco-attended: call procedure(name, device) before the first step', attended/src/lib.rs:217: touch-events-on-z21 and ufs-matched-image-on-the-pixel-2 reach a step before procedure(name, device); say if 0.41.0 behaves the same or whether 0.4x moved the requirement, and if it is a lab-tools regression say so with the line and stop for orchestration); every one of the 13 procedures/*.rs still dry-runs (step counts equal to today's: rootfs-boots 26, install-boot 17 in the rehearsal, ufs-matched 23, alpine-login 22, install-rootfs 16), tools/walleye-tries' tests, clippy, fmt pass; NO behavior of a phone run changes (gates, go reads, way backs, timeouts): the diff of the procedures is the API move only, said in the PR; no procedure is run against the phone by the builder; review
+
+
+<a id="walleye-slpi-carveout-dts"></a>
+### The SLPI carve-out in our dts and an image that boots remoteproc_slpi with the phone's own firmware, UFS off: the layout of decision 2026-11-23-walleye-slpi-carveout-running-layout, tested offline, then the keeper's try
+
+Status
+: open
+
+Note
+: From research walleye-slpi-carveout-read (PR 806, the Top's order to keep the slpi item moving): the SLPI firmware slpi_v2.mdt is relocatable and needs one 15 MiB block; our 7 MiB node at 0x94b00000 is too small; the phone's own dtbo and running fdt put it at 0x94c00000 / 0xf00000. NOT KNOWN YET: whether TZ accepts the image at 0x94c00000 on our boot, and the remoteproc reg. Behind the phone path (RESTART2 tool, silent-shell fix).
+
+About
+: sensors
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) dt/msm8998-google-walleye.dts: slpi_mem 0x94c00000 size 0xf00000; mba_mem 0x94500000/0x200000; venus_mem 0x94700000/0x500000; ipa_fw_mem, ipa_gsi_mem, gpu_mem, wlan_msa_mem deleted and the phone's 0x95b00000/0x100000 ipa/gpu block added; remoteproc_slpi enabled with firmware-name qcom/msm8998/google/walleye/slpi_v2.mdt; (2) a host test on the built dtb (fdtdump or dtc -I dtb, like tests/host/dtb-display-reset.sh): no two reserved-memory regions overlap, each is inside the DRAM the board dts declares, the SLPI block is 15 MiB, and the names and addresses equal the research's table of the phone's running fdt (keep the phone's own text as the fixture where it is not secret: the dtbo's reserved-memory nodes); (3) the remoteproc reg question (mainline 0x5800000 or vendor 0x5c00000) is answered in the dts with the line it rests on or left as NOT KNOWN YET with the smallest try; (4) a UFS-OFF test image (the UFS-off gate stays: tests/host/ufs-off-image.sh) whose ramdisk carries slpi_v2.mdt and .b00-.b14 copied at image build from ~/lab-material/walleye (vendor_a), mode 600/700, NEVER git, and the tools the health test needs (tests/health/base/slpi-sensor-service.sh: qrtr, pd-mapper from the rootfs build, rmtfs if the research says so); built twice identical, declared in device.toml; the rest of the display/boot words as the latest UFS-off image's; dry run, check --host, tests, clippy, fmt, review; the keeper's try is then item walleye-slpi-boot-qrtr (one command, nothing written, firmware only in RAM)
+
+Rank
+: 4
