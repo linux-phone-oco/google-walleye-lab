@@ -1,0 +1,90 @@
+check 1: the battery is good enough
+check 2: the image is the declared one, a whole boot partition, its AVB footer verifies
+  the image names its root: system_a
+check 3: the image's init accepts the slot it is booted from
+check 4: the stored boot chain is whole, the ssh key is private and the reboot tool is the declared one
+step 5: say what to expect
+  One command, about 15 minutes: our boot image is flashed to the boot partition of the slot Android is NOT on (read two ways, built from device.toml's list "boot_a boot_b"), read back, and that slot is made active by the bootloader's own set_active - the call Android's OTA makes, a write to the GPT by the bootloader, with the slot flags and the GPT of its 6 disks read before and after. The phone then boots from the card and the lab logs in; then the way back, set_active of Android's slot, is made in the same run and the phone ends on Android. A stop at any step runs the way back.
+check 6: the coordinator's go is recorded on the item for this image
+step 7: the phone is on Android, adbd as root
+check 8: adb reads the slot Android runs from
+  adb: slot suffix _b
+check 9: the boot partition to be flashed, read now, is its backup, or the declared image with the backup on file; the boot, dtbo and vbmeta partitions are hashed
+  boot_a already holds the declared image (e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1); the stock backup is on file and hashes to its record (2a5cd3b20ef0da2b272d2dac460f868d4764d8bdb8cb426d62eee568f1344fb5): the flash can be undone
+check 10: the GPT of every disk is read whole and kept
+  6 disks' GPT kept, each whole with the right CRCs
+step 11: take the phone to fastboot
+check 12: fastboot agrees on the slot and the flash target is the other slot's boot partition
+  Android runs from slot b; the one flash would be: fastboot -s SERIAL flash boot_a /home/mll/.local/share/agent-worktrees/google-walleye-lab/walleye-keeper-1795443037/build/images/NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot.img
+check 13: the slot flags are read before
+step 14: flash the boot partition of the slot Android is not on: one fastboot flash
+step 15: the phone is on Android, adbd as root (Android's slot is still the active one)
+check 16: the partition reads back as the image, and no other boot, dtbo or vbmeta partition changed
+  boot_a reads back as the image; boot_a held the image already and the flash changed no partition
+step 17: take the phone to fastboot
+check 18: the flash reset only the flashed slot's successful and retry count
+step 19: make the flashed slot active: the bootloader's own set_active
+check 20: the flags changed as the bootloader's switch describes and nothing else
+step 21: the new slot boots from the card and the lab logs in by ssh; its GPT is read
+  no ssh from the new slot: sending the phone nothing; waiting up to 420 s for Android to answer adb, then the pstore is read first
+  adb answered 0 s after the wait began
+---pstore-listing
+(not read: adb shell ls -la /sys/fs/pstore: ls: /sys/fs/pstore: Permission denied)
+---uptime
+15:15:35 up 2 min,  0 users,  load average: 3.96, 1.76, 0.67
+---id
+uid=2000(shell) gid=2000(shell) groups=2000(shell),1004(input),1007(log),1011(adb),1015(sdcard_rw),1028(sdcard_r),1078(ext_data_rw),1079(ext_obb_rw),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats),3009(readproc),3011(uhid),3012(readtracefs) context=u:r:shell:s0
+---cmdline
+(not read: adb shell cat /proc/cmdline: cat: /proc/cmdline: Permission denied)
+---bootreason
+watchdog
+---sys-bootreason
+watchdog
+---slot-suffix
+_b
+---verifiedbootstate
+orange
+---end
+---pstore-listing
+(not read: adb shell ls -la /sys/fs/pstore: ls: /sys/fs/pstore: Permission denied)
+---uptime
+15:15:35 up 2 min,  0 users,  load average: 3.96, 1.76, 0.67
+---id
+uid=2000(shell) gid=2000(shell) groups=2000(shell),1004(input),1007(log),1011(adb),1015(sdcard_rw),1028(sdcard_r),1078(ext_data_rw),1079(ext_obb_rw),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats),3009(readproc),3011(uhid),3012(readtracefs) context=u:r:shell:s0
+---cmdline
+(not read: adb shell cat /proc/cmdline: cat: /proc/cmdline: Permission denied)
+---bootreason
+watchdog
+---sys-bootreason
+watchdog
+---slot-suffix
+_b
+---verifiedbootstate
+orange
+---end
+---adb-root
+restarting adbd as root
+---pstore-listing
+total 0
+drwxr-x--- 2 system log  0 2026-11-23 15:13 .
+drwxr-xr-x 8 root   root 0 1970-07-27 02:06 ..
+---uptime
+15:15:36 up 2 min,  0 users,  load average: 3.96, 1.76, 0.67
+---id
+uid=0(root) gid=0(root) groups=0(root),1004(input),1007(log),1011(adb),1015(sdcard_rw),1028(sdcard_r),1078(ext_data_rw),1079(ext_obb_rw),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats),3009(readproc),3011(uhid),3012(readtracefs) context=u:r:su:s0
+---cmdline
+rcupdate.rcu_expedited=1 androidboot.hardware=walleye androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 service_locator.enable=1 swiotlb=2048 firmware_class.path=/vendor/firmware loop.max_part=7 raid=noautodetect usbcore.autosuspend=7 androidboot.dtbo_idx=3 androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=0000002b-0000-0000-0000-000000000000 androidboot.bootdevice=1da4000.ufshc androidboot.serialno=REDACTED androidboot.wificountrycode=00 androidboot.boottime=1BLL:221,1BLE:784,2BLL:870,2BLE:271,SW:10023,KL:0,KD:94,ODT:144,AVB:163 androidboot.baseband=msm mdss_mdp.panel=1:dsi:0:htc,mdss_dsi_samsung_s6e3fa5_1080p_cmd:1:none:cfg:single_dsi androidboot.fpsensor=fpc1075 androidboot.fpmodule=ofilm androidboot.usbradioflag=0 androidboot.temp_protect_ignore=0 androidboot.hardware.ufs=64GB,Hynix androidboot.mid=G011A androidboot.hardware.sku=G011A androidboot.revision=MP1 androidboot.ddrsize=4GB androidboot.ddrinfo=000000FF androidboot.hardware.ddr=4096MB,Micron,LPDDR4 androidboot.bootloader=mw8998-003.0085.00 androidboot.bootreason=watchdog androidboot.cid=00000000 androidboot.hardware.color=VEN00 androidboot.theme=1 androidboot.sf=1 androidboot.msm.hw_ver_id=2005E0E1 androidboot.qf.st=2 androidboot.pk=g-pxl-p androidboot.slot_suffix=_b want_initramfs rootwait ro init=/init androidboot.force_normal_boot=1
+---bootreason
+watchdog
+---sys-bootreason
+watchdog
+---slot-suffix
+_b
+---verifiedbootstate
+orange
+---end
+install boot on the Pixel 2: stopped at step 21 "the new slot boots from the card and the lab logs in by ssh; its GPT is read": no ssh login within 170 s as root@172.16.43.1: ssh: ssh: connect to host 172.16.43.1 port 22: Connection timed out; Android answered adb 0 s after the wait began and the failed boot was read first: failed-boot-read.txt in the run's folder (pstore, command line, boot reason, slot)
+the run stopped (exit 1)
+the phone goes back to Android if it is not there
+way back: the phone is on Android already; nothing sent
+the phone did not reach the bootloader within 170 s of `/tmp/walleye-reboot --command bootloader` (the ask said: sending the reboot tool to /tmp/walleye-reboot: ssh: ssh: connect to host 172.16.43.1 port 22: Connection timed out) (rerun 7 reached it this way from stage 1's kernel; stage 2's is not known yet): hold power and volume-down until the bootloader screen shows, then run: fastboot set_active b && fastboot reboot
