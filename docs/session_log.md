@@ -7012,3 +7012,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-1910-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Rehearsal 7 passed 18/18 with the rebuilt debug image a0a55cd0, nothing written. Phone on Android slot b (stock kernel), adb device, boot_a holds run 8's image ec741a98, stock backup on file. The run was NOT made: the go row names ec741a98, not the new sha.
+
+Considered
+: next: coordinator opens a go naming the full sha256 a0a55cd0... on walleye-install-flash-boot-run; then one command procedures/install-boot-on-the-pixel-2.rs. Lease released.
+
+About
+: walleye-bootimage

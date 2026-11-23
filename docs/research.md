@@ -6842,3 +6842,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-install-flash-boot-rehearsal-7-passed"></a>
+### walleye-install-flash-boot-rehearsal-7-passed
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 rehearsal 7 with the rebuilt debug image a0a55cd0 declared: 18 of 18 passed, nothing written; boot_a holds ec741a98 (run 8's), stock backup on file; phone on Android b
+
+Question
+: Does the rebuilt debug image (short header cmdline, slot from four sources) pass every read-only step of stage 2 before the next run?
+
+Found
+: 18 of 18 passed in about 90 s on main caafbd7, nothing written, phone on Android slot b (adb _b). Image check 2 and the init gate check 3 pass (names its root system_a). Check 8: boot_a holds ec741a98 (run 8's image, not recorded as backup); stock backup 2a5cd3b2 on file and hashes to its record, so the flash can be undone. Six GPTs read twice, equal, whole. Flash target would be boot_a (command shown, not run). Android's own normal-boot cmdline carries androidboot.slot_suffix=_b plus the bootloader's words, bootreason reboot, sys bootreason bootloader. pstore empty, phone had just come back from the rehearsal's fastboot excursion (up 0 min). Boot chain as stored. Whole stdout kept: ~/lab-material/walleye/install-boot-rehearsal-20261123-190329/stdout.log. NOT the run: the go on walleye-install-flash-boot-run names ec741a98 only; go_decision needs the full sha256 a0a55cd060343d7acc1af07247c48b930789e2318afb77cfe31ea83acba25751 in the item row, so the run would refuse at check 6; not run, the go is the coordinator's.
+
+About
+: walleye-bootimage
