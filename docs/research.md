@@ -6798,3 +6798,25 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing"></a>
+### walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 run 8 (debug image ec741a98): the kernel RUNS on a normal boot, gadget and telnet up; the root init refuses: the bootloader passes no androidboot.slot_suffix
+
+Question
+: Does the debug image boot from the card on a normal boot (the four outcomes)?
+
+Found
+: Outcome 2: no ssh, but ping and telnet 172.16.43.1 answered (host saw usb 3-2 'Pixel 2 walleye (stage 2 debug init)' at 17:36:55, petters from 1 s, gadget bound at 1 s). /tmp/walleye-debug.log: walleye-ufs-root start, running slot suffix=[], 'refused: no androidboot.slot_suffix on the command line: the slot Android is on is not known, nothing is mounted'; hold 900 s then the phone resets itself. The bootloader's cmdline (run8-telnet-debug-read.txt) holds no androidboot.slot_suffix, nor any slot arg; androidboot.bootreason=reboot. So run 4 and 7's step 21 failure was the same refusal, not a dead kernel: the next fix is the image's cmdline or init (declare the slot: the flashed slot is the booted one, root=system_a is its own system) and step 3 of the procedure. The phone fell back to Android b by itself after the hold; battery 4375 mV, idle-android pass. watchdog sysfs listings had no identity/state files.
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-bootimage/2026-11-23/
