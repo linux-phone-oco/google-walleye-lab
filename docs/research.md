@@ -5925,3 +5925,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load"></a>
+### walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load
+
+Date
+: 2026-11-23
+
+Brief
+: UFS try 2: card readable, UFS_HW_VERSION 3.1.0, 6 disks, GPT hashed; gear HS-G1 idle, HS-G3 2 lanes 200 MHz under load; the sample step timed out at 10 s, run stopped, Android back
+
+Question
+: With the matched UFS-on image: which gear does the link reach, before, under load and 2 s after?
+
+Found
+: Read only, nothing written. Probe: UFS_HW_VERSION 3.1.0, MSM8998 PHY table 3.1.0. Link at probe HS_GEAR1 2 lanes rate B, HIBERN8. 6 disks (sda-sdf), sda 45 partitions, GPT sha256 2de02f2b...57cb. Before load: HS_GEAR1 2 lanes, clock 50 MHz. Under load (8 samples): HS_GEAR3 2 lanes rate B FAST_MODE, clock 200 MHz. Run stopped at step 16: the sample command (cat /tmp/load.done plus sysfs loop) was not answered within 10 s, so the 2 s-after read, GPT hash-equal and no-purge checks (17-19) did not run; the way back ran, phone on Android (phone-state.sh adb device). GPT unchanged is therefore not yet proven by this run. Not known yet: gear 2 s after load; next step is a longer timeout on the sample step (procedure tweak) and a second run, which needs the coordinator. Log: build ufs-try2.log.
+
+About
+: walleye-first-fastboot-boot
