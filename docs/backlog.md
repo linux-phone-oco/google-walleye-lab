@@ -2778,31 +2778,6 @@ Rank
 : 3
 
 
-<a id="walleye-wifi-wcn3990"></a>
-### Wi-Fi and Bluetooth: WCN3990 through ath10k snoc, firmware read from the phone's own vendor partition
-
-Status
-: open
-
-Note
-: ath10k is in mainline. The firmware is the phone's own, read from its partition at boot, never put in a repository.
-
-Blocked by
-: walleye-ufs-readonly,walleye-dmesg-clean
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: walleye-wlan-scan: wlan0 scans and finds a network; hci0 is up
-
-
 <a id="walleye-audio-haptics"></a>
 ### Haptics (DRV2624) and speaker amps (TAS2557) with the WCD934x codec: drivers to write or port
 
@@ -11442,3 +11417,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-wifi-wcn3990"></a>
+### Wi-Fi and Bluetooth: WCN3990 through ath10k snoc, firmware read from the phone's own vendor partition
+
+Status
+: open
+
+Note
+: ath10k is in mainline. The firmware is the phone's own, read from its partition at boot, never put in a repository. Research walleye-wifi-needs-the-modem: ath10k snoc is a QMI client of the modem's WLFW service, so the modem must run first; blocked on the modem items, then the build: restore wlan_msa_mem from the phone's own dtbo, enable the wifi node, tqftpserv/qrtr, board data.
+
+Blocked by
+: walleye-modem-mss-proof
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: walleye-wlan-scan: wlan0 scans and finds a network; hci0 is up
