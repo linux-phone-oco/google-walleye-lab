@@ -6955,3 +6955,39 @@ Done
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-keeper-stage2-run8"></a>
+### Stage 2 run 8 (debug image)
+
+Entry date
+: 2026-11-23
+
+Done
+: Real run of install-boot-on-the-pixel-2.rs on the debug image ec741a98 under the coordinator's go: steps 1-20 passed (boot_a flashed and read back, set_active a), step 21 no ssh: outcome 2, the kernel ran and its init refused for want of androidboot.slot_suffix; read through telnet from the host. Phone back on Android b by itself, boot_a still holds the debug image, GPT slot switch only; no second run.
+
+Considered
+: Writing the cmdline by hand from the shell: not the keeper's change
+
+About
+: walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-1815-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Took walleye-install-flash-boot-run (go open, debug image ec741a98); ran stage 2 once: steps 1-20 pass, step 21 outcome 2 (kernel ran, telnet answered, root init refused: no androidboot.slot_suffix from the bootloader). Phone fell back to Android slot b by itself; adb device, battery 4375 mV. boot_a now holds the debug image, slot a not current; GPT changed only by the slot switch (to be read in the item's own later checks). Research walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing.
+
+Considered
+: next: no second run of this image; the image's cmdline or init must carry the slot (decision for the coordinator); then a new go line for the new sha. Lease released.
+
+About
+: walleye-display-s6e3fa5
