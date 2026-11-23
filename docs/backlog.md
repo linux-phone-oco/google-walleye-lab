@@ -6532,7 +6532,7 @@ Status
 : open
 
 Note
-: From walleye-sensors-way. Host first: settle the SLPI carve-out (0x94b00000/7 MiB vs 0x94c00000/15 MiB) from the vendor dtb and the slpi header. Rank 21 set 2026-11-19 by the coordinator, after the display and the attended tries. Its firmware (the phone's own) reaches the test ramdisk from ~/lab-material, never git; no UFS-on image (the gate stays).
+: Research done (walleye-slpi-carveout-answer, decision 2026-11-23-walleye-slpi-carveout-running-layout): dts steps are in the decision (a build step), then the keeper's try: enable remoteproc_slpi with the firmware files and read /sys/class/remoteproc and qrtr-lookup.
 
 Blocked by
 : walleye-slpi-carveout-read,walleye-ufs-readonly
@@ -6547,7 +6547,7 @@ Needs
 : phone
 
 Proof
-: tests/health/base/slpi-sensor-service.sh passes; then libssc reads accelerometer samples while tilted
+: tests/health/base/slpi-sensor-service.sh
 
 Rank
 : 4
@@ -9884,10 +9884,10 @@ Rank
 ### The SLPI memory carve-out settled from the vendor dtb and the SLPI firmware header: 0x94b00000/7 MiB or 0x94c00000/15 MiB, and what remoteproc_slpi needs in our dtb
 
 Status
-: open
+: done
 
 Note
-: The Top Coordinator asked (2026-11-23, after rerun 6) to keep walleye-slpi-boot-qrtr moving: its first step in the item is host-only ('settle the SLPI carve-out from the vendor dtb and the slpi header'), so it is a research item first; the phone item waits for it.
+: Answered 2026-11-23: 15 MiB at 0x94c00000; see research walleye-slpi-carveout-answer
 
 About
 : sensors
