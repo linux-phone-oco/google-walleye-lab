@@ -11319,3 +11319,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-flaky-fixture-test"></a>
+### The test a_fixture_runs_at_once_while_other_threads_spawn fails now and then with ExecutableFileBusy (ETXTBSY) and blocks landings: make it deterministic
+
+Status
+: open
+
+Note
+: Seen failing in the 'attended tries prove themselves' check on records-only PRs (885, 925) and on at least one other: each time a rerun passed. It costs a landing each time; small. Rank 3: behind the stage 2 work.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: tools/walleye-tries fixture::tests::a_fixture_runs_at_once_while_other_threads_spawn no longer fails with Os { code: 26, kind: ExecutableFileBusy }: the cause is read first (the classic race: a thread forks while another thread holds the freshly written executable open for writing, so the child inherits the write fd and exec fails with ETXTBSY): the fix closes the write fd before any thread can fork (write the file, sync, drop the handle, then spawn), or opens it with O_CLOEXEC and serialises the write with the spawn; the test runs 200 times in a loop in CI or locally without a failure (cargo test -- --test-threads and a shell loop), says so in the PR; nothing about the product code changes; clippy, fmt, review
+
+Rank
+: 3
