@@ -1832,3 +1832,23 @@ By
 
 Takes
 : the apps watchdog driver and the nodes, read from the local tag reference/android-walleye/4.4.302-g113bd1cfa6f5 (android:PATH@113bd1cfa6f5)
+
+
+<a id="src-ufs-lineage-wahoo-4-4-302"></a>
+### LineageOS android_kernel_google_wahoo 4.4.302 drivers/scsi/ufs/ufshcd.c
+
+Url
+: https://github.com/LineageOS/android_kernel_google_wahoo
+
+Takes
+: clkscale_enable 0 scales up; simple_ondemand only; wahoo_defconfig governors
+
+
+<a id="src-ufs-mainline-v7-3-ufshcd"></a>
+### Mainline v7.3 drivers/ufs/core/ufshcd.c, host/ufs-qcom.c, devfreq governor_userspace.c
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/ufs/core/ufshcd.c?h=v7.3
+
+Takes
+: clkscale_enable scales up; scale-down drops gear to min_gear G1 via legacy path; userspace governor set_freq
