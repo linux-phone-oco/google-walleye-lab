@@ -858,6 +858,14 @@ impl FlashBoot {
                 &u.s.image_sha256,
                 host::sha256_of(&file),
             )?;
+            if now.to_lowercase() != want.to_lowercase()
+                && now.to_lowercase() != u.s.image_sha256.trim().to_lowercase()
+            {
+                // content nobody recorded is overwritten by the flash: a copy is kept first (research row 9)
+                let kept = u.s.out.join(format!("{target}-before-the-flash.img"));
+                u.android.copy_to(&u.by_name_of(&target), &kept)?;
+                println!("  kept a copy of what {target} held: {}", kept.display());
+            }
             u.read_parts("parts-before.txt")?;
             println!("  {said}");
             Ok(())
@@ -971,7 +979,7 @@ impl FlashBoot {
         self.lab.save(name, &flags)
     }
 
-    /// The slots' flags, read in fastboot, kept.
+    /// The slots' flags, read in fastboot, kept; read before the flash (`slots-before.txt`) they also stop the run when the slot Android runs from is not successful and bootable (the way back).
     pub fn the_slot_flags_are_read(&self, file: &'static str) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
@@ -1034,7 +1042,7 @@ impl FlashBoot {
         }
     }
 
-    /// The flash changed only what the bootloader resets on a write: the flashed slot's successful (to no), retry count (to a positive number) and unbootable bit (yes to no, or as it was).
+    /// After the flash: Android's slot, the current slot and every flag but the flashed slot's own are as they were (the flashed slot's flags are the bootloader's; research walleye-stage2-checks-should-they-exist, row 18).
     pub fn the_flash_changed_no_flag(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
@@ -1076,7 +1084,7 @@ impl FlashBoot {
         }
     }
 
-    /// After the switch, in fastboot: the flags changed as the bootloader's own switch describes.
+    /// After the switch, in fastboot: the current slot is the new one, not unbootable, with tries left (row 20).
     pub fn the_flags_are_the_switch_and_nothing_else(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
@@ -2810,11 +2818,10 @@ mod tests {
     }
 
     /// Slot a's flags (retry, successful, unbootable) of each start state, and slot b's successful bit.
-    const A_STATES: [(&str, (&str, &str, &str)); 5] = [
+    const A_STATES: [(&str, (&str, &str, &str)); 4] = [
         ("stock", ("0", "yes", "no")),
         ("after-one-flash", ("1", "no", "no")),
         ("after-a-failed-boot", ("0", "no", "yes")),
-        ("after-a-flash-that-cleared-unbootable", ("1", "no", "no")),
         ("after-a-successful-stage-2", ("7", "no", "no")),
     ];
 
@@ -2903,7 +2910,10 @@ mod tests {
                     ));
                     // the decision (research walleye-stage2-checks-should-they-exist, rows 8, 9, 18, 20): what boot_a held and the flags of the flashed slot never stop the command; the one unsafe start state is Android's slot not counted good (no way back)
                     let must_stop = b_successful == "no";
-                    if got.is_some() != must_stop {
+                    let stops_at_13 = got
+                        .as_ref()
+                        .is_some_and(|(step, _)| step.starts_with("13 "));
+                    if got.is_some() != must_stop || (must_stop && !stops_at_13) {
                         surprises.push(format!("{boot_a:?} | {a_name} | {b_name}: {got:?}"));
                     }
                 }
@@ -2916,6 +2926,23 @@ mod tests {
             surprises.join("\n")
         );
     }
+    // research walleye-stage2-checks-should-they-exist, row 9: content nobody recorded is overwritten, so a copy of it is kept first; the backup and the declared image need none
+    #[test]
+    fn unrecorded_boot_a_content_is_copied_before_the_flash_and_recorded_content_is_not() {
+        let (f, d) = the_phone_after_rerun_3("keep-copy", FLAGS_AFTER_RUN_1);
+        std::fs::write(f.by_name_of("boot_a"), b"bytes nobody recorded").unwrap();
+        (f.the_slot_is_read_by_adb())().unwrap();
+        (f.the_slot_partitions_are_read_before())().unwrap();
+        let kept = std::fs::read(f.s.out.join("boot_a-before-the-flash.img")).unwrap();
+        assert_eq!(kept, b"bytes nobody recorded");
+        let (g, _e) = the_phone_after_rerun_3("keep-none", FLAGS_AFTER_RUN_1);
+        std::fs::write(g.by_name_of("boot_a"), b"the stock boot_a").unwrap();
+        (g.the_slot_is_read_by_adb())().unwrap();
+        (g.the_slot_partitions_are_read_before())().unwrap();
+        assert!(!g.s.out.join("boot_a-before-the-flash.img").exists());
+        let _ = d;
+    }
+
     #[test]
     fn leftovers_of_an_earlier_run_are_cleared_at_step_8_and_an_unfinished_switch_marker_is_a_note_not_a_stop(
     ) {

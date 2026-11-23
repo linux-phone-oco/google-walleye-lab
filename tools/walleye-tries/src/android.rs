@@ -97,6 +97,28 @@ impl Android {
         self.sha256_of_read(&read, path)
     }
 
+    /// A partition on the phone copied whole into `dest`, read as root over adb (`exec-out dd`): what a flash is about to overwrite and nothing else holds (research walleye-stage2-checks-should-they-exist, row 9).
+    pub fn copy_to(&self, path: &str, dest: &std::path::Path) -> Result<(), String> {
+        let path = plain_path(path)?;
+        let file = std::fs::File::create(dest).map_err(|e| format!("{}: {e}", dest.display()))?;
+        let status = Command::new(&self.s.adb)
+            .args([
+                "-s",
+                &self.lab.serial()?,
+                "exec-out",
+                &format!("dd if={path} bs={BLOCK} 2>/dev/null"),
+            ])
+            .stdout(Stdio::from(file))
+            .stderr(Stdio::null())
+            .status()
+            .map_err(|e| format!("cannot run {}: {e}", self.s.adb))?;
+        if status.success() {
+            Ok(())
+        } else {
+            Err(format!("the copy of {path} did not finish (adb {status})"))
+        }
+    }
+
     /// The sha256 of what a read command on the phone writes to standard output (`what` names it in an error). The page cache
     /// is emptied first: a read must come from the media.
     fn sha256_of_read(&self, read: &str, what: &str) -> Result<String, String> {
