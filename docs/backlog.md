@@ -11100,3 +11100,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-stage2-cmdline-too-long"></a>
+### The bootloader cut our command line at about 1363 characters, so androidboot.slot_suffix was lost: shorten the header cmdline under a budget, let the init find the slot from root=PARTUUID as a second source, rebuild the debug image, rehearse, run
+
+Status
+: open
+
+Note
+: THE RESULT OF STAGE 2 RUN 8, the debug image (keeper local_466f3cf2, PR 903): OUTCOME 2 of the four: no ssh but telnet answers. The kernel runs on a normal boot, the watchdogs were petted from uptime 1 s, and the init refused because its slot source was cut off the command line by the bootloader. So the 35-40 s fall back of runs 4 and 7 (bootreason watchdog) was the init refusing and not petting, not a cold USB and not a kernel that never started: the early petter and the gadget now exist, the missing piece was the slot.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: FROM RUN 8 (research walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing, PR 903; captured text research/walleye-bootimage/2026-11-23/run8-telnet-debug-read.txt): on a normal boot the kernel RUNS (gadget bound at 1 s, telnet and ping answer, petters on watchdog0 and watchdog1) and our init refused with 'running slot suffix=[]'; the /proc/cmdline the kernel got is 1365 bytes and ENDS MID-WORD ('androidboot.pk=g-pxl-p'), so the bootloader's own words after it (androidboot.slot_suffix, want_initramfs, rootwait, ro, init=/init, androidboot.force_normal_boot) were cut: our header cmdline (about 440 characters: it carries a 270-character dyndbg string and androidboot.console/dtbo_idx) plus the bootloader's about 950-1100 exceeds the bootloader's buffer. ALSO in that cmdline: root=PARTUUID=00000016-0000-0000-0000-000000000000 = partition 22 = /dev/sda22 = system_a, i.e. the system partition of the BOOTED slot (Android b booted gave 0000002b = 43 = system_b). THE FIX, all at once: (1) the header cmdline of every stage 2 image is under a BUDGET (about 200 characters: the dyndbg string and androidboot.console and anything the debug image does not need are dropped; a comment cites run 8 and the cut at 1363); build/build-ufs-root-image.sh REFUSES a header cmdline over the budget, and a test takes the captured bootloader words (run 8's cmdline and Android b's) and shows header plus bootloader words fit with a margin of at least 100 characters (so the slot_suffix survives); (2) the init (root and debug, QEMU-tested) with the word walleye.booted-slot accepts, when androidboot.slot_suffix is missing, the slot from root=PARTUUID=0000NNNN-...: partition number NNNN (hex) to its PARTNAME in /sys/class/block (system_a or system_b), says in its log which source gave the slot ('androidboot.slot_suffix' or 'root=PARTUUID'), and still fails CLOSED when neither gives _a or _b or they disagree; (3) the debug image rebuilt (new sha256, built twice identical, the same kernel/dtb and the debug init plus these two changes), declared in device.toml, the stage 2 command and the rehearsal name it by one line each; (4) dry run, check --host, tests, clippy, fmt, review; no phone; then ONE rehearsal and the run
+
+Rank
+: 1
