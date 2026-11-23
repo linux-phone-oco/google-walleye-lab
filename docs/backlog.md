@@ -9405,56 +9405,19 @@ Status
 : open
 
 Note
-: From the keeper's run 2 (research walleye-rootfs-boots-run-2-init-did-not-hand-over, PR 730): image c3373d71 with the slot on its command line (run image d594dcbe): checks 1 to 16 pass (adb slot _b, fastboot agrees, the root is system_a, usb 1d6b:0104, ssh as root by the lab key, network and services up on kernel 7.3.0-00013-g3644090c7f6d-dirty), then check 17 'the init saw the slot adb saw and mounted the named partition': the init did not hand over to the root's /sbin/init. The run stopped by itself, nothing was written, the phone is on Android b. NOT KNOWN YET: whether the init saw the slot (the slot fix's first proof), whether the card's system_a was found, whether the mount failed or the switch_root; and the post-run equality of the GPT, boot chain and slot flags was NOT measured. The run's out file is research/walleye-display-s6e3fa5/2026-11-22/rootfs-boots-run-2.out (the .log beside it; the steward moved both there on 2026-11-23, PRs 735 and 736). This item is a build because the procedure stops without reading the evidence. The go on walleye-install-rootfs-boots-try is spent for this image's run.
+: BUILT AND LANDED 2026-11-23 (PR 740, e075ae6): on a failed check after the boot the way back reads the evidence over ssh into the log and evidence.txt, then measures card, boot chain and slot flags; 217 tests, clippy, fmt, dry run pass; a partial evidence read is lost if ssh drops mid-read (known gap). The rerun is item walleye-install-rootfs-boots-try (a new go naming the image c3373d71). This item closes when the research row names why the init did not hand over.
 
 About
 : walleye-display-s6e3fa5
 
 Opened
 : 2026-11-22
-
-Needs
-: phone
 
 Proof
 : a keeper reruns procedures/rootfs-boots-on-the-pixel-2.rs on a new go naming the image (the diagnose build, tools/walleye-tries on branch walleye-builder/rootfs-boots-run-2-diagnose, landed): if a check after the boot fails, its log holds the evidence read (dmesg tail, init lines, /proc/mounts, cmdline, ps, ls -l /, /new_root, init logs, PARTNAMEs, df) and evidence.txt in the run folder, and the post-run card, boot chain and slot flags are measured (not unknown); the log names why switch_root did not happen, and the research row says so before any fix
 
 Rank
 : 1
-
-
-<a id="walleye-install-rootfs-boots-try"></a>
-### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
-
-Status
-: open
-
-Note
-: 2-3 tries, ~3 keeper-h. The phone returns to Android by reboot; end state recorded with idle-android.sh. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. THE AUTHOR'S STANDING GO (2026-11-22, relayed by the Top Coordinator), verbatim: "when its ready, you have my go, dont come back to me with go'es like this, blocking the process of bringing up with my go'es on every little step" (the author, 2026-11-22, relayed by the Top Coordinator). For this item: when the one command (walleye-install-boot-procedure) is built and rehearsed (every non-UFS-on part run for real, check --host, dry run), the coordinator opens the go (a short until) and a keeper runs it, WITHOUT asking him again; the result goes to the Top Coordinator. Decision 2026-11-22-walleye-author-go-per-stage-not-per-step. THE GO IS OPEN (2026-11-22, the coordinator, under the author's standing go: decision 2026-11-22-walleye-author-go-per-stage-not-per-step): the one command procedures/rootfs-boots-on-the-pixel-2.rs (lpoco-attended run rootfs-boots-on-the-pixel-2) for the image whose sha256 is 35b60fdaf0764e97e0b6de60cddc9a955a14928ba3577f7f110206387f966474, and ONLY that image; the rehearsal passed 14 of 14 (item walleye-rootfs-boots-rehearsal, PR 707); the way back runs on any stop. THE RUN, for the keeper: a worktree of google-walleye-lab with ln -s ~/Projects/walleye-build build/images; battery rule first; give the run NO short timeout (the rehearsal took about 15 minutes); tell the Top Coordinator (SendMessage to local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'boot: starting' when the UFS-on boot starts and ONE result line at the end: booted, ssh login by the lab key, the root mounted read-only with the overlay, the GPT and the boot chain equal before and after, the phone on Android; if anything is doubtful the run stops by itself and the keeper does not rerun, and tells the Top Coordinator. Release the lease inside the worktree and read lpoco-lab keeper status back as free; if the land conflicts, do NOT make a third branch: tell the coordinator, who replays the records. Run 1 done 2026-11-22: booted, ssh login ok; stopped at check 16 (no androidboot.slot_suffix from the bootloader, guard failed open). Phone on Android slot b. Needs the slot passed on the cmdline (or another witness) then a new go; coordinator decides. See research walleye-rootfs-boots-run-1-slot-suffix-missing. THE GO IS OPEN for the RERUN (2026-11-22, the coordinator, under the author's standing go: decision 2026-11-22-walleye-author-go-per-stage-not-per-step): the slot fix is built (PR 715) and its rehearsal passed 15 of 15 (PR 722); the go names the image sha256 c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9 and ONLY that image. THE RUN, for the keeper: procedures/rootfs-boots-on-the-pixel-2.rs (via rust-script, the file is not executable) from a worktree of google-walleye-lab with ln -s ~/Projects/walleye-build build/images; battery rule first; NO short timeout (about 15 minutes); the keeper runs it RIGHT AFTER the glass measurement item (walleye-display-alpine-getty-on-the-glass) if that is still open, and takes nothing else first; tell the Top Coordinator (SendMessage to local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'boot: starting' at the UFS-on boot and ONE result line at the end: booted, ssh login by the lab key, the root mounted read-only under the overlay, the GPT and the boot chain equal before and after, the phone on Android; if anything is doubtful the run stops by itself, the keeper does not rerun and tells the Top Coordinator and the coordinator; release the lease INSIDE the worktree, read lpoco-lab keeper status back as free; if the land conflicts, do not make a third branch: tell the coordinator. After this result NOTHING NEW RUNS: the structure review starts (the Top Coordinator's word). 2026-11-22 23:00 (coordinator): RUN 2 DONE, STOPPED AT CHECK 17 (research walleye-rootfs-boots-run-2-init-did-not-hand-over, PR 730): the go is CLOSED (spent); nothing reruns before the cause is read.
-
-Waits
-: the diagnosis of run 2 (item walleye-rootfs-boots-run-2-diagnose): the go is SPENT for the run of 2026-11-22 (it stopped at check 17, the init did not hand over); a new go is opened by the coordinator naming the image sha256 when the cause is read, under the author's standing go
-
-Blocked by
-: walleye-rootfs-boots-run-2-diagnose
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-22
-
-Needs
-: phone
-
-Proof
-: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
-
-Rank
-: 7
-
-Witness
-: person
 
 
 <a id="walleye-display-alpine-getty-experiments"></a>
@@ -9533,3 +9496,34 @@ Proof
 
 Rank
 : 8
+
+
+<a id="walleye-install-rootfs-boots-try"></a>
+### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
+
+Status
+: open
+
+Note
+: RERUN 3 (2026-11-23, the coordinator, under the author's standing go, decision 2026-11-22-walleye-author-go-per-stage-not-per-step): the image is the one whose sha256 is c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9 and ONLY it (the sha256 35b60fda... further down was run 1's image, spent). Run 2 on this image stopped at check 17, the init did not hand over (research walleye-rootfs-boots-run-2-init-did-not-hand-over); PR 740 (item walleye-rootfs-boots-run-2-diagnose) made the procedure read the evidence over ssh, read-only and time-bounded, BEFORE the way back, and measure the GPT, boot chain and slot flags after it, even on a failed check. THE KEEPER: start from a worktree of google-walleye-lab with ln -s ~/Projects/walleye-build build/images, battery rule first, no short timeout; send the Top Coordinator (local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'boot: starting' and ONE result line; if a check fails read evidence.txt and the log, write the research row naming WHY (did the init see the slot, find system_a, mount, switch_root), record the post-run GPT/boot-chain/slot-flag equality as measured, and stop: no second run without the coordinator. Never the bootloader partitions, the GPT written by our code, erase or purge. | 2-3 tries, ~3 keeper-h. The phone returns to Android by reboot; end state recorded with idle-android.sh. The author, 2026-11-20, answered "yes" to the Top Coordinator's restated stage 1 (relayed by the Top Coordinator): step 2, install Alpine's build tools on the lab machine (apk-tools static or alpine-make-rootfs, qemu-user-static) and build plain Alpine minimal as the no-UI hardware-test layer; step 3, write that image from Android (adb root) into the system partition of the slot Android is NOT on, after reading current-slot and with the read-back backup in; step 4, boot our kernel from RAM with UFS on, mount that partition read-only with a tmpfs overlay, and log in over usb-network. NOT covered: flashing a boot partition, set_active, our kernel writing to the card, any GPT, bootloader, erase or purge, the userdata loopback. THE AUTHOR'S STANDING GO (2026-11-22, relayed by the Top Coordinator), verbatim: "when its ready, you have my go, dont come back to me with go'es like this, blocking the process of bringing up with my go'es on every little step" (the author, 2026-11-22, relayed by the Top Coordinator). For this item: when the one command (walleye-install-boot-procedure) is built and rehearsed (every non-UFS-on part run for real, check --host, dry run), the coordinator opens the go (a short until) and a keeper runs it, WITHOUT asking him again; the result goes to the Top Coordinator. Decision 2026-11-22-walleye-author-go-per-stage-not-per-step. THE FIRST GO WAS OPEN (2026-11-22, the coordinator, under the author's standing go: decision 2026-11-22-walleye-author-go-per-stage-not-per-step): the one command procedures/rootfs-boots-on-the-pixel-2.rs (lpoco-attended run rootfs-boots-on-the-pixel-2) for the image whose sha256 is 35b60fdaf0764e97e0b6de60cddc9a955a14928ba3577f7f110206387f966474, and ONLY that image; the rehearsal passed 14 of 14 (item walleye-rootfs-boots-rehearsal, PR 707); the way back runs on any stop. THE RUN, for the keeper: a worktree of google-walleye-lab with ln -s ~/Projects/walleye-build build/images; battery rule first; give the run NO short timeout (the rehearsal took about 15 minutes); tell the Top Coordinator (SendMessage to local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'boot: starting' when the UFS-on boot starts and ONE result line at the end: booted, ssh login by the lab key, the root mounted read-only with the overlay, the GPT and the boot chain equal before and after, the phone on Android; if anything is doubtful the run stops by itself and the keeper does not rerun, and tells the Top Coordinator. Release the lease inside the worktree and read lpoco-lab keeper status back as free; if the land conflicts, do NOT make a third branch: tell the coordinator, who replays the records. Run 1 done 2026-11-22: booted, ssh login ok; stopped at check 16 (no androidboot.slot_suffix from the bootloader, guard failed open). Phone on Android slot b. Needs the slot passed on the cmdline (or another witness) then a new go; coordinator decides. See research walleye-rootfs-boots-run-1-slot-suffix-missing. THE GO IS OPEN for the RERUN (2026-11-22, the coordinator, under the author's standing go: decision 2026-11-22-walleye-author-go-per-stage-not-per-step): the slot fix is built (PR 715) and its rehearsal passed 15 of 15 (PR 722); the go names the image sha256 c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9 and ONLY that image. THE RUN, for the keeper: procedures/rootfs-boots-on-the-pixel-2.rs (via rust-script, the file is not executable) from a worktree of google-walleye-lab with ln -s ~/Projects/walleye-build build/images; battery rule first; NO short timeout (about 15 minutes); the keeper runs it RIGHT AFTER the glass measurement item (walleye-display-alpine-getty-on-the-glass) if that is still open, and takes nothing else first; tell the Top Coordinator (SendMessage to local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'boot: starting' at the UFS-on boot and ONE result line at the end: booted, ssh login by the lab key, the root mounted read-only under the overlay, the GPT and the boot chain equal before and after, the phone on Android; if anything is doubtful the run stops by itself, the keeper does not rerun and tells the Top Coordinator and the coordinator; release the lease INSIDE the worktree, read lpoco-lab keeper status back as free; if the land conflicts, do not make a third branch: tell the coordinator. After this result NOTHING NEW RUNS: the structure review starts (the Top Coordinator's word). 2026-11-22 23:00 (coordinator): RUN 2 DONE, STOPPED AT CHECK 17 (research walleye-rootfs-boots-run-2-init-did-not-hand-over, PR 730): the go is CLOSED (spent); nothing reruns before the cause is read.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
+
+Rank
+: 1
+
+Witness
+: person
+
+Go until
+: 2026-11-23T08:41:04+01:00
