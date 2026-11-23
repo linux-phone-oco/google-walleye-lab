@@ -11255,9 +11255,6 @@ Status
 Note
 : RANKED 2 by the coordinator (2026-11-23): run 9 booted our root with the DEBUG init's petters (every /dev/watchdog* from uptime 1 s); the PRODUCTION init (no walleye.debug word) still pets only inside its partition wait loop and, after the hand-over, in hold.sh, so the image that stays on the phone needs the petter as its first act too, like the debug init and like Android's single non-secure WDT0 (armed at pure_initcall, bark 11 s, bite 14 s, pet 10 s, ipi-ping: research walleye-android-watchdog-read-fix, PR 916). Reuse the debug init's supervisor, no new mechanism. It belongs in the stage 2 image that is NOT the debug image, after step 21's amendment and one stage 2 pass with the debug image. | Research walleye-android-watchdog-read-fix FIX-2/3; blocked on the wdt0 read to choose between FIX-2 and not opening the device.
 
-Blocked by
-: walleye-wdt0-first-instant-read
-
 About
 : walleye-bootimage
 
