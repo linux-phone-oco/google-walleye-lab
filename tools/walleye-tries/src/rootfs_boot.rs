@@ -480,7 +480,7 @@ pub const READ_COMMAND: &str = "echo ---id; id -u; echo ---kernel; uname -r; ech
 /// What the lab reads, read-only, when a check after the boot failed and the phone is still on the image (item
 /// walleye-rootfs-boots-run-2-diagnose): the kernel log's tail and the init's own lines, the command line, the mounts, the
 /// processes, the root and where the init may have put the new root, any log the init keeps, the card's partition names, the space.
-pub const EVIDENCE_COMMAND: &str = "echo ---dmesg-tail; dmesg | tail -n 300; echo ---init-lines; dmesg | grep 'walleye-ufs-root:'; echo ---cmdline; cat /proc/cmdline; echo ---pid1; cat /proc/1/cmdline; echo; echo ---mounts; cat /proc/mounts; echo ---ps; ps; echo ---root; ls -l /; echo ---new-root; ls -l /new_root /mnt /sysroot 2>&1; echo ---init-logs; for f in /run/*.log /var/log/*.log /tmp/*.log /*.log; do [ -f \"$f\" ] && { echo \"== $f\"; tail -n 100 \"$f\"; }; done; echo ---partnames; for u in /sys/class/block/*/uevent; do grep -H PARTNAME \"$u\"; done; echo ---df; df 2>&1; echo ---end";
+pub const EVIDENCE_COMMAND: &str = "echo ---dmesg-tail; dmesg | tail -n 300; echo ---init-lines; dmesg | grep 'walleye-ufs-root:'; echo ---cmdline; cat /proc/cmdline; echo ---pid1; cat /proc/1/cmdline; echo; echo ---mounts; cat /proc/mounts; echo ---ps; ps; echo ---root; ls -l /; echo ---new-root; ls -l /new_root /mnt /sysroot 2>&1; echo ---init-logs; for f in /run/*.log /var/log/*.log /tmp/*.log /*.log; do [ -f \"$f\" ] && { echo \"== $f\"; tail -n 100 \"$f\"; echo; }; done; echo ---partnames; for u in /sys/class/block/*/uevent; do grep -H PARTNAME \"$u\"; done; echo ---df; df 2>&1; echo ---end";
 
 /// The slot suffix adb read, kept so the watching parent can measure the card as the run would have.
 pub const SUFFIX_FILE: &str = "slot-suffix.txt";
@@ -1403,6 +1403,32 @@ mod tests {
             assert!(a.iter().any(|x| x == want), "{want} in {a:?}");
         }
         assert_eq!(a.last().unwrap(), "uname -r");
+    }
+
+    #[test]
+    fn a_log_without_a_final_newline_does_not_swallow_the_next_marker() {
+        // the same shape as the screen's: a file's last line has no newline, so the marker after it would land at that line's end
+        let d = std::env::temp_dir().join(format!("wt-evlogs-{}", std::process::id()));
+        std::fs::create_dir_all(&d).unwrap();
+        std::fs::write(d.join("init.log"), "first\nlast line, no newline").unwrap();
+        let from = EVIDENCE_COMMAND.find("echo ---init-logs").unwrap();
+        let to = EVIDENCE_COMMAND.find("echo ---partnames").unwrap();
+        let loop_ = EVIDENCE_COMMAND[from..to].replace(
+            "/run/*.log /var/log/*.log /tmp/*.log /*.log",
+            &format!("{}/*.log", d.display()),
+        );
+        let out = Command::new("sh")
+            .args(["-c", &format!("{loop_}echo ---partnames; echo ---end")])
+            .output()
+            .unwrap();
+        let parts = sections(&String::from_utf8(out.stdout).unwrap());
+        assert!(
+            section(&parts, "init-logs")
+                .unwrap_or_default()
+                .contains("last line, no newline\n"),
+            "{parts:?}"
+        );
+        assert!(section(&parts, "partnames").is_ok(), "{parts:?}");
     }
 
     #[test]

@@ -5929,3 +5929,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-0735-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: B-a5 v5 RAM run: checks 1-14 pass, the prompt is the last real row; check 15 failed on its own ---end marker (fixed in this change, SCREEN_COMMAND). Phone back on Android slot b, stock kernel, nothing flashed
+
+Considered
+: next: rerun procedures/alpine-login-on-the-glass-on-the-pixel-2.rs unattended (needs build/images -> ~/Projects/walleye-build in a fresh worktree), then the author's look walleye-display-look-b2; item walleye-display-alpine-getty-experiments stays in-progress
+
+About
+: walleye-display-s6e3fa5

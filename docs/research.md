@@ -5849,3 +5849,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ramroot-b-a5-v5-run-prompt-last-row-marker-on-it"></a>
+### walleye-ramroot-b-a5-v5-run-prompt-last-row-marker-on-it
+
+Date
+: 2026-11-23
+
+Brief
+: B-a5 v5 run: the prompt IS the last real row (walleye login: under 'Starting local'), check 15 fails on its own ---end marker printed on the padded last row
+
+Question
+: Does B-a5 on rootfs v5 (dmesg -n 3 before the getty respawn) end the glass text in 'walleye login:'?
+
+Found
+: Run 2026-11-23 07:28 (image 83b9c4c6, RAM boot from Android b, nothing flashed): checks 1-14 passed; check 15 FAILED, but the screen shown in its own failure text ends ' * Starting local [ ok ] / Welcome to Alpine Linux 3.24 / Kernel 7.3.0 on aarch64 (/dev/tty1) / walleye login:' - no kernel line after the prompt, so v5 works. Cause is the checker: /dev/vcs has no trailing newline, so SCREEN_COMMAND's 'echo ---end' lands at the end of the padded last row, not at a line start; sections() keeps it as a screen row and the last non-blank row is spaces+'---end'. Fix is one 'echo' before '---end' in SCREEN_COMMAND (branch fix by the programmer subagent). Phone sent back to Android (adb device, slot b), nothing written. Not known yet: check 15 passing end to end, checks 16-22 and the author's look. Note: the image is read from build/images (symlink to ~/Projects/walleye-build) in a fresh worktree.
+
+About
+: walleye-display-s6e3fa5
