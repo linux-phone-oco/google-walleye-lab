@@ -11047,3 +11047,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-install-flash-boot-rehearsal-6"></a>
+### The stage 2 rehearsal once more, 80 s read only, with the WHOLE stdout kept as captured text: the flags and states the walk and the sourced checks need
+
+Status
+: open
+
+Note
+: From the keeper's report on rehearsal 5 (PR 895): the run passed 18 of 18 but only the last 40 lines of stdout were kept, so the flags text at steps 12/13 is not on file; the sources gate (walleye-checks-name-their-sources) needs captured text. Rule for every keeper run from now: tee the whole output into the research material.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: procedures/rehearse-install-boot-on-the-pixel-2.rs on main as it is (read only; nothing written; no flash, set_active, erase or oem verb; the rehearsal's own adb excursion as before): the WHOLE stdout and stderr are kept (tee into the research material, not the last 40 lines): every step's printed text, in particular the slot-a and slot-b flags (slot-retry-count, slot-successful, slot-unbootable) at steps 12 and 13 (the state now: a unbootable retry 0 as left by run 7, b successful and current), the six GPT LUN entry counts, the debug image's init gate text; one research row names the file; the file is a CAPTURED FIXTURE for the offline state walk and the sourced-checks gate; the phone left on Android slot b
+
+Rank
+: 1
