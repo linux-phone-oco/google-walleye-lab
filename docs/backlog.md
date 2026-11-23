@@ -10169,7 +10169,7 @@ Status
 : in-progress
 
 Note
-: TAKE THIS ITEM NOW: STAGE 2 RUN 6 (the coordinator, 2026-11-23 14:30): run 5 stopped at check 18 because the flash also cleared slot a's unbootable (PR 859); check 18 now lets the flash clear unbootable yes to no, never no to yes (PR 862), the stage 2 command was walked by state from all four starting states (research walleye-stage2-walk-by-state), and run 5's GPT read from Android shows only boot_a's attribute byte (0xb2 to 0x3b) and the CRCs it implies (PR 861). STATE: Android b, boot_a holds e337de53, slot a retry 1 unbootable no successful no, b successful and current, NO set_active yet. Everything else in the run 5 paragraph below stands: during step 21's wait do NOT touch the phone (no adb, no fastboot verb, no usb reset, no reboot); afterwards copy failed-boot-read.txt (pstore, cmdline, bootreason) WHOLE into the research row and say whether our kernel's console is in it and when the bite came; if slot a answers ssh the full stage 2 proceeds; if it stops again: research row with every text the phone printed, release the lease, no second run. The go is for image e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1 ONLY, to the go_until of this row. | STOPPED at check 18 (keeper, 2026-11-23 14:2x, run 5): the no-op flash of boot_a clears slot-unbootable a (yes->no) as well as retry 0->1; check 18 allows only successful+retry, so it stops before set_active; phone on Android b, no set_active sent. Research walleye-stage2-run5-stops-at-check-18-flash-resets-unbootable-too. Coordinator: widen check 18 to the unbootable bit (measured twice) or decide otherwise; NO second run by the keeper. | previous: run 4 steps 1-20 passed, slot a no ssh in 170 s, fallback by bootloader counter.
+: THE ONE RERUN THE COORDINATOR WRITES HERE (2026-11-23 15:10): STAGE 2 RUN 7. Run 6 (PR 868) stalled at check 16, the adb exec-out dd read-back of boot_a: a host-side adb stream stall (the phone answered adb, the phone-side dd waited on a full socket), the keeper killed the host adb child, the check failed by itself, no set_active was sent, Android on b, boot_a holds e337de53. A transport stall is not a check that was wrong, so it gets this rerun; the keeper's earlier rule 'no second run' is lifted FOR THIS ONE RUN by this note. WATCH RULE: while the command runs the keeper reads the run's log every 2 minutes; a step that shows no 'ok' or 'FAIL' for 3 minutes (except step 21's bounded wait of 420 s sending nothing) is a stall: kill the stalled host-side adb child exactly as in run 6 and tell the coordinator; no second stall rerun without the coordinator. Everything else in the earlier notes stands (read them): the pstore read first at step 21, nothing sent to the phone during that wait, failed-boot-read.txt copied whole into the research row. The go is extended: for image e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1 ONLY, to the go_until of this row. A bounded read-back (timeout or chunked) is queued as a build item for later; this run does not wait for it. | TAKE THIS ITEM NOW: STAGE 2 RUN 6 (the coordinator, 2026-11-23 14:30): run 5 stopped at check 18 because the flash also cleared slot a's unbootable (PR 859); check 18 now lets the flash clear unbootable yes to no, never no to yes (PR 862), the stage 2 command was walked by state from all four starting states (research walleye-stage2-walk-by-state), and run 5's GPT read from Android shows only boot_a's attribute byte (0xb2 to 0x3b) and the CRCs it implies (PR 861). STATE: Android b, boot_a holds e337de53, slot a retry 1 unbootable no successful no, b successful and current, NO set_active yet. Everything else in the run 5 paragraph below stands: during step 21's wait do NOT touch the phone (no adb, no fastboot verb, no usb reset, no reboot); afterwards copy failed-boot-read.txt (pstore, cmdline, bootreason) WHOLE into the research row and say whether our kernel's console is in it and when the bite came; if slot a answers ssh the full stage 2 proceeds; if it stops again: research row with every text the phone printed, release the lease, no second run. The go is for image e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1 ONLY, to the go_until of this row. | STOPPED at check 18 (keeper, 2026-11-23 14:2x, run 5): the no-op flash of boot_a clears slot-unbootable a (yes->no) as well as retry 0->1; check 18 allows only successful+retry, so it stops before set_active; phone on Android b, no set_active sent. Research walleye-stage2-run5-stops-at-check-18-flash-resets-unbootable-too. Coordinator: widen check 18 to the unbootable bit (measured twice) or decide otherwise; NO second run by the keeper. | previous: run 4 steps 1-20 passed, slot a no ssh in 170 s, fallback by bootloader counter.
 
 Blocked by
 : walleye-stage2-pstore-first-on-fallback
@@ -10193,7 +10193,7 @@ Witness
 : person
 
 Go until
-: 2026-11-23T16:26:36+01:00
+: 2026-11-23T17:06:54+01:00
 
 
 <a id="walleye-fastboot-reboot-stays-in-fastboot"></a>
@@ -10672,3 +10672,28 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-stage2-bounded-readback"></a>
+### Stage 2's read-back of boot_a (and the other hashed partitions) over adb is bounded: a timeout or a chunked read, so a stalled adb stream fails the step in seconds, not after a human kills it
+
+Status
+: open
+
+Note
+: From stage 2 run 6 (PR 868): the step stalled 25 minutes on an adb exec-out stream until the keeper killed the host adb child; the keeper suggested the bound. Lands between keeper runs (it changes the stage 2 command's files).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: tools/walleye-tries/src/flash_boot.rs and the shared adb read helper: every 'adb exec-out dd if=/dev/block/by-name/... | sha256sum' read has a bound (a deadline per read from the partition size and a floor, or a chunked read with a per-chunk deadline), kills its own adb child and returns an error that says which partition and how far it got; a stall is retried ONCE before the step fails; stand-in test with a stalled stream (a fake adb that stops after N bytes) fails in the bound, not after minutes; the same bound for the rehearsal's reads; no change of what is checked; dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 2
