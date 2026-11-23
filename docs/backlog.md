@@ -9799,37 +9799,6 @@ Rank
 : 2
 
 
-<a id="walleye-install-rootfs-boots-try"></a>
-### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
-
-Status
-: done
-
-Note
-: proven by run 6 (research walleye-rootfs-boots-run-6-passed-bootloader-not-reached): all 26 steps; bootloader way back not reached, forced way back ran, card/boot chain/slots equal
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-23
-
-Needs
-: phone
-
-Proof
-: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
-
-Rank
-: 1
-
-Witness
-: person
-
-Go until
-: 2026-11-23T11:22:54+01:00
-
-
 <a id="walleye-reboot-reason-bootloader-read"></a>
 ### Why 'reboot bootloader' over ssh did not reach fastboot on our kernel (rerun 6): what Android's kernel writes so the bootloader stops in fastboot, and whether our kernel and device tree do the same
 
@@ -9937,7 +9906,7 @@ Status
 : open
 
 Note
-: Narrowed by decision 2026-11-23-walleye-reboot-reason-send-the-string-first: step 2, only if the try with the tool misses. IMEM 0x146bf000 offset 0x65c value 0x77665500.
+: Narrowed by decision 2026-11-23-walleye-reboot-reason-send-the-string-first: step 2, only if the try with the tool misses. IMEM 0x146bf000 offset 0x65c value 0x77665500. | 2026-11-23: OFF the build queue: only if the ONE RAM try of the RESTART2 tool (rerun 7 under walleye-install-rootfs-boots-try) misses; then the IMEM syscon node and the warm reset come back as a builder item.
 
 Blocked by
 : walleye-reboot-reason-restart2-tool
@@ -9947,9 +9916,6 @@ About
 
 Opened
 : 2026-11-23
-
-Needs
-: build
 
 Proof
 : unchanged: offline check on rerun 6 text and the new image, image built twice identical, then the one try
@@ -10100,3 +10066,34 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-install-rootfs-boots-try"></a>
+### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
+
+Status
+: in-progress
+
+Note
+: TAKE THIS ITEM (the coordinator, 2026-11-23): RERUN 7 of the stage 1 boot, the ONE RAM TRY of the RESTART2 tool (item walleye-reboot-bootloader-from-linux-try; the Top Coordinator's rule: if the bootloader is reached the coordinator opens the stage 2 go, if not the residual cost goes to the Top). Stage 1 passed on this image (runs 5 and 6, 26 of 26, PRs 759, 781); PR 809 changed the way back: the procedure checks the sha256 of tools/walleye-reboot's static binary ([images.walleye-reboot] fd73925b..., ~/Projects/walleye-build/walleye-reboot/walleye-reboot), pushes it over ssh into /tmp (nothing touches the card, no rootfs change), runs it there (it passes only 'bootloader' to reboot(2) RESTART2), waits up to 60 s for fastboot to list the phone, reads fastboot getvar current-slot (must equal the slot read at the start), then fastboot reboot and waits for adb; if the tool will not run (/tmp may be noexec: NOT MEASURED) or fastboot does not see the phone, the old forced way back runs and the log says 'bootloader not reached'. Either end is a RESULT: write the research row with the exact text (bootloader-way-back.txt, what the tool printed, whether /tmp ran it, what fastboot listed) in its material, and the GPT/boot chain/slot flags measured equal. The image is the one whose sha256 is c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9 and ONLY it. KEEPER: worktree from main with ln -s ~/Projects/walleye-build build/images, battery rule first, no short timeout (rust-script --force after a walleye-tries change), 'boot: starting' and ONE result line to the Top Coordinator local_12b18c70-1b6d-4783-bb6f-50113ab63250 and to the coordinator; no set_active, flash, erase or oem in this run; never the bootloader partitions, the GPT written by our code, erase or purge; a failed check: the evidence is read, the research row written, the lease released, no second run without the coordinator. | EARLIER: proven by run 6 (research walleye-rootfs-boots-run-6-passed-bootloader-not-reached): all 26 steps; bootloader way back not reached, forced way back ran, card/boot chain/slots equal
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
+
+Rank
+: 1
+
+Witness
+: person
+
+Go until
+: 2026-11-23T13:13:26+01:00
