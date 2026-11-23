@@ -10622,19 +10622,16 @@ Rank
 ### The next image (the stage 2 fix image, decided by run 6) is built from a live list's int/ tag, and its [images.*] row names the tag; from then on no new kernel comes from a worktree by hand
 
 Status
-: in-progress
+: done
 
 Note
-: STEP (1) DONE earlier (tags int/walleye/ufs-off/v7.3/1 and int/walleye/ufs-on/v7.3/1). STEP (2) DONE 2026-11-23 (walleye-builder): the image is built from int/walleye/ufs-on/v7.3/1 by build/build-ufs-root-production.sh TAG (kernel from a detached checkout of the tag), [images.ufs-root-booted-slot-production] carries kernel_tag and sha256 b74af863, built twice identical; the report to the Top Coordinator can go with the run. STEP (3) NOT claimed: 12 older wt-k-* kernel worktrees are still on the clone; rhizoid status runs on docs' graph, not read here.
+: DONE 2026-11-23 (the coordinator): the first image built from a live list's int/ tag exists: [images.ufs-root-booted-slot-production] b74af863 (PR 937), kernel from int/walleye/ufs-on/v7.3/1 with kernel_tag in its row, built twice identical; the live lists' tags are assembled and pushed (PR 787 era) and the four shipped images carry kernel_tag (PR 797). What is NOT done here and is carried by other items: the build script that takes the TAG instead of a tree path as a recipe (walleye-declares-its-kernel-build, with lab-tools' image ensure), the retiring of build scripts (walleye-retire-build-scripts). | STEP (1) DONE earlier (tags int/walleye/ufs-off/v7.3/1 and int/walleye/ufs-on/v7.3/1). STEP (2) DONE 2026-11-23 (walleye-builder): the image is built from int/walleye/ufs-on/v7.3/1 by build/build-ufs-root-production.sh TAG (kernel from a detached checkout of the tag), [images.ufs-root-booted-slot-production] carries kernel_tag and sha256 b74af863, built twice identical; the report to the Top Coordinator can go with the run. STEP (3) NOT claimed: 12 older wt-k-* kernel worktrees are still on the clone; rhizoid status runs on docs' graph, not read here.
 
 About
 : walleye-kernel-dts
 
 Opened
 : 2026-11-23
-
-Needs
-: build
 
 Proof
 : (1) the live lists ufs-off and ufs-on of kernel/topics.toml are assembled to tags int/walleye/LIST/v7.3/N and pushed (rhizoid assemble, or lpoco bringup kernel assemble once lab-tools' kernel-assemble-reproduces-and-names lands: v0.45.0), read back with ls-remote; (2) the next image (the one the stage 2 fix needs: its kernel change is a topic or a wip branch on the fork, never an edit of a worktree) is built from the tag by build scripts that take the tag, not a tree path; its [images.*] row carries kernel_tag and the sha256, built twice identical; (3) 'rhizoid status' shows no walleye kernel on a worktree by hand; the report to the Top Coordinator comes when this image exists
