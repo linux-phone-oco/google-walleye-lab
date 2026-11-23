@@ -11269,3 +11269,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-stage2-walk-step21"></a>
+### Step 21 and the steps after it in the four-state walk: the offline walk over every start state reaches the new slot's read, with run 9's text as the new slot's answer, and the device tree slot_suffix source has a captured sample or says it has none
+
+Status
+: open
+
+Note
+: From the step 21 builder's report (PR 918): the amendment is landed and was seen failing on run 9's own text first; not done: step 21 is not in the four-state walk, and this phone's DT slot_suffix is unprinted. The Top Coordinator's decision asked for the four start states to be tested as before; this closes it before the one run.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: the table-driven offline walk of research walleye-stage2-walk-by-state (PRs 893, 894) covers step 21 (the new slot's read: the slot from androidboot.slot_suffix, else root=PARTUUID through the GPT, else the DT, equal to current-slot) and the steps after it (the GPT of the new slot, the way back, the flags after), over the four start states (boot_a stock / an earlier image of ours / the declared image / unknown; slot a flags as stock / after one flash / after a fall back / after a successful stage 2), with the new slot's answer taken from CAPTURED text: run 9's new-slot-read.txt (root=PARTUUID answered, slot_suffix absent) and run 8's /proc/cmdline; each state says passes, stops (and why) or unreachable; a test for the DT source: this phone's /proc/device-tree/firmware/android/slot_suffix is NOT PRINTED anywhere yet: either a read-only keeper read is queued (a line in the rehearsal's read-only part) or the test says 'no captured sample' and is marked as not yet sourced; no change to what a run does; dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 1
