@@ -9405,7 +9405,7 @@ Status
 : open
 
 Note
-: From the keeper's run 2 (research walleye-rootfs-boots-run-2-init-did-not-hand-over, PR 730): image c3373d71 with the slot on its command line (run image d594dcbe): checks 1 to 16 pass (adb slot _b, fastboot agrees, the root is system_a, usb 1d6b:0104, ssh as root by the lab key, network and services up on kernel 7.3.0-00013-g3644090c7f6d-dirty), then check 17 'the init saw the slot adb saw and mounted the named partition': the init did not hand over to the root's /sbin/init. The run stopped by itself, nothing was written, the phone is on Android b. NOT KNOWN YET: whether the init saw the slot (the slot fix's first proof), whether the card's system_a was found, whether the mount failed or the switch_root; and the post-run equality of the GPT, boot chain and slot flags was NOT measured. The run's out file is ~/Projects/linux-phone-oco/rootfs-boots-run-2.out. This item is a build because the procedure stops without reading the evidence. The go on walleye-install-rootfs-boots-try is spent for this image's run.
+: From the keeper's run 2 (research walleye-rootfs-boots-run-2-init-did-not-hand-over, PR 730): image c3373d71 with the slot on its command line (run image d594dcbe): checks 1 to 16 pass (adb slot _b, fastboot agrees, the root is system_a, usb 1d6b:0104, ssh as root by the lab key, network and services up on kernel 7.3.0-00013-g3644090c7f6d-dirty), then check 17 'the init saw the slot adb saw and mounted the named partition': the init did not hand over to the root's /sbin/init. The run stopped by itself, nothing was written, the phone is on Android b. NOT KNOWN YET: whether the init saw the slot (the slot fix's first proof), whether the card's system_a was found, whether the mount failed or the switch_root; and the post-run equality of the GPT, boot chain and slot flags was NOT measured. The run's out file is research/walleye-display-s6e3fa5/2026-11-22/rootfs-boots-run-2.out (the .log beside it; the steward moved both there on 2026-11-23, PRs 735 and 736). This item is a build because the procedure stops without reading the evidence. The go on walleye-install-rootfs-boots-try is spent for this image's run.
 
 About
 : walleye-display-s6e3fa5
@@ -9480,3 +9480,56 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-kernel-series-to-topics"></a>
+### The walleye kernel as topic branches: the .patch series and the two lab-machine-only branches become topic/ITEM on v7.3, pushed; kernel/topics.toml with ufs-off and ufs-on; rhizoid assemble --reproduces says equal against the current images' kernels
+
+Status
+: open
+
+Note
+: The Top Coordinator's order 2026-11-23 after the structure review (decisions 2026-11-23-structure-*, MAP.md in docs; the steward's check is in the shared notes, steward-to-top-rhizoid-check.md). Beside the phone work, never between a boot and its way back: it needs no phone and runs on the kernels already built. Upstreams adds the upstream-item rows for the six series (the assemble tool refuses a topic without one); the lab-tools wrapper kernel-assemble-from-topics comes from orchestration. An int/ tag is made locally and is not pushed by rhizoid today: push a tag when an image names it, or the recipe is lost with the clone.
+
+About
+: walleye-kernel-dts
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) each series is a topic/ITEM branch on v7.3 on the fork, pushed: audio-adsp-q6, drv2624 (also the lab-machine-only topic/walleye-drv2624), fuel-gauge-rfc (carried, others' patches), the panel driver panel-samsung-s6e3fa5, topic/ufs-match-android (lab-machine-only today), topic/ufs-hynix-quirks, topic/pmic-wdt-wake-in-suspend (already on the fork); (2) kernel/topics.toml names two lists, int/walleye/ufs-off and int/walleye/ufs-on, never one tag for both; (3) 'rhizoid assemble walleye ufs-off --reproduces e123d3bff' and the ufs-on list against 3644090c7 each say equal (rhizoid v0.2.0, called directly until the lab-tools wrapper exists; the clone is the shallow one at ~/Projects/surya-audio/linux, do not use --fetch on it before it is tried once); (4) [images.*] rows gain kernel_tag and no declared sha256 changes; no build-*.sh that an [images.*] row names is retired until its image rebuilds byte for byte from an int/ tag; (5) the lab-only dts variants (-f, -ufs, -display, -display-splash, -ufs-match.dtso, overlay-stubs) stay in dt/ and are applied after assembly by the build script, the assembled tree equal to its tag; dry run, check --host, tests, review
+
+Rank
+: 7
+
+
+<a id="walleye-kernel-clone-move"></a>
+### The kernel clone and the wt-k-* worktrees move to ~/Projects/linux-phone-oco/linux and the worktree home, in one change that covers every path
+
+Status
+: open
+
+Note
+: From the steward's rules (2026-11-23-structure-*, amended after walleye's objections): the clone and the worktrees move in ONE builder change, between phone runs, after the series are topics. The shared clone today is the shallow one under ~/Projects/surya-audio/linux per the steward's check; the 155 paths were counted in device.toml, build/, tools/, procedures/ and AGENTS.md.
+
+Blocked by
+: walleye-kernel-series-to-topics
+
+About
+: walleye-kernel-dts
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: every path that names ~/Projects/walleye-build/wt-k-* or the old clone (device.toml [images.ufs-root] kernel_tree, tests/host/ufs-match-android.sh, build/*.sh, build/README.md, tools, procedures, AGENTS.md: 155 places) names the new place in the same change; tests/host/ufs-match-android.sh passes from there; no [images.*] sha256 changes; done between phone runs (the lease free, the phone on Android, no go open); review
+
+Rank
+: 8

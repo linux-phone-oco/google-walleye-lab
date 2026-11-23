@@ -5707,3 +5707,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-walleye-resumes-after-the-structure-review"></a>
+### walleye resumes after the structure review, 2026-11-23
+
+Entry date
+: 2026-11-23
+
+Done
+: The Top Coordinator said the structure review is done (MAP.md in docs) and walleye resumes under the author's standing go, in the order of PR 733: the init-handover fix (check 17), the stage 1 rerun, the login-order fix, UFS try 2, stage 2, stage 3. The steward moved the four run logs into research folders (PRs 735, 736) and removed the lane's clean worktrees; the diagnose item's note now names the new path of run 2's log. Two builder items for the kernel flow were added after the phone items (ranks 7 and 8). Never the bootloader partitions, the GPT written by our code, erase or purge. The phone is on Android b, the lease free, no go open.
+
+Considered
+: Starting the kernel topics builder before the phone items (rejected: the phone work needs no new kernel, and the Top ordered it beside the phone work).
+
+Rejected
+: Leaving the old log path in the diagnose item (the builder would look for a file that has moved).
+
+About
+: walleye-display-s6e3fa5
