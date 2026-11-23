@@ -1,0 +1,26 @@
+check 1: the battery is good enough
+check 2: the image is the declared one, a whole boot partition, its AVB footer verifies
+  the image names its root: system_a
+check 3: the image's init accepts the slot it is booted from
+check 4: the stored boot chain is whole, the ssh key is private and the reboot tool is the declared one
+step 5: say what to expect
+  One command, about 15 minutes: our boot image is flashed to the boot partition of the slot Android is NOT on (read two ways, built from device.toml's list "boot_a boot_b"), read back, and that slot is made active by the bootloader's own set_active - the call Android's OTA makes, a write to the GPT by the bootloader, with the slot flags and the GPT of its 6 disks read before and after. The phone then boots from the card and the lab logs in; then the way back, set_active of Android's slot, is made in the same run and the phone ends on Android. A stop at any step runs the way back.
+check 6: the coordinator's go is recorded on the item for this image
+step 7: the phone is on Android, adbd as root
+check 8: adb reads the slot Android runs from
+  adb: slot suffix _b
+check 9: the boot partition to be flashed, read now, is its backup, or the declared image with the backup on file; the boot, dtbo and vbmeta partitions are hashed
+  boot_a already holds the declared image (e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1); the stock backup is on file and hashes to its record (2a5cd3b20ef0da2b272d2dac460f868d4764d8bdb8cb426d62eee568f1344fb5): the flash can be undone
+check 10: the GPT of every disk is read whole and kept
+  6 disks' GPT kept, each whole with the right CRCs
+step 11: take the phone to fastboot
+check 12: fastboot agrees on the slot and the flash target is the other slot's boot partition
+  Android runs from slot b; the one flash would be: fastboot -s SERIAL flash boot_a /home/mll/.local/share/agent-worktrees/google-walleye-lab/walleye-keeper-1795440632/build/images/NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot.img
+check 13: the slot flags are read before
+step 14: flash the boot partition of the slot Android is not on: one fastboot flash
+step 15: the phone is on Android, adbd as root (Android's slot is still the active one)
+check 16: the partition reads back as the image, and no other boot, dtbo or vbmeta partition changed
+install boot on the Pixel 2: stopped at check 16 "the partition reads back as the image, and no other boot, dtbo or vbmeta partition changed": the read of /dev/block/by-name/boot_a did not finish (adb signal: 15 (SIGTERM))
+the run stopped (exit 1)
+the phone goes back to Android if it is not there
+way back: the phone is on Android already; nothing sent

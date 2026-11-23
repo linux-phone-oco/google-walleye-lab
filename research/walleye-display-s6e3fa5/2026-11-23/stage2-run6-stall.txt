@@ -1,0 +1,14 @@
+2026-11-23T14:58:27+01:00
+3572523 3571160    1596 S<s   |   |   |       \_ /usr/bin/zsh -c source /home/mll/.claude/shell-snapshots/snapshot-zsh-1795440626321-vv32yr.sh 2>/dev/null || true && . '/home/mll/.claude/plugins/cache/ideal-agent/ideal-agent/0.3.69/scripts/agent-env' : && setopt NO_EXTENDED_GLOB NO_BARE_GLOB_QUAL NO_EQUALS 2>/dev/null || true && { \builtin unalias -- 'which'; \builtin unset -f -- 'which'; } >/dev/null 2>&1 || true && { \builtin unalias -- 'unsetenv'; \builtin unset -f -- 'unsetenv'; } >/dev/null 2>&1 || true && eval 'cd ~/.local/share/agent-worktrees/google-walleye-lab/walleye-keeper-1795440632 && ln -s /home/mll/Projects/walleye-build build/images && git status --short | head -3; rm -f research/walleye-display-s6e3fa5/2026-11-23/stage2-run6.log*; ./procedures/install-boot-on-the-pixel-2.rs --log research/walleye-display-s6e3fa5/2026-11-23/stage2-run6.log > research/walleye-display-s6e3fa5/2026-11-23/stage2-run6.log.out 2>&1; echo exit $?' < /dev/null && pwd -P >| /tmp/claude-a095-cwd
+3572543 3572523    1596 S<l   |   |   |       |   \_ ./procedures/install-boot-on-the-pixel-2.rs --log research/walleye-display-s6e3fa5/2026-11-23/stage2-run6.log
+3572546 3572543    1596 S<    |   |   |       |       \_ /home/mll/.cache/rust-script/binaries/release/install-boot-on-the-pixel-2_8a65aa3007b29c2d52793d2e --log research/walleye-display-s6e3fa5/2026-11-23/stage2-run6.log
+3573598 3572546    1524 S<    |   |   |       |           \_ adb -s FA81N1A00790 exec-out dd if=/dev/block/by-name/boot_a bs=4096 2>/dev/null
+3573599 3572546    1524 S<    |   |   |       |           \_ sha256sum
+  92891     951   74954 S<sl  |   \_ adb -L tcp:5037 fork-server server --reply-fd 4
+--- phone ps
+ 3970 S     SyS_epoll_wait adbd --root_seclabel=u:r:su:s0 --tim_seclabel=u:r:adbd_tradeinmode:s0
+ 4159 Ss+   sigsuspend sh -c dd if=/dev/block/by-name/boot_a bs=4096 2>/dev/null
+ 4166 S     wait_woken dd if=/dev/block/by-name/boot_a bs=4096
+ 5171 Ss    sigsuspend sh -c ps -A -o PID,STAT,WCHAN,ARGS | grep -E " dd |adbd"; uptime
+ 5174 S     pipe_read grep -E  dd |adbd
+ 14:58:28 up 25 min,  0 users,  load average: 3.48, 3.02, 2.48

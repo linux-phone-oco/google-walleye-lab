@@ -1,0 +1,34 @@
+1795440710 start : install boot on the Pixel 2 on google-walleye
+1795440710 start : install boot on the Pixel 2 on google-walleye
+1795440710 begin the battery is good enough: check
+1795440711 ok the battery is good enough: 
+1795440711 begin the image is the declared one, a whole boot partition, its AVB footer verifies: check
+1795440711 ok the image is the declared one, a whole boot partition, its AVB footer verifies: 
+1795440711 begin the image's init accepts the slot it is booted from: check
+1795440711 ok the image's init accepts the slot it is booted from: 
+1795440711 begin the stored boot chain is whole, the ssh key is private and the reboot tool is the declared one: check
+1795440711 ok the stored boot chain is whole, the ssh key is private and the reboot tool is the declared one: 
+1795440711 begin say what to expect: step
+1795440711 ok say what to expect: 
+1795440711 begin the coordinator's go is recorded on the item for this image: check
+1795440712 ok the coordinator's go is recorded on the item for this image: 
+1795440712 begin the phone is on Android, adbd as root: step
+1795440712 ok the phone is on Android, adbd as root: 
+1795440712 begin adb reads the slot Android runs from: check
+1795440712 ok adb reads the slot Android runs from: 
+1795440712 begin the boot partition to be flashed, read now, is its backup, or the declared image with the backup on file; the boot, dtbo and vbmeta partitions are hashed: check
+1795440728 ok the boot partition to be flashed, read now, is its backup, or the declared image with the backup on file; the boot, dtbo and vbmeta partitions are hashed: 
+1795440728 begin the GPT of every disk is read whole and kept: check
+1795440729 ok the GPT of every disk is read whole and kept: 
+1795440729 begin take the phone to fastboot: step
+1795440744 ok take the phone to fastboot: 
+1795440744 begin fastboot agrees on the slot and the flash target is the other slot's boot partition: check
+1795440744 ok fastboot agrees on the slot and the flash target is the other slot's boot partition: 
+1795440744 begin the slot flags are read before: check
+1795440744 ok the slot flags are read before: 
+1795440744 begin flash the boot partition of the slot Android is not on: one fastboot flash: step
+1795440745 ok flash the boot partition of the slot Android is not on: one fastboot flash: 
+1795440745 begin the phone is on Android, adbd as root (Android's slot is still the active one): step
+1795440782 ok the phone is on Android, adbd as root (Android's slot is still the active one): 
+1795440782 begin the partition reads back as the image, and no other boot, dtbo or vbmeta partition changed: check
+1795442307 FAIL the partition reads back as the image, and no other boot, dtbo or vbmeta partition changed: the read of /dev/block/by-name/boot_a did not finish (adb signal: 15 (SIGTERM))
