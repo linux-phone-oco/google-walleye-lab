@@ -6675,3 +6675,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-install-flash-boot-rehearsal-5-stops-at-check-8"></a>
+### walleye-install-flash-boot-rehearsal-5-stops-at-check-8
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 rehearsal 5 (debug image declared) stops at check 8: boot_a holds e337de53, not the stock backup 2a5cd3b2 nor the declared ec741a98; nothing written
+
+Question
+: Does the stage 2 rehearsal pass every step on main after PR 881 with ufs-root-booted-slot-debug declared?
+
+Found
+: Run twice from Android slot b (adb root, no reboot, nothing written, no flash/set_active/erase/oem). Checks 1-7 pass (battery; image ec741a98 whole, AVB footer verifies, root system_a; init gate accepts the slot; stored boot chain whole; adb slot suffix _b). Check 8 stops: boot_a read now is e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1 (the earlier stage 2 image, left by run 7), neither the stored stock backup 2a5cd3b20ef0da2b272d2dac460f868d4764d8bdb8cb426d62eee568f1344fb5 nor the declared image ec741a98476c6b59d1e3875d9604ad225ca1cc7c2b9d9a81f320bc5ea556ed5d: 'the flash could not be undone'. Checks 9 onward not reached. Not patched: whether boot_a holding the previous stage 2 image counts as flashable-over (stock backup is on file) is a decision for the coordinator/builder, e.g. accept a declared list of known earlier images, or restore stock to boot_a first (a write, needs its own go). Phone left on Android slot b, adb device.
+
+About
+: walleye-bootimage
