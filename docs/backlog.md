@@ -10166,7 +10166,7 @@ Status
 : in-progress
 
 Note
-: RUN 8 (2026-11-23 17:35, debug image ec741a98): steps 1-20 pass; step 21 no ssh BUT outcome 2: kernel runs, telnet answered, root init REFUSED: no androidboot.slot_suffix on the cmdline (the bootloader passes none). No second run of this image. Next: the image's cmdline/init must carry the slot (flashed slot a, root system_a) - coordinator decides; research walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing. Phone on Android b.
+: Rehearsal 7 passed (18/18, research walleye-install-flash-boot-rehearsal-7-passed) for the rebuilt debug image a0a55cd0. The go's row names only ec741a98 (run 8's image, no second run): the run needs the coordinator's go naming the FULL sha256 a0a55cd060343d7acc1af07247c48b930789e2318afb77cfe31ea83acba25751 in this row's note (ikb backlog-go with the note), then one command: procedures/install-boot-on-the-pixel-2.rs. Phone on Android slot b.
 
 Blocked by
 : walleye-stage2-pstore-first-on-fallback
@@ -11128,10 +11128,10 @@ Rank
 ### The stage 2 rehearsal for real with the rebuilt debug image declared (short cmdline, the slot from four sources): read only, the whole stdout kept
 
 Status
-: open
+: done
 
 Note
-: The declared image changed again (PR 907); the rehearsal is the bar before the go, as for every earlier image: it found bugs the real run would have hit five times. The run (walleye-install-flash-boot-run) is opened after it with the OUTCOMES: (1) ssh from slot a answers: the short cmdline brought the slot suffix and the root mounted: the kernel, init and root work on a normal boot, the truncation was the cause, stage 2 proceeds; (2) telnet answers but ssh does not: the init now gets the slot and the log says which of the four sources gave it, and why the root or the Alpine services did not come up; (3) the init still refuses for want of the slot: the cmdline is still cut or the slot sources are all missing: the log says what /proc/cmdline holds and its length, and the next read is the DT firmware/android node; (4) no USB device of ours: the kernel did not run (not expected after run 8).
+: proven by research walleye-install-flash-boot-rehearsal-7-passed: 18 of 18, nothing written, phone on Android b
 
 About
 : walleye-bootimage
