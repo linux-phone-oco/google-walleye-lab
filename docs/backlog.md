@@ -10075,3 +10075,28 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-attended-pin-is-one-pin"></a>
+### walleye's lpoco-attended is one pin: the 13 procedures take it from tools/walleye-tries by path (re-exported) and CI runs the CLI that crate builds, so the Cargo tag is the lab's only copy
+
+Status
+: open
+
+Note
+: From orchestration (2026-11-23), docs item attended-pin-is-one-pin: the hourly rhizoid-bump timer refuses walleye's pin because the tag is copied into 13 procedure headers and check.yml:71 (the PR 790 failure: two lpoco-attended copies linked, procedure() and the steps never met). Decided with the rhizoid lane (its decision 2026-11-23-every-pin-one-pin-mover, points 5 and 6). Rank 3: with the phone path first (RESTART2 tool rank 1, silent-shell fix rank 2); it changes how every procedure builds, so it lands BETWEEN keeper runs, never with a run in flight (a keeper's rust-script --force rebuild would pick it up).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) each procedures/*.rs takes lpoco-attended from the steps crate (tools/walleye-tries, by path, re-exported: no tag in any //! header); (2) .github/workflows/check.yml installs/runs the lpoco-attended CLI that tools/walleye-tries builds (cargo run --manifest-path tools/walleye-tries/Cargo.toml -- check ...), no 'cargo install --tag' line; (3) grep for the tag 'lpoco-attended-v' in the repo finds only tools/walleye-tries/Cargo.toml and Cargo.lock; (4) every one of the 13 procedures still dry-runs with today's step counts (rootfs-boots 26, install-boot 17 rehearsal, ufs-matched 23, alpine-login 22, install-rootfs 16) and the checks pass; NO phone-run behavior changes (gates, go reads, way backs, timeouts): the diff of the procedures is where the dependency comes from, said in the PR; no procedure is run against the phone by the builder; dry run, check --host, tests, clippy, fmt, review
+
+Rank
+: 3
