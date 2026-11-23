@@ -10756,7 +10756,7 @@ Status
 : open
 
 Note
-: THE ORDER (the Steward, relaying the Top Coordinator and the author's words of 2026-11-23, ideal-agent 0.3.71, decision 2026-11-23-a-stop-is-read-before-the-fix): walleye's procedure tests refuse unsourced checks; one report to the Steward when it has landed, nothing before. Orchestration has the lab-tools half (lpoco attended check refuses a check with no source); this item is walleye's half: giving every existing check its source and the CI step. It ranks with the phone work: a go without outcomes opens no run (see item walleye-go-lists-outcomes). Lands between keeper runs when it touches procedures.
+: ADDED 2026-11-23 (orchestration): lpoco-attended 0.45.0 makes checks name their sources (check_from): when the pin moves (the one-pin item, walleye-attended-pin-is-one-pin), every procedure's checks need that form, so the SOURCES table of this item IS the data check_from takes: do the two together, one pin move, one pass over the 13 procedures. | THE ORDER (the Steward, relaying the Top Coordinator and the author's words of 2026-11-23, ideal-agent 0.3.71, decision 2026-11-23-a-stop-is-read-before-the-fix): walleye's procedure tests refuse unsourced checks; one report to the Steward when it has landed, nothing before. Orchestration has the lab-tools half (lpoco attended check refuses a check with no source); this item is walleye's half: giving every existing check its source and the CI step. It ranks with the phone work: a go without outcomes opens no run (see item walleye-go-lists-outcomes). Lands between keeper runs when it touches procedures.
 
 About
 : walleye-bootimage
@@ -11147,3 +11147,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-image-recipe-z21"></a>
+### z21's recipe row in device.toml: lpoco bringup image ensure z21 rebuilds the image in the Nix sandbox and equals the declared sha256
+
+Status
+: open
+
+Note
+: From orchestration (2026-11-23): lab-tools #368 gives 'lpoco bringup image ensure NAME' (an image rebuilt from an [images.NAME.recipe] in the Nix sandbox, checked against the declared sha256, served from the store or a cache); proven on z21 in lab-tools; google-walleye-lab still needs z21's recipe row, its own file. Rank 3: behind the stage 2 run; it is also the way the build scripts retire.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: device.toml [images.z21.recipe] in the form of decision 2026-11-23-image-recipes-on-nix-fixed-output-paths and lab-tools #368 (z20 plus z21's dtb is the proven example in lab-tools): 'lpoco bringup image ensure z21' (lab-tools released, installed on the host: v0.45.0 or later) rebuilds the image from the recipe, checks it against the declared sha256 of [images.z21] and serves it from the store afterwards; the inputs of the recipe are named (kernel_tag of the image: int/walleye/ufs-off-e123d3bff/v7.3/1, the dtb from the board dts at its commit, the ramdisk and header words), no tree path; nothing changes the declared sha256; then the same for the other images an [images.*] row names, one row per item or per change as the builder judges (these are the rebuild-identical proofs that let a build-*.sh retire: item walleye-retire-build-scripts); dry run, check --host, tests, review; no phone
+
+Rank
+: 3
