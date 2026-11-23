@@ -10834,7 +10834,7 @@ Note
 : Rescoped by the coordinator (2026-11-23 15:30) after the researcher's prechecks (PR 879): the proposal of the Top Coordinator, make the try itself the watchdog fix, is already in the image, so the try's novelty is the DEBUG INIT (petter first, gadget first, hold) and the kernel taken from a live list tag (the author's step 3: a kernel that is an int/ tag, no worktree by hand). Whether the kernel runs at all in a normal boot's first 40 s is what the debug image settles. | The Top Coordinator's order after run 7: build the watchdog try as the FIRST image from a live list (topic or wip branch plus rhizoid assemble, kernel_tag in its row), which is also step 3 of the author's structure list (walleye-next-image-from-an-int-tag). Then ONE stage 2 run; if slot a then answers ssh stage 2 proceeds; if it still resets, cold USB is next.
 
 Blocked by
-: walleye-stage2-debug-image
+: walleye-stage2-cmdline-too-long
 
 About
 : walleye-bootimage
@@ -11031,19 +11031,16 @@ Rank
 ### Stage 2 as a whole, question (3): every start state the command can meet, all 29 steps (and the rehearsal's 17) walked offline over every combination from captured text, every failing state fixed at once, then ONE rehearsal
 
 Status
-: in-progress
+: done
 
 Note
-: 2026-11-23 (walleye-builder): DONE the model and table-driven harness (40 start states, research walleye-stage2-state-model-table) and the keep/relax/drop table applied (8 marker a note, 9 recorded not asserted, 18 only Android's slot and the current slot, 20 relaxed, rehearsal flags-again a note) plus the one hole found: the slot Android runs from must be successful and bootable at check 13. Reviewed by programmer on the first part; the rest to review. LEFT: step 29 folded into 27; SOURCES.toml for the checks (item walleye-checks-name-their-sources); then ONE rehearsal for real queued for a keeper (walleye-install-flash-boot-rehearsal-5 is that item). No phone.
+: DONE 2026-11-23 (the coordinator): the keep/relax/drop table is applied and the 32-state walk exists (PRs 893, 894); rehearsals 5 and 6 passed 18 of 18 on it (PRs 895, 901); run 8 then passed steps 1-20 and stopped at step 21 for a reason outside the checks (the command line, item walleye-stage2-cmdline-too-long). Left, small: step 29 into 27. | 2026-11-23 (walleye-builder): DONE the model and table-driven harness (40 start states, research walleye-stage2-state-model-table) and the keep/relax/drop table applied (8 marker a note, 9 recorded not asserted, 18 only Android's slot and the current slot, 20 relaxed, rehearsal flags-again a note) plus the one hole found: the slot Android runs from must be successful and bootable at check 13. Reviewed by programmer on the first part; the rest to review. LEFT: step 29 folded into 27; SOURCES.toml for the checks (item walleye-checks-name-their-sources); then ONE rehearsal for real queued for a keeper (walleye-install-flash-boot-rehearsal-5 is that item). No phone.
 
 About
 : walleye-bootimage
 
 Opened
 : 2026-11-23
-
-Needs
-: build
 
 Proof
 : (1) a STATE MODEL in the code or a table next to the tests: boot_a content in {stock backup, an earlier image of ours (every [images.*] row that was flashed, by name), the declared image, unknown (any other bytes, or unreadable)}; slot a flags in {as stock (retry, successful as the bootloader had them), after one flash (retry reset, successful no, unbootable no), after a failed boot and fall back (unbootable yes, retry 0, successful no), after a flash that cleared unbootable, after a successful stage 2 and its way back}; slot b's flags {successful yes current} and a b that is NOT successful (unknown); the current slot and the priority as far as getvar shows; (2) a table-driven offline harness walks ALL 29 steps and the rehearsal's 17 over every combination of these, from CAPTURED text (research material of runs 1 to 7 and rehearsals 1 to 5: no typed fixture), and says per step and per state: passes, stops (and why), or is not reachable; every state in which a step stops that the research (item walleye-stage2-checks-should-they-exist) says should NOT stop is FIXED in the same change (the check relaxed or dropped, with the research row cited as its source in procedures/SOURCES.toml); a step that must stop (an unsafe state: b not successful, the GPT differs in more than the slot bits, the image does not verify) has a test that it does; (3) after it, the stage 2 command passes its dry run and ONE rehearsal for real is queued (a keeper): no run before it; (4) the earlier item walleye-stage2-check-8-earlier-images is superseded by this one; dry run, check --host, tests, clippy, fmt, review; no phone
