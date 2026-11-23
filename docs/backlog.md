@@ -9228,7 +9228,7 @@ Status
 : open
 
 Note
-: ~3 keeper-h. Read back boot, dtbo, vbmeta first (walleye-install-slot-readback). Way back: fastboot flash the stored boot, set_active the Android slot. 2026-11-22 (the author's standing rule, decision 2026-11-22-walleye-author-research-then-proceed): no word of his is waited for once the research verdict (item walleye-install-stage2-android-comparison) says our steps do nothing Android's OTA does not; the step is then ONE tested command, rehearsed, with a way back (fastboot set_active b; fastboot flash boot_a from the stored backup); the coordinator opens the go, a keeper runs it, the result and the verdict go to the Top Coordinator. NEVER, whatever the research says: xbl, abl and other bootloader partitions, the GPT, erase, purge. 2026-11-22 (research walleye-install-stage2-android-verdict, PR 703): VERDICT: our two steps (flash boot_<other>, then fastboot set_active) are what Android's OTA does in kind. ONE NAMED FACT: set_active is a GPT write (the slot attribute bits of the A/B entries, the type GUIDs swapped, the boot LUN set, both headers rewritten), done by the bootloader's own code, and the OTA's setActiveBootSlot is the same write; a failed boot's retry count is also decremented by the bootloader on every try boot. The decision's 'never the GPT' is read by the research as covering OUR writes to the table; whether it covers the bootloader's own slot switch is the author's reading to give: the research did not treat the verdict as a go. Not known yet: walleye's real ABL is proprietary and was not read (the open CAF ABL stands in), the AVB vbmeta flags for our boot slot. Cheap read-only check: fastboot getvar slot-successful, slot-unbootable, slot-retry-count for both slots before and after a RAM boot, none should change, and getvar all twice identical (the stage 1 boot already reads the slot flags before and after). 2026-11-22 (the Top Coordinator's reading, recorded on the decision): set_active by the bootloader is ALLOWED, 'never the GPT' is OUR edits of the table. The author is told; if he objects it stops. The waits for the reading is cleared; this item now waits for the stage 1 boot (blocked_by) and the one command with its rehearsal. 2026-11-22: the one command is item walleye-install-flash-boot-procedure.
+: UMBRELLA (the coordinator, 2026-11-23): off the phone queue. The rehearsal is item walleye-install-flash-boot-rehearsal; the stage 2 RUN is item walleye-install-flash-boot-run (its go is CLOSED until the Top Coordinator has seen walleye-stage2-forced-way-back-argument and the reboot reason works). This item closes when the run item is done. | ~3 keeper-h. Read back boot, dtbo, vbmeta first (walleye-install-slot-readback). Way back: fastboot flash the stored boot, set_active the Android slot. 2026-11-22 (the author's standing rule, decision 2026-11-22-walleye-author-research-then-proceed): no word of his is waited for once the research verdict (item walleye-install-stage2-android-comparison) says our steps do nothing Android's OTA does not; the step is then ONE tested command, rehearsed, with a way back (fastboot set_active b; fastboot flash boot_a from the stored backup); the coordinator opens the go, a keeper runs it, the result and the verdict go to the Top Coordinator. NEVER, whatever the research says: xbl, abl and other bootloader partitions, the GPT, erase, purge. 2026-11-22 (research walleye-install-stage2-android-verdict, PR 703): VERDICT: our two steps (flash boot_<other>, then fastboot set_active) are what Android's OTA does in kind. ONE NAMED FACT: set_active is a GPT write (the slot attribute bits of the A/B entries, the type GUIDs swapped, the boot LUN set, both headers rewritten), done by the bootloader's own code, and the OTA's setActiveBootSlot is the same write; a failed boot's retry count is also decremented by the bootloader on every try boot. The decision's 'never the GPT' is read by the research as covering OUR writes to the table; whether it covers the bootloader's own slot switch is the author's reading to give: the research did not treat the verdict as a go. Not known yet: walleye's real ABL is proprietary and was not read (the open CAF ABL stands in), the AVB vbmeta flags for our boot slot. Cheap read-only check: fastboot getvar slot-successful, slot-unbootable, slot-retry-count for both slots before and after a RAM boot, none should change, and getvar all twice identical (the stage 1 boot already reads the slot flags before and after). 2026-11-22 (the Top Coordinator's reading, recorded on the decision): set_active by the bootloader is ALLOWED, 'never the GPT' is OUR edits of the table. The author is told; if he objects it stops. The waits for the reading is cleared; this item now waits for the stage 1 boot (blocked_by) and the one command with its rehearsal. 2026-11-22: the one command is item walleye-install-flash-boot-procedure.
 
 Blocked by
 : walleye-install-rootfs-boots-try,walleye-install-flash-boot-procedure,walleye-install-stage2-boot-image
@@ -9238,9 +9238,6 @@ About
 
 Opened
 : 2026-11-22
-
-Needs
-: phone
 
 Proof
 : a power-on lands in Linux on ssh without fastboot boot; after a forced failed boot (retry count) it falls back to Android; avb behaviour recorded; and the conditions of the reading of 'never the GPT' (decision 2026-11-22-walleye-author-research-then-proceed): slot flags (getvar slot-* both slots) and both GPT LUN headers read and kept BEFORE; set_active only the slot whose boot was just flashed and read back; AFTER, the only changes are the slot attribute bits and the type-GUID and boot-LUN switch the open ABL describes; the way back (fastboot set_active b, the same operation in reverse) rehearsed BEFORE it is relied on
@@ -10033,3 +10030,28 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-install-flash-boot-rehearsal"></a>
+### The stage 2 rehearsal for real: every step of the stage 2 command but the flash, the set_active, the new slot's boot and the switch back; nothing is written
+
+Status
+: open
+
+Note
+: Split out by the coordinator (2026-11-23): the item walleye-install-flash-boot was read by a keeper as 'the rehearsal', and it is the stage 2 RUN umbrella; the rehearsal is this item and runs now. The stage 2 RUN is walleye-install-flash-boot-run and its go stays CLOSED (the Top Coordinator, after rerun 6: not before the Top has seen walleye-stage2-forced-way-back-argument). NEVER run procedures/install-boot-on-the-pixel-2.rs from this item.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: procedures/rehearse-install-boot-on-the-pixel-2.rs run by a keeper against the phone on Android (no go needed, nothing written, no fastboot flash, set_active, erase, oem or reboot verb): its checks pass: the slot Android runs from read by adb AND fastboot and equal (b), the declared image [images.ufs-root-booted-slot] (sha256 e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1) checked with its init gate (walleye.booted-slot, root system_a = the slot it would be flashed to), the allow-list names exactly boot_a, the slot flags and both GPT LUN headers read and kept, the stored boot chain read back equal; the log and its first-time text (what fastboot printed for getvar slot-*) kept in a research row's material, so the later stage 2 run has text a phone printed; one research row says what each read printed; the phone stays on Android
+
+Rank
+: 2
