@@ -10141,7 +10141,7 @@ Status
 : open
 
 Note
-: From walleye-ufs-silent-under-load-causes-ranked and decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try. Procedure change to walleye-tries/src/ufs/load.rs: ramp 64/256/1024 MiB, a RAM log line before each step, governor powersave set first (verify /sys/class/devfreq/1da4000.ufshc exists and governor_powersave is built; else the item says so and stops). Needs the author's go for the new procedure (same image sha). Read PON reason on the way back.
+: HELD OFF THE PHONE QUEUE (the coordinator, 2026-11-23 16:30): the keeper's run stopped safely at check 6, no go names the matched image 461077869fb2 (the decision says this changed procedure needs a new go) and 'tad q ready' still listed it. It returns to the queue (needs phone) with a go whose note carries an OUTCOMES paragraph, AFTER the stage 2 try, because the stage 2 try is the lane's weakest link and shares the one lease. | From walleye-ufs-silent-under-load-causes-ranked and decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try. Procedure change to walleye-tries/src/ufs/load.rs: ramp 64/256/1024 MiB, a RAM log line before each step, governor powersave set first (verify /sys/class/devfreq/1da4000.ufshc exists and governor_powersave is built; else the item says so and stops). Needs the author's go for the new procedure (same image sha). Read PON reason on the way back.
 
 Blocked by
 : walleye-ufs-silent-ramped-pinned-build
@@ -10151,9 +10151,6 @@ About
 
 Opened
 : 2026-11-23
-
-Needs
-: phone
 
 Proof
 : tests/health/base/ufs-sustained-read.sh passes: a 1024 MiB O_DIRECT read of sda finishes with the shell answering every second, or the first silent step and its gear and clock are recorded as a research row
