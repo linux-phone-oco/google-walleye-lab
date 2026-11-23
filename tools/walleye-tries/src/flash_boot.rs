@@ -574,6 +574,104 @@ fn partner(name: &str) -> Option<String> {
 /// slot); attribute bytes change only on A/B entries; a type GUID that changed is the GUID its A/B partner had and the partner's changed to this entry's old one (a swap, both ways); the same holds for
 /// the backup copy of the entries on its own; and a primary copy that agreed with the backup still does. Returns what changed, counted, for the log.
 pub fn gpt_switch_only(before: &[u8], after: &[u8]) -> Result<String, String> {
+    gpt_switch_only_across(&[("", before)], &[("", after)])
+}
+
+/// `gpt_switch_only` for the disks of the phone together (check 22): the A/B partner of an entry is found BY NAME across every disk, in the same copy (primary or backup), never by disk, because the
+/// bootloader's boot LUNs hold one half of a pair each (run 10: `xbl_a` on sdb, `xbl_b` on sdc) and its own `set_active` moves both. Every disk is still judged byte by byte as above; an entry whose
+/// partner is on another disk must swap its type GUID with that partner's, and a change on one half only (or on a name with no partner anywhere, or a name found twice) refuses.
+/// The A/B names the boot LUNs split over two disks: `xbl_a` on sdb, `xbl_b` on sdc (stage 2 run 10).
+const CROSS_DISK_PAIRS: &str = "xbl_";
+
+pub fn gpt_switch_only_across(
+    before: &[(&str, &[u8])],
+    after: &[(&str, &[u8])],
+) -> Result<String, String> {
+    if before.is_empty() || before.len() != after.len() {
+        return Err("the disks of the two reads are not the same".into());
+    }
+    let mut lays = Vec::new();
+    for ((disk, b), (disk_a, a)) in before.iter().zip(after) {
+        if disk != disk_a {
+            return Err("the disks of the two reads are not the same".into());
+        }
+        let said = |e: String| {
+            if disk.is_empty() {
+                e
+            } else {
+                format!("{disk}: {e}")
+            }
+        };
+        lays.push(gpt_disk_bytes_only(b, a).map_err(said)?);
+    }
+    let (mut attrs, mut swaps) = (0usize, 0usize);
+    for primary in [true, false] {
+        let copy = if primary { "primary" } else { "backup" };
+        let at = |d: usize, i: usize| {
+            let base = if primary { P_ENT } else { lays[d].b_ent };
+            base + i * ENTRY
+        };
+        let mut names: Vec<(String, usize, usize)> = Vec::new();
+        for (d, (_, b)) in before.iter().enumerate() {
+            for i in 0..lays[d].count {
+                names.push((entry_name(b, at(d, i)), d, i));
+            }
+        }
+        for (name, d, i) in &names {
+            let (disk, b, a) = (before[*d].0, before[*d].1, after[*d].1);
+            let p = at(*d, *i);
+            let twins: Vec<&(String, usize, usize)> = match partner(name) {
+                Some(want) => names.iter().filter(|n| n.0 == want).collect(),
+                None => Vec::new(),
+            };
+            if twins.len() > 1 && (b[p + 54] != a[p + 54] || b[p..p + 16] != a[p..p + 16]) {
+                return Err(format!("{copy}: {name:?} changed and its partner's name is on {} entries of the phone's disks: it cannot be paired", twins.len()));
+            }
+            // only the boot LUN family may pair over two disks (run 10: xbl); any other name pairs on its own disk
+            let twin = twins
+                .first()
+                .filter(|t| t.1 == *d || name.starts_with(CROSS_DISK_PAIRS));
+            if b[p + 54] != a[p + 54] {
+                if twin.is_none() {
+                    return Err(format!(
+                        "{copy}: the slot bits of {name:?} ({}) changed and it has no A/B partner on any disk",
+                        if disk.is_empty() { "the disk" } else { disk }
+                    ));
+                }
+                if let Some(t) = twin {
+                    let (tat, tb, ta) = (at(t.1, t.2), before[t.1].1, after[t.1].1);
+                    if t.1 != *d && tb[tat + 54] == ta[tat + 54] {
+                        return Err(format!("{copy}: the slot bits of {name:?} ({disk}) changed and its partner's on {} did not: a pair on two boot LUNs moves together", before[t.1].0));
+                    }
+                }
+                if primary {
+                    attrs += 1;
+                }
+            }
+            if b[p..p + 16] != a[p..p + 16] {
+                let t = twin.ok_or_else(|| {
+                    format!("{copy}: the type GUID of {name:?} changed and it has no A/B partner on any disk")
+                })?;
+                let (tb, ta) = (before[t.1].1, after[t.1].1);
+                let tat = at(t.1, t.2);
+                if a[p..p + 16] != tb[tat..tat + 16] || ta[tat..tat + 16] != b[p..p + 16] {
+                    return Err(format!(
+                        "{copy}: the type GUID of {name} changed and it is not a swap with its partner's (on {})",
+                        if before[t.1].0.is_empty() { "the same disk" } else { before[t.1].0 }
+                    ));
+                }
+                if primary {
+                    swaps += 1;
+                }
+            }
+        }
+    }
+    Ok(format!("{attrs} entries' slot bits and {swaps} type GUIDs changed, the CRCs are right, nothing else"))
+}
+
+/// One disk, byte by byte (the first half of `gpt_switch_only_across`): both dumps whole, the same layout, only CRC fields, type GUIDs and slot-bit bytes differ, the primary and the backup copy
+/// still agree if they did. Returns the layout.
+fn gpt_disk_bytes_only(before: &[u8], after: &[u8]) -> Result<Layout, String> {
     if before.len() != DUMP_LEN || after.len() != DUMP_LEN {
         return Err("a GPT dump is not whole".into());
     }
@@ -602,44 +700,7 @@ pub fn gpt_switch_only(before: &[u8], after: &[u8]) -> Result<String, String> {
     if !same(after) && same(before) {
         return Err("the primary and the backup entries agreed before and disagree now".into());
     }
-    let (mut attrs, mut swaps) = (0usize, 0usize);
-    for (copy, base) in [("primary", P_ENT), ("backup", lay.b_ent)] {
-        let names: Vec<String> = (0..lay.count)
-            .map(|i| entry_name(before, base + i * ENTRY))
-            .collect();
-        for i in 0..lay.count {
-            let at = base + i * ENTRY;
-            let name = &names[i];
-            let twin = partner(name).and_then(|p| names.iter().position(|n| *n == p));
-            if before[at + 54] != after[at + 54] {
-                if twin.is_none() {
-                    return Err(format!(
-                        "{copy}: the slot bits of {name:?} changed and it has no A/B partner"
-                    ));
-                }
-                if copy == "primary" {
-                    attrs += 1;
-                }
-            }
-            if before[at..at + 16] != after[at..at + 16] {
-                let twin = twin.ok_or_else(|| {
-                    format!("{copy}: the type GUID of {name:?} changed and it has no A/B partner")
-                })?;
-                let tat = base + twin * ENTRY;
-                if after[at..at + 16] != before[tat..tat + 16]
-                    || after[tat..tat + 16] != before[at..at + 16]
-                {
-                    return Err(format!(
-                        "{copy}: the type GUID of {name} changed and it is not a swap with its partner's"
-                    ));
-                }
-                if copy == "primary" {
-                    swaps += 1;
-                }
-            }
-        }
-    }
-    Ok(format!("{attrs} entries' slot bits and {swaps} type GUIDs changed, the CRCs are right, nothing else"))
+    Ok(lay)
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -1344,6 +1405,13 @@ impl FlashBoot {
         }
     }
 
+    fn gpt_refs(disks: &[(String, Vec<u8>)]) -> Vec<(&str, &[u8])> {
+        disks
+            .iter()
+            .map(|(n, d)| (n.as_str(), d.as_slice()))
+            .collect()
+    }
+
     fn gpt_lines(text: &str) -> Result<Vec<(String, Vec<u8>)>, String> {
         text.lines()
             .map(|l| {
@@ -1367,13 +1435,8 @@ impl FlashBoot {
                 FlashBoot::gpt_lines(&u.saved("gpt-before.txt")?)?,
                 FlashBoot::gpt_lines(&u.saved(after)?)?,
             );
-            if b.len() != a.len() || b.iter().zip(&a).any(|(x, y)| x.0 != y.0) {
-                return Err("the disks of the two reads are not the same".into());
-            }
-            for ((disk, before), (_, after)) in b.iter().zip(&a) {
-                let said = gpt_switch_only(before, after).map_err(|e| format!("{disk}: {e}"))?;
-                println!("  {disk}: {said}");
-            }
+            let said = gpt_switch_only_across(&FlashBoot::gpt_refs(&b), &FlashBoot::gpt_refs(&a))?;
+            println!("  {} disks: {said}", b.len());
             Ok(())
         }
     }
@@ -2007,7 +2070,7 @@ mod tests {
     }
 
     /// The CRCs as a writer makes them: the entries' over what the header says (count, and where its entry LBA puts them), then the header's own.
-    fn fix_crcs(d: &mut [u8]) {
+    pub(super) fn fix_crcs(d: &mut [u8]) {
         for hdr in [P_HDR, B_HDR] {
             let count = u32::from_le_bytes(d[hdr + 80..hdr + 84].try_into().unwrap()) as usize;
             let ent = if hdr == P_HDR {
@@ -4072,5 +4135,141 @@ mod flash_flag_tests {
             .unwrap_err()
             .contains("slot-unbootable:b"));
         assert!(android_slot_is_a_safe_way_back("current-slot:b", "b").is_err());
+    }
+
+    // Check 22 across the disks: stage 2 run 10's own GPT reads (research walleye-stage2-run10-step21-passes-check22-cross-disk-xbl; fixtures stage2-run10-*), six disks, xbl_a on sdb and xbl_b on sdc.
+    const RUN10_BEFORE: &str = include_str!("../fixtures/stage2-run10-gpt-before.txt");
+    const RUN10_AFTER: &str = include_str!("../fixtures/stage2-run10-gpt-new-slot.txt");
+
+    fn run10(text: &str) -> Vec<(String, Vec<u8>)> {
+        FlashBoot::gpt_lines(text).unwrap()
+    }
+
+    fn across(b: &[(String, Vec<u8>)], a: &[(String, Vec<u8>)]) -> Result<String, String> {
+        gpt_switch_only_across(&FlashBoot::gpt_refs(b), &FlashBoot::gpt_refs(a))
+    }
+
+    fn disk<'a>(d: &'a mut [(String, Vec<u8>)], name: &str) -> &'a mut Vec<u8> {
+        &mut d.iter_mut().find(|x| x.0 == name).unwrap().1
+    }
+
+    #[test]
+    fn run10_switch_passes_across_the_disks_and_fails_disk_by_disk() {
+        let (b, a) = (run10(RUN10_BEFORE), run10(RUN10_AFTER));
+        assert_eq!(b.len(), 6);
+        let said = across(&b, &a).unwrap();
+        assert!(said.contains("slot bits"), "{said}");
+        // the old per-disk check is what stopped run 10: sdb holds only xbl_a
+        let (sb, sa) = (
+            b.iter().find(|x| x.0 == "sdb").unwrap(),
+            a.iter().find(|x| x.0 == "sdb").unwrap(),
+        );
+        assert!(gpt_switch_only(&sb.1, &sa.1)
+            .unwrap_err()
+            .contains("no A/B partner"));
+        assert!(across(&b, &b).is_ok());
+    }
+
+    #[test]
+    fn a_half_of_the_boot_lun_pair_that_moved_alone_fails() {
+        let (b, mut a) = (run10(RUN10_BEFORE), run10(RUN10_AFTER));
+        // sdc (xbl_b) did not move, sdb (xbl_a) did
+        *disk(&mut a, "sdc") = b.iter().find(|x| x.0 == "sdc").unwrap().1.clone();
+        assert!(across(&b, &a).is_err());
+        let (b, mut a) = (run10(RUN10_BEFORE), run10(RUN10_AFTER));
+        *disk(&mut a, "sdb") = b.iter().find(|x| x.0 == "sdb").unwrap().1.clone();
+        assert!(across(&b, &a).is_err());
+    }
+
+    #[test]
+    fn a_data_byte_of_an_entry_or_a_disk_outside_the_pair_changing_fails() {
+        let (b, a0) = (run10(RUN10_BEFORE), run10(RUN10_AFTER));
+        for name in ["sdb", "sdc", "sda", "sdf"] {
+            let mut a = a0.clone();
+            // the first LBA of the first entry (bytes 32-39): data, not a slot bit
+            disk(&mut a, name)[P_ENT + 32] ^= 1;
+            assert!(across(&b, &a).is_err(), "{name}");
+        }
+        let mut a = a0.clone();
+        // the partition's name changed
+        disk(&mut a, "sdb")[P_ENT + 56] ^= 1;
+        assert!(across(&b, &a).is_err());
+    }
+
+    #[test]
+    fn disks_in_another_order_or_missing_refuse() {
+        let (b, mut a) = (run10(RUN10_BEFORE), run10(RUN10_AFTER));
+        a.swap(1, 2);
+        assert!(across(&b, &a).is_err());
+        a.pop();
+        assert!(across(&b, &a).is_err());
+        assert!(across(&[], &[]).is_err());
+    }
+
+    /// The offline sweep of check 22 over every GPT capture a lab folder holds (`WALLEYE_CAPTURES=~/lab-material/walleye cargo test sweep -- --ignored --nocapture`): each folder's `gpt-before.txt`
+    /// against every other `gpt-*.txt` of it, printing capture, disks, pass or stop; a stop fails the test.
+    #[test]
+    #[ignore = "reads the lab's captures: WALLEYE_CAPTURES names the folder"]
+    fn sweep_of_every_captured_gpt_pair() {
+        let root = std::env::var("WALLEYE_CAPTURES").expect("WALLEYE_CAPTURES");
+        let mut stops = 0;
+        let mut dirs: Vec<_> = std::fs::read_dir(&root).unwrap().flatten().collect();
+        dirs.sort_by_key(|e| e.file_name());
+        for e in dirs {
+            let p = e.path().join("gpt-before.txt");
+            let Ok(text) = std::fs::read_to_string(&p) else {
+                continue;
+            };
+            let Ok(b) = FlashBoot::gpt_lines(&text) else {
+                println!(
+                    "{}: gpt-before.txt is not a GPT dump (skipped)",
+                    e.path().display()
+                );
+                continue;
+            };
+            let mut others: Vec<_> = std::fs::read_dir(e.path()).unwrap().flatten().collect();
+            others.sort_by_key(|o| o.file_name());
+            for o in others {
+                let name = o.file_name().to_string_lossy().to_string();
+                if !name.starts_with("gpt-") || name == "gpt-before.txt" {
+                    continue;
+                }
+                let a = FlashBoot::gpt_lines(&std::fs::read_to_string(o.path()).unwrap()).unwrap();
+                let said = across(&b, &a);
+                stops += said.is_err() as usize;
+                println!(
+                    "{} {name}: {} disks: {}",
+                    e.file_name().to_string_lossy(),
+                    b.len(),
+                    match said {
+                        Ok(s) => format!("pass ({s})"),
+                        Err(s) => format!("STOP {s}"),
+                    }
+                );
+            }
+        }
+        assert_eq!(stops, 0);
+    }
+
+    #[test]
+    fn only_the_xbl_pair_may_be_split_over_two_disks() {
+        let (b, a) = (run10(RUN10_BEFORE), run10(RUN10_AFTER));
+        // rename xbl_a/xbl_b in both reads to boot_a/boot_b: the same bytes, a family that never splits
+        let rename = |mut d: Vec<(String, Vec<u8>)>| {
+            for (_, bytes) in d.iter_mut().filter(|x| x.0 == "sdb" || x.0 == "sdc") {
+                for i in 0..128 {
+                    let at = P_ENT + i * ENTRY;
+                    if entry_name(bytes, at).starts_with("xbl_") {
+                        for (k, c) in b"boot".iter().enumerate() {
+                            bytes[at + 56 + 2 * k] = *c;
+                        }
+                    }
+                }
+                tests::fix_crcs(bytes);
+            }
+            d
+        };
+        let said = across(&rename(b), &rename(a));
+        assert!(said.unwrap_err().contains("no A/B partner"));
     }
 }
