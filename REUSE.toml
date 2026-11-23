@@ -88,3 +88,16 @@ path = ["kernel/audio-adsp-q6/README.md"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 grenudi"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+# The MDSS reset patch (item walleye-display-dts-any-order): a patch of a kernel dts file carries the kernel's licence; the README is ours.
+[[annotations]]
+path = ["kernel/display-mdss-reset/0*.patch", "kernel/display-mdss-reset/SHA256SUMS"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 grenudi"
+SPDX-License-Identifier = "GPL-2.0-only"
+
+[[annotations]]
+path = ["kernel/display-mdss-reset/README.md"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 grenudi"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
