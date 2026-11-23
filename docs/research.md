@@ -5697,3 +5697,22 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-22/
+
+
+<a id="walleye-rootfs-boots-run-3-handover-happened-unlogged"></a>
+### walleye-rootfs-boots-run-3-handover-happened-unlogged
+
+Date
+: 2026-11-23
+
+Brief
+: Root boot run 3 stopped at check 17 again, but the evidence shows the hand-over DID happen: its 'handing over' line is lost because say() writes /dev/kmsg after /dev was moved
+
+Question
+: Why did check 17 fail again (init did not hand over) on image c3373d71, with the slot on the command line?
+
+Found
+: Run 3 (2026-11-23 05:44-06:00, PR 740's evidence read ran): checks 1-16 pass; the init logged start (slot _b seen = adb's) and 'root is /dev/sda22 (PARTNAME=system_a)', mounted it ext4 ro norecovery at /lower. Evidence after the stop: PID 1 is /sbin/init, / is the overlay (lower=/lower, upper tmpfs), /lower is the card ro, /dev /proc /sys moved into the new root, the new root's dirs listed - so switch_root ran. The missing line: build/initramfs-root/init line 94 say 'handing over' comes AFTER mount --move /dev /newroot/dev (line 91); say() writes to /dev/kmsg, which no longer exists in the initramfs's /dev, so the kernel log never gets it and rootfs_boot.rs:320 (handed_over from that line) fails. Cause is in the init's order, not in the hand-over. Fix: say 'handing over' BEFORE the mount --moves (before line 89), rebuild the image (new sha256, new go), or have the check read PID 1 / the overlay root instead. After the stop: GPT of 6 disks, system_a, boot chain and both slots' flags equal before/after (measured); phone on Android b, adb answers. Nothing flashed.
+
+About
+: walleye-display-s6e3fa5
