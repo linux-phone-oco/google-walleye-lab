@@ -6181,3 +6181,24 @@ Done
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-walleye-frozen-lists"></a>
+### Frozen kernel lists reproduce the shipped images
+
+Entry date
+: 2026-11-23
+
+Done
+: Added ufs-off-e123d3bff and ufs-on-3644090c7 to kernel/topics.toml on archive/pmic-wdt-e123d3bff; rhizoid assemble --reproduces says equal for both; tags pushed; kernel_tag on four images
+
+Considered
+: backport/pmic-wdt-wake-in-suspend/v7.3 as the pin's name, which the lpoco wrapper accepts; an archive ref is the steward's rule for a kept old commit
+
+Rejected
+: tagging wdt1-a/b and the other z images: their kernels are not shown equal to a list
+
+About
+: walleye-kernel-series-to-topics

@@ -4,7 +4,7 @@
 
 name = "walleye"
 tag = "int/{name}/{list}/{base}/{n}"
-branches = ["topic/ITEM", "backport/ITEM/BASE"]
+branches = ["topic/ITEM", "backport/ITEM/BASE", "archive/ITEM"]
 
 # The kernel with the UFS storage off: the image's root is on the SD card or USB.
 [lists.ufs-off]
@@ -30,6 +30,34 @@ for = "the PMI8998 fuel gauge (carried: others' patches)"
 state = "trying"
 
 [[lists.ufs-on.entries]]
+branch = "topic/ufs-match-android"
+for = "UFS storage on the Pixel 2: reset pin, PHY tables, the card's one quirk, the purge guard"
+state = "trying"
+
+# FROZEN lists: what the shipped images were built from (decision 2026-11-23-walleye-frozen-lists-reproduce-shipped-images).
+# They pin the watchdog topic at e123d3bff on an archive ref; the live lists above take the topic's tip and build the NEXT images.
+[lists.ufs-off-e123d3bff]
+base = "v7.3"
+
+[[lists.ufs-off-e123d3bff.entries]]
+branch = "archive/pmic-wdt-e123d3bff"
+for = "the PMIC watchdog as the shipped ufs-off images carry it (e123d3bff, before the two fixes)"
+state = "trying"
+
+[lists.ufs-on-3644090c7]
+base = "v7.3"
+
+[[lists.ufs-on-3644090c7.entries]]
+branch = "archive/pmic-wdt-e123d3bff"
+for = "the PMIC watchdog as the shipped ufs-on image carries it (e123d3bff, before the two fixes)"
+state = "trying"
+
+[[lists.ufs-on-3644090c7.entries]]
+branch = "topic/walleye-fuel-gauge-rfc"
+for = "the PMI8998 fuel gauge (carried: others' patches)"
+state = "trying"
+
+[[lists.ufs-on-3644090c7.entries]]
 branch = "topic/ufs-match-android"
 for = "UFS storage on the Pixel 2: reset pin, PHY tables, the card's one quirk, the purge guard"
 state = "trying"
