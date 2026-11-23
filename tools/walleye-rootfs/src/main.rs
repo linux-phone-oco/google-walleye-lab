@@ -11,6 +11,8 @@ use std::process::Command;
 use walleye_rootfs::cli::{usage, Contract as C};
 use walleye_rootfs::*;
 
+mod pd_mapper;
+
 const IMAGE_MIB: u64 = 1024;
 const FILE_TIME: &str = "@1767225600"; // 2026-01-01, every file's time, so the image is the same twice
 const FS_UUID: &str = "7e1c3a52-0b6d-4f0e-9a41-2d8a6c1e5b90";
@@ -23,7 +25,7 @@ const MUST_BE_INSTALLED: &[&str] = &[
     "tqftpserv",
     "e2fsprogs",
 ];
-const NOT_STARTED: &[&str] = &["qrtr-ns", "qrtr", "rmtfs", "tqftpserv"];
+const NOT_STARTED: &[&str] = &["qrtr-ns", "qrtr", "rmtfs", "tqftpserv", "pd-mapper"];
 
 struct Ctx {
     repo: PathBuf,
@@ -94,7 +96,7 @@ fn build_twice_and_check(ctx: &Ctx) -> Result<(), String> {
     Ok(())
 }
 
-/// apk.static and the Alpine keys, the exact versions rootfs/pins names, each hashed before it is unpacked, into WORK/tools and WORK/keys-pkg.
+/// apk.static, the Alpine keys and the pd-mapper binary built from source, the exact versions rootfs/pins names, each hashed before it is unpacked, into WORK/tools and WORK/keys-pkg.
 /// One fetch serves both builds (and a later run: a download already on disk is used when its sha256 is the pinned one).
 fn fetch_tools(ctx: &Ctx) -> Result<Tools, String> {
     let dl = ctx.work.join("dl");
@@ -134,12 +136,14 @@ fn fetch_tools(ctx: &Ctx) -> Result<Tools, String> {
     Ok(Tools {
         apk: ctx.work.join("tools/sbin/apk.static"),
         keys: ctx.work.join("keys-pkg/usr/share/apk/keys"),
+        pd_mapper: pd_mapper::build(ctx, &pins)?,
     })
 }
 
 struct Tools {
     apk: PathBuf,
     keys: PathBuf,
+    pd_mapper: PathBuf,
 }
 
 /// One whole build: the tree, its configuration, the image. Returns the image's path.
@@ -152,7 +156,7 @@ fn build_image(ctx: &Ctx, tools: &Tools, n: u32) -> Result<PathBuf, String> {
     ));
     install_packages(ctx, tools, &tree)?;
     say(&format!("build {n}: write the configuration"));
-    write_configuration(ctx, &tree)?;
+    write_configuration(ctx, tools, &tree)?;
     say(&format!("build {n}: make the ext4 image"));
     make_image(ctx, &tree, &img)?;
     Ok(img)
@@ -196,7 +200,7 @@ fn install_packages(ctx: &Ctx, tools: &Tools, tree: &Path) -> Result<(), String>
 }
 
 /// What the skipped package scripts and a first setup would write: files from rootfs/overlay, the OpenRC links, root's login.
-fn write_configuration(ctx: &Ctx, tree: &Path) -> Result<(), String> {
+fn write_configuration(ctx: &Ctx, tools: &Tools, tree: &Path) -> Result<(), String> {
     run(
         "cp",
         &[
@@ -216,6 +220,7 @@ fn write_configuration(ctx: &Ctx, tree: &Path) -> Result<(), String> {
     )
     .map_err(|e| e.to_string())?;
     link_busybox_applets(tree)?;
+    install_pd_mapper(tools, tree)?;
     // apk's log names the build's own directory and times: a build record, not part of the system
     let _ = fs::remove_file(tree.join("var/log/apk.log"));
     let levels =
@@ -427,7 +432,7 @@ fn check_image(ctx: &Ctx, img: &Path) -> Result<(), String> {
         .collect();
     rep.ok(
         started.is_empty(),
-        "qrtr, rmtfs and tqftpserv are installed and linked into no runlevel",
+        "qrtr, rmtfs, tqftpserv and pd-mapper are linked into no runlevel",
     );
     let gadget = fs::read_to_string(dump.join("etc/init.d/usb-gadget")).unwrap_or_default();
     let address = device_address(&ctx.repo)?;
@@ -468,7 +473,15 @@ fn check_image(ctx: &Ctx, img: &Path) -> Result<(), String> {
             "the image matches its .sha256 file",
         );
     }
-    say("NOT in v1: pd-mapper (items walleye-install-rootfs-pd-mapper), lpoco-health (walleye-install-rootfs-health-binary)");
+    let pdm = fs::read(dump.join("usr/sbin/pd-mapper")).unwrap_or_default();
+    rep.ok(
+        is_static_aarch64_elf(&pdm),
+        &format!(
+            "usr/sbin/pd-mapper is a static aarch64 ELF ({} bytes)",
+            pdm.len()
+        ),
+    );
+    say("NOT in v1: lpoco-health (walleye-install-rootfs-health-binary)");
     fs::write(ctx.work.join("packages.txt"), package_list(&pkgs)).map_err(|e| e.to_string())?;
     say(&format!(
         "package list: {}",
@@ -572,6 +585,24 @@ fn run(cmd: &str, args: &[&str]) -> Result<String, String> {
     Ok(String::from_utf8_lossy(&o.stdout).into_owned())
 }
 
+/// `run`, in the directory `dir`.
+fn run_in(dir: &Path, cmd: &str, args: &[&str]) -> Result<String, String> {
+    let o = Command::new(cmd)
+        .current_dir(dir)
+        .args(args)
+        .output()
+        .map_err(|e| format!("{cmd}: {e}"))?;
+    if !o.status.success() {
+        return Err(format!(
+            "{cmd} {}: {}\n{}",
+            args.join(" "),
+            o.status,
+            String::from_utf8_lossy(&o.stderr)
+        ));
+    }
+    Ok(String::from_utf8_lossy(&o.stdout).into_owned())
+}
+
 fn run_with_env(cmd: &str, args: &[&str], env: (&str, &str)) -> Result<String, String> {
     let o = Command::new(cmd)
         .args(args)
@@ -613,7 +644,20 @@ fn link_busybox_applets(tree: &Path) -> Result<(), String> {
 fn preflight(building: bool) -> Result<(), String> {
     let check_only = ["e2fsck", "debugfs", "sha256sum"];
     let build_too = [
-        "curl", "tar", "fakeroot", "mke2fs", "find", "touch", "truncate", "cp", "chmod", "chown",
+        "make",
+        "aarch64-linux-gnu-gcc",
+        "aarch64-linux-gnu-ar",
+        "aarch64-linux-gnu-strip",
+        "curl",
+        "tar",
+        "fakeroot",
+        "mke2fs",
+        "find",
+        "touch",
+        "truncate",
+        "cp",
+        "chmod",
+        "chown",
     ];
     let mut need: Vec<&str> = check_only.to_vec();
     if building {
@@ -971,4 +1015,11 @@ fn check_addresses(rep: &mut Report, ctx: &Ctx, dump: &Path) -> Result<(), Strin
         );
     }
     Ok(())
+}
+
+/// pd-mapper goes to /usr/sbin, installed and linked into no runlevel (it needs the firmware's remoteproc, which is not there yet).
+fn install_pd_mapper(tools: &Tools, tree: &Path) -> Result<(), String> {
+    let dest = tree.join("usr/sbin/pd-mapper");
+    fs::copy(&tools.pd_mapper, &dest).map_err(|e| format!("pd-mapper: {e}"))?;
+    fs::set_permissions(&dest, fs::Permissions::from_mode(0o755)).map_err(|e| e.to_string())
 }
