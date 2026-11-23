@@ -10575,10 +10575,10 @@ Rank
 ### Stage 2 run 5: what changed in the GPT when the flash cleared slot a's unbootable and reset its retry? Read it from Android and compare with the run's gpt-before
 
 Status
-: open
+: done
 
 Note
-: The Top Coordinator's rule for any change of check 18 (2026-11-23): the GPT must show only slot a's attribute bits. Run 5 stopped before its own GPT-after, so it is read now from Android.
+: proven by research walleye-stage2-run-5-gpt-after-flash-finding: only slot a's attribute byte and its CRCs differ; boot chain equal
 
 About
 : walleye-bootimage

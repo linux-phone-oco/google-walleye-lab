@@ -6658,3 +6658,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-1730-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel, boot_a holds stage 2 image e337de53; read run 5's GPTs from Android: only boot_a's attribute byte (0xb2 to 0x3b) and the CRCs differ, five disks equal, boot chain equal; nothing written, no reboot; item walleye-stage2-run-5-gpt-after-flash done
+
+Considered
+: next: coordinator decides check 18 (unbootable clear and priority 2 to 3 are attribute bits only) and the stage 2 rerun, a pstore read before any Android reboot; then walleye-ufs-silent-ramped-pinned-try (needs the author's go), transport-real-phone-run, nfc node
+
+About
+: walleye-bootimage
