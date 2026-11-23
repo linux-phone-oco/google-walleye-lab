@@ -9656,18 +9656,10 @@ Rank
 ### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
 
 Status
-: in-progress
+: open
 
 Note
-: THE GO NAMES THE IMAGE BY ITS FULL sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 (device.toml [images.ufs-match]; run 5 stopped at check 6 because this note had only the 12-hex short form: ufs.rs go_decision wants the 64-hex). Everything else as in the note below: ramped, pinned-low read-only try, the amended pin (PR 960), one run, the way back, GPT equal after. | RERUN OF THE RAMPED, PINNED-LOW READ-ONLY TRY, ordered by the coordinator 2026-11-23 23:50 now that the pin is amended (PR 960, item walleye-ufs-ramp-pin-by-userspace done; sources: research walleye-ufs-hold-the-clock-read, PR 954): step 16 writes userspace + set_freq 50000000, reads cur_freq and the governor back and refuses BEFORE any load unless cur_freq is 50000000 AND the governor is userspace; gear before (check 15) and after (gear-pinned.txt). Same matched image 461077869fb2 (device.toml, procedure ufs-matched-image-on-the-pixel-2). Rehearse read-only first as the procedure does; one run; the way back; GPT equal after. NOT KNOWN YET: the node's available_frequencies (the run captures them) and whether the HS-G3 to HS-G1 change succeeds on this card: say so in the research row, do not guess. Never xbl, abl, GPT, erase, purge. If the pin refuses or the shell goes silent: stop, bring the phone home, record the printed text, no second run without the coordinator. History: run 4 stopped at step 16 (research walleye-ufs-try-2-run-4-no-powersave-governor). | EARLIER NOTE: run 4 (ramped, pinned) stopped at step 16: no powersave governor on 1da4000.ufshc (userspace, simple_ondemand). Needs a procedure change: pin low through userspace + set_freq=min_freq (read available_frequencies first). Research walleye-ufs-try-2-run-4-no-powersave-governor. No second run without the coordinator.
-go until 2026-11-24T03:00:00+01:00, outcomes: if step 16 reads back cur_freq 50000000 and governor userspace then the clock pin holds on this kernel and the load runs pinned low; if it refuses then nothing ran under load and available_frequencies read in the run is the next question
-if the gear after the pin reads 1 then the HS-G3 to HS-G1 change succeeds on this card at the held clock; if it stays 3 then the link stays fast under the pinned clock and the clock alone is not the gear
-if every ramp step of the read-only load completes and the shell answers at each step while pinned low then the silence needs the high clock or G3 (the cause is the speed, so stage 3 can run pinned low); if the shell goes silent at a ramp step while pinned low then the silence is not the high clock and the read path itself is next, the last printed line is the evidence
-if the GPT of all six disks is equal after and the boot chain equal then the run changed nothing (read only)
-go until 2026-11-24T04:00:00+01:00, outcomes: if step 16 reads back cur_freq 50000000 and governor userspace then the clock pin holds on this kernel and the load runs pinned low; if it refuses then nothing ran under load and available_frequencies read in the run is the next question
-if the gear after the pin reads 1 then the HS-G3 to HS-G1 change succeeds on this card at the held clock; if it stays 3 then the link stays fast under the pinned clock and the clock alone is not the gear
-if every ramp step of the read-only load completes and the shell answers at each step while pinned low then the silence needs the high clock or G3 (the cause is the speed, so stage 3 can run pinned low); if the shell goes silent at a ramp step while pinned low then the silence is not the high clock and the read path itself is next, the last printed line is the evidence
-if the GPT of all six disks is equal after and the boot chain equal then the run changed nothing (read only)
+: run 6 stopped at step 16 (pin reads back 100 MHz); research walleye-ufs-try-2-run-6-pin-reads-back-100mhz; needs a procedure change and a new go; no second run without the coordinator
 
 About
 : walleye-first-fastboot-boot
