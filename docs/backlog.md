@@ -11619,7 +11619,7 @@ Status
 : open
 
 Note
-: The Top Coordinator's sign 2, 2026-11-24 00:05: a step the keeper did by hand in every fresh worktree is the procedure's step.
+: THE LINK TARGET (keeper local_ca73871e, run 6): build/images in a fresh worktree must link to ~/Projects/walleye-build itself, NOT to its images/ subfolder. | The Top Coordinator's sign 2, 2026-11-24 00:05: a step the keeper did by hand in every fresh worktree is the procedure's step.
 
 About
 : walleye-bootimage
