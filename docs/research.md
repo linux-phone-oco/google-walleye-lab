@@ -6240,3 +6240,25 @@ Sources
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-stage2-run-1-flash-resets-the-other-slots-flags"></a>
+### walleye-stage2-run-1-flash-resets-the-other-slots-flags
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 run 1 stopped at check 18: fastboot flash boot_a itself reset slot a (retry 0->1, successful yes->no); then way back by fastboot reboot, Android on b
+
+Question
+: Does the one fastboot flash of boot_a leave the slot flags unchanged (the procedure's check 18)?
+
+Found
+: No. Checks 1-17 passed (battery 4376 mV, boot_a read back equal, no other boot/dtbo/vbmeta changed, GPT kept). After the flash, flags read slot-retry-count:a 0->1 and slot-successful:a yes->no; b unchanged; current-slot b. The flash is the writer, not set_active. Command stopped (exit 1), its own way back ran: fastboot reboot, Android slot_suffix _b. No set_active, no second run. Open: the check forbids a change the bootloader makes on any flash; decide whether the check allows exactly this change (a decision for the coordinator).
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-23/
