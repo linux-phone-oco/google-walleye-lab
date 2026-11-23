@@ -1868,3 +1868,29 @@ By
 
 Takes
 : How a Qualcomm ABL builds the kernel command line: header words, verity/verifiedbootstate/keymaster, bootdevice, serialno, baseband, display, then ONE conditional block (multi-slot and no root= in the header): slot_suffix, skip_initramfs, rootwait ro init=/init, root path; a stand-in: the Pixel 2's own ABL is closed. Read only, nothing copied
+
+
+<a id="src-android-wahoo-kernel-ext4-super"></a>
+### android_kernel_google_wahoo (lineage-22.1, 113bd1cfa6f5) fs/ext4/super.c: tokens table and token2str
+
+Url
+: https://github.com/LineageOS/android_kernel_google_wahoo/blob/lineage-22.1/fs/ext4/super.c
+
+By
+: LineageOS
+
+Takes
+: Opt_noload has two spellings, norecovery listed first; token2str prints the first, so /proc/mounts says norecovery (l.1207-1208, 1825-1833)
+
+
+<a id="aosp-init-rc-pstore"></a>
+### AOSP system/core rootdir/init.rc (android11-release): pstore mount in on init
+
+Url
+: https://android.googlesource.com/platform/system/core/+/refs/heads/android11-release/rootdir/init.rc
+
+By
+: AOSP
+
+Takes
+: mount pstore at /sys/fs/pstore and chmod console-ramoops (l.357-366); init only mounts it
