@@ -11294,3 +11294,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-stage2-check22-xbl-cross-disk"></a>
+### Check 22 pairs xbl_a and xbl_b ACROSS sdb and sdc: the bootloader's own set_active changes their slot bits (the boot-LUN switch), and the checker must judge the pair, not each disk alone
+
+Status
+: open
+
+Note
+: Run 10 (keeper local_3a77cd35, go to 22:07): steps 1-21 passed, the first complete boot of slot a from the card with a checked slot; check 22 stopped because of the checker's pairing, not the phone. The way back ran, Android on b. NOTE for the next go: boot_a holds the debug image, slot a is retry 1 (the counter after one try boot), and a fresh go is needed. xbl_a/xbl_b here are the bootloader's partition ENTRIES' attribute bits in the GPT, which set_active changes by design (the author was told; the decision's conditions): the data of xbl is never written by us.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: from run 10 (research walleye-stage2-run10-step21-passes-check22-cross-disk-xbl, PR 924): step 21 PASSED (slot _a from root=PARTUUID equal to current-slot, Alpine root sda22, ssh login as root; this phone's DT firmware/android has NO slot_suffix) and check 22 (the GPT of the new slot against the one read before: only the bootloader's own switch may differ) stopped at sdb: 'slot bits of xbl_a changed, no A/B partner': sdb holds only xbl_a, sdc only xbl_b (the boot LUNs), so the switch checker (tools/walleye-tries/src/flash_boot.rs, gpt_switch_only and its entry pairing) which pairs A and B entries per disk refuses a change that is the bootloader's own boot-LUN switch (research walleye-install-stage2-android-verdict: 'the slot attribute bits of the A/B entries, the type GUIDs swapped, the boot LUN set'). THE FIX: pair xbl_a/xbl_b (and any other A/B pair split over boot LUNs) ACROSS sdb and sdc; the change is accepted only when the pair moved together as set_active X describes (X's entry active with its priority and tries, the other's as before or lowered, the GUID swap consistent) and every other byte equals; it still FAILS when only one half moved, when a partition's data (not attribute bits) differs, or when a disk other than the pair changes; the xbl partitions' CONTENT is untouched (the boot chain read-back equals the stored set: the command's own check); tests on the CAPTURED gpt files of run 10 (gpt-before.txt and the new slot's gpt-new-slot.txt in ~/lab-material/walleye/install-boot-*, copied into research material: no typed fixture), one test each for: the pair moved together (passes), one half only (fails), a data byte changed (fails); the earlier captured GPT pairs (run 1 and run 5 reads: only boot_a's entry changed) still pass; the four-state walk extended past step 22; dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 1
