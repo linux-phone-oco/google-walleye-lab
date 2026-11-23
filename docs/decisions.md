@@ -3111,3 +3111,31 @@ Research
 
 Tracked by
 : walleye-slpi-boot-qrtr
+
+
+<a id="2026-11-23-walleye-ufs-silent-shell-is-a-reading"></a>
+### 2026-11-23-walleye-ufs-silent-shell-is-a-reading
+
+Date
+: 2026-11-23
+
+Brief
+: A silent shell during the UFS try's bounded read is a reading kept with its time; wait on a fresh shell to the read's limit plus 60 s; the read is 2048 MiB
+
+Decision
+: Step 16 of the UFS try asks the read's state on its own shell; a state read not answered is written to gear-load.txt with its time, the state shell is reopened, no gear read is sent on a silent shell, and the wait runs to load_limit + 60 s before the step fails. load_mb goes from 4096 to 2048.
+
+Why
+: Runs 1 and 2 both stopped at step 16 about 15 s after the read began (run 2 log: 1795420605 begin, 1795420620 FAIL at the 10 s state read) after eight answered samples: the silence is the load starving the gadget, not a gear fault. The logs carry only procedure lines, not the phone's own text, so the cause inside the phone is not known yet; the smaller read is a hedge, judged, not measured.
+
+Rejected
+: Raising the 10 s alone: still stops a run that the read would finish. nice/ionice on dd: not known to exist in the phone's busybox, untried. Dropping the load: the gear under load is what the try is for.
+
+About
+: walleye-first-fastboot-boot
+
+Scope
+: walleye-tries, the keeper's UFS try 2
+
+Tracked by
+: walleye-ufs-try-2-silent-under-load

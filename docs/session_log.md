@@ -6280,3 +6280,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-builder-ufs-try-2-silent-shell"></a>
+### walleye-builder: UFS try 2 silent shell
+
+Entry date
+: 2026-11-23
+
+Done
+: Silent state reads no longer stop step 16; recorded with time, fresh shell, wait to limit+60 s; load_mb 2048; test, clippy, fmt, dry run, host check pass.
+
+Considered
+: nice/ionice on dd (untried in the phone); the logs hold no phone text, so the stand-in test reuses run 1's printed gear lines and the run 2 silence is modelled by the stand-in's hung shell.
+
+Rejected
+: Only raising the 10 s.
+
+About
+: walleye-first-fastboot-boot
