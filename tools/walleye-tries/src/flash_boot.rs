@@ -3015,18 +3015,95 @@ mod tests {
         ("after-a-successful-stage-2", ("7", "no", "no")),
     ];
 
-    /// The offline walk over one state: the first step that stopped, and why (None: every step passed).
-    fn walk_state(
+    /// What the walk over one state found.
+    struct Walked {
+        /// The first step that stopped, and why (None: every step passed).
+        stopped: Option<(&'static str, String)>,
+        /// The steps after it, never reached.
+        unreachable: Vec<&'static str>,
+        /// What `new-slot-source.txt` says (step 21), when the walk got that far.
+        source: Option<String>,
+        /// The way back went through the reboot tool: it was pushed and asked for the bootloader.
+        asked_the_reboot_tool: bool,
+    }
+
+    /// The image of the walk: a boot image whose header command line is the debug image's (no root=, no slot word), as step 21 requires.
+    fn walk_image() -> Vec<u8> {
+        let mut image = vec![0u8; 12288];
+        image[..8].copy_from_slice(b"ANDROID!");
+        image[64..64 + DEBUG_HEADER.len()].copy_from_slice(DEBUG_HEADER.as_bytes());
+        image
+    }
+
+    /// The phone of the whole walk: the repeat's phone (partitions as files, a stateful fastboot) that also boots the new slot: its ssh prints run 9's own text (the new slot's read) and sda's GPT as Android printed it,
+    /// takes the reboot tool and then lists the phone in fastboot; `fastboot reboot` takes it out of fastboot. Android's adb answers the same GPT. The GPT of the new slot is not captured (run 9 stopped at step 21's
+    /// source check before reading it): the new slot answers with the GPT Android printed, so step 22 is tested on "nothing changed" only (NOT SOURCED YET). Typed, not captured: the empty `---dt-slot` section (printed after run 9's `---end`, not before it), luns = 1 (only sda is captured), the address, device_wait, the key and the reboot tool stand-in bytes.
+    fn the_phone_that_boots_the_new_slot(
         name: &str,
-        boot_a: BootA,
-        a: (&str, &str, &str),
-        b_successful: &str,
-    ) -> Option<(&'static str, String)> {
+        flags: &str,
+    ) -> (FlashBoot, std::path::PathBuf) {
+        let (f, d) = the_phone_after_rerun_3(name, flags);
+        let mut s = (*f.s).clone();
+        let image = walk_image();
+        std::fs::write(&s.image, &image).unwrap();
+        std::fs::write(f.by_name_of("boot_a"), &image).unwrap();
+        s.image_sha256 = host::sha256_of(&s.image).unwrap();
+        executable(&d.join("tad"), &go_row(&s.image_sha256, true));
+        s.luns = 1;
+        s.device_wait = 1;
+        s.address = "172.16.43.1".into();
+        let key = d.join("key");
+        std::fs::write(&key, "k").unwrap();
+        std::fs::set_permissions(&key, std::os::unix::fs::PermissionsExt::from_mode(0o600))
+            .unwrap();
+        s.identity = key;
+        let tool = d.join("walleye-reboot");
+        std::fs::write(&tool, b"\x7fELF stand-in for the static tool").unwrap();
+        s.reboot_tool_sha256 = host::sha256_of(&tool).unwrap();
+        s.reboot_tool = tool;
+        std::fs::write(d.join("read.txt"), RUN9_READ).unwrap();
+        std::fs::write(d.join("dt.txt"), "").unwrap();
+        std::fs::write(d.join("gpt.txt"), RUN9_GPT_SDA).unwrap();
+        executable(
+            &d.join("ssh"),
+            &format!(
+                "#!/bin/sh\necho \"$@\" >> {d}/ssh.calls\ncase \"$*\" in\n *'cat > /tmp/walleye-reboot'*) cat > {d}/pushed;;\n *'/tmp/walleye-reboot --command bootloader'*) touch {d}/in-fastboot;;\n *'---id'*) cat {d}/read.txt; printf -- '---dt-slot\\n%s\\n' \"$(cat {d}/dt.txt)\";;\n *'/sys/block/sda/size'*) cut -d' ' -f2 {d}/gpt.txt;;\nesac\nexit 0\n",
+                d = d.display()
+            ),
+        );
+        executable(
+            &d.join("adb"),
+            &format!(
+                "#!/bin/sh\nshift 2\ncase \"$1\" in\n exec-out) shift; exec sh -c \"$*\";;\n shell) case \"$2\" in\n  'getprop ro.boot.slot_suffix') echo _b;;\n  *'/sys/block/sda/size'*) cut -d' ' -f2 {d}/gpt.txt;;\n esac;;\nesac\nexit 0\n",
+                d = d.display()
+            ),
+        );
+        // the bootloader's fastboot: listed only while the phone is in it, `reboot` leaves it; everything else is the repeat's stateful stand-in
+        std::fs::rename(d.join("fastboot"), d.join("fastboot-state")).unwrap();
+        executable(
+            &d.join("fastboot"),
+            &format!(
+                "#!/bin/sh\nD={d}\ncase \"$1\" in devices) [ -e $D/in-fastboot ] && printf 'SER1\\tfastboot\\n'; exit 0;; esac\ncase \"$3\" in reboot) echo \"$@\" >> $D/fastboot.calls; rm -f $D/in-fastboot; exit 0;; esac\nexec $D/fastboot-state \"$@\"\n",
+                d = d.display()
+            ),
+        );
+        std::fs::write(d.join("in-fastboot"), "").unwrap();
+        let f = FlashBoot::with_programs(
+            s,
+            &d.join("ssh").to_string_lossy(),
+            &d.join("tad").to_string_lossy(),
+        );
+        f.lab.save(ANDROID_SLOT_FILE, "b").unwrap();
+        (f, d)
+    }
+
+    /// The offline walk over one state, from the read of the slot (step 8) to the flags after the way back (the item's steps 8 to 22 and the way back): the first step that stopped, and why.
+    fn walk_state(name: &str, boot_a: BootA, a: (&str, &str, &str), b_successful: &str) -> Walked {
         let flags = format!(
             "current-slot:b\nslot-retry-count:a:{}\nslot-retry-count:b:0\nslot-successful:a:{}\nslot-successful:b:{b_successful}\nslot-unbootable:a:{}\nslot-unbootable:b:no\n",
             a.0, a.1, a.2
         );
-        let (f, _d) = the_phone_after_rerun_3(name, &flags);
+        let (f, d) = the_phone_that_boots_the_new_slot(name, &flags);
         let content: &[u8] = match boot_a {
             BootA::Stock => b"the stock boot_a",
             BootA::Earlier => b"an earlier image of ours, not the declared one",
@@ -3045,6 +3122,7 @@ mod tests {
                 "9 boot_a is flashable",
                 Box::new(f.the_slot_partitions_are_read_before()),
             ),
+            ("10 the GPT is read", Box::new(f.the_gpt_is_read_before())),
             ("12 the guard", Box::new(f.the_guard_holds())),
             (
                 "13 flags read",
@@ -3064,15 +3142,33 @@ mod tests {
                 "20 the flags are the switch",
                 Box::new(f.the_flags_are_the_switch_and_nothing_else()),
             ),
+            (
+                "21 the new slot boots, its slot is read",
+                Box::new(f.the_new_slot_boots_and_the_lab_logs_in()),
+            ),
+            (
+                "22 the GPT changed only by the switch",
+                Box::new(f.the_gpt_changed_only_by_the_switch("gpt-new-slot.txt")),
+            ),
             ("way back", Box::new(f.the_switch_is_made_back())),
             ("way back flags", Box::new(f.the_flags_are_back())),
         ];
+        let mut stopped = None;
+        let mut unreachable = Vec::new();
         for (step, run) in steps {
-            if let Err(e) = run() {
-                return Some((step, e));
+            if stopped.is_some() {
+                unreachable.push(step);
+            } else if let Err(e) = run() {
+                stopped = Some((step, e));
             }
         }
-        None
+        Walked {
+            stopped,
+            unreachable,
+            source: f.marked("new-slot-source.txt"),
+            asked_the_reboot_tool: ssh_calls(&d).contains("--command bootloader")
+                && d.join("pushed").exists(),
+        }
     }
 
     #[test]
@@ -3092,19 +3188,38 @@ mod tests {
                     let got = walk_state(&name, boot_a, a, b_successful);
                     table.push_str(&format!(
                         "{boot_a:?} | {a_name} | {b_name} | {}\n",
-                        match &got {
-                            None => "passes".to_string(),
-                            Some((step, why)) =>
-                                format!("stops at {step}: {}", why.lines().next().unwrap_or("")),
+                        match &got.stopped {
+                            None => format!(
+                                "passes, the new slot read from {}",
+                                got.source.as_deref().unwrap_or("?")
+                            ),
+                            Some((step, why)) => format!(
+                                "stops at {step}: {}; unreachable: {}",
+                                why.lines().next().unwrap_or(""),
+                                got.unreachable.join(", ")
+                            ),
                         }
                     ));
                     // the decision (research walleye-stage2-checks-should-they-exist, rows 8, 9, 18, 20): what boot_a held and the flags of the flashed slot never stop the command; the one unsafe start state is Android's slot not counted good (no way back)
                     let must_stop = b_successful == "no";
                     let stops_at_13 = got
+                        .stopped
                         .as_ref()
                         .is_some_and(|(step, _)| step.starts_with("13 "));
-                    if got.is_some() != must_stop || (must_stop && !stops_at_13) {
-                        surprises.push(format!("{boot_a:?} | {a_name} | {b_name}: {got:?}"));
+                    // a state that passes reaches step 21 and reads the new slot as run 9's own text answers: root=PARTUUID names slot a (research walleye-stage2-run9-booted-alpine-cmdline-still-cut-no-slot-suffix)
+                    let new_slot_from_run_9s_text = got
+                        .source
+                        .as_deref()
+                        .is_some_and(|s| s.starts_with("slot _a from root=PARTUUID"));
+                    if got.stopped.is_some() != must_stop
+                        || (must_stop && (!stops_at_13 || got.source.is_some()))
+                        || (!must_stop
+                            && (!new_slot_from_run_9s_text || !got.asked_the_reboot_tool))
+                    {
+                        surprises.push(format!(
+                            "{boot_a:?} | {a_name} | {b_name}: {:?}, source {:?}",
+                            got.stopped, got.source
+                        ));
                     }
                 }
             }
@@ -3116,6 +3231,20 @@ mod tests {
             surprises.join("\n")
         );
     }
+
+    // The device tree's slot_suffix of THIS phone is printed nowhere yet (NOT KNOWN YET): run 9's read predates the `---dt-slot` section. This test says so, so the walk's new slot is not taken for a read of all three
+    // sources; when a read of the node is captured, it is added as a fixture, this test is replaced by one that walks it, and the item's last line closes.
+    #[test]
+    fn the_device_trees_slot_suffix_has_no_captured_sample_yet_and_the_walk_answers_without_it() {
+        assert!(
+            !RUN9_READ.contains("---dt-slot"),
+            "run 9's read now carries the device tree's slot_suffix: walk it (a captured sample exists)"
+        );
+        let got = walk_state("dt-not-sourced", BootA::Declared, ("0", "yes", "no"), "yes");
+        assert!(got.stopped.is_none(), "{:?}", got.stopped);
+        assert!(!got.source.unwrap().contains("device-tree"));
+    }
+
     // research walleye-stage2-checks-should-they-exist, row 9: content nobody recorded is overwritten, so a copy of it is kept first; the backup and the declared image need none
     #[test]
     fn unrecorded_boot_a_content_is_copied_before_the_flash_and_recorded_content_is_not() {

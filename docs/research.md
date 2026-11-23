@@ -6930,3 +6930,25 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-stage2-walk-step21-table"></a>
+### walleye-stage2-walk-step21-table
+
+Date
+: 2026-11-23
+
+Brief
+: The four-state walk reaches step 21 and the way back: 16 of 32 states pass, 16 stop at step 13; the DT slot_suffix and the new slot's GPT have no captured sample
+
+Question
+: Does the offline walk over every start state reach step 21 (run 9's captured text), the new slot's GPT check and the way back, and what in them is not sourced yet?
+
+Found
+: The table test (tools/walleye-tries flash_boot.rs, the_state_model_walks_every_start_state_and_the_table_is_the_decision) walks boot_a (stock, earlier image, declared, unknown) x slot a flags (stock, after one flash, after a failed boot, after a successful stage 2) x slot b successful (yes/no) = 32 states, now through step 10 (GPT read), 21 (new slot boots, its slot is read), 22 (GPT changed only by the switch), the way back and its flags.
+Result: the 16 states with slot b successful pass; the new slot is read from root=PARTUUID, which names slot a, on run 9 own text (fixtures/stage2-run9-new-slot-read.txt; androidboot.slot_suffix absent). The 16 with slot b not successful stop at step 13, the steps after it unreachable. A mutation of the expected slot (a to b) fails the test, so the answer is read, not assumed.
+Not sourced yet, said by tests: (1) this phone /proc/device-tree/firmware/android/slot_suffix is printed nowhere (run 9 read predates the dt-slot section); the walk answers without it and a test fails the day the fixture gains the section. (2) the GPT of the new slot was never read (run 9 stopped at step 21 source check): step 22 is tested on nothing changed against the Android read only. A read-only keeper read of both would source them; not queued here (the item allows either).
+Stand-in phone: the repeat harness plus an ssh printing run 9 text and sda GPT, taking the reboot tool and listing the phone in fastboot; fastboot reboot leaves fastboot. Steps from Android back on (partitions, boot chain) need lab scripts and are not in the walk.
+
+About
+: walleye-bootimage
