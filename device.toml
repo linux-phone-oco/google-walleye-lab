@@ -306,6 +306,15 @@ sha256 = "c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9"   # 
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root-display/NOT-TO-BOOT-ufs-on-ufs-root-display.img"
 sha256 = "a45588272b11fed90d7d13e9ed0c3a00d1c2208b9758d01ed968587978582747"
 
+# The STAGE 2 boot image (item walleye-install-stage2-boot-image, 2026-11-23): the ufs-root image above rebuilt by build/build-ufs-root-image.sh with BOOTED_SLOT=yes and ROOT_PART=system_a (Android is on slot b, so
+# the flashed slot is a), built twice with this one sha256, 28 checks ok. It differs from c3373d71 (which stays as stage 1 history and as the RAM boot of [images.ufs-root]) in two things only: the ramdisk (the init of
+# PR 765: it takes the word walleye.booted-slot, says `walleye-init: mounts-the-booted-slot` and mounts exactly the system of the slot it is booted from) and the command line (+ walleye.booted-slot). Kernel Image.gz, dtb,
+# header and AVB footer as c3373d71. NOT to boot or flash except by procedures/install-boot-on-the-pixel-2.rs under the coordinator's go on walleye-install-flash-boot-run naming THIS sha256; tests/host/ufs-off-image.sh
+# refuses it by design. Never booted.
+[images.ufs-root-booted-slot]
+path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot.img"
+sha256 = "e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1"
+
 # The read-only UFS-on boot of that image as ONE command (item walleye-install-boot-procedure; run by item walleye-install-rootfs-boots-try). The root is the system partition of the slot Android is NOT on, read at the run
 # (adb's ro.boot.slot_suffix equal to fastboot's current-slot, and equal to the root the image names); nothing here names a slot.
 # The image booted is THIS run's: the declared one with androidboot.slot_suffix=_<the slot read> on its command line (lpoco-bringup image swap, checked equal in every other byte); the declared sha256 above stays the one the go names.
@@ -354,7 +363,7 @@ sha256 = "29fce8b7a9720302583d42d52f5756756ff38a2d66280f4546280b9541301ce6"
 # active by the bootloader's own set_active, the new slot observed, the way back set_active <Android's slot>. The image is named by its [images.NAME] row (never a typed sha256: the ufs-root image is rebuilt by other items), the
 # slot is read by adb AND fastboot at the run. NOT to run except by a keeper under the coordinator's go on go_item, after the stage 1 proof and UFS try 2.
 [procedures.install-boot-on-the-pixel-2]
-image = "ufs-root"                                   # the name of its [images.NAME] (path, sha256): the kernel and init stage 1 proved
+image = "ufs-root-booted-slot"                  # the name of its [images.NAME] (path, sha256): the stage 1 kernel with the stage 2 init and the word walleye.booted-slot
 go_item = "walleye-install-flash-boot-run"           # the item whose go_until holds the coordinator's go AND whose row names the image's sha256
 identity = "~/lab-material/walleye/walleye-lab-ed25519"   # the lab-only ssh key (mode 600): the login to the new slot is by this key alone
 ssh_user = "root"
@@ -368,7 +377,7 @@ to_bootloader = "reboot bootloader"                  # what the lab runs over ss
 
 # The rehearsal of that command (procedures/rehearse-install-boot-on-the-pixel-2.rs): every step but the flash, the set_active, the new slot's boot and the switch back; nothing is written and no go is needed.
 [procedures.rehearse-install-boot-on-the-pixel-2]
-image = "ufs-root"
+image = "ufs-root-booted-slot"
 go_item = "walleye-install-flash-boot-run"
 identity = "~/lab-material/walleye/walleye-lab-ed25519"
 ssh_user = "root"

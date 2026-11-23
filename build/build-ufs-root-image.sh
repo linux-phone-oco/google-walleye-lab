@@ -9,8 +9,10 @@
 #   build-ufs-root-image.sh MATCHED_IMG KERNEL_TREE KERNEL_OUT_DIR WORK_DIR OUT_DIR
 # MATCHED_IMG is the matched image (build-ufs-match.sh's NOT-TO-BOOT-ufs-on-ufs-match.img); KERNEL_TREE the tree KERNEL_OUT_DIR was built from (build-kernel.sh with
 # EXTRA_CONFIG="build/walleye-diag.config build/walleye-ufs-root.config"); WORK_DIR holds busybox-arm64 (build-busybox.sh).
-# Environment: ROOT_PART (system_a, default, or system_b: the slot Android is NOT on; the procedure reads the slot before it boots anything), DTBO (default ~/Projects/walleye-build/control/dtbo.img).
-# Writes OUT_DIR/{NOT-TO-BOOT-ufs-on-ufs-root.img,NOT-TO-BOOT.txt,SHA256SUMS-ufs-root}; checks (ok/FAIL, exit 1, nothing written). The image is built twice and the two must be the same bytes.
+# Environment: ROOT_PART (system_a, default, or system_b: the slot Android is NOT on; the procedure reads the slot before it boots anything), DTBO (default ~/Projects/walleye-build/control/dtbo.img),
+# BOOTED_SLOT (unset, default: the RAM-boot variant of stage 1, the old guard; "yes": the STAGE 2 variant that is flashed - the command line also carries the word walleye.booted-slot, so the init mounts exactly
+# the system of the slot it is booted from, and ROOT_PART must be the system of the slot it is flashed to; written as NOT-TO-BOOT-ufs-on-ufs-root-booted-slot.img, a name of its own, never mistaken for the stage 1 image).
+# Writes OUT_DIR/{NOT-TO-BOOT-ufs-on-ufs-root[-booted-slot].img,NOT-TO-BOOT.txt,SHA256SUMS-ufs-root[-booted-slot]}; checks (ok/FAIL, exit 1, nothing written). The image is built twice and the two must be the same bytes.
 set -eu
 MATCHED=${1:?usage: build-ufs-root-image.sh MATCHED_IMG KERNEL_TREE KERNEL_OUT_DIR WORK_DIR OUT_DIR}
 KT=${2:?}
@@ -20,6 +22,12 @@ OUT=${5:?}
 HERE=$(cd "$(dirname "$0")/.." && pwd)
 ROOT_PART=${ROOT_PART:-system_a}
 case $ROOT_PART in system_a|system_b) ;; *) echo "build-ufs-root-image: ROOT_PART is system_a or system_b, not $ROOT_PART" >&2; exit 1 ;; esac
+BOOTED_SLOT=${BOOTED_SLOT:-}
+case $BOOTED_SLOT in
+  "") WORD=""; SUFFIX="" ;;
+  yes) WORD=" walleye.booted-slot"; SUFFIX="-booted-slot" ;;
+  *) echo "build-ufs-root-image: BOOTED_SLOT is unset (stage 1) or yes (stage 2), not $BOOTED_SLOT" >&2; exit 1 ;;
+esac
 case $(basename "$OUT") in NOT-TO-BOOT-*) ;; *) echo "build-ufs-root-image: OUT_DIR must be named NOT-TO-BOOT-... (a UFS-on image is never written where a queue or the inventory looks)" >&2; exit 1 ;; esac
 export DTBO=${DTBO:-$HOME/Projects/walleye-build/control/dtbo.img}
 total=0
@@ -41,7 +49,7 @@ field() { printf '%s\n' "$INFO" | sed -n "s/^$1: *//p" | head -n1; }
 split "$T/m/kernel" "$T/mk"
 PSIZE=$(stat -c %s "$MATCHED")
 AV=$(avbtool info_image --image "$MATCHED")
-CMDLINE="$(field 'command line args') walleye.root=$ROOT_PART"
+CMDLINE="$(field 'command line args') walleye.root=$ROOT_PART$WORD"
 # the kernel: the tree it was built from, the code the matched image proved, the options this image needs
 ck "the ufs, phy and pinctrl files of the tree are committed (clean against HEAD)" "$(git -C "$KT" diff --quiet HEAD -- drivers include && [ -z "$(git -C "$KT" ls-files --others -- drivers include)" ] && echo clean || echo dirty)" clean
 HEADHASH=$(git -C "$KT" rev-parse --short=12 HEAD)
@@ -62,6 +70,7 @@ ck "the initramfs' /init is build/initramfs-root/init, byte for byte" "$(cmp -s 
 ck "the initramfs carries the arm64 busybox and no kernel module list" "$(cmp -s "$T/rd/bin/busybox" "$W/busybox-arm64" && [ ! -e "$T/rd/modules.list" ] && echo yes || echo no)" yes
 ck "the init's only mount of the card is read-only, nodiscard, noload; it has no mkfs, fsck, discard, trim, rw or remount" "$(grep -c -e 'mount -t ext4 -o ro,nodiscard,noload ' "$T/rd/init")/$(grep -v '^#' "$T/rd/init" | grep -c -w -e mkfs -e mke2fs -e fsck -e e2fsck -e dd -e fstrim -e blkdiscard -e 'remount' -e 'rw,')" 1/0
 ck "the init refuses without walleye.root, for a foreign name, without androidboot.slot_suffix (fails closed) and for the slot Android is on" "$(grep -v '^#' "$T/rd/init" | grep -c -e 'no walleye.root on the command line' -e 'is not system_a or system_b' -e 'the slot Android is on' -e 'no androidboot.slot_suffix on the command line')" 4
+ck "the init takes the word walleye.booted-slot and says walleye-init: mounts-the-booted-slot (the stage 2 init of PR 765)" "$(grep -v '^#' "$T/rd/init" | grep -c -e 'say "walleye-init: mounts-the-booted-slot' -e '= walleye.booted-slot ')" 2
 ck "the proof of the init passes (tests/host/ufs-root-init.sh: QEMU on a loop-made test rootfs, read-only, overlay, refusals)" "$(GEN=$GEN sh "$HERE/tests/host/ufs-root-init.sh" "$W" | cut -d' ' -f1)" pass
 # the image, built twice
 make_image() { # OUTFILE
@@ -78,7 +87,7 @@ EOP
   avbtool add_hash_footer --image "$out" --partition_size "$PSIZE" --partition_name boot --algorithm NONE \
     --salt "$(printf '%s\n' "$AV" | sed -n 's/^ *Salt: *//p' | head -n1)" "$@"
 }
-IMG=$T/NOT-TO-BOOT-ufs-on-ufs-root.img
+IMG=$T/NOT-TO-BOOT-ufs-on-ufs-root$SUFFIX.img
 make_image "$IMG"
 make_image "$T/second.img"
 ck "the image builds to the same bytes twice" "$(cmp -s "$IMG" "$T/second.img" && echo same || echo differs)" same
@@ -88,7 +97,8 @@ hdr() { printf '%s\n' "$1" | grep -v -e '^kernel_size' -e 'ramdisk size' -e 'ker
 ck "the image's Image.gz is the new build's, byte for byte" "$(cmp -s "$T/uk.gz" "$KO/Image.gz" && echo same || echo differs)" same
 ck "the image's dtb is the matched image's (UFS on), byte for byte" "$(cmp -s "$T/uk.dtb" "$T/mk.dtb" && echo same || echo differs)" same
 ck "the image's header equals the matched one's but the sizes and the command line" "$(hdr "$U")" "$(hdr "$INFO")"
-ck "the image's command line is the matched one plus walleye.root=$ROOT_PART, and nothing else" "$(printf '%s\n' "$U" | sed -n 's/^command line args: *//p' | head -n1)" "$CMDLINE"
+ck "the image's command line is the matched one plus walleye.root=$ROOT_PART$WORD, and nothing else" "$(printf '%s\n' "$U" | sed -n 's/^command line args: *//p' | head -n1)" "$CMDLINE"
+ck "the command line carries the word walleye.booted-slot exactly when this is the stage 2 variant (BOOTED_SLOT=$BOOTED_SLOT)" "$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -c -x walleye.booted-slot)" "$([ -n "$BOOTED_SLOT" ] && echo 1 || echo 0)"
 ck "the command line names no ufs but the bootloader's own words, and no root=, no init=, no rw" "$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -v '^androidboot\.' | grep -i -c -e ufs -e '^root=' -e '^init=' -e '^rw$')" 0
 ck "the image's ramdisk is the initramfs built here, byte for byte" "$(cmp -s "$T/u/ramdisk" "$T/ramdisk1.cpio.gz" && echo same || echo differs)" same
 ck "the image's size is the matched one's ($PSIZE)" "$(stat -c %s "$IMG")" "$PSIZE"
@@ -101,10 +111,11 @@ ck "the kernel blob ends before the ramdisk loads (headroom in bytes > 524288)" 
 ck "the UFS-off gate FAILS this image because UFS is on in it (the gate is not weakened: it is the proof the lab's tools refuse the image)" "$(sh "$HERE/tests/host/ufs-off-image.sh" "$IMG" | cut -c1-30)" "fail walleye-ufs-off UFS is on"
 [ $total -eq 0 ] || { echo "build-ufs-root-image: $total checks failed, nothing written" >&2; exit 1; }
 mkdir -p "$OUT"
-cp "$IMG" "$OUT/NOT-TO-BOOT-ufs-on-ufs-root.img"
+cp "$IMG" "$OUT/NOT-TO-BOOT-ufs-on-ufs-root$SUFFIX.img"
+if [ -n "$BOOTED_SLOT" ]; then WHERE="the one command of install-boot-on-the-pixel-2 (item walleye-install-flash-boot-run, under the coordinator's go on that item for this sha256), which flashes it to the boot partition of the slot Android is not on - the slot whose system partition is $ROOT_PART - and boots it there"; else WHERE="the one command of walleye-install-boot-procedure, run from item walleye-install-rootfs-boots-try (decision 2026-11-20-walleye-install-stage-1-go, step 4), which stops unless the author's go is recorded on that item"; fi
 cat > "$OUT/NOT-TO-BOOT.txt" <<EON
-NOT-TO-BOOT-ufs-on-ufs-root.img has UFS ON and mounts $ROOT_PART of the card read-only (tmpfs overlay). It is built and checked on the host and was never booted. It is not to be booted, and not
-to be put in a keeper's queue, except by the one command of walleye-install-boot-procedure, run from item walleye-install-rootfs-boots-try (decision 2026-11-20-walleye-install-stage-1-go, step 4),
-which stops unless the author's go is recorded on that item. tests/host/ufs-off-image.sh refuses it by design. No way back from an erased Pixel 2 bootloader is known (research walleye-edl-way-back).
+NOT-TO-BOOT-ufs-on-ufs-root$SUFFIX.img has UFS ON and mounts $ROOT_PART of the card read-only (tmpfs overlay). It is built and checked on the host and was never booted. It is not to be booted, and not
+to be put in a keeper's queue, except by $WHERE.
+tests/host/ufs-off-image.sh refuses it by design. No way back from an erased Pixel 2 bootloader is known (research walleye-edl-way-back).
 EON
-(cd "$OUT" && sha256sum NOT-TO-BOOT-ufs-on-ufs-root.img | tee SHA256SUMS-ufs-root)
+(cd "$OUT" && sha256sum NOT-TO-BOOT-ufs-on-ufs-root$SUFFIX.img | tee SHA256SUMS-ufs-root$SUFFIX)

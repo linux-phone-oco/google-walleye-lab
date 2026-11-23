@@ -1690,6 +1690,28 @@ mod tests {
         );
     }
 
+    /// The gate on the stage 2 image of the lab (item walleye-install-stage2-boot-image): its init passes the gate and its command line carries the word walleye.booted-slot.
+    #[test]
+    fn the_init_gate_accepts_the_stage_2_image_of_the_lab() {
+        let home = std::env::var("HOME").unwrap_or_default();
+        let root = format!("{home}/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot.img");
+        if !std::path::Path::new(&root).exists()
+            || Command::new("lpoco-bringup")
+                .arg("--version")
+                .output()
+                .is_err()
+        {
+            eprintln!("NOT KNOWN YET: the lab's stage 2 image or lpoco-bringup is not on this machine: the init gate is not run on it here");
+            return;
+        }
+        let (f, _d) = bench_image("gate2", "b", Some(root));
+        (f.the_init_accepts_the_slot_it_is_booted_from())().unwrap();
+        let bytes = std::fs::read(&f.s.image).unwrap();
+        assert!(crate::rootfs_boot::header_cmdline(&bytes)
+            .unwrap()
+            .split_whitespace()
+            .any(|w| w == "walleye.booted-slot"));
+    }
     #[test]
     fn an_init_passes_the_gate_only_when_it_declares_that_it_mounts_the_booted_slot() {
         let declared = format!(
