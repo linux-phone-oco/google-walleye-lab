@@ -10775,10 +10775,10 @@ Rank
 ### For each of today's stops, three answers recorded through ikb: should the check exist, how does Android or upstream do it (source plus captured text), and what let it through
 
 Status
-: open
+: done
 
 Note
-: THE ORDER (the Steward, relaying the Top Coordinator and the author's words of 2026-11-23, ideal-agent 0.3.71, decision 2026-11-23-a-stop-is-read-before-the-fix): walleye's procedure tests refuse unsourced checks; one report to the Steward when it has landed, nothing before. This item is the Steward's 'three answers' for each stop; the coordinator already knows part of (c): each of check 9, 16 and 18 assumed the state of a first run, and the typed stand-ins (check 17) were never taken from a phone.
+: Answered 2026-11-23 by the five walleye-stop-* research rows (material research/walleye-bootimage/2026-11-23/stops-three-answers.md); stage 2 table is research walleye-stage2-checks-should-they-exist. The rows feed the gate's test cases of walleye-checks-name-their-sources.
 
 About
 : walleye-bootimage

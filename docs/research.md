@@ -7163,3 +7163,125 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stop-stage2-check-18-three-answers"></a>
+### walleye-stop-stage2-check-18-three-answers
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 check 18 (flags after flash): drop the flashed slot's flag assertion, keep Android's; written from one run's printed flags, no source
+
+Question
+: Should check 18 exist, how does Android handle a slot's flags on a flash, what let it through?
+
+Found
+: (a) Flashed slot: no (bootloader resets any of its flags; run 5 saw unbootable yes to no, retry 0 to 1); Android's slot and current-slot: yes (way back). (b) fastboot flash asserts nothing, set_active clears unbootable, update_engine marks the target unbootable first and sets active after verifying. (c) An expectation from one run's printed flags with no source; the rehearsal writes nothing; the repeat audit walked a successful repeat, not a failed boot. Table in stops-three-answers.md.
+
+Sources
+: aosp-fastboot-cpp-android11,aosp-update-engine-download-action,aosp-update-engine-boot-control-android,aosp-boot-hal-bootcontrol
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stop-stage2-checks-9-and-16-three-answers"></a>
+### walleye-stop-stage2-checks-9-and-16-three-answers
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 checks 9 and 16: both assumed a first run's state (boot_a stock, boot_a differs); keep backup-on-file and read-back, never a live-content or changed assertion
+
+Question
+: Should checks 9 and 16 exist, how does Android write a slot, what let them through?
+
+Found
+: (a) 9: only as backup-on-file hashing to its record; 16: keep read-back equals image and no other boot chain change, never require a change. (b) fastboot reads nothing of the target before and cannot read back; update_engine verifies the target hash after writing. (c) Both assumed the state of a first run; the rehearsal ran on a never-flashed phone; the question that catches them: what does this assert about a state the command did not create.
+
+Sources
+: aosp-fastboot-cpp-android11,aosp-update-engine-fs-verifier
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stop-stage1-check-17-three-answers"></a>
+### walleye-stop-stage1-check-17-three-answers
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 1 check 17: ext4 prints norecovery for noload (first spelling in the option table); the log line was lost as /dev moved before say(); stand-in typed, not printed
+
+Question
+: Should check 17 exist, how does the kernel print noload, what let both stops through?
+
+Found
+: (a) Yes, purpose stands (card ro, no replay, under overlay). (b) Lineage wahoo 4.4 fs/ext4/super.c l.1207-1208 lists norecovery first and token2str (l.1825) prints the first, so /proc/mounts can never say noload; mainline keeps both spellings. The log line stop: say() writes /dev/kmsg after mount --move /dev. (c) The stand-in MOUNTS line was typed from the option's spelling, not a phone's print (rootfs_boot.rs:1184); the log-line check trusted an announcement whose write path the init order cut.
+
+Sources
+: src-android-wahoo-kernel-ext4-super
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stop-pstore-reads-runs-4-and-7-three-answers"></a>
+### walleye-stop-pstore-reads-runs-4-and-7-three-answers
+
+Date
+: 2026-11-23
+
+Brief
+: Runs 4 and 7 pstore reads: read yes, as the evidence channel for slot a no; a PMIC watchdog bite is a hard reset, ramoops comes back empty
+
+Question
+: Should the pstore read exist, how do Android and upstream use pstore, what let it through?
+
+Found
+: (a) The read: yes, free from Android; as the channel for a watchdog-reset slot: no. (b) ramoops survives warm, not cold reset; Android's kernel has PSTORE_RAM and init only mounts it (init.rc l.357-366); whether anything else reads it is not known yet. bootreason=watchdog survived both runs. (c) The decision to read pstore first ranked it without the reset kind measured; run 4's read came after a reboot had overwritten it; the host USB log was the free channel that told more.
+
+Sources
+: src-kernel-ramoops-doc,src-openwrt-ramoops-warm,aosp-init-rc-pstore,src-android-boot-reason
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stop-ufs-try-2-step-16-three-answers"></a>
+### walleye-stop-ufs-try-2-step-16-three-answers
+
+Date
+: 2026-11-23
+
+Brief
+: UFS try 2 step 16 silent shell: keep the step, a 10 s silent read is a reading not a fail; nothing read says why the shell starves, not known yet
+
+Question
+: Should step 16's shell read fail the run, how do Android and upstream bear on it, what let it through?
+
+Found
+: (a) The load step yes; the 10 s state read as FAIL no (decision silent-shell-is-a-reading). (b) Nothing read bears on it; cause not known yet; cheap settle: gear read from a second channel before load, and the banner timestamps. (c) A 10 s timeout chosen with no measured time of the shell's answer under load; runs 1-2 logs kept only procedure lines, not the phone's text.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/
