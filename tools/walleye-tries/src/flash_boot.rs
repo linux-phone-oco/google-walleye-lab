@@ -552,15 +552,7 @@ impl FlashBoot {
             if have != size {
                 return Err(format!("the image is {have} bytes, the boot partition's backup {} is {size}: a whole partition is flashed and read back", backup_boot.display()));
             }
-            let mut c = Command::new("avbtool");
-            c.args(["verify_image", "--image"]).arg(&u.s.image);
-            let said = host::run(c)?;
-            if !said.ok {
-                return Err(format!(
-                    "the image's AVB footer does not verify: {}",
-                    host::last_line(&said.text)
-                ));
-            }
+            host::avb_footer_verifies("avbtool", &u.s.image)?;
             let bytes =
                 std::fs::read(&u.s.image).map_err(|e| format!("{}: {e}", u.s.image.display()))?;
             println!(
