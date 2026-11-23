@@ -9560,34 +9560,6 @@ Rank
 : 1
 
 
-<a id="walleye-initramfs-root-say-before-the-moves"></a>
-### The root init says 'handing over' BEFORE it moves /dev, /proc and /sys, so the line reaches the kernel log; the UFS-root image is rebuilt (new sha256) and its go names it
-
-Status
-: open
-
-Note
-: The Top Coordinator's step 2 after run 3 (2026-11-23): 'make the log line go out before the move', after step 1 (check 17 reads PID 1's exe and the / mount over ssh: item walleye-rootfs-boots-check-17-live-state). Order chosen by the coordinator: rerun 4 of the stage 1 boot goes on the CURRENT image c3373d71 as soon as step 1 lands (the go is open until 2026-11-23T08:41:04+01:00), because that image is already measured to hand over; this item then rebuilds the ufs-root image ONCE, before UFS try 2 and the merged UFS-plus-display image, so the declared sha does not change twice and every later go names the new one. A rerun on the new image is the next stage 1 proof under a new go, with the log line present.
-
-Blocked by
-: walleye-install-rootfs-boots-try
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-23
-
-Needs
-: build
-
-Proof
-: build/initramfs-root/init: the 'handing over' say (and any later say) comes BEFORE mount --move /dev, /proc and /sys (today line 94 after the move at line 91, so say() writing /dev/kmsg is lost); its QEMU stand-in test fails first on an init whose line comes after the move and passes once it is before; the init still fails CLOSED without androidboot.slot_suffix; the image [images.ufs-root] is rebuilt, identical twice, the new sha256 declared in device.toml (the old c3373d71 stays only as history); the procedure's check 17 keeps reading the live state (PID 1, the overlay) AND now also the line; the rehearsal command passes for real; dry run, check --host, tests, clippy, fmt, review
-
-Rank
-: 2
-
-
 <a id="walleye-display-alpine-getty-console-loglevel"></a>
 ### The login prompt is the last row on the glass: the console loglevel is lowered before the getty respawns, so the late kernel sync_state() lines no longer print below it
 
@@ -9757,3 +9729,22 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-initramfs-root-say-before-the-moves"></a>
+### The root init says 'handing over' BEFORE it moves /dev, /proc and /sys, so the line reaches the kernel log; the UFS-root image is rebuilt (new sha256) and its go names it
+
+Status
+: dropped
+
+Note
+: DROPPED 2026-11-23 (the coordinator): folded into item walleye-install-stage2-init-booted-slot, because stage 2 needs an init change anyway (it must mount the booted slot's own system partition) and the declared ufs-root image should change ONCE: the new init says 'handing over' before the moves AND mounts the booted slot's own partition on a bootloader boot. Stage 1 is proved on c3373d71 (all 26 steps, PR 759); check 17 reads the live state, so the log line is a nicety, not a gate. The Top Coordinator's step 2 after run 3 (2026-11-23): 'make the log line go out before the move', after step 1 (check 17 reads PID 1's exe and the / mount over ssh: item walleye-rootfs-boots-check-17-live-state). Order chosen by the coordinator: rerun 4 of the stage 1 boot goes on the CURRENT image c3373d71 as soon as step 1 lands (the go is open until 2026-11-23T08:41:04+01:00), because that image is already measured to hand over; this item then rebuilds the ufs-root image ONCE, before UFS try 2 and the merged UFS-plus-display image, so the declared sha does not change twice and every later go names the new one. A rerun on the new image is the next stage 1 proof under a new go, with the log line present.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Proof
+: build/initramfs-root/init: the 'handing over' say (and any later say) comes BEFORE mount --move /dev, /proc and /sys (today line 94 after the move at line 91, so say() writing /dev/kmsg is lost); its QEMU stand-in test fails first on an init whose line comes after the move and passes once it is before; the init still fails CLOSED without androidboot.slot_suffix; the image [images.ufs-root] is rebuilt, identical twice, the new sha256 declared in device.toml (the old c3373d71 stays only as history); the procedure's check 17 keeps reading the live state (PID 1, the overlay) AND now also the line; the rehearsal command passes for real; dry run, check --host, tests, clippy, fmt, review
