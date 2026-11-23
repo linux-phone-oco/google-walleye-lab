@@ -82,7 +82,7 @@ if [ $MODE = ufs-root-selftest ]; then
   T=$W/ufs-root-selftest-files; rm -rf "$T"; mkdir -p "$T/mod"
   : > "$T/modules.list"
   for d in /lib /lib/modules; do echo "dir $d 755 0 0"; done >> "$SPEC"
-  for m in virtio_pci virtio_blk crc32c_generic ext4 overlay i6300esb; do
+  for m in virtio_pci virtio_blk crc32c_generic ext4 overlay i6300esb ${DEBUG_GADGET:+dummy_hcd usb_f_acm usb_f_ecm cdc_ether cdc_acm}; do
     modprobe -S "$KVER" --show-depends "$m" | sed -n "s/^insmod //p"
   done | awk "!seen[\$1]++" | while read -r ko; do
     b=$(basename "$ko" .zst); b=${b%.ko}
@@ -91,6 +91,20 @@ if [ $MODE = ufs-root-selftest ]; then
   done
   while read -r f; do echo "file $f $T/mod/$(basename "$f") 644 0 0"; done < "$T/modules.list" >> "$SPEC"
   echo "file /modules.list $T/modules.list 644 0 0" >> "$SPEC"
+  # DEBUG_GADGET (the stage 2 debug init's proof): the host's gadget modules (above), iproute2 and the host side of the gadget as /selftest.sh, at 172.16.43.1 and the log read over telnet
+  if [ -n "${DEBUG_GADGET:-}" ]; then
+    for d in /opt /opt/ip /usr /usr/lib; do echo "dir $d 755 0 0"; done >> "$SPEC"
+    echo "file /opt/ip/ip $(command -v ip) 755 0 0" >> "$SPEC"
+    ldd "$(command -v ip)" | awk '/=>/ {print $3} /^[ \t]*\/lib/ {print $1}' | sort -u | while read -r so; do [ -f "$so" ] && echo "file $so $so 755 0 0"; done > "$T/libs.spec"
+    awk '{n=split($2,a,"/"); print "file /usr/lib/" a[n] " " $3 " " $4 " " $5 " " $6}' "$T/libs.spec" >> "$SPEC"
+    echo "dir /lib64 755 0 0" >> "$SPEC"
+    awk '{n=split($2,a,"/"); if (a[n] ~ /^ld-linux/) print "slink /lib64/" a[n] " /usr/lib/" a[n] " 777 0 0"}' "$T/libs.spec" >> "$SPEC"
+    sed -e 's/172\.16\.42\./172.16.43./g' -e '/^echo "SELFTEST PASS"/d' "$HERE/initramfs/selftest.sh" > "$T/selftest.sh"
+    cat "$HERE/initramfs-root-debug/selftest-extra.sh" >> "$T/selftest.sh"
+    sed -e 's/172\.16\.42\./172.16.43./g' "$HERE/initramfs/udhcpc.script" > "$T/udhcpc.script"
+    echo "file /selftest.sh $T/selftest.sh 755 0 0" >> "$SPEC"
+    echo "file /udhcpc.script $T/udhcpc.script 755 0 0" >> "$SPEC"
+  fi
 fi
 "$GEN" -t 0 "$SPEC" | gzip -9n > "$OUT"
 ls -l "$OUT"

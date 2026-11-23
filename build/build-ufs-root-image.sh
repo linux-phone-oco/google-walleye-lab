@@ -28,13 +28,20 @@ case $BOOTED_SLOT in
   yes) WORD=" walleye.booted-slot"; SUFFIX="-booted-slot" ;;
   *) echo "build-ufs-root-image: BOOTED_SLOT is unset (stage 1) or yes (stage 2), not $BOOTED_SLOT" >&2; exit 1 ;;
 esac
+DEBUG_INIT=${DEBUG_INIT:-}   # "yes" (with BOOTED_SLOT=yes): the stage 2 DEBUG image - init build/initramfs-root-debug/init, the command line also carries walleye.debug, written as ...-booted-slot-debug (backlog walleye-stage2-debug-image)
+INITD=initramfs-root
+case $DEBUG_INIT in
+  "") ;;
+  yes) [ "$BOOTED_SLOT" = yes ] || { echo "build-ufs-root-image: DEBUG_INIT=yes needs BOOTED_SLOT=yes" >&2; exit 1; }; WORD="$WORD walleye.debug"; SUFFIX="-booted-slot-debug"; INITD=initramfs-root-debug ;;
+  *) echo "build-ufs-root-image: DEBUG_INIT is unset or yes, not $DEBUG_INIT" >&2; exit 1 ;;
+esac
 case $(basename "$OUT") in NOT-TO-BOOT-*) ;; *) echo "build-ufs-root-image: OUT_DIR must be named NOT-TO-BOOT-... (a UFS-on image is never written where a queue or the inventory looks)" >&2; exit 1 ;; esac
 export DTBO=${DTBO:-$HOME/Projects/walleye-build/control/dtbo.img}
 total=0
 ck() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1: got '$2', want '$3'"; total=$((total+1)); fi; }
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 GEN=$KO/b/usr/gen_init_cpio
-for f in "$MATCHED" "$DTBO" "$KO/Image.gz" "$KO/.config" "$W/busybox-arm64" "$GEN" "$HERE/build/initramfs-root/init" "$KT/drivers/ufs/host/ufs-qcom.c"; do [ -s "$f" ] || { echo "build-ufs-root-image: missing $f" >&2; exit 1; }; done
+for f in "$MATCHED" "$DTBO" "$KO/Image.gz" "$KO/.config" "$W/busybox-arm64" "$GEN" "$HERE/build/$INITD/init" "$KT/drivers/ufs/host/ufs-qcom.c"; do [ -s "$f" ] || { echo "build-ufs-root-image: missing $f" >&2; exit 1; }; done
 split() { # KERNEL_BLOB PREFIX: PREFIX.gz is the Image.gz, PREFIX.dtb the dtb that ends the blob
   o=
   for x in $(LC_ALL=C grep -obUaP '\xd0\x0d\xfe\xed' "$1" | cut -d: -f1); do
@@ -62,16 +69,18 @@ ck "the kernel config is the matched one's (the diagnostic one: dynamic debug an
 ck "the new Image.gz is not the matched one's (the overlay filesystem is built in)" "$(cmp -s "$KO/Image.gz" "$T/mk.gz" && echo same || echo differs)" differs
 ck "the matched dtb has UFS on (the matched image is the one this image rests on)" "$(fdtget "$T/mk.dtb" /soc@0/ufshc@1da4000 status) $(fdtget "$T/mk.dtb" /soc@0/phy@1da7000 status)" "okay okay"
 # the initramfs: ours, twice built, the same bytes
-GEN=$GEN "$HERE/build/build-initramfs.sh" ufs-root "$W" "$T/ramdisk1.cpio.gz" >/dev/null
-GEN=$GEN "$HERE/build/build-initramfs.sh" ufs-root "$W" "$T/ramdisk2.cpio.gz" >/dev/null
+GEN=$GEN INIT_DIR=$HERE/build/$INITD "$HERE/build/build-initramfs.sh" ufs-root "$W" "$T/ramdisk1.cpio.gz" >/dev/null
+GEN=$GEN INIT_DIR=$HERE/build/$INITD "$HERE/build/build-initramfs.sh" ufs-root "$W" "$T/ramdisk2.cpio.gz" >/dev/null
 ck "the initramfs builds to the same bytes twice" "$(cmp -s "$T/ramdisk1.cpio.gz" "$T/ramdisk2.cpio.gz" && echo same || echo differs)" same
 mkdir "$T/rd" && (cd "$T/rd" && gzip -dc "$T/ramdisk1.cpio.gz" | cpio -idm --quiet -f 'dev/*')
-ck "the initramfs' /init is build/initramfs-root/init, byte for byte" "$(cmp -s "$T/rd/init" "$HERE/build/initramfs-root/init" && echo same || echo differs)" same
+ck "the initramfs' /init is build/$INITD/init, byte for byte" "$(cmp -s "$T/rd/init" "$HERE/build/$INITD/init" && echo same || echo differs)" same
 ck "the initramfs carries the arm64 busybox and no kernel module list" "$(cmp -s "$T/rd/bin/busybox" "$W/busybox-arm64" && [ ! -e "$T/rd/modules.list" ] && echo yes || echo no)" yes
 ck "the init's only mount of the card is read-only, nodiscard, noload; it has no mkfs, fsck, discard, trim, rw or remount" "$(grep -c -e 'mount -t ext4 -o ro,nodiscard,noload ' "$T/rd/init")/$(grep -v '^#' "$T/rd/init" | grep -c -w -e mkfs -e mke2fs -e fsck -e e2fsck -e dd -e fstrim -e blkdiscard -e 'remount' -e 'rw,')" 1/0
 ck "the init refuses without walleye.root, for a foreign name, without androidboot.slot_suffix (fails closed) and for the slot Android is on" "$(grep -v '^#' "$T/rd/init" | grep -c -e 'no walleye.root on the command line' -e 'is not system_a or system_b' -e 'the slot Android is on' -e 'no androidboot.slot_suffix on the command line')" 4
 ck "the init takes the word walleye.booted-slot and says walleye-init: mounts-the-booted-slot (the stage 2 init of PR 765)" "$(grep -v '^#' "$T/rd/init" | grep -c -e 'say "walleye-init: mounts-the-booted-slot' -e '= walleye.booted-slot ')" 2
 ck "the proof of the init passes (tests/host/ufs-root-init.sh: QEMU on a loop-made test rootfs, read-only, overlay, refusals)" "$(GEN=$GEN sh "$HERE/tests/host/ufs-root-init.sh" "$W" | cut -d' ' -f1)" pass
+ck "the command line carries the word walleye.debug exactly when this is the debug variant (DEBUG_INIT=$DEBUG_INIT), and the init has its two DEBUG blocks exactly then" "$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -c -x walleye.debug)/$(grep -c '^# DEBUG-BLOCK-BEGIN' "$T/rd/init")" "$([ -n "$DEBUG_INIT" ] && echo 1/2 || echo 0/0)"
+[ -z "$DEBUG_INIT" ] || ck "the proof of the debug init passes (tests/host/ufs-root-debug-init.sh: the watchdog petted, the gadget up before the card, a refusal held, the gadget released, no word = the root init)" "$(GEN=$GEN sh "$HERE/tests/host/ufs-root-debug-init.sh" "$W" | cut -d' ' -f1)" pass
 # the image, built twice
 make_image() { # OUTFILE
   out=$1

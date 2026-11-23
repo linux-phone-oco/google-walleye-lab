@@ -82,6 +82,8 @@ pub struct Settings {
     pub back_wait: u64,
     /// how long stage 2 waits, sending the phone nothing, for Android to answer adb after the new slot gave no ssh: `fallback_wait` of the stage 2 procedure's table
     pub fallback_wait: u64,
+    /// the words that pick the phone's lines out of the lab host's kernel log (`3-2`: the port, which also picks the driver-bind lines (cdc_ether 3-2:1.0) the phone is cabled to): `usb_log_match` of the stage 2 procedure's table
+    pub usb_log_match: String,
     /// the lowest battery voltage (mV) a try may start at: `[health] battery_floor_mv`
     pub battery_floor_mv: u64,
     pub address: String,
@@ -276,6 +278,7 @@ impl Settings {
             load_limit: 0,
             gear_wait: 0,
             fallback_wait: 0,
+            usb_log_match: String::new(),
             luns: 0,
             ramp_mb: Vec::new(),
             devfreq: String::new(),
@@ -410,6 +413,11 @@ impl Settings {
                 s.flash_allow = proc("flash_allow");
                 s.to_bootloader = proc("to_bootloader");
                 s.fallback_wait = number("fallback_wait", proc("fallback_wait"));
+                s.usb_log_match = proc("usb_log_match");
+                assert!(
+                    !s.usb_log_match.trim().is_empty(),
+                    "usb_log_match in device.toml names the host port of the phone"
+                );
                 s.reboot_tool = image(REBOOT_TOOL);
                 s.reboot_tool_sha256 = dev(&format!("images.{REBOOT_TOOL}.sha256"));
                 assert!(
@@ -555,6 +563,7 @@ impl Settings {
             ("flash_allow", "boot_a boot_b"),
             ("to_bootloader", "/tmp/walleye-reboot --command bootloader"),
             ("fallback_wait", "420"),
+            ("usb_log_match", "3-2"),
         ]
         .into_iter()
         .collect();

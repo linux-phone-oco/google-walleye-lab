@@ -1,0 +1,215 @@
+#!/bin/busybox sh
+# THE STAGE 2 DEBUG INIT (backlog walleye-stage2-debug-image; research walleye-stage2-run7-host-usb-log-no-gadget): the root init below, byte for byte, plus blocks marked DEBUG-BLOCK that act only when the
+# command line carries the word walleye.debug. With the word, as the first actions after /proc and /dev: every watchdog device is opened and petted (the longest timeout its driver lists), then a USB gadget (ECM + ACM,
+# the lab's 172.16.43.1 side, a root shell by telnet on it, no password: a try held on a cable, never an image to leave flashed) comes up BEFORE the card is touched, and every line this init says goes to /tmp/walleye-debug.log
+# (with dmesg and the mounts, refreshed every 2 s) which the shell reads. The init then goes on to the root mount as before; a refusal HOLDS instead of restarting (petting, up to walleye.hold seconds, longer while /tmp/stay
+# exists) so the lab can log in and read why. After the root is mounted it waits walleye.debugwait seconds (default 20, longer while /tmp/stay exists), then releases the gadget (the root's own unit takes the controller) and hands
+# over; the petters go on through the hand-over and end with the hold. Without the word this file behaves as build/initramfs-root/init; tests/host/ufs-root-debug-init.sh proves the blocks are the only difference.
+# The UFS-root init (backlog walleye-install-ufs-root-image; decisions 2026-11-20-walleye-install-stage-1-go, 2026-11-20-walleye-distro-alpine-minimal): find the card's system partition named on the
+# command line (walleye.root=system_a|system_b), mount it READ-ONLY (ext4, nodiscard, noload: nothing is replayed, trimmed or written), put a tmpfs overlay on it so the root can write in memory only,
+# keep the SoC watchdog petted for a bounded time, and hand over to the root's own /sbin/init (switch_root). Nothing is ever written to the card by this file: no mkfs, no fsck, no rw mount, no
+# discard, no purge (the kernel's purge guard stays in the image too).
+# Refuses (a line `walleye-ufs-root: refused ...` in the kernel log, which the ramoops console keeps for Android to read, then the phone restarts by itself) when: no walleye.root, a name that is not
+# system_a or system_b, NO androidboot.slot_suffix (_a or _b; fails CLOSED: the procedure puts the slot it read from adb and fastboot on the command line), the same slot as androidboot.slot_suffix (the slot Android runs from), no partition of that name, or two of them. It mounts nothing it was not named.
+# The init of the root (Alpine's busybox init + OpenRC, with the usb gadget unit and sshd) brings the gadget up itself; this init does no gadget.
+# Stage 2 (item walleye-install-stage2-init-booted-slot): with the word walleye.booted-slot on the command line (the bootloader booted this image from the root's own slot) the root MUST be system$SLOT, the booted slot's own partition, and the init says
+# `walleye-init: mounts-the-booted-slot`; without the word the stage 1 guard above is unchanged. The line `walleye-init: mounts-the-booted-slot` is what procedures/install-boot-on-the-pixel-2.rs's init gate looks for.
+# Never exits except by exec (an init that ends is a kernel panic).
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+HOLD_SECONDS=900   # the watchdog is petted this long after the hand-over, longer while /run/walleye/hold exists in the root; then the phone resets itself (the way back to Android); walleye.hold=SECONDS changes it
+WAIT_SECONDS=90    # the card's probe takes time: wait this long for the partition (walleye.wait=SECONDS on the command line changes it: the QEMU proof)
+PAUSE_SECONDS=30   # after a refusal the log stays readable this long before the phone restarts (walleye.pause=SECONDS)
+say() { echo "walleye-ufs-root: $*" > /dev/kmsg 2>/dev/null; echo "walleye-ufs-root: $*"; }
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+mount -t devtmpfs dev /dev 2>/dev/null
+refuse() { # the phone restarts by itself after a pause long enough to read the log; the watchdog is petted meanwhile
+  say "refused: $*"
+  n=0
+  while [ $n -lt $((PAUSE_SECONDS / 2)) ]; do [ -e /dev/watchdog ] && echo > /dev/watchdog 2>/dev/null; sleep 2; n=$((n+1)); done
+  sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+  while :; do sleep 60; done
+}
+# modules for a host that has them (the QEMU proof); the phone's kernel has everything built in and no /modules.list
+if [ -f /modules.list ]; then while read -r m; do insmod "$m" || say "insmod $m failed"; done < /modules.list; fi
+CMD=$(cat /proc/cmdline)
+arg() { for w in $CMD; do case $w in "$1="*) echo "${w#"$1="}"; return ;; esac; done; }
+ROOT=$(arg walleye.root)
+SLOT=$(arg androidboot.slot_suffix)
+BOOTED=; for w in $CMD; do [ "$w" = walleye.booted-slot ] && BOOTED=1; done   # the word of stage 2: the bootloader booted this image from the root's own slot
+for k in wait pause hold; do V=$(arg walleye.$k); case $V in ""|*[!0-9]*) ;; *) case $k in wait) WAIT_SECONDS=$V ;; pause) PAUSE_SECONDS=$V ;; hold) HOLD_SECONDS=$V ;; esac ;; esac; done
+# DEBUG-BLOCK-BEGIN (1: the watchdogs, the gadget and the log; every call below is made only with the word walleye.debug)
+DEBUG=; for w in $CMD; do [ "$w" = walleye.debug ] && DEBUG=1; done
+DEBUG_WAIT_SECONDS=20; V=$(arg walleye.debugwait); case $V in ""|*[!0-9]*) ;; *) DEBUG_WAIT_SECONDS=$V ;; esac
+DEBUG_NET=172.16.43   # the lab's side of the cable: the phone answers on $DEBUG_NET.1 and leases $DEBUG_NET.2
+dsay() { echo "walleye-debug: $*" >> /tmp/walleye-debug.log; echo "walleye-debug: $*" > /dev/kmsg 2>/dev/null; echo "walleye-debug: $*"; }
+wd_start() { # DEV: one petter per watchdog device, at the longest timeout its driver lists (sysfs max_timeout), petting every third of it, at most every 10 s
+  b=${1#/dev/}; mx=$(cat "/sys/class/watchdog/$b/max_timeout" 2>/dev/null)
+  case $mx in ""|*[!0-9]*) mx=60 ;; esac
+  [ "$mx" -le 600 ] || mx=600; [ "$mx" -ge 2 ] || mx=2
+  tm=$((mx / 3)); [ "$tm" -ge 1 ] || tm=1; [ "$tm" -le 10 ] || tm=10
+  /bin/busybox watchdog -F -t "$tm" -T "$mx" "$1" 2>> /tmp/walleye-debug-wd.err &
+  echo $! >> /tmp/wd.pids
+  dsay "petting $1 every ${tm}s with the timeout ${mx}s"
+}
+wd_supervise() { # a driver may probe after this init starts: look again every second, start a petter once per device
+  mkdir -p /tmp/wd-started
+  while :; do
+    for d in /dev/watchdog[0-9]* /dev/watchdog; do
+      [ -c "$d" ] || continue
+      [ "$d" = /dev/watchdog ] && [ -c /dev/watchdog0 ] && continue   # the same device as watchdog0
+      [ ! -e "/tmp/wd-started/${d#/dev/}" ] || continue
+      : > "/tmp/wd-started/${d#/dev/}"; wd_start "$d"
+    done
+    sleep 1
+  done
+}
+debug_gadget() { # ECM + ACM on the first controller that probes (up to 60 s), 172.16.43.1, a root shell by telnet and one by the ACM serial; the card is not touched
+  mkdir -p /dev/pts /sys/kernel/config
+  mount -t devpts devpts /dev/pts 2>/dev/null
+  mount -t configfs none /sys/kernel/config
+  G=/sys/kernel/config/usb_gadget/g1
+  mkdir -p $G
+  echo 0x1d6b > $G/idVendor; echo 0x0104 > $G/idProduct; echo 0x0100 > $G/bcdDevice; echo 0x0200 > $G/bcdUSB
+  mkdir -p $G/strings/0x409
+  echo "walleye-stage2-debug" > $G/strings/0x409/serialnumber
+  echo "linux-phone-oco" > $G/strings/0x409/manufacturer
+  echo "Pixel 2 walleye (stage 2 debug init)" > $G/strings/0x409/product
+  mkdir -p $G/functions/acm.usb0 $G/functions/ecm.usb0
+  echo "02:42:ac:10:2b:01" > $G/functions/ecm.usb0/dev_addr
+  echo "02:42:ac:10:2b:02" > $G/functions/ecm.usb0/host_addr
+  mkdir -p $G/configs/c.1/strings/0x409
+  echo "ACM + ECM" > $G/configs/c.1/strings/0x409/configuration
+  ln -s $G/functions/acm.usb0 $G/configs/c.1/
+  ln -s $G/functions/ecm.usb0 $G/configs/c.1/
+  n=0; while [ -z "$(ls /sys/class/udc 2>/dev/null)" ] && [ $n -lt 60 ]; do sleep 1; n=$((n+1)); done
+  UDC=$(ls /sys/class/udc 2>/dev/null | head -n1)
+  if [ -z "$UDC" ]; then dsay "NO UDC after 60 s: the USB controller did not probe"; return 0; fi
+  echo "$UDC" > $G/UDC && dsay "gadget bound to $UDC at uptime $(cut -d. -f1 /proc/uptime) s"
+  ifconfig lo up
+  n=0; while ! ifconfig usb0 > /dev/null 2>&1 && [ $n -lt 20 ]; do sleep 1; n=$((n+1)); done
+  ifconfig usb0 $DEBUG_NET.1 netmask 255.255.255.0 up && dsay "usb0 is $DEBUG_NET.1"
+  printf 'start %s.2\nend %s.2\ninterface usb0\noption subnet 255.255.255.0\noption lease 3600\nlease_file /tmp/udhcpd.leases\npidfile /tmp/udhcpd.pid\n' $DEBUG_NET $DEBUG_NET > /tmp/udhcpd.conf
+  udhcpd -S /tmp/udhcpd.conf
+  telnetd -l /bin/sh -b $DEBUG_NET.1 && dsay "telnetd on $DEBUG_NET.1:23 (cat /tmp/walleye-debug.log)"
+  if [ -c /dev/ttyGS0 ]; then ( while :; do setsid sh -c 'echo $$ > /tmp/acm.pid; exec sh </dev/ttyGS0 >/dev/ttyGS0 2>&1'; sleep 1; done ) & echo $! >> /tmp/dbg.pids; fi
+}
+debug_snapshots() { while :; do dmesg > /tmp/walleye-dmesg.txt 2>/dev/null; cp /proc/mounts /tmp/walleye-mounts.txt 2>/dev/null; sleep 2; done; }
+debug_end() { kill $(cat /tmp/wd.pids 2>/dev/null) 2>/dev/null; sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger; while :; do sleep 60; done; }
+debug_hold() { # a refusal holds, so the lab can read why; the petters run meanwhile; the test's selftest runs here too
+  dsay "holding up to ${HOLD_SECONDS}s (touch /tmp/stay to hold longer); the phone resets itself after"
+  if [ -f /selftest.sh ] && grep -q walleye.selftest=1 /proc/cmdline; then sh /selftest.sh || dsay "selftest FAILED"; poweroff -f; fi
+  n=0; while [ $n -lt "$HOLD_SECONDS" ] || [ -e /tmp/stay ]; do sleep 1; n=$((n+1)); done
+  dsay "hold over"
+  debug_end
+}
+debug_release() { # the root's own unit takes the controller after the hand-over: this gadget goes first
+  killall telnetd udhcpd 2>/dev/null
+  kill $(cat /tmp/dbg.pids 2>/dev/null) 2>/dev/null; kill $(cat /tmp/acm.pid 2>/dev/null) 2>/dev/null; sleep 1
+  echo "" > $G/UDC 2>/dev/null
+  rm -f $G/configs/c.1/acm.usb0 $G/configs/c.1/ecm.usb0
+  rmdir $G/configs/c.1/strings/0x409 $G/configs/c.1 $G/functions/acm.usb0 $G/functions/ecm.usb0 $G/strings/0x409 $G 2>/dev/null
+  if [ -e $G ]; then dsay "the debug gadget could NOT be removed ($G is still there)"; else dsay "the debug gadget is released for the root's own"; fi
+}
+if [ -n "$DEBUG" ]; then
+  : > /tmp/walleye-debug.log
+  say() { echo "walleye-ufs-root: $*" > /dev/kmsg 2>/dev/null; echo "walleye-ufs-root: $*"; echo "walleye-ufs-root: $*" >> /tmp/walleye-debug.log; }
+  refuse() { say "refused: $*"; debug_hold; }
+  wd_supervise &
+  echo $! >> /tmp/dbg.pids   # the supervisor ends at the release; the petters go on
+  dsay "walleye.debug: the watchdogs are petted from uptime $(cut -d. -f1 /proc/uptime) s, the log is /tmp/walleye-debug.log"
+  debug_gadget
+  debug_snapshots &
+  echo $! >> /tmp/dbg.pids
+fi
+# DEBUG-BLOCK-END
+say "start, kernel $(uname -r), root=[$ROOT] running slot suffix=[$SLOT]"
+case $ROOT in
+  system_a|system_b) ;;
+  '') refuse "no walleye.root on the command line" ;;
+  *) refuse "walleye.root=$ROOT is not system_a or system_b" ;;
+esac
+case $SLOT in
+  _a|_b) ;;
+  '') refuse "no androidboot.slot_suffix on the command line: the slot Android is on is not known, nothing is mounted" ;;
+  *) refuse "androidboot.slot_suffix=$SLOT is not _a or _b" ;;
+esac
+if [ -n "$BOOTED" ]; then
+  # walleye-init: mounts-the-booted-slot (stage 2: the bootloader booted this image from the boot partition of the slot whose system partition is the root; the word asks for exactly that and nothing else)
+  [ "$ROOT" = "system$SLOT" ] || refuse "walleye.booted-slot: $ROOT is not the system of the booted slot (androidboot.slot_suffix=$SLOT)"
+  say "walleye-init: mounts-the-booted-slot ($ROOT, androidboot.slot_suffix=$SLOT)"
+else
+  [ "$ROOT" != "system$SLOT" ] || refuse "$ROOT is the system of the slot Android is on (androidboot.slot_suffix=$SLOT); the word walleye.booted-slot is for an image booted from its own slot"
+fi
+# the partition: exactly one block device whose PARTNAME is the name asked, waited for
+found=
+n=0
+while [ $n -lt $WAIT_SECONDS ]; do
+  found=; count=0
+  for u in /sys/class/block/*/uevent; do
+    [ -e "$u" ] || continue
+    if grep -qx "PARTNAME=$ROOT" "$u"; then found=$(basename "$(dirname "$u")"); count=$((count+1)); fi
+  done
+  [ $count -eq 0 ] || break
+  [ -e /dev/watchdog ] && echo > /dev/watchdog 2>/dev/null
+  sleep 1; n=$((n+1))
+done
+[ -n "$found" ] || refuse "no partition named $ROOT after ${WAIT_SECONDS}s"
+[ $count -eq 1 ] || refuse "$count partitions are named $ROOT"
+n=0; while [ ! -b "/dev/$found" ] && [ $n -lt 10 ]; do sleep 1; n=$((n+1)); done
+[ -b "/dev/$found" ] || refuse "no node /dev/$found"
+say "root is /dev/$found (PARTNAME=$ROOT)"
+mkdir -p /lower /ovl /newroot
+blockdev --setro "/dev/$found" || refuse "cannot set /dev/$found read-only"
+mount -t ext4 -o ro,nodiscard,noload "/dev/$found" /lower || refuse "the read-only ext4 mount of /dev/$found failed"
+# /sbin/init may be a symlink (Alpine: to /bin/busybox): resolve it inside the card's root, not in this initramfs
+if [ -L /lower/sbin/init ]; then
+  t=$(readlink /lower/sbin/init); case $t in /*) t=/lower$t ;; *) t=/lower/sbin/$t ;; esac
+  [ -e "$t" ] || refuse "/dev/$found: /sbin/init is a symlink to nothing ($t)"
+else
+  [ -x /lower/sbin/init ] || refuse "/dev/$found holds no /sbin/init"
+fi
+mount -t tmpfs -o mode=755,size=256m tmpfs /ovl || refuse "no tmpfs for the overlay"
+mkdir -p /ovl/upper /ovl/work
+mount -t overlay overlay -o lowerdir=/lower,upperdir=/ovl/upper,workdir=/ovl/work /newroot || refuse "the overlay mount failed"
+mkdir -p /newroot/proc /newroot/sys /newroot/dev /newroot/run /newroot/lower
+# the watchdog petter lives in the new root (its own copy of busybox in the tmpfs upper layer): the SoC watchdog resets the phone when nobody pets it
+mkdir -p /newroot/.walleye /newroot/run/walleye
+cp /bin/busybox /newroot/.walleye/busybox
+cat > /newroot/.walleye/hold.sh <<EOH
+#!/.walleye/busybox sh
+exec 3> /dev/watchdog || exit 0
+n=0
+while [ \$n -lt $((HOLD_SECONDS / 2)) ] || [ -e /run/walleye/hold ]; do echo >&3 2>/dev/null; n=\$((n+1)); /.walleye/busybox sleep 2; done
+echo "<3>walleye-ufs-root: hold over, the phone resets itself" > /dev/kmsg 2>/dev/null
+/.walleye/busybox sync; /.walleye/busybox reboot -f; /.walleye/busybox sleep 5; echo b > /proc/sysrq-trigger
+EOH
+chmod 755 /newroot/.walleye/hold.sh
+# DEBUG-BLOCK-BEGIN (2: the window before the hand-over)
+if [ -n "$DEBUG" ]; then
+  dsay "the root is mounted and read: the gadget stays ${DEBUG_WAIT_SECONDS}s for a login (touch /tmp/stay to stay longer)"
+  if [ -f /selftest.sh ] && grep -q walleye.selftest=1 /proc/cmdline; then sh /selftest.sh || dsay "selftest FAILED"; fi
+  n=0; while [ $n -lt "$DEBUG_WAIT_SECONDS" ] || [ -e /tmp/stay ]; do sleep 1; n=$((n+1)); done
+  debug_release
+  # the petters go on through the hand-over (they hold the watchdog devices); the hold script ends them and resets the phone
+  cat > /newroot/.walleye/hold.sh <<EOH
+#!/.walleye/busybox sh
+n=0
+while [ \$n -lt $((HOLD_SECONDS / 2)) ] || [ -e /run/walleye/hold ]; do n=\$((n+1)); /.walleye/busybox sleep 2; done
+echo "<3>walleye-ufs-root: hold over, the phone resets itself" > /dev/kmsg 2>/dev/null
+/.walleye/busybox kill \$(/.walleye/busybox cat /.walleye/wd.pids) 2>/dev/null
+/.walleye/busybox reboot -f; /.walleye/busybox sleep 5; echo b > /proc/sysrq-trigger
+EOH
+  cp /tmp/wd.pids /newroot/.walleye/wd.pids
+  cp /tmp/walleye-debug.log /newroot/.walleye/init-debug.log
+fi
+# DEBUG-BLOCK-END
+say "handing over to the root's /sbin/init"   # before the moves: after them /dev/kmsg is the new root's, this init's is gone
+mount --move /proc /newroot/proc
+mount --move /sys /newroot/sys
+mount --move /dev /newroot/dev
+mount --move /lower /newroot/lower
+chroot /newroot /.walleye/busybox setsid /.walleye/busybox sh /.walleye/hold.sh > /newroot/.walleye/hold.log 2>&1 &
+exec switch_root /newroot /sbin/init
+refuse "switch_root did not run"

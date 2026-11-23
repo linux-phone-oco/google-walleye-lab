@@ -322,6 +322,18 @@ path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot/NOT-TO-BOOT-ufs-on-ufs-ro
 kernel_tag = "int/walleye/ufs-on-3644090c7/v7.3/1"
 sha256 = "e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1"
 
+# The stage 2 DEBUG image (item walleye-stage2-debug-image, 2026-11-23, run 7's answer to "we do not know whether the kernel ran"): [images.ufs-root-booted-slot] (e337de53) with ONE change, the initramfs' init: build/initramfs-root-debug/init
+# (the root init plus two blocks that act only with the word walleye.debug, which this image's command line adds). With the word: every watchdog device is petted from the init's first instants (busybox watchdog at the longest timeout
+# its driver lists, one petter each, looked for again every second), a USB gadget (ECM + ACM, the lab's 172.16.43.1, telnet root shell, no password: a try held on a cable) is up BEFORE the card is touched, every init line goes to
+# /tmp/walleye-debug.log, and a refusal HOLDS (up to walleye.hold seconds) instead of restarting; after the root is mounted the gadget stays 20 s (walleye.debugwait) for a login, is released, and the init hands over as before.
+# Kernel Image.gz, dtb, header and AVB footer are e337de53's byte for byte; built twice with this one sha256 by build/build-ufs-root-image.sh (DEBUG_INIT=yes BOOTED_SLOT=yes ROOT_PART=system_a), 30 checks ok, among them
+# tests/host/ufs-root-debug-init.sh (QEMU: gadget + telnet + log before the card, the hold, the release) and the root init's whole proof with this init in its place. NOT to boot or flash except by procedures/install-boot-on-the-pixel-2.rs
+# under the coordinator's go on walleye-install-flash-boot-run naming THIS sha256; tests/host/ufs-off-image.sh refuses it by design. Never booted.
+[images.ufs-root-booted-slot-debug]
+path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-debug/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-debug.img"
+kernel_tag = "int/walleye/ufs-on-3644090c7/v7.3/1"
+sha256 = "ec741a98476c6b59d1e3875d9604ad225ca1cc7c2b9d9a81f320bc5ea556ed5d"
+
 # The read-only UFS-on boot of that image as ONE command (item walleye-install-boot-procedure; run by item walleye-install-rootfs-boots-try). The root is the system partition of the slot Android is NOT on, read at the run
 # (adb's ro.boot.slot_suffix equal to fastboot's current-slot, and equal to the root the image names); nothing here names a slot.
 # The image booted is THIS run's: the declared one with androidboot.slot_suffix=_<the slot read> on its command line (lpoco-bringup image swap, checked equal in every other byte); the declared sha256 above stays the one the go names.
@@ -370,7 +382,7 @@ sha256 = "29fce8b7a9720302583d42d52f5756756ff38a2d66280f4546280b9541301ce6"
 # active by the bootloader's own set_active, the new slot observed, the way back set_active <Android's slot>. The image is named by its [images.NAME] row (never a typed sha256: the ufs-root image is rebuilt by other items), the
 # slot is read by adb AND fastboot at the run. NOT to run except by a keeper under the coordinator's go on go_item, after the stage 1 proof and UFS try 2.
 [procedures.install-boot-on-the-pixel-2]
-image = "ufs-root-booted-slot"                  # the name of its [images.NAME] (path, sha256): the stage 1 kernel with the stage 2 init and the word walleye.booted-slot
+image = "ufs-root-booted-slot-debug"            # the name of its [images.NAME] (path, sha256): THE STAGE 2 DEBUG IMAGE (2026-11-23, item walleye-stage2-debug-image; was "ufs-root-booted-slot", e337de53, whose run 7 left no trace); this one line is what the run declares - the go on walleye-install-flash-boot-run names the new sha256
 go_item = "walleye-install-flash-boot-run"           # the item whose go_until holds the coordinator's go AND whose row names the image's sha256
 identity = "~/lab-material/walleye/walleye-lab-ed25519"   # the lab-only ssh key (mode 600): the login to the new slot is by this key alone
 ssh_user = "root"
@@ -382,10 +394,11 @@ luns = 6                                             # the card's disks (sda to 
 flash_allow = "boot_a boot_b"                        # the only names a flash may take; the run picks the one that is not the slot Android runs from
 to_bootloader = "/tmp/walleye-reboot --command bootloader"   # what the lab runs over ssh on the new slot after pushing [images.walleye-reboot] to /tmp (the same tool and function as stage 1's way back; busybox's `reboot bootloader` drops the argument): whether OUR kernel reaches the bootloader with it is measured by the run (a hand step is said when it does not)
 fallback_wait = 420                                   # seconds to wait, sending the phone NOTHING, for Android to answer adb after the new slot gave no ssh (the bootloader fell back in about 3 to 4 minutes in run 4, research walleye-stage2-run4-stops-at-step-21-no-ssh-from-slot-a: the bound is 7 minutes); the pstore is read the moment adb answers
+usb_log_match = "3-2"                                  # the words that pick the phone's lines out of the lab host's kernel log (journalctl -k): every run keeps them from the set_active on, in host-usb-log.txt and failed-boot-read.txt (run 7: no gadget of ours in 67 s)
 
 # The rehearsal of that command (procedures/rehearse-install-boot-on-the-pixel-2.rs): every step but the flash, the set_active, the new slot's boot and the switch back; nothing is written and no go is needed.
 [procedures.rehearse-install-boot-on-the-pixel-2]
-image = "ufs-root-booted-slot"
+image = "ufs-root-booted-slot-debug"   # the same one name as the command's (the rehearsal checks the image the run declares)
 go_item = "walleye-install-flash-boot-run"
 identity = "~/lab-material/walleye/walleye-lab-ed25519"
 ssh_user = "root"
@@ -397,6 +410,7 @@ luns = 6
 flash_allow = "boot_a boot_b"
 to_bootloader = "/tmp/walleye-reboot --command bootloader"
 fallback_wait = 420
+usb_log_match = "3-2"
 
 # The way back's reboot tool (item walleye-reboot-reason-restart2-tool): tools/walleye-reboot built static for aarch64 by build/build-reboot-bin.sh (reproducible: two builds, the same bytes), kept in the images folder.
 # The stage 1 way back checks this sha256, pushes the file over ssh into the phone's /tmp (the overlay's tmpfs: nothing touches the card) and runs it with `--command bootloader`: reboot(2) RESTART2, which busybox's `reboot bootloader` never sends.
