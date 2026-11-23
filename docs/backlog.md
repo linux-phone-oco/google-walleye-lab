@@ -10953,3 +10953,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-install-flash-boot-rehearsal-5"></a>
+### The stage 2 rehearsal for real with the debug image declared: the init gate accepts ec741a98 and every read passes; nothing is written
+
+Status
+: open
+
+Note
+: Asked for by the coordinator (2026-11-23 16:00): the declared image changed (the first rehearsals found bugs the real run would have hit, checks 9, 18, and the pstore read's wiring). The stage 2 run (walleye-install-flash-boot-run) is opened after this passes, with an OUTCOMES paragraph in its note.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: procedures/rehearse-install-boot-on-the-pixel-2.rs run by a keeper against the phone on Android (no go needed; nothing written; no fastboot flash, set_active, erase or oem verb; the usual adb excursion of the rehearsal's own step as in rehearsals 1 to 4): every step passes on main after PR 881, with [images.ufs-root-booted-slot-debug] (sha256 ec741a98476c6b59d1e3875d9604ad225ca1cc7c2b9d9a81f320bc5ea556ed5d) declared: the init gate accepts it (the word walleye.debug, walleye.booted-slot, root system_a), the AVB footer verifies, the stock backup of boot_a is on file and hashes to its record; rust-script --force; one research row; the phone left on Android slot b
+
+Rank
+: 1
