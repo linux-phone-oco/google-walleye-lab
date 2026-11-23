@@ -10506,16 +10506,13 @@ Status
 : open
 
 Note
-: From research walleye-stage2-slot-a-no-ssh-causes-ranked. boot_a already holds e337de53, no flash. set_active a, wait for the fall-back to b, do NOT reboot b, adb root: cat /sys/fs/pstore/console-ramoops*, ls /sys/fs/pstore, and the stock fdt's qcom,wdt bark/pet values. Under the stage 2 go and the way back of item walleye-install-flash-boot-run; the coordinator opens the go.
+: ONE VEHICLE, NOT TWO (the coordinator, 2026-11-23): this check is the stage 2 command itself once item walleye-stage2-pstore-first-on-fallback has landed (it reads /sys/fs/pstore/console-ramoops* FIRST when the new slot does not answer, with no call that restarts the phone, then the stock fdt's watchdog bark/pet values are read on the lab machine from the stored stock images): the rerun runs under item walleye-install-flash-boot-run (its go, image e337de53, set_active a again with boot_a already holding it); this item closes with that run's research row, which reads each result as research walleye-stage2-slot-a-no-ssh-causes-ranked says. Ranking in that row: (1) the bootloader arms a watchdog on a normal boot that our kernel does not pet (bootreason=watchdog; our dts has the apps kpss-wdt at 0x17817000 'not measured on this phone yet' and the PMIC wdt enabled; the mainline-light init pets one device: which, and does it start before the bootloader's timeout), (2) cold USB, then the low ones. | From research walleye-stage2-slot-a-no-ssh-causes-ranked. boot_a already holds e337de53, no flash. set_active a, wait for the fall-back to b, do NOT reboot b, adb root: cat /sys/fs/pstore/console-ramoops*, ls /sys/fs/pstore, and the stock fdt's qcom,wdt bark/pet values. Under the stage 2 go and the way back of item walleye-install-flash-boot-run; the coordinator opens the go.
 
 About
 : walleye-bootimage
 
 Opened
 : 2026-11-23
-
-Needs
-: phone
 
 Proof
 : tests/health: the kept text of /sys/fs/pstore/console-ramoops read from Android b after the fall-back, plus the stock fdt's watchdog nodes; slot flags and GPT as before except slot a's bits
