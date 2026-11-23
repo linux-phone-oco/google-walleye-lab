@@ -9427,7 +9427,10 @@ Status
 : in-progress
 
 Note
-: 2026-11-23 (builder, ordered by the walleye coordinator): BUILT, not yet measured. (1) check 15 now needs 'login:' on the LAST non-blank row (stand-in test the_prompt_must_be_the_last_non_blank_row: the keeper's mid-screen screen fails, a prompt-last screen passes). (2) rootfs v4 (sha256 93ed231a...) adds /etc/local.d/50-glass-prompt.start (pkill -f '^/sbin/getty 38400 tty1$': init respawns the getty at the end of the default runlevel, 'local' service); walleye-rootfs checks it (executable, pattern equals the inittab's tty1 line, local in default, pkill present). The inittab keeps ::once for openrc default. (4) B-a5 rebuilt on v4: sha256 ad91dcd7... twice identical, in device.toml [images.b-a5]; the old 3cb5adb8 copy is images-display-ramroot/boot-b-a5-3cb5adb8.img (history only). For the keeper: procedures/alpine-login-on-the-glass-on-the-pixel-2.rs unattended: check 15 must pass and screen.txt must end in 'walleye login:'. The live kill-and-respawn experiment (3) was NOT run (the builder never touches the phone): if the unattended run still fails check 15, run it first (kill the tty1 getty, wait 2 s, read /dev/vcs), then the fallbacks. NOT done: dropping the dyndbg gpio flood from the command line (no screen text shows it; the command line is B-r5's header word, a kernel-side change).
+: 2026-11-23 (builder, ordered by the walleye coordinator): BUILT, not yet measured. (1) check 15 now needs 'login:' on the LAST non-blank row (stand-in test the_prompt_must_be_the_last_non_blank_row: the keeper's mid-screen screen fails, a prompt-last screen passes). (2) rootfs v4 (sha256 93ed231a...) adds /etc/local.d/50-glass-prompt.start (pkill -f '^/sbin/getty 38400 tty1$': init respawns the getty at the end of the default runlevel, 'local' service); walleye-rootfs checks it (executable, pattern equals the inittab's tty1 line, local in default, pkill present). The inittab keeps ::once for openrc default. (4) B-a5 rebuilt on v4: sha256 ad91dcd7... twice identical, in device.toml [images.b-a5]; the old 3cb5adb8 copy is images-display-ramroot/boot-b-a5-3cb5adb8.img (history only). For the keeper: procedures/alpine-login-on-the-glass-on-the-pixel-2.rs unattended: check 15 must pass and screen.txt must end in 'walleye login:'. The live kill-and-respawn experiment (3) was NOT run (the builder never touches the phone): if the unattended run still fails check 15, run it first (kill the tty1 getty, wait 2 s, read /dev/vcs), then the fallbacks. NOT done: dropping the dyndbg gpio flood from the command line (no screen text shows it; the command line is B-r5's header word, a kernel-side change). | RUN 2026-11-23 06:15 (keeper local_50834f13, research walleye-ramroot-b-a5-v4-prompt-respawned-kernel-noise-follows): check 15 FAILED on B-a5 ad91dcd7: the v4 respawn works (row 96) but four kernel sync_state() lines print below it; the fix is item walleye-display-alpine-getty-console-loglevel (dmesg -n 3 before the pkill, rootfs v5, B-a5 rebuilt); the keeper reruns after it lands.
+
+Blocked by
+: walleye-display-alpine-getty-console-loglevel
 
 About
 : walleye-display-s6e3fa5
@@ -9567,7 +9570,7 @@ Note
 : The Top Coordinator's step 2 after run 3 (2026-11-23): 'make the log line go out before the move', after step 1 (check 17 reads PID 1's exe and the / mount over ssh: item walleye-rootfs-boots-check-17-live-state). Order chosen by the coordinator: rerun 4 of the stage 1 boot goes on the CURRENT image c3373d71 as soon as step 1 lands (the go is open until 2026-11-23T08:41:04+01:00), because that image is already measured to hand over; this item then rebuilds the ufs-root image ONCE, before UFS try 2 and the merged UFS-plus-display image, so the declared sha does not change twice and every later go names the new one. A rerun on the new image is the next stage 1 proof under a new go, with the log line present.
 
 Blocked by
-: walleye-rootfs-boots-check-17-live-state
+: walleye-install-rootfs-boots-try
 
 About
 : walleye-display-s6e3fa5
@@ -9583,3 +9586,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-display-alpine-getty-console-loglevel"></a>
+### The login prompt is the last row on the glass: the console loglevel is lowered before the getty respawns, so the late kernel sync_state() lines no longer print below it
+
+Status
+: open
+
+Note
+: From the keeper's unattended run alpine-login-20261123-061501 on B-a5 ad91dcd7 (research walleye-ramroot-b-a5-v4-prompt-respawned-kernel-noise-follows, keeper local_50834f13): checks 1-14 pass and the v4 respawn WORKS (a second 'walleye login:' at screen row 96); check 15 fails because four '[21.73] gcc-msm8998 100000.clock-controller: sync_state() pending due to ...' kernel lines (dev_info, level 6, the deferred sync_state timeout at about 30 s after boot) print below it. The prompt is therefore not the last row, as check 15 rightly says. The keeper's PR 750 conflicted on generated data; its row is replayed with this item.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) rootfs v5: /etc/local.d/50-glass-prompt.start runs 'dmesg -n 3' (the console shows warnings and worse; the kernel log keeps everything) BEFORE the pkill of the tty1 getty; walleye-rootfs checks it (the line is there and comes before the pkill) and the rootfs rebuilds identical twice (new sha256); (2) B-a5 rebuilt on rootfs v5 (new sha256 in device.toml [images.b-a5], identical twice; the old ad91dcd7 stays only as history in images-display-ramroot); (3) procedures/alpine-login-on-the-glass-on-the-pixel-2.rs is executable on main (chmod +x; a keeper had to run it with rust-script); check 15 stays as it is (the prompt on the last non-blank row); (4) the keeper's unattended run then shows check 15 passing with screen.txt ending in 'walleye login:'; if a late line is still printed below it (a warning level line), the item says which and the fallback in the item walleye-display-alpine-getty-experiments applies (loglevel= on the command line is a header word, kernel-side); dry run, check --host, stand-in tests, clippy, fmt, review
+
+Rank
+: 1
