@@ -776,6 +776,12 @@ fn check_started_programs(rep: &mut Report, dump: &Path, files: &[String]) -> Re
             .any(|p| tree.exists(p)),
         "pkill is in the image (the local.d script uses it)",
     );
+    rep.ok(
+        ["bin/dmesg", "usr/bin/dmesg"]
+            .iter()
+            .any(|p| tree.exists(p)),
+        "dmesg is in the image (the local.d script lowers the console loglevel with it)",
+    );
     let mut known: Vec<String> = Vec::new();
     let mut scripts = Vec::new();
     for f in files.iter().filter(|f| f.starts_with("etc/init.d/")) {

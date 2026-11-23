@@ -13,7 +13,7 @@ use walleye_ramroot::cli::{usage, Contract as C};
 use walleye_ramroot::*;
 
 const BASE_IMAGE: &str = "b-r5";
-const ROOTFS_IMAGE: &str = "alpine-rootfs-v4";
+const ROOTFS_IMAGE: &str = "alpine-rootfs-v5";
 const IMAGE_NAME: &str = "boot-b-a5.img";
 const SUMS_NAME: &str = "SHA256SUMS-display-ramroot";
 const DELAY_SECONDS: &str = "5";

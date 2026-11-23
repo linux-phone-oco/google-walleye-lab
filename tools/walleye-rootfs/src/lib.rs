@@ -401,8 +401,20 @@ pub fn glass_prompt_respawn(tab: &str, script: &str, mode: u32) -> Result<(), St
         ));
     }
     let want = format!("pkill -f '^{}$'", prog.trim());
-    if !script.lines().any(|l| l.trim_start().starts_with(&want)) {
-        return Err(format!("the local.d script has no line starting `{want}`"));
+    let lines: Vec<&str> = script.lines().map(str::trim_start).collect();
+    let pkill = lines
+        .iter()
+        .position(|l| l.starts_with(&want))
+        .ok_or_else(|| format!("the local.d script has no line starting `{want}`"))?;
+    // the console shows warnings and worse (`dmesg -n 3`) BEFORE the getty is respawned: the kernel's late info lines would print below the prompt
+    let quiet = lines
+        .iter()
+        .position(|l| l.starts_with("dmesg -n 3 ") || *l == "dmesg -n 3")
+        .ok_or("the local.d script has no `dmesg -n 3` line: late kernel info lines would print below the prompt")?;
+    if quiet > pkill {
+        return Err(
+            "the local.d script lowers the console loglevel after it respawns the getty".into(),
+        );
     }
     Ok(())
 }
@@ -689,11 +701,38 @@ mod tests {
     fn getty_must_respawn_until_the_gadget_binds() {
         let good = "ttyGS0::respawn:/sbin/getty -L 115200 ttyGS0 vt100\n";
         let tab = "tty1::respawn:/sbin/getty 38400 tty1\n";
-        let script = "#!/bin/sh\npkill -f '^/sbin/getty 38400 tty1$' || true\n";
+        let script = "#!/bin/sh\ndmesg -n 3 || true\npkill -f '^/sbin/getty 38400 tty1$' || true\n";
         assert!(glass_prompt_respawn(tab, script, 0o755).is_ok());
         assert!(
             glass_prompt_respawn(tab, script, 0o644).is_err(),
             "not executable"
+        );
+        assert!(
+            glass_prompt_respawn(
+                tab,
+                "#!/bin/sh\npkill -f '^/sbin/getty 38400 tty1$' || true\n",
+                0o755
+            )
+            .is_err(),
+            "no console loglevel line"
+        );
+        assert!(
+            glass_prompt_respawn(
+                tab,
+                "#!/bin/sh\npkill -f '^/sbin/getty 38400 tty1$' || true\ndmesg -n 3 || true\n",
+                0o755
+            )
+            .is_err(),
+            "the loglevel comes after the pkill: the respawned prompt is printed before it"
+        );
+        assert!(
+            glass_prompt_respawn(
+                tab,
+                "#!/bin/sh\ndmesg -n 7 || true\npkill -f '^/sbin/getty 38400 tty1$' || true\n",
+                0o755
+            )
+            .is_err(),
+            "a loglevel that still prints info lines"
         );
         assert!(
             glass_prompt_respawn(tab, "pkill -f getty\n", 0o755).is_err(),

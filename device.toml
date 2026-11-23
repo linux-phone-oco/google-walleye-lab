@@ -235,13 +235,13 @@ sha256 = "6dc0239e93b4f4b3a01aa1fd3c308aa5208d16f9545b900bfcc38f1ea70904d8"
 path = "images-display-regs/boot-b-q5.img"
 sha256 = "86d0813a1ae47ab0d33803d4c4d5a1e24df0988aae760d83e0605b584e80596d"
 
-# The Alpine-in-RAM image B-a5 (item walleye-display-alpine-ramroot-image; rebuilt by item walleye-display-alpine-getty-on-the-glass with the getty on tty1, then the prompt last: [images.alpine-rootfs-v4]): B-r5's kernel, dtb (mdss reset), command line, header words, size and 13 display modules as they are; its ramdisk adds the userland of
+# The Alpine-in-RAM image B-a5 (item walleye-display-alpine-ramroot-image; rebuilt by item walleye-display-alpine-getty-on-the-glass with the getty on tty1, then the prompt last and the console quiet: [images.alpine-rootfs-v5]): B-r5's kernel, dtb (mdss reset), command line, header words, size and 13 display modules as they are; its ramdisk adds the userland of
 # [images.alpine-rootfs-v3] (v2 with the glass getty on tty1 instead of tty0, read out of it by tools/walleye-ramroot) as /userland.tar, which build/initramfs-ramroot/init unpacks into a tmpfs after the modules load at 5 s, then switch_root to
 # Alpine's /sbin/init: OpenRC, getty on tty1 (the glass) and ttyGS0, sshd over the usb gadget network. UFS is OFF (the gate passes it): nothing of the card is touched. Built twice with this one sha256 and checked by
 # `walleye-ramroot --build now`; booted from memory only by procedures/alpine-login-on-the-glass-on-the-pixel-2.rs.
 [images.b-a5]
 path = "images-display-ramroot/boot-b-a5.img"
-sha256 = "ad91dcd7b7a81bf2ae8ff34e47696aaf96e66adecf7e6abdc9c59ac3159dd7ab"
+sha256 = "83b9c4c644ffb8de03f5b5f1d6eaf8c6fa72ea7121699d0cab1cf2a53034f981"   # rebuilt 2026-11-23 on rootfs v5 (dmesg -n 3 before the respawn); was ad91dcd7 on v4
 
 [procedures.display-delay-bisect-on-the-pixel-2]
 delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of uptime at which each image's init loads the display modules; an image b-dN must exist for each
@@ -266,6 +266,12 @@ sha256 = "886ef625690b22b1b26a3875753a02aa118e206dbf639dead3c624cfb8bbdfe2"
 [images.alpine-rootfs-v4]
 path = "images-rootfs/walleye-alpine-v4-key.ext4"
 sha256 = "93ed231a64f5a751ec1a28380f43716b52c7dafedb4289a5c468db7f3ec8aba4"
+
+# The Alpine hardware-test rootfs v5 (item walleye-display-alpine-getty-console-loglevel): v4 whose local.d script first runs `dmesg -n 3`, so the console shows warnings and worse and the kernel's late sync_state() info lines no longer print below the
+# respawned login prompt; built by tools/walleye-rootfs --build now --authorized-key, twice with this one sha256, every check ok (the script is checked: the line is there and comes before the pkill). v4 stays as history; the next write takes v5.
+[images.alpine-rootfs-v5]
+path = "images-rootfs/walleye-alpine-v5-key.ext4"
+sha256 = "e893dbe1eb9f1208c00230514bda6da36a75ea459b67ac241d3df813e5a50bd3"
 
 # v1 without an ssh key, kept under its own name until the write (item walleye-install-write-procedure) has used the keyed image.
 [images.alpine-rootfs-v1-no-key]

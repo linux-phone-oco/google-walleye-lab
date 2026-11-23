@@ -5792,3 +5792,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ramroot-b-a5-v5-console-loglevel-built"></a>
+### walleye-ramroot-b-a5-v5-console-loglevel-built
+
+Date
+: 2026-11-23
+
+Brief
+: Rootfs v5 (dmesg -n 3 before the getty respawn) and B-a5 83b9c4c6 rebuilt, each identical twice; the keeper's run is what shows check 15 pass
+
+Question
+: Can the late kernel sync_state() info lines be kept from printing below the respawned login prompt without touching the kernel or the header?
+
+Found
+: Yes by construction, not yet measured on the phone: /etc/local.d/50-glass-prompt.start runs dmesg -n 3 (console shows warnings and worse; the kernel log keeps everything) before the pkill that makes init respawn the tty1 getty. walleye-rootfs checks the line is there and comes before the pkill (a pattern with the loglevel after, absent, or 7 fails) and that dmesg is in the image. Rootfs v5 sha256 e893dbe1eb9f1208c00230514bda6da36a75ea459b67ac241d3df813e5a50bd3; B-a5 83b9c4c644ffb8de03f5b5f1d6eaf8c6fa72ea7121699d0cab1cf2a53034f981 (the old ad91dcd7 was overwritten in images-display-ramroot by the tool's own output: rebuild it from rootfs v4 if it is wanted as history). Not known yet: whether any warning-level line still prints below the prompt (the item walleye-display-alpine-getty-experiments fallback is loglevel= on the command line).
+
+About
+: walleye-display-s6e3fa5

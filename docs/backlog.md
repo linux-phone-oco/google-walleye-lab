@@ -9592,10 +9592,10 @@ Rank
 ### The login prompt is the last row on the glass: the console loglevel is lowered before the getty respawns, so the late kernel sync_state() lines no longer print below it
 
 Status
-: open
+: done
 
 Note
-: From the keeper's unattended run alpine-login-20261123-061501 on B-a5 ad91dcd7 (research walleye-ramroot-b-a5-v4-prompt-respawned-kernel-noise-follows, keeper local_50834f13): checks 1-14 pass and the v4 respawn WORKS (a second 'walleye login:' at screen row 96); check 15 fails because four '[21.73] gcc-msm8998 100000.clock-controller: sync_state() pending due to ...' kernel lines (dev_info, level 6, the deferred sync_state timeout at about 30 s after boot) print below it. The prompt is therefore not the last row, as check 15 rightly says. The keeper's PR 750 conflicted on generated data; its row is replayed with this item.
+: BUILT 2026-11-23 (builder): rootfs v5 e893dbe1... ([images.alpine-rootfs-v5], dmesg -n 3 before the pkill, checked by walleye-rootfs, identical twice) and B-a5 83b9c4c6... ([images.b-a5], identical twice, every check passed); procedures/alpine-login-on-the-glass-on-the-pixel-2.rs is executable; check 15 unchanged. The measure is the keeper's next unattended run of that procedure: screen.txt must end in 'walleye login:'. Research walleye-ramroot-b-a5-v5-console-loglevel-built.
 
 About
 : walleye-display-s6e3fa5
