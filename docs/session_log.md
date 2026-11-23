@@ -6490,3 +6490,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-1600-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel; boot_a holds the stage 2 image e337de53; rehearsal 3 ran for real, 17 of 17, nothing written; item walleye-install-flash-boot-rehearsal-3 done; the bar before the stage 2 run item goes back on the queue is met
+
+Considered
+: next: coordinator decides check 18 and the stage 2 rerun; then walleye-ufs-silent-ramped-pinned-try (needs the author's go for the new procedure), transport-real-phone-run, nfc node
+
+About
+: walleye-bootimage
