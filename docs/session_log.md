@@ -6715,3 +6715,21 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-23-1505-walleye-keeper-run-6-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel; boot_a holds stage 2 image e337de53; run 6 stalled at check 16 (adb dd read-back), host child killed, nothing sent after the flash; item walleye-install-flash-boot-run still in progress, rerun waits for the coordinator to record it on the item
+
+Considered
+: next: coordinator records the one rerun on the item; the read-back of boot_a should have a bounded timeout
+
+About
+: walleye-display-s6e3fa5

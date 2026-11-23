@@ -6535,3 +6535,25 @@ Check 18 now: successful ends no, retry ends positive, unbootable may stay or go
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-stage2-run6-stops-at-check-16-adb-read-stalls"></a>
+### walleye-stage2-run6-stops-at-check-16-adb-read-stalls
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 run 6: checks 1-15 pass incl. the flash; check 16's adb exec-out dd read of boot_a stalled 25 min (transport), killed by hand; no set_active; Android b
+
+Question
+: Does stage 2 run 6 reach slot a's boot?
+
+Found
+: Run 6 (image e337de53, started 14:31): checks 1-12 and the flash (step 14) passed, Android back on b. Check 16 reads boot_a back by 'adb exec-out dd | sha256sum' and sat from 14:33 to 14:58 with no output: host adb 3573598 and sha256sum 3573599 waiting; phone dd pid 4166 in wait_woken on a full socket, adbd up, load 3.5, uptime 25 min, shell answered (a transport stall, not a UFS hang; stage2-run6-stall.txt). The coordinator asked to kill the host adb child: done at 14:58, the check failed by itself (SIGTERM), the way back found Android already on b, nothing sent, no set_active. boot_a holds e337de53 again (flash is a no-op). Earlier starts of this session failed on the keeper's own mistakes (cwd; missing build/images link to ~/Projects/walleye-build) before any phone contact. Next: one rerun inside the go to 16:26 if the coordinator records it on the item (its note says no second run); if the same read stalls, the read-back needs a bounded timeout or a chunked read.
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-23/
