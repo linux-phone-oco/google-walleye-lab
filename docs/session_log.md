@@ -5848,3 +5848,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-walleye-ufs-root-display-image"></a>
+### U-d5: the UFS root with the display in one image
+
+Entry date
+: 2026-11-23
+
+Done
+: Built image U-d5 (a4558827): a kernel worktree of topic/ufs-match-android with two commits (MDSS reset, panel driver) on branch wip/walleye/ufs-root-display; build-display-late.sh with the diag and ufs-root fragments gave Image, 13 modules and the display dtb; build/build-ufs-root-display-image.sh merges the matched UFS overlay into the display dtb, packs build/initramfs-root-display/init with the modules, and makes the matched header/AVB image; 42 checks, built twice identical, also under another locale. Added tests/host/ufs-root-display-init.sh (text equals the root init plus the display block, block between the last guard and the partition wait, and every case of ufs-root-init.sh on it), INIT_DIR/DISPLAY_FILES in build-initramfs.sh, lib-display-levers.sh. The programmer review found a real bug in my edit of tests/host/ufs-root-init.sh (HERE used before it was set: the plain run failed), a locale-dependent sort in the cpio spec (the sha changed from 648b048a to a4558827 once fixed), a clean-tree check that was too narrow and two weak test lines; all fixed. Item done; boot item walleye-install-ufs-root-display-boots-try queued behind a go and a v4 write of system_a.
+
+Considered
+: One init for both images (the root init with an optional display block); the display modules built in instead of as modules (the delay at 5 s is what B-r5 proved, so modules it is); a dtb from the matched z21 dtb plus display fdtput (the board file's own display dts with the UFS overlay merged says the same with less hand work).
+
+Rejected
+: Editing the root init in place (its sha is named by a go); building the image into the shared images directory a queue reads (UFS-on images only go to NOT-TO-BOOT-... directories).
+
+About
+: walleye-display-s6e3fa5

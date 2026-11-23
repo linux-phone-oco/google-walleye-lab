@@ -5773,3 +5773,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ufs-root-display-image-u-d5-built"></a>
+### walleye-ufs-root-display-image-u-d5-built
+
+Date
+: 2026-11-23
+
+Brief
+: U-d5 built: one kernel with UFS on and the display, 13 modules at 5 s, the root read-only under a tmpfs overlay; 42 checks, built twice identical (sha a4558827); never booted
+
+Question
+: Can the matched UFS kernel and B-r5's display reset and modules be one image that shows the Alpine root's login on the glass and ssh at once, built and checked on the host?
+
+Found
+: Yes, on the host. Kernel = topic/ufs-match-android (3644090c7) + the MDSS reset + the panel driver (local branch wip/walleye/ufs-root-display of ~/Projects/walleye-build/linux-v7.3, ac7eefecb); DRM, DRM_MSM and the panel are 13 modules built for that release, fbcon and the DPU/DSI parts built in; dtb = the display board dtb (reset in the kernel's own dts form, the lab levers) with the matched image's UFS overlay merged: the two dtbs differ in exactly the matched image's 10-line UFS delta, and no /soc@0 child of the matched dtb is lost. Initramfs init = the proven root init plus the display block (delay 5 s, then each module line, ok or FAILED rc=N logged) and 'handing over' said before the moves; its QEMU proof runs every case of the root init's proof on it with a fake display. Image sha256 a45588272b11fed90d7d13e9ed0c3a00d1c2208b9758d01ed968587978582747 at ~/Projects/walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-root-display, 32 MiB as the matched image, AVB verifies, rebuilt identical across runs and under another locale, the UFS-off gate refuses it by design. Not known yet: how the SMMU behaves with UFS on and the display reset together, and the first boot (needs system_a written with rootfs v4 and the author's go naming this sha256).
+
+About
+: walleye-display-s6e3fa5
