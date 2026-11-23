@@ -6218,3 +6218,25 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-ufs-silent-under-load-causes-ranked"></a>
+### walleye-ufs-silent-under-load-causes-ranked
+
+Date
+: 2026-11-23
+
+Brief
+: Why the shell goes silent about 4.5 s into a sustained O_DIRECT read: the first gear switch is cleared; 5 causes ranked, none settled; cause not known yet
+
+Question
+: Why do the phone's shell and usb network go silent under a sustained read of sda, after 7-8 answered samples, and what ONE try with no new risk tells the causes apart?
+
+Found
+: WHAT THE LOGS COUNT (ufs-20261123-085319 and -105319, ufs-try2-run3.log): the host went to HS_GEAR3 / 200 MHz core clock at the first sample (0.5 s) and held it for every answered sample (run 2: 8 up to 4.6 s; run 3: 7 up to 4.0 s, answered in 0.1 s), 2 lanes, rate B, link ACTIVE; then silence from the 4.6 s read on in both, six reads unanswered over 110 s. Same moment in all runs: a fixed time or volume after the load starts, not chance. Idle the same phone answered for minutes (the link read took 171 s). The first run (080827) had no load samples. After the failure the file shows dev_pm SLEEP, link HIBERN8, gear 1: the card was idle when that last read was made; whether the shell came back is NOT KNOWN YET (the run log only says no answer within limit+60 s). The phone printed nothing after the samples: no kernel text from the stall exists. Runs 1 and 2 logs are not in ~/lab-material (only ufs-try2-run3.log). THE CAUSES, ranked: (1) [cleared as stated] a gear or clock switch hangs: the up-switch at the load start finished (ufs-qcom notify = hibern8 enter, timers, core clk ctrl, hibern8 exit), so only a LATER switch is left: ufshcd's devfreq (100 ms poll, simple_ondemand) may scale down and up again when the queue drains between 1 MiB requests; each switch holds the scaling lock, waits up to 1 s for the doorbell and freezes new requests (ufshcd_clock_scaling_prepare) - a stuck second switch would stall the I/O, but not the usb gadget, unless the stall is a bus hang from touching a register while the clock is off: rank 1 for that form. (2) a stuck-asserted completion interrupt (irq 265 level-high) or a storm: all SPIs default to CPU 0 with the usb gadget's; 1 MiB direct reads give only hundreds of interrupts a second, so only a never-cleared status bit starves CPU 0; rank 2. (3) NEW, not in the item: the missing bus votes. ufshc has no interconnects; Android voted the fabric for the UFS traffic; at gear 3 the unvoted fabric (snoc/bimc left as the bootloader set it) could starve the usb gadget's DMA and the cpu's: slow, deterministic after the buffer-sized time; rank 3 - against it: the OnePlus 5 on mainline uses the same node and the same missing votes and reads its root from UFS (wiki, dts series), so the shared path is not enough to hang and the difference is OURS (the diagnostic kernel config, clk_ignore_unused, the init's watchdog petter and its starvation, the card's quirks, the RST_n pulse). (4) a watchdog bite after our petter starves: the petter is a bounded one in the root init; a starved petter would end in a warm reset and Android back by itself, which is what the phone does; rank 2 or 3 and CHEAP to test by reading the PON reason on the way back. (5) O_DIRECT memory effect (bs=1M pins 1 MiB, nothing grows) and the usb network's own bulk path: lowest; the shell is polled over the same usb that would have to die first, so (d) cannot be told from the rest by the poll alone. WHAT SETTLES WHICH: a log that survives the stall, and one variable at a time. The ramoops chase has not yet shown that a warm reset keeps our kernel's text (walleye-pk5l2-tried; the item walleye-ramoops-after-unlock waits for the author's unlock), so the log is written BEFORE each step to the phone's RAM and read back over the same link only while it answers; a second channel that survives is not known yet.
+
+Sources
+: mainline-v612-ufshcd-clk-scaling,oneplus5-mainline-ufs-dts,wahoo-4-4-ufs-qcom-c,src-mainline-v73-ufs-qcom-ice
+
+About
+: walleye-ufs-match-android-z
