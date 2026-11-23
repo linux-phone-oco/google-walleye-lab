@@ -9964,10 +9964,10 @@ Rank
 ### UFS try 2 run 2: is the card's GPT unchanged? Read it again from Android as root and compare with the hash the run took before
 
 Status
-: open
+: done
 
 Note
-: Run 2 stopped at step 16 (PR 786) before its own GPT-after check, so 'unharmed' by run 2 is NOT KNOWN YET; the same cheap read-only re-read as for run 1 (item walleye-ufs-try-2-run-1-gpt-equal, EQUAL, PR 776). A keeper on Android, no boot.
+: proven by research walleye-ufs-try-2-run-2-gpt-equal-result: EQUAL (2de02f2b...57cb both times), boot chain read-back check pass
 
 About
 : walleye-display-s6e3fa5
