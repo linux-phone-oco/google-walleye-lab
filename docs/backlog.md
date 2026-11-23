@@ -9679,7 +9679,7 @@ Status
 : open
 
 Note
-: Found by the stage 2 command (research walleye-install-flash-boot-procedure-built): when the bootloader boots our image from the flashed slot's boot partition it puts androidboot.slot_suffix=_X for that slot, and build/initramfs-root/init (and the display init) refuse a root equal to system_X ('the slot Android runs from'). The stage 2 boot image needs an init that, on a bootloader-booted image (a flag word of its own on the command line, never a loosening of the stage 1 guard), mounts the booted slot's own system partition read-only under the overlay, AND carries the line 'walleye-init: mounts-the-booted-slot' (flash_boot::BOOTED_SLOT_MARK): the command's init gate passes only an init that does not refuse its own slot and declares that line. Also the image's walleye.root must be system_<the slot it is flashed to> (the command checks it against the slot read, before the flash). Second part: our kernel reaching the bootloader again (reboot-mode in the pon node of the board dts) so the way back is not a hand step. The stage 1 guard stays as it is for the fastboot boot from memory.
+: Found by the stage 2 command (research walleye-install-flash-boot-procedure-built): when the bootloader boots our image from the flashed slot's boot partition it puts androidboot.slot_suffix=_X for that slot, and build/initramfs-root/init (and the display init) refuse a root equal to system_X ('the slot Android runs from'). The stage 2 boot image needs an init that, on a bootloader-booted image (a flag word of its own on the command line, never a loosening of the stage 1 guard), mounts the booted slot's own system partition read-only under the overlay, AND carries the line 'walleye-init: mounts-the-booted-slot' (flash_boot::BOOTED_SLOT_MARK): the command's init gate passes only an init that does not refuse its own slot and declares that line. Also the image's walleye.root must be system_<the slot it is flashed to> (the command checks it against the slot read, before the flash). Second part: our kernel reaching the bootloader again (reboot-mode in the pon node of the board dts) so the way back is not a hand step. The stage 1 guard stays as it is for the fastboot boot from memory. | 2026-11-23 (the coordinator): the init is rebuilt ONCE, so this item ALSO carries what item walleye-initramfs-root-say-before-the-moves asked (the 'handing over' say and any later say BEFORE mount --move /dev, /proc and /sys, so the line reaches the kernel log; the merged U-d5 image's init already does it); its QEMU stand-in test fails first on a say after the move. The reboot-mode part is tried by item walleye-reboot-bootloader-from-linux-try.
 
 About
 : walleye-display-s6e3fa5
@@ -9710,7 +9710,7 @@ Waits
 : the stage 1 proof, UFS try 2, and the coordinator's go naming the boot image's sha256 (ikb backlog-go on this item); the rehearsal first (procedures/rehearse-install-boot-on-the-pixel-2.rs, no go needed)
 
 Blocked by
-: walleye-install-rootfs-boots-try,walleye-install-stage2-init-booted-slot
+: walleye-install-rootfs-boots-try,walleye-install-stage2-init-booted-slot,walleye-reboot-bootloader-from-linux-try
 
 About
 : walleye-display-s6e3fa5
@@ -9729,3 +9729,31 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-reboot-bootloader-from-linux-try"></a>
+### Our kernel reaches the bootloader again by itself: reboot-mode in the pon node, tried from a RAM boot, so stage 2's way back is not a hand step
+
+Status
+: open
+
+Note
+: From the stage 2 builder (PR 760, research walleye-install-flash-boot-procedure-built): the stage 2 command's way back needs our kernel to restart into the bootloader (fastboot set_active <Android's slot>), and that is NOT KNOWN YET (reboot-mode in the pon node; CONFIG_POWER_RESET_QCOM_PON=y is already in build/walleye.config). The coordinator's rule (the author's: attend only when the step is one command away): the run must not end in a hand step, so this try comes BEFORE the stage 2 run and is hands-free. The image with reboot-mode comes from item walleye-install-stage2-init-booted-slot (part two); a keeper tries it by RAM boot, one command.
+
+Blocked by
+: walleye-install-stage2-init-booted-slot
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: from a fastboot boot (nothing written) of an image whose board dts has reboot-mode in the pon node: over ssh 'reboot bootloader' and the phone appears in fastboot (fastboot devices) within 60 s; then 'fastboot reboot' and Android answers on adb (idle-android); the GPT, boot chain and both slots' flags read equal before and after; no flash, no set_active, no fastboot oem; the mode value and register written come from READING the Android kernel's reboot-reason write (qpnp-power-on / msm-poweroff restart reason for bootloader, PON_SOFT_RB_SPARE) and mainline's qcom-pon driver, kept in a research row, not guessed; a run that does not reach the bootloader ends with the way back by the normal reboot (Android) and the research says what was written
+
+Rank
+: 3
