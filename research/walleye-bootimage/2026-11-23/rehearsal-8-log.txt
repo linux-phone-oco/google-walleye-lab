@@ -1,0 +1,45 @@
+1795467265 start : rehearse install boot on the Pixel 2 on google-walleye
+1795467265 start : rehearse install boot on the Pixel 2 on google-walleye
+1795467265 begin the battery is good enough: check
+1795467265 ok the battery is good enough: 
+1795467265 begin the image is the declared one, a whole boot partition, its AVB footer verifies: check
+1795467265 FAIL the image is the declared one, a whole boot partition, its AVB footer verifies: sha256sum /home/mll/.local/share/agent-worktrees/google-walleye-lab/walleye-keeper-1795467228/build/images/NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-production/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production.img: sha256sum: /home/mll/.local/share/agent-worktrees/google-walleye-lab/walleye-keeper-1795467228/build/images/NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-production/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production.img: No such file or directory
+1795467274 start : rehearse install boot on the Pixel 2 on google-walleye
+1795467274 start : rehearse install boot on the Pixel 2 on google-walleye
+1795467274 begin the battery is good enough: check
+1795467274 ok the battery is good enough: 
+1795467274 begin the image is the declared one, a whole boot partition, its AVB footer verifies: check
+1795467275 ok the image is the declared one, a whole boot partition, its AVB footer verifies: 
+1795467275 begin the image's init accepts the slot it is booted from: check
+1795467275 ok the image's init accepts the slot it is booted from: 
+1795467275 begin the stored boot chain is whole, the ssh key is private and the reboot tool is the declared one: check
+1795467275 ok the stored boot chain is whole, the ssh key is private and the reboot tool is the declared one: 
+1795467275 begin say what to expect: step
+1795467275 ok say what to expect: 
+1795467275 begin the phone is on Android, adbd as root: step
+1795467275 ok the phone is on Android, adbd as root: 
+1795467275 begin adb reads the slot Android runs from: check
+1795467275 ok adb reads the slot Android runs from: 
+1795467275 begin the boot partition to be flashed, read now, is recorded (its backup, the declared image or other content) and the stock backup is on file and hashes to its record; the boot, dtbo and vbmeta partitions are hashed: check
+1795467296 ok the boot partition to be flashed, read now, is recorded (its backup, the declared image or other content) and the stock backup is on file and hashes to its record; the boot, dtbo and vbmeta partitions are hashed: 
+1795467296 begin the GPT of every disk is read whole and kept: check
+1795467297 ok the GPT of every disk is read whole and kept: 
+1795467297 begin take the phone to fastboot: step
+1795467312 ok take the phone to fastboot: 
+1795467312 begin fastboot agrees on the slot and the flash target is the other slot's boot partition (its command is shown, not run): check
+1795467312 ok fastboot agrees on the slot and the flash target is the other slot's boot partition (its command is shown, not run): 
+1795467312 begin the slot flags are read before, and the slot Android runs from is successful and bootable (the way back): check
+1795467312 ok the slot flags are read before, and the slot Android runs from is successful and bootable (the way back): 
+1795467312 begin the slot flags read again are kept beside the first (a difference is said, not refused): check
+1795467312 ok the slot flags read again are kept beside the first (a difference is said, not refused): 
+1795467312 begin the phone is on Android, adbd as root: step
+1795467348 ok the phone is on Android, adbd as root: 
+1795467348 begin the phone is back on Android: check
+1795467348 ok the phone is back on Android: 
+1795467348 begin the GPT read again is the same, whole, and passes the switch checker unchanged: check
+1795467348 ok the GPT read again is the same, whole, and passes the switch checker unchanged: 
+1795467348 begin the read of a failed boot (the pstore first, the command line, the boot reason, the slot) works on Android as it is: read only, nothing sent: check
+1795467349 ok the read of a failed boot (the pstore first, the command line, the boot reason, the slot) works on Android as it is: read only, nothing sent: 
+1795467349 begin the boot chain read again equals the stored set: check
+1795467352 ok the boot chain read again equals the stored set: 
+1795467352 end : all steps passed
