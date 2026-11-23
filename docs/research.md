@@ -5906,3 +5906,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-install-stage2-rehearsal-stops-at-check-2-no-boot-image"></a>
+### walleye-install-stage2-rehearsal-stops-at-check-2-no-boot-image
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 rehearsal, real run: stops at check 2 - the declared image [images.ufs-root] has no boot.img beside it; item walleye-install-stage2-boot-image (build) is still open; the phone was not touched
+
+Question
+: Can the stage 2 rehearsal (procedures/rehearse-install-boot-on-the-pixel-2.rs, no go needed) run today, as the first ready item walleye-install-flash-boot asks?
+
+Found
+: Dry run passes 17 of 17. Real run: check 1 (battery) passes, check 2 fails: build/images must link to ~/Projects/walleye-build (made in the keeper's worktree), and then the AVB footer check wants NOT-TO-BOOT-ufs-on-images-ufs-root/boot.img, which does not exist (the folder holds only the .img, NOT-TO-BOOT.txt, SHA256SUMS). The stage 2 command takes [images.ufs-root] and the rebuild with the new init (walleye.booted-slot) is item walleye-install-stage2-boot-image, open, build lane, rank 3. Nothing written, phone on Android slot b, fastboot reachable, no go used. Not known yet: checks 3-17 (not reached). Note: the item walleye-install-flash-boot lists blocked_by only rootfs-boots-try and the procedure, so it shows ready while its real predecessor is the image item; the blocker is missing from it.
+
+About
+: walleye-display-s6e3fa5
