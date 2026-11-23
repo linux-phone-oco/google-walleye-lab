@@ -10194,16 +10194,19 @@ Rank
 ### Run stage 2 once: install-boot-on-the-pixel-2.rs under the coordinator's go (flash boot_<other>, set_active, observe, set_active back)
 
 Status
-: open
+: in-progress
 
 Note
-: rerun 2 stopped at check 9 (boot_a already = image, backup differs); no third run until the coordinator amends check 9
+: TAKE THIS ITEM NOW: STAGE 2 RUN, THE FIRST COMPLETE ONE (the coordinator, 2026-11-23): run 1 stopped at check 18 after the flash (PR 831: the flash reset slot a's flags, documented, check amended in PR 836); rerun 2 stopped at check 9 before any flash (PR 839: boot_a already held the image, check amended in PR 841); the rehearsal for real then passed 17 of 17 on main after both amendments (PR 843: boot_a = e337de53, the stock backup hashes to its record 2a5cd3b2). STATE: boot_a holds e337de53, slot a retry 1 successful no, b untouched and successful, Android on b, NO set_active yet. The go is for image e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1 ONLY, to the go_until of this row; the run sheet below is unchanged (read it whole). If it stops again the keeper writes the research row with every text the phone printed, releases the lease and does not run again. | rerun 2 stopped at check 9 (boot_a already = image, backup differs); no third run until the coordinator amends check 9
 
 About
 : walleye-display-s6e3fa5
 
 Opened
 : 2026-11-23
+
+Needs
+: phone
 
 Proof
 : the one command passes every step: the boot of the new slot from the card on ssh, the GPT changed only by the slot switch, the way back set_active, the phone on Android, the boot chain as stored
@@ -10215,7 +10218,7 @@ Witness
 : person
 
 Go until
-: 2026-11-23T14:03:16+01:00
+: 2026-11-23T14:33:06+01:00
 
 
 <a id="walleye-fastboot-reboot-stays-in-fastboot"></a>
