@@ -6579,3 +6579,22 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-23/
+
+
+<a id="walleye-stage2-run7-host-usb-log-no-gadget"></a>
+### walleye-stage2-run7-host-usb-log-no-gadget
+
+Date
+: 2026-11-23
+
+Brief
+: Run 7: the lab host's USB log shows no gadget of ours for 67 s after the reboot into slot a; pstore cannot help (hard reset)
+
+Question
+: Did our kernel's USB gadget come up at all during slot a's boot in stage 2 run 7, as seen by the lab host (journalctl -k, usb 3-2)?
+
+Found
+: Host kernel log (journalctl -k on the lab machine, usb 3-2) around run 7: 15:12:09 Android b's adb device 18d1:4ee7 appears; 15:12:24 disconnect; 15:12:30 the bootloader's fastboot device 18d1:4ee0 appears (the command reads the flags, set_active a); 15:12:32 disconnect (the phone reboots into slot a); then NOTHING until 15:13:39, when Android b's adb device 18d1:4ee7 appears (Android b up: uptime 2 min at 15:15:35, kernel start about 15:13:35, bootreason watchdog). So for 67 s after the reboot no USB device of ours appeared (stage 1's gadget enumerates about 12 s after kernel start): our kernel did not bring a gadget up, or did not run. The slot a attempt lasted about 35-40 s from the reboot to the reset: a watchdog the bootloader arms (about 30 s after the jump) fits; the second boot was the bootloader's retry-count fall back to b. pstore stays empty because a PMIC watchdog bite is a hard reset (research walleye-pstore-warm-reset-how-it-stands, walleye-ml3-pstore-empty): DDR content is not kept, so more pstore reads will not show our console. NOT KNOWN YET: whether the kernel ran at all (a hang before the gadget), or ran and failed to start its gadget cold, or the init failed before the Alpine root (the gadget is set up by the Alpine rootfs services after switch_root, so an init that cannot mount system_a gives exactly this picture). The host log is a free evidence channel for every try: it timestamps every USB (dis)connect.
+
+About
+: walleye-bootimage
