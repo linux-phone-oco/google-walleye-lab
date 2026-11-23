@@ -10075,19 +10075,16 @@ Rank
 ### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
 
 Status
-: in-progress
+: done
 
 Note
-: RERUN 7 done 2026-11-23: checks 1-21 passed and the bootloader was reached by RESTART2 (fastboot listed the phone, slot b = start), but check 22 failed: Android not back in 240 s after fastboot reboot; the after-stop way back brought it home, card/boot chain/flags equal. Research walleye-rootfs-boots-run-7-bootloader-reached-android-late. Next: the coordinator decides (stage 2 go per the Top's rule, and why fastboot reboot stayed in fastboot); no second run without the coordinator
+: DONE 2026-11-23 (the coordinator): the stage 1 boot passed 26 of 26 on c3373d71 (runs 5, 6; PRs 759, 781) and rerun 7 (the RESTART2 try, PR 814) reached the bootloader: fastboot listed the phone with current-slot b = the start slot; fastboot reboot then left the phone in fastboot for 240 s (cause NOT KNOWN YET) and the after-stop way back brought Android home, GPT/boot chain/slot flags equal. The go is CLOSED: no further stage 1 run under this item without the coordinator. | RERUN 7 done 2026-11-23: checks 1-21 passed and the bootloader was reached by RESTART2 (fastboot listed the phone, slot b = start), but check 22 failed: Android not back in 240 s after fastboot reboot; the after-stop way back brought it home, card/boot chain/flags equal. Research walleye-rootfs-boots-run-7-bootloader-reached-android-late. Next: the coordinator decides (stage 2 go per the Top's rule, and why fastboot reboot stayed in fastboot); no second run without the coordinator
 
 About
 : walleye-display-s6e3fa5
 
 Opened
 : 2026-11-23
-
-Needs
-: phone
 
 Proof
 : ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
@@ -10099,7 +10096,7 @@ Witness
 : person
 
 Go until
-: 2026-11-23T13:13:26+01:00
+: 2026-11-23T10:00:00+01:00
 
 
 <a id="walleye-install-stage2-way-back-restart2"></a>
