@@ -9739,10 +9739,10 @@ Rank
 ### The way back of the stage 1 boot tries 'reboot bootloader' over ssh first, checks fastboot sees the phone, then fastboot reboot to Android; the forced way back stays as the fallback
 
 Status
-: open
+: done
 
 Note
-: From PR 765: the pon node already has mode-bootloader = <2> from mainline, so no dts change; whether the value reaches the bootloader is NOT KNOWN YET and is what the keeper's next stage 1 run on the rebuilt image measures, at no extra visit: the run's way back itself is the try. Stage 2's way back (set_active <Android's slot> from the bootloader) depends on it; a run that cannot reach the bootloader must not end in a hand step.
+: Built: rootfs_boot.rs the_bootloader_is_tried (reboot bootloader over ssh, fastboot lists the phone within 60 s, current-slot said against the slot at the start, then the shared way back's fastboot reboot; else 'bootloader not reached' + what was seen and the forced reboots); once a run (bootloader-way-back.txt). 4 stand-in tests; fastboot getvar fixture copied from a recorded visit; 'fastboot devices' text never recorded: NOT KNOWN YET. Whether the pon node's mode-bootloader reaches the bootloader is measured by the keeper's next stage 1 run.
 
 About
 : walleye-display-s6e3fa5
