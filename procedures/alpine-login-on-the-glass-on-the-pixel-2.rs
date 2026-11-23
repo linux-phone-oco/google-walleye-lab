@@ -3,7 +3,7 @@
 //! 2026-11-22, relayed by the Top Coordinator; decision 2026-11-19-walleye-attended-tries-one-command): image B-a5 (B-r5's kernel, dtb and 13 display
 //! modules, the Alpine userland unpacked into a tmpfs root, UFS off) booted once from fastboot, from memory, nothing flashed. The lab reads it over
 //! usb-network by ssh with its key: the display modules loaded at 5 s with none of the three signs (SMMU faults, rcg warning, DSI -110), 13 of 13 said ok,
-//! a getty on tty1 (the glass: VT 1 under fbcon) and on ttyGS0, sshd up, fbcon in the kernel log, the root a tmpfs, no purge or oops, and the SCREEN'S TEXT (/dev/vcs of the VT the glass shows) holding `walleye login:` - measured before the author is asked; THEN the look: the deadman held,
+//! a getty on tty1 (the glass: VT 1 under fbcon) and on ttyGS0, sshd up, fbcon in the kernel log, the root a tmpfs, no purge or oops, and the SCREEN'S TEXT (/dev/vcs of the VT the glass shows) ENDING in `walleye login:` (the last non-blank row, the cursor's: init respawns the tty1 getty at the end of the default runlevel) - measured before the author is asked; THEN the look: the deadman held,
 //! the author asked whether he sees the Alpine login prompt, the hold released; the phone sent back and Android checked. Each step stops the run when it fails;
 //! with nobody to answer (the keeper's unattended run) it stops at the look, and the watching parent still runs the way back to Android.
 //! The person step uses the prompt and answer files: ~/.cache/lpoco-attended/<device>/prompt and answer.
@@ -70,7 +70,7 @@ fn main() {
         glass.the_kernel_log_has_fbcon(),
     );
     check(
-        "the screen's text (/dev/vcs of the VT the glass shows) holds `HOSTNAME login:`",
+        "the screen's text (/dev/vcs of the VT the glass shows) ends in `HOSTNAME login:` on the last non-blank row, the cursor's",
         glass.the_screen_holds_the_login_prompt(),
     );
     check(

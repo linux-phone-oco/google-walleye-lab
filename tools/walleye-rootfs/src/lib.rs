@@ -388,6 +388,25 @@ pub fn getty_respawns(tab: &str, tty: &str) -> Result<(), String> {
     Ok(())
 }
 
+/// The glass prompt comes last (item walleye-display-alpine-getty-experiments): a script of /etc/local.d, which OpenRC's `local` service runs at the end of the default runlevel, kills the tty1 getty
+/// the inittab respawns, so the fresh prompt prints below all of init's output. Err says what is missing: the script must be executable, its pkill pattern must match the inittab's own tty1 line.
+pub fn glass_prompt_respawn(tab: &str, script: &str, mode: u32) -> Result<(), String> {
+    let (_, _, prog) = inittab_lines(tab)
+        .into_iter()
+        .find(|(id, _, _)| id == "tty1")
+        .ok_or("inittab has no line for tty1")?;
+    if mode & 0o111 == 0 {
+        return Err(format!(
+            "the local.d script is mode {mode:o}: `local` runs only executable files"
+        ));
+    }
+    let want = format!("pkill -f '^{}$'", prog.trim());
+    if !script.lines().any(|l| l.trim_start().starts_with(&want)) {
+        return Err(format!("the local.d script has no line starting `{want}`"));
+    }
+    Ok(())
+}
+
 /// Every dotted address of a text with its line (1-based).
 pub fn addresses_in(text: &str) -> Vec<(usize, String)> {
     let mut out = Vec::new();
@@ -669,6 +688,26 @@ mod tests {
     #[test]
     fn getty_must_respawn_until_the_gadget_binds() {
         let good = "ttyGS0::respawn:/sbin/getty -L 115200 ttyGS0 vt100\n";
+        let tab = "tty1::respawn:/sbin/getty 38400 tty1\n";
+        let script = "#!/bin/sh\npkill -f '^/sbin/getty 38400 tty1$' || true\n";
+        assert!(glass_prompt_respawn(tab, script, 0o755).is_ok());
+        assert!(
+            glass_prompt_respawn(tab, script, 0o644).is_err(),
+            "not executable"
+        );
+        assert!(
+            glass_prompt_respawn(tab, "pkill -f getty\n", 0o755).is_err(),
+            "the pattern is not the inittab's line"
+        );
+        assert!(
+            glass_prompt_respawn(
+                "ttyGS0::respawn:/sbin/getty -L 115200 ttyGS0\n",
+                script,
+                0o755
+            )
+            .is_err(),
+            "no tty1 line"
+        );
         assert!(getty_respawns(good, "ttyGS0").is_ok());
         assert!(
             getty_respawns("ttyGS0::once:/sbin/getty -L 115200 ttyGS0\n", "ttyGS0")

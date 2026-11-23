@@ -56,16 +56,20 @@ pub const READ_COMMAND: &str = "echo ---id; id -u; echo ---kernel; uname -r; ech
 /// The screen's text, read by the lab: the hostname, the VT the glass shows, then that VT's text (/dev/vcs is the active VT's), one line per screen row.
 pub const SCREEN_COMMAND: &str = "echo ---hostname; hostname; echo ---active; cat /sys/class/tty/tty0/active 2>&1; echo ---screen; c=$(stty size </dev/tty0 2>/dev/null | cut -d' ' -f2); if [ \"${c:-0}\" -gt 0 ] && fold -w \"$c\" /dev/vcs 2>/dev/null; then :; else cat /dev/vcs 2>&1; fi; echo ---end";
 
-/// The screen's text holds the login prompt of this host: `HOSTNAME login:` on one row (white space between the words counts as one space).
+/// The screen's text ends in the login prompt of this host: `HOSTNAME login:` on the LAST non-blank row, the cursor's row (white space between the words counts as one space).
+/// A prompt with init output after it (keeper run alpine-login-20261122-204417: the prompt at row 84, `Starting local` last) is not the prompt the author sees.
 pub fn screen_has_login_prompt(screen: &str, hostname: &str) -> bool {
     let want = format!("{} login:", hostname.trim());
     !hostname.trim().is_empty()
-        && screen.lines().any(|l| {
-            l.split_whitespace()
-                .collect::<Vec<_>>()
-                .join(" ")
-                .contains(&want)
-        })
+        && screen
+            .lines()
+            .rfind(|l| !l.trim().is_empty())
+            .is_some_and(|l| {
+                l.split_whitespace()
+                    .collect::<Vec<_>>()
+                    .join(" ")
+                    .contains(&want)
+            })
 }
 
 /// What the lab saw instead, for the log: the VT the glass shows and the last non-blank rows of its text.
@@ -580,6 +584,19 @@ mod tests {
             shown.contains("tty1") && shown.ends_with("h") && !shown.contains("\na\n"),
             "{shown}"
         );
+    }
+
+    #[test]
+    fn the_prompt_must_be_the_last_non_blank_row() {
+        // the keeper's run alpine-login-20261122-204417: the prompt printed mid-screen, init output after it
+        let mid = " * Binding the usb gadget\nwalleye login:\n * Starting sshd ... [ ok ]\n * Starting local ... [ ok ]\n\n\n";
+        assert!(
+            !screen_has_login_prompt(mid, "walleye"),
+            "output follows the prompt"
+        );
+        // after the fix: init respawns the getty at the end of the default runlevel, the prompt is below everything
+        let last = " * Starting local ... [ ok ]\n\nwalleye login:   \n\n\n";
+        assert!(screen_has_login_prompt(last, "walleye"));
     }
 
     #[test]

@@ -146,6 +146,7 @@ pub const MUST_BE_IN_THE_USERLAND: &[&str] = &[
     "sbin/getty",
     "sbin/agetty",
     "etc/inittab",
+    "etc/local.d/50-glass-prompt.start",
     "etc/init.d/usb-gadget",
     "etc/init.d/sshd",
     "usr/sbin/sshd",

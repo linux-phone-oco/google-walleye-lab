@@ -758,6 +758,24 @@ fn check_started_programs(rep: &mut Report, dump: &Path, files: &[String]) -> Re
             Err(e) => rep.ok(false, &e),
         }
     }
+    let script_file = "etc/local.d/50-glass-prompt.start";
+    let mode = fs::metadata(dump.join(script_file))
+        .map(|m| std::os::unix::fs::PermissionsExt::mode(&m.permissions()))
+        .unwrap_or(0);
+    match glass_prompt_respawn(&inittab, &fs::read_to_string(dump.join(script_file)).unwrap_or_default(), mode) {
+        Ok(()) => rep.ok(true, "the glass prompt comes last: /etc/local.d/50-glass-prompt.start makes init respawn the tty1 getty"),
+        Err(e) => rep.ok(false, &e),
+    }
+    rep.ok(
+        files.iter().any(|f| f == "etc/runlevels/default/local"),
+        "the `local` service is in the default runlevel (it runs the local.d scripts at the end)",
+    );
+    rep.ok(
+        ["bin/pkill", "usr/bin/pkill"]
+            .iter()
+            .any(|p| tree.exists(p)),
+        "pkill is in the image (the local.d script uses it)",
+    );
     let mut known: Vec<String> = Vec::new();
     let mut scripts = Vec::new();
     for f in files.iter().filter(|f| f.starts_with("etc/init.d/")) {

@@ -13,7 +13,7 @@ use walleye_ramroot::cli::{usage, Contract as C};
 use walleye_ramroot::*;
 
 const BASE_IMAGE: &str = "b-r5";
-const ROOTFS_IMAGE: &str = "alpine-rootfs-v3";
+const ROOTFS_IMAGE: &str = "alpine-rootfs-v4";
 const IMAGE_NAME: &str = "boot-b-a5.img";
 const SUMS_NAME: &str = "SHA256SUMS-display-ramroot";
 const DELAY_SECONDS: &str = "5";
@@ -577,6 +577,11 @@ fn check_image(ctx: &Ctx, inp: &Inputs, img: &Path) -> Result<(), String> {
                 || p.contains("walleye-lab"))
         ),
         "true false",
+    );
+    rep.ck(
+        "the glass prompt comes last: the local.d script is executable (init respawns the tty1 getty at the end of the default runlevel)",
+        line_of("etc/local.d/50-glass-prompt.start").starts_with("-rwxr-xr-x").to_string(),
+        "true",
     );
     rep.ck(
         "bbsuid keeps its setuid bit",
