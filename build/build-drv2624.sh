@@ -1,7 +1,7 @@
 #!/bin/sh
 # The boot image of the haptics try (item walleye-drv2624-image): z21's image with the kernel that holds the TI DRV2624 driver and the dtb that carries the walleye vibrator@5a node.
 #   Kernel: kernel.org v7.3 + the pmic-wdt topic and the fuel gauge RFC (as every image since fg1) + the four driver commits of topic/walleye-drv2624 (binding, driver, two fixes).
-#   The dts patch 0005 is already in dt/msm8998-google-walleye.dts, which build-kernel.sh copies in. The driver is built in (the initramfs carries no modules).
+#   The walleye dts change (once patch 0005) is already in dt/msm8998-google-walleye.dts, which build-kernel.sh copies in. The driver is built in (the initramfs carries no modules).
 #   Ramdisk, header, size and AVB footer are z21's byte for byte (its init has the command loop, the telnet shell and the serial walleye-first-boot); the command line is z21's with its gpio dyndbg
 #   replaced by the driver's one dev_dbg, the chip id (dyndbg="file drivers/input/misc/drv2624.c +p"). UFS off by the gate. Built only - no phone run; the keeper reads the part over the mainline shell
 #   (ls /sys/bus/i2c/devices, the driver link, dmesg), as tests/health/base/amp-present.sh does on a phone with a Linux userland.

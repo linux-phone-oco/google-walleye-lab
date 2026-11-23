@@ -8,6 +8,6 @@ The common mdss binding (`mdss-common.yaml`) already allows `resets`, so no bind
 
 `tests/host/dtb-display-reset.sh` passes on a dtb built from a tree with this patch. `SHA256SUMS` pins the patch. `build/build-display-any-order-images.sh` builds the images B-r2 and B-rp2 on that dtb.
 
-The dtb of the any-order images is built from kernel.org v7.3 (the display tree's commit e123d3bff) with this patch, the fuel-gauge series' dts patch (`kernel/fuel-gauge-rfc/0003`, the board file names `pmi8998_fg`)
+The dtb of the any-order images is built from kernel.org v7.3 (the display tree's commit e123d3bff) with this patch, the fuel-gauge series' dts patch (commit 3 of `topic/walleye-fuel-gauge-rfc`, the board file names `pmi8998_fg`)
 and the board's `dt/` files, `DTC_FLAGS=-@ make qcom/msm8998-google-walleye-display.dtb`. It also has the board's i2c@c17a000 enabled with the drv2624 node (no driver in the display kernel); the image script checks that is the only new node.
 The pin in `SHA256SUMS` is checked by hand: `sha256sum -c SHA256SUMS`.

@@ -68,7 +68,7 @@ precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 grenudi"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
 
-# The MDSS reset patch (item walleye-display-dts-any-order): a patch of a kernel dts file carries the kernel's licence; the README is ours.
+# The MDSS reset record (item walleye-display-dts-any-order): ours.
 [[annotations]]
 path = ["kernel/display-mdss-reset/README.md"]
 precedence = "aggregate"

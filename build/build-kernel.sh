@@ -27,6 +27,7 @@ mkdir -p "$OUT/b"
 if ! grep -q 'pmi8998_fg:' "$QCOM/pmi8998.dtsi"; then
   FG=${FUEL_GAUGE_TOPIC:-topic/walleye-fuel-gauge-rfc}
   git -C "$K" rev-parse --verify -q "$FG^{commit}" >/dev/null || { echo "build-kernel: $K has no branch $FG (a worktree of ~/Projects/linux-phone-oco/linux sees it)" >&2; exit 1; }
+  [ "$(git -C "$K" rev-list --count "v7.3..$FG")" = 3 ] || { echo "build-kernel: $FG is not the three fuel gauge commits any more; a changed series is a new image, say so here" >&2; exit 1; }
   git -C "$K" cherry-pick $(git -C "$K" rev-list --reverse "v7.3..$FG") >/dev/null || { git -C "$K" cherry-pick --abort >/dev/null 2>&1; echo "build-kernel: the commits of $FG did not apply to $K" >&2; exit 1; }
 fi
 grep -q 'pmi8998_fg:' "$QCOM/pmi8998.dtsi" || { echo "build-kernel: the tree lacks the fuel gauge node (pmi8998_fg in pmi8998.dtsi)" >&2; exit 1; }

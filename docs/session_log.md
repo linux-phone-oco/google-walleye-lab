@@ -6754,3 +6754,24 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-23-walleye-builder-the-kernel-patch-files-removed"></a>
+### walleye-builder: the kernel patch files removed after proof, the live int tags pushed
+
+Entry date
+: 2026-11-23
+
+Done
+: 17 kernel .patch files, 3 SHA256SUMS and the panel .c removed: each series proved equal to its topic branch (patch-id per commit, cmp for the panel); audio 0009 kept as a judged difference. build-kernel.sh, build-display*.sh and the audio and drv2624 host tests follow the branches (counts and a sha256 pinned). Programmer review found no defect, its four low points are fixed or recorded. int/walleye/ufs-off/v7.3/1 and ufs-on/v7.3/1 pushed and read back.
+
+Considered
+: applying 0009 to dt/ (changes the dtb of future images); removing LICENSES/BSD-3-Clause.txt
+
+Rejected
+: keeping the series files beside the branches (two copies to drift)
+
+About
+: walleye-kernel-dts

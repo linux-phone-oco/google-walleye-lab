@@ -3,7 +3,7 @@
 **The patch files are gone (2026-11-23): the series is the branch `topic/walleye-drv2624` of linux-phone-oco/linux, proved equal to them (kernel/README.md).** The numbering below follows the commits' order.
 
 Brief: the vibration motor driver of the Pixel 2 (item walleye-drv2624-driver), taken from porthole's tree onto kernel.org v7.3 as five patches, each upstreamable on its own (decision 2026-11-19-walleye-audio-port-shape).
-`tests/host/drv2624-builds.sh KERNEL_GIT_TREE` proves the first four apply and the driver builds; `SHA256SUMS` pins all five.
+`tests/host/drv2624-builds.sh KERNEL_GIT_TREE` builds the four commits of `topic/walleye-drv2624` and the driver; the dts patch 0005 is gone because `dt/msm8998-google-walleye.dts` has its lines (checked at removal).
 
 | file | what | author |
 |---|---|---|

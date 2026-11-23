@@ -12,4 +12,4 @@ Source: [PATCH RFC 0/8], David Heidelberg for Joel Selvaraj's driver, 2025-11-24
 | 0002 | 2/8 | the driver, `drivers/power/supply/pmi8998_fg.c` |
 | 0003 | 3/8 | the `pmi8998.dtsi` node, disabled |
 
-Patches 4/8 to 8/8 are other boards' dts (pm660, beryllium, axolotl, lavender, sargo) and are not taken. They apply with `git am -3` on v7.3 plus the pmic-wdt topic (e123d3bff), cleanly; `SHA256SUMS` pins them.
+Patches 4/8 to 8/8 are other boards' dts (pm660, beryllium, axolotl, lavender, sargo) and are not taken. They apply on v7.3 plus the pmic-wdt topic (e123d3bff), cleanly; the files were removed 2026-11-23 for the branch `topic/walleye-fuel-gauge-rfc` (kernel/README.md); `SHA256SUMS` pins them.
