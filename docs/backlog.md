@@ -10703,7 +10703,7 @@ Status
 : open
 
 Note
-: From run 7 and the host's USB log (research walleye-stage2-run7-host-usb-log-no-gadget): no USB device of ours for 67 s after the reboot into slot a, a watchdog bite after about 35-40 s, pstore useless for a hard reset. We do not know whether the kernel ran; the gadget is brought up by the Alpine rootfs after switch_root, so a failure before it looks the same as no kernel. The debug image makes the normal boot ENTERABLE, so the next run says what happened instead of guessing: it covers the two top causes at once (a watchdog the bootloader arms and our init does not pet; a cold USB or root mount that fails) and any later fix is decided on what we read. Rank 1: the stage 2 run waits for it; the go (to 17:06) is extended then.
+: ADDITIONS FROM THE WATCHDOG PRECHECKS (research walleye-stage2-watchdog-prechecks-read, PR 879; the coordinator, 2026-11-23): (a) kernel-level petting is already in the image and probes, so the debug init's petter is the SECOND line; the first question is whether the kernel runs at all in the first 40 s of a normal boot; (b) the init's first 'echo > /dev/watchdog' (the wait loop, line 64) takes the device from the kernel's petting: from then only the init loop and hold.sh pet; if the partition is found on the loop's first pass the device is never opened; NOTHING in the repo starts hold.sh (system_a's own init may not): the debug init's petter is a background loop started as its FIRST act, before the partition wait, petting EVERY /dev/watchdog* and kept running after the hand-over until the lab holds or releases it; (c) the debug gadget's shell must print, from the first second into a log the host can read: dmesg, /proc/cmdline, for each /sys/class/watchdog/watchdog*: identity, state, timeout, bootstatus, and whether the kpss-wdt probed (a probe line); (d) e337de53's header command line has panic=5 (the earlier row said none); (e) BUILD it on the live list's int/ tag (item walleye-stage2-watchdog-kernel), not on the e337de53 kernel. The stage 2 way back's last leg also sends 'fastboot reboot' a SECOND time, bounded, if the phone still lists in fastboot (research walleye-fastboot-reboot-stays-in-fastboot-causes-ranked: the last leg known to work), but that is a change to the stage 2 command's files: another item (walleye-stage2-way-back-reboot-twice), landed between keeper runs. | From run 7 and the host's USB log (research walleye-stage2-run7-host-usb-log-no-gadget): no USB device of ours for 67 s after the reboot into slot a, a watchdog bite after about 35-40 s, pstore useless for a hard reset. We do not know whether the kernel ran; the gadget is brought up by the Alpine rootfs after switch_root, so a failure before it looks the same as no kernel. The debug image makes the normal boot ENTERABLE, so the next run says what happened instead of guessing: it covers the two top causes at once (a watchdog the bootloader arms and our init does not pet; a cold USB or root mount that fails) and any later fix is decided on what we read. Rank 1: the stage 2 run waits for it; the go (to 17:06) is extended then.
 
 About
 : walleye-bootimage
@@ -10741,34 +10741,6 @@ Needs
 
 Proof
 : a research row with sources, each answer with its line: (1) e337de53 (and its kernel tree topic/ufs-match-android + the build config): CONFIG_QCOM_WDT, CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED (Kconfig default y, drivers/watchdog/Kconfig:50) in the .config the image was built with, and whether the driver probes in a kernel log we have (stage 1's dmesg: say if no log has it: NOT KNOWN YET); (2) the STOCK fdt's apps watchdog node (qcom,msm-watchdog or the like at 0x17817000?): address, interrupts, bark-time, pet-time, ipi-ping, wakeup, read from the stored stock images on the lab machine (boot_a.img backup and the dtbo/vbmeta material under ~/lab-material, host only) and, read only, from /proc/device-tree on the running Android b by adb root; compared field by field with OUR dts node (dt/msm8998-google-walleye.dts: watchdog@17817000 qcom,kpss-wdt, reg 0x17817000 0x1000, clock sleep_clk, SPI 3 edge rising: 'NOT measured on this phone yet') and with the register layout qcom,kpss-wdt expects (offsets 0x4 RST, 0x8 EN, 0xc STS, 0x10 BARK, 0x14 BITE); (3) the current source: drivers/watchdog/qcom-wdt.c lines 331-333 on v7.3 (already read by the coordinator: 'if (qcom_wdt_is_running(&wdt->wdd)) { qcom_wdt_start(&wdt->wdd); set_bit(WDOG_HW_RUNNING, &wdt->wdd.status); }'), what qcom_wdt_is_running reads, which timeout qcom_wdt_start programs (so the bootloader's bark/bite times are replaced by ours) and the watchdog core's petting interval, with the lines; ends in: is the kernel-level petting ALREADY in the image and failing (then WHY: address, clock, irq, probe order, a different watchdog block), or missing; and what the bootloader's own timeouts are (bark about 11 s, bite later: say how long after the jump a kernel has to pet, from the stock node and the downstream msm_watchdog source); no phone beyond the read-only adb reads
-
-Rank
-: 1
-
-
-<a id="walleye-stage2-watchdog-kernel"></a>
-### The watchdog try: the kernel pets the bootloader-armed watchdog from probe (qcom-wdt, HANDLE_BOOT_ENABLED), built as a topic or wip branch, assembled by rhizoid into an int/ tag, the image's [images.*] row naming the tag; then ONE stage 2 run
-
-Status
-: open
-
-Note
-: The Top Coordinator's order after run 7: build the watchdog try as the FIRST image from a live list (topic or wip branch plus rhizoid assemble, kernel_tag in its row), which is also step 3 of the author's structure list (walleye-next-image-from-an-int-tag). Then ONE stage 2 run; if slot a then answers ssh stage 2 proceeds; if it still resets, cold USB is next.
-
-Blocked by
-: walleye-stage2-watchdog-prechecks
-
-About
-: walleye-bootimage
-
-Opened
-: 2026-11-23
-
-Needs
-: build
-
-Proof
-: from the research row of walleye-stage2-watchdog-prechecks: (1) the dts node is corrected to the STOCK fdt's values (address, interrupts, clocks, bark and pet) if they differ, and enabled; CONFIG_QCOM_WDT=y and CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED=y written explicitly in build/walleye.config (not by default alone); the change is a commit on a wip/walleye/... or topic/ branch of the fork, pushed (ls-remote), never an edit of a worktree; (2) a list (kernel/topics.toml: the live list ufs-on plus this change as its own entry, or a new list ufs-on-wdt: say which and why) assembled by rhizoid assemble (or lpoco bringup kernel assemble) to an int/ tag, pushed and read back; (3) an offline check on the built dtb (fdtdump: the watchdog node's reg, interrupts, compatible equal the stock values) and on the built .config; (4) the stage 2 image built from THAT tag together with the debug init of walleye-stage2-debug-image, its [images.*] row naming the tag in kernel_tag and the sha256, built twice identical; the stage 2 command's image name set to it in device.toml (one recorded line); dry run, check --host, tests, clippy, fmt, review; no phone
 
 Rank
 : 1
@@ -10875,3 +10847,56 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-stage2-watchdog-kernel"></a>
+### The stage 2 try image is built from the live list's int/ tag (no dts change): the kernel of int/walleye/ufs-on/v7.3/N plus the debug init; its [images.*] row names the kernel_tag
+
+Status
+: open
+
+Note
+: Rescoped by the coordinator (2026-11-23 15:30) after the researcher's prechecks (PR 879): the proposal of the Top Coordinator, make the try itself the watchdog fix, is already in the image, so the try's novelty is the DEBUG INIT (petter first, gadget first, hold) and the kernel taken from a live list tag (the author's step 3: a kernel that is an int/ tag, no worktree by hand). Whether the kernel runs at all in a normal boot's first 40 s is what the debug image settles. | The Top Coordinator's order after run 7: build the watchdog try as the FIRST image from a live list (topic or wip branch plus rhizoid assemble, kernel_tag in its row), which is also step 3 of the author's structure list (walleye-next-image-from-an-int-tag). Then ONE stage 2 run; if slot a then answers ssh stage 2 proceeds; if it still resets, cold USB is next.
+
+Blocked by
+: walleye-stage2-debug-image
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) the watchdog prechecks (research walleye-stage2-watchdog-prechecks-read, PR 879) say the kernel-level petting is ALREADY in e337de53 and probes (dtb node watchdog@17817000 kpss-wdt, QCOM_WDT=y, WATCHDOG_HANDLE_BOOT_ENABLED=y, register layout as stock): so NO dts or config change is made; (2) the image's kernel comes from the live list ufs-on of kernel/topics.toml: the int/ tag int/walleye/ufs-on/v7.3/1 (pushed; it carries topic/pmic-wdt-wake-in-suspend at its tip, i.e. the two pm8916_wdt review fixes the shipped e337de53 lacks) or a newer N, assembled by rhizoid assemble; the build script takes the TAG, not a tree path; (3) the stage 2 debug init of item walleye-stage2-debug-image on top; the image is declared in device.toml with sha256 (built twice identical) and kernel_tag = that tag; the stage 2 command's image name points at it (one recorded line); (4) dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-way-back-reboot-twice"></a>
+### Stage 2's way back sends 'fastboot reboot' a second time, bounded, when the phone still lists in fastboot after the first (the last leg known to work in rerun 7)
+
+Status
+: open
+
+Note
+: From research walleye-fastboot-reboot-stays-in-fastboot-causes-ranked (PR 876): cause not known yet (the PMIC reason byte persisting is ranked first), the last leg known to work is a second fastboot reboot; the research's own try (walleye-fastboot-reboot-twice-timed-try, rank 5) is made unnecessary if stage 2's own way back gives the timed text.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: tools/walleye-tries/src/flash_boot.rs and the stage 1 way back (reboot_tool.rs): after 'fastboot reboot' the phone is waited for on adb for a bounded time; if fastboot still lists it, ONE more 'fastboot reboot' is sent and the log says which leg got Android back and after how long (each leg timed); a phone that is still in fastboot after the bound ends with the hand command; stand-in tests from the text rerun 7 and the research row printed; no other fastboot verb; lands between keeper runs; dry run, check --host, tests, clippy, fmt, review
+
+Rank
+: 3
