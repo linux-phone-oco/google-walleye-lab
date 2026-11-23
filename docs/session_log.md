@@ -5686,3 +5686,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-run-logs-moved-into-research"></a>
+### Run logs moved from the lab machine's root into research
+
+Entry date
+: 2026-11-23
+
+Done
+: Steward (structure review, decision docs 2026-11-23-structure-lab-machine-homes), PR 735: rootfs-boots-run-2.out/.log into research/walleye-display-s6e3fa5/2026-11-22/ (now the material of research walleye-rootfs-boots-run-2-init-did-not-hand-over), pmic-run4.log into research/walleye-pmic-wdt-proof/2026-11-19/, walleye-display-at-boot-1795116139.log into research/walleye-display-s6e3fa5/2026-11-19/, each with a README. No serial, MAC or key in any (counted by the walleye coordinator: 0).
+
+Considered
+: AGENT_BUILD (not kept: these are cited evidence).
+
+Rejected
+: Leaving them at the root (no row named them; the root holds clones only).
+
+About
+: walleye-display-s6e3fa5
