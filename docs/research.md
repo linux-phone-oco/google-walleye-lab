@@ -6511,3 +6511,27 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-stage2-walk-by-state"></a>
+### walleye-stage2-walk-by-state
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2's walk passes from all four starting states (stock, after a flash, after a failed boot, after a success); check 18 allows unbootable yes to no
+
+Question
+: Does every step of stage 2 hold against each state the command can start from, and what must check 18 allow after a failed boot?
+
+Found
+: Stage 2's walk, run in order (steps 8, 9, 12, 13, 14, 16, 18, 19, 20, way back, flags back) against each state the command can start from, with a fake fastboot whose flash also clears the flashed slot's unbootable bit as run 5 printed. State | a's flags before | passes?
+(i) stock | retry 0, successful yes, unbootable no, boot_a stock | passes
+(ii) after one flash | retry 1, successful no, unbootable no, boot_a the image | passes
+(iii) after a failed boot of a | retry 0, successful no, unbootable yes (run 5's printed before-state), boot_a the image | passes only with the amended check 18 (yes to no allowed, never no to yes); failed on the old code
+(iv) after a successful stage 2 and its way back | retry 7, successful no, unbootable no, boot_a the image | passes
+Check 18 now: successful ends no, retry ends positive, unbootable may stay or go yes to no, never no to yes; slot b, the current slot and the names are equal. Tests: run 5's printed text passes, no-to-yes refused, b's unbootable change refused, successful no-to-yes refused; test the_whole_walk_passes_from_each_state_the_command_can_start_from. 316 tests, clippy 0 warnings, fmt, dry run 29 steps, check --host ok. No phone touched.
+
+About
+: walleye-bootimage

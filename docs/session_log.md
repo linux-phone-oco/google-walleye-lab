@@ -6676,3 +6676,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-stage-2-check-18-clears-unbootable-audit-by"></a>
+### Stage 2 check 18 clears unbootable, audit by state
+
+Entry date
+: 2026-11-23
+
+Done
+: Run 5's text turned into tests (failing first), check 18 amended, walk tested from four states, dry run and check --host passed, programmer review fixed; no phone
+
+Rejected
+: allowing any unbootable change: no to yes must stay refused
+
+About
+: walleye-bootimage

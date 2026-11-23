@@ -158,8 +158,8 @@ pub fn switch_is_the_abls(before: &str, after: &str, from: &str, to: &str) -> Re
 
 /// After the flash of `boot_X` (check 18; research walleye-stage2-flash-resets-flags-documented, AOSP's A/B spec): a write to a slot's partition makes
 /// the bootloader clear that slot's `successful` and reset its retry count. So EXACTLY slot X's `slot-successful` ends `no` and its
-/// `slot-retry-count` ends a positive number (observed 1, AOSP says usually 3: the number is not fixed here); `slot-unbootable:X`, the other slot's
-/// every flag, the current slot and every name are what they were, and no flag appeared or went.
+/// `slot-retry-count` ends a positive number (observed 1, AOSP says usually 3: the number is not fixed here); `slot-unbootable:X` stays or clears (yes to
+/// no, observed in run 5 after a failed boot; never no to yes), the other slot's every flag, the current slot and every name are what they were, and no flag appeared or went.
 pub fn flash_resets_only_the_flashed_slots_flags(
     before: &str,
     after: &str,
@@ -175,9 +175,11 @@ pub fn flash_resets_only_the_flashed_slots_flags(
         format!("slot-successful:{flashed}"),
         format!("slot-retry-count:{flashed}"),
     );
+    let unbootable = format!("slot-unbootable:{flashed}");
     for (k, v) in &b {
-        if *k != successful && *k != retry && a[k] != *v {
-            return Err(format!("{k} changed from {v} to {}: the flash changes only slot {flashed}'s successful and retry count\n{before}\nthen\n{after}", a[k]));
+        let clears_unbootable = *k == unbootable && v == "yes" && a[k] == "no"; // run 5: the flash cleared a's unbootable bit; the other way never
+        if *k != successful && *k != retry && !clears_unbootable && a[k] != *v {
+            return Err(format!("{k} changed from {v} to {}: the flash changes only slot {flashed}'s successful and retry count, and may clear its unbootable bit (yes to no)\n{before}\nthen\n{after}", a[k]));
         }
     }
     match a.get(&successful).map(String::as_str) {
@@ -1032,7 +1034,7 @@ impl FlashBoot {
         }
     }
 
-    /// The flash changed only what the bootloader resets on a write: the flashed slot's successful (to no) and retry count (to a positive number).
+    /// The flash changed only what the bootloader resets on a write: the flashed slot's successful (to no), retry count (to a positive number) and unbootable bit (yes to no, or as it was).
     pub fn the_flash_changed_no_flag(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
@@ -2552,7 +2554,7 @@ mod tests {
         );
         executable(
             &d.join("fastboot"),
-            &"#!/bin/sh\nD=@D@\necho \"$@\" >> $D/fastboot.calls\nS=$D/fb-state\ncase \"$1\" in devices) printf 'SER1\\tfastboot\\n'; exit 0;; esac\ncase \"$3\" in\n getvar) case \"$4\" in\n  current-slot) echo \"current-slot: $(sed -n 's/^current-slot://p' $S)\" >&2;;\n  all) sed 's/^/(bootloader) /' $S >&2;;\n esac;;\n flash) cp \"$5\" \"$D/by-name/$4\"; X=\"${4#boot_}\"; sed -i -e \"s/^slot-successful:$X:.*/slot-successful:$X:no/\" -e \"s/^slot-retry-count:$X:.*/slot-retry-count:$X:1/\" $S;;\n set_active) X=\"$4\"; sed -i -e \"s/^current-slot:.*/current-slot:$X/\" -e \"s/^slot-successful:$X:.*/slot-successful:$X:no/\" -e \"s/^slot-retry-count:$X:.*/slot-retry-count:$X:7/\" -e \"s/^slot-unbootable:$X:.*/slot-unbootable:$X:no/\" $S;;\nesac\nexit 0\n"
+            &"#!/bin/sh\nD=@D@\necho \"$@\" >> $D/fastboot.calls\nS=$D/fb-state\ncase \"$1\" in devices) printf 'SER1\\tfastboot\\n'; exit 0;; esac\ncase \"$3\" in\n getvar) case \"$4\" in\n  current-slot) echo \"current-slot: $(sed -n 's/^current-slot://p' $S)\" >&2;;\n  all) sed 's/^/(bootloader) /' $S >&2;;\n esac;;\n flash) cp \"$5\" \"$D/by-name/$4\"; X=\"${4#boot_}\"; sed -i -e \"s/^slot-successful:$X:.*/slot-successful:$X:no/\" -e \"s/^slot-retry-count:$X:.*/slot-retry-count:$X:1/\" -e \"s/^slot-unbootable:$X:.*/slot-unbootable:$X:no/\" $S;;\n set_active) X=\"$4\"; sed -i -e \"s/^current-slot:.*/current-slot:$X/\" -e \"s/^slot-successful:$X:.*/slot-successful:$X:no/\" -e \"s/^slot-retry-count:$X:.*/slot-retry-count:$X:7/\" -e \"s/^slot-unbootable:$X:.*/slot-unbootable:$X:no/\" $S;;\nesac\nexit 0\n"
                 .replace("@D@", &d.to_string_lossy()),
         );
         let backup = d.join("backup");
@@ -2613,6 +2615,45 @@ mod tests {
         (f.the_flags_are_the_switch_and_nothing_else())().unwrap();
         (f.the_switch_is_made_back())().unwrap();
         (f.the_flags_are_back())().unwrap();
+    }
+
+    /// THE AUDIT BY STATE (item walleye-stage2-check-18-unbootable-clears): the whole walk against EACH state the command can start from, not the one state a run last saw.
+    /// (i) stock: a retry 0, successful yes; (ii) after one flash: retry 1, successful no (run 1); (iii) after a failed boot of a: unbootable yes, retry 0, successful no (run 5's printed before-state);
+    /// (iv) after a successful stage 2 and its way back: a retry 7, successful no, unbootable no, b successful yes.
+    #[test]
+    fn the_whole_walk_passes_from_each_state_the_command_can_start_from() {
+        let flags = |a: (&str, &str, &str)| {
+            format!(
+                "current-slot:b\nslot-retry-count:a:{}\nslot-retry-count:b:0\nslot-successful:a:{}\nslot-successful:b:yes\nslot-unbootable:a:{}\nslot-unbootable:b:no\n",
+                a.0, a.1, a.2
+            )
+        };
+        let states = [
+            ("stock", flags(("0", "yes", "no")), false),
+            ("after-one-flash", flags(("1", "no", "no")), true),
+            ("after-a-failed-boot", flags(("0", "no", "yes")), true),
+            ("after-stage-2-and-back", flags(("7", "no", "no")), true),
+        ];
+        for (name, state, holds_image) in states {
+            let (f, d) = the_phone_after_rerun_3(&format!("by-state-{name}"), &state);
+            if !holds_image {
+                std::fs::write(f.by_name_of("boot_a"), b"the stock boot_a").unwrap();
+            }
+            let at =
+                |step: &str, r: Done| r.unwrap_or_else(|e| panic!("state {name}, {step}: {e}"));
+            at("8", (f.the_slot_is_read_by_adb())());
+            at("9", (f.the_slot_partitions_are_read_before())());
+            at("12", (f.the_guard_holds())());
+            at("13", (f.the_slot_flags_are_read("slots-before.txt"))());
+            at("14", (f.the_boot_image_is_flashed())());
+            at("16", (f.the_partition_reads_back_as_the_image())());
+            at("18", (f.the_flash_changed_no_flag())());
+            at("19", (f.the_slot_is_made_active())());
+            at("20", (f.the_flags_are_the_switch_and_nothing_else())());
+            at("way back", (f.the_switch_is_made_back())());
+            at("way back flags", (f.the_flags_are_back())());
+            assert!(calls(&d).contains("set_active b"), "state {name}");
+        }
     }
 
     #[test]
@@ -2979,6 +3020,50 @@ mod flash_flag_tests {
         );
         // the same text is NOT allowed for slot b: b's flags would be the ones that changed nothing, a's would have changed
         assert!(flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, RUN1_AFTER, "b").is_err());
+    }
+
+    /// Stage 2 run 5's own printed flags (research/walleye-display-s6e3fa5/2026-11-23/stage2-run5.log.out, check 18): a after a failed boot (unbootable yes, retry 0), then after a no-op flash.
+    const RUN5_BEFORE: &str = "current-slot:b\nslot-retry-count:a:0\nslot-retry-count:b:0\nslot-successful:a:no\nslot-successful:b:yes\nslot-unbootable:a:yes\nslot-unbootable:b:no";
+    const RUN5_AFTER: &str = "current-slot:b\nslot-retry-count:a:1\nslot-retry-count:b:0\nslot-successful:a:no\nslot-successful:b:yes\nslot-unbootable:a:no\nslot-unbootable:b:no";
+
+    #[test]
+    fn what_run_5_printed_is_the_flash_clearing_unbootable_too() {
+        flash_resets_only_the_flashed_slots_flags(RUN5_BEFORE, RUN5_AFTER, "a").unwrap();
+    }
+
+    #[test]
+    fn unbootable_may_go_yes_to_no_never_no_to_yes_and_slot_b_stays() {
+        // yes staying yes is what it was
+        let stays = with(RUN5_AFTER, "slot-unbootable:a:no", "slot-unbootable:a:yes");
+        flash_resets_only_the_flashed_slots_flags(RUN5_BEFORE, &stays, "a").unwrap();
+        // no to yes on the flashed slot
+        let went_yes = flash_resets_only_the_flashed_slots_flags(
+            RUN1_BEFORE,
+            &with(RUN1_AFTER, "slot-unbootable:a:no", "slot-unbootable:a:yes"),
+            "a",
+        )
+        .unwrap_err();
+        assert!(
+            went_yes.starts_with("slot-unbootable:a changed from no to yes"),
+            "{went_yes}"
+        );
+        // slot b's unbootable clears: not allowed
+        let b_before = with(RUN5_BEFORE, "slot-unbootable:b:no", "slot-unbootable:b:yes");
+        assert!(
+            flash_resets_only_the_flashed_slots_flags(&b_before, RUN5_AFTER, "a")
+                .unwrap_err()
+                .starts_with("slot-unbootable:b changed from yes to no")
+        );
+    }
+
+    #[test]
+    fn successful_going_no_to_yes_is_still_refused_after_a_failed_boot() {
+        let bad = with(RUN5_AFTER, "slot-successful:a:no", "slot-successful:a:yes");
+        assert!(
+            flash_resets_only_the_flashed_slots_flags(RUN5_BEFORE, &bad, "a")
+                .unwrap_err()
+                .starts_with("after the flash slot-successful:a is")
+        );
     }
 
     const STOCK: &str = "2a5cd3b20ef0aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
