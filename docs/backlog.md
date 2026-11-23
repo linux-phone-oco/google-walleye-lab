@@ -9660,6 +9660,7 @@ Status
 
 Note
 : run 6 stopped at step 16 (pin reads back 100 MHz); research walleye-ufs-try-2-run-6-pin-reads-back-100mhz; needs a procedure change and a new go; no second run without the coordinator
+go until 2026-11-24T00:00:00+01:00, outcomes: ENDED by the coordinator 2026-11-24 00:25: the go was used by run 6 (local_ca73871e, step 16 refused, pin read back 100 MHz) and run 7 (local_4cf13bce); the pin changes after the research walleye-ufs-pin-100mhz-read, then the coordinator opens a new go with outcomes
 
 About
 : walleye-first-fastboot-boot
@@ -9680,7 +9681,7 @@ Witness
 : person
 
 Go until
-: 2026-11-24T04:00:00+01:00
+: 2026-11-24T00:00:00+01:00
 
 
 <a id="walleye-ufs-try-2-run-1-gpt-equal"></a>
