@@ -11158,7 +11158,7 @@ Proof
 : device.toml [images.z21.recipe] in the form of decision 2026-11-23-image-recipes-on-nix-fixed-output-paths and lab-tools #368 (z20 plus z21's dtb is the proven example in lab-tools): 'lpoco bringup image ensure z21' (lab-tools released, installed on the host: v0.45.0 or later) rebuilds the image from the recipe, checks it against the declared sha256 of [images.z21] and serves it from the store afterwards; the inputs of the recipe are named (kernel_tag of the image: int/walleye/ufs-off-e123d3bff/v7.3/1, the dtb from the board dts at its commit, the ramdisk and header words), no tree path; nothing changes the declared sha256; then the same for the other images an [images.*] row names, one row per item or per change as the builder judges (these are the rebuild-identical proofs that let a build-*.sh retire: item walleye-retire-build-scripts); dry run, check --host, tests, review; no phone
 
 Rank
-: 1
+: 2
 
 
 <a id="walleye-stage2-step21-slot-source"></a>
@@ -11459,3 +11459,28 @@ Proof
 
 Rank
 : 31
+
+
+<a id="walleye-ufs-ramp-pin-by-userspace"></a>
+### The ramped UFS try pins the clock low with the userspace governor: UFS devfreq on this kernel has no powersave governor (only userspace and simple_ondemand)
+
+Status
+: open
+
+Note
+: From the keeper (walleye-try-ufs-match, 2026-11-23 22:55): the ramped pinned-low try stopped at step 16 before any load: no powersave governor: pin low via userspace plus set_freq = min_freq (read available_frequencies first). The go on walleye-try-ufs-match (until 2026-11-24T00:41, outcomes set) stays; if the fix lands after it, the coordinator reopens one. The hypothesis the pin tests: the shell silence of UFS try 2 comes with the scale-up to gear 3 / 200 MHz under load; at the minimum clock the ramp either finishes (then the scale-up is the cause) or goes silent at the same step (then it is the read itself).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: from the keeper's run of the ramped try (item walleye-try-ufs-match, PR 948): it stopped at step 16 BEFORE any load because /sys/class/devfreq/1da4000.ufshc has no powersave governor, available_governors are userspace and simple_ondemand (captured text in the keeper's log and research material, PR 948); tools/walleye-tries/src/ufs/load.rs (and the procedure's step 16): the pin reads available_governors, available_frequencies, min_freq, cur_freq first (kept in the log), sets the governor to userspace, writes the LOWEST of available_frequencies (min_freq) to userspace/set_freq, reads cur_freq back and the step says 'pinned at N Hz' or says why not and STOPS before any load; the gear reads of the ramp then say what the pin did (the link at the low clock: the gear may stay 1); the ramp 64, 256, 1024 MiB with the shell polled every second and the first silent step as a result is unchanged; stand-in tests from the captured governor text of PR 948 (no typed fixture); a test where userspace is absent stops before any load; dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 1
