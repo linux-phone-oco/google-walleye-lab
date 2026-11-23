@@ -11193,7 +11193,7 @@ Status
 : done
 
 Note
-: Read: not a length cut (same word at two totals); one conditional block in the ABL (shape from CAF source); header root= refuted; cause not known yet. Check A partly counted: run 12 (new-slot-source.txt) again answered from root=PARTUUID, so the tail was still cut on a slot with tries left, not yet marked successful. Next: B (fastboot boot, Android b's header words), C (stock boot_a on slot a): research walleye-cmdline-tail-cut-cause-read. Blocks nothing.
+: Answered as ranked candidates, not a cause: research walleye-cmdline-tail-cut-candidates; check C1 queued as walleye-cmdline-cut-check-slot-a
 
 About
 : walleye-bootimage
@@ -11509,3 +11509,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-cmdline-cut-check-slot-a"></a>
+### Phone check C1: fastboot boot the production image with current slot a and read whether androidboot.slot_suffix=_a arrives
+
+Status
+: open
+
+Note
+: From research walleye-cmdline-tail-cut-candidates. RAM boot plus the slot flag the stage 2 procedure already sets and undoes; no flash. C2 and C3 follow by C1's answer; not urgent: step 21 passes on root=PARTUUID.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: the line read in cmdline-cut-checks.md C1: whole tail with slot_suffix=_a, or cut at pk=g-pxl-p; recorded as a research row
+
+Rank
+: 5

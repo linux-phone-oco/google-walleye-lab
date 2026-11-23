@@ -1,0 +1,6 @@
+# The smallest checks that tell the candidates apart (for the phone keeper; none run)
+
+C1 slot a alone. In a stage 2 window (the procedure already sets slot a and has its way back): fastboot boot the production image with the current slot a, read /proc/cmdline. Whole tail with slot_suffix=_a: slot a is innocent, the flashed normal-boot path or the image on it is the cause. Cut at pk: the slot-a path cuts, whatever the image.
+C2 the stock image on slot a. Only if C1 shows a whole tail: flash the stock boot image (the one in boot_b, read back) to boot_a, set slot a, read the line from the bootloader's own log or the next boot's pstore; or, without a root file system for it, read ro.boot.* through the first adb the stock image gives. Cut: the normal path on slot a cuts for any image. Whole: something in our image does (go to C3).
+C3 our image with the stock header fields: os version 11 / patch 2025-11-01, stock cmdline words as header, our kernel and ramdisk, flashed to boot_a. Whole: the header fields decide (the bootloader's version and patch checks); cut: the kernel, ramdisk or DTB size decide.
+Host-only meanwhile: none left; the bootloader's string table is vendor code and is not read.
