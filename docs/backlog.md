@@ -6535,7 +6535,7 @@ Note
 : From walleye-sensors-way. Host first: settle the SLPI carve-out (0x94b00000/7 MiB vs 0x94c00000/15 MiB) from the vendor dtb and the slpi header. Rank 21 set 2026-11-19 by the coordinator, after the display and the attended tries. Its firmware (the phone's own) reaches the test ramdisk from ~/lab-material, never git; no UFS-on image (the gate stays).
 
 Blocked by
-: walleye-ufs-readonly
+: walleye-slpi-carveout-read,walleye-ufs-readonly
 
 About
 : sensors
@@ -6550,7 +6550,7 @@ Proof
 : tests/health/base/slpi-sensor-service.sh passes; then libssc reads accelerometer samples while tilted
 
 Rank
-: 21
+: 5
 
 
 <a id="walleye-nfc-nxp-nci-node"></a>
@@ -9911,3 +9911,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-slpi-carveout-read"></a>
+### The SLPI memory carve-out settled from the vendor dtb and the SLPI firmware header: 0x94b00000/7 MiB or 0x94c00000/15 MiB, and what remoteproc_slpi needs in our dtb
+
+Status
+: open
+
+Note
+: The Top Coordinator asked (2026-11-23, after rerun 6) to keep walleye-slpi-boot-qrtr moving: its first step in the item is host-only ('settle the SLPI carve-out from the vendor dtb and the slpi header'), so it is a research item first; the phone item waits for it.
+
+About
+: sensors
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row with sources: the vendor (Android) dtb's SLPI reserved-memory node and the remoteproc/pil node (addresses, sizes, firmware-name, memory-region, the SMMU/IOMMU and smem users), the SLPI firmware's own header (the ELF program headers or the mdt/b00 of the phone's slpi image read on the lab machine from ~/lab-material, never git) with the load address and size, mainline's qcom,msm8998-slpi-pas bindings and the sdm845/msm8998 dts that carry the node; the answer: which carve-out the firmware was linked for, the exact dts nodes our board needs (reserved-memory, remoteproc, the qrtr/glink-edge, the smp2p-slpi), the firmware files and where they sit in the rootfs, and what is NOT KNOWN YET; no phone, nothing written, the firmware stays out of git (mode 600/700)
+
+Rank
+: 5
