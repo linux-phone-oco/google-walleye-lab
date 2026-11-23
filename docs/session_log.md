@@ -7237,3 +7237,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-2300-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: UFS try 2 run 4 stopped at step 16 before any load: no powersave governor on the UFS devfreq (userspace, simple_ondemand). Nothing written. Phone on Android slot b by adb; boot_a holds b74af863; no kept kernel change.
+
+Considered
+: next: coordinator changes the procedure to pin through userspace at min_freq; then the ramped try; walleye-wdt0-first-instant-read after
+
+About
+: walleye-first-fastboot-boot

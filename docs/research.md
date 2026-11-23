@@ -7072,3 +7072,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ufs-try-2-run-4-no-powersave-governor"></a>
+### walleye-ufs-try-2-run-4-no-powersave-governor
+
+Date
+: 2026-11-23
+
+Brief
+: UFS try 2 run 4 (ramped, pinned): stopped at step 16 before any load - devfreq 1da4000.ufshc offers only userspace and simple_ondemand, no powersave; Android b back
+
+Question
+: Does the ramped 64/256/1024 MiB read with the devfreq governor pinned to powersave show where the shell goes silent?
+
+Found
+: No load ran. Checks 1-15 pass: UFS_HW_VERSION 3.1.0, PHY table 3.1.0, 6 disks, sda 45 partitions, idle HS_GEAR1 2 lanes 50 MHz, GPT hash in the image 6cd7e48c...0174 (differs from runs 1-3's 2de02f2b: the slot switch of stage 2 changed the GPT, to be read again, not a write by this try). Step 16: devfreq node 1da4000.ufshc is there, governors userspace and simple_ondemand only; the run stopped before any load as the item's outcome says. Nothing written. Way back ran, phone on Android slot b by adb. GPT-after not compared: the run stopped before its own check, so not known yet. Next read: the devfreq node's available_frequencies, min_freq and max_freq, to pin low with userspace (set_freq = min) - a procedure change for the coordinator. Log ~/lab-material/walleye/ufs-try2-run4-ramped.out.
+
+About
+: walleye-first-fastboot-boot
