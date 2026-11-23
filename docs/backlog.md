@@ -11291,10 +11291,10 @@ Rank
 ### Check 22 pairs xbl_a and xbl_b ACROSS sdb and sdc: the bootloader's own set_active changes their slot bits (the boot-LUN switch), and the checker must judge the pair, not each disk alone
 
 Status
-: in-progress
+: done
 
 Note
-: Checker fixed on branch builder/check22-xbl-cross-disk (flash_boot.rs gpt_switch_only_across, tests on run 10 captures, offline sweep research walleye-check22-pairs-by-name-across-disks, dry run 29 steps ok, clippy/fmt/342 tests). After landing: queue ONE run under a fresh go.
+: Done: gpt_switch_only_across (flash_boot.rs) pairs xbl_a/xbl_b across sdb and sdc and is on main; stage 2 run 12 passed all 29 steps, check 22 included (research walleye-stage2-run12-production-image-all-29-passed: GPT changed only by the slot switch, 0 slot-bit/type-GUID diffs on 6 disks).
 
 About
 : walleye-bootimage
