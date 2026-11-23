@@ -10180,9 +10180,6 @@ About
 Opened
 : 2026-11-23
 
-Needs
-: phone
-
 Proof
 : the one command passes every step: the boot of the new slot from the card on ssh, the GPT changed only by the slot switch, the way back set_active, the phone on Android, the boot chain as stored
 
@@ -10697,3 +10694,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-stage2-debug-image"></a>
+### A stage 2 debug image: the first stage of our init brings up a USB gadget and pets every watchdog from its first instant, and holds, so a normal boot of slot a can be entered and read live; and every stage 2 run keeps the host's USB log
+
+Status
+: open
+
+Note
+: From run 7 and the host's USB log (research walleye-stage2-run7-host-usb-log-no-gadget): no USB device of ours for 67 s after the reboot into slot a, a watchdog bite after about 35-40 s, pstore useless for a hard reset. We do not know whether the kernel ran; the gadget is brought up by the Alpine rootfs after switch_root, so a failure before it looks the same as no kernel. The debug image makes the normal boot ENTERABLE, so the next run says what happened instead of guessing: it covers the two top causes at once (a watchdog the bootloader arms and our init does not pet; a cold USB or root mount that fails) and any later fix is decided on what we read. Rank 1: the stage 2 run waits for it; the go (to 17:06) is extended then.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) the image e337de53's kernel and dtb unchanged; the INIT (build/initramfs-root/init and its stage 2 variant) changes, declared as a new [images.NAME] with its own sha256 built twice identical, with the command line word walleye.debug in the variant: (a) as its FIRST actions, before any mount: open and pet EVERY watchdog device (/dev/watchdog*, kpss-wdt and the PMIC pm8998 wdt: whichever exist, loop in the background, the longest timeout the driver allows); (b) bring up a USB gadget from the initramfs itself (configfs: an ECM or RNDIS network with the lab's address 172.16.43.1 side, or ACM serial, as the lab's earlier 'initramfs-vendor' images did: look them up in build/ and research) with a root shell reachable over it (telnet or ssh with the lab key), BEFORE mounting UFS; (c) with walleye.debug the init then CONTINUES to the root mount as before but keeps the debug gadget and a log in /tmp (dmesg, mounts, the init's own lines) readable over the gadget; if the mount fails the init HOLDS (petting) instead of ending, so the lab can log in and read why; (2) tests: the QEMU stand-in for the init with and without the word, a case where the root never appears (the init holds and the gadget stays); (3) the stage 2 command takes this image by an [images.*] name given once in device.toml (the run's declared image changes by that one line, recorded), and EVERY run's step 21 keeps the lab host's USB log of the wait (journalctl -k --since the set_active time, lines with usb 3-2) into failed-boot-read.txt; (4) the rehearsal checks the new image's init gate; dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 1
