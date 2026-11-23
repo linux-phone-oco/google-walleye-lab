@@ -2,7 +2,7 @@
 # UFS-ON, NOT TO BOOT except through the go (backlog walleye-install-ufs-root-image; decisions 2026-11-20-walleye-install-stage-1-go, 2026-11-20-walleye-install-in-stages-proposed,
 # 2026-11-19-walleye-ufs-hold-second-path): the matched UFS image's kernel code and dtb (UFS on, byte for byte), the matched header and AVB footer, a kernel with the overlay filesystem built in,
 # and OUR OWN initramfs (build/initramfs-root/init, no mkinitfs) that mounts the card's system_a (or system_b) READ-ONLY (ext4 ro,nodiscard,noload), puts a tmpfs overlay on it and hands over to
-# the root's /sbin/init. The card is never written by it. The command line is the matched one plus `walleye.root=system_a`; the init refuses the slot Android runs from.
+# the root's /sbin/init. The card is never written by it. The command line is the matched one plus `walleye.root=system_a`; the init refuses the slot Android is on unless walleye.booted-slot is given (stage 2).
 # The image is built and checked here and NEVER BOOTED here: it is written to a directory named NOT-TO-BOOT-..., with a NOT-TO-BOOT.txt that names the only way it boots (the one command of
 # walleye-install-boot-procedure, run from walleye-install-rootfs-boots-try, which waits for the author's go on stage 1 step 4); tests/host/ufs-off-image.sh refuses it by design (checked
 # below: the gate fails it, and nothing here weakens or skips the gate).
@@ -61,7 +61,7 @@ mkdir "$T/rd" && (cd "$T/rd" && gzip -dc "$T/ramdisk1.cpio.gz" | cpio -idm --qui
 ck "the initramfs' /init is build/initramfs-root/init, byte for byte" "$(cmp -s "$T/rd/init" "$HERE/build/initramfs-root/init" && echo same || echo differs)" same
 ck "the initramfs carries the arm64 busybox and no kernel module list" "$(cmp -s "$T/rd/bin/busybox" "$W/busybox-arm64" && [ ! -e "$T/rd/modules.list" ] && echo yes || echo no)" yes
 ck "the init's only mount of the card is read-only, nodiscard, noload; it has no mkfs, fsck, discard, trim, rw or remount" "$(grep -c -e 'mount -t ext4 -o ro,nodiscard,noload ' "$T/rd/init")/$(grep -v '^#' "$T/rd/init" | grep -c -w -e mkfs -e mke2fs -e fsck -e e2fsck -e dd -e fstrim -e blkdiscard -e 'remount' -e 'rw,')" 1/0
-ck "the init refuses without walleye.root, for a foreign name, without androidboot.slot_suffix (fails closed) and for the slot Android runs from" "$(grep -v '^#' "$T/rd/init" | grep -c -e 'no walleye.root on the command line' -e 'is not system_a or system_b' -e 'the slot Android runs from' -e 'no androidboot.slot_suffix on the command line')" 4
+ck "the init refuses without walleye.root, for a foreign name, without androidboot.slot_suffix (fails closed) and for the slot Android is on" "$(grep -v '^#' "$T/rd/init" | grep -c -e 'no walleye.root on the command line' -e 'is not system_a or system_b' -e 'the slot Android is on' -e 'no androidboot.slot_suffix on the command line')" 4
 ck "the proof of the init passes (tests/host/ufs-root-init.sh: QEMU on a loop-made test rootfs, read-only, overlay, refusals)" "$(GEN=$GEN sh "$HERE/tests/host/ufs-root-init.sh" "$W" | cut -d' ' -f1)" pass
 # the image, built twice
 make_image() { # OUTFILE

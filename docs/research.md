@@ -5887,3 +5887,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-pon-reboot-mode-already-in-the-board-dtb"></a>
+### walleye-pon-reboot-mode-already-in-the-board-dtb
+
+Date
+: 2026-11-23
+
+Brief
+: The board dtb already holds mode-bootloader = <2> in the pm8998 pon node (mainline's pm8998.dtsi); no dts change is needed, only a test that shows it
+
+Question
+: Does our dtb let the kernel ask the bootloader for itself (reboot-mode in the pon node)?
+
+Found
+: Mainline v7.3 pm8998.dtsi gives pon@800 (qcom,pm8998-pon) mode-bootloader = <0x2> and mode-recovery = <0x1>; the U-d5 image's dtb has both; CONFIG_POWER_RESET_QCOM_PON=y selects REBOOT_MODE. Older dtbs fail the new test dtb-pon-reboot-mode.sh. Whether the register value reaches the bootloader is NOT shown: the keeper's try, item walleye-reboot-bootloader-from-linux-try.
+
+About
+: walleye-display-s6e3fa5
