@@ -488,6 +488,15 @@ pub const SUFFIX_FILE: &str = "slot-suffix.txt";
 /// The file the evidence is kept in, in the run's folder.
 pub const EVIDENCE_FILE: &str = "evidence.txt";
 
+/// The way back's first try (item walleye-way-back-reboot-bootloader-first): the image's own `reboot bootloader` over ssh.
+pub const BOOTLOADER_COMMAND: &str = "reboot bootloader";
+
+/// How long fastboot has to list the phone after [`BOOTLOADER_COMMAND`].
+pub const BOOTLOADER_WAIT: Duration = Duration::from_secs(60);
+
+/// What the bootloader try saw, kept in the run's folder (a later way back in the same run does not try twice).
+pub const BOOTLOADER_FILE: &str = "bootloader-way-back.txt";
+
 /// Where a post-run measurement stands, read from the run's folder alone.
 #[derive(Debug, PartialEq)]
 pub enum Measure {
@@ -554,6 +563,8 @@ pub struct RootfsBoot {
     android: Android,
     /// the ssh program (`ssh`; a test names a stand-in)
     ssh: String,
+    /// how long fastboot has to list the phone after `reboot bootloader` ([`BOOTLOADER_WAIT`]; a test names a short one)
+    bootloader_wait: Duration,
     /// adb's suffix and fastboot's slot as read before the boot, and the root they give
     before: Rc<std::cell::RefCell<Before>>,
 }
@@ -579,6 +590,7 @@ impl RootfsBoot {
             lab,
             s,
             ssh: ssh.to_string(),
+            bootloader_wait: BOOTLOADER_WAIT,
             before: Rc::default(),
         }
     }
@@ -722,6 +734,7 @@ impl RootfsBoot {
             "slots-after.txt",
             EVIDENCE_FILE,
             SUFFIX_FILE,
+            BOOTLOADER_FILE,
         ] {
             let _ = std::fs::remove_file(self.s.out.join(name));
         }
@@ -1031,13 +1044,75 @@ impl RootfsBoot {
         }
     }
 
-    /// The phone is sent away from the image: busybox's forced reboot over ssh (nothing was written, so nothing needs a sync).
+    /// The phone is sent away from the image: to its bootloader first ([`RootfsBoot::the_bootloader_is_tried`]), and when that is
+    /// not reached busybox's forced reboot over ssh (nothing was written, so nothing needs a sync).
     pub fn the_phone_is_sent_back(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
-            // the phone hangs up as it goes down: the end of the answer is not read
-            let _ = u.ssh(REBOOT_COMMANDS[0], 10);
+            if !u.the_bootloader_is_tried() {
+                // the phone hangs up as it goes down: the end of the answer is not read
+                let _ = u.ssh(REBOOT_COMMANDS[0], 10);
+            }
             Ok(())
+        }
+    }
+
+    /// The way back from the image through the bootloader (item walleye-way-back-reboot-bootloader-first): `reboot bootloader` over
+    /// ssh, fastboot lists the phone within the wait, its `current-slot` is read and said against the slot adb read at the start, and
+    /// the shared way back then sends `fastboot reboot` and waits for Android. Nothing is set, flashed or erased. True when the
+    /// bootloader was reached; false says "bootloader not reached" with what was seen, and the forced reboots follow.
+    /// Tried once a run: what it saw is kept in [`BOOTLOADER_FILE`].
+    pub fn the_bootloader_is_tried(&self) -> bool {
+        if self.s.out.join(BOOTLOADER_FILE).exists() {
+            return false;
+        }
+        let sent = self.ssh(BOOTLOADER_COMMAND, 10); // the phone hangs up as it goes down
+        let until = Instant::now() + self.bootloader_wait;
+        let seen = loop {
+            match self.lab.in_fastboot() {
+                Ok(true) => break Ok(()),
+                Ok(false) if Instant::now() < until => {}
+                Ok(false) => break Err("fastboot lists no phone".to_string()),
+                Err(e) => break Err(e),
+            }
+            std::thread::sleep(Duration::from_secs(1).min(self.bootloader_wait));
+        };
+        let (reached, said) = match seen {
+            Ok(()) => (true, self.the_bootloader_slot_is_said()),
+            Err(e) => {
+                let ssh = sent.err().unwrap_or_else(|| "ssh answered".into());
+                (false, format!(
+                    "bootloader not reached: {e} within {} s (the ssh said: {ssh}); the forced way back runs",
+                    self.bootloader_wait.as_secs()
+                ))
+            }
+        };
+        println!("{said}");
+        let _ = self.lab.save(BOOTLOADER_FILE, &said);
+        reached
+    }
+
+    /// In the bootloader: its current slot against the one adb read at the start (equal is the proof the way back changed no slot).
+    fn the_bootloader_slot_is_said(&self) -> String {
+        let mut c = Command::new(&self.s.fastboot);
+        c.args([
+            "-s",
+            &self.lab.serial().unwrap_or_default(),
+            "getvar",
+            "current-slot",
+        ]);
+        let slot = host::run(c).and_then(|said| parse_current_slot(&said.text));
+        let start = self
+            .before
+            .borrow()
+            .suffix
+            .trim_start_matches('_')
+            .to_string();
+        match slot {
+            Ok(s) if s == start => format!("bootloader reached: fastboot lists the phone, current-slot {s} equals the slot at the start; fastboot reboot follows"),
+            Ok(s) if start.is_empty() => format!("bootloader reached: fastboot lists the phone, current-slot {s}; the slot at the start is not known yet; fastboot reboot follows"),
+            Ok(s) => format!("bootloader reached: fastboot lists the phone, current-slot {s} is NOT the slot at the start ({start:?}); fastboot reboot follows and the flags are measured"),
+            Err(e) => format!("bootloader reached: fastboot lists the phone, its current-slot is not known yet ({e}); fastboot reboot follows"),
         }
     }
 
@@ -1163,10 +1238,12 @@ impl RootfsBoot {
                 while Instant::now() < until {
                     if u.ssh("true", 8).is_ok() {
                         let _ = u.the_evidence_is_read(); // FIRST, read-only; then the phone is sent away
-                        for command in REBOOT_COMMANDS {
-                            let _ = u.ssh(command, 10);
-                            if u.lab.android_is_back().is_ok() {
-                                break;
+                        if !u.the_bootloader_is_tried() {
+                            for command in REBOOT_COMMANDS {
+                                let _ = u.ssh(command, 10);
+                                if u.lab.android_is_back().is_ok() {
+                                    break;
+                                }
                             }
                         }
                         break;
@@ -2191,5 +2268,125 @@ mod real_runs {
         let flat = run4().replace("overlay / overlay", "/dev/sda22 / ext4");
         let e = checks_15_to_17(&rig("flat", &flat)).unwrap_err();
         assert!(e.contains("overlay"), "{e}");
+    }
+}
+
+/// The way back through the bootloader (item walleye-way-back-reboot-bootloader-first), both outcomes, with stand-ins for ssh and
+/// fastboot that answer from files: fastboot's getvar answer is the text the phone printed on a recorded visit
+/// (tests fixtures/fastboot-getvar-all-on-b.txt, a copy of research/walleye-first-fastboot-boot/2026-11-17-on-b/getvar-before.txt).
+/// NOT KNOWN YET: the text of `fastboot devices` was never recorded in a keeper's log; the stand-in lists the serial, which is all
+/// the lab's check reads of it.
+#[cfg(test)]
+mod bootloader_way_back {
+    use super::*;
+    use crate::fixture::executable;
+    use crate::settings::Try;
+    use std::os::unix::fs::PermissionsExt;
+
+    const GETVAR: &str = include_str!("../fixtures/fastboot-getvar-all-on-b.txt");
+
+    /// A phone that, when asked `reboot bootloader`, shows up in fastboot (`listed`) or does not.
+    fn rig(name: &str, listed: bool, suffix: &str) -> (RootfsBoot, std::path::PathBuf) {
+        let d = std::env::temp_dir().join(format!("wt-bl-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        std::fs::write(d.join("getvar.out"), GETVAR).unwrap();
+        let ssh = d.join("ssh");
+        executable(
+            &ssh,
+            &format!(
+                "#!/bin/sh\necho \"$@\" >> {d}/ssh.calls\ncase \"$*\" in *'reboot bootloader'*) {on};; esac\nexit 0\n",
+                d = d.display(),
+                on = if listed { format!("touch {}/in-fastboot", d.display()) } else { ":".to_string() }
+            ),
+        );
+        let fastboot = d.join("fastboot");
+        executable(
+            &fastboot,
+            &format!(
+                "#!/bin/sh\necho \"$@\" >> {d}/fastboot.calls\ncase \"$*\" in\n*devices*) [ -f {d}/in-fastboot ] && echo SER1 fastboot;;\n*getvar*) cat {d}/getvar.out >&2;;\nesac\nexit 0\n",
+                d = d.display()
+            ),
+        );
+        let key = d.join("key");
+        std::fs::write(&key, "k").unwrap();
+        std::fs::set_permissions(&key, PermissionsExt::from_mode(0o600)).unwrap();
+        let mut s = Settings::stand_in(Try::RootfsBoot);
+        s.out = d.join("out");
+        s.lab = d.clone();
+        s.identity = key;
+        s.address = "172.16.43.1".into();
+        s.fastboot = fastboot.to_string_lossy().into_owned();
+        std::fs::write(d.join("device.toml"), "[connection]\nserial = \"SER1\"\n").unwrap();
+        let mut r = RootfsBoot::with_ssh(s, &ssh.to_string_lossy());
+        r.bootloader_wait = Duration::from_secs(1);
+        std::fs::create_dir_all(&r.s.out).unwrap();
+        r.before.borrow_mut().suffix = suffix.into();
+        (r, d)
+    }
+
+    fn calls(d: &Path, name: &str) -> String {
+        std::fs::read_to_string(d.join(name)).unwrap_or_default()
+    }
+
+    #[test]
+    fn a_phone_that_reaches_the_bootloader_on_the_same_slot_is_said_so_and_sent_no_forced_reboot() {
+        let (r, d) = rig("reached", true, "_b");
+        assert!((r.the_phone_is_sent_back())().is_ok());
+        let said = r.saved(BOOTLOADER_FILE).unwrap();
+        assert!(
+            said.contains("bootloader reached") && said.contains("current-slot b equals"),
+            "{said}"
+        );
+        let ssh = calls(&d, "ssh.calls");
+        assert!(
+            ssh.contains("reboot bootloader") && !ssh.contains("reboot -f"),
+            "{ssh}"
+        );
+        // only reads: no set_active, flash, erase or oem
+        let fb = calls(&d, "fastboot.calls");
+        for word in ["set_active", "flash", "erase", "oem"] {
+            assert!(!fb.contains(word), "{word}: {fb}");
+        }
+    }
+
+    #[test]
+    fn a_bootloader_on_another_slot_is_said_not_the_slot_at_the_start() {
+        let (r, _) = rig("otherslot", true, "_a");
+        assert!(r.the_bootloader_is_tried());
+        assert!(r
+            .saved(BOOTLOADER_FILE)
+            .unwrap()
+            .contains("NOT the slot at the start"));
+    }
+
+    #[test]
+    fn a_phone_that_is_not_listed_says_bootloader_not_reached_and_the_forced_reboot_follows() {
+        let (r, d) = rig("notreached", false, "_b");
+        assert!((r.the_phone_is_sent_back())().is_ok());
+        let said = r.saved(BOOTLOADER_FILE).unwrap();
+        assert!(
+            said.contains("bootloader not reached") && said.contains("fastboot lists no phone"),
+            "{said}"
+        );
+        let ssh = calls(&d, "ssh.calls");
+        assert!(
+            ssh.contains("reboot bootloader") && ssh.contains("reboot -f"),
+            "{ssh}"
+        );
+        assert!(!calls(&d, "fastboot.calls").contains("getvar"));
+    }
+
+    #[test]
+    fn the_bootloader_is_tried_once_a_run() {
+        let (r, d) = rig("once", false, "_b");
+        assert!(!r.the_bootloader_is_tried());
+        assert!(!r.the_bootloader_is_tried());
+        assert_eq!(
+            calls(&d, "ssh.calls").matches("reboot bootloader").count(),
+            1
+        );
+        r.forget_earlier_runs();
+        assert!(!r.s.out.join(BOOTLOADER_FILE).exists());
     }
 }
