@@ -5811,3 +5811,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-rootfs-boots-run-5-passed"></a>
+### walleye-rootfs-boots-run-5-passed
+
+Date
+: 2026-11-23
+
+Brief
+: Root boot run 5 (image c3373d71): all 26 steps passed - booted, ssh by the lab key, PID 1 and overlay hand-over proved, root read-only, GPT/boot chain/slot flags equal, phone on Android b
+
+Question
+: Does the UFS-root image boot from RAM, hand over to the read-only Alpine root and log in over ssh, with nothing written?
+
+Found
+: Rerun 5 on the checker fixed in PRs 749 and 756: the procedure reported all 26 steps passed. Init mounted /dev/sda22 (system_a) with slot suffix _b; checks 14-19 passed; the card's partition tables, root partition, boot chain and both slots' flags read equal after the forced reboot; phone back on Android slot b. Run log in the keeper's AGENT_BUILD rootfs-run5.log.
+
+About
+: walleye-display-s6e3fa5

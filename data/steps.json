@@ -39,7 +39,6 @@
 {"step":"reset-types-right","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"reset-state-survives","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"key-reset-recovers","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
-{"step":"rootfs-boots","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"suspend-way-back","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"power-off-stays-off","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"thermal-zones-sane","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
@@ -114,3 +113,4 @@
 {"step":"pmic-bound","status":"done","proof":"pmic-bound","run":"research walleye-pmic-wdt-v1-try-result","proven_on":"boot-wdt1-a.img (images-wdt1-sysfsless) sha256 9dfea09637a813fa677449780ac475a3b859e81135a056fadd8811dadc2f40b4","notes":"The PMIC and its watchdog bind on mainline (pm8916-wdt gen2: pmic=watchdog1 soc=watchdog0), S2 type 0x7 read back, the stop on reboot leaves S2 off.","updated":"2026-11-19"}
 {"step":"display-boots-any-order","status":"partial","proof":"tests/host/dtb-display-reset.sh","run":"walleye-display-reset-image-b-r5-tried-signs-vanish","proven_on":"b-r5 boot image sha256 6dc0239e","notes":"B-r5 (mdss resets MDSS_BCR) loaded at 5 s: signs 0, 13 of 13 modules ok; not yet at boot time (2 s) and not looked at on the glass","updated":"2026-11-20"}
 {"step":"display-any-order","status":"partial","proof":"display-boots-any-order","run":"walleye-display-any-order-b-r2-b-rp2-clean","proven_on":"B-r2 c05ae4ec, B-rp2 29fce8b7","notes":"two orders at 2 s clean (0/0/0, 13 of 13); autoload by modalias and three cold boots not yet","updated":"2026-11-23"}
+{"step":"rootfs-boots","status":"done","proof":"procedures/rootfs-boots-on-the-pixel-2.rs","run":"walleye-rootfs-boots-run-5-passed","proven_on":"c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9","notes":"UFS root read-only under overlay, ssh login, hand-over proved by PID 1, nothing written","updated":"2026-11-23"}

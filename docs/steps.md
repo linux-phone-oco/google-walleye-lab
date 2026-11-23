@@ -671,7 +671,7 @@ Updated
 ### Row 42
 
 Step
-: rootfs-boots
+: suspend-way-back
 
 Status
 : open
@@ -683,7 +683,7 @@ Updated
 ### Row 43
 
 Step
-: suspend-way-back
+: power-off-stays-off
 
 Status
 : open
@@ -695,7 +695,7 @@ Updated
 ### Row 44
 
 Step
-: power-off-stays-off
+: thermal-zones-sane
 
 Status
 : open
@@ -707,7 +707,7 @@ Updated
 ### Row 45
 
 Step
-: thermal-zones-sane
+: health-suite-runs
 
 Status
 : open
@@ -719,7 +719,7 @@ Updated
 ### Row 46
 
 Step
-: health-suite-runs
+: fastrpc-helpers-stable
 
 Status
 : open
@@ -731,7 +731,7 @@ Updated
 ### Row 47
 
 Step
-: fastrpc-helpers-stable
+: buttons-report
 
 Status
 : open
@@ -743,7 +743,7 @@ Updated
 ### Row 48
 
 Step
-: buttons-report
+: ucm-hifi-profile
 
 Status
 : open
@@ -755,7 +755,7 @@ Updated
 ### Row 49
 
 Step
-: ucm-hifi-profile
+: modem-file-services
 
 Status
 : open
@@ -767,7 +767,7 @@ Updated
 ### Row 50
 
 Step
-: modem-file-services
+: nfc-reads-tag
 
 Status
 : open
@@ -779,7 +779,7 @@ Updated
 ### Row 51
 
 Step
-: nfc-reads-tag
+: usb-host-works
 
 Status
 : open
@@ -791,7 +791,7 @@ Updated
 ### Row 52
 
 Step
-: usb-host-works
+: s2idle-cycle-returns
 
 Status
 : open
@@ -803,7 +803,7 @@ Updated
 ### Row 53
 
 Step
-: s2idle-cycle-returns
+: charger-mode-entered
 
 Status
 : open
@@ -815,7 +815,7 @@ Updated
 ### Row 54
 
 Step
-: charger-mode-entered
+: rtc-alarm-powers-on
 
 Status
 : open
@@ -827,7 +827,7 @@ Updated
 ### Row 55
 
 Step
-: rtc-alarm-powers-on
+: speaker-heard
 
 Status
 : open
@@ -839,7 +839,7 @@ Updated
 ### Row 56
 
 Step
-: speaker-heard
+: earpiece-plays
 
 Status
 : open
@@ -851,7 +851,7 @@ Updated
 ### Row 57
 
 Step
-: earpiece-plays
+: headset-jack
 
 Status
 : open
@@ -863,7 +863,7 @@ Updated
 ### Row 58
 
 Step
-: headset-jack
+: modem-seen
 
 Status
 : open
@@ -875,7 +875,7 @@ Updated
 ### Row 59
 
 Step
-: modem-seen
+: bt-pairs-carries-audio
 
 Status
 : open
@@ -887,7 +887,7 @@ Updated
 ### Row 60
 
 Step
-: bt-pairs-carries-audio
+: sensor-hub-stable
 
 Status
 : open
@@ -899,7 +899,7 @@ Updated
 ### Row 61
 
 Step
-: sensor-hub-stable
+: suspend-wakes-quiet
 
 Status
 : open
@@ -911,7 +911,7 @@ Updated
 ### Row 62
 
 Step
-: suspend-wakes-quiet
+: radios-survive-suspend
 
 Status
 : open
@@ -923,7 +923,7 @@ Updated
 ### Row 63
 
 Step
-: radios-survive-suspend
+: shell-runs-with-hardware
 
 Status
 : open
@@ -935,7 +935,7 @@ Updated
 ### Row 64
 
 Step
-: shell-runs-with-hardware
+: update-applies
 
 Status
 : open
@@ -947,7 +947,7 @@ Updated
 ### Row 65
 
 Step
-: update-applies
+: kernel-upgrade-keeps-steps
 
 Status
 : open
@@ -959,7 +959,7 @@ Updated
 ### Row 66
 
 Step
-: kernel-upgrade-keeps-steps
+: linux-runs
 
 Status
 : open
@@ -971,7 +971,7 @@ Updated
 ### Row 67
 
 Step
-: linux-runs
+: off-mode-charging
 
 Status
 : open
@@ -983,7 +983,7 @@ Updated
 ### Row 68
 
 Step
-: off-mode-charging
+: mic-hears-speaker
 
 Status
 : open
@@ -995,7 +995,7 @@ Updated
 ### Row 69
 
 Step
-: mic-hears-speaker
+: sim-ready
 
 Status
 : open
@@ -1007,7 +1007,7 @@ Updated
 ### Row 70
 
 Step
-: sim-ready
+: emergency-numbers-known
 
 Status
 : open
@@ -1019,7 +1019,7 @@ Updated
 ### Row 71
 
 Step
-: emergency-numbers-known
+: sensors-exposed
 
 Status
 : open
@@ -1031,7 +1031,7 @@ Updated
 ### Row 72
 
 Step
-: sensors-exposed
+: gnss-fix
 
 Status
 : open
@@ -1043,7 +1043,7 @@ Updated
 ### Row 73
 
 Step
-: gnss-fix
+: fingerprint-unlocks
 
 Status
 : open
@@ -1055,7 +1055,7 @@ Updated
 ### Row 74
 
 Step
-: fingerprint-unlocks
+: photo-taken
 
 Status
 : open
@@ -1067,7 +1067,7 @@ Updated
 ### Row 75
 
 Step
-: photo-taken
+: soc-floor-reached
 
 Status
 : open
@@ -1079,7 +1079,7 @@ Updated
 ### Row 76
 
 Step
-: soc-floor-reached
+: on-screen-keyboard
 
 Status
 : open
@@ -1091,7 +1091,7 @@ Updated
 ### Row 77
 
 Step
-: on-screen-keyboard
+: lock-and-unlock
 
 Status
 : open
@@ -1103,7 +1103,7 @@ Updated
 ### Row 78
 
 Step
-: lock-and-unlock
+: update-rolls-back
 
 Status
 : open
@@ -1115,7 +1115,7 @@ Updated
 ### Row 79
 
 Step
-: update-rolls-back
+: modem-registered
 
 Status
 : open
@@ -1127,7 +1127,7 @@ Updated
 ### Row 80
 
 Step
-: modem-registered
+: proximity-reads
 
 Status
 : open
@@ -1139,7 +1139,7 @@ Updated
 ### Row 81
 
 Step
-: proximity-reads
+: auto-rotate-follows
 
 Status
 : open
@@ -1151,7 +1151,7 @@ Updated
 ### Row 82
 
 Step
-: auto-rotate-follows
+: brightness-follows-light
 
 Status
 : open
@@ -1163,7 +1163,7 @@ Updated
 ### Row 83
 
 Step
-: brightness-follows-light
+: video-recorded
 
 Status
 : open
@@ -1175,7 +1175,7 @@ Updated
 ### Row 84
 
 Step
-: video-recorded
+: sensors-across-suspend
 
 Status
 : open
@@ -1187,7 +1187,7 @@ Updated
 ### Row 85
 
 Step
-: sensors-across-suspend
+: sms-both-ways
 
 Status
 : open
@@ -1199,7 +1199,7 @@ Updated
 ### Row 86
 
 Step
-: sms-both-ways
+: mobile-data
 
 Status
 : open
@@ -1211,7 +1211,7 @@ Updated
 ### Row 87
 
 Step
-: mobile-data
+: call-audio-path
 
 Status
 : open
@@ -1223,7 +1223,7 @@ Updated
 ### Row 88
 
 Step
-: call-audio-path
+: resume-without-stall
 
 Status
 : open
@@ -1235,7 +1235,7 @@ Updated
 ### Row 89
 
 Step
-: resume-without-stall
+: coprocessor-restart-recovers
 
 Status
 : open
@@ -1247,7 +1247,7 @@ Updated
 ### Row 90
 
 Step
-: coprocessor-restart-recovers
+: mms-both-ways
 
 Status
 : open
@@ -1259,7 +1259,7 @@ Updated
 ### Row 91
 
 Step
-: mms-both-ways
+: voice-call-both-ways
 
 Status
 : open
@@ -1271,7 +1271,7 @@ Updated
 ### Row 92
 
 Step
-: voice-call-both-ways
+: hotspot-shares-data
 
 Status
 : open
@@ -1283,7 +1283,7 @@ Updated
 ### Row 93
 
 Step
-: hotspot-shares-data
+: real-suspend-under-shell
 
 Status
 : open
@@ -1295,7 +1295,7 @@ Updated
 ### Row 94
 
 Step
-: real-suspend-under-shell
+: notifications-arrive
 
 Status
 : open
@@ -1307,7 +1307,7 @@ Updated
 ### Row 95
 
 Step
-: notifications-arrive
+: cycles-repeat-clean
 
 Status
 : open
@@ -1319,7 +1319,7 @@ Updated
 ### Row 96
 
 Step
-: cycles-repeat-clean
+: proximity-blanks-in-call
 
 Status
 : open
@@ -1331,7 +1331,7 @@ Updated
 ### Row 97
 
 Step
-: proximity-blanks-in-call
+: volte-call
 
 Status
 : open
@@ -1343,7 +1343,7 @@ Updated
 ### Row 98
 
 Step
-: volte-call
+: call-wakes-from-sleep
 
 Status
 : open
@@ -1355,7 +1355,7 @@ Updated
 ### Row 99
 
 Step
-: call-wakes-from-sleep
+: standby-current
 
 Status
 : open
@@ -1367,7 +1367,7 @@ Updated
 ### Row 100
 
 Step
-: standby-current
+: alarm-wakes-from-sleep
 
 Status
 : open
@@ -1379,7 +1379,7 @@ Updated
 ### Row 101
 
 Step
-: alarm-wakes-from-sleep
+: all-day-battery
 
 Status
 : open
@@ -1391,7 +1391,7 @@ Updated
 ### Row 102
 
 Step
-: all-day-battery
+: days-without-reboot
 
 Status
 : open
@@ -1403,7 +1403,7 @@ Updated
 ### Row 103
 
 Step
-: days-without-reboot
+: daily-usable-phone
 
 Status
 : open
@@ -1415,18 +1415,6 @@ Updated
 ### Row 104
 
 Step
-: daily-usable-phone
-
-Status
-: open
-
-Updated
-: 2026-11-18
-
-
-### Row 105
-
-Step
 : complete-phone
 
 Status
@@ -1436,7 +1424,7 @@ Updated
 : 2026-11-18
 
 
-### Row 106
+### Row 105
 
 Step
 : panel-lit
@@ -1460,7 +1448,7 @@ Updated
 : 2026-11-19
 
 
-### Row 107
+### Row 106
 
 Step
 : touch-input
@@ -1484,7 +1472,7 @@ Updated
 : 2026-11-19
 
 
-### Row 108
+### Row 107
 
 Step
 : usb-network
@@ -1508,7 +1496,7 @@ Updated
 : 2026-11-19
 
 
-### Row 109
+### Row 108
 
 Step
 : storage-readonly
@@ -1532,7 +1520,7 @@ Updated
 : 2026-11-19
 
 
-### Row 110
+### Row 109
 
 Step
 : battery-gauge-reads
@@ -1556,7 +1544,7 @@ Updated
 : 2026-11-19
 
 
-### Row 111
+### Row 110
 
 Step
 : haptics-buzz
@@ -1580,7 +1568,7 @@ Updated
 : 2026-11-19
 
 
-### Row 112
+### Row 111
 
 Step
 : storage-full-speed
@@ -1601,7 +1589,7 @@ Updated
 : 2026-11-19
 
 
-### Row 113
+### Row 112
 
 Step
 : watchdog-way-back
@@ -1625,7 +1613,7 @@ Updated
 : 2026-11-19
 
 
-### Row 114
+### Row 113
 
 Step
 : pmic-bound
@@ -1649,7 +1637,7 @@ Updated
 : 2026-11-19
 
 
-### Row 115
+### Row 114
 
 Step
 : display-boots-any-order
@@ -1673,7 +1661,7 @@ Updated
 : 2026-11-20
 
 
-### Row 116
+### Row 115
 
 Step
 : display-any-order
@@ -1692,6 +1680,30 @@ Proven on
 
 Notes
 : two orders at 2 s clean (0/0/0, 13 of 13); autoload by modalias and three cold boots not yet
+
+Updated
+: 2026-11-23
+
+
+### Row 116
+
+Step
+: rootfs-boots
+
+Status
+: done
+
+Proof
+: procedures/rootfs-boots-on-the-pixel-2.rs
+
+Run
+: walleye-rootfs-boots-run-5-passed
+
+Proven on
+: c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9
+
+Notes
+: UFS root read-only under overlay, ssh login, hand-over proved by PID 1, nothing written
 
 Updated
 : 2026-11-23
