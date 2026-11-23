@@ -6238,3 +6238,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-hynix-archive-tag"></a>
+### ufs-hynix-quirks becomes an archive tag on the fork
+
+Entry date
+: 2026-11-23
+
+Done
+: Tagged archive/ufs-hynix-quirks at d49d54405f11949951c34db236cb3cc2d83f9a66 and pushed the tag to linux-phone-oco/linux; read back with git ls-remote --tags (same commit). Only then deleted the branches topic/ufs-hynix-quirks and the duplicate archive/ufs-hynix-quirks; read back once more: the tag present, both branches gone. Other archive/* branches left (the frozen lists name archive/pmic-wdt-e123d3bff as a branch). Item walleye-kernel-series-to-topics stays in-progress: step 5 (lab dts after assembly), the live lists' tags and the lab-tools wrapper gaps are left.
+
+Considered
+: A tag of the same name beside the branch would be ambiguous, so the duplicate branch went too.
+
+Rejected
+: Converting the other archive/* branches in this pass: the frozen lists take branches.
+
+About
+: walleye-kernel-dts
