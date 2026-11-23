@@ -9424,10 +9424,10 @@ Rank
 ### Why the login prompt on the glass is lost: it IS printed, mid-screen, and OpenRC's output follows it; fix the order and make check 15 require the prompt on the cursor row
 
 Status
-: in-progress
+: done
 
 Note
-: 2026-11-23 (builder, ordered by the walleye coordinator): BUILT, not yet measured. (1) check 15 now needs 'login:' on the LAST non-blank row (stand-in test the_prompt_must_be_the_last_non_blank_row: the keeper's mid-screen screen fails, a prompt-last screen passes). (2) rootfs v4 (sha256 93ed231a...) adds /etc/local.d/50-glass-prompt.start (pkill -f '^/sbin/getty 38400 tty1$': init respawns the getty at the end of the default runlevel, 'local' service); walleye-rootfs checks it (executable, pattern equals the inittab's tty1 line, local in default, pkill present). The inittab keeps ::once for openrc default. (4) B-a5 rebuilt on v4: sha256 ad91dcd7... twice identical, in device.toml [images.b-a5]; the old 3cb5adb8 copy is images-display-ramroot/boot-b-a5-3cb5adb8.img (history only). For the keeper: procedures/alpine-login-on-the-glass-on-the-pixel-2.rs unattended: check 15 must pass and screen.txt must end in 'walleye login:'. The live kill-and-respawn experiment (3) was NOT run (the builder never touches the phone): if the unattended run still fails check 15, run it first (kill the tty1 getty, wait 2 s, read /dev/vcs), then the fallbacks. NOT done: dropping the dyndbg gpio flood from the command line (no screen text shows it; the command line is B-r5's header word, a kernel-side change). | RUN 2026-11-23 06:15 (keeper local_50834f13, research walleye-ramroot-b-a5-v4-prompt-respawned-kernel-noise-follows): check 15 FAILED on B-a5 ad91dcd7: the v4 respawn works (row 96) but four kernel sync_state() lines print below it; the fix is item walleye-display-alpine-getty-console-loglevel (dmesg -n 3 before the pkill, rootfs v5, B-a5 rebuilt); the keeper reruns after it lands.
+: proven by the keeper's run 2026-11-23 07:45 (research walleye-ramroot-b-a5-v5-run-2-check-15-passes): check 15 passes on B-a5 83b9c4c6, 'walleye login:' is the last non-blank row; fallback experiments (3) not needed. The author's look at the glass remains (item walleye-display-look-b2).
 
 Blocked by
 : walleye-display-alpine-getty-console-loglevel

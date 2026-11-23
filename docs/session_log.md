@@ -5947,3 +5947,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-0750-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: B-a5 v5 unattended run passes checks 1-17 incl. check 15; item walleye-display-alpine-getty-experiments done. Phone on Android slot b, stock kernel, nothing flashed, fastboot reachable
+
+Considered
+: next: the author's look at the glass (B-a5 and walleye-display-look-b2); ufs-root-display image U-d5 boot try; rust-script needs --force after a tools change
+
+About
+: walleye-display-s6e3fa5
