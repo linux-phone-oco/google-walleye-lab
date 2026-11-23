@@ -11003,10 +11003,10 @@ Rank
 ### Stage 2 as a whole, questions (1) and (2): which of the 29 steps' pre-checks protect anything, and how do fastboot's flash path, update_engine and boot_control write a slot: the table step by step, keep, relax or drop, each with its reason and source
 
 Status
-: open
+: done
 
 Note
-: THE TOP COORDINATOR'S ORDER (2026-11-23, under 0.3.71: five stops are one sign, not five fixes): before check 8 is patched, answer the three questions for the command AS A WHOLE, fix every state at once, then ONE rehearsal; no phone time on a sixth one-at-a-time stop. Questions (1) and (2). The builder's item walleye-stage2-state-model-walk (question 3) runs in parallel and applies this table. Nothing is patched one at a time any more.
+: Answered by research walleye-stage2-checks-should-they-exist (2026-11-23): table of the 29 steps, keep/relax/drop with AOSP sources.
 
 About
 : walleye-bootimage
