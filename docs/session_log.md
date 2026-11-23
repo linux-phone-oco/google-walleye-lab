@@ -6115,3 +6115,18 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-0915-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Took walleye-try-ufs-match (try 2 run 2): dry run 23/23, real run stopped at step 16 after 8 HS-G3 samples (shell silent 10 s); way back ran; Android slot b, stock kernel, nothing flashed or written to the card
+
+Considered
+: next: coordinator decides third run (load in a lower-priority/bounded form, or read the after GPT and flags separately as PR 776 did); walleye-install-flash-boot waits on the stage 2 image

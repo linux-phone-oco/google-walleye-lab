@@ -6045,3 +6045,22 @@ Sources
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-ufs-try-2-run-2-stopped-at-step-16-shell-silent-under-load"></a>
+### walleye-ufs-try-2-run-2-stopped-at-step-16-shell-silent-under-load
+
+Date
+: 2026-11-23
+
+Brief
+: UFS try 2 run 2: 3.1.0, PHY table ok, GPT hash 2de02f2b...57cb, HS-G3 2 lanes 200 MHz under load for 8 samples, then the shell stopped answering at step 16; Android back
+
+Question
+: With the sample step fixed (PR 778), does the matched UFS image hold HS-G3 under a bounded read and finish the sample step?
+
+Found
+: Checks 1-15 pass. UFS_HW_VERSION 3.1.0, PHY table 3.1.0, 6 disks, sda 45 partitions, GPT hash before 2de02f2bb790342885ebb3d70683d3db6d0cf70ead73a4b3cf738ca9b4cd57cb; idle HS-G1 clock 50 MHz, under load HS_GEAR3 2 lanes 200 MHz (8 samples). Then 'cat /tmp/load.done' was not answered within 10 s at step 16 (15 s after step 16 began): the stop moved from the gear reads (run 1) to the shell itself, so the shell/USB gadget goes silent while the 4 GiB read runs, which points at the load starving the gadget or the init, not at a gear fault. The run stopped, the way back ran, phone on Android (adb device). GPT after and slot flags after were NOT read by the procedure (it stopped); not known yet. No third run without the coordinator. Log: ~/.cache/agent-build/86c262/ufs-try2-run2.log
+
+About
+: walleye-first-fastboot-boot
