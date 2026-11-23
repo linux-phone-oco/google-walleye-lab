@@ -9682,7 +9682,7 @@ Waits
 : the stage 1 proof, UFS try 2, and the coordinator's go naming the boot image's sha256 (ikb backlog-go on this item); the rehearsal first (procedures/rehearse-install-boot-on-the-pixel-2.rs, no go needed)
 
 Blocked by
-: walleye-install-rootfs-boots-try,walleye-install-stage2-init-booted-slot,walleye-reboot-bootloader-from-linux-try
+: walleye-install-stage2-boot-image,walleye-reboot-bootloader-from-linux-try
 
 About
 : walleye-display-s6e3fa5
@@ -9710,10 +9710,10 @@ Status
 : open
 
 Note
-: From the stage 2 builder (PR 760, research walleye-install-flash-boot-procedure-built): the stage 2 command's way back needs our kernel to restart into the bootloader (fastboot set_active <Android's slot>), and that is NOT KNOWN YET (reboot-mode in the pon node; CONFIG_POWER_RESET_QCOM_PON=y is already in build/walleye.config). The coordinator's rule (the author's: attend only when the step is one command away): the run must not end in a hand step, so this try comes BEFORE the stage 2 run and is hands-free. The image with reboot-mode comes from item walleye-install-stage2-init-booted-slot (part two); a keeper tries it by RAM boot, one command.
+: From the stage 2 builder (PR 760, research walleye-install-flash-boot-procedure-built): the stage 2 command's way back needs our kernel to restart into the bootloader (fastboot set_active <Android's slot>), and that is NOT KNOWN YET (reboot-mode in the pon node; CONFIG_POWER_RESET_QCOM_PON=y is already in build/walleye.config). The coordinator's rule (the author's: attend only when the step is one command away): the run must not end in a hand step, so this try comes BEFORE the stage 2 run and is hands-free. The image with reboot-mode comes from item walleye-install-stage2-init-booted-slot (part two); a keeper tries it by RAM boot, one command. | 2026-11-23 UPDATE: no dts change needed (mode-bootloader=<2> is in the pon node from mainline, PR 765). The try is the NEXT STAGE 1 RUN on the rebuilt ufs-root image (item walleye-install-stage2-boot-image), whose way back tries reboot bootloader first (item walleye-way-back-reboot-bootloader-first): one command, no extra visit, a go naming the new image's sha256.
 
 Blocked by
-: walleye-install-stage2-init-booted-slot
+: walleye-install-stage2-boot-image,walleye-way-back-reboot-bootloader-first
 
 About
 : walleye-display-s6e3fa5
@@ -9748,3 +9748,53 @@ Opened
 
 Proof
 : build/initramfs-root/init: the 'handing over' say (and any later say) comes BEFORE mount --move /dev, /proc and /sys (today line 94 after the move at line 91, so say() writing /dev/kmsg is lost); its QEMU stand-in test fails first on an init whose line comes after the move and passes once it is before; the init still fails CLOSED without androidboot.slot_suffix; the image [images.ufs-root] is rebuilt, identical twice, the new sha256 declared in device.toml (the old c3373d71 stays only as history); the procedure's check 17 keeps reading the live state (PID 1, the overlay) AND now also the line; the rehearsal command passes for real; dry run, check --host, tests, clippy, fmt, review
+
+
+<a id="walleye-install-stage2-boot-image"></a>
+### The stage 2 boot image: the ufs-root image rebuilt with the new init (walleye.booted-slot, 'handing over' before the moves), declared in device.toml, so the stage 2 command's init gate passes on it
+
+Status
+: open
+
+Note
+: From PR 765 (builder, walleye-install-stage2-init-booted-slot): the new init takes walleye.booted-slot (root must be system$SLOT) but no image is rebuilt with it yet, and build-ufs-root-image.sh does not add the word. The stage 2 command takes its image from [images.ufs-root]. Decision of the coordinator: one rebuild of the declared ufs-root image(s) now; c3373d71 stays as the stage 1 proof's image.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: build/build-ufs-root-image.sh (or its stage 2 variant, the builder decides and says why) builds the image with the init of PR 765: the command line carries walleye.booted-slot=<the slot it is flashed to> and walleye.root=system_<that slot> ONLY in the variant that is flashed (the RAM-boot variant of stage 1 keeps the old guard: no word, the other slot); kernel, dtb and ramdisk otherwise as c3373d71's (the kernel tree wt-k-ufsm topic/ufs-match-android), built twice identical, new sha256(s) declared in device.toml with a comment naming what differs from c3373d71 (which stays only as history); tests/host/ufs-off-image.sh still refuses the UFS-on image by design; procedures/rehearse-install-boot-on-the-pixel-2.rs passes its init gate and every non-flash step on it (the keeper runs the rehearsal for real later); dry run, check --host, tests, clippy, fmt, review
+
+Rank
+: 3
+
+
+<a id="walleye-way-back-reboot-bootloader-first"></a>
+### The way back of the stage 1 boot tries 'reboot bootloader' over ssh first, checks fastboot sees the phone, then fastboot reboot to Android; the forced way back stays as the fallback
+
+Status
+: open
+
+Note
+: From PR 765: the pon node already has mode-bootloader = <2> from mainline, so no dts change; whether the value reaches the bootloader is NOT KNOWN YET and is what the keeper's next stage 1 run on the rebuilt image measures, at no extra visit: the run's way back itself is the try. Stage 2's way back (set_active <Android's slot> from the bootloader) depends on it; a run that cannot reach the bootloader must not end in a hand step.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: procedures/rootfs-boots-on-the-pixel-2.rs (and tools/walleye-tries/src/rootfs_boot.rs): after the checks and the evidence reads, the way back runs 'reboot bootloader' over ssh, waits up to 60 s for fastboot to list the phone, reads fastboot getvar current-slot (equal to the slot read at the start), then fastboot reboot and waits for adb (Android on the same slot); if fastboot does not see the phone, the existing forced way back runs and the log says 'bootloader not reached' with what was seen; either way the post-run GPT, boot chain and slot flags are measured; stand-in tests for both outcomes use the text a phone printed (fixtures from run 5's out files and fastboot's own output as recorded by earlier fastboot visits in the keepers' logs, not typed); no fastboot set_active, flash, erase or oem; dry run, check --host, tests, clippy, fmt, review
+
+Rank
+: 3
