@@ -393,3 +393,10 @@ by_name = "/dev/block/by-name"
 luns = 6
 flash_allow = "boot_a boot_b"
 to_bootloader = "reboot bootloader"
+
+# The way back's reboot tool (item walleye-reboot-reason-restart2-tool): tools/walleye-reboot built static for aarch64 by build/build-reboot-bin.sh (reproducible: two builds, the same bytes), kept in the images folder.
+# The stage 1 way back checks this sha256, pushes the file over ssh into the phone's /tmp (the overlay's tmpfs: nothing touches the card) and runs it with `--command bootloader`: reboot(2) RESTART2, which busybox's `reboot bootloader` never sends.
+# It is in NO image and NOT in the rootfs on system_a: the images c3373d71 (stage 1) and e337de53 (stage 2) and the rootfs stay as they are.
+[images.walleye-reboot]
+path = "walleye-reboot/walleye-reboot"
+sha256 = "fd73925bffb8462f212267b9cfc120bd87b80239bbd4866856eeed6487e554ba"

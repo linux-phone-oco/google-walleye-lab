@@ -488,8 +488,12 @@ pub const SUFFIX_FILE: &str = "slot-suffix.txt";
 /// The file the evidence is kept in, in the run's folder.
 pub const EVIDENCE_FILE: &str = "evidence.txt";
 
-/// The way back's first try (item walleye-way-back-reboot-bootloader-first): the image's own `reboot bootloader` over ssh.
-pub const BOOTLOADER_COMMAND: &str = "reboot bootloader";
+/// The way back's first try (items walleye-way-back-reboot-bootloader-first, walleye-reboot-reason-restart2-tool): busybox's `reboot bootloader`
+/// drops the argument, so the lab pushes its static walleye-reboot over ssh into the phone's tmpfs (`/tmp` of the overlay: nothing touches the card)
+/// and runs it there; the tool hands `bootloader` to reboot(2) RESTART2. The file is the one device.toml's `[images.walleye-reboot]` names, by sha256.
+pub const REBOOT_TOOL_ON_PHONE: &str = "/tmp/walleye-reboot";
+pub const SEND_TOOL_COMMAND: &str = "cat > /tmp/walleye-reboot && chmod 755 /tmp/walleye-reboot";
+pub const BOOTLOADER_COMMAND: &str = "/tmp/walleye-reboot --command bootloader";
 
 /// How long fastboot has to list the phone after [`BOOTLOADER_COMMAND`].
 pub const BOOTLOADER_WAIT: Duration = Duration::from_secs(60);
@@ -563,7 +567,7 @@ pub struct RootfsBoot {
     android: Android,
     /// the ssh program (`ssh`; a test names a stand-in)
     ssh: String,
-    /// how long fastboot has to list the phone after `reboot bootloader` ([`BOOTLOADER_WAIT`]; a test names a short one)
+    /// how long fastboot has to list the phone after the bootloader command ([`BOOTLOADER_WAIT`]; a test names a short one)
     bootloader_wait: Duration,
     /// adb's suffix and fastboot's slot as read before the boot, and the root they give
     before: Rc<std::cell::RefCell<Before>>,
@@ -610,7 +614,21 @@ impl RootfsBoot {
 
     /// One command on the phone over ssh, as the declared key; what it said, or why it failed. Bounded: `timeout` ends a hung link.
     fn ssh(&self, command: &str, seconds: u64) -> Result<String, String> {
+        self.ssh_from(command, seconds, None)
+    }
+
+    /// [`Self::ssh`] with a file on the command's standard input (how a tool is sent to the phone's tmpfs).
+    fn ssh_from(
+        &self,
+        command: &str,
+        seconds: u64,
+        stdin: Option<&std::path::Path>,
+    ) -> Result<String, String> {
         let mut c = Command::new("timeout");
+        if let Some(file) = stdin {
+            let f = std::fs::File::open(file).map_err(|e| format!("{}: {e}", file.display()))?;
+            c.stdin(f);
+        }
         c.args([
             "--kill-after=5".to_string(),
             seconds.to_string(),
@@ -1057,7 +1075,7 @@ impl RootfsBoot {
         }
     }
 
-    /// The way back from the image through the bootloader (item walleye-way-back-reboot-bootloader-first): `reboot bootloader` over
+    /// The way back from the image through the bootloader (item walleye-way-back-reboot-bootloader-first): `walleye-reboot --command bootloader` over
     /// ssh, fastboot lists the phone within the wait, its `current-slot` is read and said against the slot adb read at the start, and
     /// the shared way back then sends `fastboot reboot` and waits for Android. Nothing is set, flashed or erased. True when the
     /// bootloader was reached; false says "bootloader not reached" with what was seen, and the forced reboots follow.
@@ -1066,7 +1084,7 @@ impl RootfsBoot {
         if self.s.out.join(BOOTLOADER_FILE).exists() {
             return false;
         }
-        let sent = self.ssh(BOOTLOADER_COMMAND, 10); // the phone hangs up as it goes down
+        let sent = self.the_bootloader_is_asked_for(); // the phone hangs up as it goes down
         let until = Instant::now() + self.bootloader_wait;
         let seen = loop {
             match self.lab.in_fastboot() {
@@ -1090,6 +1108,16 @@ impl RootfsBoot {
         println!("{said}");
         let _ = self.lab.save(BOOTLOADER_FILE, &said);
         reached
+    }
+
+    /// The tool is checked against its declared sha256, sent to the phone's tmpfs over ssh, and run with `bootloader`.
+    /// An error names the step that failed (the forced way back follows in every case).
+    fn the_bootloader_is_asked_for(&self) -> Result<String, String> {
+        host::image_has_sha256(&self.s.reboot_tool, &self.s.reboot_tool_sha256)
+            .map_err(|e| format!("the reboot tool is not the declared one: {e}"))?;
+        self.ssh_from(SEND_TOOL_COMMAND, 30, Some(&self.s.reboot_tool))
+            .map_err(|e| format!("sending the reboot tool to {REBOOT_TOOL_ON_PHONE}: {e}"))?;
+        self.ssh(BOOTLOADER_COMMAND, 10)
     }
 
     /// In the bootloader: its current slot against the one adb read at the start (equal is the proof the way back changed no slot).
@@ -2285,7 +2313,7 @@ mod bootloader_way_back {
 
     const GETVAR: &str = include_str!("../fixtures/fastboot-getvar-all-on-b.txt");
 
-    /// A phone that, when asked `reboot bootloader`, shows up in fastboot (`listed`) or does not.
+    /// A phone that, when asked `walleye-reboot --command bootloader`, shows up in fastboot (`listed`) or does not.
     fn rig(name: &str, listed: bool, suffix: &str) -> (RootfsBoot, std::path::PathBuf) {
         let d = std::env::temp_dir().join(format!("wt-bl-{name}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&d);
@@ -2295,7 +2323,7 @@ mod bootloader_way_back {
         executable(
             &ssh,
             &format!(
-                "#!/bin/sh\necho \"$@\" >> {d}/ssh.calls\ncase \"$*\" in *'reboot bootloader'*) {on};; esac\nexit 0\n",
+                "#!/bin/sh\necho \"$@\" >> {d}/ssh.calls\ncase \"$*\" in *'cat > /tmp/walleye-reboot'*) cat > {d}/pushed;; *'/tmp/walleye-reboot --command bootloader'*) {on};; esac\nexit 0\n",
                 d = d.display(),
                 on = if listed { format!("touch {}/in-fastboot", d.display()) } else { ":".to_string() }
             ),
@@ -2315,6 +2343,10 @@ mod bootloader_way_back {
         s.out = d.join("out");
         s.lab = d.clone();
         s.identity = key;
+        let tool = d.join("walleye-reboot");
+        std::fs::write(&tool, b"\x7fELF stand-in for the static tool").unwrap();
+        s.reboot_tool_sha256 = host::sha256_of(&tool).unwrap();
+        s.reboot_tool = tool;
         s.address = "172.16.43.1".into();
         s.fastboot = fastboot.to_string_lossy().into_owned();
         std::fs::write(d.join("device.toml"), "[connection]\nserial = \"SER1\"\n").unwrap();
@@ -2340,7 +2372,7 @@ mod bootloader_way_back {
         );
         let ssh = calls(&d, "ssh.calls");
         assert!(
-            ssh.contains("reboot bootloader") && !ssh.contains("reboot -f"),
+            ssh.contains("walleye-reboot --command bootloader") && !ssh.contains("reboot -f"),
             "{ssh}"
         );
         // only reads: no set_active, flash, erase or oem
@@ -2371,10 +2403,47 @@ mod bootloader_way_back {
         );
         let ssh = calls(&d, "ssh.calls");
         assert!(
-            ssh.contains("reboot bootloader") && ssh.contains("reboot -f"),
+            ssh.contains("walleye-reboot --command bootloader") && ssh.contains("reboot -f"),
             "{ssh}"
         );
         assert!(!calls(&d, "fastboot.calls").contains("getvar"));
+    }
+
+    #[test]
+    fn the_tool_is_sent_to_the_tmpfs_whole_and_run_from_there_and_nothing_else_is_written() {
+        let (r, d) = rig("sent", true, "_b");
+        assert!(r.the_bootloader_is_tried());
+        assert_eq!(
+            std::fs::read(d.join("pushed")).unwrap(),
+            std::fs::read(&r.s.reboot_tool).unwrap()
+        );
+        let ssh = calls(&d, "ssh.calls");
+        let (push, run) = (
+            ssh.find("cat > /tmp/walleye-reboot").unwrap(),
+            ssh.find("/tmp/walleye-reboot --command bootloader")
+                .unwrap(),
+        );
+        assert!(push < run, "{ssh}");
+        // the card is never named: only /tmp, after the phone's address
+        for line in ssh.lines() {
+            let said = line.split_once("root@172.16.43.1 ").unwrap().1;
+            assert!(
+                said.contains("/tmp/walleye-reboot") && !said.contains("/dev/"),
+                "{said}"
+            );
+        }
+    }
+
+    #[test]
+    fn a_tool_that_is_not_the_declared_one_is_never_sent() {
+        let (mut r, d) = rig("wrongtool", true, "_b");
+        let mut s = (*r.s).clone();
+        s.reboot_tool_sha256 = "0000".into();
+        r.s = std::rc::Rc::new(s);
+        assert!(!r.the_bootloader_is_tried());
+        let said = r.saved(BOOTLOADER_FILE).unwrap();
+        assert!(said.contains("not the declared one"), "{said}");
+        assert_eq!(calls(&d, "ssh.calls"), "");
     }
 
     #[test]
@@ -2383,7 +2452,9 @@ mod bootloader_way_back {
         assert!(!r.the_bootloader_is_tried());
         assert!(!r.the_bootloader_is_tried());
         assert_eq!(
-            calls(&d, "ssh.calls").matches("reboot bootloader").count(),
+            calls(&d, "ssh.calls")
+                .matches("walleye-reboot --command bootloader")
+                .count(),
             1
         );
         r.forget_earlier_runs();

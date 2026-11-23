@@ -6259,3 +6259,24 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-23-walleye-reboot-the-way-back-pushes-the-tool-to"></a>
+### walleye-reboot: the way back pushes the tool to /tmp and sends 'bootloader' through RESTART2
+
+Entry date
+: 2026-11-23
+
+Done
+: New crate tools/walleye-reboot: sync, then reboot(2) RESTART2 with --command; only 'bootloader' is allowed; unknown flags fail (argenv parse_and_lint) so a typo of --dry-run cannot restart a host. build/build-reboot-bin.sh builds it static aarch64, same bytes twice (the target dir is remapped too); device.toml [images.walleye-reboot] declares its sha256. rootfs_boot's way back checks the sha256, pushes the file over ssh into /tmp and runs it; tests cover the push (whole file, before the run, nothing but /tmp) and the refusal on a wrong sha. tests/host/walleye-reboot-restart2.sh; CI line. Review by the programmer agent: the unknown-flag reboot, the non-reproducible build and the late --reboot-bin failure were found and fixed or removed.
+
+Considered
+: Installing the tool in the rootfs on system_a (walleye-rootfs --reboot-bin): built and checked on a real image first, then taken out on the coordinator's word: the try must not rewrite system_a, so rootfs v6 is a later item
+
+Rejected
+: Putting it in the images c3373d71 or e337de53: they stay as they are. A 'reboot bootloader' string through busybox: it drops the argument (research walleye-reboot-reason-bootloader-read-finding)
+
+About
+: walleye-bootimage

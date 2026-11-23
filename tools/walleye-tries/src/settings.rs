@@ -42,6 +42,8 @@ pub const REHEARSE_FLASH_BOOT_PROCEDURE: &str = "rehearse install boot on the Pi
 
 /// The image of the root boot: the name of its `[images.NAME]` table.
 pub const ROOT_IMAGE: &str = "ufs-root";
+/// The `[images.NAME]` row of the static reboot tool the way back pushes to the phone (path under the images folder, sha256).
+pub const REBOOT_TOOL: &str = "walleye-reboot";
 
 /// Which try the settings are read for: each reads only its own procedure's values and images.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -122,6 +124,9 @@ pub struct Settings {
     pub ssh_user: String,
     pub ssh_port: u16,
     pub bootchain: PathBuf,
+    /// the way back's tool: the static walleye-reboot the lab pushes to the phone's tmpfs, and the sha256 it must have
+    pub reboot_tool: PathBuf,
+    pub reboot_tool_sha256: String,
     /// stage 2: the partitions the flash may name (`boot_a boot_b`; the run picks the one that is not Android's) and the command that takes our slot's root to the bootloader
     pub flash_allow: String,
     pub to_bootloader: String,
@@ -273,6 +278,8 @@ impl Settings {
             ssh_user: String::new(),
             ssh_port: 0,
             bootchain: PathBuf::new(),
+            reboot_tool: PathBuf::new(),
+            reboot_tool_sha256: String::new(),
             flash_allow: String::new(),
             to_bootloader: String::new(),
             out_given: None,
@@ -342,6 +349,8 @@ impl Settings {
                 s.bootchain = home_path(&proc("bootchain"));
                 s.by_name = proc("by_name");
                 s.luns = number("luns", proc("luns"));
+                s.reboot_tool = image(REBOOT_TOOL);
+                s.reboot_tool_sha256 = dev(&format!("images.{REBOOT_TOOL}.sha256"));
                 assert!(
                     s.by_name.starts_with('/') && (1..=26).contains(&s.luns),
                     "by_name in device.toml is an absolute path on the phone, luns is 1 to 26"
@@ -492,6 +501,11 @@ impl Settings {
             ("luns", "6"),
             ("images.ufs-root.path", "NOT-TO-BOOT-x/NOT-TO-BOOT-root.img"),
             ("images.ufs-root.sha256", "35b6"),
+            (
+                "images.walleye-reboot.path",
+                "walleye-reboot/walleye-reboot",
+            ),
+            ("images.walleye-reboot.sha256", "r3b0"),
             ("identity", "~/key"),
             ("ssh_user", "root"),
             ("ssh_port", "22"),

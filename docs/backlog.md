@@ -9909,10 +9909,10 @@ Rank
 ### A static reboot-with-command tool in the rootfs (LINUX_REBOOT_CMD_RESTART2 'bootloader'), used by the stage 1 way back
 
 Status
-: open
+: done
 
 Note
-: From research walleye-reboot-reason-bootloader-read-finding. Rust, no libc beyond reboot(2). Nothing touches the phone.
+: Done 2026-11-23: tools/walleye-reboot (reboot(2) RESTART2, allow-list: bootloader only; an unknown flag stops the run), reproducible static aarch64 build (build/build-reboot-bin.sh; device.toml [images.walleye-reboot] sha256 fd73925b...), and the stage 1 way back sends it over ssh into the phone's /tmp (tmpfs, nothing touches the card) and runs it there; the sha256 is checked before it is sent. In NO image and not in the rootfs: images c3373d71 (stage 1) and e337de53 (stage 2) and the rootfs are unchanged, so the ONE RAM try is a plain stage 1 run on c3373d71. Proof: tests/host/walleye-reboot-restart2.sh passes. Rootfs install (rootfs v6) is a later separate item. Next: walleye-reboot-bootloader-from-linux-try (keeper).
 
 About
 : walleye-bootimage
