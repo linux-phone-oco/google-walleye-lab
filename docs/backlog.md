@@ -11172,3 +11172,53 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-stage2-step21-slot-source"></a>
+### Stage 2's step 21 accepts the booted slot from what the BOOTLOADER supplies, in the working system's own order: androidboot.slot_suffix, else the bootloader's root=PARTUUID mapped through the GPT, else the DT firmware/android slot_suffix, and it must equal fastboot's current-slot
+
+Status
+: open
+
+Note
+: THE TOP COORDINATOR'S DECISION on run 9 (2026-11-23, PR 913): run 9 is the stage 2 milestone: our kernel from boot_a booted our Alpine root from sda22 with no cable (USB 19:29:22 'Pixel 2 walleye (stage 2 debug init)', 19:30:06 'Pixel 2 walleye (Alpine)'; pid1 /sbin/init, /dev/sda22 ro on /lower under an overlay); the procedure refused only because /proc/cmdline lacks androidboot.slot_suffix (cut at androidboot.pk=g-pxl-p again). Decision: amend step 21 by that rule, with stand-ins from run 9's text, test all four start states as before, then one run under a fresh go with OUTCOMES; if it passes, stage 2 is done. The initramfs' own slot reading already has the four sources (PR 907): the command's reading is made to match.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: tools/walleye-tries/src/flash_boot.rs step 21 ('the new slot boots from the card and the lab logs in by ssh; its GPT is read', today: the kernel was booted with androidboot.slot_suffix=_<slot> or it refuses): it needs to know WHICH SLOT BOOTED, not that the word slot_suffix is on the line (AOSP's fs_mgr reads the slot from the cmdline, else /proc/device-tree/firmware/android/slot_suffix, else bootconfig: cite fs_mgr_boot_config). The slot is accepted when it comes from the bootloader and NEVER from words in our own boot.img: (1) androidboot.slot_suffix=_X on /proc/cmdline if present; (2) else the root=PARTUUID=0000NNNN-... word supplied by the bootloader (our header cmdline has no root=: the step REFUSES if our own header carries one), the partition number NNNN (hex) read through the GPT the step already reads (entry NNNN of that disk) to its name system_a or system_b; (3) else /proc/device-tree/firmware/android/slot_suffix; it must EQUAL the slot fastboot's current-slot says afterwards (the command's own read of the flags), and the log records WHICH SOURCE answered; none, or two that disagree: the step refuses; (4) stand-in tests from run 9's own printed text (research walleye-stage2-run9-booted-alpine-cmdline-still-cut-no-slot-suffix, material ~/lab-material/walleye/install-boot-20261123-192731/new-slot-read.txt, copied into research material as a captured fixture): fails on today's code, passes on the amended; a test for each source alone, for a disagreement, for a root= word in our own header (refused); (5) the walk by state (research walleye-stage2-walk-by-state) is run again over the four start states with step 21's new result; dry run, check --host, tests, clippy, fmt, review; no phone; then ONE rehearsal and ONE run under a fresh go with OUTCOMES
+
+Rank
+: 1
+
+
+<a id="walleye-cmdline-tail-cut-cause"></a>
+### What cuts the bootloader's own command line after androidboot.pk=g-pxl-p (runs 8 and 9: 1364 and about 1136 characters, the same word), losing androidboot.slot_suffix, want_initramfs, rootwait, ro, init=/init and force_normal_boot
+
+Status
+: open
+
+Note
+: THE TOP COORDINATOR'S DECISION on run 9 (2026-11-23, PR 913): run 9 is the stage 2 milestone: our kernel from boot_a booted our Alpine root from sda22 with no cable (USB 19:29:22 'Pixel 2 walleye (stage 2 debug init)', 19:30:06 'Pixel 2 walleye (Alpine)'; pid1 /sbin/init, /dev/sda22 ro on /lower under an overlay); the procedure refused only because /proc/cmdline lacks androidboot.slot_suffix (cut at androidboot.pk=g-pxl-p again). Question (3) of the Top Coordinator's message: a separate research item, does not block the step 21 amendment; it matters because init=/init, want_initramfs and force_normal_boot are lost too, which is also why runs 4 and 7 did not behave like stage 1.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row, from source and captured text, not memory: the cut is at the same word in two runs of different length, so it is NOT a length limit: something content-based drops the tail the bootloader adds after androidboot.pk, likely tied to AVB or vbmeta state for an image with no AVB footer or a footer the bootloader cannot verify (the boot_a image of the run carries a footer 'algorithm NONE' made by avbtool 1.4); read: (1) the LineageOS wahoo reference tree android:PATH@113bd1cfa6f5 (what the kernel does with these words, the avb/verity-related cmdline users), (2) AOSP libavb's avb_slot_verify cmdline assembly (what it appends and when: androidboot.vbmeta.*, the slot suffix, the verity/dm-verity words) and the bootloader's use of it, (3) Android b's own line (research/walleye-bootimage/2026-11-23/android-b-cmdline-and-boot-props.txt) against run 8's and run 9's lines (research/walleye-bootimage/2026-11-23/run8-telnet-debug-read.txt and the run 9 material) word by word: which words are present, which are absent, in what order; (4) whether image-avb-footer-in-rust (lab-tools) is the real fix (a footer the bootloader accepts) and what would show it (a chained image, hash descriptor, rollback index); ends in: the cause, or the ranked candidates with the smallest read-only or RAM-only check; no phone
+
+Rank
+: 2
