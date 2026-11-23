@@ -6373,3 +6373,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-1140-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel; boot_a now holds image e337de53 (flashed, read back equal); slot a flags retry 1, successful no (from the flash); stage 2 run 1 stopped at check 18, no set_active made
+
+Considered
+: next: coordinator decides whether check 18 allows the flash's own flag reset; slot a successful=no is to be known before any set_active
+
+About
+: walleye-display-s6e3fa5

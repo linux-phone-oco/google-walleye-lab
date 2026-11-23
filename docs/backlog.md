@@ -10269,3 +10269,81 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-stage2-flash-resets-flags-source"></a>
+### Is it the bootloader's documented behaviour that fastboot flash of a slot's boot partition resets that slot's tries and successful bit? Sources, and what rerun 7 and the stage 2 run 1 material agree on
+
+Status
+: open
+
+Note
+: The Top Coordinator's order (2026-11-23) before check 18 is changed: research it, cite the source.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row with sources and lines: AOSP's boot_control HAL (hardware/interfaces/boot, system/extras or bootable/recovery's boot_control and the bootloader message / boot-control spec: setSlotAsUnbootable, setActiveBootSlot, markBootSuccessful and what a bootloader does when a slot's partitions are flashed), the Qualcomm/Google bootloader's behaviour as far as it is open (the A/B slot attribute bits: priority, tries remaining, successful boot, unbootable), Android's own update_engine sequence (the OTA marks a slot unbootable before writing it) and our two phones' printed text: stage 2 run 1 (research walleye-stage2-run-1-flash-resets-the-other-slots-flags: slot-retry-count:a 0 to 1, slot-successful:a yes to no, b unchanged) against rerun 7's and the first fastboot-boot's material (research walleye-first-fastboot-boot: after set_active X: priority 3, successful no, unbootable no, retry 1): do they agree, is the state after the flash the same as after set_active X; ends with a plain sentence: documented, or observed only
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-run-1-gpt-after-flash"></a>
+### Stage 2 run 1: what exactly changed in the GPT when fastboot flash boot_a reset slot a's flags? Read it again from Android and compare with the run's GPT read before the flash
+
+Status
+: open
+
+Note
+: The Top Coordinator's order after stage 2 run 1 (PR 829 replayed): check exactly what changed in the GPT; if anything other than slot a's attribute bits changed, STOP and tell the Top.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: from Android (adb root, read only, nothing written, no fastboot verb): the six disks' GPTs read whole the way the stage 2 command reads them, compared with the run's own gpt-before.txt (kept by the run in the keeper's build area or in research material) with the stage 2 switch checker's byte classes: every differing byte listed with its disk, offset and class (the boot_a/slot-a entry's attribute bits (priority, tries, successful, unbootable), another entry's bytes, the entry-array CRC, the header CRC, the backup header and entries): the verdict says whether ONLY slot a's attribute bits (and the CRCs they imply) differ and everything else is byte for byte equal; says whether 'GPT kept' in the run's record meant the table, the attributes or both (the run stopped at check 18, so was the GPT read after the flash at all, or only the flags by fastboot getvar); the boot chain read back equal; one research row; the phone stays on Android slot b
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-check-18-flash-flags"></a>
+### Stage 2's check 18 allows exactly what the flash does to the flashed slot's flags, and nothing else; a stand-in from run 1's printed text; then ONE rerun
+
+Status
+: open
+
+Note
+: The Top Coordinator's rule (2026-11-23, after stage 2 run 1): amend check 18 to allow exactly that change and nothing else, then rerun once; the state now: boot_a holds e337de53 (read back equal), slot a has retry 1 successful no (the flash did it), b untouched, Android on b, no set_active made; the go on walleye-install-flash-boot-run is open until 13:21 (the coordinator extends it if the rerun needs).
+
+Blocked by
+: walleye-stage2-flash-resets-flags-source,walleye-stage2-run-1-gpt-after-flash
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: ONLY IF both items above say: the flash resets the flashed slot's tries/successful as the bootloader's documented or twice-observed behaviour, AND only slot a's attribute bits (and the CRCs) differ in the GPT: tools/walleye-tries/src/flash_boot.rs check 18 (the flags after the flash) allows exactly slot a's slot-retry-count and slot-successful as the flash sets them (the values observed: retry 0 to 1, successful yes to no; unbootable stays no) and nothing else: slot b's flags, the current slot, a's unbootable, every other byte equal; a stand-in test built from run 1's own printed fastboot text (research material research/walleye-display-s6e3fa5/2026-11-23/stage2-run.log), one test that fails when b changes or a becomes unbootable or another byte differs; the later check that the flags after set_active a are as the bootloader's switch describes stays; the rehearsal, the dry run, the other tests unchanged; dry run, check --host, tests, clippy, fmt, review; no phone. If anything else changed in the GPT or the sources do not agree: do not change the check, tell the coordinator
+
+Rank
+: 1
