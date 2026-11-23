@@ -5908,3 +5908,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-stage-2-flash-boot-procedure"></a>
+### Stage 2 as one command and its rehearsal, built and reviewed
+
+Entry date
+: 2026-11-23
+
+Done
+: tools/walleye-tries/src/flash_boot.rs, procedures/install-boot-on-the-pixel-2.rs and rehearse-install-boot-on-the-pixel-2.rs, device.toml tables; the checker for the bootloader's slot switch (flags, GPT bits/GUID swaps/CRCs) tested on synthetic GPTs and a stand-in fastboot that records every call; the programmer review found a missing image-root-vs-slot check, a blind set_active in the way back, a possible reboot into the flashed slot after a failed switch back, stale markers and an unclean per-day folder, and a GPT rule that allowed too much: all fixed with tests. 244 tests, clippy, fmt, lpoco-attended check. Never run against the phone. The init gate fails on the declared ufs-root image today (item walleye-install-stage2-init-booted-slot); the run is item walleye-install-flash-boot-run behind the go.
+
+Considered
+: Reading the GPT through fastboot only (it cannot read a partition back); a no-change set_active in the rehearsal (not known whether the ABL takes it: reads only).
+
+Rejected
+: A way back that writes set_active blind (it reads current-slot first); an init gate that only looks for the old refusal words (it now needs the init to declare the property).
+
+About
+: walleye-display-s6e3fa5
