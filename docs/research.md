@@ -6656,3 +6656,22 @@ Sources
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-android-b-kernel-build"></a>
+### walleye-android-b-kernel-build
+
+Date
+: 2026-11-23
+
+Brief
+: Android b runs kernel 4.4.302-g113bd1cfa6f5 (Nov 28 2025), Android 11 RP1A.201005.004.A1, patch 2025-11-01, slot _b
+
+Question
+: Which exact kernel build does the Pixel 2's running Android b have?
+
+Found
+: Read over adb (root, read only, no reboot, nothing written; adbd put back to non-root). /proc/version: 'Linux version 4.4.302-g113bd1cfa6f5 (root@a5cc93997da5) (Android (12701618, +pgo, +bolt, +lto, +mlgo, based on r536225) clang version 19.0.1 (https://android.googlesource.com/toolchain/llvm-project b3a530ec6537146650e42be89f1089e9a3588460)) #1 SMP PREEMPT Fri Nov 28 18:19:37 UTC 2025'. ro.build.fingerprint: google/walleye/walleye:11/RP1A.201005.004.A1/6934943:user/release-keys. ro.build.version.release: 15. ro.build.version.security_patch: 2025-11-01. ro.boot.slot_suffix: _b. uname -a: 'Linux localhost 4.4.302-g113bd1cfa6f5 #1 SMP PREEMPT Fri Nov 28 18:19:37 UTC 2025 aarch64 Toybox'. Note: the fingerprint says Android 11 build RP1A.201005.004.A1 but ro.build.version.release says 15 and the kernel is dated Nov 2025: a custom Android 15 build on the 4.4.302 wahoo kernel, short commit 113bd1cfa6f5; not known yet which tree.
+
+About
+: walleye-bootimage
