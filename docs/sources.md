@@ -1702,3 +1702,29 @@ By
 
 Takes
 : LK reads PON_SOFT_RB_SPARE, scrubs only bits 7:5 (value & 0x1f), and zeroes the IMEM restart reason word when it reads it; secondary source, CAF LK not read directly
+
+
+<a id="src-wahoo-msm-watchdog-v2"></a>
+### watchdog_v2.c, android-msm-wahoo-4.4-android11 (the stock Pixel 2 apps watchdog driver)
+
+Url
+: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-wahoo-4.4-android11/drivers/soc/qcom/watchdog_v2.c
+
+By
+: Google
+
+Takes
+: registers WDT0_RST 0x04, EN 0x08, STS 0x0C, BARK 0x10, BITE 0x14 (the same offsets as qcom,kpss-wdt); WDT_HZ 32765; the KERNEL's probe writes bark = bark-time and bite = bark + 3 s and enables it (lines 743-744), pets every pet-time; a separate secure watchdog is disabled only by an SCM call (SCM_SVC_SEC_WDOG_DIS)
+
+
+<a id="src-linux-qcom-wdt-v73"></a>
+### drivers/watchdog/qcom-wdt.c and watchdog_dev.c, Linux v7.3 (topic tree)
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/watchdog/qcom-wdt.c
+
+By
+: Linux
+
+Takes
+: probe: is_running reads WDT_EN bit 0, then qcom_wdt_start (EN=0, RST, bark=timeout-pretimeout, bite=timeout, EN=1) and WDOG_HW_RUNNING; default timeout 30 s, pretimeout 1; the core pets a HW_RUNNING watchdog only while userspace has not activated it (watchdog_need_worker)

@@ -10725,10 +10725,10 @@ Rank
 ### The Top Coordinator's three read-only checks before the watchdog try: does e337de53 already carry the mechanism, what does the STOCK fdt say about the apps watchdog (address, interrupts, bark and pet times), and does qcom-wdt really keep an already-enabled watchdog petted
 
 Status
-: open
+: done
 
 Note
-: The Top Coordinator's proposal after run 7 (2026-11-23): make the next try itself the fix for the top-ranked cause: mainline's qcom-wdt marks an already-enabled watchdog WDOG_HW_RUNNING and with WATCHDOG_HANDLE_BOOT_ENABLED=y (default y) the core pets it until userspace opens /dev/watchdog; the three checks first, read-only. Coordinator's facts so far (verified 2026-11-23): qcom-wdt.c:331-333 does set HW_RUNNING; our build/walleye.config already has CONFIG_QCOM_WDT=y; our dts HAS a kpss-wdt node at 0x17817000 with downstream values never measured on this phone; OUR INIT pets /dev/watchdog only inside its wait-for-the-partition loop (init line 64) and after the hand-over by hold.sh (900 s deadman, then reboot -f by design: decision 2026-11-17-walleye-try-returns-without-hands), so before that loop nothing in userspace pets; if the bootloader arms the apps wdt with the downstream times (bark 11 s) a kernel that reaches the loop later than that, or whose driver did not probe, is reset: about the 35-40 s the host's USB log shows including the bootloader.
+: Answered 2026-11-23 by research walleye-stage2-watchdog-prechecks-read: kernel petting is in e337de53 and probes; our init's first echo to /dev/watchdog ends it; bootloader timing NOT KNOWN YET
 
 About
 : walleye-bootimage

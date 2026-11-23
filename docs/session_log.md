@@ -6808,3 +6808,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-research-watchdog-prechecks"></a>
+### walleye-research: the watchdog prechecks
+
+Entry date
+: 2026-11-23
+
+Done
+: Read the stock apps wdt node on Android b (read-only adb), e337de53's dtb and the three .config, qcom-wdt/watchdog_dev v7.3, the stock watchdog_v2.c, our init; one research row
+
+Considered
+: bootloader_log region unreadable (no /dev/mem)
+
+About
+: walleye-bootimage
