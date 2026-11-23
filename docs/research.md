@@ -6738,3 +6738,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-install-flash-boot-rehearsal-5-passed"></a>
+### walleye-install-flash-boot-rehearsal-5-passed
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 rehearsal 5 on main after PR 893 with the debug image declared: 18 of 18 passed, nothing written; boot_a holds an earlier image of ours, the stock backup is on file
+
+Question
+: Does the stage 2 rehearsal pass every step on main after PR 893 with ufs-root-booted-slot-debug (ec741a98) declared?
+
+Found
+: Run from Android slot b (adb root), 2026-11-23 17:07, nothing written (no flash, set_active, erase, oem). All 18 steps pass: image ec741a98 whole with AVB footer verified, init gate accepts the slot, stored boot chain whole; check 8 now says boot_a holds content not recorded here (e337de53, kept as a copy in lab-material) and the stock backup 2a5cd3b2 is on file and hashes to its record: the flash can be undone; 6 GPTs whole; fastboot agrees on slot b, the one flash would be boot_a; flags read twice; check 17 pstore-first read works (pstore empty, cmdline slot _b, bootreason reboot); chain as stored. Phone left on Android slot b, adb device. The stage 2 run (walleye-install-flash-boot-run) can be opened with an OUTCOMES paragraph in its note.
+
+About
+: walleye-bootimage
