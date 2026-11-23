@@ -7255,3 +7255,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-23-walleye-image-recipe-z21"></a>
+### z21's recipe row: image ensure rebuilds it equal
+
+Entry date
+: 2026-11-23
+
+Done
+: Added [images.z21.recipe] (control z20, dtb by sha256) and [images.z20] to device.toml; tests/host/image-recipe.sh (fails on main, passes here); rebuilt z21 with a private lpoco-bringup 0.47.1 after deleting its store path: equal to bdc0a891...c7ff.
+
+Considered
+: Installing 0.47.1 over the host's ~/.local/bin/lpoco (0.44.3): a shared host tool, left to lab-tools' install path.
+
+Rejected
+: Taking the test's pass on main's manifest (the store already held z21): the test now requires the recipe table itself.
+
+About
+: walleye-bootimage

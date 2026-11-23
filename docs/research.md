@@ -7091,3 +7091,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-image-recipe-z21-rebuilt-equal"></a>
+### walleye-image-recipe-z21-rebuilt-equal
+
+Date
+: 2026-11-23
+
+Brief
+: z21 rebuilt from its recipe (control z20 + its dtb, by sha256) in Nix's sandbox equals the declared sha256 bdc0a891...c7ff
+
+Question
+: Does device.toml's [images.z21.recipe] let lpoco bringup image ensure z21 rebuild the image byte for byte?
+
+Found
+: With z21's store path deleted, 'lpoco-bringup image ensure z21' (0.47.1, private install; the host's lpoco is 0.44.3 and has no ensure) built it from the recipe in the sandbox: 'built from its recipe, equal to its declared sha256'; sha256sum of the store path = bdc0a89179d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff. z20 (fe9e0cce...) is declared as the control, NOT TO BOOT. Proof test tests/host/image-recipe.sh fails on main's manifest (no recipe) and passes on this one. Kernel, ramdisk, header and cmdline are z20's: building the kernel from the int/ tag is walleye-next-image-from-an-int-tag.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/
