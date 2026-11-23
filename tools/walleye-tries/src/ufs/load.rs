@@ -73,6 +73,9 @@ pub fn load_start_command(lun: &str, mb: u64, limit: u64) -> Result<String, Stri
     ))
 }
 
+/// How long past the read's own limit a silent shell is waited for before the step stops (runs 1 and 2 stopped at 10 s).
+pub const SILENCE_MARGIN_S: u64 = 60;
+
 /// The command that reads only the load's state (no sysfs): it must answer even when a gear read is stuck, so it has its own shell.
 pub fn load_state_command() -> &'static str {
     "cat /tmp/load.done 2>/dev/null; echo state-$((6*7))"
@@ -192,7 +195,7 @@ impl Ufs {
         }
     }
 
-    /// Ask the read's state on its own shell until it ends (at most its limit and 15 s, checked between samples; a gear read in
+    /// Ask the read's state on its own shell until it ends (at most its limit and SILENCE_MARGIN_S, checked between samples; a gear read in
     /// flight may run on to `gear_wait` after that), read the gear in between. Returns the exit code and the answered gear reads.
     fn sample_until_the_read_ends(
         &self,
@@ -200,19 +203,55 @@ impl Ufs {
         began: Instant,
         samples: &mut String,
     ) -> Result<(i32, u32), String> {
-        let until = began + Duration::from_secs(self.s.load_limit + 15);
+        let until = began + Duration::from_secs(self.s.load_limit + SILENCE_MARGIN_S);
+        let state_wait = Duration::from_secs(self.s.gear_wait.min(10));
         let mut gear_sh = self.lab.shell(10)?;
-        let (mut inside, mut unanswered) = (0, 0);
+        let (mut inside, mut unanswered, mut silent, mut hung_up) = (0, 0, 0, 0);
         let rc = loop {
             if Instant::now() >= until {
-                return Err("the read did not end within its time limit and 15 s".into());
+                samples.push_str(&format!(
+                    "--- no end of the read within its limit and {SILENCE_MARGIN_S} s ({silent} silent state reads)\n"
+                ));
+                return Err(format!(
+                    "the read did not end within its time limit and {SILENCE_MARGIN_S} s: the shell stayed silent ({silent} state reads not answered)"
+                ));
             }
             std::thread::sleep(Duration::from_millis(500));
-            if let Some(rc) = load_rc(&state_sh.run(load_state_command(), Duration::from_secs(10))?)
-            {
-                break rc;
-            }
             let (at, asked) = (began.elapsed(), Instant::now());
+            match state_sh.run(load_state_command(), state_wait) {
+                Ok(said) => {
+                    if let Some(rc) = load_rc(&said) {
+                        break rc;
+                    }
+                }
+                Err(e) => {
+                    // runs 1 and 2: the shell went silent while the read ran. That is a reading, kept with its time; the shell is
+                    // asked again on a fresh connection until the read's own limit and the margin are over.
+                    silent += 1;
+                    if asked.elapsed() < Duration::from_secs(1) {
+                        hung_up += 1; // an answer at once is the phone hanging up, not a silence
+                        if hung_up >= 5 {
+                            samples.push_str(
+                                "--- the shell hung up five times at once: the phone is gone\n",
+                            );
+                            return Err(
+                                "the shell hung up under load (not a silence): the phone is gone"
+                                    .into(),
+                            );
+                        }
+                    }
+                    println!("  under load: the shell is silent ({e}); waiting for it");
+                    samples.push_str(&format!(
+                        "--- state read at {:.1} s, not answered in {:.1} s (the shell is silent under load)\n",
+                        at.as_secs_f32(),
+                        asked.elapsed().as_secs_f32()
+                    ));
+                    if let Ok(fresh) = self.lab.shell(10) {
+                        *state_sh = fresh;
+                    }
+                    continue; // no gear read on a silent shell: it would only wait too
+                }
+            }
             match gear_sh.run(&gear_command(), Duration::from_secs(self.s.gear_wait)) {
                 Ok(said) => {
                     inside += 1;
@@ -231,7 +270,7 @@ impl Ufs {
             }
         };
         samples.push_str(&format!(
-            "--- the read ended at {:.1} s with rc={rc}; {inside} gear reads answered, {unanswered} not\n",
+            "--- the read ended at {:.1} s with rc={rc}; {inside} gear reads answered, {unanswered} not, {silent} state reads silent\n",
             began.elapsed().as_secs_f32()
         ));
         Ok((rc, inside))
@@ -505,6 +544,28 @@ mod tests {
         let saved = std::fs::read_to_string(out("hung").join("gear-load.txt")).unwrap();
         assert!(
             saved.contains("not answered in") && saved.contains("1 gear reads answered, 1 not"),
+            "{saved}"
+        );
+    }
+
+    #[test]
+    fn a_silent_shell_during_the_read_is_a_reading_and_the_wait_goes_on_a_fresh_shell() {
+        // run 2 of try 2: after eight answered gear reads the shell stopped answering `cat /tmp/load.done` (step 16 failed at 10 s)
+        let t = vec![
+            ("load-started-", "load-started-42"),
+            (
+                "echo state-",
+                Box::leak(format!("?once={NOT_DONE}|||{NOT_DONE}|||{DONE0}").into_boxed_str()),
+            ),
+            ("power_info", RUN1_G3),
+            ("cat /tmp/load.out", "x"),
+        ];
+        let u = ufs(t, "silent-state");
+        u.the_gear_is_read_under_load()().unwrap();
+        let saved = std::fs::read_to_string(out("silent-state").join("gear-load.txt")).unwrap();
+        assert!(
+            saved.contains("the shell is silent under load")
+                && saved.contains("1 state reads silent"),
             "{saved}"
         );
     }

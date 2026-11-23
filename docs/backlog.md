@@ -9953,10 +9953,10 @@ Rank
 ### UFS try 2: the shell goes silent while the 4 GiB read runs; wait for it to come back instead of stopping at 10 s, and keep the load from starving the gadget, so the 2 s-after reading and the GPT hash-equal check can run
 
 Status
-: open
+: done
 
 Note
-: Runs 1 and 2 both stopped at step 16 (run 1: the sample command, run 2: cat /tmp/load.done): under the 4 GiB O_DIRECT read of sda the shell/USB gadget goes silent for more than 10 s, which points at the load starving the gadget or the init, not at a gear fault. What we have: UFS 3.1.0, G1 idle, G3 2 lanes 200 MHz under load (8 samples, twice), the GPT of run 1 EQUAL after (PR 776). What is NOT KNOWN YET: the gear 2 s after load, and run 2's GPT-after. A third run only after this lands; if it stops the same way the coordinator takes the facts as they are and closes try 2.
+: Landed: a silent state read is a reading, shell reopened, wait to load_limit+60 s; load_mb 2048. Proof by stand-in test a_silent_shell_during_the_read_is_a_reading_and_the_wait_goes_on_a_fresh_shell (260 tests, clippy, fmt, dry run 23 steps, check --host ok). Try 3 only on the keeper's go; what the phone does is not known yet.
 
 About
 : walleye-display-s6e3fa5
