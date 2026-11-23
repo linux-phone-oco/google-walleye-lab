@@ -6022,3 +6022,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-0830-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Ran UFS try 2 (walleye-try-ufs-match): checks 1-15 passed, link reaches HS-G3 2 lanes under load; step 16 sample timed out at 10 s, run stopped, way back ran. Phone on Android slot b, stock kernel, nothing flashed or written.
+
+Considered
+: next: coordinator decides a second run after raising the sample timeout in the procedure (writes nothing); no second run by the keeper. Then walleye-ufs-try-2 and its one-command item stay open.
+
+About
+: walleye-first-fastboot-boot
