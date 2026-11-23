@@ -9808,10 +9808,10 @@ Rank
 ### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
 
 Status
-: in-progress
+: done
 
 Note
-: TAKE THIS ITEM (the coordinator, 2026-11-23): RERUN 6 of the stage 1 boot, whose point is the BOOTLOADER WAY BACK (item walleye-reboot-bootloader-from-linux-try). Stage 1 passed on this image (run 5, all 26 steps, PR 759); PR 773 changed the way back: after the checks it runs 'reboot bootloader' over ssh, waits up to 60 s for fastboot to list the phone, reads fastboot getvar current-slot (must equal the slot read at the start), then fastboot reboot and waits for adb; if fastboot does not see the phone the old forced way back runs and the log says 'bootloader not reached'. Either end is a result: write it as a research row (the fastboot text it printed, bootloader-way-back.txt, is kept in the research row's material: it was never recorded before) with the GPT/boot chain/slot flags measured equal. The image is the one whose sha256 is c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9 and ONLY it (the stage 2 boot image e337de53 is for the flash and is not booted from RAM: its init needs the booted slot to be its own). The go below is the author's standing go, decision 2026-11-22-walleye-author-go-per-stage-not-per-step. Never fastboot set_active, flash, erase or oem in this run; never the bootloader partitions, the GPT written by our code, erase or purge. KEEPER: worktree from main with ln -s ~/Projects/walleye-build build/images, battery rule first, no short timeout, 'boot: starting' and ONE result line to the Top Coordinator local_12b18c70-1b6d-4783-bb6f-50113ab63250; a failed check: the evidence is read, write the research row, release the lease, no second run without the coordinator. | EARLIER: proven by run 5, all 26 steps passed (research walleye-rootfs-boots-run-5-passed)
+: proven by run 6 (research walleye-rootfs-boots-run-6-passed-bootloader-not-reached): all 26 steps; bootloader way back not reached, forced way back ran, card/boot chain/slots equal
 
 About
 : walleye-display-s6e3fa5

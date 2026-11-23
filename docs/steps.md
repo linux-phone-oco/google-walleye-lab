@@ -1697,13 +1697,13 @@ Proof
 : procedures/rootfs-boots-on-the-pixel-2.rs
 
 Run
-: walleye-rootfs-boots-run-5-passed
+: walleye-rootfs-boots-run-6-passed-bootloader-not-reached
 
 Proven on
 : c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9
 
 Notes
-: UFS root read-only under overlay, ssh login, hand-over proved by PID 1, nothing written
+: run 6: 26 of 26; bootloader way back not reached (forced reboot ran)
 
 Updated
 : 2026-11-23

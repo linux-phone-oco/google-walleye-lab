@@ -1,0 +1,1 @@
+bootloader not reached: fastboot lists no phone within 60 s (the ssh said: ssh answered); the forced way back runs

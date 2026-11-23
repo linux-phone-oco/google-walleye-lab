@@ -1,0 +1,39 @@
+check 1: the battery is good enough
+check 2: the image is the declared one and names one root
+  the image names its root: system_a
+check 3: the stored boot chain is whole and the ssh key is private
+step 4: say what to expect
+  One command, about 10 minutes: the phone boots our UFS-on image once, from memory; its root is the Alpine system partition of the slot Android is NOT on, mounted READ-ONLY with an overlay in memory. The lab logs in over usb-network by ssh and reads the mounts and the kernel log; NOTHING is written to the card (the partition tables of its 6 disks, the root partition and the boot chain are hashed before and after and must be equal). The glass stays dark. The phone returns to Android by itself; if it is not on Android after 4 minutes, hold the power button about 15 seconds.
+step 5: the phone is on Android, adbd as root
+check 6: adb reads the slot Android runs from
+  adb: slot suffix _b
+check 7: the card is read from Android: its partition tables and the root partition
+  6 disks and system_a hashed
+step 8: take the phone to fastboot
+check 9: fastboot agrees on the slot and the image's root is the other one
+  the root is system_a; Android runs from slot b
+step 10: make this run's image: the declared one with the slot read on its command line
+  the run image d594dcbe3efc9c13859bcf3c3c7845967ab95719c79b6cc88fcd75b82e84348f is the declared c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9 with the slot on its command line (59 bytes differ: the header's command line and, after the content, at most the footer's digest)
+check 11: the slots' flags are read
+check 12: the author's go is recorded on the item
+step 13: boot the UFS-root image from memory, nothing flashed
+check 14: USB device 1d6b:0104 is on the bus
+step 15: log in over usb-network by ssh and read the phone
+check 16: it is root's login on the image, the network and the services are up
+  kernel 7.3.0-00013-g3644090c7f6d-dirty
+check 17: the init saw the slot adb saw and mounted the named partition
+  the init mounted /dev/sda22 (PARTNAME system_a) with slot suffix _b
+check 18: the card is mounted read-only under the overlay
+  /dev/sda22 is mounted read-only (ro, norecovery, no discard) under the overlay
+check 19: the kernel log has no purge, oops or UFS failure
+step 20: send the phone back: to its bootloader first, the forced reboot if that is not reached
+bootloader not reached: fastboot lists no phone within 60 s (the ssh said: ssh answered); the forced way back runs
+step 21: the phone is on Android (the way back, if it is not)
+check 22: the phone is back on Android
+step 23: Android answers as root again
+check 24: the partition tables and the root partition are as before
+  6 disks and system_a hashed
+check 25: the boot chain read again equals the stored set
+check 26: both slots' flags are as before
+rootfs boots on the Pixel 2: all 26 steps passed
+the phone goes back to Android if it is not there

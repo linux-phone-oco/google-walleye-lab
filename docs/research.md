@@ -5982,3 +5982,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-rootfs-boots-run-6-passed-bootloader-not-reached"></a>
+### walleye-rootfs-boots-run-6-passed-bootloader-not-reached
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 1 rerun 6 (c3373d71): all 26 steps pass, but the bootloader way back was NOT reached: fastboot listed no phone within 60 s after 'reboot bootloader'; forced way back ran, all measures equal
+
+Question
+: Does 'reboot bootloader' over ssh from the booted UFS-root image bring the phone to fastboot, so the way back needs no forced reboot?
+
+Found
+: No. ssh answered, 'reboot bootloader' was sent, but fastboot listed no phone within 60 s (bootloader-way-back.txt: 'bootloader not reached'); the forced reboot then returned the phone to Android slot b. Booted: init mounted /dev/sda22 (system_a) read-only (ro, norecovery) under the overlay with suffix _b; kernel log clean; 6 disks and system_a hashes, boot chain and slot flags equal before and after. The pon mode-bootloader = <2> is in the dtb (research walleye-pon-reboot-mode-already-in-the-board-dtb), yet the reboot did not reach the bootloader - cause not known yet. Phone left on Android b, fastboot reachable.
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-23/
