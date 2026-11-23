@@ -18,12 +18,11 @@
 //!
 //! ```cargo
 //! [dependencies]
-//! lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.44.3" }
 //! walleye-tries = { path = "../tools/walleye-tries" }
 //! ```
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use lpoco_attended::{prelude::*, steps};
+use walleye_tries::lpoco_attended::{prelude::*, steps};
 use walleye_tries::{rootfs_boot::RootfsBoot, settings::{Settings, ROOTFS_BOOT_PROCEDURE}, watch};
 
 fn main() {

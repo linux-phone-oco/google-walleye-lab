@@ -7255,3 +7255,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-23-walleye-builder-attended-pin-is-one-pin"></a>
+### walleye's lpoco-attended is one pin
+
+Entry date
+: 2026-11-23
+
+Done
+: Moved the pin to tools/walleye-tries/Cargo.toml alone: lib.rs re-exports lpoco_attended, the 13 procedures take it from there, check.yml reads the locked revision. Picked up an earlier unlanded branch and rebased it. No phone run, no behavior change in any procedure.
+
+Considered
+: A walleye-tries bin running the CLI (the item's wording): the CLI is a bin of lab-tools' lpoco-attended package, so it would be a copy.
+
+Rejected
+: A wrapper bin copying the CLI; a second tag in check.yml.
+
+About
+: walleye-bootimage

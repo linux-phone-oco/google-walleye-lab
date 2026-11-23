@@ -3,6 +3,9 @@
 //! checklist: `use lpoco_attended::prelude::*;` for the runner, `use walleye_tries::touch::Touch;` for
 //! this phone's steps. What a step does, parses and retries lives here, tested without a phone.
 
+/// The runner every attended procedure shares, re-exported so its tag is pinned once, in this crate's Cargo.toml.
+pub use lpoco_attended;
+
 pub mod android;
 pub mod display;
 pub mod display_boot;
