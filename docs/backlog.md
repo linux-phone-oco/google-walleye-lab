@@ -11534,3 +11534,28 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-cmdline-tail-ram-try"></a>
+### RAM-only try: the production image with Android b's header words by fastboot boot, no flash, no flag change: does the bootloader append its tail
+
+Status
+: open
+
+Note
+: From the researcher's row walleye-cmdline-tail-cut-cause-read (PR 957): the cut is one skipped block of the ABL, not a length limit; it blocks nothing (step 21 takes the slot from root=PARTUUID). Ranked after the UFS and stage 3 work; check C (stock boot_a on slot a) is not queued: it flashes.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: ONE tested command, rehearsed read-only, a go that lists outcomes (ikb backlog-go --outcomes): fastboot boot of the production image b74af863 rebuilt with Android b's own 299-char header words (research walleye-cmdline-tail-cut-cause-read, candidate 2; the words from android-b-cmdline-and-boot-props.txt), nothing flashed, no set_active, flags untouched; read /proc/cmdline over the debug path of the same image family; OUTCOMES: if the six tail words (slot_suffix, want_initramfs, rootwait, ro, init=/init, force_normal_boot) appear then it proves the header decides the ABL's block (candidate 2); if they are still gone then candidate 2 is dead and slot state or boot path (1, 3) remain; then the way back, the boot chain equal; never xbl, abl, GPT, erase, purge
+
+Rank
+: 9
