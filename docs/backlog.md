@@ -11641,10 +11641,10 @@ Rank
 ### Read why 'userspace + set_freq 50 MHz' reads back 100 MHz on our kernel, from our v7.3 source and the captured text, before the pin is changed again
 
 Status
-: open
+: done
 
 Note
-: Run 6 of the ramped try (the keeper local_ca73871e, PR 968) stopped at step 16 before any load: the pin read back 100 MHz. A stop is read before the fix (decision 2026-11-23-a-stop-is-read-before-the-fix): this research first, then the builder item walleye-ufs-pin-print-its-evidence. A turning point of the UFS cause: the capable model.
+: Done 2026-11-24: research walleye-ufs-pin-100mhz-read (the 100 MHz is clk_round_rate of 50 MHz on GCC_UFS_AXI_CLK, whose mainline table starts at 100 MHz, kept as previous_freq while clock scaling is idle-suspended; the pin was in force), decision 2026-11-24-walleye-ufs-pin-asserts-the-holding-setting; the builder item walleye-ufs-pin-print-its-evidence is unblocked.
 
 About
 : walleye-bootimage
@@ -11669,10 +11669,7 @@ Status
 : open
 
 Note
-: After the research. Run 6 stopped with the evidence missing from its line (min_freq and available_frequencies were not printed): the next run must say them.
-
-Blocked by
-: walleye-ufs-pin-100mhz-read
+: Research walleye-ufs-pin-100mhz-read done 2026-11-24 and decision 2026-11-24-walleye-ufs-pin-asserts-the-holding-setting: step 16 asserts governor userspace, userspace/set_freq 50000000 read back (max_freq on the other path) and gear HS_GEAR1; cur_freq passes as 50000000 or 100000000 (core_clk's rounding while scaling is idle-suspended), fails otherwise. The capture adds userspace/set_freq, trans_stat, dmesg after the write (the 'clock scaling is suspended, skip' line) and debugfs gcc_ufs_axi_clk clk_rate where present. Runs 6 and 7's governor files (lab-material ufs-20261124-000728, -001519) are the 100 MHz fixture: under the new assertion they pass the clock and need the gear and set_freq read.
 
 About
 : walleye-bootimage
