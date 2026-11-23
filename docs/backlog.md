@@ -10550,10 +10550,10 @@ Rank
 ### Stage 2's check 18 also allows the flash to clear the flashed slot's unbootable bit (yes to no, never no to yes), and the repeat audit is walked again against the state AFTER A FAILED BOOT of slot a
 
 Status
-: open
+: done
 
 Note
-: Run 5 (PR 859) stopped at check 18 after a no-op flash: the bootloader's flash cleared a's unbootable (yes to no) and reset retry (0 to 1); checks 1-17 passed, no set_active, no step 21, no pstore read. Fourth stop of one class (checks 18, 9, 16, 18 again): each a state the earlier audits did not walk. The run item is off the phone queue until this lands; the go (to 16:00) is extended by the coordinator.
+: check 18 allows the flashed slot's unbootable yes to no (never no to yes); the walk passes from four states (research walleye-stage2-walk-by-state); 316 tests, clippy, dry run, check --host
 
 About
 : walleye-bootimage
