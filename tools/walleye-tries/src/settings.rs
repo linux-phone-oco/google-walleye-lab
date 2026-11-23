@@ -37,6 +37,8 @@ pub const REHEARSE_INSTALL_PROCEDURE: &str = "rehearse install rootfs on the Pix
 pub const ROOTFS_BOOT_PROCEDURE: &str = "rootfs boots on the Pixel 2";
 pub const REHEARSE_ROOTFS_BOOT_PROCEDURE: &str = "rehearse rootfs boots on the Pixel 2";
 pub const RAMROOT_PROCEDURE: &str = "alpine login on the glass on the Pixel 2";
+pub const FLASH_BOOT_PROCEDURE: &str = "install boot on the Pixel 2";
+pub const REHEARSE_FLASH_BOOT_PROCEDURE: &str = "rehearse install boot on the Pixel 2";
 
 /// The image of the root boot: the name of its `[images.NAME]` table.
 pub const ROOT_IMAGE: &str = "ufs-root";
@@ -53,6 +55,7 @@ pub enum Try {
     Install,
     RootfsBoot,
     Ramroot,
+    FlashBoot,
 }
 
 /// One image of the delay bisect: the seconds of uptime its init waits, its file and the sha256 `device.toml` records.
@@ -117,6 +120,9 @@ pub struct Settings {
     pub ssh_user: String,
     pub ssh_port: u16,
     pub bootchain: PathBuf,
+    /// stage 2: the partitions the flash may name (`boot_a boot_b`; the run picks the one that is not Android's) and the command that takes our slot's root to the bootloader
+    pub flash_allow: String,
+    pub to_bootloader: String,
     /// where a try saves what it reads when a test named one, by the try's name
     pub out_given: Option<PathBuf>,
     pub day: String,
@@ -175,6 +181,20 @@ impl Settings {
         Settings::read(Try::RootfsBoot, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
+    }
+
+    /// Install stage 2's settings (flash the boot partition of the slot Android is not on, set_active it, the way back), read from the device's `device.toml`.
+    pub fn for_flash_boot() -> Settings {
+        Settings::read(Try::FlashBoot, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
+    /// The rehearsal of stage 2 reads the command's own keys, from its own table, and keeps its own folder.
+    pub fn for_rehearse_flash_boot() -> Settings {
+        let mut s = Settings::for_flash_boot();
+        s.out = s.out_dir("install-boot-rehearsal");
+        s
     }
 
     /// The Alpine-in-RAM login try's settings, read from the device's `device.toml` (call after `procedure(...)`).
@@ -250,6 +270,8 @@ impl Settings {
             ssh_user: String::new(),
             ssh_port: 0,
             bootchain: PathBuf::new(),
+            flash_allow: String::new(),
+            to_bootloader: String::new(),
             out_given: None,
             day: today(),
         };
@@ -333,6 +355,32 @@ impl Settings {
                 s.ssh_port = u16::try_from(number("ssh_port", proc("ssh_port")))
                     .expect("ssh_port in device.toml is a port number");
                 s.out = s.out_dir("alpine-login");
+            }
+            Try::FlashBoot => {
+                // stage 2: the boot image is named by its [images.NAME] row, never typed here (the ufs-root image is rebuilt with a new sha256 by other items)
+                let name = proc("image");
+                s.image = image(&name);
+                s.image_sha256 = dev(&format!("images.{name}.sha256"));
+                s.go_item = proc("go_item");
+                s.identity = home_path(&proc("identity"));
+                s.ssh_user = proc("ssh_user");
+                s.ssh_port = u16::try_from(number("ssh_port", proc("ssh_port")))
+                    .expect("ssh_port in device.toml is a port number");
+                s.bootchain = home_path(&proc("bootchain"));
+                s.backup = home_path(&proc("backup"));
+                s.by_name = proc("by_name");
+                s.luns = number("luns", proc("luns"));
+                s.flash_allow = proc("flash_allow");
+                s.to_bootloader = proc("to_bootloader");
+                assert!(
+                    s.by_name.starts_with('/') && (1..=26).contains(&s.luns),
+                    "by_name in device.toml is an absolute path on the phone, luns is 1 to 26"
+                );
+                assert!(
+                    !s.flash_allow.trim().is_empty() && !s.to_bootloader.trim().is_empty(),
+                    "flash_allow and to_bootloader in device.toml are not empty"
+                );
+                s.out = s.out_dir("install-boot");
             }
             Try::DisplayBoot => {
                 s.image = image("b2");
@@ -452,6 +500,8 @@ impl Settings {
             ("backup", "~/backup"),
             ("stage_dir", "/data/local/tmp"),
             ("by_name", "/dev/block/by-name"),
+            ("flash_allow", "boot_a boot_b"),
+            ("to_bootloader", "reboot bootloader"),
         ]
         .into_iter()
         .collect();
@@ -536,6 +586,8 @@ mod tests {
             (Try::RootfsBoot, ROOTFS_BOOT_PROCEDURE),
             (Try::RootfsBoot, REHEARSE_ROOTFS_BOOT_PROCEDURE),
             (Try::Ramroot, RAMROOT_PROCEDURE),
+            (Try::FlashBoot, FLASH_BOOT_PROCEDURE),
+            (Try::FlashBoot, REHEARSE_FLASH_BOOT_PROCEDURE),
         ] {
             let name: Vec<String> = table
                 .split(|c: char| !c.is_ascii_alphanumeric())

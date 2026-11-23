@@ -5830,3 +5830,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-install-flash-boot-procedure-built"></a>
+### walleye-install-flash-boot-procedure-built
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 as one command and its rehearsal are built and stand-in tested; the stage 1 init refuses the slot it is booted from, so the command's init gate stops a flash today
+
+Question
+: Can stage 2 (flash boot_<other>, set_active, observe, set_active back) be one tested command under the verdict's four conditions, without touching the phone?
+
+Found
+: Built: procedures/install-boot-on-the-pixel-2.rs and its rehearsal on tools/walleye-tries/src/flash_boot.rs, keys in device.toml [procedures.install-boot-on-the-pixel-2]. In code: the slot read by adb and fastboot (equal); the flash target boot_<other> built from it and flash_allow (never boot_<Android's>, never another name; argv tests); the image's walleye.root must be system_<the flashed slot> (checked before the flash); the go and the image sha256 asked again at the flash; the boot partition read now equals its backup; the flash read back whole (sha256) with no other boot/dtbo/vbmeta partition changed; set_active only after the read-back, only of that slot, only while fastboot's current slot is still Android's; the intent file written first so the watching parent runs the way back; the flags after the switch checked against the bootloader's own (current slot, new slot not successful or unbootable, retry 1-7, nothing else); the GPT of every disk read whole before and after, the checker passing only slot bits (byte 6 of the attributes of A/B entries), pairwise A/B type-GUID swaps in both the primary and the backup copy, and recomputed CRCs (seen failing on a rename, a resize, a one-sided GUID change, a stale CRC, an MBR change, a non-A/B slot bit); the way back reads current-slot first and writes set_active only if it is not Android's, never reboots into the flashed slot after a failed switch back; the boot chain as stored. 244 tests, clippy, fmt, lpoco-attended check; reviewed by the programmer subagent, its findings fixed. TWO FACTS THE HOST SHOWS: (1) the stage 1 root init (and the display one) refuses the slot it is booted from ('the slot Android runs from'), and a boot from the flashed slot's own boot partition gets androidboot.slot_suffix = that slot, so the init gate of the command FAILS on the declared ufs-root image today (checked on the real image); the gate passes only an init that does not refuse and declares 'walleye-init: mounts-the-booted-slot': stage 2 needs that init (item walleye-install-stage2-init-booted-slot). (2) NOT KNOWN YET: whether our kernel can restart into the bootloader for the way back (to_bootloader = reboot bootloader needs a reboot-mode in the pm8998 pon node); when it cannot the run ends with the one hand step and its exact command (hold power and volume-down, then fastboot set_active <Android's slot> && fastboot reboot). Also not known: whether set_active to the slot already active is a no-change write (the rehearsal does not try it).
+
+About
+: walleye-display-s6e3fa5

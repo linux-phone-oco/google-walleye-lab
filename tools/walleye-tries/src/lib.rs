@@ -9,6 +9,7 @@ pub mod display_boot;
 pub mod display_delay;
 #[cfg(test)]
 mod fixture;
+pub mod flash_boot;
 pub mod host;
 pub mod install;
 pub mod lab;

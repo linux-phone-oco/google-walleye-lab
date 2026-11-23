@@ -9187,10 +9187,10 @@ Rank
 ### Stage 2 as ONE command: flash boot_<other> with our boot image, read it back, set_active that slot, the way back set_active b, every read before and after, and its rehearsal
 
 Status
-: open
+: done
 
 Note
-: From the stage 2 verdict (research walleye-install-stage2-android-verdict, PR 703) and the reading of 'never the GPT' (decision 2026-11-22-walleye-author-research-then-proceed): set_active by the bootloader is allowed with these conditions, the author is told. The flash of boot_<other> is a plain partition write. Runs after the stage 1 boot (walleye-install-rootfs-boots-try) proved the kernel and the root from the card. Never: bootloader partitions, the GPT written by us, erase, purge: if the work seems to need one, stop and tell the coordinator.
+: BUILT 2026-11-23 (builder): procedures/install-boot-on-the-pixel-2.rs and procedures/rehearse-install-boot-on-the-pixel-2.rs on tools/walleye-tries/src/flash_boot.rs; 240 tests, clippy -D warnings, fmt, lpoco-attended check; never run against the phone. The stage 1 init refuses the booted slot, so the command's init gate stops a flash until item walleye-install-stage2-init-booted-slot; the run is item walleye-install-flash-boot-run (behind the go). Research walleye-install-flash-boot-procedure-built.
 
 About
 : walleye-display-s6e3fa5
@@ -9667,6 +9667,65 @@ Proof
 
 Rank
 : 2
+
+Witness
+: person
+
+
+<a id="walleye-install-stage2-init-booted-slot"></a>
+### An init for stage 2: the boot partition's own slot is the root's slot (the stage 1 init refuses exactly that), and the way back to the bootloader from our kernel
+
+Status
+: open
+
+Note
+: Found by the stage 2 command (research walleye-install-flash-boot-procedure-built): when the bootloader boots our image from the flashed slot's boot partition it puts androidboot.slot_suffix=_X for that slot, and build/initramfs-root/init (and the display init) refuse a root equal to system_X ('the slot Android runs from'). The stage 2 boot image needs an init that, on a bootloader-booted image (a flag word of its own on the command line, never a loosening of the stage 1 guard), mounts the booted slot's own system partition read-only under the overlay, AND carries the line 'walleye-init: mounts-the-booted-slot' (flash_boot::BOOTED_SLOT_MARK): the command's init gate passes only an init that does not refuse its own slot and declares that line. Also the image's walleye.root must be system_<the slot it is flashed to> (the command checks it against the slot read, before the flash). Second part: our kernel reaching the bootloader again (reboot-mode in the pon node of the board dts) so the way back is not a hand step. The stage 1 guard stays as it is for the fastboot boot from memory.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: an init variant (or a command-line word) with its QEMU proof: booted as slot _a with root system_a it mounts system_a read-only and hands over; with the word absent it still refuses; the image's init gate of procedures/install-boot-on-the-pixel-2.rs passes on the image built with it; a dts with reboot-mode in the pon node builds and its test passes (whether the PON register value reaches the bootloader is for the keeper's try)
+
+Rank
+: 3
+
+
+<a id="walleye-install-flash-boot-run"></a>
+### Run stage 2 once: install-boot-on-the-pixel-2.rs under the coordinator's go (flash boot_<other>, set_active, observe, set_active back)
+
+Status
+: open
+
+Note
+: Built by item walleye-install-flash-boot-procedure. Never the bootloader partitions, the GPT written by our code, erase or purge. If the phone does not reach the bootloader from our kernel the run ends with the hand step and its exact fastboot command; the keeper does not improvise.
+
+Waits
+: the stage 1 proof, UFS try 2, and the coordinator's go naming the boot image's sha256 (ikb backlog-go on this item); the rehearsal first (procedures/rehearse-install-boot-on-the-pixel-2.rs, no go needed)
+
+Blocked by
+: walleye-install-rootfs-boots-try,walleye-install-stage2-init-booted-slot
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: the one command passes every step: the boot of the new slot from the card on ssh, the GPT changed only by the slot switch, the way back set_active, the phone on Android, the boot chain as stored
+
+Rank
+: 3
 
 Witness
 : person
