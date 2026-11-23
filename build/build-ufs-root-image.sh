@@ -35,6 +35,13 @@ case $DEBUG_INIT in
   yes) [ "$BOOTED_SLOT" = yes ] || { echo "build-ufs-root-image: DEBUG_INIT=yes needs BOOTED_SLOT=yes" >&2; exit 1; }; WORD="$WORD walleye.debug"; SUFFIX="-booted-slot-debug"; INITD=initramfs-root-debug ;;
   *) echo "build-ufs-root-image: DEBUG_INIT is unset or yes, not $DEBUG_INIT" >&2; exit 1 ;;
 esac
+PRODUCTION_INIT=${PRODUCTION_INIT:-}   # "yes" (with BOOTED_SLOT=yes): the stage 2 PRODUCTION image - init build/initramfs-root-production/init (the petters first, no gadget, no telnet, no debug word), written as ...-booted-slot-production (backlog walleye-stage2-production-image)
+case $PRODUCTION_INIT in
+  "") ;;
+  yes) [ "$BOOTED_SLOT" = yes ] && [ -z "$DEBUG_INIT" ] || { echo "build-ufs-root-image: PRODUCTION_INIT=yes needs BOOTED_SLOT=yes and no DEBUG_INIT" >&2; exit 1; }; SUFFIX="-booted-slot-production"; INITD=initramfs-root-production ;;
+  *) echo "build-ufs-root-image: PRODUCTION_INIT is unset or yes, not $PRODUCTION_INIT" >&2; exit 1 ;;
+esac
+KERNEL_TAG=${KERNEL_TAG:-}   # an int/ tag (item walleye-next-image-from-an-int-tag): KERNEL_TREE is a checkout of exactly that tag, the Image's banner must name its commit, and the kernel is NOT the matched image's (the banner and 'same code as matched' checks are about the tag instead)
 case $(basename "$OUT") in NOT-TO-BOOT-*) ;; *) echo "build-ufs-root-image: OUT_DIR must be named NOT-TO-BOOT-... (a UFS-on image is never written where a queue or the inventory looks)" >&2; exit 1 ;; esac
 export DTBO=${DTBO:-$HOME/Projects/walleye-build/control/dtbo.img}
 total=0
@@ -80,7 +87,12 @@ ck "the ufs, phy and pinctrl files of the tree are committed (clean against HEAD
 HEADHASH=$(git -C "$KT" rev-parse --short=12 HEAD)
 BANNERS=$(zcat "$KO/Image.gz" | LC_ALL=C grep -a -o "Linux version [^ ]*" | sort -u)
 ck "the Image's banner names the tree's HEAD commit g$HEADHASH, and only it" "$(printf '%s\n' "$BANNERS" | grep -c -E -e "-g$HEADHASH(-dirty)?$")/$(printf '%s\n' "$BANNERS" | grep -c .)" 1/1
-ck "the Image has the same banner as the matched image's (the same tree HEAD)" "$(zcat "$KO/Image.gz" | LC_ALL=C grep -a -o 'Linux version [^ ]*' | sort -u)" "$(zcat "$T/mk.gz" | LC_ALL=C grep -a -o 'Linux version [^ ]*' | sort -u)"
+if [ -n "$KERNEL_TAG" ]; then
+  ck "the tree's HEAD is the commit of the tag $KERNEL_TAG (the kernel is taken from the tag, never from a tree by hand)" "$(git -C "$KT" rev-parse HEAD)" "$(git -C "$KT" rev-parse "$KERNEL_TAG^{commit}")"
+  ck "the tree differs from the tag only in the lab's device tree files (dts, the Makefile line of build-kernel.sh): no kernel code by hand" "$(git -C "$KT" status --porcelain | grep -c -v ' arch/arm64/boot/dts/qcom/')" 0
+else
+  ck "the Image has the same banner as the matched image's (the same tree HEAD)" "$(zcat "$KO/Image.gz" | LC_ALL=C grep -a -o 'Linux version [^ ]*' | sort -u)" "$(zcat "$T/mk.gz" | LC_ALL=C grep -a -o 'Linux version [^ ]*' | sort -u)"
+fi
 ck "the Image carries the matched code (the purge guard, the version print, the phy refusal, the two read-only prints)" "$(zcat "$KO/Image.gz" | LC_ALL=C grep -a -c -e 'purge refused on this device' -e 'UFS_HW_VERSION %u.%u.%u' -e 'unknown UFS host version' -e 'UFS_HOST_LEFT HCS' -e 'UFS_PHY_LINECFG_DISABLE')" 5
 ck "the kernel config builds the UFS host, its phy, the msm8998 pinctrl, the sd disk driver, the GPT partition table, ext4 and the overlay filesystem in" "$(grep -c -e '^CONFIG_SCSI_UFS_QCOM=y$' -e '^CONFIG_PHY_QCOM_QMP_UFS=y$' -e '^CONFIG_PINCTRL_MSM8998=y$' -e '^CONFIG_BLK_DEV_SD=y$' -e '^CONFIG_EFI_PARTITION=y$' -e '^CONFIG_EXT4_FS=y$' -e '^CONFIG_OVERLAY_FS=y$' -e '^CONFIG_TMPFS=y$' -e '^CONFIG_DEVTMPFS=y$' "$KO/.config")" 9
 ck "the kernel config is the matched one's (the diagnostic one: dynamic debug and gpio debug)" "$(grep -c -e '^CONFIG_DYNAMIC_DEBUG=y$' -e '^CONFIG_DEBUG_GPIO=y$' "$KO/.config")" 2
@@ -99,6 +111,8 @@ ck "the init takes the word walleye.booted-slot and says walleye-init: mounts-th
 ck "the proof of the init passes (tests/host/ufs-root-init.sh: QEMU on a loop-made test rootfs, read-only, overlay, refusals)" "$(GEN=$GEN sh "$HERE/tests/host/ufs-root-init.sh" "$W" | cut -d' ' -f1)" pass
 ck "the command line carries the word walleye.debug exactly when this is the debug variant (DEBUG_INIT=$DEBUG_INIT), and the init has its two DEBUG blocks exactly then" "$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -c -x walleye.debug)/$(grep -c '^# DEBUG-BLOCK-BEGIN' "$T/rd/init")" "$([ -n "$DEBUG_INIT" ] && echo 1/2 || echo 0/0)"
 [ -z "$DEBUG_INIT" ] || ck "the proof of the debug init passes (tests/host/ufs-root-debug-init.sh: the watchdog petted, the gadget up before the card, a refusal held, the gadget released, no word = the root init)" "$(GEN=$GEN sh "$HERE/tests/host/ufs-root-debug-init.sh" "$W" | cut -d' ' -f1)" pass
+[ -z "$PRODUCTION_INIT" ] || ck "the proof of the production init passes (tests/host/ufs-root-production-init.sh: the petters before the slot and the card, no gadget or debug word, the root init's whole proof with it in its place)" "$(GEN=$GEN sh "$HERE/tests/host/ufs-root-production-init.sh" "$W" | cut -d' ' -f1)" pass
+[ -z "$PRODUCTION_INIT" ] || ck "the production image's command line has no walleye.debug and its init has no DEBUG block" "$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -c -x walleye.debug)/$(grep -c 'DEBUG-BLOCK' "$T/rd/init")" 0/0
 # the image, built twice
 make_image() { # OUTFILE
   out=$1

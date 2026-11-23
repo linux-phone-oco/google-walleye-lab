@@ -88,6 +88,7 @@ want "$T/ok.log" "ROOT-HAS-MARKER" "case 1 (the lower's files show)"
 want "$T/ok.log" "ROOT-KMSG-HAS-HANDING-OVER" "case 1 (the hand-over line reached the kernel log, so it was said before the moves of /dev: after them /dev/kmsg is gone)"
 want "$T/ok.log" "ROOT-HAS-HOLD-SCRIPT" "case 1 (the watchdog petter is in the root)"
 want "$T/ok.log" "ROOT-WATCHDOG-HELD" "case 1 (a process in the root holds /dev/watchdog open after the hand-over)"
+[ -z "${WANT_OK:-}" ] || want "$T/ok.log" "$WANT_OK" "case 1 (the line the caller asked for: WANT_OK)"   # tests/host/ufs-root-production-init.sh asks for the petter's line
 [ "$(sha "$T/a.img")" = "$A0" ] || say fail "case 2: the disk image changed"
 boot "$T/b.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.wait=3 walleye.pause=2" "$T/decoy.log"; refuse "$T/decoy.log" "case 3 (only system_b present)" "no partition named"
 boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_a walleye.pause=2" "$T/running.log"; refuse "$T/running.log" "case 4 (the running slot)" "the slot Android is on"; nodisplay "$T/running.log" "guard refusal running"

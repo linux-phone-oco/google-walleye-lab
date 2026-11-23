@@ -3310,3 +3310,28 @@ Research
 
 Tracked by
 : walleye-stage2-cmdline-too-long
+
+
+<a id="2026-11-23-production-init-is-the-root-init-plus-petters"></a>
+### 2026-11-23-production-init-is-the-root-init-plus-petters
+
+Date
+: 2026-11-23
+
+Brief
+: The production stage 2 init is the root init plus the petters block and a hold script that ends them; no debug init with its word off; the kernel comes from the int/ tag
+
+Decision
+: build/initramfs-root-production/init = the root init byte for byte plus two PRODUCTION-BLOCKs: block 1 starts a petter on every watchdog device (supervisor, looks again each second) right after the modules and before the command line, slot, name or card; block 2 replaces the root's hold script by one that only counts and then ends the petters and resets the phone. No gadget, telnet, debug log or word. The image is built by build/build-ufs-root-production.sh TAG from a detached checkout of int/walleye/ufs-on/v7.3/N (build-ufs-root-image.sh with PRODUCTION_INIT=yes KERNEL_TAG=TAG; its checks stop the build).
+
+Why
+: Run 11 passed all 29 steps with the debug image, whose gadget and telnet are for finding out, not for staying (a passwordless root shell on a cable). The petters are the part run 7-11 needed; Android pets one non-secure WDT0 (research walleye-android-watchdog-read-fix). Same shape as the debug init keeps one proof (tests/host/ufs-root-production-init.sh: text equals the root init outside the blocks, petters before the slot and card, root init QEMU proof passes with it).
+
+Rejected
+: The debug init with walleye.debug left off: the gadget, telnet and log code would stay in the image that stays on the phone. A kernel built from a tree by hand: the tag is the one named, read-back kernel (walleye-next-image-from-an-int-tag). Petting only /dev/watchdog as the root init did: it leaves the other watchdog devices unpetted.
+
+About
+: walleye-bootimage
+
+Tracked by
+: walleye-stage2-production-image

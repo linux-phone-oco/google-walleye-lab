@@ -7162,3 +7162,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-builder-production-image"></a>
+### Production stage 2 image built from the int/ tag
+
+Entry date
+: 2026-11-23
+
+Done
+: Production init and its QEMU test, PRODUCTION_INIT/KERNEL_TAG in build-ufs-root-image.sh, build-ufs-root-production.sh; reviewed by the programmer, its findings fixed (deadline, dead-petter restart, SIGKILL, test top, tag identity); image b74af863 built from int/walleye/ufs-on/v7.3/1, twice identical, 37 checks; device.toml row and the stage 2 command and rehearsal name it.
+
+Considered
+: Where the run stands: rehearsal, four-state walk and the run need the keeper and a go.
+
+Rejected
+: Debug init with the word off; kernel from a tree by hand.
+
+About
+: walleye-bootimage
