@@ -11275,10 +11275,10 @@ Rank
 ### Step 21 and the steps after it in the four-state walk: the offline walk over every start state reaches the new slot's read, with run 9's text as the new slot's answer, and the device tree slot_suffix source has a captured sample or says it has none
 
 Status
-: open
+: done
 
 Note
-: From the step 21 builder's report (PR 918): the amendment is landed and was seen failing on run 9's own text first; not done: step 21 is not in the four-state walk, and this phone's DT slot_suffix is unprinted. The Top Coordinator's decision asked for the four start states to be tested as before; this closes it before the one run.
+: Landed: the walk covers 8-22 and the way back over the 32 states (research walleye-stage2-walk-step21-table). Not sourced yet: this phone's DT slot_suffix and the new slot's GPT (a read-only keeper read would source both).
 
 About
 : walleye-bootimage

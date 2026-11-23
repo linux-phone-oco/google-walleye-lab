@@ -7066,3 +7066,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-stage2-walk-step21"></a>
+### Walk reaches step 21 and the way back
+
+Entry date
+: 2026-11-23
+
+Done
+: Extended the offline four-state walk (walleye-tries flash_boot.rs) with step 10, 21, 22, the way back and its flags on a stand-in phone that answers run 9's captured text; 16 of 32 states pass, 16 stop at 13; a test says the DT slot_suffix has no captured sample. 333 tests, clippy, fmt clean; no phone.
+
+Considered
+: Queueing a read-only keeper read of the DT node and the new slot's GPT: the item allows the test route; left to the coordinator.
+
+Rejected
+: Typing a DT value or a new-slot GPT as a fixture: not captured text (two walleye runs were lost to stand-ins on 2026-11-23). Steps 53 on in the walk: they need lab scripts, not asked.
+
+About
+: walleye-bootimage
