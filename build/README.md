@@ -14,8 +14,8 @@ Builds run on the lab machine through oco-agent (one `oco-agent run` at a time p
 
 ```sh
 # the kernel tree: a worktree of the shared kernel clone at the tag (the tag fetched once from kernel.org)
-git -C ~/Projects/surya-audio/linux fetch --no-tags --depth=1 https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git tag v7.3
-git -C ~/Projects/surya-audio/linux worktree add --detach ~/Projects/walleye-build/linux-v7.3 v7.3
+git -C ~/Projects/linux-phone-oco/linux fetch --no-tags --depth=1 https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git tag v7.3
+git -C ~/Projects/linux-phone-oco/linux worktree add --detach ~/Projects/walleye-build/linux-v7.3 v7.3
 
 build/build-kernel.sh   ~/Projects/walleye-build/linux-v7.3 ~/Projects/walleye-build/out   # Image.gz + dtb, clang
 build/build-busybox.sh  arm64  ~/Projects/walleye-build                                    # static busybox 1.36.1
