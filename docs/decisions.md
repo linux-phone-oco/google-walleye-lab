@@ -3139,3 +3139,31 @@ Scope
 
 Tracked by
 : walleye-ufs-try-2-silent-under-load
+
+
+<a id="2026-11-23-walleye-ufs-silent-one-ramped-pinned-try"></a>
+### 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try
+
+Date
+: 2026-11-23
+
+Brief
+: One more read-only RAM-boot try, same image: ramped load (64, 256, 1024 MiB), 1 s polls with a timestamp line before each step, devfreq pinned low; stage 3 stays blocked
+
+Decision
+: Run ONE try with the same ufs-on image sha (read-only, nothing written, nothing flashed): the load is ramped 64, 256, 1024 MiB with a pause between steps; before each step the phone appends 'step N start, uptime' to a file in its RAM and the host polls the shell every second; the changed variable is the devfreq governor of 1da4000.ufshc, set to powersave (clock 50 MHz, gear 1) before the first step - the host reads the governor, the current gear and the clock before, and sets nothing else. Read after: how far each step got, whether the silence is by time (4.5 s) or by volume, whether it appears at gear 1. Branches: shell stays alive through 1024 MiB at gear 1 = cause is gear 3 or the switching (causes 1 and 3); then a second try with governor performance (pinned high, no switching) separates the switching (1) from the sustained rate (3); silent again at gear 1 at the same 4.5 s = not the gear: causes 2 and 4, and the next try moves the ufs irq (smp_affinity) and the usb irq to different CPUs, then reads the PON reason after the way back; a volume-by-time split without a hang at 64 and 256 MiB = volume. On the way back the keeper reads the PON reason (bite or not) as the item walleye-pon-reasons-after-a-bite-how-to-read says. The existing go covers the image sha only: this procedure change needs a new go line.
+
+Why
+: The three logs show one fixed place of failure (about 4.5 s, gear 3 held), the first switch cleared, the OnePlus 5 on the same node works: so one variable on the same image, with the load shaped to tell time from volume, spends the least risk for the most separation. The governor is a runtime sysfs write on the phone's RAM kernel: no flash, no card write, no new image.
+
+Rejected
+: A new image with a log to pstore: ramoops is not shown to survive the warm reset yet and needs the author's unlock; an OPP-table image (walleye-ufs-opp-table-image): a patch before the cause is known; a try with clkscale_enable=0: it scales UP (ufshcd_clkscale_enable_store calls devfreq_scale up), the opposite of the pin low asked; sustained writes (stage 3): blocked until this is understood; looking for the cause by reading Android's vendor ufs-qcom only: it cannot tell the OUR-side difference, and Android's behaviour is already compared (walleye-ufs-solution-table)
+
+About
+: walleye-ufs-match-android-z
+
+Research
+: walleye-ufs-silent-under-load-causes-ranked
+
+Scope
+: walleye keeper, walleye coordinator

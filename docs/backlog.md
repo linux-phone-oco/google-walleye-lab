@@ -10194,3 +10194,28 @@ Proof
 
 Rank
 : 15
+
+
+<a id="walleye-ufs-silent-ramped-pinned-try"></a>
+### UFS silent-under-load: the ramped, pinned-low read-only try (same image)
+
+Status
+: open
+
+Note
+: From walleye-ufs-silent-under-load-causes-ranked and decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try. Procedure change to walleye-tries/src/ufs/load.rs: ramp 64/256/1024 MiB, a RAM log line before each step, governor powersave set first (verify /sys/class/devfreq/1da4000.ufshc exists and governor_powersave is built; else the item says so and stops). Needs the author's go for the new procedure (same image sha). Read PON reason on the way back.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: tests/health/base/ufs-sustained-read.sh passes: a 1024 MiB O_DIRECT read of sda finishes with the shell answering every second, or the first silent step and its gear and clock are recorded as a research row
+
+Rank
+: 3

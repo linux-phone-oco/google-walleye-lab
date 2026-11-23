@@ -1617,3 +1617,23 @@ By
 
 Takes
 : slpi base 0x94c00000 size 0xf00000 in the walleye entries, 0x94b00000 in the other seven; the SSC node's supplies, smp2p, pas-id
+
+
+<a id="mainline-v612-ufshcd-clk-scaling"></a>
+### Linux v6.12 drivers/ufs/core/ufshcd.c and host/ufs-qcom.c: devfreq clock scaling, gear scale, clk-scale notify
+
+Url
+: https://github.com/torvalds/linux/blob/v6.12/drivers/ufs/core/ufshcd.c
+
+Takes
+: ufshcd_devfreq_scale: prepare (1 s doorbell wait, new requests held), gear down before clocks down, gear up after clocks up; clkscale_enable=0 scales UP; ufs-qcom notify enters and leaves hibern8 around each change; devfreq polls every 100 ms with simple_ondemand
+
+
+<a id="oneplus5-mainline-ufs-dts"></a>
+### OnePlus 5/5T device tree series (msm8998-oneplus-common.dtsi): UFS internal storage on mainline
+
+Url
+: https://www.spinics.net/lists/linux-arm-msm/msg84453.html
+
+Takes
+: Same SoC and same msm8998.dtsi ufshc node (no iommus, no interconnects, legacy freq-table) is the UFS internal storage of a mainline phone: the shared driver path is not the first suspect; what is ours is
