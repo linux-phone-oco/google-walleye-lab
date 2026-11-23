@@ -7116,3 +7116,28 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-cmdline-tail-cut-cause-read"></a>
+### walleye-cmdline-tail-cut-cause-read
+
+Date
+: 2026-11-23
+
+Brief
+: The lost tail is one block of the ABL's code, not a length cut; header root= refuted; cause not known yet; ranked candidates with a RAM-only try
+
+Question
+: What cuts the bootloader's command line after androidboot.pk=g-pxl-p, losing slot_suffix, want_initramfs, rootwait, ro, init=/init and force_normal_boot?
+
+Found
+: COUNTED from captured text: Android b's line (android-b-cmdline-and-boot-props.txt) puts, after androidboot.pk=g-pxl-p, exactly six words in a fixed order: slot_suffix=_b want_initramfs rootwait ro init=/init androidboot.force_normal_boot=1. Run 8 (header ~377 chars, line 1364) and run 9 (header 149, line ~1136) lose all six, at the same word, though the totals differ by ~228 = the header difference: so it is NOT a buffer or length limit (a limit would cut at the same total, not the same word); everything BEFORE pk (verifiedbootstate=orange, keymaster, root=PARTUUID, bootdevice, serialno, boottime, baseband, panel, ..., pk) is present and equal. FROM SOURCE (CAF ABL UpdateCmdLine.c, generic, not the Pixel's closed build): the slot suffix, the initramfs word (skip_initramfs there; want_initramfs on the Pixel), ' rootwait ro init=/init' and the root path are appended in ONE conditional block after all other words, guarded by multi-slot boot and by NOT finding 'root=' in the header command line; so a block skipped whole gives exactly the symptom (all words after the last unconditional one, gone together). The Pixel's build differs (it puts root=PARTUUID early and force_normal_boot last), so the generic guard is a pointer to the SHAPE, not the proof. REFUTED by reading: (a) 'header contains root=': device.toml:103 header is 'clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3', no root=; the ABL's own root=PARTUUID is in the line (run 10); (b) a size limit (above); (c) a kernel-side cut (arm64 COMMAND_LINE_SIZE 2048, /proc/cmdline 1136). Not read: the Pixel ABL itself (closed), libavb: avb_slot_verify's own appended words (androidboot.vbmeta.*) are absent from Android b's line too (DT vbmeta node instead), so AVB state does not explain the difference by itself. RANKED CANDIDATES for what makes the Pixel's block be skipped: 1. the boot slot's state: Android b is the slot marked successful, ours is slot a just switched to with retry 1 and successful no (runs 8, 9; the slot suffix, initramfs and force_normal_boot words may be added only for a slot the ABL treats as normal); 2. the image: header v0 fields (ramdisk present, dtb appended, os_version, a footer 'algorithm NONE' by avbtool 1.4) vs Android b's boot image; 3. the boot path (a normal boot of a flashed slot, which is all we have tried). SMALLEST CHECKS, no phone change beyond what the procedure already does: (A) READ ONLY: run 10 and run 12 captured the line for slot a after it was marked successful? run 12 ended with ssh on the new slot: read its /proc/cmdline from run12/stdout.txt (keeper's build dir): if the tail is present once the slot is marked successful or the retry count is up, candidate 1 stands; (B) RAM ONLY: fastboot boot of the same production image with Android b's own 299-char header words and no change to flags: tests the header (candidate 2) without flashing; (C) the stock boot_a image booted from slot a with flags as in run 9 (the way back already does the slot switch): a full line there kills candidate 2. Whether image-avb-footer-in-rust is the fix is NOT known yet: no read shows the ABL checks the footer for this block; it is worth building only if (B)/(C) point at the image. Step 21 already accepts the slot from root=PARTUUID, so this item blocks nothing.
+
+Sources
+: src-caf-abl-updatecmdline,src-magisk-skip-initramfs,src-avb-readme
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/

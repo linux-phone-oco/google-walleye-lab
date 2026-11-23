@@ -11190,10 +11190,10 @@ Rank
 ### What cuts the bootloader's own command line after androidboot.pk=g-pxl-p (runs 8 and 9: 1364 and about 1136 characters, the same word), losing androidboot.slot_suffix, want_initramfs, rootwait, ro, init=/init and force_normal_boot
 
 Status
-: open
+: done
 
 Note
-: THE TOP COORDINATOR'S DECISION on run 9 (2026-11-23, PR 913): run 9 is the stage 2 milestone: our kernel from boot_a booted our Alpine root from sda22 with no cable (USB 19:29:22 'Pixel 2 walleye (stage 2 debug init)', 19:30:06 'Pixel 2 walleye (Alpine)'; pid1 /sbin/init, /dev/sda22 ro on /lower under an overlay); the procedure refused only because /proc/cmdline lacks androidboot.slot_suffix (cut at androidboot.pk=g-pxl-p again). Question (3) of the Top Coordinator's message: a separate research item, does not block the step 21 amendment; it matters because init=/init, want_initramfs and force_normal_boot are lost too, which is also why runs 4 and 7 did not behave like stage 1.
+: Read: not a length cut (same word at two totals); one conditional block in the ABL (shape from CAF source); header root= refuted; cause not known yet. Check A partly counted: run 12 (new-slot-source.txt) again answered from root=PARTUUID, so the tail was still cut on a slot with tries left, not yet marked successful. Next: B (fastboot boot, Android b's header words), C (stock boot_a on slot a): research walleye-cmdline-tail-cut-cause-read. Blocks nothing.
 
 About
 : walleye-bootimage

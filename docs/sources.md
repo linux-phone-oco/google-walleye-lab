@@ -1852,3 +1852,19 @@ Url
 
 Takes
 : clkscale_enable scales up; scale-down drops gear to min_gear G1 via legacy path; userspace governor set_freq
+
+
+<a id="src-caf-abl-updatecmdline"></a>
+### abl_tianocore_edk2 QcomModulePkg/Library/BootLib/UpdateCmdLine.c (CAF, commit 797918c)
+
+Url
+: https://gitlab.com/Codeaurora/abl_tianocore_edk2/-/blob/797918c3bf59e2d65b4acb2acdfd6883a0605ee1/QcomModulePkg/Library/BootLib/UpdateCmdLine.c
+
+Author
+: Qualcomm / Code Aurora
+
+By
+: Qualcomm (BSD 3-clause)
+
+Takes
+: How a Qualcomm ABL builds the kernel command line: header words, verity/verifiedbootstate/keymaster, bootdevice, serialno, baseband, display, then ONE conditional block (multi-slot and no root= in the header): slot_suffix, skip_initramfs, rootwait ro init=/init, root path; a stand-in: the Pixel 2's own ABL is closed. Read only, nothing copied
