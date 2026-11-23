@@ -10928,10 +10928,10 @@ Rank
 ### Android's Pixel 2 kernel as a read-only reference in the kernel clone: remote 'android', the one ref of the exact build the phone runs, tagged reference/android-walleye/BUILD, never merged, never pushed; the source in a research row
 
 Status
-: open
+: done
 
 Note
-: The Top Coordinator's order 2026-11-23, next to decision 2026-11-23-walleye-reuse-android-kernel-gpl: AHEAD of the watchdog kernel build, because that build should read Android's watchdog driver from this tree.
+: DONE 2026-11-23 (walleye-builder): proof steps 1-4 done; the matched tree is LineageOS lineage-22.1, not Google's (research walleye-android-kernel-reference-matched). Step 5 (a place in rhizoid's graph) is asked of rhizoid's coordinator: until then the remote and tag are enough.
 
 Blocked by
 : walleye-android-version-read

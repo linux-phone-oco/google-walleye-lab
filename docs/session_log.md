@@ -6904,3 +6904,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-builder-android-reference"></a>
+### walleye-builder: Android's kernel as a read-only reference
+
+Entry date
+: 2026-11-23
+
+Done
+: Found the phone's kernel commit in LineageOS/android_kernel_google_wahoo lineage-22.1, added it as read-only remote android of the linux clone with a local tag; recorded.
+
+Considered
+: Google's android-msm-wahoo-4.4-android11 as the item said: probed in a scratch repo, 4.4.223 of 2020, no such commit.
+
+Rejected
+: Fetching Google's wahoo branches or tags: not the build the phone runs.
+
+About
+: walleye-bootimage

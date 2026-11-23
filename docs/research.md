@@ -6757,3 +6757,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-android-kernel-reference-matched"></a>
+### walleye-android-kernel-reference-matched
+
+Date
+: 2026-11-23
+
+Brief
+: The phone's kernel 4.4.302-g113bd1cfa6f5 is LineageOS android_kernel_google_wahoo lineage-22.1, held read-only in the linux clone as remote android and a local tag
+
+Question
+: Which source tree and commit is the kernel the Pixel 2 runs on Android, and how is it held for reading?
+
+Found
+: MISMATCH with the item's text: android.googlesource.com/kernel/msm android-msm-wahoo-4.4-* does NOT hold it (android11 tip 52750b8f, 2020-08-04, SUBLEVEL 223; commit 113bd1cfa6f5 is in neither android10-release nor android11, and a short id cannot be fetched there). Matched how: the commit id in /proc/version (research walleye-android-b-kernel-build: 4.4.302-g113bd1cfa6f5, built Nov 28 2025) was asked of GitHub: LineageOS/android_kernel_google_wahoo commit 113bd1cfa6f5a688e605307df2cb3c0ae49c0b6b (LuK1337, 2025-04-20, 'mm, vmstat: Skip DMA in is_zone_first_populated()') is the HEAD of branches lineage-22.0 and lineage-22.1 (git ls-remote); its Makefile says 4.4 SUBLEVEL 302, as the phone prints. So the phone runs a LineageOS 22 (Android 15) kernel on the wahoo msm-4.4 tree. Held as: remote 'android' = https://github.com/LineageOS/android_kernel_google_wahoo.git in ~/Projects/linux-phone-oco/linux, fetch of ONLY refs/heads/lineage-22.1, tagopt --no-tags, pushurl 'no-push-reference-only' (a push is refused), local tag reference/android-walleye/4.4.302-g113bd1cfa6f5 on that commit; never pushed (ls-remote origin shows no reference/* tag), never merged. Read back: git log -1 on the tag; drivers/soc/qcom/watchdog_v2.c exists (Copyright 2012-2017 The Linux Foundation, GPL version 2 only, no SPDX line); drivers/watchdog/msm_watchdog.c does NOT exist; the walleye dts are under arch/arm64/boot/dts/htc/ (overlay-walleye-xa_xb_xc.dts, overlay-walleye-xd_xe_a.dts, dsi-panel-walleye-s6e3fa5.dtsi, msm8998-touch-walleye-xa/xd.dtsi, batterydata-walleye*.dtsi); 56631 files. Licence: COPYING GPL-2.0; per-file headers decide. RULE: findings cite android:PATH@113bd1cfa6f5, read with git show reference/android-walleye/4.4.302-g113bd1cfa6f5:PATH; nothing is copied without the file's licence read (decision 2026-11-23-walleye-reuse-android-kernel-gpl). Not known yet: whether Google's tree and this one differ in the watchdog driver (Lineage merges stable 4.4.x into Google's).
+
+About
+: walleye-bootimage
