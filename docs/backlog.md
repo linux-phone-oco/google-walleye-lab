@@ -9730,16 +9730,13 @@ Status
 : in-progress
 
 Note
-: UFS TRY 2 RUN 2 IS READY (the coordinator, 2026-11-23 08:36): the sample step is fixed (PR 778: the load state is polled on its own shell, gear reads wait up to 30 s, unanswered reads are kept with times in gear-load.txt; checks 16-19 are reachable in the 23-step dry run). The go is open until 2026-11-23T11:05:10+01:00 for the matched image 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 ONLY, under the author's standing go. Run 1 (PR 772) read 1-15 and the GPT re-read was EQUAL (PR 776). KEEPER: take it AFTER rerun 6 of walleye-install-rootfs-boots-try (one lease, one run at a time); the run sheet is below (battery rule first, worktree from main with ln -s ~/Projects/walleye-build build/images, 'boot: starting' and ONE result line to the Top Coordinator local_12b18c70-1b6d-4783-bb6f-50113ab63250); a failed check: the way back runs, write the research row, no third run without the coordinator. | HELD 2026-11-23 (the coordinator): off the phone queue until item walleye-ufs-try-2-sample-step lands (run 1 stopped at step 16; GPT re-read EQUAL, research walleye-ufs-try-2-run-1-gpt-equal, PR 776). Then the coordinator puts it back on the phone queue (needs phone, rank 1) and reopens the go if the window of 2026-11-23T11:05:10+01:00 has passed. | Run 1 of try 2 stopped at step 16 (sample not answered in 10 s); research walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load. No second run without the coordinator.
+: HELD 2026-11-23 (the coordinator) after run 2 (PR 786): off the phone queue until item walleye-ufs-try-2-silent-under-load lands; then needs phone, rank 1 and a go (11:05 today may have passed). | UFS TRY 2 RUN 2 IS READY (the coordinator, 2026-11-23 08:36): the sample step is fixed (PR 778: the load state is polled on its own shell, gear reads wait up to 30 s, unanswered reads are kept with times in gear-load.txt; checks 16-19 are reachable in the 23-step dry run). The go is open until 2026-11-23T11:05:10+01:00 for the matched image 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 ONLY, under the author's standing go. Run 1 (PR 772) read 1-15 and the GPT re-read was EQUAL (PR 776). KEEPER: take it AFTER rerun 6 of walleye-install-rootfs-boots-try (one lease, one run at a time); the run sheet is below (battery rule first, worktree from main with ln -s ~/Projects/walleye-build build/images, 'boot: starting' and ONE result line to the Top Coordinator local_12b18c70-1b6d-4783-bb6f-50113ab63250); a failed check: the way back runs, write the research row, no third run without the coordinator. | HELD 2026-11-23 (the coordinator): off the phone queue until item walleye-ufs-try-2-sample-step lands (run 1 stopped at step 16; GPT re-read EQUAL, research walleye-ufs-try-2-run-1-gpt-equal, PR 776). Then the coordinator puts it back on the phone queue (needs phone, rank 1) and reopens the go if the window of 2026-11-23T11:05:10+01:00 has passed. | Run 1 of try 2 stopped at step 16 (sample not answered in 10 s); research walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load. No second run without the coordinator.
 
 About
 : walleye-first-fastboot-boot
 
 Opened
 : 2026-11-23
-
-Needs
-: phone
 
 Proof
 : the image's own dmesg: UFS_HW_VERSION line, PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge
@@ -9961,3 +9958,53 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-ufs-try-2-run-2-gpt-equal"></a>
+### UFS try 2 run 2: is the card's GPT unchanged? Read it again from Android as root and compare with the hash the run took before
+
+Status
+: open
+
+Note
+: Run 2 stopped at step 16 (PR 786) before its own GPT-after check, so 'unharmed' by run 2 is NOT KNOWN YET; the same cheap read-only re-read as for run 1 (item walleye-ufs-try-2-run-1-gpt-equal, EQUAL, PR 776). A keeper on Android, no boot.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: from Android (adb root, read only, nothing written): sha256 of sda's GPT read the way procedures/ufs-matched-image-on-the-pixel-2.rs reads it equals 2de02f2bb790342885ebb3d70683d3db6d0cf70ead73a4b3cf738ca9b4cd57cb (the hash the run took before, research walleye-ufs-try-2-run-2-stopped-at-step-16-shell-silent-under-load); tests/host/bootchain-readback.sh equal against the stored set; both slots' flags unchanged; one research row that says EQUAL or NOT EQUAL with both hashes; the phone stays on Android
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-try-2-silent-under-load"></a>
+### UFS try 2: the shell goes silent while the 4 GiB read runs; wait for it to come back instead of stopping at 10 s, and keep the load from starving the gadget, so the 2 s-after reading and the GPT hash-equal check can run
+
+Status
+: open
+
+Note
+: Runs 1 and 2 both stopped at step 16 (run 1: the sample command, run 2: cat /tmp/load.done): under the 4 GiB O_DIRECT read of sda the shell/USB gadget goes silent for more than 10 s, which points at the load starving the gadget or the init, not at a gear fault. What we have: UFS 3.1.0, G1 idle, G3 2 lanes 200 MHz under load (8 samples, twice), the GPT of run 1 EQUAL after (PR 776). What is NOT KNOWN YET: the gear 2 s after load, and run 2's GPT-after. A third run only after this lands; if it stops the same way the coordinator takes the facts as they are and closes try 2.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: from the keeper's logs of run 1 and run 2 (~/.cache/agent-build/86c262/ufs-try2-run-2.log and the run 1 log ufs-try2.log, copied into research material by the keeper or read in place): the procedure (procedures/ufs-matched-image-on-the-pixel-2.rs and tools/walleye-tries) treats a silent shell DURING the bounded read as a reading (kept with its time) and waits for the shell to answer again until the read's own limit (load_limit 60 s) plus a margin before it stops; then reads the gear 2 s after the load (idle clock scale-down), hashes the GPT again and runs the no-purge check; the load is also made lighter if that is what keeps the usb gadget alive (a smaller load_mb, nice or ionice on the read, one reader): the builder says from the logs which, with the line it rests on; the stand-in test uses the lines the phone printed in those two logs; image 461077869fb2 and the go item untouched; dry run (23 steps), check --host, tests, clippy, fmt, review
+
+Rank
+: 3
