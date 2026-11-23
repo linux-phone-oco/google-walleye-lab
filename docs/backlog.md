@@ -9728,13 +9728,16 @@ Status
 : in-progress
 
 Note
-: HELD 2026-11-23 (the coordinator) after run 2 (PR 786): off the phone queue until item walleye-ufs-try-2-silent-under-load lands; then needs phone, rank 1 and a go (11:05 today may have passed). | UFS TRY 2 RUN 2 IS READY (the coordinator, 2026-11-23 08:36): the sample step is fixed (PR 778: the load state is polled on its own shell, gear reads wait up to 30 s, unanswered reads are kept with times in gear-load.txt; checks 16-19 are reachable in the 23-step dry run). The go is open until 2026-11-23T11:05:10+01:00 for the matched image 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 ONLY, under the author's standing go. Run 1 (PR 772) read 1-15 and the GPT re-read was EQUAL (PR 776). KEEPER: take it AFTER rerun 6 of walleye-install-rootfs-boots-try (one lease, one run at a time); the run sheet is below (battery rule first, worktree from main with ln -s ~/Projects/walleye-build build/images, 'boot: starting' and ONE result line to the Top Coordinator local_12b18c70-1b6d-4783-bb6f-50113ab63250); a failed check: the way back runs, write the research row, no third run without the coordinator. | HELD 2026-11-23 (the coordinator): off the phone queue until item walleye-ufs-try-2-sample-step lands (run 1 stopped at step 16; GPT re-read EQUAL, research walleye-ufs-try-2-run-1-gpt-equal, PR 776). Then the coordinator puts it back on the phone queue (needs phone, rank 1) and reopens the go if the window of 2026-11-23T11:05:10+01:00 has passed. | Run 1 of try 2 stopped at step 16 (sample not answered in 10 s); research walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load. No second run without the coordinator.
+: UFS TRY 2 RUN 3 IS READY (the coordinator, 2026-11-23): the shell silent under load is now a reading kept with its time (PR 812, decision 2026-11-23-walleye-ufs-silent-shell-is-a-reading: load_mb 2048, the wait runs to load_limit+60 s, the shell is reopened); the 2 s-after gear, the GPT hash-equal and the no-purge checks can run. The go is for the matched image 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 ONLY, under the author's standing go. KEEPER: take it AFTER rerun 7 of walleye-install-rootfs-boots-try (one lease, one run at a time); 'boot: starting' and ONE result line to the Top Coordinator local_12b18c70-1b6d-4783-bb6f-50113ab63250; a failed check: the way back runs, the research row says what the phone printed (the phone-side cause of the silence is NOT KNOWN YET: keep gear-load.txt and the times of the unanswered reads in the material), the GPT is read again from Android if the run did not reach it, no fourth run without the coordinator; if this third run stops the same way the coordinator takes the facts as they are and closes try 2. | HELD 2026-11-23 (the coordinator) after run 2 (PR 786): off the phone queue until item walleye-ufs-try-2-silent-under-load lands; then needs phone, rank 1 and a go (11:05 today may have passed). | UFS TRY 2 RUN 2 IS READY (the coordinator, 2026-11-23 08:36): the sample step is fixed (PR 778: the load state is polled on its own shell, gear reads wait up to 30 s, unanswered reads are kept with times in gear-load.txt; checks 16-19 are reachable in the 23-step dry run). The go is open until 2026-11-23T11:05:10+01:00 for the matched image 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 ONLY, under the author's standing go. Run 1 (PR 772) read 1-15 and the GPT re-read was EQUAL (PR 776). KEEPER: take it AFTER rerun 6 of walleye-install-rootfs-boots-try (one lease, one run at a time); the run sheet is below (battery rule first, worktree from main with ln -s ~/Projects/walleye-build build/images, 'boot: starting' and ONE result line to the Top Coordinator local_12b18c70-1b6d-4783-bb6f-50113ab63250); a failed check: the way back runs, write the research row, no third run without the coordinator. | HELD 2026-11-23 (the coordinator): off the phone queue until item walleye-ufs-try-2-sample-step lands (run 1 stopped at step 16; GPT re-read EQUAL, research walleye-ufs-try-2-run-1-gpt-equal, PR 776). Then the coordinator puts it back on the phone queue (needs phone, rank 1) and reopens the go if the window of 2026-11-23T11:05:10+01:00 has passed. | Run 1 of try 2 stopped at step 16 (sample not answered in 10 s); research walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load. No second run without the coordinator.
 
 About
 : walleye-first-fastboot-boot
 
 Opened
 : 2026-11-23
+
+Needs
+: phone
 
 Proof
 : the image's own dmesg: UFS_HW_VERSION line, PHY table line, link up HS-G3 2 lanes, LUNs listed, no purge
@@ -9746,7 +9749,7 @@ Witness
 : person
 
 Go until
-: 2026-11-23T11:05:10+01:00
+: 2026-11-23T13:28:32+01:00
 
 
 <a id="walleye-ufs-try-2-run-1-gpt-equal"></a>
