@@ -6847,3 +6847,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-1800-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Took walleye-ufs-silent-ramped-pinned-try (first ready row). Dry run of procedures/ufs-matched-image-on-the-pixel-2.rs: all 25 steps pass. Real run stopped at check 6: the go on walleye-try-ufs-match does not name image sha 461077869fb2 (item is done; the decision says the new procedure needs a new go line). The ready list showed the item ready without that go. Phone went to fastboot by step 3 and back by the way back; Android slot b, adb device, nothing booted, flashed or written. A fresh worktree needs build/images linked to ~/Projects/walleye-build (AGENTS.md) before a real run.
+
+Considered
+: Granting the go myself: refused, the go is the author's.
+
+About
+: walleye-ufs-match-android-z
