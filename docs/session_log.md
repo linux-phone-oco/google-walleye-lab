@@ -6202,3 +6202,21 @@ Rejected
 
 About
 : walleye-kernel-series-to-topics
+
+---
+
+
+<a id="2026-11-23-walleye-kernel-tag-lines-landed"></a>
+### walleye kernel_tag lines landed
+
+Entry date
+: 2026-11-23
+
+Done
+: The four kernel_tag lines (z21, ufs-match, ufs-root, ufs-root-booted-slot) added to device.toml after the CI pin moved to lpoco-attended 0.44.3; lpoco-attended check passes; tags read back from the fork.
+
+Considered
+: Moving the pin by hand (rejected earlier: orchestration did it in PR 790).
+
+About
+: walleye-kernel-dts
