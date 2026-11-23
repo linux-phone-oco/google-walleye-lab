@@ -6508,3 +6508,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-1240-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Stage 2 rerun 3 under the go for e337de53: checks 1-15 passed, stopped at check 16 (flash changed nothing because boot_a already held the image); nothing set_active; phone on Android slot b, stock kernel; boot_a holds e337de53
+
+Considered
+: next: coordinator amends check 16 (unchanged boot_a is right when it already held the image) or says to restore boot_a first; then one more run; item walleye-install-flash-boot-run stays in-progress
+
+About
+: walleye-display-s6e3fa5

@@ -6344,3 +6344,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stage2-rerun-3-stops-at-check-16-flash-changes-nothing"></a>
+### walleye-stage2-rerun-3-stops-at-check-16-flash-changes-nothing
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 rerun 3 stopped at check 16: boot_a already held e337de53, so the flash changed no partition and the check expecting boot_a to change failed; no set_active; phone on Android b
+
+Question
+: Does the stage 2 one command pass end to end with boot_a already holding the image, under the go for e337de53?
+
+Found
+: Checks 1-15 passed (battery, image sha e337de53 with AVB footer, init accepts slot, stored chain, go recorded, adb slot suffix _b, boot_a already holds the image and the stock backup hashes to its record 2a5cd3b2, 6 GPTs kept, fastboot agrees, flags read, one fastboot flash boot_a, phone back on Android as root). Check 16 failed: 'the partitions that changed with the flash are [], expected only boot_a' - the flash wrote the same bytes, so nothing changed, and the check demands a change. Same class as check 9 in rerun 2: a check assumes boot_a differs from the image before the flash. Nothing past the flash ran: no set_active, no way back needed; the phone is on Android slot b (phone-state.sh: adb device, verdict android). Not run a third time, per the item. Needs the coordinator's amendment of check 16 (accept an unchanged boot_a when it already held the image and reads back as the image), or restoring the stock boot_a first. Log: the run's own log under AGENT_BUILD stage2-run3.log.
+
+About
+: walleye-display-s6e3fa5
