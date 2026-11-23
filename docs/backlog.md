@@ -10719,3 +10719,56 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-stage2-watchdog-prechecks"></a>
+### The Top Coordinator's three read-only checks before the watchdog try: does e337de53 already carry the mechanism, what does the STOCK fdt say about the apps watchdog (address, interrupts, bark and pet times), and does qcom-wdt really keep an already-enabled watchdog petted
+
+Status
+: open
+
+Note
+: The Top Coordinator's proposal after run 7 (2026-11-23): make the next try itself the fix for the top-ranked cause: mainline's qcom-wdt marks an already-enabled watchdog WDOG_HW_RUNNING and with WATCHDOG_HANDLE_BOOT_ENABLED=y (default y) the core pets it until userspace opens /dev/watchdog; the three checks first, read-only. Coordinator's facts so far (verified 2026-11-23): qcom-wdt.c:331-333 does set HW_RUNNING; our build/walleye.config already has CONFIG_QCOM_WDT=y; our dts HAS a kpss-wdt node at 0x17817000 with downstream values never measured on this phone; OUR INIT pets /dev/watchdog only inside its wait-for-the-partition loop (init line 64) and after the hand-over by hold.sh (900 s deadman, then reboot -f by design: decision 2026-11-17-walleye-try-returns-without-hands), so before that loop nothing in userspace pets; if the bootloader arms the apps wdt with the downstream times (bark 11 s) a kernel that reaches the loop later than that, or whose driver did not probe, is reset: about the 35-40 s the host's USB log shows including the bootloader.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row with sources, each answer with its line: (1) e337de53 (and its kernel tree topic/ufs-match-android + the build config): CONFIG_QCOM_WDT, CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED (Kconfig default y, drivers/watchdog/Kconfig:50) in the .config the image was built with, and whether the driver probes in a kernel log we have (stage 1's dmesg: say if no log has it: NOT KNOWN YET); (2) the STOCK fdt's apps watchdog node (qcom,msm-watchdog or the like at 0x17817000?): address, interrupts, bark-time, pet-time, ipi-ping, wakeup, read from the stored stock images on the lab machine (boot_a.img backup and the dtbo/vbmeta material under ~/lab-material, host only) and, read only, from /proc/device-tree on the running Android b by adb root; compared field by field with OUR dts node (dt/msm8998-google-walleye.dts: watchdog@17817000 qcom,kpss-wdt, reg 0x17817000 0x1000, clock sleep_clk, SPI 3 edge rising: 'NOT measured on this phone yet') and with the register layout qcom,kpss-wdt expects (offsets 0x4 RST, 0x8 EN, 0xc STS, 0x10 BARK, 0x14 BITE); (3) the current source: drivers/watchdog/qcom-wdt.c lines 331-333 on v7.3 (already read by the coordinator: 'if (qcom_wdt_is_running(&wdt->wdd)) { qcom_wdt_start(&wdt->wdd); set_bit(WDOG_HW_RUNNING, &wdt->wdd.status); }'), what qcom_wdt_is_running reads, which timeout qcom_wdt_start programs (so the bootloader's bark/bite times are replaced by ours) and the watchdog core's petting interval, with the lines; ends in: is the kernel-level petting ALREADY in the image and failing (then WHY: address, clock, irq, probe order, a different watchdog block), or missing; and what the bootloader's own timeouts are (bark about 11 s, bite later: say how long after the jump a kernel has to pet, from the stock node and the downstream msm_watchdog source); no phone beyond the read-only adb reads
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-watchdog-kernel"></a>
+### The watchdog try: the kernel pets the bootloader-armed watchdog from probe (qcom-wdt, HANDLE_BOOT_ENABLED), built as a topic or wip branch, assembled by rhizoid into an int/ tag, the image's [images.*] row naming the tag; then ONE stage 2 run
+
+Status
+: open
+
+Note
+: The Top Coordinator's order after run 7: build the watchdog try as the FIRST image from a live list (topic or wip branch plus rhizoid assemble, kernel_tag in its row), which is also step 3 of the author's structure list (walleye-next-image-from-an-int-tag). Then ONE stage 2 run; if slot a then answers ssh stage 2 proceeds; if it still resets, cold USB is next.
+
+Blocked by
+: walleye-stage2-watchdog-prechecks
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: from the research row of walleye-stage2-watchdog-prechecks: (1) the dts node is corrected to the STOCK fdt's values (address, interrupts, clocks, bark and pet) if they differ, and enabled; CONFIG_QCOM_WDT=y and CONFIG_WATCHDOG_HANDLE_BOOT_ENABLED=y written explicitly in build/walleye.config (not by default alone); the change is a commit on a wip/walleye/... or topic/ branch of the fork, pushed (ls-remote), never an edit of a worktree; (2) a list (kernel/topics.toml: the live list ufs-on plus this change as its own entry, or a new list ufs-on-wdt: say which and why) assembled by rhizoid assemble (or lpoco bringup kernel assemble) to an int/ tag, pushed and read back; (3) an offline check on the built dtb (fdtdump: the watchdog node's reg, interrupts, compatible equal the stock values) and on the built .config; (4) the stage 2 image built from THAT tag together with the debug init of walleye-stage2-debug-image, its [images.*] row naming the tag in kernel_tag and the sha256, built twice identical; the stage 2 command's image name set to it in device.toml (one recorded line); dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 1
