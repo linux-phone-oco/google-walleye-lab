@@ -10122,3 +10122,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-install-flash-boot-rehearsal-2"></a>
+### The stage 2 rehearsal again for real, after PR 817 changed the way back: every step but the flash, the set_active, the new slot's boot and the switch back; nothing is written
+
+Status
+: open
+
+Note
+: Asked for by the coordinator (2026-11-23 11:05): PR 817 changed stage 2's way back and the stored-set step; the first rehearsal (PR 798) found two checker bugs that the real run would have hit, so the changed code is rehearsed for real before any go. Runs AFTER UFS try 2 run 3 (one lease). Next: the coordinator opens the stage 2 go on walleye-install-flash-boot-run for image e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: procedures/rehearse-install-boot-on-the-pixel-2.rs run by a keeper against the phone on Android (no go needed, nothing written; no fastboot flash, set_active, erase, oem or reboot verb): all its steps pass on the code of PR 817 (the walleye-reboot tool's sha256 checked in the stored-set step, to_bootloader exactly '/tmp/walleye-reboot --command bootloader', the shared reboot_tool.rs); rust-script --force after a walleye-tries change; the log says what each read printed, kept as research material; the phone stays on Android slot b; NOT a go: it is the bar before the coordinator opens the stage 2 go (rule of the Top Coordinator after rerun 7)
+
+Rank
+: 2
