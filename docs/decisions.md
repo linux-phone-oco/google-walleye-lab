@@ -3167,3 +3167,31 @@ Research
 
 Scope
 : walleye keeper, walleye coordinator
+
+
+<a id="2026-11-23-walleye-stage2-no-ssh-read-pstore-first"></a>
+### 2026-11-23-walleye-stage2-no-ssh-read-pstore-first
+
+Date
+: 2026-11-23
+
+Brief
+: Before changing the image, repeat the stage 2 try without a flash and read slot a's console from pstore on Android b; do not change kernel, init or cmdline on a guess
+
+Decision
+: The next move on slot a no-ssh is one try with no flash: set_active a, fall-back, pstore read before any reboot, plus the stock fdt's watchdog values. Candidates by rank: bootloader-armed watchdog, cold USB, then cmdline words, dtbo, AVB, init path. The result picks the one change that follows (for example petting or taking over the apps watchdog at the very start of the init, or a USB bring-up step).
+
+Why
+: Nothing says yet whether our kernel started; the same kernel ran from RAM with ssh in 12 s, so the cause lies in what a normal boot adds. bootreason=watchdog means a watchdog bit, which a missing gadget cannot cause alone.
+
+Rejected
+: Making a change now to arm/pet the watchdog from init (a guess, costs a flash and a go); lengthening the 170 s window (stage 1 needed 12 s); a fastboot-boot repeat (cannot show a normal boot's state).
+
+About
+: walleye-bootimage
+
+Research
+: walleye-stage2-slot-a-no-ssh-causes-ranked
+
+Tracked by
+: walleye-stage2-slot-a-pstore-try
