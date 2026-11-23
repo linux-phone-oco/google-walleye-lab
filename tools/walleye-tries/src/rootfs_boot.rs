@@ -254,7 +254,6 @@ pub struct InitSaw {
     /// the card's device, from `root is /dev/NAME (PARTNAME=...)`
     pub device: Option<String>,
     pub partname: Option<String>,
-    pub handed_over: bool,
     /// a `refused: ...` line
     pub refused: Option<String>,
 }
@@ -277,8 +276,6 @@ impl InitSaw {
                 saw.partname = rest
                     .split_once("PARTNAME=")
                     .map(|p| p.1.trim_end_matches(')').trim().to_string());
-            } else if said.starts_with("handing over") {
-                saw.handed_over = true;
             } else if let Some(why) = said.strip_prefix("refused:") {
                 saw.refused = Some(why.trim().to_string());
             }
@@ -287,7 +284,7 @@ impl InitSaw {
     }
 
     /// The init saw what the lab expects: no refusal, the slot suffix adb read (a missing one is a failed-open guard), the named root,
-    /// that root's PARTNAME on one device, and the hand-over.
+    /// that root's PARTNAME on one device. The hand-over is not read here: the init's last line is lost (see pid1_is_the_roots_init).
     pub fn matches(&self, root: &str, adb_suffix: &str) -> Done {
         if let Some(why) = &self.refused {
             return Err(format!("the image's init refused: {why}"));
@@ -317,11 +314,36 @@ impl InitSaw {
                 self.device, self.partname
             ));
         }
-        if !self.handed_over {
-            return Err("the init did not hand over to the root's /sbin/init".into());
-        }
         Ok(())
     }
+}
+
+/// PID 1 is the root's /sbin/init (what `exec switch_root /newroot /sbin/init` leaves), not the initramfs init: the hand-over from the live state,
+/// since the init's own 'handing over' line goes to /dev/kmsg after /dev was moved and is lost.
+pub fn pid1_is_the_roots_init(pid1_cmdline: &str) -> Result<(), String> {
+    match pid1_cmdline
+        .split(|c: char| c.is_whitespace() || c == '\0')
+        .find(|w| !w.is_empty())
+    {
+        Some("/sbin/init") => Ok(()),
+        Some(other) => Err(format!(
+            "PID 1 is {other:?} ({}), not the root's /sbin/init: the init did not hand over",
+            pid1_cmdline.trim()
+        )),
+        None => Err(
+            "PID 1's command line is empty or unread: not known, the hand-over is not proved"
+                .into(),
+        ),
+    }
+}
+
+/// The overlay root's lower layer is the very partition the init named, mounted read-only.
+pub fn lower_is_the_named_card(proc_mounts: &str, device: &str) -> Result<(), String> {
+    let lower = mounts_are_read_only(proc_mounts)?;
+    if lower != format!("/dev/{device}") {
+        return Err(format!("/lower is {lower}, the init named /dev/{device}"));
+    }
+    Ok(())
 }
 
 /// The option words of a mount line.
@@ -449,12 +471,12 @@ pub fn sections(text: &str) -> Vec<(String, String)> {
 }
 
 /// The one read: what is running, what is mounted, what the kernel said, what the root's init manages.
-pub const READ_COMMAND: &str = "echo ---id; id -u; echo ---kernel; uname -r; echo ---cmdline; cat /proc/cmdline; echo ---mounts; cat /proc/mounts; echo ---dmesg; dmesg; echo ---services; rc-status --crashed 2>&1 || true; echo ---net; ip -o addr show usb0 2>&1; echo ---end";
+pub const READ_COMMAND: &str = "echo ---id; id -u; echo ---kernel; uname -r; echo ---cmdline; cat /proc/cmdline; echo ---pid1; cat /proc/1/cmdline; echo; echo ---mounts; cat /proc/mounts; echo ---dmesg; dmesg; echo ---services; rc-status --crashed 2>&1 || true; echo ---net; ip -o addr show usb0 2>&1; echo ---end";
 
 /// What the lab reads, read-only, when a check after the boot failed and the phone is still on the image (item
 /// walleye-rootfs-boots-run-2-diagnose): the kernel log's tail and the init's own lines, the command line, the mounts, the
 /// processes, the root and where the init may have put the new root, any log the init keeps, the card's partition names, the space.
-pub const EVIDENCE_COMMAND: &str = "echo ---dmesg-tail; dmesg | tail -n 300; echo ---init-lines; dmesg | grep 'walleye-ufs-root:'; echo ---cmdline; cat /proc/cmdline; echo ---mounts; cat /proc/mounts; echo ---ps; ps; echo ---root; ls -l /; echo ---new-root; ls -l /new_root /mnt /sysroot 2>&1; echo ---init-logs; for f in /run/*.log /var/log/*.log /tmp/*.log /*.log; do [ -f \"$f\" ] && { echo \"== $f\"; tail -n 100 \"$f\"; }; done; echo ---partnames; for u in /sys/class/block/*/uevent; do grep -H PARTNAME \"$u\"; done; echo ---df; df 2>&1; echo ---end";
+pub const EVIDENCE_COMMAND: &str = "echo ---dmesg-tail; dmesg | tail -n 300; echo ---init-lines; dmesg | grep 'walleye-ufs-root:'; echo ---cmdline; cat /proc/cmdline; echo ---pid1; cat /proc/1/cmdline; echo; echo ---mounts; cat /proc/mounts; echo ---ps; ps; echo ---root; ls -l /; echo ---new-root; ls -l /new_root /mnt /sysroot 2>&1; echo ---init-logs; for f in /run/*.log /var/log/*.log /tmp/*.log /*.log; do [ -f \"$f\" ] && { echo \"== $f\"; tail -n 100 \"$f\"; }; done; echo ---partnames; for u in /sys/class/block/*/uevent; do grep -H PARTNAME \"$u\"; done; echo ---df; df 2>&1; echo ---end";
 
 /// The slot suffix adb read, kept so the watching parent can measure the card as the run would have.
 pub const SUFFIX_FILE: &str = "slot-suffix.txt";
@@ -954,7 +976,8 @@ impl RootfsBoot {
         }
     }
 
-    /// The init saw the slot adb saw and mounted the named partition; the guard did not fail open.
+    /// The init saw the slot adb saw and mounted the named partition; the guard did not fail open; and the hand-over happened: PID 1 is the
+    /// root's /sbin/init and the overlay's lower layer is that partition (the live state, not the init's lost last log line).
     pub fn the_init_saw_the_slot_adb_saw(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
@@ -962,6 +985,11 @@ impl RootfsBoot {
             let saw = InitSaw::of(&dmesg);
             let before = u.before.borrow().clone();
             saw.matches(&before.root, &before.suffix)?;
+            pid1_is_the_roots_init(&u.read_section("pid1")?)?;
+            lower_is_the_named_card(
+                &u.read_section("mounts")?,
+                saw.device.as_deref().unwrap_or(""),
+            )?;
             println!(
                 "  the init mounted /dev/{} (PARTNAME {}) with slot suffix {}",
                 saw.device.as_deref().unwrap_or("?"),
@@ -1268,12 +1296,9 @@ mod tests {
         let refused = "walleye-ufs-root: refused: no partition named system_a after 90s";
         let e = InitSaw::of(refused).matches("system_a", "_b").unwrap_err();
         assert!(e.contains("refused") && e.contains("no partition"), "{e}");
-        // not handed over
+        // the init's last line is lost after /dev moved: the log alone no longer decides the hand-over
         let half = DMESG.lines().take(2).collect::<Vec<_>>().join("\n");
-        assert!(InitSaw::of(&half)
-            .matches("system_a", "_b")
-            .unwrap_err()
-            .contains("hand over"));
+        assert!(InitSaw::of(&half).matches("system_a", "_b").is_ok());
         assert!(InitSaw::of("").matches("system_a", "_b").is_err());
     }
 
@@ -1415,7 +1440,7 @@ mod tests {
     }
 
     fn read_of(dmesg: &str, mounts: &str, id: &str, net: &str, services: &str) -> String {
-        format!("---id\n{id}\n---kernel\n7.3.0\n---cmdline\nx walleye.root=system_a\n---mounts\n{mounts}---dmesg\n{dmesg}---services\n{services}---net\n{net}\n---end\n")
+        format!("---id\n{id}\n---kernel\n7.3.0\n---cmdline\nx walleye.root=system_a\n---pid1\n/sbin/init \n---mounts\n{mounts}---dmesg\n{dmesg}---services\n{services}---net\n{net}\n---end\n")
     }
 
     const NET: &str = "5: usb0    inet 172.16.43.1/24 brd 172.16.43.255 scope global usb0";
@@ -1435,6 +1460,82 @@ mod tests {
                 && calls.contains("BatchMode=yes"),
             "{calls}"
         );
+    }
+
+    #[test]
+    fn pid1_and_the_lower_layer_are_read_exactly() {
+        for ok in [
+            "/sbin/init",
+            "/sbin/init -q",
+            "  /sbin/init \n",
+            "/sbin/init\0",
+        ] {
+            assert!(pid1_is_the_roots_init(ok).is_ok(), "{ok:?}");
+        }
+        for bad in [
+            "init",
+            "/bin/busybox init",
+            "/bin/busybox\0sh\0/init\0",
+            "/init",
+            "/sbin/init2",
+            "",
+        ] {
+            assert!(pid1_is_the_roots_init(bad).is_err(), "{bad:?}");
+        }
+        assert!(lower_is_the_named_card(MOUNTS, "sda13").is_ok());
+        for device in ["sda1", "sda", ""] {
+            assert!(
+                lower_is_the_named_card(MOUNTS, device).is_err(),
+                "{device:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn the_hand_over_is_proved_by_the_live_state_not_by_the_lost_log_line() {
+        let with_pid1 = |name: &str, dmesg: &str, mounts: &str, pid1: &str| {
+            let read = read_of(dmesg, mounts, "0", NET, "")
+                .replace("---pid1\n/sbin/init \n", &format!("---pid1\n{pid1}\n"));
+            let r = rig(name, &read, 0);
+            (r.the_login_works_and_the_phone_is_read())().unwrap();
+            r
+        };
+        // the handing-over line missing (lost after /dev moved): passes by the live state
+        let lost = DMESG.lines().take(2).collect::<Vec<_>>().join("\n") + "\n";
+        let r = with_pid1("lost", &lost, MOUNTS, "/sbin/init ");
+        (r.the_init_saw_the_slot_adb_saw())().unwrap();
+        // PID 1 is still the initramfs init: fails, with the reading in the message
+        let r = with_pid1("initramfs", DMESG, MOUNTS, "/bin/sh /init ");
+        let e = (r.the_init_saw_the_slot_adb_saw())().unwrap_err();
+        assert!(
+            e.contains("/bin/sh") && e.contains("did not hand over"),
+            "{e}"
+        );
+        // PID 1 unread: not known, still a stop
+        let r = with_pid1("unread", DMESG, MOUNTS, "");
+        assert!((r.the_init_saw_the_slot_adb_saw())()
+            .unwrap_err()
+            .contains("not known"));
+        // the root is not the overlay: fails
+        let r = with_pid1(
+            "noovl",
+            DMESG,
+            &MOUNTS.replace("overlay / overlay", "/dev/sda13 / ext4"),
+            "/sbin/init ",
+        );
+        assert!((r.the_init_saw_the_slot_adb_saw())()
+            .unwrap_err()
+            .contains("overlay"));
+        // the lower layer is another partition than the init named: fails
+        let r = with_pid1(
+            "other",
+            DMESG,
+            &MOUNTS.replace("/dev/sda13 /lower", "/dev/sda14 /lower"),
+            "/sbin/init ",
+        );
+        assert!((r.the_init_saw_the_slot_adb_saw())()
+            .unwrap_err()
+            .contains("named"));
     }
 
     #[test]

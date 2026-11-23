@@ -9536,10 +9536,10 @@ Go until
 ### Check 17 of the stage 1 boot proves the hand-over from the live state (PID 1, the overlay root, the card read-only), not from a log line the init cannot write after it moved /dev
 
 Status
-: open
+: done
 
 Note
-: From run 3 (research walleye-rootfs-boots-run-3-handover-happened-unlogged, keeper local_e1d8872c): checks 1-16 passed and check 17 failed although the hand-over happened: build/initramfs-root/init line 94 says 'handing over' AFTER mount --move /dev at line 91, and say() writes /dev/kmsg, which is not there after the move, so the line is lost and the check (rootfs_boot.rs, handed_over from that line) fails. Decision of the coordinator: fix the CHECK, not the image (a log line is a weak proxy; PID 1 and the overlay are the proof; rebuilding changes the declared sha and needs a new go and rehearsal for a log line). Rejected for now: moving the say before the --moves (it would be a good change for the next init, better logging of later failures, but it changes the image); one more run first. The init may log its 'handing over' line before the moves in the NEXT init rebuild (any later item that rebuilds the ufs-root image).
+: Built 2026-11-23: check 17 reads PID 1's cmdline (first word /sbin/init) and the overlay's lower layer (= the partition the init named, ro) from the live state; the missing 'handing over' line no longer fails it. Image c3373d71 not rebuilt, the go on walleye-install-rootfs-boots-try stays valid. Proof: stand-in tests (lost line passes, initramfs PID 1 fails, unread PID 1 stops, non-overlay root fails, other lower partition fails), cargo test 220 passed, clippy, fmt, procedure --dry-run 26 steps. Next: the keeper's rerun of walleye-install-rootfs-boots-try.
 
 About
 : walleye-display-s6e3fa5
