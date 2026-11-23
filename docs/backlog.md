@@ -6550,7 +6550,7 @@ Proof
 : tests/health/base/slpi-sensor-service.sh passes; then libssc reads accelerometer samples while tilted
 
 Rank
-: 5
+: 4
 
 
 <a id="walleye-nfc-nxp-nci-node"></a>
@@ -9902,7 +9902,7 @@ Proof
 : a research row with sources: the vendor (Android) dtb's SLPI reserved-memory node and the remoteproc/pil node (addresses, sizes, firmware-name, memory-region, the SMMU/IOMMU and smem users), the SLPI firmware's own header (the ELF program headers or the mdt/b00 of the phone's slpi image read on the lab machine from ~/lab-material, never git) with the load address and size, mainline's qcom,msm8998-slpi-pas bindings and the sdm845/msm8998 dts that carry the node; the answer: which carve-out the firmware was linked for, the exact dts nodes our board needs (reserved-memory, remoteproc, the qrtr/glink-edge, the smp2p-slpi), the firmware files and where they sit in the rootfs, and what is NOT KNOWN YET; no phone, nothing written, the firmware stays out of git (mode 600/700)
 
 Rank
-: 5
+: 3
 
 
 <a id="walleye-reboot-reason-restart2-tool"></a>
