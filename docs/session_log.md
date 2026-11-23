@@ -5827,3 +5827,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-check-17-proves-the-hand-over-from-the-live"></a>
+### Check 17 proves the hand-over from the live state
+
+Entry date
+: 2026-11-23
+
+Done
+: walleye-builder: PID 1 (/proc/1/cmdline) read in the one ssh read; check 17 passes when PID 1 is /sbin/init and /lower is the partition the init named, read-only under the overlay; the lost 'handing over' line is no longer required. Programmer review applied (no tr, dead field removed, seams tested, PID 1 in the evidence).
+
+Considered
+: /proc/1/exe: both inits run busybox, cmdline tells them apart.
+
+Rejected
+: Moving the say before the --moves or rebuilding the image: changes the declared sha, needs a new go and rehearsal (coordinator's decision).
+
+About
+: walleye-display-s6e3fa5
