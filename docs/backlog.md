@@ -10194,10 +10194,10 @@ Rank
 ### Run stage 2 once: install-boot-on-the-pixel-2.rs under the coordinator's go (flash boot_<other>, set_active, observe, set_active back)
 
 Status
-: open
+: in-progress
 
 Note
-: STOPPED at step 21 (the keeper, 2026-11-23 13:13): no ssh from slot a in 170 s; phone back on Android b by watchdog; slot a unbootable, b successful current. Research walleye-stage2-run4-stops-at-step-21-no-ssh-from-slot-a. DO NOT RERUN until the coordinator decides how to see the new slot's boot.
+: TAKE THIS ITEM NOW: STAGE 2 RUN 5, WITH THE PSTORE READ FIRST (the coordinator, 2026-11-23): run 4 passed steps 1-20 and slot a never answered ssh; the phone fell back to Android b by itself (the bootloader's counter, measured: no hand needed); the console of slot a was lost to a reboot. Since then: step 21 waits up to 420 s sending the phone NOTHING and reads pstore over adb FIRST (PR 855, research walleye-stage2-slot-a-no-ssh-causes-ranked: the likely cause is a watchdog the bootloader arms on a normal boot that our kernel does not pet; cold USB second), the rehearsal passed 18 of 18 on that code (PR 857). STATE: Android b, boot_a holds e337de53, slot a unbootable (retry 0, a later set_active a resets it), b successful and current. The go is for image e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1 ONLY, to the go_until of this row; the run sheet below is unchanged (read it whole). KEEPER: DURING step 21's wait do NOT touch the phone: no adb command, no fastboot verb, no usb reset, no reboot, no idle-android; let the command run to its end; afterwards copy failed-boot-read.txt (pstore, cmdline, bootreason) into the research row's material WHOLE, and say whether our kernel's console is in it (a 'Linux version 7.3' line, the init's walleye-init lines, the usb gadget) and when the bite came. If the run ends with ssh from slot a: the full stage 2 proceeds as written. If it stops again: research row with every text the phone printed, release the lease, no second run. | STOPPED at step 21 (the keeper, 2026-11-23 13:13): no ssh from slot a in 170 s; phone back on Android b by watchdog; slot a unbootable, b successful current. Research walleye-stage2-run4-stops-at-step-21-no-ssh-from-slot-a. DO NOT RERUN until the coordinator decides how to see the new slot's boot.
 
 Blocked by
 : walleye-stage2-pstore-first-on-fallback
@@ -10207,6 +10207,9 @@ About
 
 Opened
 : 2026-11-23
+
+Needs
+: phone
 
 Proof
 : the one command passes every step: the boot of the new slot from the card on ssh, the GPT changed only by the slot switch, the way back set_active, the phone on Android, the boot chain as stored
@@ -10218,7 +10221,7 @@ Witness
 : person
 
 Go until
-: 2026-11-23T13:15:00+01:00
+: 2026-11-23T16:00:07+01:00
 
 
 <a id="walleye-fastboot-reboot-stays-in-fastboot"></a>
