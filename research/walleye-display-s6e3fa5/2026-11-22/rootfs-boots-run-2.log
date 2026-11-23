@@ -1,0 +1,36 @@
+1795377592 start : rootfs boots on the Pixel 2 on google-walleye
+1795377592 start : rootfs boots on the Pixel 2 on google-walleye
+1795377592 begin the battery is good enough: check
+1795377592 ok the battery is good enough: 
+1795377592 begin the image is the declared one and names one root: check
+1795377592 ok the image is the declared one and names one root: 
+1795377592 begin the stored boot chain is whole and the ssh key is private: check
+1795377593 ok the stored boot chain is whole and the ssh key is private: 
+1795377593 begin say what to expect: step
+1795377593 ok say what to expect: 
+1795377593 begin the phone is on Android, adbd as root: step
+1795377594 ok the phone is on Android, adbd as root: 
+1795377594 begin adb reads the slot Android runs from: check
+1795377594 ok adb reads the slot Android runs from: 
+1795377594 begin the card is read from Android: its partition tables and the root partition: check
+1795377899 ok the card is read from Android: its partition tables and the root partition: 
+1795377899 begin take the phone to fastboot: step
+1795377914 ok take the phone to fastboot: 
+1795377914 begin fastboot agrees on the slot and the image's root is the other one: check
+1795377914 ok fastboot agrees on the slot and the image's root is the other one: 
+1795377914 begin make this run's image: the declared one with the slot read on its command line: step
+1795377914 ok make this run's image: the declared one with the slot read on its command line: 
+1795377914 begin the slots' flags are read: check
+1795377914 ok the slots' flags are read: 
+1795377914 begin the author's go is recorded on the item: check
+1795377915 ok the author's go is recorded on the item: 
+1795377915 begin boot the UFS-root image from memory, nothing flashed: step
+1795377955 ok boot the UFS-root image from memory, nothing flashed: 
+1795377955 begin USB device 1d6b:0104 is on the bus: check
+1795377955 ok USB device 1d6b:0104 is on the bus: 
+1795377955 begin log in over usb-network by ssh and read the phone: step
+1795377961 ok log in over usb-network by ssh and read the phone: 
+1795377961 begin it is root's login on the image, the network and the services are up: check
+1795377961 ok it is root's login on the image, the network and the services are up: 
+1795377961 begin the init saw the slot adb saw and mounted the named partition: check
+1795377961 FAIL the init saw the slot adb saw and mounted the named partition: the init did not hand over to the root's /sbin/init

@@ -1,0 +1,3 @@
+1795116139 start : display at boot on the Pixel 2 on google-walleye
+1795116139 begin the image is the one built (sha256): check
+1795116139 FAIL the image is the one built (sha256): /home/mll/Projects/linux-phone-oco/wt-walleye-keeper-1795116119/build/images/images-display-at-boot: No such file or directory (os error 2)

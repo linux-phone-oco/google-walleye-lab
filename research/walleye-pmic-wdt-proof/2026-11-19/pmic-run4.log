@@ -1,0 +1,24 @@
+1795117614 start : PMIC watchdog v1 on the Pixel 2 on google-walleye
+1795117614 start : PMIC watchdog v1 on the Pixel 2 on google-walleye
+1795117614 begin the battery is good enough: check
+1795117615 ok the battery is good enough: 
+1795117615 begin both images are the ones built: check
+1795117615 FAIL both images are the ones built: image A: /home/mll/Projects/linux-phone-oco/wt-walleye-keeper-1795117572/build/images/images-wdt1-sysfsless: No such file or directory (os error 2)
+1795117618 start : PMIC watchdog v1 on the Pixel 2 on google-walleye
+1795117618 start : PMIC watchdog v1 on the Pixel 2 on google-walleye
+1795117618 begin the battery is good enough: check
+1795117618 ok the battery is good enough: 
+1795117618 begin both images are the ones built: check
+1795117618 ok both images are the ones built: 
+1795117618 begin UFS is off in both images: check
+1795117620 ok UFS is off in both images: 
+1795117620 begin take the phone to fastboot: step
+1795117635 ok take the phone to fastboot: 
+1795117635 begin boot image A from memory (B if A shows no banner): step
+1795117658 ok boot image A from memory (B if A shows no banner): 
+1795117658 begin the shell answers: check
+1795117662 ok the shell answers: 
+1795117662 begin the watchdog probed and S2 is type 7: check
+1795117663 ok the watchdog probed and S2 is type 7: 
+1795117663 begin ask the author: Two short tests of the Pixel 2's watchdog, about 10 minutes of you at the phone in all. Nothing is written to the phone's storage. Stay at the phone; say ok when you are there.: ask
+1795117663 FAIL ask the author: Two short tests of the Pixel 2's watchdog, about 10 minutes of you at the phone in all. Nothing is written to the phone's storage. Stay at the phone; say ok when you are there.: nobody answered
