@@ -198,6 +198,7 @@ pub(crate) mod fake {
         let l = TcpListener::bind("127.0.0.1:0").unwrap();
         let port = l.local_addr().unwrap().port();
         let gone = Arc::new(AtomicBool::new(false));
+        let hung_once = Arc::new(AtomicBool::new(false));
         std::thread::spawn(move || {
             for conn in l.incoming() {
                 let Ok(mut c) = conn else { continue };
@@ -205,6 +206,7 @@ pub(crate) mod fake {
                     continue; // the phone has restarted: nobody answers
                 }
                 let gone = gone.clone();
+                let hung_once = hung_once.clone();
                 let restarted = restarted.clone();
                 let table = table.clone();
                 let events = events.clone();
@@ -235,6 +237,18 @@ pub(crate) mod fake {
                                 }
                                 _ => answer,
                             };
+                            // an answer "?" is a command that does not answer (a sysfs read waiting): no end marker
+                            // "?" is a command that never answers (a sysfs read waiting): no end marker, and the shell is stuck behind it;
+                            // "?once=TEXT" is that for the first asker on any connection, TEXT for every later one
+                            let answer = match answer.strip_prefix("?once=") {
+                                Some(_) if !hung_once.swap(true, Ordering::SeqCst) => "?",
+                                Some(text) => text,
+                                None => answer,
+                            };
+                            if answer == "?" {
+                                std::thread::sleep(std::time::Duration::from_secs(120));
+                                return;
+                            }
                             // an answer starting with ! is the last words of a phone that restarts: it hangs up
                             let (answer, restarts) = match answer.strip_prefix('!') {
                                 Some(a) => (a, true),
