@@ -7045,3 +7045,24 @@ Done
 
 Considered
 : next: coordinator decides step 21 accepting the slot from root=PARTUUID or the DT node, or a cmdline-cut fix; no second run without a new go. Lease released.
+
+---
+
+
+<a id="2026-11-23-walleye-builder-step21-slot-source"></a>
+### walleye-builder: step 21 reads which slot booted
+
+Entry date
+: 2026-11-23
+
+Done
+: Took walleye-stage2-step21-slot-source (rank 1; the first row of the ready query, walleye-next-image-from-an-int-tag, waits on a kernel change that run 9 made unnecessary, its step 2 is not buildable now). Step 21 amended by the Top Coordinator's rule; tests first (failed with run 9's own refusal), then the code; research walleye-stage2-step21-slot-source-built.
+
+Considered
+: Comparing to fastboot's current-slot from the switch's own saved flags (step 20 already ties them to the target slot). The device-tree test value is AOSP's, not captured.
+
+Rejected
+: Reading only the first source that answers: a disagreeing second source would pass unseen. Adding step 21 to the state walk: the walk's bench has no ssh login; the step has its own tests.
+
+About
+: walleye-bootimage
