@@ -9065,10 +9065,10 @@ Rank
 ### Read Google's wahoo device configuration (and Project Elixir's tree) for what the bring-up steps need: firmware paths, WCD934x routing, vendor module order, thermal zones, touch config, Wi-Fi config
 
 Status
-: open
+: in-progress
 
 Note
-: From the author, via the Top Coordinator (2026-11-20): he found ProjectElixir-Devices/device_google_walleye (branch udc, 2024), AOSP device configuration (not a kernel device tree) derived from Google's device/google/wahoo. Recorded as sources: src-google-device-wahoo (primary) and src-projectelixir-device-google-walleye (where the author saw it). Until now only crDroid's wahoo init.hardware.usb.rc was cited. The fstab.hardware and recovery part is folded into the install research walleye-install-stage-decision NOW; the rest waits for its step. Checked 2026-11-20 on both pages: the Elixir tree lists fstab.hardware, recovery, proprietary-firmware.txt, proprietary-files.txt and -vendor.txt, init.insmod.cfg, mixer_paths_tavil.xml, audio_platform_info_tavil.xml, thermal-engine.conf, thermal_info_config.json, synaptics_dsxv26.idc, WCNSS_qcom_cfg.ini; Google's googlesource page lists branches and tags (android11-release, main) but its file list was not read: whether each file exists there is not known yet. 2026-11-22 (coordinator): rank 4, firmware part FIRST: step firmware-reachable unlocks 47 steps (modem, adsp, slpi, venus, wlan firmware paths and how the rootfs on system_a reaches them) with pd-mapper-before-remoteproc (44); the audio, thermal, touch and Wi-Fi parts follow as their steps come due.
+: Firmware part done 2026-11-23 (research walleye-device-config-firmware); audio, init.insmod, thermal, touch, Wi-Fi parts wait for their steps.
 
 About
 : walleye-display-s6e3fa5
@@ -11563,3 +11563,28 @@ Proof
 
 Rank
 : 9
+
+
+<a id="walleye-vendor-firmware-pull"></a>
+### Pull /vendor/firmware (adsp, venus, bdwlan, wlanmdsp, ipa_fws, a540_zap, cpe_9340, BT) from the phone, read only, into ~/lab-material/walleye
+
+Status
+: open
+
+Note
+: From research walleye-device-config-firmware. Android on slot b, adb root as for the modem pull of 2026-11-19; copy only, mode 700, outside git, sha256sums kept. Names to look for are in the research.
+
+About
+: walleye-device-config-sources-read
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: a sha256sums file in ~/lab-material/walleye/vendor-firmware-DATE listing every name the research gives
+
+Rank
+: 4
