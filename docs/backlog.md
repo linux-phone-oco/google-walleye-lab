@@ -9414,10 +9414,10 @@ Opened
 : 2026-11-22
 
 Needs
-: build
+: phone
 
 Proof
-: procedures/rootfs-boots-on-the-pixel-2.rs, when a check after the boot fails (check 17 and later), FIRST reads over ssh and keeps in its log, read-only: dmesg (the tail and the init's own lines), /proc/mounts, /proc/cmdline, ps, ls -l / and /new_root or wherever the init mounts the root, the init's console log if it keeps one, /sys/class/block for the card's disks and PARTNAME of system_a, and df; THEN the way back as now; the stand-in test covers the on-failure reads; the post-run equality (GPT, boot chain, slot flags) is measured even after a failed check 17 (tests/host/bootchain-readback.sh before and after) so it is known, not unknown; then a keeper reruns the boot (a new go naming the image) and the log names why switch_root did not happen: the research row says so before any fix; dry run, check --host, stand-in tests, clippy, fmt, review
+: a keeper reruns procedures/rootfs-boots-on-the-pixel-2.rs on a new go naming the image (the diagnose build, tools/walleye-tries on branch walleye-builder/rootfs-boots-run-2-diagnose, landed): if a check after the boot fails, its log holds the evidence read (dmesg tail, init lines, /proc/mounts, cmdline, ps, ls -l /, /new_root, init logs, PARTNAMEs, df) and evidence.txt in the run folder, and the post-run card, boot chain and slot flags are measured (not unknown); the log names why switch_root did not happen, and the research row says so before any fix
 
 Rank
 : 1

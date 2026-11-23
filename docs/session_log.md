@@ -5728,3 +5728,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-walleye-builder-run-2-diagnose"></a>
+### Builder: the boot procedure reads its evidence on a failed check
+
+Entry date
+: 2026-11-23
+
+Done
+: tools/walleye-tries rootfs_boot: the way back, while the phone is still on the image, FIRST reads the evidence over ssh read-only (EVIDENCE_COMMAND), prints it into the log and keeps evidence.txt; THEN sends the phone away; after it, when the run stopped after the boot, the card, boot chain and slot flags are measured against what was read before, and the way back runs once more so the phone never ends in fastboot. Review by the programmer found and fixed: the parent had no slot suffix (now kept in slot-suffix.txt), a same-day folder's old files passed for this run's (a new run forgets them), a measure left in fastboot (way back after), measures with no boot (skipped, said as not known yet). 217 tests, clippy, fmt, dry run pass. Not done: a partial evidence read is lost when ssh fails mid-read (the helper keeps only the last line).
+
+Considered
+: reading inside the child on a failed check: the runner ends the process at the first failed step, so the watching parent's way back is the one place that always runs
+
+Rejected
+: a new check step for the evidence: a check after the failed one never runs; a mount or fsck probe of the card: the read stays read-only
+
+About
+: walleye-display-s6e3fa5

@@ -451,6 +451,64 @@ pub fn sections(text: &str) -> Vec<(String, String)> {
 /// The one read: what is running, what is mounted, what the kernel said, what the root's init manages.
 pub const READ_COMMAND: &str = "echo ---id; id -u; echo ---kernel; uname -r; echo ---cmdline; cat /proc/cmdline; echo ---mounts; cat /proc/mounts; echo ---dmesg; dmesg; echo ---services; rc-status --crashed 2>&1 || true; echo ---net; ip -o addr show usb0 2>&1; echo ---end";
 
+/// What the lab reads, read-only, when a check after the boot failed and the phone is still on the image (item
+/// walleye-rootfs-boots-run-2-diagnose): the kernel log's tail and the init's own lines, the command line, the mounts, the
+/// processes, the root and where the init may have put the new root, any log the init keeps, the card's partition names, the space.
+pub const EVIDENCE_COMMAND: &str = "echo ---dmesg-tail; dmesg | tail -n 300; echo ---init-lines; dmesg | grep 'walleye-ufs-root:'; echo ---cmdline; cat /proc/cmdline; echo ---mounts; cat /proc/mounts; echo ---ps; ps; echo ---root; ls -l /; echo ---new-root; ls -l /new_root /mnt /sysroot 2>&1; echo ---init-logs; for f in /run/*.log /var/log/*.log /tmp/*.log /*.log; do [ -f \"$f\" ] && { echo \"== $f\"; tail -n 100 \"$f\"; }; done; echo ---partnames; for u in /sys/class/block/*/uevent; do grep -H PARTNAME \"$u\"; done; echo ---df; df 2>&1; echo ---end";
+
+/// The slot suffix adb read, kept so the watching parent can measure the card as the run would have.
+pub const SUFFIX_FILE: &str = "slot-suffix.txt";
+
+/// The file the evidence is kept in, in the run's folder.
+pub const EVIDENCE_FILE: &str = "evidence.txt";
+
+/// Where a post-run measurement stands, read from the run's folder alone.
+#[derive(Debug, PartialEq)]
+pub enum Measure {
+    /// the run's own step already measured it (and judged it)
+    Done,
+    /// nothing was read before the boot: there is nothing to equal
+    NothingBefore,
+    /// not measured yet: the way back measures it
+    Pending,
+}
+
+/// Whether a post-run measurement is still to be made: `before` and `after` are names in the run's folder `out` (or, for the
+/// boot chain, `before` is the stored set's own path).
+pub fn measure_status(before: &Path, after: &Path) -> Measure {
+    if after.exists() {
+        Measure::Done
+    } else if !before.exists() {
+        Measure::NothingBefore
+    } else {
+        Measure::Pending
+    }
+}
+
+/// One state the way back measures after a stop: what it is, what was read before, where the after goes, and the measure.
+struct AfterStop<'a> {
+    what: &'static str,
+    before: std::path::PathBuf,
+    after: std::path::PathBuf,
+    measure: Box<dyn Fn() -> Done + 'a>,
+}
+
+impl<'a> AfterStop<'a> {
+    fn new(
+        what: &'static str,
+        before: std::path::PathBuf,
+        after: std::path::PathBuf,
+        measure: Box<dyn Fn() -> Done + 'a>,
+    ) -> Self {
+        AfterStop {
+            what,
+            before,
+            after,
+            measure,
+        }
+    }
+}
+
 /// The two ways the lab sends the phone away from this image: busybox's forced reboot, then the sysrq trigger.
 pub const REBOOT_COMMANDS: [&str; 2] = ["reboot -f", "echo b > /proc/sysrq-trigger"];
 
@@ -621,10 +679,27 @@ impl RootfsBoot {
         let u = self.clone();
         move || {
             let suffix = u.android.slot_suffix()?;
+            u.forget_earlier_runs();
             u.before.borrow_mut().suffix = suffix.trim().to_string();
+            u.lab.save(SUFFIX_FILE, suffix.trim())?;
             println!("  adb: slot suffix {}", suffix.trim());
             Ok(())
         }
+    }
+
+    /// A new run forgets what an earlier run of the same day kept in this folder: its after-files would pass for this run's.
+    fn forget_earlier_runs(&self) {
+        for name in [
+            "card-before.txt",
+            "card-after.txt",
+            "slots-before.txt",
+            "slots-after.txt",
+            EVIDENCE_FILE,
+            SUFFIX_FILE,
+        ] {
+            let _ = std::fs::remove_file(self.s.out.join(name));
+        }
+        let _ = std::fs::remove_dir_all(self.s.out.join("bootchain-after"));
     }
 
     /// The card as it is now, read from Android: the GPT of each of its disks and the root partition's sha256, kept for the end.
@@ -957,6 +1032,88 @@ impl RootfsBoot {
         move || lab.android_is_back()
     }
 
+    /// The evidence of a failed check, read FIRST while the phone is still on the image: one read-only ssh command
+    /// ([`EVIDENCE_COMMAND`]), kept in the run's folder (serials redacted) and printed into the log. A read that cannot be
+    /// made is said as not known yet, never as a failure of the way back.
+    pub fn the_evidence_is_read(&self) -> Done {
+        match self.ssh(EVIDENCE_COMMAND, 40) {
+            Ok(text) if text.contains("---end") => {
+                let text = redact(&text);
+                println!("the phone is on the image: the evidence of the stop, read-only:\n{text}");
+                self.lab.save(EVIDENCE_FILE, &text)
+            }
+            Ok(_) => {
+                println!("NOT KNOWN YET: the evidence read did not finish");
+                Ok(())
+            }
+            Err(e) => {
+                println!("NOT KNOWN YET: the evidence could not be read: {e}");
+                Ok(())
+            }
+        }
+    }
+
+    /// After the way back, whatever the run measured of the phone's state and did not reach (a failed check stops the run before
+    /// its own measures) is measured here: the card, the boot chain and the slots' flags against what was read before. Each is
+    /// said; what was not read before is said as not known yet. The first that differs fails this step, after all were measured.
+    pub fn the_post_run_is_measured(&self) -> Done {
+        if !self.s.out.join("slots-before.txt").exists() {
+            println!("NOT KNOWN YET: the run stopped before the boot: nothing was booted, nothing is measured after it");
+            return Ok(());
+        }
+        self.android.is_up_as_root()?;
+        if let Ok(suffix) = self.saved(SUFFIX_FILE) {
+            self.before.borrow_mut().suffix = suffix.trim().to_string(); // the parent never read the slot itself
+        }
+        let measured = self.the_post_run_measures();
+        let back = self.lab.way_back(); // a measure that went to fastboot and stopped there still ends on Android
+        measured?;
+        back
+    }
+
+    fn the_post_run_measures(&self) -> Done {
+        let out = &self.s.out;
+        let measures = [
+            AfterStop::new(
+                "the partition tables and the root partition",
+                out.join("card-before.txt"),
+                out.join("card-after.txt"),
+                Box::new(|| (self.the_card_is_as_before())()),
+            ),
+            AfterStop::new(
+                "the boot chain",
+                self.s.bootchain.clone(),
+                out.join("bootchain-after"),
+                Box::new(|| (self.the_boot_chain_is_as_stored())()),
+            ),
+            AfterStop::new(
+                "both slots' flags",
+                out.join("slots-before.txt"),
+                out.join("slots-after.txt"),
+                Box::new(|| (self.the_slot_flags_are_as_before())()),
+            ),
+        ];
+        let mut differs = Vec::new();
+        for m in &measures {
+            let what = m.what;
+            match measure_status(&m.before, &m.after) {
+                Measure::Done => {}
+                Measure::NothingBefore => {
+                    println!("NOT KNOWN YET: {what}: nothing was read before the boot to equal")
+                }
+                Measure::Pending => match (m.measure)() {
+                    Ok(()) => println!("measured after the stop: {what} are as before"),
+                    Err(e) => differs.push(format!("{what}: {e}")),
+                },
+            }
+        }
+        if differs.is_empty() {
+            Ok(())
+        } else {
+            Err(differs.join("\n"))
+        }
+    }
+
     /// The way back, the last step: the phone ends on Android whatever stopped the run. On the image it is sent away by ssh (the
     /// forced reboot, then the sysrq trigger), then the shared way back; the image's own watchdog hold resets it in the end anyway.
     /// The watching parent runs it after the child ends, whatever ended it.
@@ -971,6 +1128,7 @@ impl RootfsBoot {
                 let until = Instant::now() + Duration::from_secs(u.s.device_wait);
                 while Instant::now() < until {
                     if u.ssh("true", 8).is_ok() {
+                        let _ = u.the_evidence_is_read(); // FIRST, read-only; then the phone is sent away
                         for command in REBOOT_COMMANDS {
                             let _ = u.ssh(command, 10);
                             if u.lab.android_is_back().is_ok() {
@@ -982,7 +1140,8 @@ impl RootfsBoot {
                     std::thread::sleep(Duration::from_secs(3));
                 }
             }
-            u.lab.way_back()
+            u.lab.way_back()?;
+            u.the_post_run_is_measured() // a stop before the run's own measures leaves the state known, not unknown
         }
     }
 }
@@ -1168,7 +1327,7 @@ mod tests {
 
     #[test]
     fn the_commands_write_nothing_to_the_card() {
-        for c in [READ_COMMAND, REBOOT_COMMANDS[0]] {
+        for c in [READ_COMMAND, EVIDENCE_COMMAND, REBOOT_COMMANDS[0]] {
             assert!(
                 Command::new("sh")
                     .args(["-n", "-c", c])
@@ -1329,6 +1488,76 @@ mod tests {
         let oops = format!("{DMESG}[ 12.0] Kernel panic - not syncing\n");
         let r = case("oops", read_of(&oops, MOUNTS, "0", NET, ""));
         assert!((r.the_kernel_log_is_clean())().is_err());
+    }
+
+    #[test]
+    fn the_evidence_is_read_over_ssh_kept_and_never_written_to_the_card() {
+        let said =
+            "---dmesg-tail\nx\n---init-lines\nwalleye-ufs-root: no card\n---partnames\n---end\n";
+        let r = rig("evidence", said, 0);
+        r.the_evidence_is_read().unwrap();
+        let kept = r.saved(EVIDENCE_FILE).unwrap();
+        assert!(kept.contains("walleye-ufs-root: no card"), "{kept}");
+        let calls = std::fs::read_to_string(r.s.out.parent().unwrap().join("ssh.calls")).unwrap();
+        for part in [
+            "dmesg",
+            "/proc/mounts",
+            "/proc/cmdline",
+            "ps;",
+            "ls -l /;",
+            "PARTNAME",
+            "df",
+        ] {
+            assert!(calls.contains(part), "{part} not asked: {calls}");
+        }
+    }
+
+    #[test]
+    fn a_new_run_forgets_the_files_of_an_earlier_one_and_a_stop_before_the_boot_measures_nothing() {
+        let r = rig("forget", "", 0);
+        for n in [
+            "card-before.txt",
+            "card-after.txt",
+            "slots-after.txt",
+            EVIDENCE_FILE,
+        ] {
+            std::fs::write(r.s.out.join(n), "old").unwrap();
+        }
+        std::fs::create_dir_all(r.s.out.join("bootchain-after")).unwrap();
+        r.forget_earlier_runs();
+        for n in [
+            "card-before.txt",
+            "card-after.txt",
+            "slots-after.txt",
+            EVIDENCE_FILE,
+            "bootchain-after",
+        ] {
+            assert!(!r.s.out.join(n).exists(), "{n} kept");
+        }
+        // no slots-before.txt: nothing was booted, nothing is measured and the phone is not touched
+        assert!(r.the_post_run_is_measured().is_ok());
+    }
+
+    #[test]
+    fn evidence_that_cannot_be_read_is_not_known_yet_and_stops_nothing() {
+        let r = rig("noevidence", "", 255);
+        assert!(r.the_evidence_is_read().is_ok());
+        assert!(r.saved(EVIDENCE_FILE).is_err());
+        let r = rig("halfevidence", "---dmesg-tail\nx\n", 0);
+        assert!(r.the_evidence_is_read().is_ok());
+        assert!(r.saved(EVIDENCE_FILE).is_err());
+    }
+
+    #[test]
+    fn a_measure_is_made_after_a_stop_only_when_there_is_a_before_and_no_after() {
+        let d = std::env::temp_dir().join(format!("wt-rb-measure-{}", std::process::id()));
+        std::fs::create_dir_all(&d).unwrap();
+        let (before, after) = (d.join("before"), d.join("after"));
+        assert_eq!(measure_status(&before, &after), Measure::NothingBefore);
+        std::fs::write(&before, "b").unwrap();
+        assert_eq!(measure_status(&before, &after), Measure::Pending);
+        std::fs::write(&after, "a").unwrap();
+        assert_eq!(measure_status(&before, &after), Measure::Done);
     }
 
     #[test]

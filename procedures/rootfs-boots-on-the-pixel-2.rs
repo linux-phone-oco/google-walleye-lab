@@ -8,6 +8,10 @@
 //! recorded on the item the manifest names for this image's sha256. After: the GPT of every disk, the root partition and the boot chain
 //! are read from Android and equal to before, and the slots' flags too. NOTHING is written to the card; the way back to Android runs on any stop.
 //! The UFS-off gate refuses this image by design and is neither run, weakened nor bypassed.
+//! When a check after the boot fails (check 17 and later) and the phone is still on the image, the way back FIRST reads the evidence over ssh,
+//! read-only, into this run's log and its folder's evidence.txt (the kernel log's tail and the init's lines, the command line, mounts, processes,
+//! the root and the new root, the init's logs, the card's PARTNAMEs, df; item walleye-rootfs-boots-run-2-diagnose), THEN sends the phone away; after
+//! it the card, the boot chain and the slots' flags are measured against what was read before when the run stopped before its own measures.
 //!   procedures/rootfs-boots-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml [procedures.rootfs-boots-on-the-pixel-2], [images.ufs-root])
 //!
 //! ```cargo
