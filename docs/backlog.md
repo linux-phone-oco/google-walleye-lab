@@ -10350,10 +10350,10 @@ Rank
 ### Stage 2's check 9 accepts a boot_a that already holds the declared image when the stock backup is on file: the flash is repeatable and can still be undone
 
 Status
-: open
+: done
 
 Note
-: Rerun 2 of stage 2 (keeper local_5c2218e4, PR 839) stopped at check 9 BEFORE any flash: boot_a holds e337de53 since run 1's flash (read back equal), so it no longer equals the stored stock backup 2a5cd3b2: 'the flash could not be undone'. Nothing written, no fastboot verb ran, Android on b. That stop is not a stage 2 run that flashed or set anything, so it does not use up the one rerun the Top Coordinator allowed for check 18. Rejected: reflashing the stock boot_a first to satisfy the check (an extra write to restore a precondition); keeping the strict check and giving up the rerun. The go (open to 14:03) stays; the run item is off the phone queue until this lands.
+: Landed: check 9 passes on the stock backup OR the declared image with the backup on file and hashing to its record; fails otherwise, says which. 5 stand-in tests, 291 pass, clippy, dry runs 29/17, programmer review applied. The wiring of the step (path, arg order) is pinned by review only, no test of the step itself. Phone item can return to the queue.
 
 About
 : walleye-bootimage

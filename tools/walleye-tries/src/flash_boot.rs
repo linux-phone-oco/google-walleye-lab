@@ -499,6 +499,33 @@ pub fn init_refuses_its_own_slot(init: &str) -> bool {
         .any(|l| l.contains("the slot Android runs from"))
 }
 
+/// Check 9's decision: the partition read now is the stock backup (`want`, from the backup's sha256sums), or it already holds the declared image (a flash that read back equal)
+/// while the backup file is on file and still hashes to `want`, so the flash can still be undone. Anything else fails, and says which way.
+fn boot_partition_can_be_flashed(
+    target: &str,
+    now: &str,
+    want: &str,
+    declared: &str,
+    backup_file: Result<String, String>,
+) -> Result<String, String> {
+    let (now, want, declared) = (
+        now.to_lowercase(),
+        want.to_lowercase(),
+        declared.trim().to_lowercase(),
+    );
+    if now == want {
+        return Ok(format!("{target} is its backup ({want})"));
+    }
+    if now != declared {
+        return Err(format!("{target} read now is {now}, neither the stored backup ({want}) nor the declared image ({declared}): the flash could not be undone"));
+    }
+    match backup_file {
+        Err(e) => Err(format!("{target} holds the declared image, but the stock backup {target}.img is not on file or unreadable: {e}: the flash could not be undone")),
+        Ok(on_file) if on_file.to_lowercase() != want => Err(format!("{target} holds the declared image, but the backup file {target}.img hashes to {on_file}, not the recorded {want}: the flash could not be undone")),
+        Ok(_) => Ok(format!("{target} already holds the declared image ({declared}); the stock backup is on file and hashes to its record ({want}): the flash can be undone")),
+    }
+}
+
 /// The line an init carries when it is made for stage 2: it mounts the system partition of the slot it is booted from. The gate wants this declared, not only the old refusal gone
 /// (an init whose refusal is worded differently would pass a gate that only looks for the old words).
 pub const BOOTED_SLOT_MARK: &str = "walleye-init: mounts-the-booted-slot";
@@ -772,7 +799,7 @@ impl FlashBoot {
         }
     }
 
-    /// The boot partition about to be overwritten, read now from Android, is what the stored backup recorded: the flash can be undone. The partition not flashed, its dtbo and vbmeta, and the
+    /// The boot partition about to be overwritten, read now from Android, is what the stored backup recorded, or the declared image with the backup on file and still hashing to its record: the flash can be undone. The partition not flashed, its dtbo and vbmeta, and the
     /// flashed slot's dtbo and vbmeta are hashed too, kept for the end.
     pub fn the_slot_partitions_are_read_before(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
@@ -782,11 +809,16 @@ impl FlashBoot {
                 .map_err(|e| format!("backup: {e}"))?;
             let want = crate::install::recorded_sha256(&sums, &format!("{target}.img"))?;
             let now = u.android.sha256(&u.by_name_of(&target), None)?;
-            if now != want {
-                return Err(format!("{target} read now is {now}, the stored backup says {want}: the flash could not be undone"));
-            }
+            let file = u.s.backup.join(format!("{target}.img"));
+            let said = boot_partition_can_be_flashed(
+                &target,
+                &now,
+                &want,
+                &u.s.image_sha256,
+                host::sha256_of(&file),
+            )?;
             u.read_parts("parts-before.txt")?;
-            println!("  {target} is its backup ({want})");
+            println!("  {said}");
             Ok(())
         }
     }
@@ -2250,5 +2282,53 @@ mod flash_flag_tests {
         );
         // the same text is NOT allowed for slot b: b's flags would be the ones that changed nothing, a's would have changed
         assert!(flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, RUN1_AFTER, "b").is_err());
+    }
+
+    const STOCK: &str = "2a5cd3b20ef0aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    const DECLARED: &str = "e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1";
+
+    // check 9 on the values of rerun 2 (the stock sha is the printed prefix 2a5cd3b2 padded): boot_a read now is e337de53 (the declared image, flashed and read back equal by run 1), the stored backup says 2a5cd3b2
+    #[test]
+    fn boot_a_that_holds_the_declared_image_passes_while_the_backup_is_on_file() {
+        let said =
+            boot_partition_can_be_flashed("boot_a", DECLARED, STOCK, DECLARED, Ok(STOCK.into()));
+        assert!(said.unwrap().contains("can be undone"));
+    }
+
+    #[test]
+    fn boot_a_that_is_the_backup_passes_as_before() {
+        let said =
+            boot_partition_can_be_flashed("boot_a", STOCK, STOCK, DECLARED, Err("not read".into()));
+        assert!(said.unwrap().contains("is its backup"));
+    }
+
+    #[test]
+    fn boot_a_that_is_neither_fails_and_says_so() {
+        let other = "ab".repeat(32);
+        let said =
+            boot_partition_can_be_flashed("boot_a", &other, STOCK, DECLARED, Ok(STOCK.into()))
+                .unwrap_err();
+        assert!(said.contains("neither the stored backup"), "{said}");
+    }
+
+    #[test]
+    fn the_declared_image_without_the_backup_file_fails() {
+        let said = boot_partition_can_be_flashed(
+            "boot_a",
+            DECLARED,
+            STOCK,
+            DECLARED,
+            Err("boot_a.img: No such file".into()),
+        )
+        .unwrap_err();
+        assert!(said.contains("not on file"), "{said}");
+    }
+
+    #[test]
+    fn the_declared_image_with_a_changed_backup_file_fails() {
+        let changed = "cd".repeat(32);
+        let said = boot_partition_can_be_flashed("boot_a", DECLARED, STOCK, DECLARED, Ok(changed))
+            .unwrap_err();
+        assert!(said.contains("hashes to"), "{said}");
     }
 }

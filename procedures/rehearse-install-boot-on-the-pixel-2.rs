@@ -31,7 +31,7 @@ fn main() {
     step("say what to expect", boot.rehearsal_is_told());
     step("the phone is on Android, adbd as root", boot.the_phone_is_on_android_as_root());
     check("adb reads the slot Android runs from", boot.the_slot_is_read_by_adb());
-    check("the boot partition to be flashed, read now, is its backup; the boot, dtbo and vbmeta partitions are hashed", boot.the_slot_partitions_are_read_before());
+    check("the boot partition to be flashed, read now, is its backup, or the declared image with the backup on file; the boot, dtbo and vbmeta partitions are hashed", boot.the_slot_partitions_are_read_before());
     check("the GPT of every disk is read whole and kept", boot.the_gpt_is_read_before());
     step("take the phone to fastboot", boot.phone_is_in_fastboot());
     check("fastboot agrees on the slot and the flash target is the other slot's boot partition (its command is shown, not run)", boot.the_guard_holds());
