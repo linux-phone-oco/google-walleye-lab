@@ -11493,10 +11493,10 @@ Rank
 ### How to hold the UFS clock low on our kernel and on Android's: read the sources before the ramped try's pin is amended
 
 Status
-: open
+: done
 
 Note
-: The Top Coordinator's order (2026-11-23 23:00), after UFS run 4 stopped at step 16 (no powersave governor): the stop is right but it is a sign: the procedure expected a governor nobody had read from our config or the driver. Read first, then amend; the amendment is the builder item walleye-ufs-ramp-pin-by-userspace, which waits for this row.
+: research walleye-ufs-hold-the-clock-read recorded; the amendment is walleye-ufs-ramp-pin-by-userspace
 
 About
 : walleye-bootimage

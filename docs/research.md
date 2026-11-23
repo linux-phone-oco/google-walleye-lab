@@ -7091,3 +7091,28 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ufs-hold-the-clock-read"></a>
+### walleye-ufs-hold-the-clock-read
+
+Date
+: 2026-11-23
+
+Brief
+: Hold low = devfreq userspace governor + set_freq 50 MHz (or max_freq clamp); clkscale_enable=0 holds HIGH on both; scale-down drops the link to HS-G1
+
+Question
+: How is the UFS clock held low on our kernel and on Android's, before the ramped try's pin is amended?
+
+Found
+: Our config has userspace and simple_ondemand only (no powersave): step 16 asked for a governor nobody read. clkscale_enable=0 scales UP to max on both mainline v7.3 and Android 4.4.302 (init.walleye.rc writes it 0 at init, 1 at boot_completed): neither has a hold-low switch. Without an OPP table, ufs-qcom freq_to_gear returns DONT_CHANGE so ufshcd takes the legacy path: scale-down sets the link gear to clk_scaling.min_gear = HS-G1 (a power-mode change, core 50 MHz, unipro 37.5 MHz), not 'gear stays 3'. The way: echo userspace > governor; echo 50000000 > userspace/set_freq (or max_freq=50000000 on both trees); read back cur_freq, power_info/gear (3 then 1), dmesg for 'failed to scale'. Amend step 16 so; do not add powersave to the config. Not known yet: whether the HS-G3 to G1 PMC succeeds on this card; the phone's devfreq node and power_info paths; Lineage init.walleye.rc whole. Detail: research/walleye-bootimage/2026-11-23/ufs-hold-the-clock-read.md
+
+Sources
+: src-ufs-mainline-v7-3-ufshcd,src-ufs-lineage-wahoo-4-4-302
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/
