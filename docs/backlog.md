@@ -9602,13 +9602,13 @@ Status
 : open
 
 Note
-: Built by item walleye-install-flash-boot-procedure. Never the bootloader partitions, the GPT written by our code, erase or purge. If the phone does not reach the bootloader from our kernel the run ends with the hand step and its exact fastboot command; the keeper does not improvise.
+: Built by item walleye-install-flash-boot-procedure. Never the bootloader partitions, the GPT written by our code, erase or purge. If the phone does not reach the bootloader from our kernel the run ends with the hand step and its exact fastboot command; the keeper does not improvise. | 2026-11-23: THE STAGE 2 GO STAYS CLOSED (the Top Coordinator, after rerun 6: the bootloader was not reached by 'reboot bootloader'): not opened before the Top has seen the argument of item walleye-stage2-forced-way-back-argument and/or the reboot reason works (item walleye-reboot-reason-fix, then the try).
 
 Waits
 : the stage 1 proof, UFS try 2, and the coordinator's go naming the boot image's sha256 (ikb backlog-go on this item); the rehearsal first (procedures/rehearse-install-boot-on-the-pixel-2.rs, no go needed)
 
 Blocked by
-: walleye-install-stage2-boot-image,walleye-reboot-bootloader-from-linux-try
+: walleye-install-stage2-boot-image,walleye-reboot-bootloader-from-linux-try,walleye-stage2-forced-way-back-argument
 
 About
 : walleye-display-s6e3fa5
@@ -9639,7 +9639,7 @@ Note
 : From the stage 2 builder (PR 760, research walleye-install-flash-boot-procedure-built): the stage 2 command's way back needs our kernel to restart into the bootloader (fastboot set_active <Android's slot>), and that is NOT KNOWN YET (reboot-mode in the pon node; CONFIG_POWER_RESET_QCOM_PON=y is already in build/walleye.config). The coordinator's rule (the author's: attend only when the step is one command away): the run must not end in a hand step, so this try comes BEFORE the stage 2 run and is hands-free. The image with reboot-mode comes from item walleye-install-stage2-init-booted-slot (part two); a keeper tries it by RAM boot, one command. | 2026-11-23 UPDATE: no dts change needed (mode-bootloader=<2> is in the pon node from mainline, PR 765). The try is the NEXT STAGE 1 RUN on the rebuilt ufs-root image (item walleye-install-stage2-boot-image), whose way back tries reboot bootloader first (item walleye-way-back-reboot-bootloader-first): one command, no extra visit, a go naming the new image's sha256. | 2026-11-23: its run is RERUN 6 under item walleye-install-rootfs-boots-try (the go carrier of the stage 1 procedure); this item closes when that run's research row says whether the bootloader was reached.
 
 Blocked by
-: walleye-install-stage2-boot-image,walleye-way-back-reboot-bootloader-first
+: walleye-reboot-reason-fix
 
 About
 : walleye-display-s6e3fa5
@@ -9833,3 +9833,81 @@ Witness
 
 Go until
 : 2026-11-23T11:22:54+01:00
+
+
+<a id="walleye-reboot-reason-bootloader-read"></a>
+### Why 'reboot bootloader' over ssh did not reach fastboot on our kernel (rerun 6): what Android's kernel writes so the bootloader stops in fastboot, and whether our kernel and device tree do the same
+
+Status
+: open
+
+Note
+: The Top Coordinator's order after rerun 6 (PR 781: 26 of 26 passed, 'reboot bootloader' never reached fastboot, the forced way back worked, phone on Android b, nothing flashed): research BEFORE any phone time. The likely cause is the reboot reason. Android's kernel tells the bootloader to stop in fastboot by writing a reboot reason; on msm8998 a magic value in IMEM restart_reason and/or the PMIC PON soft-reboot register, via the qcom reboot-mode and pon drivers. Check whether our kernel and device tree do the same. Record with sources from Android's kernel for walleye.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row with sources (Android's own kernel for walleye, the wahoo msm-4.4 tree on android.googlesource.com: drivers/power/reset/msm-poweroff.c and its dts, qpnp-power-on, the msm8998 dtsi; mainline's drivers/power/reset/qcom-pon.c, reboot-mode.c, syscon-reboot-mode.c, psci/reset paths; the bootloader as far as it is open or described by earlier research walleye-install-stage2-android-verdict) that answers, each with the line it rests on: (1) what Android writes for 'reboot bootloader' on walleye: the IMEM restart_reason word (magic value and address) and/or the PMIC PON soft-reboot register (register, bits, value), and which of them the bootloader reads; (2) which driver does the restart on OUR kernel (PSCI system reset, pshold, PMIC), and whether a reboot-mode driver runs BEFORE that reset (reboot_mode notifier order); (3) what our kernel and dtb carry today: the pon node's mode-bootloader = <2> (research walleye-pon-reboot-mode-already-in-the-board-dtb), CONFIG_REBOOT_MODE, CONFIG_POWER_RESET_QCOM_PON, a syscon-reboot-mode node on the IMEM (none today?), the msm8998 IMEM node; (4) what the phone printed: from the kept logs of rerun 6 (bootloader-way-back.txt, the evidence reads) what the kernel said on 'reboot bootloader'; (5) the smallest change that makes the bootloader stop (dts node and/or config), with the line in Android's tree that shows the same write; (6) what is NOT KNOWN YET, named. No phone, nothing written; the finding ends with the fix as a builder item (walleye-reboot-reason-fix) whose offline check reads text the phone printed, then one RAM-boot try
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-forced-way-back-argument"></a>
+### Can stage 2 be made safe on the forced way back alone? The argument, every failure branch, and the bootloader's own A/B boot-count fallback, for the Top Coordinator to read before any stage 2 go
+
+Status
+: open
+
+Note
+: The Top Coordinator's order after rerun 6: 'if stage 2 can be made safe on the forced way back alone, write that up as its own research row and show me the argument. Don't open the stage 2 go on it until I've seen it.' The stage 2 go stays CLOSED. Never the bootloader partitions, the GPT written by our code, erase or purge.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row (the argument, not a go) that says, with sources (research walleye-install-stage2-android-verdict, the open ABL/bootloader description, Android's A/B boot control: slot-retry-count, slot-unbootable, slot-successful, set_active resetting the retry count) and, where it can be, readings of the phone itself (fastboot getvar slot-retry-count:a/b, slot-successful, slot-unbootable on slots a and b, read only): (1) what the FORCED way back is today (the lab's power-cycle path that ran in rerun 6) and what it does after stage 2 has set_active a: which slot the bootloader boots, and whether Android comes back without any step by hand; (2) whether the A/B retry counter is such a way back by itself: our kernel never marks the slot successful, the bootloader decrements the counter on each boot of an unsuccessful slot and falls back to the other slot at zero: how many boots, how long, what the phone shows meanwhile, and which getvar proves the counter before it is relied on; (3) every failure branch of stage 2 and its way back: boot_a written wrong (read-back differs), set_active fails, our kernel hangs before ssh, our kernel boots but ssh does not answer, ssh answers and the run completes, the forced reboot loop; for each: what restores Android with no hand and no bootloader mode, or what exactly would need a hand; (4) what is NOT KNOWN YET, named, and the smallest read-only try that would make it known; (5) a recommendation: stage 2 on the forced way back alone, or only after the reboot reason works, and why. Nothing is run on the phone beyond read-only fastboot getvars by a keeper if the research asks for them as a phone item
+
+Rank
+: 2
+
+
+<a id="walleye-reboot-reason-fix"></a>
+### The fix for the reboot reason: our kernel and dtb write what the bootloader reads for 'stop in fastboot', with an offline check that reads text the phone printed, then ONE RAM-boot try
+
+Status
+: open
+
+Note
+: Queued behind the research (the Top Coordinator's order after rerun 6). Nothing here touches the phone.
+
+Blocked by
+: walleye-reboot-reason-bootloader-read
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: from the research row of item walleye-reboot-reason-bootloader-read: the dts node and/or config change in the board dts and the kernel config fragment (build/walleye*.config) that make the same write Android's kernel makes; an offline check (a host test, run on the real text the phone printed in rerun 6's kept logs and on what the new image prints: the dtb's nodes via fdtdump, /proc/config.gz lines, dmesg lines of the reboot-mode driver) that fails on today's image and passes on the new one; the image built twice identical and declared in device.toml (a RAM-boot image for stage 1's procedure, UFS-on ufs-root kernel family); the try is then item walleye-reboot-bootloader-from-linux-try (one run of the stage 1 procedure on that image under a go naming its sha256); dry run, check --host, tests, clippy, fmt, review
+
+Rank
+: 2
