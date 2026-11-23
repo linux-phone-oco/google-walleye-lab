@@ -9617,10 +9617,10 @@ Rank
 ### Check 17 accepts what the kernel prints: /proc/mounts says norecovery for the card's noload mount; every reading the check parses is tested against the line the phone printed in the real runs
 
 Status
-: open
+: done
 
 Note
-: Run 4 (keeper local_50834f13, 2026-11-23 06:20, PR 752): the boot is right (checks 1-16 pass, the card is /lower ro norecovery under the overlay on /), check 17 failed on a checker bug: it demands the literal noload and the kernel prints norecovery. The post-run GPT of 6 disks, system_a, boot chain and both slots' flags measured equal; phone on Android b. Second stand-in line that was typed instead of taken from a run (the first: 'handing over' after the move): so the stand-ins for the reads of a live phone use the phone's own text.
+: DONE 2026-11-23 (builder): mounts_are_read_only accepts ro with norecovery OR noload (still fails on rw, no ro, neither word, discard, other partition). tools/walleye-tries/fixtures/ holds runs 3 and 4's read.txt and evidence.txt copied byte for byte from ~/lab-material/walleye/rootfs-boots-20261123-054445 (run 3) and -062054 (run 4); the real_runs tests feed them to checks 15, 16, 17 through the procedure's own step functions: run 4's state passes, run 3's passes (its read.txt has no pid1 section, PID 1 is taken from its evidence.txt ps, said in the test); a captured state with the card rw, PID 1 = /init, the lower layer another partition, or no overlay fails with its reading in the error. 224 tests, fmt, clippy -D warnings, lpoco-attended check all ok. The image c3373d71 is not rebuilt.
 
 About
 : walleye-display-s6e3fa5

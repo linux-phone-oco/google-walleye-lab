@@ -1,0 +1,587 @@
+---dmesg-tail
+[    0.296673] Unpacking initramfs...
+[    0.306138] kvm [1]: HYP mode not available
+[    0.308562] Initialise system trusted keyrings
+[    0.308869] workingset: timestamp_bits=42 (anon: 37) max_order=20 bucket_order=0 (anon: 0)
+[    0.309672] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.310297] NFS: Registering the id_resolver key type
+[    0.310425] Key type id_resolver registered
+[    0.310465] Key type id_legacy registered
+[    0.310551] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[    0.310595] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
+[    0.311506] Key type asymmetric registered
+[    0.311555] Asymmetric key parser 'x509' registered
+[    0.311669] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 243)
+[    0.311719] io scheduler mq-deadline registered
+[    0.311759] io scheduler kyber registered
+[    0.311865] io scheduler bfq registered
+[    0.372766] ledtrig-cpu: registered to indicate activity on CPUs
+[    0.420946] Freeing initrd memory: 1120K
+[    0.548738] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[    0.552974] serial8250 serial8250: no of_node; not parsing pinctrl DT
+[    0.562914] msm_serial: driver initialized
+[    0.565313] SuperH (H)SCI(F) driver initialized
+[    0.566436] STM32 USART driver initialized
+[    0.581579] arm-smmu 1680000.iommu: probing hardware configuration...
+[    0.581636] arm-smmu 1680000.iommu: SMMUv2 with:
+[    0.581709] arm-smmu 1680000.iommu: 	stage 1 translation
+[    0.581760] arm-smmu 1680000.iommu: 	address translation ops
+[    0.581800] arm-smmu 1680000.iommu: 	non-coherent table walk
+[    0.581840] arm-smmu 1680000.iommu: 	(IDR0.CTTW overridden by FW configuration)
+[    0.581931] arm-smmu 1680000.iommu: 	stream matching with 16 register groups
+[    0.582004] arm-smmu 1680000.iommu: 	6 context banks (0 stage-2 only)
+[    0.582410] arm-smmu 1680000.iommu: 	Supported page sizes: 0x63315000
+[    0.582465] arm-smmu 1680000.iommu: 	Stage-1: 36-bit VA -> 36-bit IPA
+[    0.582552] arm-smmu 1680000.iommu: 	preserved 0 boot mappings
+[    0.586139] arm-smmu 16c0000.iommu: probing hardware configuration...
+[    0.586198] arm-smmu 16c0000.iommu: SMMUv2 with:
+[    0.586264] arm-smmu 16c0000.iommu: 	stage 1 translation
+[    0.586315] arm-smmu 16c0000.iommu: 	address translation ops
+[    0.586356] arm-smmu 16c0000.iommu: 	non-coherent table walk
+[    0.586395] arm-smmu 16c0000.iommu: 	(IDR0.CTTW overridden by FW configuration)
+[    0.586442] arm-smmu 16c0000.iommu: 	stream matching with 14 register groups
+[    0.586511] arm-smmu 16c0000.iommu: 	10 context banks (0 stage-2 only)
+[    0.586858] arm-smmu 16c0000.iommu: 	Supported page sizes: 0x63315000
+[    0.586913] arm-smmu 16c0000.iommu: 	Stage-1: 36-bit VA -> 36-bit IPA
+[    0.586995] arm-smmu 16c0000.iommu: 	preserved 0 boot mappings
+[    0.606011] loop: module loaded
+[    0.610216] megasas: 07.734.00.00-rc1
+[    0.628974] spmi_pmic_arb 800f000.spmi: PMIC arbiter version v3 (0x30000000)
+[    0.649472] qcom-spmi-gpio 800f000.spmi:pmic@0:gpio@c000: try to register 26 pins ...
+[    0.649539] pinctrl core: registered pin 0 (gpio1) on 800f000.spmi:pmic@0:gpio@c000
+[    0.649594] pinctrl core: registered pin 1 (gpio2) on 800f000.spmi:pmic@0:gpio@c000
+[    0.649643] pinctrl core: registered pin 2 (gpio3) on 800f000.spmi:pmic@0:gpio@c000
+[    0.649690] pinctrl core: registered pin 3 (gpio4) on 800f000.spmi:pmic@0:gpio@c000
+[    0.649735] pinctrl core: registered pin 4 (gpio5) on 800f000.spmi:pmic@0:gpio@c000
+[    0.649780] pinctrl core: registered pin 5 (gpio6) on 800f000.spmi:pmic@0:gpio@c000
+[    0.649824] pinctrl core: registered pin 6 (gpio7) on 800f000.spmi:pmic@0:gpio@c000
+[    0.649901] pinctrl core: registered pin 7 (gpio8) on 800f000.spmi:pmic@0:gpio@c000
+[    0.649950] pinctrl core: registered pin 8 (gpio9) on 800f000.spmi:pmic@0:gpio@c000
+[    0.649993] pinctrl core: registered pin 9 (gpio10) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650038] pinctrl core: registered pin 10 (gpio11) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650083] pinctrl core: registered pin 11 (gpio12) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650128] pinctrl core: registered pin 12 (gpio13) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650172] pinctrl core: registered pin 13 (gpio14) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650217] pinctrl core: registered pin 14 (gpio15) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650262] pinctrl core: registered pin 15 (gpio16) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650306] pinctrl core: registered pin 16 (gpio17) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650350] pinctrl core: registered pin 17 (gpio18) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650394] pinctrl core: registered pin 18 (gpio19) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650438] pinctrl core: registered pin 19 (gpio20) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650482] pinctrl core: registered pin 20 (gpio21) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650525] pinctrl core: registered pin 21 (gpio22) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650569] pinctrl core: registered pin 22 (gpio23) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650613] pinctrl core: registered pin 23 (gpio24) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650657] pinctrl core: registered pin 24 (gpio25) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650701] pinctrl core: registered pin 25 (gpio26) on 800f000.spmi:pmic@0:gpio@c000
+[    0.650756] qcom-spmi-gpio 800f000.spmi:pmic@0:gpio@c000: no hogs found
+[    0.650928] gpiochip_find_base_unlocked: found new base at 666
+[    0.651002] gpio gpiochip1: (800f000.spmi:pmic@0:gpio@c000): created GPIO range 0->25 ==> 800f000.spmi:pmic@0:gpio@c000 PIN 0->25
+[    0.651499] gpio gpiochip1: (800f000.spmi:pmic@0:gpio@c000): added GPIO chardev (254:1)
+[    0.651563] gpio gpiochip1: registered GPIOs 666 to 691 on 800f000.spmi:pmic@0:gpio@c000
+[    0.660400] qcom-spmi-gpio 800f000.spmi:pmic@2:gpio@c000: try to register 14 pins ...
+[    0.660466] pinctrl core: registered pin 0 (gpio1) on 800f000.spmi:pmic@2:gpio@c000
+[    0.660522] pinctrl core: registered pin 1 (gpio2) on 800f000.spmi:pmic@2:gpio@c000
+[    0.660570] pinctrl core: registered pin 2 (gpio3) on 800f000.spmi:pmic@2:gpio@c000
+[    0.660616] pinctrl core: registered pin 3 (gpio4) on 800f000.spmi:pmic@2:gpio@c000
+[    0.660660] pinctrl core: registered pin 4 (gpio5) on 800f000.spmi:pmic@2:gpio@c000
+[    0.660704] pinctrl core: registered pin 5 (gpio6) on 800f000.spmi:pmic@2:gpio@c000
+[    0.660749] pinctrl core: registered pin 6 (gpio7) on 800f000.spmi:pmic@2:gpio@c000
+[    0.660793] pinctrl core: registered pin 7 (gpio8) on 800f000.spmi:pmic@2:gpio@c000
+[    0.660836] pinctrl core: registered pin 8 (gpio9) on 800f000.spmi:pmic@2:gpio@c000
+[    0.660880] pinctrl core: registered pin 9 (gpio10) on 800f000.spmi:pmic@2:gpio@c000
+[    0.660926] pinctrl core: registered pin 10 (gpio11) on 800f000.spmi:pmic@2:gpio@c000
+[    0.660971] pinctrl core: registered pin 11 (gpio12) on 800f000.spmi:pmic@2:gpio@c000
+[    0.661017] pinctrl core: registered pin 12 (gpio13) on 800f000.spmi:pmic@2:gpio@c000
+[    0.661076] pinctrl core: registered pin 13 (gpio14) on 800f000.spmi:pmic@2:gpio@c000
+[    0.661133] qcom-spmi-gpio 800f000.spmi:pmic@2:gpio@c000: no hogs found
+[    0.661334] gpiochip_find_base_unlocked: found new base at 692
+[    0.661403] gpio gpiochip2: (800f000.spmi:pmic@2:gpio@c000): created GPIO range 0->13 ==> 800f000.spmi:pmic@2:gpio@c000 PIN 0->13
+[    0.661949] gpio gpiochip2: (800f000.spmi:pmic@2:gpio@c000): added GPIO chardev (254:2)
+[    0.662013] gpio gpiochip2: registered GPIOs 692 to 705 on 800f000.spmi:pmic@2:gpio@c000
+[    0.670085] spmi spmi-0: node /soc@0/spmi@800f000/qcom,pm8998@0 err (-22) does not have 'reg' property
+[    0.670178] spmi spmi-0: node /soc@0/spmi@800f000/qcom,pmi8998@3 err (-22) does not have 'reg' property
+[    0.672286] mdio_bus fixed-0: using lookup tables for GPIO lookup
+[    0.672340] mdio_bus fixed-0: No GPIO consumer reset found
+[    0.678324] tun: Universal TUN/TAP device driver, 1.6
+[    0.679963] VFIO - User Level meta-driver version: 0.3
+[    0.699352] usbcore: registered new interface driver usb-storage
+[    0.718101] i2c_dev: i2c /dev entries driver
+[    0.736671] input: pm8941_pwrkey as /devices/platform/soc@0/800f000.spmi/spmi-0/0-00/800f000.spmi:pmic@0:pon@800/800f000.spmi:pmic@0:pon@800:pwrkey/input/input0
+[    0.787471] psci-cpuidle psci-cpuidle: no of_node; not parsing pinctrl DT
+[    0.853847] clocksource: arch_mmio_counter: mask: 0xffffffffffffff max_cycles: 0x46d987e47, max_idle_ns: 440795202767 ns
+[    0.854014] arch-timer-mmio 17920000.timer: mmio timer running at 19.20MHz (virt)
+[    0.856043] usbcore: registered new interface driver usbhid
+[    0.856107] usbhid: USB HID core driver
+[    0.866006] qcom_glink_ssr remoteproc:glink-edge.glink_ssr.-1.-1: no of_node; not parsing pinctrl DT
+[    0.886373] qcom,qfprom 784000.qfprom: using DT '/soc@0/qfprom@784000' for 'wp' GPIO lookup
+[    0.886474] of_get_named_gpiod_flags: can't parse 'wp-gpios' property of node '/soc@0/qfprom@784000[0]'
+[    0.886557] of_get_named_gpiod_flags: can't parse 'wp-gpio' property of node '/soc@0/qfprom@784000[0]'
+[    0.886626] qcom,qfprom 784000.qfprom: using lookup tables for GPIO lookup
+[    0.886670] qcom,qfprom 784000.qfprom: No GPIO consumer wp found
+[    0.904683] icc_smd_rpm icc_smd_rpm: no of_node; not parsing pinctrl DT
+[    0.906361] NET: Registered PF_INET6 protocol family
+[    0.911219] Segment Routing with IPv6
+[    0.911448] In-situ OAM (IOAM) with IPv6
+[    0.911726] NET: Registered PF_PACKET protocol family
+[    0.911991] Key type dns_resolver registered
+[    1.007833] registered taskstats version 1
+[    1.008339] Loading compiled-in X.509 certificates
+[    1.030212] Demotion targets for Node 0: null
+[    1.067392] reg-fixed-voltage regulator-touch-power: using DT '/regulator-touch-power' for '(default)' GPIO lookup
+[    1.067606] of_get_named_gpiod_flags: parsed 'gpios' property of node '/regulator-touch-power[0]' - status (0)
+[    1.067710] gpio gpiochip2: Persistence not supported for GPIO 1
+[    1.071976] reg-fixed-voltage regulator-tps61099-vbus: using DT '/regulator-tps61099-vbus' for '(default)' GPIO lookup
+[    1.072119] of_get_named_gpiod_flags: parsed 'gpios' property of node '/regulator-tps61099-vbus[0]' - status (0)
+[    1.072210] gpio gpiochip1: Persistence not supported for GPIO 4
+[    1.148770] msm_serial c1b0000.serial: msm_serial: detected port #0
+[    1.149095] msm_serial c1b0000.serial: uartclk = 19200000
+[    1.150319] c1b0000.serial: ttyMSM0 MMIO:0x000000000c1b0000 (irq = 46, base_baud = 1200000) is a MSM
+[    1.155892] pinctrl core: add 4 pinctrl maps
+[    1.156148] pinctrl core: add 4 pinctrl maps
+[    1.156245] msm8998-pinctrl 3400000.pinctrl: found group selector 8 for gpio8
+[    1.156318] msm8998-pinctrl 3400000.pinctrl: found group selector 9 for gpio9
+[    1.156399] msm8998-pinctrl 3400000.pinctrl: found group selector 8 for gpio8
+[    1.156448] msm8998-pinctrl 3400000.pinctrl: found group selector 9 for gpio9
+[    1.156539] msm8998-pinctrl 3400000.pinctrl: found group selector 8 for gpio8
+[    1.156625] msm8998-pinctrl 3400000.pinctrl: found group selector 9 for gpio9
+[    1.156675] msm8998-pinctrl 3400000.pinctrl: found group selector 8 for gpio8
+[    1.156720] msm8998-pinctrl 3400000.pinctrl: found group selector 9 for gpio9
+[    1.156878] msm_serial c16f000.serial: msm_serial: detected port #1
+[    1.156956] qcom_cc_clk_hw_get: invalid index 3351654288
+[    1.157001] msm_serial c16f000.serial: probe with driver msm_serial failed with error -2
+[    1.165298] arm-smmu cd00000.iommu: probing hardware configuration...
+[    1.165357] arm-smmu cd00000.iommu: SMMUv2 with:
+[    1.165430] arm-smmu cd00000.iommu: 	stage 1 translation
+[    1.165481] arm-smmu cd00000.iommu: 	address translation ops
+[    1.165523] arm-smmu cd00000.iommu: 	non-coherent table walk
+[    1.165564] arm-smmu cd00000.iommu: 	(IDR0.CTTW overridden by FW configuration)
+[    1.165611] arm-smmu cd00000.iommu: 	stream matching with 54 register groups
+[    1.165690] arm-smmu cd00000.iommu: 	17 context banks (0 stage-2 only)
+[    1.166808] arm-smmu cd00000.iommu: 	Supported page sizes: 0x63315000
+[    1.166865] arm-smmu cd00000.iommu: 	Stage-1: 32-bit VA -> 36-bit IPA
+[    1.166953] arm-smmu cd00000.iommu: 	preserved 0 boot mappings
+[    1.199487] pinctrl core: add 4 pinctrl maps
+[    1.199659] pinctrl core: add 4 pinctrl maps
+[    1.199762] msm8998-pinctrl 3400000.pinctrl: found group selector 87 for gpio87
+[    1.199836] msm8998-pinctrl 3400000.pinctrl: found group selector 87 for gpio87
+[    1.199914] msm8998-pinctrl 3400000.pinctrl: found group selector 88 for gpio88
+[    1.199979] msm8998-pinctrl 3400000.pinctrl: found group selector 88 for gpio88
+[    1.200049] msm8998-pinctrl 3400000.pinctrl: found group selector 87 for gpio87
+[    1.200110] msm8998-pinctrl 3400000.pinctrl: found group selector 87 for gpio87
+[    1.200180] msm8998-pinctrl 3400000.pinctrl: found group selector 88 for gpio88
+[    1.200241] msm8998-pinctrl 3400000.pinctrl: found group selector 88 for gpio88
+[    1.205160] pinctrl core: add 2 pinctrl maps
+[    1.205260] pinctrl core: add 2 pinctrl maps
+[    1.205405] msm8998-pinctrl 3400000.pinctrl: found group selector 125 for gpio125
+[    1.205487] msm8998-pinctrl 3400000.pinctrl: found group selector 125 for gpio125
+[    1.205589] msm8998-pinctrl 3400000.pinctrl: found group selector 89 for gpio89
+[    1.205655] msm8998-pinctrl 3400000.pinctrl: found group selector 89 for gpio89
+[    1.254661] rmi4_i2c 0-0020: registering I2C-connected sensor
+[    1.254872] rmi4_physical rmi4-00: no of_node; not parsing pinctrl DT
+[    1.291159] rmi4_f01 rmi4-00.fn01: no of_node; not parsing pinctrl DT
+[    1.295655] rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: S3708AR, fw id: 2520908
+[    1.298445] rmi4_f12 rmi4-00.fn12: no of_node; not parsing pinctrl DT
+[    1.317576] input: Synaptics S3708AR as /devices/platform/soc@0/c179000.qup/i2c-0/0-0020/rmi4-00/input/input1
+[    1.343603] ufshcd-qcom 1da4000.ufshc: using DT '/soc@0/ufshc@1da4000' for 'reset' GPIO lookup
+[    1.343767] of_get_named_gpiod_flags: parsed 'reset-gpios' property of node '/soc@0/ufshc@1da4000[0]' - status (0)
+[    1.343876] gpio gpiochip0: Persistence not supported for GPIO 153
+[    1.343936] ufshcd-qcom 1da4000.ufshc: UFS_HW_VERSION 3.1.0
+[    1.343983] ufshcd-qcom 1da4000.ufshc: UFS_HOST_LEFT HCS 0x0000010f HCE 0x00000001
+[    1.344037] qcom-qmp-ufs-phy 1da7000.phy: UFS host 3.1.0: MSM8998 PHY table 3.1.0
+[    1.344222] ufshcd-qcom 1da4000.ufshc: Disabling inline encryption support
+[    1.349176] qcom-qmp-ufs-phy 1da7000.phy: UFS host 3.1.0: MSM8998 PHY table 3.1.0
+[    1.354129] qcom-qmp-ufs-phy 1da7000.phy: UFS_PHY_LINECFG_DISABLE 0x00000000
+[    1.355662] scsi host0: ufshcd
+[    1.608861] pinctrl core: add 6 pinctrl maps
+[    1.609000] pinctrl core: add 6 pinctrl maps
+[    1.609120] msm8998-pinctrl 3400000.pinctrl: found group selector 40 for gpio40
+[    1.609257] msm8998-pinctrl 3400000.pinctrl: found group selector 121 for gpio121
+[    1.609379] msm8998-pinctrl 3400000.pinctrl: found group selector 126 for gpio126
+[    1.609437] msm8998-pinctrl 3400000.pinctrl: found group selector 40 for gpio40
+[    1.609507] msm8998-pinctrl 3400000.pinctrl: found group selector 121 for gpio121
+[    1.609576] msm8998-pinctrl 3400000.pinctrl: found group selector 126 for gpio126
+[    1.609592] scsi 0:0:0:49488: Well-known LUN    SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    1.609653] msm8998-pinctrl 3400000.pinctrl: found group selector 40 for gpio40
+[    1.609736] msm8998-pinctrl 3400000.pinctrl: found group selector 121 for gpio121
+[    1.609912] msm8998-pinctrl 3400000.pinctrl: found group selector 126 for gpio126
+[    1.609977] msm8998-pinctrl 3400000.pinctrl: found group selector 40 for gpio40
+[    1.610052] msm8998-pinctrl 3400000.pinctrl: found group selector 121 for gpio121
+[    1.610124] msm8998-pinctrl 3400000.pinctrl: found group selector 126 for gpio126
+[    1.610367] ufs_device_wlun 0:0:0:49488: no of_node; not parsing pinctrl DT
+[    1.610369] gpio-keys soc@0:gpio_keys: using DT '/soc@0/gpio_keys/vol_up' for '(default)' GPIO lookup
+[    1.610505] of_get_named_gpiod_flags: parsed 'gpios' property of node '/soc@0/gpio_keys/vol_up[0]' - status (0)
+[    1.610612] gpio gpiochip0: Persistence not supported for GPIO 126
+[    1.610859] gpio-keys soc@0:gpio_keys: using DT '/soc@0/gpio_keys/power_key' for '(default)' GPIO lookup
+[    1.610971] of_get_named_gpiod_flags: parsed 'gpios' property of node '/soc@0/gpio_keys/power_key[0]' - status (0)
+[    1.611066] gpio gpiochip0: Persistence not supported for GPIO 40
+[    1.611254] gpio-keys soc@0:gpio_keys: using DT '/soc@0/gpio_keys/vol_down' for '(default)' GPIO lookup
+[    1.611363] of_get_named_gpiod_flags: parsed 'gpios' property of node '/soc@0/gpio_keys/vol_down[0]' - status (0)
+[    1.611456] gpio gpiochip0: Persistence not supported for GPIO 121
+[    1.611894] input: soc@0:gpio_keys as /devices/platform/soc@0/soc@0:gpio_keys/input/input2
+[    1.612264] scsi 0:0:0:49476: Well-known LUN    SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    1.612898] ufs_device_wlun 0:0:0:49476: no of_node; not parsing pinctrl DT
+[    1.613171] sd 0:0:0:49476: no of_node; not parsing pinctrl DT
+[    1.613984] scsi 0:0:0:49456: Well-known LUN    SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    1.614997] ufs_device_wlun 0:0:0:49456: no of_node; not parsing pinctrl DT
+[    1.615486] sd 0:0:0:49456: no of_node; not parsing pinctrl DT
+[    1.615549] clk: Not disabling unused clocks
+[    1.615613] PM: genpd: Disabling unused power domains
+[    1.617974] scsi 0:0:0:0: Direct-Access     SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    1.618685] ufs_device_wlun 0:0:0:0: no of_node; not parsing pinctrl DT
+[    1.619127] sd 0:0:0:0: no of_node; not parsing pinctrl DT
+[    1.619893] sd 0:0:0:0: [sda] 15584256 4096-byte logical blocks: (63.8 GB/59.4 GiB)
+[    1.620068] sd 0:0:0:0: [sda] Write Protect is off
+[    1.620120] sd 0:0:0:0: [sda] Mode Sense: 00 32 00 10
+[    1.620292] scsi 0:0:0:1: Direct-Access     SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    1.620361] sd 0:0:0:0: [sda] Write cache: enabled, read cache: enabled, supports DPO and FUA
+[    1.620777] ufs_device_wlun 0:0:0:1: no of_node; not parsing pinctrl DT
+[    1.620929] sd 0:0:0:1: no of_node; not parsing pinctrl DT
+[    1.621596] sd 0:0:0:1: [sdb] 1024 4096-byte logical blocks: (4.19 MB/4.00 MiB)
+[    1.621760] sd 0:0:0:1: [sdb] Write Protect is off
+[    1.621809] sd 0:0:0:1: [sdb] Mode Sense: 00 32 00 10
+[    1.622081] scsi 0:0:0:2: Direct-Access     SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    1.622226] sd 0:0:0:1: [sdb] Write cache: enabled, read cache: enabled, supports DPO and FUA
+[    1.622520] ufs_device_wlun 0:0:0:2: no of_node; not parsing pinctrl DT
+[    1.623343] sd 0:0:0:2: no of_node; not parsing pinctrl DT
+[    1.623703] scsi 0:0:0:3: Direct-Access     SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    1.624057] sd 0:0:0:2: [sdc] 1024 4096-byte logical blocks: (4.19 MB/4.00 MiB)
+[    1.624223] ufs_device_wlun 0:0:0:3: no of_node; not parsing pinctrl DT
+[    1.624309] sd 0:0:0:2: [sdc] Write Protect is off
+[    1.624364] sd 0:0:0:2: [sdc] Mode Sense: 00 32 00 10
+[    1.624685] sd 0:0:0:2: [sdc] Write cache: enabled, read cache: enabled, supports DPO and FUA
+[    1.625229] sd 0:0:0:3: no of_node; not parsing pinctrl DT
+[    1.625365] scsi 0:0:0:4: Direct-Access     SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    1.626115] sd 0:0:0:3: [sdd] 24576 4096-byte logical blocks: (101 MB/96.0 MiB)
+[    1.626262] ufs_device_wlun 0:0:0:4: no of_node; not parsing pinctrl DT
+[    1.626270] sd 0:0:0:3: [sdd] Write Protect is off
+[    1.626280] sd 0:0:0:3: [sdd] Mode Sense: 00 32 00 10
+[    1.626638] sd 0:0:0:3: [sdd] Write cache: enabled, read cache: enabled, supports DPO and FUA
+[    1.626816] sd 0:0:0:4: no of_node; not parsing pinctrl DT
+[    1.627183] sd 0:0:0:4: [sde] 9216 4096-byte logical blocks: (37.7 MB/36.0 MiB)
+[    1.627300] sd 0:0:0:4: [sde] Write Protect is off
+[    1.627297] scsi 0:0:0:5: Direct-Access     SKhynix  H28U74301AMR     D003 PQ: 0 ANSI: 6
+[    1.627327] sd 0:0:0:4: [sde] Mode Sense: 00 32 00 10
+[    1.627545] sd 0:0:0:4: [sde] Write cache: enabled, read cache: enabled, supports DPO and FUA
+[    1.627672] ufs_device_wlun 0:0:0:5: no of_node; not parsing pinctrl DT
+[    1.628033] sd 0:0:0:5: no of_node; not parsing pinctrl DT
+[    1.628411] sd 0:0:0:5: [sdf] 2048 4096-byte logical blocks: (8.39 MB/8.00 MiB)
+[    1.628622] sd 0:0:0:5: [sdf] Write Protect is off
+[    1.628640] sd 0:0:0:5: [sdf] Mode Sense: 00 32 00 10
+[    1.628942] sd 0:0:0:5: [sdf] Write cache: enabled, read cache: enabled, supports DPO and FUA
+[    1.662193]  sdf: sdf1 sdf2 sdf3 sdf4 sdf5
+[    1.662285]  sdd: sdd1 sdd2 sdd3 sdd4 sdd5 sdd6 sdd7 sdd8 sdd9 sdd10 sdd11 sdd12 sdd13 sdd14 sdd15 sdd16 sdd17 sdd18
+[    1.662465]  sdb: sdb1
+[    1.662535]  sdc: sdc1
+[    1.662684]  sde: sde1 sde2 sde3 sde4 sde5
+[    1.663178] sd 0:0:0:1: [sdb] Attached SCSI disk
+[    1.663208] sd 0:0:0:2: [sdc] Attached SCSI disk
+[    1.663963] sd 0:0:0:5: [sdf] Attached SCSI disk
+[    1.664863] sd 0:0:0:4: [sde] Attached SCSI disk
+[    1.664940]  sda: sda1 sda2 sda3 sda4 sda5 sda6 sda7 sda8 sda9 sda10 sda11 sda12 sda13 sda14 sda15 sda16 sda17 sda18 sda19 sda20 sda21 sda22 sda23 sda24 sda25 sda26 sda27 sda28 sda29 sda30 sda31 sda32 sda33 sda34 sda35 sda36 sda37 sda38 sda39 sda40 sda41 sda42 sda43 sda44 sda45
+[    1.667555] sd 0:0:0:3: [sdd] Attached SCSI disk
+[    1.675418] sd 0:0:0:0: [sda] Attached SCSI disk
+[    1.676418] Freeing unused kernel memory: 3072K
+[    1.676906] Run /init as init process
+[    1.676921]   with arguments:
+[    1.676932]     /init
+[    1.676943]   with environment:
+[    1.676953]     HOME=/
+[    1.676963]     TERM=linux
+[    1.725803] walleye-ufs-root: start, kernel 7.3.0-00013-g3644090c7f6d-dirty, root=[system_a] running slot suffix=[_b]
+[    2.132430] walleye-ufs-root: root is /dev/sda22 (PARTNAME=system_a)
+[    2.150629] EXT4-fs (sda22): mounted filesystem 7e1c3a52-0b6d-4f0e-9a41-2d8a6c1e5b90 ro without journal. Quota mode: none.
+[    4.182643] random: crng init done
+[   11.746692] gcc-msm8998 100000.clock-controller: sync_state() pending due to soc@0:bt_wcn3990
+[   11.746842] gcc-msm8998 100000.clock-controller: sync_state() pending due to c16f000.serial
+[   11.746900] gcc-msm8998 100000.clock-controller: sync_state() pending due to soc@0:mnh-sm
+[   11.746952] gcc-msm8998 100000.clock-controller: sync_state() pending due to c179000.i2c
+[   24.670945] configfs-gadget.g1 gadget.0: no of_node; not parsing pinctrl DT
+[   24.672651] configfs-gadget.g1 gadget.0: HOST MAC 02:42:ac:10:2b:02
+[   24.672754] configfs-gadget.g1 gadget.0: MAC 02:42:ac:10:2b:01
+---init-lines
+[    1.725803] walleye-ufs-root: start, kernel 7.3.0-00013-g3644090c7f6d-dirty, root=[system_a] running slot suffix=[_b]
+[    2.132430] walleye-ufs-root: root is /dev/sda22 (PARTNAME=system_a)
+---cmdline
+clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3 dyndbg="file drivers/gpio/gpiolib.c +p; file drivers/gpio/gpiolib-of.c +p; file drivers/pinctrl/core.c +p; file drivers/pinctrl/devicetree.c +p; file drivers/pinctrl/qcom/pinctrl-spmi-gpio.c +p" walleye.root=system_a androidboot.slot_suffix=_b androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=0000002b-0000-0000-0000-000000000000 androidboot.bootdevice=1da4000.ufshc androidboot.serialno=REDACTED androidboot.wificountrycode=00 androidboot.boottime=1BLL:221,1BLE:781,2BLL:870,2BLE:4617,SW:10017,KL:0,KD:2340,ODT:75,AVB:38 androidboot.baseband=msm mdss_mdp.panel=1:dsi:0:htc,mdss_dsi_samsung_s6e3fa5_1080p_cmd:1:none:cfg:single_dsi androidboot.fpsensor=fpc1075 androidboot.fpmodule=ofilm androidboot.usbradioflag=0 androidboot.temp_protect_ignore=0 androidboot.hardware.ufs=64GB,Hynix androidboot.mid=G011A androidboot.hardware.sku=G011A androidboot.revision=MP1 androidboot.ddrsize=4GB androidboot.ddrinfo=000000FF androidboot.hardware.ddr=4096MB,Micron,LPDDR4 androidboot.bootloader=mw8998-003.0085.00 androidboot.bootreason=reboot androidboot.cid=00000000 androidboot.hardware.color=VEN00 androidboot.theme=1 androidboot.sf=1 androidboot.msm.hw_ver_id=2005E0E1 androidboot.qf.st=2 androidboot.pk=g-pxl-p
+---pid1
+/sbin/init 
+---mounts
+proc /proc proc rw,relatime 0 0
+sys /sys sysfs rw,relatime 0 0
+dev /dev devtmpfs rw,nosuid,noexec,relatime,size=10240k,nr_inodes=463619,mode=755 0 0
+/dev/sda22 /lower ext4 ro,relatime,norecovery 0 0
+overlay / overlay rw,relatime,lowerdir=/lower,upperdir=/ovl/upper,workdir=/ovl/work,uuid=on 0 0
+tmpfs /run tmpfs rw,nosuid,nodev,size=749184k,nr_inodes=819200,mode=755 0 0
+mqueue /dev/mqueue mqueue rw,nosuid,nodev,noexec,relatime 0 0
+devpts /dev/pts devpts rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000 0 0
+shm /dev/shm tmpfs rw,nosuid,nodev,noexec,relatime 0 0
+securityfs /sys/kernel/security securityfs rw,nosuid,nodev,noexec,relatime 0 0
+debugfs /sys/kernel/debug debugfs rw,nosuid,nodev,noexec,relatime 0 0
+configfs /sys/kernel/config configfs rw,nosuid,nodev,noexec,relatime 0 0
+none /sys/fs/pstore pstore rw,nosuid,nodev,noexec,relatime 0 0
+bpf /sys/fs/bpf bpf rw,nosuid,nodev,noexec,relatime 0 0
+---ps
+PID   USER     TIME  COMMAND
+    1 root      0:01 /sbin/init
+    2 root      0:00 [kthreadd]
+    3 root      0:00 [pool_workqueue_]
+    4 root      0:00 [kworker/R-rcu_g]
+    5 root      0:00 [kworker/R-sync_]
+    6 root      0:00 [kworker/R-kvfre]
+    7 root      0:00 [kworker/R-slub_]
+    8 root      0:00 [kworker/R-netns]
+    9 root      0:00 [kworker/0:0-rcu]
+   10 root      0:00 [kworker/0:1-mm_]
+   11 root      0:00 [kworker/0:0H-kb]
+   12 root      0:00 [kworker/u32:0-i]
+   13 root      0:00 [kworker/R-mm_pe]
+   14 root      0:00 [ksoftirqd/0]
+   15 root      0:00 [rcu_preempt]
+   16 root      0:00 [rcu_exp_par_gp_]
+   17 root      0:00 [rcu_exp_gp_kthr]
+   18 root      0:00 [migration/0]
+   19 root      0:00 [cpuhp/0]
+   20 root      0:00 [cpuhp/1]
+   21 root      0:00 [migration/1]
+   22 root      0:00 [ksoftirqd/1]
+   23 root      0:00 [kworker/1:0-mm_]
+   24 root      0:00 [kworker/1:0H-kb]
+   25 root      0:00 [cpuhp/2]
+   26 root      0:00 [migration/2]
+   27 root      0:00 [ksoftirqd/2]
+   28 root      0:00 [kworker/2:0-mm_]
+   29 root      0:00 [kworker/2:0H-kb]
+   30 root      0:00 [cpuhp/3]
+   31 root      0:00 [migration/3]
+   32 root      0:00 [ksoftirqd/3]
+   33 root      0:00 [kworker/3:0-eve]
+   34 root      0:00 [kworker/3:0H-kb]
+   35 root      0:00 [cpuhp/4]
+   36 root      0:00 [migration/4]
+   37 root      0:00 [ksoftirqd/4]
+   38 root      0:00 [kworker/4:0-dev]
+   39 root      0:00 [kworker/4:0H-kb]
+   40 root      0:00 [cpuhp/5]
+   41 root      0:00 [migration/5]
+   42 root      0:00 [ksoftirqd/5]
+   43 root      0:00 [kworker/5:0-rcu]
+   44 root      0:00 [kworker/5:0H-kb]
+   45 root      0:00 [cpuhp/6]
+   46 root      0:00 [migration/6]
+   47 root      0:00 [ksoftirqd/6]
+   48 root      0:00 [kworker/6:0-rcu]
+   49 root      0:00 [kworker/6:0H-kb]
+   50 root      0:00 [cpuhp/7]
+   51 root      0:00 [migration/7]
+   52 root      0:00 [ksoftirqd/7]
+   53 root      0:00 [kworker/7:0-rcu]
+   54 root      0:00 [kworker/7:0H-kb]
+   55 root      0:00 [kworker/u33:0-a]
+   56 root      0:00 [kworker/u34:0-p]
+   57 root      0:00 [kdevtmpfs]
+   58 root      0:00 [kworker/R-inet_]
+   59 root      0:00 [rcu_tasks_kthre]
+   60 root      0:00 [kauditd]
+   61 root      0:00 [kworker/u35:0-u]
+   62 root      0:00 [oom_reaper]
+   63 root      0:00 [kworker/R-write]
+   64 root      0:00 [kcompactd0]
+   65 root      0:00 [ksmd]
+   66 root      0:00 [khugepaged]
+   67 root      0:00 [kworker/R-bio_c]
+   68 root      0:00 [kworker/R-kbloc]
+   69 root      0:00 [kworker/R-blkcg]
+   70 root      0:00 [kworker/R-kinte]
+   71 root      0:00 [kworker/u34:1-p]
+   72 root      0:00 [kworker/u34:2-a]
+   73 root      0:00 [kworker/R-tpm_d]
+   74 root      0:00 [kworker/R-ata_s]
+   75 root      0:00 [kworker/R-edac-]
+   76 root      0:00 [kworker/6:1-mm_]
+   77 root      0:00 [kworker/6:2-eve]
+   78 root      0:00 [kworker/0:2]
+   79 root      0:00 [kworker/R-devfr]
+   80 root      0:00 [watchdogd]
+   81 root      0:00 [kworker/7:1-eve]
+   82 root      0:00 [kworker/R-quota]
+   83 root      0:00 [kworker/u33:1-a]
+   84 root      0:00 [kworker/u33:2-a]
+   85 root      0:00 [kworker/R-rpcio]
+   86 root      0:00 [kworker/R-xprti]
+   87 root      0:00 [kswapd0]
+   88 root      0:00 [kworker/R-nfsio]
+   89 root      0:00 [kworker/R-acpi_]
+   90 root      0:00 [kworker/5:1-mm_]
+   91 root      0:00 [kworker/R-vfio-]
+   92 root      0:00 [kworker/4:1-eve]
+   93 root      0:00 [irq/35-pm8941_p]
+   94 root      0:00 [kworker/5:2]
+   95 root      0:00 [irq/36-10ab000.]
+   96 root      0:00 [irq/37-10ab000.]
+   97 root      0:00 [irq/38-10ae000.]
+   98 root      0:00 [kworker/3:1-mm_]
+   99 root      0:00 [irq/39-10ae000.]
+  100 root      0:00 [kworker/1:1-mm_]
+  101 root      0:00 [kworker/2:1-mm_]
+  102 root      0:00 [kworker/7:2-rcu]
+  103 root      0:00 [kworker/R-mld]
+  104 root      0:00 [kworker/R-ipv6_]
+  105 root      0:00 [kworker/u32:1-u]
+  106 root      0:00 [irq/15-smp2p-lp]
+  107 root      0:00 [irq/16-smp2p-mp]
+  108 root      0:00 [irq/17-smp2p-sl]
+  109 root      0:00 [irq/67-ss_phy_i]
+  110 root      0:00 [irq/68-qusb2_ph]
+  111 root      0:00 [kworker/u34:3-p]
+  112 root      0:00 [kworker/4:2-rcu]
+  113 root      0:00 [kworker/4:3]
+  114 root      0:00 [irq/71-rmi4_i2c]
+  115 root      0:00 [irq/74-bat-ov]
+  116 root      0:00 [irq/75-usb-plug]
+  117 root      0:00 [irq/76-usbin-ic]
+  118 root      0:00 [irq/77-wdog-bar]
+  119 root      0:00 [scsi_eh_0]
+  120 root      0:00 [kworker/R-scsi_]
+  121 root      0:00 [kworker/R-ufs_e]
+  122 root      0:00 [kworker/R-ufs_c]
+  123 root      0:00 [kworker/R-ufs_c]
+  124 root      0:00 [kworker/u34:4-d]
+  125 root      0:00 [kworker/u34:5-p]
+  126 root      0:00 [kworker/u34:6-a]
+  127 root      0:00 [kworker/u34:7]
+  128 root      0:00 [kworker/1:1H-kb]
+  129 root      0:00 [kworker/2:1H-kb]
+  130 root      0:00 [kworker/3:1H-kb]
+  131 root      0:00 [kworker/6:1H-kb]
+  132 root      0:00 [kworker/4:1H-kb]
+  133 root      0:00 [kworker/5:1H-kb]
+  163 root      0:00 [kworker/u35:1]
+  240 root      0:00 [kworker/R-ext4-]
+  242 root      0:00 [kworker/7:1H-kb]
+  255 root      0:00 /.walleye/busybox sh /.walleye/hold.sh
+  259 root      0:00 [kworker/0:1H-kb]
+  512 root      0:00 [kworker/u33:3]
+  513 root      0:00 [kworker/u33:4]
+ 4296 root      0:00 /sbin/syslogd -t -n
+ 4304 root      0:00 /sbin/getty 38400 tty0
+ 4329 root      0:00 [irq/69-dwc3]
+ 4334 root      0:00 /usr/sbin/udhcpd -f -S /etc/udhcpd.conf
+ 4353 root      0:00 /sbin/getty -L 115200 ttyGS0 vt100
+ 4360 root      0:00 sshd: /usr/sbin/sshd [listener] 0 of 10-100 startups
+ 4385 root      0:00 /.walleye/busybox sleep 2
+ 4402 root      0:00 sshd-session: root [priv]
+ 4404 root      0:00 sshd-session: root@notty
+ 4405 root      0:00 sh -c echo ---dmesg-tail; dmesg | tail -n 300; echo ---init-lines; dmesg | grep 'walleye-ufs-root:'; echo ---cmdline; cat /proc/cmdline; echo ---pid1; cat /proc/1/cmdline; echo; echo ---mounts; cat /proc/mounts; echo ---ps; ps; echo ---root; ls -l /; echo ---new-root; ls -l /new_root /mnt /sysroot 2>&1; echo ---init-logs; for f in /run/*.log /var/log/*.log /tmp/*.log /*.log; do [ -f "$f" ] && { echo "== $f"; tail -n 100 "$f"; }; done; echo ---partnames; for u in /sys/class/block/*/uevent; do grep -H PARTNAME "$u"; done; echo ---df; df 2>&1; echo ---end
+ 4413 root      0:00 ps
+---root
+total 60
+drwxr-xr-x    2 root     root          4096 Jan  1 00:00 bin
+drwxr-xr-x   12 root     root          4760 Jan  1 00:00 dev
+drwxr-xr-x    1 root     root            60 Jan  1 00:00 etc
+drwxr-xr-x    2 root     root          4096 Jan  1 00:00 home
+drwxr-xr-x    7 root     root          4096 Jan  1 00:00 lib
+drwx------    2 root     root         16384 Jan  1 00:00 lost+found
+drwxr-xr-x   20 root     root          4096 Jan  1 00:00 lower
+drwxr-xr-x    5 root     root          4096 Jan  1 00:00 media
+drwxr-xr-x    2 root     root          4096 Jan  1 00:00 mnt
+drwxr-xr-x    2 root     root          4096 Jan  1 00:00 opt
+dr-xr-xr-x  161 root     root             0 Jan  1  1970 proc
+drwx------    3 root     root          4096 Jan  1 00:00 root
+drwxr-xr-x    4 root     root           180 Jan  1 00:00 run
+drwxr-xr-x    2 root     root          4096 Jan  1 00:00 sbin
+drwxr-xr-x    2 root     root          4096 Jan  1 00:00 srv
+dr-xr-xr-x   13 root     root             0 Jan  1  1970 sys
+drwxrwxrwt    1 root     root            80 Jan  1 00:00 tmp
+drwxr-xr-x    8 root     root          4096 Jan  1 00:00 usr
+drwxr-xr-x    1 root     root            80 Jan  1 00:00 var
+---new-root
+ls: /new_root: No such file or directory
+ls: /sysroot: No such file or directory
+/mnt:
+total 0
+---init-logs
+---partnames
+/sys/class/block/sda1/uevent:PARTNAME=padding0
+/sys/class/block/sda10/uevent:PARTNAME=hosd_a
+/sys/class/block/sda11/uevent:PARTNAME=keymaster_a
+/sys/class/block/sda12/uevent:PARTNAME=cmnlib_a
+/sys/class/block/sda13/uevent:PARTNAME=cmnlib64_a
+/sys/class/block/sda14/uevent:PARTNAME=apdp_a
+/sys/class/block/sda15/uevent:PARTNAME=msadp_a
+/sys/class/block/sda16/uevent:PARTNAME=devcfg_a
+/sys/class/block/sda17/uevent:PARTNAME=storsec_a
+/sys/class/block/sda18/uevent:PARTNAME=vbmeta_a
+/sys/class/block/sda19/uevent:PARTNAME=trusty_a
+/sys/class/block/sda2/uevent:PARTNAME=lockbooter_a
+/sys/class/block/sda20/uevent:PARTNAME=vendor_a
+/sys/class/block/sda21/uevent:PARTNAME=dtbo_a
+/sys/class/block/sda22/uevent:PARTNAME=system_a
+/sys/class/block/sda23/uevent:PARTNAME=lockbooter_b
+/sys/class/block/sda24/uevent:PARTNAME=rpm_b
+/sys/class/block/sda25/uevent:PARTNAME=tz_b
+/sys/class/block/sda26/uevent:PARTNAME=hyp_b
+/sys/class/block/sda27/uevent:PARTNAME=pmic_b
+/sys/class/block/sda28/uevent:PARTNAME=modem_b
+/sys/class/block/sda29/uevent:PARTNAME=abl_b
+/sys/class/block/sda3/uevent:PARTNAME=rpm_a
+/sys/class/block/sda30/uevent:PARTNAME=boot_b
+/sys/class/block/sda31/uevent:PARTNAME=hosd_b
+/sys/class/block/sda32/uevent:PARTNAME=keymaster_b
+/sys/class/block/sda33/uevent:PARTNAME=cmnlib_b
+/sys/class/block/sda34/uevent:PARTNAME=cmnlib64_b
+/sys/class/block/sda35/uevent:PARTNAME=apdp_b
+/sys/class/block/sda36/uevent:PARTNAME=msadp_b
+/sys/class/block/sda37/uevent:PARTNAME=devcfg_b
+/sys/class/block/sda38/uevent:PARTNAME=storsec_b
+/sys/class/block/sda39/uevent:PARTNAME=vbmeta_b
+/sys/class/block/sda4/uevent:PARTNAME=tz_a
+/sys/class/block/sda40/uevent:PARTNAME=trusty_b
+/sys/class/block/sda41/uevent:PARTNAME=vendor_b
+/sys/class/block/sda42/uevent:PARTNAME=dtbo_b
+/sys/class/block/sda43/uevent:PARTNAME=system_b
+/sys/class/block/sda44/uevent:PARTNAME=padding1
+/sys/class/block/sda45/uevent:PARTNAME=userdata
+/sys/class/block/sda5/uevent:PARTNAME=hyp_a
+/sys/class/block/sda6/uevent:PARTNAME=pmic_a
+/sys/class/block/sda7/uevent:PARTNAME=modem_a
+/sys/class/block/sda8/uevent:PARTNAME=abl_a
+/sys/class/block/sda9/uevent:PARTNAME=boot_a
+/sys/class/block/sdb1/uevent:PARTNAME=xbl_a
+/sys/class/block/sdc1/uevent:PARTNAME=xbl_b
+/sys/class/block/sdd1/uevent:PARTNAME=misc
+/sys/class/block/sdd10/uevent:PARTNAME=splash
+/sys/class/block/sdd11/uevent:PARTNAME=limits
+/sys/class/block/sdd12/uevent:PARTNAME=toolsfv
+/sys/class/block/sdd13/uevent:PARTNAME=logfs
+/sys/class/block/sdd14/uevent:PARTNAME=sti
+/sys/class/block/sdd15/uevent:PARTNAME=modemst1
+/sys/class/block/sdd16/uevent:PARTNAME=modemst2
+/sys/class/block/sdd17/uevent:PARTNAME=fsc
+/sys/class/block/sdd18/uevent:PARTNAME=reserve3
+/sys/class/block/sdd2/uevent:PARTNAME=ssd
+/sys/class/block/sdd3/uevent:PARTNAME=persist
+/sys/class/block/sdd4/uevent:PARTNAME=frp
+/sys/class/block/sdd5/uevent:PARTNAME=cdt
+/sys/class/block/sdd6/uevent:PARTNAME=ddr
+/sys/class/block/sdd7/uevent:PARTNAME=sec
+/sys/class/block/sdd8/uevent:PARTNAME=dip
+/sys/class/block/sdd9/uevent:PARTNAME=dpo
+/sys/class/block/sde1/uevent:PARTNAME=ramdump
+/sys/class/block/sde2/uevent:PARTNAME=pg1fs
+/sys/class/block/sde3/uevent:PARTNAME=pg2fs
+/sys/class/block/sde4/uevent:PARTNAME=metadata
+/sys/class/block/sde5/uevent:PARTNAME=reserve4
+/sys/class/block/sdf1/uevent:PARTNAME=board_info
+/sys/class/block/sdf2/uevent:PARTNAME=mfg
+/sys/class/block/sdf3/uevent:PARTNAME=fsg
+/sys/class/block/sdf4/uevent:PARTNAME=devinfo
+/sys/class/block/sdf5/uevent:PARTNAME=reserve5
+---df
+Filesystem           1K-blocks      Used Available Use% Mounted on
+dev                      10240         0     10240   0% /dev
+/dev/sda22             1029548     19484    941252   2% /lower
+overlay                 262144      2148    259996   1% /
+tmpfs                   749184        80    749104   0% /run
+shm                    1872956         0   1872956   0% /dev/shm
+---end

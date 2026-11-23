@@ -353,7 +353,7 @@ fn options(line: &str) -> Vec<&str> {
         .map_or(Vec::new(), |o| o.split(',').collect())
 }
 
-/// `/proc/mounts` says: the root is the overlay on `/lower`, the card's partition is mounted at `/lower` read-only (`ro`, `noload`,
+/// `/proc/mounts` says: the root is the overlay on `/lower`, the card's partition is mounted at `/lower` read-only (`ro`, `norecovery` as ext4 prints `noload`,
 /// no `discard`), and no block device of the card is mounted anywhere writable. Returns the card's device.
 pub fn mounts_are_read_only(proc_mounts: &str) -> Result<String, String> {
     let lines: Vec<&str> = proc_mounts.lines().collect();
@@ -377,10 +377,14 @@ pub fn mounts_are_read_only(proc_mounts: &str) -> Result<String, String> {
         return Err(format!("/lower is not an ext4 block device: {lower}"));
     }
     let opts = options(lower);
-    for needed in ["ro", "noload"] {
-        if !opts.contains(&needed) {
-            return Err(format!("/lower is not mounted with {needed}: {lower}"));
-        }
+    if !opts.contains(&"ro") {
+        return Err(format!("/lower is not mounted with ro: {lower}"));
+    }
+    // the init mounts with `noload`; ext4 prints that option as `norecovery` in /proc/mounts (run 4 of the stage 1 boot: `ro,relatime,norecovery`)
+    if !opts.iter().any(|o| ["norecovery", "noload"].contains(o)) {
+        return Err(format!(
+            "/lower is not mounted with norecovery (noload): {lower}"
+        ));
     }
     for refused in ["rw", "discard"] {
         if opts.contains(&refused) {
@@ -1005,7 +1009,9 @@ impl RootfsBoot {
         let u = self.clone();
         move || {
             let device = mounts_are_read_only(&u.read_section("mounts")?)?;
-            println!("  {device} is mounted read-only (ro, noload, no discard) under the overlay");
+            println!(
+                "  {device} is mounted read-only (ro, norecovery, no discard) under the overlay"
+            );
             Ok(())
         }
     }
@@ -1310,7 +1316,7 @@ mod tests {
                 "rw",
                 MOUNTS.replace("ro,relatime,noload", "rw,relatime,noload"),
             ),
-            ("no noload", MOUNTS.replace(",noload", "")),
+            ("no noload or norecovery", MOUNTS.replace(",noload", "")),
             ("discard", MOUNTS.replace("noload", "noload,discard")),
             (
                 "no overlay",
@@ -2011,5 +2017,153 @@ mod tests {
         assert!((RootfsBoot::new(s.clone()).the_image_is_the_declared_one())().is_ok());
         s.image_sha256 = "0".repeat(64);
         assert!((RootfsBoot::new(s).the_image_is_the_declared_one())().is_err());
+    }
+}
+
+/// Checks 15, 16 and 17 of the root boot (the login is root's on the image, the init saw the slot and handed over, the card is read-only under the
+/// overlay) run OFFLINE against what the phone really printed in runs 3 and 4 of the stage 1 boot, through the same step functions the procedure
+/// calls. The fixtures are the keeper's files, copied byte for byte from `~/lab-material/walleye/rootfs-boots-20261123-054445` (run 3) and
+/// `.../rootfs-boots-20261123-062054` (run 4): `read.txt` is the one read after the login, `evidence.txt` the read of the stop. The reading of
+/// PID 1 is the one of run 4's read.txt (`---pid1`); run 3's read.txt predates that section, so its PID 1 is taken from the `ps` of run 3's own
+/// evidence.txt (the line of PID 1), and the test says so.
+#[cfg(test)]
+mod real_runs {
+    use super::*;
+    use crate::fixture::executable;
+    use crate::settings::Try;
+    use std::os::unix::fs::PermissionsExt;
+
+    const RUN3_READ: &str = include_str!("../fixtures/rootfs-boots-run3-read.txt");
+    const RUN3_EVIDENCE: &str = include_str!("../fixtures/rootfs-boots-run3-evidence.txt");
+    const RUN4_READ: &str = include_str!("../fixtures/rootfs-boots-run4-read.txt");
+
+    /// Run 4's captured read as it is: it has the `---pid1` section.
+    fn run4() -> String {
+        assert!(RUN4_READ.contains("\n---pid1\n"));
+        RUN4_READ.to_string()
+    }
+
+    /// Run 3's captured read with the PID 1 section its read did not yet have, taken from the ps of its own evidence (PID 1's command).
+    fn run3() -> String {
+        assert!(
+            !RUN3_READ.contains("---pid1"),
+            "run 3's read had no pid1 section"
+        );
+        let ps = sections(RUN3_EVIDENCE)
+            .into_iter()
+            .find(|(n, _)| n == "ps")
+            .expect("run 3's evidence has a ps section")
+            .1;
+        let pid1 = ps
+            .lines()
+            .find(|l| l.split_whitespace().next() == Some("1"))
+            .expect("run 3's ps lists PID 1");
+        let command = pid1
+            .split_whitespace()
+            .skip(3)
+            .collect::<Vec<_>>()
+            .join(" ");
+        assert_eq!(command, "/sbin/init");
+        RUN3_READ.replacen(
+            "---mounts\n",
+            &format!("---pid1\n{command} \n---mounts\n"),
+            1,
+        )
+    }
+
+    fn rig(name: &str, read: &str) -> RootfsBoot {
+        let d = std::env::temp_dir().join(format!("wt-rb-real-{name}-{}", std::process::id()));
+        std::fs::create_dir_all(&d).unwrap();
+        std::fs::write(d.join("read.out"), read).unwrap();
+        let ssh = d.join("ssh");
+        executable(&ssh, &format!("#!/bin/sh\ncat {}/read.out\n", d.display()));
+        let key = d.join("key");
+        std::fs::write(&key, "k").unwrap();
+        std::fs::set_permissions(&key, PermissionsExt::from_mode(0o600)).unwrap();
+        let mut s = Settings::stand_in(Try::RootfsBoot);
+        s.out = d.join("out");
+        s.identity = key;
+        s.address = "172.16.43.1".into();
+        s.device_wait = 1;
+        let mut r = RootfsBoot::with_ssh(s, &ssh.to_string_lossy());
+        std::fs::create_dir_all(&r.s.out).unwrap();
+        // what the runs read before the boot: adb's suffix _b, so the root is system_a
+        *Rc::get_mut(&mut r.before).unwrap().borrow_mut() = Before {
+            suffix: "_b".into(),
+            root: "system_a".into(),
+            run_image: None,
+        };
+        r
+    }
+
+    /// Checks 15, 16, 17 in the procedure's order: the first error stops, as a check does.
+    fn checks_15_to_17(r: &RootfsBoot) -> Result<(), String> {
+        (r.the_login_works_and_the_phone_is_read())()?;
+        (r.the_phone_is_the_image_we_booted())()
+            .map_err(|e| format!("check 15 (root's login, network, services): {e}"))?;
+        (r.the_init_saw_the_slot_adb_saw())()
+            .map_err(|e| format!("check 16 (the init saw the slot, handed over): {e}"))?;
+        (r.the_root_is_mounted_read_only())()
+            .map_err(|e| format!("check 17 (the card is read-only under the overlay): {e}"))
+    }
+
+    #[test]
+    fn the_state_run_4_captured_passes_checks_15_to_17() {
+        checks_15_to_17(&rig("run4", &run4())).unwrap();
+    }
+
+    #[test]
+    fn the_state_run_3_captured_passes_checks_15_to_17_now_that_the_check_reads_the_live_state() {
+        checks_15_to_17(&rig("run3", &run3())).unwrap();
+    }
+
+    #[test]
+    fn the_phones_own_mount_line_is_read_only_whatever_the_word_for_noload() {
+        let line = "/dev/sda22 /lower ext4 ro,relatime,norecovery 0 0";
+        assert!(RUN4_READ.contains(line) && RUN3_READ.contains(line));
+        let mounts = format!("overlay / overlay rw,relatime,lowerdir=/lower,upperdir=/ovl/upper,workdir=/ovl/work,uuid=on 0 0\n{line}\n");
+        assert_eq!(mounts_are_read_only(&mounts).unwrap(), "/dev/sda22");
+        assert!(mounts_are_read_only(&mounts.replace("norecovery", "noload")).is_ok());
+        for (what, bad) in [
+            ("rw", mounts.replace("ro,relatime", "rw,relatime")),
+            ("no ro", mounts.replace("ro,relatime,", "")),
+            ("neither word", mounts.replace(",norecovery", "")),
+            (
+                "discard",
+                mounts.replace("norecovery", "norecovery,discard"),
+            ),
+        ] {
+            assert!(mounts_are_read_only(&bad).is_err(), "{what}");
+        }
+    }
+
+    #[test]
+    fn a_captured_state_that_is_wrong_fails_with_its_reading_in_the_error() {
+        // the card mounted read-write
+        let rw = run4().replace(
+            "/dev/sda22 /lower ext4 ro,relatime,norecovery",
+            "/dev/sda22 /lower ext4 rw,relatime,norecovery",
+        );
+        let e = checks_15_to_17(&rig("rw", &rw)).unwrap_err();
+        assert!(
+            (e.contains("check 16") || e.contains("check 17"))
+                && e.contains("rw,relatime,norecovery"),
+            "{e}"
+        );
+        // PID 1 is the initramfs init: the hand-over did not happen
+        let pid1 = run4().replacen("\n---pid1\n/sbin/init", "\n---pid1\n/init", 1);
+        let e = checks_15_to_17(&rig("pid1", &pid1)).unwrap_err();
+        assert!(e.contains("check 16") && e.contains("\"/init\""), "{e}");
+        // the overlay's lower layer is another partition than the one the init named
+        let other = run4().replace("/dev/sda22 /lower", "/dev/sda23 /lower");
+        let e = checks_15_to_17(&rig("other", &other)).unwrap_err();
+        assert!(
+            e.contains("check 16") && e.contains("/dev/sda23") && e.contains("/dev/sda22"),
+            "{e}"
+        );
+        // no overlay as /
+        let flat = run4().replace("overlay / overlay", "/dev/sda22 / ext4");
+        let e = checks_15_to_17(&rig("flat", &flat)).unwrap_err();
+        assert!(e.contains("overlay"), "{e}");
     }
 }
