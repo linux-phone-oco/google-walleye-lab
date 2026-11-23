@@ -14,7 +14,7 @@
 //! | the touch try's values | `[procedures.touch-events-on-z21] window`, `min_window` |
 //! | the PMIC try's values | `[procedures.pmic-watchdog-v1-on-the-pixel-2] stay`, `bite_wait` |
 //! | the display try's values | `[images.l7]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
-//! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item`, `lun`, `load_mb`, `load_limit`, `luns` |
+//! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item`, `lun`, `load_mb`, `load_limit`, `luns`, `ramp_mb`, `devfreq` |
 //! | the install write's values | `[images.alpine-rootfs]` (`path`, `sha256`), `[procedures.install-rootfs-on-the-pixel-2]` `backup`, `stage_dir`, `by_name` |
 //! | the root boot's values | `[images.ufs-root]` (`path`, `sha256`), `[procedures.rootfs-boots-on-the-pixel-2]` `go_item`, `identity`, `ssh_user`, `ssh_port`, `bootchain`, `by_name`, `luns` |
 //! | the display-at-boot try's values | `[images.b2]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules, hold` |
@@ -114,6 +114,9 @@ pub struct Settings {
     /// the most seconds one gear read may take (`gear_wait`): a sysfs read can wait on the link's power management as the load ends
     pub gear_wait: u64,
     pub luns: u64,
+    /// the ramped read (`ramp_mb`, "64,256,1024"): the MiB of each step, rising, the last is `load_mb`; the devfreq node of the UFS host (`devfreq`) is pinned to powersave first
+    pub ramp_mb: Vec<u64>,
+    pub devfreq: String,
     /// the install write: the folder of the slots' read-back (the way back), the folder on the phone the image is staged in,
     /// the folder of the phone's partition names
     pub backup: PathBuf,
@@ -271,6 +274,8 @@ impl Settings {
             load_limit: 0,
             gear_wait: 0,
             luns: 0,
+            ramp_mb: Vec::new(),
+            devfreq: String::new(),
             backup: PathBuf::new(),
             stage_dir: String::new(),
             by_name: String::new(),
@@ -320,6 +325,22 @@ impl Settings {
                 s.load_limit = number("load_limit", proc("load_limit"));
                 s.gear_wait = number("gear_wait", proc("gear_wait"));
                 s.luns = number("luns", proc("luns"));
+                s.ramp_mb = proc("ramp_mb")
+                    .split(',')
+                    .map(|n| number("ramp_mb", n.trim().to_string()))
+                    .collect();
+                s.devfreq = proc("devfreq");
+                assert!(
+                    crate::ufs::load::is_a_node_name(&s.devfreq),
+                    "devfreq in device.toml is not a node name like 1da4000.ufshc: {:?}",
+                    s.devfreq
+                );
+                assert!(
+                    s.ramp_mb.windows(2).all(|w| w[0] < w[1])
+                        && s.ramp_mb.last() == Some(&s.load_mb),
+                    "ramp_mb in device.toml rises and ends at load_mb: {:?}",
+                    s.ramp_mb
+                );
                 assert!(
                     s.load_mb >= 1 && s.load_limit >= 1 && s.gear_wait >= 1 && s.luns >= 1,
                     "load_mb, load_limit, gear_wait and luns in device.toml are at least 1"
@@ -505,6 +526,8 @@ impl Settings {
             ("load_limit", "20"),
             ("gear_wait", "1"),
             ("luns", "6"),
+            ("ramp_mb", "1, 2, 4"),
+            ("devfreq", "1da4000.ufshc"),
             ("images.ufs-root.path", "NOT-TO-BOOT-x/NOT-TO-BOOT-root.img"),
             ("images.ufs-root.sha256", "35b6"),
             (

@@ -6409,3 +6409,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-builder-ufs-ramped-pinned"></a>
+### UFS try: ramped, pinned-low read built
+
+Entry date
+: 2026-11-23
+
+Done
+: Ramp, governor pin, RAM log, first-silent-step result, after-silence tolerance and PON read in tools/walleye-tries (load.rs) and the UFS procedure; no stage 2 file touched; nothing run on the phone. Review by the programmer found a silent step still failing the run on a dead phone and silences on gear reads being errors: both fixed.
+
+Considered
+: Reading the RAM log again after the way back: the phone's RAM is gone then.
+
+Rejected
+: Continuing the ramp past the first silent step (more load on a stalled phone for no new cause); making the silent step an error (it is the try's result).
+
+About
+: walleye-bootimage

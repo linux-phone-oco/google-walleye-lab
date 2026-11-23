@@ -1,7 +1,7 @@
 #!/usr/bin/env rust-script
 //! UFS try 2 as ONE command (item walleye-ufs-try-2-one-command; decisions 2026-11-19-walleye-attended-tries-one-command,
 //! 2026-11-19-walleye-ufs-hold-second-path, 2026-11-19-walleye-ufs-android-derived-solution): the matched UFS-on image booted
-//! once from fastboot, from memory; the card read as in try 1; then the link gear and the clock before, during (a bounded
+//! once from fastboot, from memory; the card read as in try 1; then the devfreq governor pinned to powersave first; the link gear and the clock before, during (a ramped, bounded
 //! read-only O_DIRECT read of one disk) and 2 s after it; the disk's GPT hashed before and after; the slots' flags before and after.
 //! The boot runs only while the author's go is recorded on the item the manifest names (no go: the run stops there and the phone
 //! goes back to Android). NOTHING is written to the card. The UFS-off gate refuses this image by design and is not run, weakened or bypassed.
@@ -40,12 +40,14 @@ fn main() {
     check("the card's six disks and the partition tables are read", card.the_card_is_identified());
     check("the GPT of the disk is hashed", card.the_gpt_is_hashed_before());
     check("the gear and the clock, before any load", card.the_gear_is_read_before_load());
-    step("a bounded read-only read of the disk, the gear and the clock sampled during it", card.the_gear_is_read_under_load());
+    step("the UFS host's devfreq governor is pinned to powersave, before any load", card.the_governor_is_pinned_to_powersave());
+    step("a ramped, bounded, read-only read of the disk, a RAM log line before each step, the shell polled every second, the gear sampled", card.the_gear_is_read_under_load());
     check("the gear and the clock, 2 s after the read", card.the_gear_is_read_two_seconds_after());
     check("the GPT is hash-equal to before", card.the_gpt_is_unchanged());
     check("no purge was asked", card.no_purge_was_asked());
     step("release the hold: the phone restarts by itself", card.the_hold_is_released());
     step("the phone is on Android (the way back, if it is not)", card.way_back());
     check("the phone is back on Android", card.android_is_back());
+    check("the PON reason is read on Android, read only", card.the_pon_reason_is_read());
     check("both slots' flags are as before", card.the_slot_flags_are_as_before());
 }

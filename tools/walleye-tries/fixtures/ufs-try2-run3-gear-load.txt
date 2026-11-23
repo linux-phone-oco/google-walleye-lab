@@ -1,0 +1,63 @@
+--- sample at 0.5 s, answered in 0.1 s
+dev_pm=ACTIVE
+gear=HS_GEAR3
+lane=2
+link_state=ACTIVE
+mode=FAST_MODE
+rate=HS_RATE_B
+clock_1da4000.ufshc=200000000
+--- sample at 1.1 s, answered in 0.1 s
+dev_pm=ACTIVE
+gear=HS_GEAR3
+lane=2
+link_state=ACTIVE
+mode=FAST_MODE
+rate=HS_RATE_B
+clock_1da4000.ufshc=200000000
+--- sample at 1.7 s, answered in 0.1 s
+dev_pm=ACTIVE
+gear=HS_GEAR3
+lane=2
+link_state=ACTIVE
+mode=FAST_MODE
+rate=HS_RATE_B
+clock_1da4000.ufshc=200000000
+--- sample at 2.3 s, answered in 0.1 s
+dev_pm=ACTIVE
+gear=HS_GEAR3
+lane=2
+link_state=ACTIVE
+mode=FAST_MODE
+rate=HS_RATE_B
+clock_1da4000.ufshc=200000000
+--- sample at 2.9 s, answered in 0.1 s
+dev_pm=ACTIVE
+gear=HS_GEAR3
+lane=2
+link_state=ACTIVE
+mode=FAST_MODE
+rate=HS_RATE_B
+clock_1da4000.ufshc=200000000
+--- sample at 3.5 s, answered in 0.1 s
+dev_pm=ACTIVE
+gear=HS_GEAR3
+lane=2
+link_state=ACTIVE
+mode=FAST_MODE
+rate=HS_RATE_B
+clock_1da4000.ufshc=200000000
+--- sample at 4.0 s, answered in 0.1 s
+dev_pm=ACTIVE
+gear=HS_GEAR3
+lane=2
+link_state=ACTIVE
+mode=FAST_MODE
+rate=HS_RATE_B
+clock_1da4000.ufshc=200000000
+--- state read at 4.6 s, not answered in 10.1 s (the shell is silent under load)
+--- state read at 25.2 s, not answered in 10.1 s (the shell is silent under load)
+--- state read at 45.8 s, not answered in 10.1 s (the shell is silent under load)
+--- state read at 66.4 s, not answered in 10.1 s (the shell is silent under load)
+--- state read at 87.0 s, not answered in 10.1 s (the shell is silent under load)
+--- state read at 107.6 s, not answered in 10.1 s (the shell is silent under load)
+--- no end of the read within its limit and 60 s (6 silent state reads)

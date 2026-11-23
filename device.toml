@@ -193,10 +193,12 @@ dtb = "NOT-TO-BOOT-ufs-on-images-ufs-match2/msm8998-google-walleye-ufs-match.dtb
 kernel_tree = "~/Projects/walleye-build/wt-k-ufsm"   # the tree the image was built from (topic/ufs-match-android), for tests/host/ufs-match-android.sh
 go_item = "walleye-try-ufs-match"                    # the item whose go_until holds the author's go: the UFS-on boot runs only while it is in the future
 lun = "sda"          # the disk try 2 reads (read only, O_DIRECT): its GPT is hashed before and after
-load_mb = 2048       # the most MiB the bounded read takes: half of runs 1 and 2 (4096), whose shell went silent under it (item walleye-ufs-try-2-silent-under-load)
-load_limit = 60      # the most seconds the bounded read may take (timeout)
+load_mb = 1024       # the last step of the ramp: the most MiB one read takes (item walleye-ufs-silent-ramped-pinned-build; runs 1 and 2 read 4096, run 3 2048: all silent at about 4.5 s)
+load_limit = 60      # the most seconds ONE step of the ramped read may take (timeout)
 gear_wait = 30       # the most seconds one read of the link gear may take: the read goes through the link's power management and run 1 of try 2 saw one wait longer than 10 s as the load ended
 luns = 6             # the disks the card has (sda to sdf, as in try 1)
+ramp_mb = "64,256,1024"    # the ramp: each step is one bounded read of this many MiB, a RAM log line before it, the shell polled every second (decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try)
+devfreq = "1da4000.ufshc"  # the UFS host's devfreq node: its governor is set to powersave before the first step; absent, or no powersave: the run stops before any load
 
 # The delay bisect (item walleye-display-delay-bisect-build): B2 whose init waits the number of seconds of uptime in its own /display-delay before it loads the
 # display modules (build/build-display-delay-images.sh; kernel, dtb, modules, header and size are B2's). One RAM boot per image; the signs are read from the kernel log.
