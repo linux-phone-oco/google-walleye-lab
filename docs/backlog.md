@@ -11078,10 +11078,10 @@ Rank
 ### Android's watchdog driver and the walleye dts read from the reference tree: what arms which watchdog, which one bites, and what a mainline kernel must do about it
 
 Status
-: open
+: done
 
 Note
-: The Top Coordinator's order (2026-11-23): the Android kernel reference first (done, PR 897), then Android's watchdog driver and dts read from it, then the image from a live list with kernel_tag. This is the reading: findings cite android:path@commit from the local tree, not web pages. A note for the builder: the reference tree is LineageOS' (the phone runs lineage_walleye), not Google's android-msm-wahoo (that tree tops at 4.4.223).
+: Research walleye-android-watchdog-read landed; fixes queued as walleye-watchdog-kernel-pets-always (build) and walleye-watchdog-suspend-keeps-enabled.
 
 About
 : walleye-bootimage
@@ -11097,3 +11097,53 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-watchdog-kernel-pets-always"></a>
+### Our kernel keeps petting the apps watchdog after switch_root: no first-open of /dev/watchdog that ends kernel petting without a userspace pet loop (shape of Android watchdog_v2.c pet kthread)
+
+Status
+: open
+
+Note
+: From research walleye-android-watchdog-read, fix (a)/(b); builder picks the smaller: init no longer opens /dev/watchdog, or qcom-wdt pets for ever. The phone try is the keeper's.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: a try's log shows no 'bite' reset after the handover for 120 s with nothing in userspace petting; test watchdog-survives-handover (to write, in tests/health)
+
+Rank
+: 5
+
+
+<a id="walleye-watchdog-suspend-keeps-enabled"></a>
+### Suspend path of our watchdog: write RST not EN=0 where the bootloader or TZ armed it (Android watchdog_v2.c suspend_noirq with wakeup-enable)
+
+Status
+: open
+
+Note
+: Only matters at deep sleep; low rank. From research walleye-android-watchdog-read fix (c).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row on whether qcom-wdt's suspend matches watchdog_v2.c l.130-168, then a deep-sleep try with no bite
+
+Rank
+: 95
