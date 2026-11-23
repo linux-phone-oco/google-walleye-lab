@@ -5770,3 +5770,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-b-a5-rebuilt-so-the-login-prompt-prints-last"></a>
+### B-a5 rebuilt so the login prompt prints last
+
+Entry date
+: 2026-11-23
+
+Done
+: Check 15 tightened to the last non-blank row with a stand-in test; rootfs v4 with the local.d respawn script and its checks; B-a5 rebuilt on v4 (ad91dcd7, identical twice); procedures check and check --host pass.
+
+Considered
+: The script in the rootfs overlay (so the system_a root has the fix too) rather than only in the ramroot userland.
+
+Rejected
+: ::wait for openrc default (a hanging service could hide the console); changing the kernel command line (not this item).
+
+About
+: walleye-display-s6e3fa5

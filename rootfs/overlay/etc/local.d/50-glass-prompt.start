@@ -1,0 +1,6 @@
+#!/bin/sh
+# Runs in OpenRC's `local` service, the last of the default runlevel (item walleye-display-alpine-getty-experiments; research walleye-ramroot-b-a5-getty-tty1-prompt-is-mid-screen).
+# init starts the tty1 getty (inittab: respawn) while `openrc default` is still printing, so its prompt scrolls up under the rest of the boot text. Killing it here makes init respawn it
+# at once, and the fresh prompt is printed BELOW everything the default runlevel said: the glass ends in `HOSTNAME login:` on the cursor's row.
+pkill -f '^/sbin/getty 38400 tty1$' || true
+exit 0
