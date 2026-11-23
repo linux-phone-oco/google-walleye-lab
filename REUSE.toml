@@ -10,7 +10,7 @@ version = 1
 
 # The scripts and configuration.
 [[annotations]]
-path = [".github/**", "bin/**", "queries/**", "records/**", "build/**", "tests/**", "procedures/**", "tools/**", "rootfs/**", "provision/**", "tables.toml", "Makefile", "devicebase.toml", "idealkb.toml", "oco.toml", ".gitignore", ".oco/**", "REUSE.toml"]
+path = [".github/**", "bin/**", "queries/**", "records/**", "build/**", "tests/**", "procedures/**", "tools/**", "rootfs/**", "provision/**", "tables.toml", "kernel/topics.toml", "Makefile", "devicebase.toml", "idealkb.toml", "oco.toml", ".gitignore", ".oco/**", "REUSE.toml"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 grenudi"
 SPDX-License-Identifier = "MIT OR Apache-2.0"
