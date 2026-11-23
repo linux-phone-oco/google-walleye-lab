@@ -398,8 +398,8 @@ pub fn init_accepts_the_booted_slot(init: &str) -> Result<(), String> {
     if init_refuses_its_own_slot(init) {
         return Err("the image's init refuses the slot Android runs from (it mounts the OTHER slot's system partition): booted from its own boot partition it would refuse its root. Stage 2 needs the init that mounts the booted slot's own system partition - not flashed".into());
     }
-    if !init.contains(BOOTED_SLOT_MARK) {
-        return Err(format!("the image's init does not declare {BOOTED_SLOT_MARK:?}: that it mounts the booted slot's own system partition is not shown - not flashed"));
+    if !init.lines().filter(|l| !l.trim_start().starts_with('#')).any(|l| l.contains(BOOTED_SLOT_MARK)) {
+        return Err(format!("the image's init does not say {BOOTED_SLOT_MARK:?} on a code line (a comment is not enough): that it mounts the booted slot's own system partition is not shown - not flashed"));
     }
     Ok(())
 }
@@ -1498,22 +1498,23 @@ mod tests {
     // ---- the image's init ----
 
     #[test]
-    fn the_stage_1_root_init_refuses_the_slot_it_is_booted_from_and_the_gate_sees_it() {
-        let root_init = std::fs::read_to_string(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../build/initramfs-root/init"
-        ))
-        .unwrap();
-        assert!(
-            init_refuses_its_own_slot(&root_init),
-            "the stage 1 init is the one that refuses"
-        );
-        let display_init = std::fs::read_to_string(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../build/initramfs-root-display/init"
-        ))
-        .unwrap();
-        assert!(init_refuses_its_own_slot(&display_init));
+    fn the_images_inits_pass_the_stage_2_gate_and_keep_the_stage_1_guard_behind_the_word() {
+        for path in [
+            concat!(env!("CARGO_MANIFEST_DIR"), "/../../build/initramfs-root/init"),
+            concat!(env!("CARGO_MANIFEST_DIR"), "/../../build/initramfs-root-display/init"),
+        ] {
+            let init = std::fs::read_to_string(path).unwrap();
+            assert!(
+                init_accepts_the_booted_slot(&init).is_ok(),
+                "{path}: {:?}",
+                init_accepts_the_booted_slot(&init)
+            );
+            // the stage 1 guard is still there, asked for only without the word
+            assert!(
+                init.contains("walleye.booted-slot") && init.contains("is the system of the slot Android is on"),
+                "{path}: the guard of stage 1 is gone"
+            );
+        }
         assert!(!init_refuses_its_own_slot(
             "#!/bin/sh\n# the slot Android runs from is only a comment here\nexec /sbin/init\n"
         ));
@@ -1681,8 +1682,10 @@ mod tests {
     #[test]
     fn an_init_passes_the_gate_only_when_it_declares_that_it_mounts_the_booted_slot() {
         let declared = format!(
-            "#!/bin/busybox sh\n# {BOOTED_SLOT_MARK}\nexec switch_root /newroot /sbin/init\n"
+            "#!/bin/busybox sh\nsay \"{BOOTED_SLOT_MARK} (system_a)\"\nexec switch_root /newroot /sbin/init\n"
         );
+        // the mark in a comment only is not a declaration
+        assert!(init_accepts_the_booted_slot(&format!("#!/bin/busybox sh\n# {BOOTED_SLOT_MARK}\nexec switch_root /newroot /sbin/init\n")).is_err());
         assert!(init_accepts_the_booted_slot(&declared).is_ok());
         // the old refusal still there
         let both = format!(
@@ -1695,7 +1698,7 @@ mod tests {
         let silent = "#!/bin/busybox sh\n[ \"$ROOT\" != \"system$SLOT\" ] || refuse \"root is the running slot\"\n";
         assert!(init_accepts_the_booted_slot(silent)
             .unwrap_err()
-            .contains("does not declare"));
+            .contains("does not say"));
         assert!(init_accepts_the_booted_slot("").is_err());
     }
 

@@ -9648,10 +9648,10 @@ Witness
 ### An init for stage 2: the boot partition's own slot is the root's slot (the stage 1 init refuses exactly that), and the way back to the bootloader from our kernel
 
 Status
-: open
+: done
 
 Note
-: Found by the stage 2 command (research walleye-install-flash-boot-procedure-built): when the bootloader boots our image from the flashed slot's boot partition it puts androidboot.slot_suffix=_X for that slot, and build/initramfs-root/init (and the display init) refuse a root equal to system_X ('the slot Android runs from'). The stage 2 boot image needs an init that, on a bootloader-booted image (a flag word of its own on the command line, never a loosening of the stage 1 guard), mounts the booted slot's own system partition read-only under the overlay, AND carries the line 'walleye-init: mounts-the-booted-slot' (flash_boot::BOOTED_SLOT_MARK): the command's init gate passes only an init that does not refuse its own slot and declares that line. Also the image's walleye.root must be system_<the slot it is flashed to> (the command checks it against the slot read, before the flash). Second part: our kernel reaching the bootloader again (reboot-mode in the pon node of the board dts) so the way back is not a hand step. The stage 1 guard stays as it is for the fastboot boot from memory. | 2026-11-23 (the coordinator): the init is rebuilt ONCE, so this item ALSO carries what item walleye-initramfs-root-say-before-the-moves asked (the 'handing over' say and any later say BEFORE mount --move /dev, /proc and /sys, so the line reaches the kernel log; the merged U-d5 image's init already does it); its QEMU stand-in test fails first on a say after the move. The reboot-mode part is tried by item walleye-reboot-bootloader-from-linux-try.
+: Done 2026-11-23 (walleye-builder): init word walleye.booted-slot in both inits, 'handing over' before the moves, QEMU cases 12-14, gate test, dtb-pon-reboot-mode.sh. The images are NOT rebuilt here: the image with this init is the next build (the stage 2 command reads its init gate on it). Register value reaching the bootloader: item walleye-reboot-bootloader-from-linux-try.
 
 About
 : walleye-display-s6e3fa5

@@ -5,6 +5,7 @@
 # (2) the disk is read-only to QEMU and its sha256 is the same after the run; (3) only a decoy `system_b` is there and `walleye.root=system_a` is asked: the init refuses and nothing is mounted;
 # (4) the running slot (androidboot.slot_suffix=_a) is asked for as the root: the init refuses even though the partition is there; (5) a name that is not system_a or system_b is refused; (9) no androidboot.slot_suffix: refused (fails closed); (10) a suffix that is not _a or _b: refused.
 #   ufs-root-init.sh WORK_DIR        (WORK_DIR holds busybox-x86_64 and out/b, as build/build-initramfs.sh wants)
+# (12) stage 2: the word walleye.booted-slot, root system_a, booted as slot _a: the init mounts the booted slot read-only under the overlay and hands over; (13) the word with a root that is not the booted slot's: refused; (14) the word with no suffix: refused; (1) also: the "handing over" line is in the kernel log (said before the moves).
 # Prints `pass|fail|skip walleye-ufs-root-init DETAIL`; exit 0 only on pass; a skip is not a pass.
 W=${1:-}
 export GEN=${GEN:-}
@@ -22,7 +23,7 @@ T=$(mktemp -d) || say skip "no temp dir"; [ -n "${KEEP:-}" ] || trap 'rm -rf "$T
 # the test rootfs: a busybox root whose /sbin/init says what it sees and powers the machine off
 mkdir -p "$T/root/sbin" "$T/root/bin" "$T/root/proc" "$T/root/sys" "$T/root/dev" "$T/root/etc" "$T/root/run" "$T/root/tmp"
 cp "$W/busybox-x86_64" "$T/root/bin/busybox"
-for a in sh mount cat echo ls sync poweroff touch grep sleep head wc tr;  do ln -s busybox "$T/root/bin/$a"; done
+for a in sh mount cat echo ls sync poweroff touch grep sleep head wc tr dmesg;  do ln -s busybox "$T/root/bin/$a"; done
 cat > "$T/root/sbin/init" <<'EOI'
 #!/bin/sh
 echo "ROOT-INIT-RAN pid=$$"
@@ -30,6 +31,7 @@ echo "ROOT-MOUNT $(grep ' / ' /proc/mounts | head -n1)"
 echo "ROOT-LOWER $(grep ' /lower ' /proc/mounts | head -n1)"
 touch /written-in-overlay 2>/dev/null && echo "ROOT-WRITE-OK" || echo "ROOT-WRITE-FAILED"
 [ -e /walleye-test-marker ] && echo "ROOT-HAS-MARKER"
+dmesg 2>/dev/null | grep -q "walleye-ufs-root: handing over" && echo "ROOT-KMSG-HAS-HANDING-OVER"
 [ -e /.walleye/hold.sh ] && echo "ROOT-HAS-HOLD-SCRIPT"
 mount -t tmpfs tmpfs /run; sleep 1   # OpenRC mounts a fresh tmpfs on /run: the petter must not live there
 (echo x > /dev/vda2) 2>/dev/null && echo ROOT-DEV-WRITABLE || echo ROOT-DEV-READONLY
@@ -83,15 +85,26 @@ grep -q -e "-o ro,nodiscard,noload" "$INIT" || say fail "case 1: the init's ext4
 want "$T/ok.log" "ROOT-DEV-READONLY" "case 2 (the kernel refuses writes to the card partition: blockdev --setro)"
 want "$T/ok.log" "ROOT-WRITE-OK" "case 1 (a write lands in the overlay)"
 want "$T/ok.log" "ROOT-HAS-MARKER" "case 1 (the lower's files show)"
+want "$T/ok.log" "ROOT-KMSG-HAS-HANDING-OVER" "case 1 (the hand-over line reached the kernel log, so it was said before the moves of /dev: after them /dev/kmsg is gone)"
 want "$T/ok.log" "ROOT-HAS-HOLD-SCRIPT" "case 1 (the watchdog petter is in the root)"
 want "$T/ok.log" "ROOT-WATCHDOG-HELD" "case 1 (a process in the root holds /dev/watchdog open after the hand-over)"
 [ "$(sha "$T/a.img")" = "$A0" ] || say fail "case 2: the disk image changed"
 boot "$T/b.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.wait=3 walleye.pause=2" "$T/decoy.log"; refuse "$T/decoy.log" "case 3 (only system_b present)" "no partition named"
-boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_a walleye.pause=2" "$T/running.log"; refuse "$T/running.log" "case 4 (the running slot)" "slot Android runs from"; nodisplay "$T/running.log" "guard refusal running"
+boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_a walleye.pause=2" "$T/running.log"; refuse "$T/running.log" "case 4 (the running slot)" "the slot Android is on"; nodisplay "$T/running.log" "guard refusal running"
 boot "$T/a.img" "walleye.root=userdata androidboot.slot_suffix=_b walleye.pause=2" "$T/name.log"; refuse "$T/name.log" "case 5 (a name that is not a system slot)" "is not system_a"; nodisplay "$T/name.log" "guard refusal name"
 boot "$T/a.img" "androidboot.slot_suffix=_b walleye.pause=2" "$T/none.log"; refuse "$T/none.log" "case 6 (no root asked)" "no walleye.root"; nodisplay "$T/none.log" "guard refusal none"
 boot "$T/a.img" "walleye.root=system_a walleye.pause=2" "$T/nosuffix.log"; refuse "$T/nosuffix.log" "case 9 (no androidboot.slot_suffix: the bootloader of a fastboot boot gives none; the init fails CLOSED)" "no androidboot.slot_suffix"; nodisplay "$T/nosuffix.log" "guard refusal nosuffix"
 boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_c walleye.pause=2" "$T/badsuffix.log"; refuse "$T/badsuffix.log" "case 10 (a suffix that is not _a or _b)" "is not _a or _b"; nodisplay "$T/badsuffix.log" "guard refusal badsuffix"
+# stage 2 (item walleye-install-stage2-init-booted-slot): the bootloader booted this image from the slot's own boot partition, so the root IS the booted slot's system partition; the word walleye.booted-slot says so
+boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_a walleye.booted-slot" "$T/booted.log"
+want "$T/booted.log" "walleye-init: mounts-the-booted-slot" "case 12 (the init says it mounts the booted slot's own system)"
+want "$T/booted.log" "ROOT-INIT-RAN" "case 12 (booted as slot _a with root system_a: the init hands over)"
+want "$T/booted.log" "ROOT-MOUNT overlay / overlay .*rw" "case 12 (an overlay root)"
+want "$T/booted.log" "ROOT-LOWER /dev/vda2 /lower ext4 ro,.*norecovery" "case 12 (the booted slot's system is read-only, no journal replay)"
+want "$T/booted.log" "ROOT-DEV-READONLY" "case 12 (the kernel refuses writes to the partition)"
+[ "$(sha "$T/a.img")" = "$A0" ] || say fail "case 12: the disk image changed"
+boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.booted-slot walleye.pause=2" "$T/bootedother.log"; refuse "$T/bootedother.log" "case 13 (the word is given but the root is not the booted slot's own)" "is not the system of the booted slot"
+boot "$T/a.img" "walleye.root=system_a walleye.booted-slot walleye.pause=2" "$T/bootednosuffix.log"; refuse "$T/bootednosuffix.log" "case 14 (the word is given but no androidboot.slot_suffix: the booted slot is not known)" "no androidboot.slot_suffix"
 cp "$T/a.img" "$T/d.img"; start=$(sgdisk -i 2 "$T/d.img" | sed -n "s/^First sector: \([0-9]*\).*/\1/p"); dd if="$T/dangling.ext4" of="$T/d.img" bs=512 seek="$start" conv=notrunc status=none
 boot "$T/d.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.pause=2" "$T/dangling.log"; refuse "$T/dangling.log" "case 8 (/sbin/init is a symlink to nothing)" "symlink to nothing"
 boot "$T/a.img" "walleye.root=system_a androidboot.slot_suffix=_b walleye.hold=6 walleye.test=linger" "$T/hold.log"
