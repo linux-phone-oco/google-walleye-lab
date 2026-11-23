@@ -9754,10 +9754,10 @@ Proof
 ### The stage 2 boot image: the ufs-root image rebuilt with the new init (walleye.booted-slot, 'handing over' before the moves), declared in device.toml, so the stage 2 command's init gate passes on it
 
 Status
-: open
+: done
 
 Note
-: From PR 765 (builder, walleye-install-stage2-init-booted-slot): the new init takes walleye.booted-slot (root must be system$SLOT) but no image is rebuilt with it yet, and build-ufs-root-image.sh does not add the word. The stage 2 command takes its image from [images.ufs-root]. Decision of the coordinator: one rebuild of the declared ufs-root image(s) now; c3373d71 stays as the stage 1 proof's image.
+: Built: sha256 e337de53 (BOOTED_SLOT=yes, root system_a), twice identical, 28 checks ok; [images.ufs-root-booted-slot] in device.toml; install-boot and its rehearsal name it; gate test, dry run 17/17, 247 tests, clippy, fmt, review no defects. The keeper runs the rehearsal for real, then the flash under the coordinator's go naming this sha256.
 
 About
 : walleye-display-s6e3fa5

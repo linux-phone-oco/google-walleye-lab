@@ -6004,3 +6004,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-walleye-builder-stage2-boot-image"></a>
+### Builder: the stage 2 boot image
+
+Entry date
+: 2026-11-23
+
+Done
+: build/build-ufs-root-image.sh BOOTED_SLOT=yes (word on the command line, own file name, 2 new checks, text by variant); image built twice identical, 28 checks ok: sha256 e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1 (root system_a), declared as [images.ufs-root-booted-slot]; install-boot and its rehearsal point at it; the stage 1 variant with the new init (no word) builds too (e21ac306, 26 checks) so the new init does not break stage 1; test: the init gate refuses c3373d71 and accepts the new image (walleye-tries 247 tests, clippy, fmt, make check); rehearsal dry run 17/17. Never booted
+
+Considered
+: the keeper runs the rehearsal for real (adb/fastboot need the phone) and then the flash under the coordinator's go naming this sha256
+
+About
+: walleye-display-s6e3fa5

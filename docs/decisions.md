@@ -3002,3 +3002,28 @@ Research
 
 Tracked by
 : walleye-install-ufs-root-display-image
+
+
+<a id="2026-11-23-walleye-stage2-image-own-row"></a>
+### 2026-11-23-walleye-stage2-image-own-row
+
+Date
+: 2026-11-23
+
+Brief
+: The stage 2 boot image is its own row [images.ufs-root-booted-slot] and file; [images.ufs-root] (c3373d71) stays the stage 1 RAM boot
+
+Decision
+: build-ufs-root-image.sh gets BOOTED_SLOT=yes: the command line also carries walleye.booted-slot, the image is written as NOT-TO-BOOT-ufs-on-ufs-root-booted-slot.img in its own folder, declared as [images.ufs-root-booted-slot] (sha256 e337de53, root system_a: Android is on slot b). install-boot-on-the-pixel-2 and its rehearsal name that row. Only the slot-a variant is built.
+
+Why
+: The RAM-boot of stage 1 keeps the old guard (no word, the other slot) under a go that names c3373d71's sha256; one name per image keeps a go from covering the wrong bytes. The flashed variant is the only one that carries the word. Built twice from clean inputs: the same bytes; differs from the stage 1 kernel/dtb/header/footer in nothing; the new init alone changes e21ac306 (stage 1 variant with the new init, not kept).
+
+Rejected
+: Overwriting [images.ufs-root] with the new init: stage 1's go and its proof name c3373d71. Building a system_b variant too: Android is on slot b, the flashed slot is a; one more image is one more sha256 for a go to name, and the script builds it with ROOT_PART=system_b in one command when the slot changes. A word-less stage 2 init guess at the slot: the word makes the intent explicit on the command line.
+
+About
+: walleye-display-s6e3fa5
+
+Tracked by
+: walleye-install-stage2-boot-image
