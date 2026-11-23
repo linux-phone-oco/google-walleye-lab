@@ -6259,3 +6259,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-stage2-flash-resets-flags-documented"></a>
+### walleye-stage2-flash-resets-flags-documented
+
+Date
+: 2026-11-23
+
+Brief
+: Documented: AOSP's bootloader spec says writing a slot's partition clears successful and resets the retry count; run 1's 0->1 and yes->no match set_active X's state (retry 1, successful no)
+
+Question
+: Is it the bootloader's documented behaviour that fastboot flash of a slot's boot partition resets that slot's tries and successful bit? Do rerun 7 and stage 2 run 1 agree?
+
+Found
+: DOCUMENTED. AOSP 'Implement OTA updates' (Support for slots) says: 'When modifying a partition that's part of a slot, the bootloader clears successfully booted and resets the retry count for the slot.' set_active (and the HAL's setActiveBootSlot) additionally changes the active slot and clears slot-unbootable (the only way to clear it). So the flash changing the flashed slot's flags is specified behaviour, not an anomaly; check 18, which forbade any flag change, was too strict and should allow exactly: flashed slot successful yes->no and retry reset to a positive value, nothing else (other slot, unbootable, current-slot unchanged). OBSERVED AGREES: stage 2 run 1 after flash of a: retry 0->1, successful yes->no, unbootable no, b unchanged, current b; the first-fastboot-boot material (2026-11-17, quoted in walleye-stage2-forced-way-back-argument-finding) after set_active X: retry 1, successful no, unbootable no (priority 3). Same flags after the flash as after set_active, apart from the active slot, which the flash did not change. The reset value is 1 here, not the spec's 'usually 3' (Google's ABL differs, already noted). NOT SHOWN: priority after the flash (getvar does not print it), so 'same as set_active' holds for retry, successful and unbootable only. Not read: Google's ABL source (not open for walleye) and update_engine's code; the spec page was enough. Plain sentence: documented (AOSP spec), and observed on this phone to match.
+
+Sources
+: aosp-bootloader-updating,aosp-ab-system-updates
+
+About
+: walleye-bootimage

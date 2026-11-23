@@ -10272,10 +10272,10 @@ Rank
 ### Is it the bootloader's documented behaviour that fastboot flash of a slot's boot partition resets that slot's tries and successful bit? Sources, and what rerun 7 and the stage 2 run 1 material agree on
 
 Status
-: open
+: done
 
 Note
-: The Top Coordinator's order (2026-11-23) before check 18 is changed: research it, cite the source.
+: Documented by AOSP's A/B bootloader spec; run 1 matches set_active's flags. Research walleye-stage2-flash-resets-flags-documented.
 
 About
 : walleye-bootimage
