@@ -6492,3 +6492,22 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-23/
+
+
+<a id="walleye-stage2-run-5-gpt-after-flash-finding"></a>
+### walleye-stage2-run-5-gpt-after-flash-finding
+
+Date
+: 2026-11-23
+
+Brief
+: Run 5's flash changed only boot_a's attribute byte (0xb2 to 0x3b: unbootable cleared, retry 6 to 7, priority 2 to 3) and the CRCs it implies, on sda; five other disks byte equal; boot chain as before
+
+Question
+: What changed in the six GPTs when run 5's flash cleared slot a's unbootable bit and reset its retry, compared with run 5's own gpt-before?
+
+Found
+: Read from Android b (adb root, no reboot, no fastboot verb) the six disks' GPTs whole with gpt_dump_command (6 head + 5 tail blocks), compared byte by byte with install-boot-20261123-140427/gpt-before.txt (cmp -l). sdb to sdf: byte equal. sda differs at 18 bytes: entry 8 (boot_a) attribute byte 54, at 9270 in the primary entries and 25654 in the backup entries, 0xb2 to 0x3b (bits: priority 2 to 3, retry 6 to 7, unbootable 1 to 0, successful 0 and active 0 as before); the primary header CRC (4112-4115) and entries CRC (4184-4187); the backup header CRC (40976-40979) and entries CRC (41048-41051), the same new entries CRC in both. Nothing else: no other entry, no type GUID, no LBA, no boot_b byte. Verdict: ONLY slot a's attribute bits and the CRCs they imply differ, which meets the Top Coordinator's rule for check 18. The new byte 0x3b equals run 1's after-flash byte. Boot chain: sha256 of boot_a/b, dtbo_a/b, vbmeta_a/b equal to run 5's parts-before (boot_a e337de53). Slot b current, Android up 11 min. Phone left as found (adbd stays as root, which the lab sets itself). Pitfall: adb exec-out merges stderr, so hash with 2>/dev/null inside the quoted command.
+
+About
+: walleye-bootimage
