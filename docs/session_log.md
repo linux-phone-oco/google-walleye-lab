@@ -6355,3 +6355,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-23-1330-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel, nothing flashed or written. Stage 2 rehearsal 2 (code of PR 817) passed 17 of 17; item rehearsal-2 done
+
+Considered
+: next: coordinator opens the stage 2 go on walleye-install-flash-boot-run for image e337de53; then slpi-boot-qrtr, nfc node; the silent shell under load stays a builder item
+
+About
+: walleye-bootimage
