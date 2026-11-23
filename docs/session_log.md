@@ -5770,3 +5770,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-0600-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Run 3 of rootfs-boots on image c3373d71 ran unattended: checks 1-16 pass, stopped at 17 though the hand-over happened (PID 1 /sbin/init, overlay root, card ro); GPT, boot chain, slot flags equal after. Phone on Android slot b, stock kernel, nothing flashed
+
+Considered
+: next: coordinator decides: move say 'handing over' before the mount --moves in build/initramfs-root/init (rebuild, new image sha, new go) or read PID 1 in the check; no rerun by the keeper
+
+About
+: walleye-display-s6e3fa5
