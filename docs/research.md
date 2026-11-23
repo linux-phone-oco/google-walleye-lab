@@ -6385,3 +6385,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stage2-run4-stops-at-step-21-no-ssh-from-slot-a"></a>
+### walleye-stage2-run4-stops-at-step-21-no-ssh-from-slot-a
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 run 4: steps 1-20 pass (flash was a no-op, set_active a ok, flags as switch); slot a never answered ssh in 170 s; phone fell back to Android b by itself, slot a unbootable
+
+Question
+: Does the stage 2 boot image (e337de53) on boot_a, made active by set_active, boot from the card and answer ssh at 172.16.43.1?
+
+Found
+: Run 2026-11-23 13:09-13:13, log ~/.local/state/walleye-keeper/stage2-run4.log. Checks 1-20 and steps 5-19 passed: boot_a already held e337de53, boot_a read back as the image, flags changed as the switch describes. Step 21 failed: 'no ssh login within 170 s as root@172.16.43.1: ssh connect to host 172.16.43.1 port 22: Connection timed out'. The way back found Android already running ('phone is on Android already; nothing sent'), then its ask to send /tmp/walleye-reboot failed with the same ssh timeout and printed the manual hint (hold power+vol-down, fastboot set_active b && fastboot reboot). Afterwards adb showed Android slot _b, uptime 4 min, ro.boot.bootreason=watchdog (sys.boot.reason=watchdog): the new slot did not come up and the phone returned to b without our command, via a watchdog reset. fastboot (read via devlab) then: current-slot b; slot a successful no, unbootable YES, retry 0; slot b successful yes, unbootable no, retry 0. Before the run slot a was retry 1, unbootable no. So set_active a spent slot a's tries and the bootloader fell back to b. NOT KNOWN YET: whether the kernel started at all (no console/ssh evidence: usb gadget 172.16.43.1 never answered; the new-slot boot wrote nothing we read) or died before the gadget; the 170 s window may also be shorter than the retries' total. Phone ended on Android slot b, bootable; slot a unbootable (a later set_active a resets it). Not rerun, per the item's rule; lease released.
+
+About
+: walleye-display-s6e3fa5

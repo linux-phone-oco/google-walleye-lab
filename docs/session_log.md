@@ -6547,3 +6547,39 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-1315-walleye-keeper-stage2-run-4"></a>
+### Stage 2 run 4: stops at step 21, phone on Android b
+
+Entry date
+: 2026-11-23
+
+Done
+: Fresh worktree; linked build/images (AGENTS.md); dry run 29 of 29; real run: steps 1-20 passed, step 21 no ssh from slot a within 170 s; the phone returned to Android slot b by watchdog; read slot flags through devlab (a unbootable, b successful current), devlab fastboot reboot now; idle-android passes. Research walleye-stage2-run4-stops-at-step-21-no-ssh-from-slot-a. Item walleye-install-flash-boot-run set open, not rerun.
+
+Considered
+: Rerun at once (go still open to 15:00)
+
+Rejected
+: Rerun: the item says a second stop is not rerun by the keeper; the coordinator decides what to try (serial/console, longer wait, ramdisk log to a card file)
+
+About
+: walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-1316-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel, successful and current; boot_a holds stage 2 image e337de53, slot a unbootable (retry 0, never successful); host idle-android passes; lease to be released. Next: coordinator decides how to see the new slot's boot (stage 2 run 4 failed at step 21 with no ssh), then walleye-ufs-silent-ramped-pinned-try (needs the author's go), transport-real-phone-run, nfc node.
+
+About
+: walleye-display-s6e3fa5

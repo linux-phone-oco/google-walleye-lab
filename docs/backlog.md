@@ -10194,10 +10194,10 @@ Rank
 ### Run stage 2 once: install-boot-on-the-pixel-2.rs under the coordinator's go (flash boot_<other>, set_active, observe, set_active back)
 
 Status
-: in-progress
+: open
 
 Note
-: TAKE THIS ITEM NOW: STAGE 2 RUN, AFTER THE REPEAT AUDIT (the coordinator, 2026-11-23): three stops of one class (run 1 check 18, rerun 2 check 9, rerun 3 check 16) are amended (PRs 836, 841, 847) and the audit of all 29 steps (research walleye-stage2-repeat-audit-29-steps, PR 847) found only steps 9, 16 and 18 assumed a first run; steps 8-20 and the way back were walked offline against the state after rerun 3. STATE: boot_a holds e337de53, slot a retry 1 successful no, b untouched and successful, Android on b, NO set_active yet. The go is for image e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1 ONLY, to the go_until of this row; the run sheet below is unchanged (read it whole). NOT KNOWN YET (builder): what the bootloader leaves after set_active of Android's slot. If it stops again the keeper writes the research row with every text the phone printed, releases the lease and does not run again. | TAKE THIS ITEM NOW: STAGE 2 RUN, THE FIRST COMPLETE ONE (the coordinator, 2026-11-23): run 1 stopped at check 18 after the flash (PR 831: the flash reset slot a's flags, documented, check amended in PR 836); rerun 2 stopped at check 9 before any flash (PR 839: boot_a already held the image, check amended in PR 841); the rehearsal for real then passed 17 of 17 on main after both amendments (PR 843: boot_a = e337de53, the stock backup hashes to its record 2a5cd3b2). STATE: boot_a holds e337de53, slot a retry 1 successful no, b untouched and successful, Android on b, NO set_active yet. The go is for image e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1 ONLY, to the go_until of this row; the run sheet below is unchanged (read it whole). If it stops again the keeper writes the research row with every text the phone printed, releases the lease and does not run again. | rerun 2 stopped at check 9 (boot_a already = image, backup differs); no third run until the coordinator amends check 9
+: STOPPED at step 21 (the keeper, 2026-11-23 13:13): no ssh from slot a in 170 s; phone back on Android b by watchdog; slot a unbootable, b successful current. Research walleye-stage2-run4-stops-at-step-21-no-ssh-from-slot-a. DO NOT RERUN until the coordinator decides how to see the new slot's boot.
 
 About
 : walleye-display-s6e3fa5
@@ -10218,7 +10218,7 @@ Witness
 : person
 
 Go until
-: 2026-11-23T15:00:57+01:00
+: 2026-11-23T13:15:00+01:00
 
 
 <a id="walleye-fastboot-reboot-stays-in-fastboot"></a>
