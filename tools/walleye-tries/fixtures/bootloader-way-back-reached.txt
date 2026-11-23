@@ -1,0 +1,1 @@
+bootloader reached: fastboot lists the phone, current-slot b equals the slot at the start; fastboot reboot follows

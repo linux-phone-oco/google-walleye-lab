@@ -6316,3 +6316,24 @@ Done
 
 Considered
 : next: the coordinator decides on the Top's rule (bootloader reached -> stage 2 go; why fastboot reboot stayed in fastboot 240 s is not known yet); no second run without the coordinator; then walleye-install-flash-boot, slpi-boot-qrtr, nfc node
+
+---
+
+
+<a id="2026-11-23-stage-2-way-back-asks-with-the-restart2-tool"></a>
+### Stage 2 way back asks with the RESTART2 tool
+
+Entry date
+: 2026-11-23
+
+Done
+: Stage 2's switch_back and stage 1's way back share reboot_tool::ask_for_the_bootloader; review by the programmer subagent: fixed the late sha check (now before the flash), the loose command guard (exact), errors after the bootloader (hand command), stale wording. Fixture bootloader-way-back-reached.txt is rerun 7's printed line; the stage 2 noexec text is a stand-in because rerun 7 recorded no ssh error text.
+
+Considered
+: moving ssh_args out of rootfs_boot to remove a module cycle (left: a rename-only change for another item)
+
+Rejected
+: a second copy of the push-and-run in flash_boot (the item says one function)
+
+About
+: walleye-bootimage

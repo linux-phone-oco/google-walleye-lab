@@ -29,7 +29,7 @@ fn main() {
     check("the battery is good enough", boot.battery_is_good());
     check("the image is the declared one, a whole boot partition, its AVB footer verifies", boot.the_image_is_the_declared_one());
     check("the image's init accepts the slot it is booted from", boot.the_init_accepts_the_slot_it_is_booted_from());
-    check("the stored boot chain is whole and the ssh key is private", boot.the_stored_set_and_the_key_are_good());
+    check("the stored boot chain is whole, the ssh key is private and the reboot tool is the declared one", boot.the_stored_set_and_the_key_are_good());
     step("say what to expect", boot.author_is_told());
     check("the coordinator's go is recorded on the item for this image", boot.go_is_open());
     step("the phone is on Android, adbd as root", boot.the_phone_is_on_android_as_root());

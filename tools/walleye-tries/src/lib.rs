@@ -17,6 +17,7 @@ pub mod phone;
 pub mod pmic;
 pub mod ramroot;
 pub mod reader;
+pub mod reboot_tool;
 pub mod rootfs_boot;
 pub mod settings;
 pub mod touch;

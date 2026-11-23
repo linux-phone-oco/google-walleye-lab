@@ -18,7 +18,6 @@ use crate::install::{other_slot, parse_current_slot, slots_agree};
 use crate::lab::Lab;
 use crate::rootfs_boot::{
     disk_letters, identity_is_private, mounts_are_read_only, pid1_is_the_roots_init, sections,
-    ssh_args,
 };
 use crate::settings::Settings;
 use crate::ufs::{go_decision, now_epoch};
@@ -572,25 +571,7 @@ impl FlashBoot {
     }
 
     fn ssh(&self, command: &str, seconds: u64) -> Result<String, String> {
-        let mut c = Command::new("timeout");
-        c.args([
-            "--kill-after=5".to_string(),
-            seconds.to_string(),
-            self.ssh.clone(),
-        ])
-        .args(ssh_args(
-            &self.s.identity,
-            &self.s.ssh_user,
-            &self.s.address,
-            self.s.ssh_port,
-            command,
-        ));
-        let said = host::run(c)?;
-        if said.ok {
-            Ok(said.text)
-        } else {
-            Err(format!("ssh: {}", host::last_line(&said.text)))
-        }
+        crate::reboot_tool::ssh_from(&self.s, &self.ssh, command, seconds, None)
     }
 
     /// The battery is above the lab's minimum (the shared step).
@@ -660,6 +641,9 @@ impl FlashBoot {
         let u = self.clone();
         move || {
             identity_is_private(&u.s.identity)?;
+            host::image_has_sha256(&u.s.reboot_tool, &u.s.reboot_tool_sha256).map_err(|e| {
+                format!("the reboot tool the way back pushes is not the declared one: {e}")
+            })?;
             let dir = u.s.bootchain.to_string_lossy().into_owned();
             u.lab
                 .script("bootchain-readback-check.sh", &[&dir], &[])
@@ -1090,29 +1074,48 @@ impl FlashBoot {
     fn switch_back(&self) -> Done {
         let android = self.android_slot()?;
         if !self.lab.in_fastboot().unwrap_or(false) {
-            // the phone hangs up as it goes down: the end of the answer is not read
-            let _ = self.ssh(&self.s.to_bootloader, 10);
+            // the same way as stage 1's way back (one function, crate::reboot_tool): the static tool is checked, pushed to the phone's tmpfs and run there;
+            // the phone hangs up as it goes down, so what it said is kept only to be named when the bootloader is not reached
+            let sent = crate::reboot_tool::ask_for_the_bootloader(
+                &self.s,
+                &self.ssh,
+                &self.s.to_bootloader,
+            );
             let until = Instant::now() + Duration::from_secs(self.s.device_wait);
             while !self.lab.in_fastboot().unwrap_or(false) {
                 if Instant::now() >= until {
-                    return Err(self.hand_step(&android));
+                    return Err(self.hand_step(&android, sent.err().as_deref()));
                 }
                 std::thread::sleep(Duration::from_secs(2));
             }
+            println!(
+                "way back: fastboot lists the phone after the reboot tool was asked (RESTART2)"
+            );
+        } else {
+            println!("way back: the phone was already in the bootloader");
         }
-        // a phone that is already on Android's slot (the switch never happened, or was done by hand) is not written to
-        let now = parse_current_slot(&self.fastboot_getvar("current-slot")?)?;
-        if now != android {
-            self.fastboot(&set_active_args(&self.lab.serial()?, &android)?)?;
-        }
+        // in the bootloader: a failure from here on leaves the phone there on our slot, so it too carries the hand command
+        self.set_android_slot_active(&android).map_err(|e| {
+            format!("{e}; by hand: fastboot set_active {android} && fastboot reboot")
+        })?;
         self.lab.save(RESTORED_FILE, &android)?;
         Ok(())
     }
 
-    /// The one hand step that is left when our kernel does not reach the bootloader, with the exact command.
-    fn hand_step(&self, android: &str) -> String {
+    /// A phone that is already on Android's slot (the switch never happened, or was done by hand) is not written to.
+    fn set_android_slot_active(&self, android: &str) -> Done {
+        let now = parse_current_slot(&self.fastboot_getvar("current-slot")?)?;
+        if now != android {
+            self.fastboot(&set_active_args(&self.lab.serial()?, android)?)?;
+        }
+        Ok(())
+    }
+
+    /// The one hand step that is left when our kernel does not reach the bootloader, with the exact command and what the ask for the bootloader said when it failed.
+    fn hand_step(&self, android: &str, asked: Option<&str>) -> String {
+        let asked = asked.map_or(String::new(), |e| format!(" (the ask said: {e})"));
         format!(
-            "the phone did not reach the bootloader within {} s of `{}` (not known yet whether our kernel can restart into it): hold power and volume-down until the bootloader screen shows, then run: fastboot set_active {android} && fastboot reboot",
+            "the phone did not reach the bootloader within {} s of `{}`{asked} (rerun 7 reached it this way from stage 1's kernel; stage 2's is not known yet): hold power and volume-down until the bootloader screen shows, then run: fastboot set_active {android} && fastboot reboot",
             self.s.device_wait, self.s.to_bootloader
         )
     }
@@ -1988,10 +1991,10 @@ mod tests {
     #[test]
     fn the_hand_step_names_the_exact_command() {
         let (f, _d) = bench("hand", "a");
-        let said = f.hand_step("b");
+        let said = f.hand_step("b", None);
         assert!(
             said.contains("fastboot set_active b && fastboot reboot")
-                && said.contains("reboot bootloader"),
+                && said.contains("walleye-reboot --command bootloader"),
             "{said}"
         );
     }
@@ -2007,5 +2010,133 @@ mod tests {
             "{said}"
         );
         assert!(expect_rehearsal(&s).contains("nothing written"));
+    }
+
+    // ---- the way back asks for the bootloader with the reboot tool, as stage 1's does (item walleye-install-stage2-way-back-restart2) ----
+
+    /// A phone on our slot that goes to fastboot only when asked with the tool: `ssh` records its calls, keeps the pushed bytes, and on
+    /// the tool's command (`run_says` = None) makes fastboot list the phone, or fails like a /tmp mounted noexec.
+    fn bench_asked(name: &str, run_says: Option<&str>) -> (FlashBoot, std::path::PathBuf) {
+        let (mut f, d) = bench(name, "a");
+        let ssh = d.join("ssh");
+        let run = match run_says {
+            None => format!("touch {}/in-fastboot", d.display()),
+            Some(said) => format!("echo '{said}' >&2; exit 126"),
+        };
+        executable(
+            &ssh,
+            &format!(
+                "#!/bin/sh\necho \"$@\" >> {d}/ssh.calls\ncase \"$*\" in *'cat > /tmp/walleye-reboot'*) cat > {d}/pushed;; *'/tmp/walleye-reboot --command bootloader'*) {run};; esac\nexit 0\n",
+                d = d.display()
+            ),
+        );
+        let fb = d.join("fastboot");
+        executable(
+            &fb,
+            &format!(
+                "#!/bin/sh\necho \"$@\" >> {d}/fastboot.calls\ncase \"$4\" in current-slot) echo \"current-slot: a\" >&2 ;; esac\ncase \"$1\" in devices) [ -e {d}/in-fastboot ] && printf 'SER1\\tfastboot\\n' ;; esac\nexit 0\n",
+                d = d.display()
+            ),
+        );
+        let key = d.join("key");
+        std::fs::write(&key, "k").unwrap();
+        std::fs::set_permissions(&key, std::os::unix::fs::PermissionsExt::from_mode(0o600))
+            .unwrap();
+        let tool = d.join("walleye-reboot");
+        std::fs::write(&tool, b"\x7fELF stand-in for the static tool").unwrap();
+        let mut s = (*f.s).clone();
+        s.reboot_tool_sha256 = host::sha256_of(&tool).unwrap();
+        s.reboot_tool = tool;
+        s.identity = key;
+        s.address = "172.16.43.1".into();
+        s.device_wait = 1;
+        f.s = std::rc::Rc::new(s);
+        f.ssh = ssh.to_string_lossy().into_owned();
+        f.lab.save(ANDROID_SLOT_FILE, "b").unwrap();
+        (f, d)
+    }
+
+    fn ssh_calls(d: &std::path::Path) -> String {
+        std::fs::read_to_string(d.join("ssh.calls")).unwrap_or_default()
+    }
+
+    #[test]
+    fn the_switch_back_pushes_the_tool_runs_it_and_then_sets_androids_slot() {
+        let (f, d) = bench_asked("asked", None);
+        (f.the_switch_is_made_back())().unwrap();
+        let ssh = ssh_calls(&d);
+        let (push, run) = (
+            ssh.find("cat > /tmp/walleye-reboot").unwrap(),
+            ssh.find("/tmp/walleye-reboot --command bootloader")
+                .unwrap(),
+        );
+        assert!(push < run && !ssh.contains("reboot bootloader"), "{ssh}");
+        assert_eq!(
+            std::fs::read(d.join("pushed")).unwrap(),
+            std::fs::read(&f.s.reboot_tool).unwrap()
+        );
+        assert!(calls(&d).contains("-s SER1 set_active b"), "{}", calls(&d));
+    }
+
+    #[test]
+    fn a_tmp_that_will_not_run_the_tool_ends_in_the_hand_step_with_the_exact_command() {
+        let (f, d) = bench_asked("noexec", Some("sh: /tmp/walleye-reboot: Permission denied"));
+        let said = (f.the_switch_is_made_back())().unwrap_err();
+        assert!(
+            said.contains("fastboot set_active b && fastboot reboot")
+                && said.contains("Permission denied")
+                && said.contains("/tmp/walleye-reboot --command bootloader"),
+            "{said}"
+        );
+        assert!(!calls(&d).contains("set_active"), "{}", calls(&d));
+    }
+
+    #[test]
+    fn a_tool_that_is_not_the_declared_one_is_never_sent_and_the_hand_step_says_so() {
+        let (mut f, d) = bench_asked("wrongtool", None);
+        let mut s = (*f.s).clone();
+        s.reboot_tool_sha256 = "0000".into();
+        f.s = std::rc::Rc::new(s);
+        let said = (f.the_switch_is_made_back())().unwrap_err();
+        assert!(said.contains("not the declared one"), "{said}");
+        assert_eq!(ssh_calls(&d), "");
+    }
+
+    #[test]
+    fn a_phone_already_in_the_bootloader_is_not_sent_the_tool() {
+        let (f, d) = bench_asked("already", None);
+        std::fs::write(d.join("in-fastboot"), "").unwrap();
+        (f.the_switch_is_made_back())().unwrap();
+        assert_eq!(ssh_calls(&d), "");
+    }
+
+    #[test]
+    fn a_failing_set_active_in_the_bootloader_carries_the_hand_command() {
+        let (f, d) = bench_asked("setfail", None);
+        let fb = d.join("fastboot");
+        executable(
+            &fb,
+            "#!/bin/sh\ncase \"$1\" in devices) printf 'SER1\\tfastboot\\n' ;; esac\ncase \"$4\" in current-slot) echo \"current-slot: a\" >&2 ;; esac\ncase \"$3\" in set_active) echo refused >&2; exit 1;; esac\nexit 0\n",
+        );
+        let said = (f.the_switch_is_made_back())().unwrap_err();
+        assert!(
+            said.contains("by hand: fastboot set_active b && fastboot reboot"),
+            "{said}"
+        );
+    }
+
+    #[test]
+    fn the_stored_set_step_refuses_a_tool_that_is_not_the_declared_one() {
+        let (mut f, _d) = bench_asked("earlysha", None);
+        let mut s = (*f.s).clone();
+        s.reboot_tool_sha256 = "0000".into();
+        f.s = std::rc::Rc::new(s);
+        let said = (f.the_stored_set_and_the_key_are_good())().unwrap_err();
+        assert!(
+            said.contains("not the declared one")
+                || said.contains("private")
+                || said.contains("key"),
+            "{said}"
+        );
     }
 }
