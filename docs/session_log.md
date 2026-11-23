@@ -6640,3 +6640,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-1425-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Stage 2 run 5 under the fresh go: needed build/images symlink in the worktree; checks 1-17 pass, check 18 stops it (flash clears slot a's unbootable bit too); nothing written beyond the no-op flash; Android slot b, stock kernel, boot_a holds e337de53; research row written
+
+Considered
+: next: coordinator widens check 18 (unbootable bit) and decides the rerun; then ufs ramped try (needs author's go), transport-real-phone-run, nfc node
+
+About
+: walleye-display-s6e3fa5

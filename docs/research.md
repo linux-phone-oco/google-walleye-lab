@@ -6470,3 +6470,25 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stage2-run5-stops-at-check-18-flash-resets-unbootable-too"></a>
+### walleye-stage2-run5-stops-at-check-18-flash-resets-unbootable-too
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 run 5: checks 1-17 pass; check 18 stops it: the no-op flash of boot_a reset slot-unbootable a yes->no and retry 0->1; no set_active; Android b
+
+Question
+: Does stage 2 run 5 (pstore-first code, image e337de53) reach slot a's boot?
+
+Found
+: Run 5 stopped at check 18 before set_active: with boot_a already holding e337de53 the flash still changed slot a's flags: unbootable yes->no and retry 0->1 (successful stayed no); the check allows only successful and retry count. Phone back on Android b (adb, slot _b, boot completed) by fastboot reboot; no set_active sent; step 21 and the pstore read not reached. Slot flags now: a retry 1, unbootable no, successful no; b successful yes, current. Decide: allow the unbootable bit to clear with the flash (measured here and in run 1). Logs in material.
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-23/
