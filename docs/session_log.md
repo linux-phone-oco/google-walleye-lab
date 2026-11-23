@@ -7297,3 +7297,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-23-2330-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: UFS try 2 run 5 (ramped, pinned by userspace): dry run passed 25 of 25; the real run stopped at check 6, before the phone was touched: the item walleye-try-ufs-match note names the image only as 461077869fb2 (12 hex), and ufs.rs go_decision needs the full 64-hex sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 in the row (the go covers the image its note names). Phone on Android slot b, nothing booted, nothing written; the image on disk hashes to that sha. Also: a fresh worktree needs build/images linked to ~/Projects/walleye-build (checks 1-2 fail without it).
+
+Considered
+: next: coordinator re-issues the go on walleye-try-ufs-match with the full sha in the note (ikb backlog-go --id walleye-try-ufs-match --until ... --outcomes ... plus the sha), then one command: rust-script procedures/ufs-matched-image-on-the-pixel-2.rs; the other ready items need a test or a go first
+
+Rejected
+: Writing the sha into the item's note myself: the go is the author's gate, the coordinator reissues it; loosening go_decision to a prefix: a stop is read before the fix, and the exact-sha check is the safeguard
+
+About
+: walleye-first-fastboot-boot
