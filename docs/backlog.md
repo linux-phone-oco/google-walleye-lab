@@ -10900,3 +10900,56 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-android-version-read"></a>
+### Read the exact kernel build Android b runs: /proc/version and the build fingerprint, read only, into a research row
+
+Status
+: open
+
+Note
+: For item walleye-android-kernel-reference (the Top Coordinator's order 2026-11-23: Android's kernel as a read-only reference fixed at the exact build the phone runs). Cheap and read only; a keeper does it now.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: from the running Android b (adb root, read only, NO reboot, no fastboot verb, nothing written): cat /proc/version; getprop ro.build.fingerprint ro.build.version.release ro.build.version.security_patch ro.boot.slot_suffix; uname -a; cat /proc/cmdline is NOT needed; one research row quoting the lines whole (the kernel version string carries the build's branch hint and its short commit); the phone left as found
+
+Rank
+: 1
+
+
+<a id="walleye-android-kernel-reference"></a>
+### Android's Pixel 2 kernel as a read-only reference in the kernel clone: remote 'android', the one ref of the exact build the phone runs, tagged reference/android-walleye/BUILD, never merged, never pushed; the source in a research row
+
+Status
+: open
+
+Note
+: The Top Coordinator's order 2026-11-23, next to decision 2026-11-23-walleye-reuse-android-kernel-gpl: AHEAD of the watchdog kernel build, because that build should read Android's watchdog driver from this tree.
+
+Blocked by
+: walleye-android-version-read
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: in ~/Projects/linux-phone-oco/linux: (1) from the research row of walleye-android-version-read (the /proc/version string and fingerprint) find the branch and commit on android.googlesource.com/kernel/msm (android-msm-wahoo-4.4-*, matching the string's build: the commit id in the version string or the tag the build corresponds to) and say how it was matched; (2) git remote add android https://android.googlesource.com/kernel/msm with push disabled (remote.android.pushurl set to a refusing value), fetch ONLY that one ref (no --all, no tags other than the one), tag it reference/android-walleye/BUILD (BUILD from the string); the tag is local to this clone (never pushed, never to the fork); (3) read it back: git log -1 android-tag, git cat-file the watchdog driver path drivers/soc/qcom/watchdog_v2.c or drivers/watchdog/msm_watchdog.c, ls of the walleye dts under arch/arm/boot/dts/qcom or arch/arm64/boot/dts/google; (4) a research row records the source (URL, branch, commit, how matched, the licence of the tree: COPYING GPL-2.0, per-file SPDX where they differ) and the rule to cite android:path@commit; (5) rhizoid is asked (note to its coordinator) to give such a read-only reference a place in the graph; until it does the remote and tag are enough; no phone, never merge it into a topic, never push
+
+Rank
+: 1
