@@ -9995,7 +9995,7 @@ Status
 : open
 
 Note
-: From orchestration (2026-11-23), docs item attended-pin-is-one-pin: the hourly rhizoid-bump timer refuses walleye's pin because the tag is copied into 13 procedure headers and check.yml:71 (the PR 790 failure: two lpoco-attended copies linked, procedure() and the steps never met). Decided with the rhizoid lane (its decision 2026-11-23-every-pin-one-pin-mover, points 5 and 6). Rank 3: with the phone path first (RESTART2 tool rank 1, silent-shell fix rank 2); it changes how every procedure builds, so it lands BETWEEN keeper runs, never with a run in flight (a keeper's rust-script --force rebuild would pick it up).
+: HELD BEHIND THE KEEPER'S RUN (the coordinator, 2026-11-24 22:50): it changes how every procedure builds, so it lands only when no keeper run is in flight; the ramped UFS try is on the phone now; the coordinator puts it back to rank 2 when the lease is free. | From orchestration (2026-11-23), docs item attended-pin-is-one-pin: the hourly rhizoid-bump timer refuses walleye's pin because the tag is copied into 13 procedure headers and check.yml:71 (the PR 790 failure: two lpoco-attended copies linked, procedure() and the steps never met). Decided with the rhizoid lane (its decision 2026-11-23-every-pin-one-pin-mover, points 5 and 6). Rank 3: with the phone path first (RESTART2 tool rank 1, silent-shell fix rank 2); it changes how every procedure builds, so it lands BETWEEN keeper runs, never with a run in flight (a keeper's rust-script --force rebuild would pick it up).
 
 About
 : walleye-bootimage
@@ -10010,7 +10010,7 @@ Proof
 : (1) each procedures/*.rs takes lpoco-attended from the steps crate (tools/walleye-tries, by path, re-exported: no tag in any //! header); (2) .github/workflows/check.yml installs/runs the lpoco-attended CLI that tools/walleye-tries builds (cargo run --manifest-path tools/walleye-tries/Cargo.toml -- check ...), no 'cargo install --tag' line; (3) grep for the tag 'lpoco-attended-v' in the repo finds only tools/walleye-tries/Cargo.toml and Cargo.lock; (4) every one of the 13 procedures still dry-runs with today's step counts (rootfs-boots 26, install-boot 17 rehearsal, ufs-matched 23, alpine-login 22, install-rootfs 16) and the checks pass; NO phone-run behavior changes (gates, go reads, way backs, timeouts): the diff of the procedures is where the dependency comes from, said in the PR; no procedure is run against the phone by the builder; dry run, check --host, tests, clippy, fmt, review (0) FIRST, from orchestration (2026-11-23): a .gitattributes at the repo root with the two lines 'data/** rhizoid-records' and 'docs/** rhizoid-records', so rhizoid 0.3.7 reads the backlog's quoted tags as history, not as pin copies; only the real copies in procedures/*.rs and .github/workflows/check.yml stay until (1) and (2) are done; rhizoid status then shows no second copy.
 
 Rank
-: 2
+: 3
 
 
 <a id="walleye-install-rootfs-boots-try"></a>
@@ -10775,7 +10775,7 @@ Proof
 : (1) SOURCES: every check(..) step of the 13 procedures/*.rs (about 150) and every expectation of the tests/host/*.sh (96 scripts) names its source: a research row id (data/research.json), a doc (path or URL kept as a source row), or a captured-text file under the repo (research/.../ material); the convention is machine-read: a table procedures/SOURCES.toml (step name to source) and a tests/host/SOURCES.toml (script to source), or the 'source=' argument that lpoco attended check will require once orchestration's half lands (lab-tools: refuses a check with no source): the interim gate is tests/host/checks-have-sources.sh, which fails on any check or expectation without a source and on a source that does not exist (research id absent, file missing), and is a step of .github/workflows/check.yml; (2) FIXTURES: every fixture of a host selftest is TEXT A PHONE PRINTED, kept as a file under tests/fixtures/phone-text/ with a provenance line (the run, the date, the research row it came from); a fixture typed as a stand-in is refused by the gate (a typed one is replaced by a captured one or its check is marked as not yet sourced and listed); (3) THE STOPS AS TEST CASES: each of today's stops is refused BEFORE its fix or carries a source AFTER it: stage 2 checks 9, 16 and 18 (the first versions assumed a first run; the amended ones cite research walleye-stage2-flash-resets-flags-documented, walleye-stage2-run-1-gpt-after-flash-finding, walleye-stage2-rerun-2-stops-at-check-9-boot-a-is-the-image, walleye-stage2-rerun-3-stops-at-check-16-flash-changes-nothing, walleye-stage2-run5-stops-at-check-18-flash-resets-unbootable-too), the stage 1 check 17 (norecovery vs noload stand-in; research walleye-rootfs-boots-run-4-check-17-wants-noload-mounts-say-norecovery) and the run 7 pstore read (tests/host/pstore-*-read.sh, ml3-ramoops-read.sh: their source is the claim that pstore survives the reset, which research walleye-pstore-warm-reset-how-it-stands and walleye-ml3-pstore-empty do not support after a hard reset): the gate has a test that the OLD form of each is refused (a fixture of the unsourced form), and the new form passes; (4) nothing changes what a phone run does; dry run, check --host, tests, clippy, fmt, review
 
 Rank
-: 2
+: 3
 
 
 <a id="walleye-stops-three-answers"></a>
@@ -11169,7 +11169,7 @@ Proof
 : device.toml [images.z21.recipe] in the form of decision 2026-11-23-image-recipes-on-nix-fixed-output-paths and lab-tools #368 (z20 plus z21's dtb is the proven example in lab-tools): 'lpoco bringup image ensure z21' (lab-tools released, installed on the host: v0.45.0 or later) rebuilds the image from the recipe, checks it against the declared sha256 of [images.z21] and serves it from the store afterwards; the inputs of the recipe are named (kernel_tag of the image: int/walleye/ufs-off-e123d3bff/v7.3/1, the dtb from the board dts at its commit, the ramdisk and header words), no tree path; nothing changes the declared sha256; then the same for the other images an [images.*] row names, one row per item or per change as the builder judges (these are the rebuild-identical proofs that let a build-*.sh retire: item walleye-retire-build-scripts); dry run, check --host, tests, review; no phone
 
 Rank
-: 2
+: 1
 
 
 <a id="walleye-stage2-step21-slot-source"></a>
