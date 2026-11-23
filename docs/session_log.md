@@ -7375,3 +7375,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-0000-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: UFS run 5 ran after the go named the full sha: probes and card read as before, step 16 refused (cur_freq 100 MHz after set_freq 50 MHz, userspace governor), no load. Android slot b by adb; nothing flashed or written; no kept kernel change.
+
+Considered
+: next: coordinator decides the pin (write min_freq too / max_freq, read available_frequencies first) and the GPT hash 6cd7e48c vs 2de02f2b difference; no second run without them
+
+About
+: walleye-first-fastboot-boot

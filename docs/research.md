@@ -7332,3 +7332,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ufs-try-2-run-5-pin-did-not-take"></a>
+### walleye-ufs-try-2-run-5-pin-did-not-take
+
+Date
+: 2026-11-23
+
+Brief
+: UFS try 2 run 5: userspace governor set, set_freq 50 MHz did not take (cur_freq 100 MHz, max_freq 200 MHz); step 16 refused before any load; Android back
+
+Question
+: Does the userspace governor with set_freq 50000000 hold the UFS devfreq clock low on this kernel?
+
+Found
+: Run 5 (ramped, pinned by userspace, go with full sha): 3.1.0, PHY 3.1.0, 6 disks, sda 45 partitions, link HS_GEAR1 2 lanes HIBERN8 idle; before load gear 1 ACTIVE, clock 50000000. Step 16 read back governor userspace, cur_freq 100000000, max_freq 200000000, wanted 50000000: refused, no load ran. So the pin through set_freq does not hold (the clock sat at 100 MHz, not the 50 MHz that check 15 saw before). NOT KNOWN YET: available_frequencies (not in the log) and whether min_freq must be written. sda GPT hash before 6cd7e48c...0174 differs from runs 1-3 (2de02f2b...57cb): the after-hash was not taken (run stopped); read-only run, nothing written, but whether the disk or the hash method changed is not known yet. Phone on Android by adb. No second run without the coordinator.
+
+About
+: walleye-first-fastboot-boot
