@@ -3055,3 +3055,31 @@ Research
 
 Scope
 : walleye lane builder and keeper
+
+
+<a id="2026-11-23-walleye-frozen-lists-reproduce-shipped-images"></a>
+### 2026-11-23-walleye-frozen-lists-reproduce-shipped-images
+
+Date
+: 2026-11-23
+
+Brief
+: The first lists reproduce the shipped images from frozen refs of the series; the live lists follow the series tips and build the next images
+
+Decision
+: The images that have run (c3373d71 and the stage 1 proof, 461077869fb2, e337de53, built on the kernels e123d3bff and 3644090c7) are reproduced by FROZEN lists named for them (for example ufs-off-e123d3bff, ufs-on-3644090c7) in kernel/topics.toml, where the series topic/pmic-wdt-wake-in-suspend is pinned at the commit the image used (e123d3bff, kept as the pushed ref archive/pmic-wdt-wake-in-suspend-e123d3bff or a pin the rhizoid format allows: the builder reads rhizoid.md and the format first, and if the format allows no pin it asks the rhizoid lane rather than weakening the check); rhizoid assemble --reproduces says EQUAL for them against e123d3bff and 3644090c7. The LIVE lists ufs-off and ufs-on follow the branch tips (topic/pmic-wdt-wake-in-suspend 8b2283da3 with its two review fixes) and build the NEXT images; a next image gets its own stage 1 run under the standing go before anything flashes it. Stage 2 flashes e337de53 as built: its kernel is the frozen list's tag, so it is an int/ tag and rebuildable from the record, and it carries the kernel stage 1 proved.
+
+Why
+: The builder's step 3 (PR 787) says DIFFERS for both lists in drivers/watchdog/pm8916_wdt.c only: the series branch carries two review fixes (Stop the watchdog on reboot and unregister, 8b2283da3) over e123d3bff on which the images were built. The branch tip is the series that goes upstream; it must not be cut back to match an old image, and the two fixes belong inside the series (squashed for v2), not in a stacked topic. The record's job is to rebuild what RAN: that is a frozen list. The quality check the rhizoid lane named is a first list reproducing an image, and this gives it without rebuilding the stage 1 proof.
+
+Rejected
+: Splitting the two fixes into a stacked topic so the series branch can sit at e123d3bff: rewrites the upstream-bound branch for the sake of an old image and separates review fixes from their series. Rebuilding the shipped images on 8b2283da3 now: new shas, a new stage 1 run and a new go for each, the stage 1 proof (26 of 26) and the UFS try results no longer tied to a rebuildable kernel, and it delays stage 2; the next images take the tips anyway.
+
+About
+: walleye-kernel-dts
+
+Scope
+: walleye lane, builders, kernel/topics.toml
+
+Tracked by
+: walleye-kernel-series-to-topics
