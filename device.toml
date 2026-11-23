@@ -329,10 +329,11 @@ sha256 = "e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1"
 # Kernel Image.gz, dtb, header and AVB footer are e337de53's byte for byte; built twice with this one sha256 by build/build-ufs-root-image.sh (DEBUG_INIT=yes BOOTED_SLOT=yes ROOT_PART=system_a), 30 checks ok, among them
 # tests/host/ufs-root-debug-init.sh (QEMU: gadget + telnet + log before the card, the hold, the release) and the root init's whole proof with this init in its place. NOT to boot or flash except by procedures/install-boot-on-the-pixel-2.rs
 # under the coordinator's go on walleye-install-flash-boot-run naming THIS sha256; tests/host/ufs-off-image.sh refuses it by design. Never booted.
+# REBUILT 2026-11-23 (item walleye-stage2-cmdline-too-long): run 8 showed the bootloader cut our command line at 1363 characters and the slot suffix with it, so this image's header command line is now 149 characters (the dyndbg string is written by the debug init at run time; androidboot.console is left out; margin 126 under the cut, checked from run 8's and Android b's captured lines) and the init reads the slot from androidboot.slot_suffix, the device tree, bootconfig, then root=PARTUUID, fails closed on none or a disagreement. The sha256 below is the new image (a0a55cd0, built twice identical, 35 checks; the other image rows below were built with the old long header and are NOT rebuilt: the non-debug ufs-root-booted-slot would be cut the same way); the run-8 image was ec741a98 (its row is in git history). Kernel, dtb, AVB footer unchanged.
 [images.ufs-root-booted-slot-debug]
-path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-debug/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-debug.img"
+path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-debug-2/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-debug.img"
 kernel_tag = "int/walleye/ufs-on-3644090c7/v7.3/1"
-sha256 = "ec741a98476c6b59d1e3875d9604ad225ca1cc7c2b9d9a81f320bc5ea556ed5d"
+sha256 = "a0a55cd060343d7acc1af07247c48b930789e2318afb77cfe31ea83acba25751"
 
 # The read-only UFS-on boot of that image as ONE command (item walleye-install-boot-procedure; run by item walleye-install-rootfs-boots-try). The root is the system partition of the slot Android is NOT on, read at the run
 # (adb's ro.boot.slot_suffix equal to fastboot's current-slot, and equal to the root the image names); nothing here names a slot.

@@ -6991,3 +6991,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-walleye-builder-stage2-cmdline"></a>
+### Stage 2 cmdline fix built
+
+Entry date
+: 2026-11-23
+
+Done
+: Header command line cut from 372 to 149 characters (dyndbg to a run-time write, androidboot.console dropped), a budget and a margin check from captured lines in build-ufs-root-image.sh; the three inits read the slot from four sources and fail closed; QEMU cases 15-20 (root=PARTUUID, bootconfig, device tree line) pass with the root, debug and display init proofs; debug image rebuilt after the programmer review (sha256 a0a55cd0, built twice identical, 35 checks); cargo test, clippy, fmt pass. No phone. The first debug test failure came from two QEMU tests run at once; it passes alone. A git checkout of the root init by mistake lost its edits; they were regenerated from the one source text and re-proven.
+
+Considered
+: A device-tree QEMU test: x86 has none, so the init's own line is run on a property file. Review points taken: stderr noise on the device-tree read, a hex-length guard, honest wording on the cut (observed, cause unproven) and on the PARTUUID source (unproven on the phone).
+
+Rejected
+: Running the procedure's dry run: it reads the phone, which a builder does not touch. Rebuilding the other image rows: not this item; noted in device.toml.
+
+About
+: walleye-bootimage

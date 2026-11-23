@@ -6820,3 +6820,25 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stage2-cmdline-budget-and-slot-sources"></a>
+### walleye-stage2-cmdline-budget-and-slot-sources
+
+Date
+: 2026-11-23
+
+Brief
+: Our header command line is 149 characters now, 126 under the bootloader's cut; the init reads the slot from four sources and fails closed
+
+Question
+: How do we keep androidboot.slot_suffix from being cut off, and where else can the init read the slot?
+
+Found
+: From run 8's captured /proc/cmdline (1363 characters, ends mid-word) and Android b's line, the bootloader appends about 1087 characters after our header, so the header must stay under about 270; the matched header had dyndbg (200+) and androidboot.console. The new header is 149 characters: margin 126 (build check). Android's fs_mgr reads the slot from the command line, then the device tree (firmware/android/slot_suffix), then bootconfig; the init does the same and takes root=PARTUUID=0000NNNN (partition number to PARTNAME) only as a last resort that must agree. Closed source: the ABL's own cmdline buffer size is not published, so 1363 stays the measured fact. Tested in QEMU: root=PARTUUID alone, agreeing, disagreeing, naming a non-system partition, and bootconfig; the device-tree line against a property file with its NUL. Not tested on a phone.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/
