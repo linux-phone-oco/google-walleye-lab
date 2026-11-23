@@ -6040,3 +6040,21 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-23-stage-1-way-back-through-the-bootloader-first"></a>
+### Stage 1 way back through the bootloader first
+
+Entry date
+: 2026-11-23
+
+Done
+: Built the bootloader-first way back of the stage 1 boot try: reboot bootloader over ssh, wait up to 60 s for fastboot, current-slot said against the slot at the start, fastboot reboot; forced reboots stay as fallback ('bootloader not reached'). Dry run 26 steps, 251 tests, clippy, fmt pass; programmer review fixes applied. No set_active, flash, erase or oem. Not run on a phone.
+
+Rejected
+: A device.toml key for the 60 s wait: one constant until a second device needs another
+
+About
+: walleye-display-s6e3fa5

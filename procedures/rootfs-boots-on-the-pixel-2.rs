@@ -12,6 +12,8 @@
 //! read-only, into this run's log and its folder's evidence.txt (the kernel log's tail and the init's lines, the command line, mounts, processes,
 //! the root and the new root, the init's logs, the card's PARTNAMEs, df; item walleye-rootfs-boots-run-2-diagnose), THEN sends the phone away; after
 //! it the card, the boot chain and the slots' flags are measured against what was read before when the run stopped before its own measures.
+//! The way back goes through the bootloader first (item walleye-way-back-reboot-bootloader-first): `reboot bootloader` over ssh, fastboot lists the phone within 60 s,
+//! its current-slot is read and said against the slot at the start, then `fastboot reboot`; when fastboot does not list the phone the log says "bootloader not reached" and the forced reboot runs.
 //!   procedures/rootfs-boots-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml [procedures.rootfs-boots-on-the-pixel-2], [images.ufs-root])
 //!
 //! ```cargo
@@ -51,7 +53,7 @@ fn main() {
     check("the init saw the slot adb saw and mounted the named partition", root.the_init_saw_the_slot_adb_saw());
     check("the card is mounted read-only under the overlay", root.the_root_is_mounted_read_only());
     check("the kernel log has no purge, oops or UFS failure", root.the_kernel_log_is_clean());
-    step("send the phone back: the forced reboot", root.the_phone_is_sent_back());
+    step("send the phone back: to its bootloader first, the forced reboot if that is not reached", root.the_phone_is_sent_back());
     step("the phone is on Android (the way back, if it is not)", root.way_back());
     check("the phone is back on Android", root.android_is_back());
     step("Android answers as root again", root.the_phone_is_on_android_as_root());
