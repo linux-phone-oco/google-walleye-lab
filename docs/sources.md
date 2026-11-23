@@ -1637,3 +1637,29 @@ Url
 
 Takes
 : Same SoC and same msm8998.dtsi ufshc node (no iommus, no interconnects, legacy freq-table) is the UFS internal storage of a mainline phone: the shared driver path is not the first suspect; what is ours is
+
+
+<a id="aosp-bootloader-updating"></a>
+### Implement OTA updates (A/B bootloader requirements)
+
+Url
+: https://source.android.com/docs/core/architecture/bootloader/updating
+
+By
+: Android Open Source Project
+
+Takes
+: Under 'Support for slots': when modifying a partition that is part of a slot, the bootloader clears 'successfully booted' and resets the retry count for the slot; set_active/setActiveBootSlot clears unbootable and successful and resets the retry count
+
+
+<a id="aosp-ab-system-updates"></a>
+### A/B (seamless) system updates
+
+Url
+: https://source.android.com/docs/core/ota/ab
+
+By
+: Android Open Source Project
+
+Takes
+: bootable and successful attributes per slot; an unsuccessful slot after several boot attempts is marked unbootable by the bootloader
