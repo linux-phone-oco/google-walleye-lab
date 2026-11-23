@@ -10205,9 +10205,6 @@ About
 Opened
 : 2026-11-23
 
-Needs
-: phone
-
 Proof
 : the one command passes every step: the boot of the new slot from the card on ssh, the GPT changed only by the slot switch, the way back set_active, the phone on Android, the boot chain as stored
 
@@ -10344,6 +10341,31 @@ Needs
 
 Proof
 : ONLY IF both items above say: the flash resets the flashed slot's tries/successful as the bootloader's documented or twice-observed behaviour, AND only slot a's attribute bits (and the CRCs) differ in the GPT: tools/walleye-tries/src/flash_boot.rs check 18 (the flags after the flash) allows exactly slot a's slot-retry-count and slot-successful as the flash sets them (the values observed: retry 0 to 1, successful yes to no; unbootable stays no) and nothing else: slot b's flags, the current slot, a's unbootable, every other byte equal; a stand-in test built from run 1's own printed fastboot text (research material research/walleye-display-s6e3fa5/2026-11-23/stage2-run.log), one test that fails when b changes or a becomes unbootable or another byte differs; the later check that the flags after set_active a are as the bootloader's switch describes stays; the rehearsal, the dry run, the other tests unchanged; dry run, check --host, tests, clippy, fmt, review; no phone. If anything else changed in the GPT or the sources do not agree: do not change the check, tell the coordinator
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-check-9-boot-a-is-the-image"></a>
+### Stage 2's check 9 accepts a boot_a that already holds the declared image when the stock backup is on file: the flash is repeatable and can still be undone
+
+Status
+: open
+
+Note
+: Rerun 2 of stage 2 (keeper local_5c2218e4, PR 839) stopped at check 9 BEFORE any flash: boot_a holds e337de53 since run 1's flash (read back equal), so it no longer equals the stored stock backup 2a5cd3b2: 'the flash could not be undone'. Nothing written, no fastboot verb ran, Android on b. That stop is not a stage 2 run that flashed or set anything, so it does not use up the one rerun the Top Coordinator allowed for check 18. Rejected: reflashing the stock boot_a first to satisfy the check (an extra write to restore a precondition); keeping the strict check and giving up the rerun. The go (open to 14:03) stays; the run item is off the phone queue until this lands.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: tools/walleye-tries/src/flash_boot.rs the check 'the boot partition to be flashed, read now, is its backup' (check 9; procedures/install-boot-on-the-pixel-2.rs line 37): it passes when the partition read now (a) equals the stored backup of the stock boot_a (today's rule) OR (b) equals the DECLARED image (sha256 e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1 from [images.ufs-root-booted-slot], the image run 1 flashed and read back equal) AND the stock backup is on file with its recorded sha256 (2a5cd3b20ef0...: the full value from the slot-readback research and ~/lab-material/walleye) and that file still hashes to it, so the flash can still be undone; it FAILS for any other content (neither the backup nor the declared image), for a missing or changed backup file, and says which; stand-in tests from the printed text of rerun 2 (research walleye-stage2-rerun-2-stops-at-check-9-boot-a-is-the-image, run.log): the check fails on today's code with boot_a = the image, passes on the amended one; one test each for the three failing cases; the rest of the command and the rehearsal unchanged; dry run, check --host, tests, clippy, fmt, review; no phone
 
 Rank
 : 1
