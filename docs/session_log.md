@@ -7126,3 +7126,18 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-2105-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Stage 2 run 11 passed all 29 steps (our kernel and Alpine root from boot_a on slot a, ssh, GPT changed only by the switch, way back). Phone on Android slot b, adb device; boot_a holds image a0a55cd0
+
+Considered
+: next: production init image (petter first, no telnet) as the next stage 2 image under a new go; make fresh worktrees find build/images (untracked) so a keeper need not link ~/Projects/walleye-build
