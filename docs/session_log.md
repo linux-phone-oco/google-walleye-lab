@@ -6469,3 +6469,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-stage-2-check-9-accepts-the-declared-image-in"></a>
+### Stage 2 check 9 accepts the declared image in boot_a
+
+Entry date
+: 2026-11-23
+
+Done
+: Amended check 9 (flash_boot.rs, boot_partition_can_be_flashed) and its labels in both install-boot procedures; tests, clippy, dry runs; review fixes applied.
+
+Considered
+: A newtype or a step-level stand-in test for the argument order (now, want, declared are all &str).
+
+Rejected
+: Reflashing stock boot_a first (an extra write); keeping the strict check.
+
+About
+: walleye-bootimage
