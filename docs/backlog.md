@@ -10525,10 +10525,10 @@ Rank
 ### The stage 2 rehearsal for real after PR 855: the pstore-first read is check 17 of the rehearsal and its wiring has never run on the phone
 
 Status
-: open
+: done
 
 Note
-: Asked for by the coordinator (2026-11-23 13:50): PR 855 gave stage 2's step 21 a bounded wait that sends nothing and a read of pstore first; the same read is the rehearsal's check 17, so the rehearsal runs the wiring for real before the stage 2 run, as the earlier rehearsals did for checks 9 and 18 (each found bugs the real run would have hit). The stage 2 run item (walleye-install-flash-boot-run) stays off the queue until this passes; its go is open until 15:00 and is extended if the run needs it.
+: proven by rehearse-install-boot-on-the-pixel-2.rs: 18 of 18 passed, nothing written, check 17's pstore-first read ran on Android (research walleye-install-boot-rehearsal-4-passed)
 
 About
 : walleye-bootimage

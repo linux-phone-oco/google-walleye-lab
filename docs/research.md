@@ -6448,3 +6448,25 @@ Sources
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-install-boot-rehearsal-4-passed"></a>
+### walleye-install-boot-rehearsal-4-passed
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 rehearsal 4 on main after PR 855: 18 of 18 passed, nothing written; the pstore-first read (check 17) works on Android; pstore empty after the rehearsal's own bootloader excursion
+
+Question
+: Does the rehearsal's pstore-first read (check 17), wired for real after PR 855, run on the phone on Android, and what does it read?
+
+Found
+: Yes: 18 of 18 (checks renumbered, 18 steps). boot_a holds e337de53, stock backup on file and hashing to its record; slot b by adb and fastboot; flash target shown (boot_a), not run; six GPTs read twice and equal; slot flags equal twice; the failed-boot read ran as root over adb: pstore listing (empty, as the phone had just come back from its adb reboot bootloader excursion), uptime, id, cmdline (androidboot.bootreason=reboot, slot_suffix _b, verifiedbootstate orange), bootreason props (reboot / sys: bootloader); boot chain equals the stored set; phone ends on Android slot b. Reading of the item: its 'NO reboot' was taken as no fastboot reboot verb and no change of slot, since the rehearsal's step 10 (adb reboot bootloader and back, as rehearsals 1 to 3) is how it reads slots in fastboot; the pstore was already empty before. Log: rehearsal-4.log. Needed build/images linked to ~/Projects/walleye-build (the dir itself) in the fresh worktree.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/
