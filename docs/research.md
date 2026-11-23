@@ -5735,3 +5735,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ramroot-b-a5-v4-prompt-respawned-kernel-noise-follows"></a>
+### walleye-ramroot-b-a5-v4-prompt-respawned-kernel-noise-follows
+
+Date
+: 2026-11-23
+
+Brief
+: B-a5 on rootfs v4: the respawn works (a second 'walleye login:' at screen row 96) but kernel sync_state() lines at 21.7 s print after it; check 15 fails, as it should
+
+Question
+: With rootfs v4's local.d respawn of the tty1 getty, is 'walleye login:' the last non-blank row of the glass text?
+
+Found
+: Unattended run alpine-login-20261123-061501 (image b-a5 ad91dcd7): checks 1-14 pass; check 15 fails: screen.txt row 84 holds the first prompt (mid-screen, 'Binding the usb gadget' after it), row 96 the respawned prompt, then 4 lines '[ 21.73] gcc-msm8998 100000.clock-controller: sync_state() pending due to ...' (kernel printk at the console loglevel, the 30 s deferred-probe sync_state timeout) below it. So init output no longer follows the prompt; the kernel log does. Not yet tried: the live kill-and-respawn experiment, and lowering the console loglevel (dmesg -n 3, or loglevel= on the command line, a kernel-side header word) in 50-glass-prompt.start before the pkill; sync_state is dev_info (level 6). Phone sent back to Android slot b; nothing flashed.
+
+About
+: walleye-display-s6e3fa5
