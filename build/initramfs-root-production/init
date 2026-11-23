@@ -1,0 +1,198 @@
+#!/bin/busybox sh
+# THE STAGE 2 PRODUCTION INIT (backlog walleye-stage2-production-image): the image that STAYS on the phone. The root init below, byte for byte, plus two blocks marked PRODUCTION-BLOCK: the petters (every watchdog device, from the first
+# instants, kept through the hand-over) and the hold script that ends them. It has no USB gadget, no telnet, no debug log and no word that turns anything on: the lab's way in is the Alpine root's ssh by the lab key.
+# tests/host/ufs-root-production-init.sh proves the blocks are the only difference and the root init's whole proof passes with this init in its place.
+# The UFS-root init (backlog walleye-install-ufs-root-image; decisions 2026-11-20-walleye-install-stage-1-go, 2026-11-20-walleye-distro-alpine-minimal): find the card's system partition named on the
+# command line (walleye.root=system_a|system_b), mount it READ-ONLY (ext4, nodiscard, noload: nothing is replayed, trimmed or written), put a tmpfs overlay on it so the root can write in memory only,
+# keep the SoC watchdog petted for a bounded time, and hand over to the root's own /sbin/init (switch_root). Nothing is ever written to the card by this file: no mkfs, no fsck, no rw mount, no
+# discard, no purge (the kernel's purge guard stays in the image too).
+# Refuses (a line `walleye-ufs-root: refused ...` in the kernel log, which the ramoops console keeps for Android to read, then the phone restarts by itself) when: no walleye.root, a name that is not
+# system_a or system_b, NO slot (from androidboot.slot_suffix, the device tree, bootconfig or, last, root=PARTUUID; _a or _b; fails CLOSED: sources that disagree refuse too), the same slot as androidboot.slot_suffix (the slot Android runs from), no partition of that name, or two of them. It mounts nothing it was not named.
+# The init of the root (Alpine's busybox init + OpenRC, with the usb gadget unit and sshd) brings the gadget up itself; this init does no gadget.
+# Stage 2 (item walleye-install-stage2-init-booted-slot): with the word walleye.booted-slot on the command line (the bootloader booted this image from the root's own slot) the root MUST be system$SLOT, the booted slot's own partition, and the init says
+# `walleye-init: mounts-the-booted-slot`; without the word the stage 1 guard above is unchanged. The line `walleye-init: mounts-the-booted-slot` is what procedures/install-boot-on-the-pixel-2.rs's init gate looks for.
+# Never exits except by exec (an init that ends is a kernel panic).
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+HOLD_SECONDS=900   # the watchdog is petted this long after the hand-over, longer while /run/walleye/hold exists in the root; then the phone resets itself (the way back to Android); walleye.hold=SECONDS changes it
+WAIT_SECONDS=90    # the card's probe takes time: wait this long for the partition (walleye.wait=SECONDS on the command line changes it: the QEMU proof)
+PAUSE_SECONDS=30   # after a refusal the log stays readable this long before the phone restarts (walleye.pause=SECONDS)
+say() { echo "walleye-ufs-root: $*" > /dev/kmsg 2>/dev/null; echo "walleye-ufs-root: $*"; }
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+mount -t devtmpfs dev /dev 2>/dev/null
+refuse() { # the phone restarts by itself after a pause long enough to read the log; the watchdog is petted meanwhile
+  say "refused: $*"
+  n=0
+  while [ $n -lt $((PAUSE_SECONDS / 2)) ]; do [ -e /dev/watchdog ] && echo > /dev/watchdog 2>/dev/null; sleep 2; n=$((n+1)); done
+  sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+  while :; do sleep 60; done
+}
+# modules for a host that has them (the QEMU proof); the phone's kernel has everything built in and no /modules.list
+if [ -f /modules.list ]; then while read -r m; do insmod "$m" || say "insmod $m failed"; done < /modules.list; fi
+# PRODUCTION-BLOCK-BEGIN (1: the petters, the first act after /proc, /dev and the QEMU-only module load; item walleye-stage2-production-image, research walleye-android-watchdog-read-fix: Android pets one non-secure WDT0, bark 11 s, bite 14 s, pet 10 s)
+# Every watchdog device is opened and petted before the command line, the slot or the card is looked at: one busybox petter per device at the longest timeout its driver lists (sysfs max_timeout), petting every third of it, at most every 10 s.
+# A driver may probe after this init starts, and a petter may die (the single-open device refuses a second open: the legacy `echo > /dev/watchdog` of the root init's waits), so the supervisor looks again every second, starts one petter per device
+# and starts it again when its pid is gone. The petting is BOUNDED: when the hand-over has not come in WD_DEADLINE seconds the supervisor ends the petters with SIGKILL (no magic close: the watchdog stays armed) and the phone resets itself, so a hang
+# before the hand-over costs one reset, not a wedge. The petters go on through the hand-over (block 2) and end with the hold. No gadget, no telnet, no shell: the lab's way in is the Alpine root's ssh.
+WD_DEADLINE=420   # seconds from this block to the hand-over: the card's waits (2 x 90 s) and a refusal's pause (30 s) with room
+wd_start() { # DEV: the pid is the marker; one petter per device
+  b=${1#/dev/}; mx=$(cat "/sys/class/watchdog/$b/max_timeout" 2>/dev/null)
+  case $mx in ""|*[!0-9]*) mx=60 ;; esac
+  [ "$mx" -le 600 ] || mx=600; [ "$mx" -ge 2 ] || mx=2
+  tm=$((mx / 3)); [ "$tm" -ge 1 ] || tm=1; [ "$tm" -le 10 ] || tm=10
+  /bin/busybox watchdog -F -t "$tm" -T "$mx" "$1" 2>> /tmp/walleye-wd.err &
+  echo $! > "/tmp/wd-started/$b"; echo $! >> /tmp/wd.pids
+  say "petting $1 every ${tm}s with the timeout ${mx}s"
+}
+wd_scan() { # one pass: a petter for every device that has none alive
+  for d in /dev/watchdog[0-9]* /dev/watchdog; do
+    [ -c "$d" ] || continue
+    [ "$d" = /dev/watchdog ] && [ -c /dev/watchdog0 ] && continue   # the same device as watchdog0
+    b=${d#/dev/}
+    if [ -e "/tmp/wd-started/$b" ]; then
+      kill -0 "$(cat "/tmp/wd-started/$b")" 2>/dev/null && continue
+      say "the petter of $d is gone, started again"
+    fi
+    wd_start "$d"
+  done
+}
+wd_supervise() {
+  s=$(cut -d. -f1 /proc/uptime)
+  while :; do
+    wd_scan
+    [ $(( $(cut -d. -f1 /proc/uptime) - s )) -lt $WD_DEADLINE ] || { say "no hand-over in ${WD_DEADLINE}s: the petters end and the watchdog resets the phone"; kill -9 $(cat /tmp/wd.pids) 2>/dev/null; exit 0; }
+    sleep 1
+  done
+}
+mkdir -p /tmp/wd-started
+wd_scan
+wd_supervise &
+echo $! > /tmp/wd.supervisor
+say "the watchdogs: $(ls /tmp/wd-started | wc -l) petter(s) started at uptime $(cut -d. -f1 /proc/uptime) s, more when a driver probes later$([ -n "$(ls /tmp/wd-started)" ] || echo '; NO watchdog device yet')"
+# PRODUCTION-BLOCK-END
+CMD=$(cat /proc/cmdline)
+arg() { for w in $CMD; do case $w in "$1="*) echo "${w#"$1="}"; return ;; esac; done; }
+ROOT=$(arg walleye.root)
+BOOTED=; for w in $CMD; do [ "$w" = walleye.booted-slot ] && BOOTED=1; done   # the word of stage 2: the bootloader booted this image from the root's own slot
+for k in wait pause hold; do V=$(arg walleye.$k); case $V in ""|*[!0-9]*) ;; *) case $k in wait) WAIT_SECONDS=$V ;; pause) PAUSE_SECONDS=$V ;; hold) HOLD_SECONDS=$V ;; esac ;; esac; done
+# the running slot, from the sources Android's own init reads (AOSP fs_mgr: fs_mgr_get_slot_suffix, in this order): the command line word androidboot.slot_suffix, then the device tree /proc/device-tree/firmware/android/slot_suffix,
+# then bootconfig (androidboot.slot_suffix = "_a"); the root=PARTUUID of the command line is a last resort (below). Sources that give a value must agree: two that differ refuse. The bootloader cuts our command line at about 1363
+# characters (research walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing), so the word can be missing: the line `walleye-ufs-root: slot source` says which one gave the slot. Nothing is assumed: none gives it, nothing is mounted.
+# root=PARTUUID is UNPROVEN on the phone (no capture shows PARTN of system_a/b there; the QEMU disk is made by sgdisk): a wrong mapping only waits (petting) and refuses, it never mounts. A missing word with a PARTUUID that names a system partition no longer refuses; the log says so.
+SLOT=; SLOT_SOURCE=
+for s in androidboot.slot_suffix device-tree bootconfig; do
+  case $s in
+    androidboot.slot_suffix) V=$(arg androidboot.slot_suffix) ;;
+    device-tree) V=$({ tr -d '\000' < /proc/device-tree/firmware/android/slot_suffix; } 2>/dev/null) ;;
+    bootconfig) V=$(sed -n 's/^androidboot\.slot_suffix *= *"\(.*\)".*/\1/p' /proc/bootconfig 2>/dev/null | head -n1) ;;
+  esac
+  [ -n "$V" ] || continue
+  if [ -z "$SLOT" ]; then SLOT=$V; SLOT_SOURCE=$s; elif [ "$V" != "$SLOT" ]; then refuse "the slot sources disagree: $SLOT_SOURCE says [$SLOT], $s says [$V]"; fi
+done
+partuuid_slot() { # the slot of the system partition whose number is the root=PARTUUID=0000NNNN-... of the command line (the bootloader names the booted slot's system so): exactly one partition with that number and a PARTNAME system_a or system_b
+  P=$(arg root); case $P in PARTUUID=*) ;; *) return 0 ;; esac
+  P=${P#PARTUUID=}; P=${P%%-*}; case $P in ""|*[!0-9a-fA-F]*) return 0 ;; esac; [ ${#P} -le 8 ] || return 0
+  PN=$((0x$P)); FOUND=
+  for u in /sys/class/block/*/uevent; do
+    [ -e "$u" ] || continue
+    grep -qx "PARTN=$PN" "$u" || continue
+    case $(sed -n 's/^PARTNAME=//p' "$u") in system_a) FOUND="$FOUND _a" ;; system_b) FOUND="$FOUND _b" ;; esac
+  done
+  set -- $FOUND; [ $# -eq 1 ] && echo "$1"
+  return 0
+}
+n=0; while [ -z "$SLOT" ] && [ $n -lt $WAIT_SECONDS ] && case $(arg root) in PARTUUID=*) true ;; *) false ;; esac; do   # no other source: the card's probe takes time, wait for the partition the PARTUUID names
+  V=$(partuuid_slot); [ -z "$V" ] || { SLOT=$V; SLOT_SOURCE=root=PARTUUID; break; }
+  [ -e /dev/watchdog ] && echo > /dev/watchdog 2>/dev/null; sleep 1; n=$((n+1))
+done
+if [ -n "$SLOT" ] && [ "$SLOT_SOURCE" != root=PARTUUID ]; then V=$(partuuid_slot); [ -z "$V" ] || [ "$V" = "$SLOT" ] || refuse "the slot sources disagree: $SLOT_SOURCE says [$SLOT], root=PARTUUID says [$V]"; fi
+[ -z "$SLOT" ] || say "slot source: $SLOT_SOURCE gave [$SLOT]"
+say "start, kernel $(uname -r), root=[$ROOT] running slot suffix=[$SLOT]"
+case $ROOT in
+  system_a|system_b) ;;
+  '') refuse "no walleye.root on the command line" ;;
+  *) refuse "walleye.root=$ROOT is not system_a or system_b" ;;
+esac
+case $SLOT in
+  _a|_b) ;;
+  '') refuse "no androidboot.slot_suffix on the command line: the slot Android is on is not known (no device tree, bootconfig or root=PARTUUID gives it either), nothing is mounted" ;;
+  *) refuse "androidboot.slot_suffix=$SLOT is not _a or _b" ;;
+esac
+if [ -n "$BOOTED" ]; then
+  # walleye-init: mounts-the-booted-slot (stage 2: the bootloader booted this image from the boot partition of the slot whose system partition is the root; the word asks for exactly that and nothing else)
+  [ "$ROOT" = "system$SLOT" ] || refuse "walleye.booted-slot: $ROOT is not the system of the booted slot (androidboot.slot_suffix=$SLOT)"
+  say "walleye-init: mounts-the-booted-slot ($ROOT, androidboot.slot_suffix=$SLOT)"
+else
+  [ "$ROOT" != "system$SLOT" ] || refuse "$ROOT is the system of the slot Android is on (androidboot.slot_suffix=$SLOT); the word walleye.booted-slot is for an image booted from its own slot"
+fi
+# the partition: exactly one block device whose PARTNAME is the name asked, waited for
+found=
+n=0
+while [ $n -lt $WAIT_SECONDS ]; do
+  found=; count=0
+  for u in /sys/class/block/*/uevent; do
+    [ -e "$u" ] || continue
+    if grep -qx "PARTNAME=$ROOT" "$u"; then found=$(basename "$(dirname "$u")"); count=$((count+1)); fi
+  done
+  [ $count -eq 0 ] || break
+  [ -e /dev/watchdog ] && echo > /dev/watchdog 2>/dev/null
+  sleep 1; n=$((n+1))
+done
+[ -n "$found" ] || refuse "no partition named $ROOT after ${WAIT_SECONDS}s"
+[ $count -eq 1 ] || refuse "$count partitions are named $ROOT"
+n=0; while [ ! -b "/dev/$found" ] && [ $n -lt 10 ]; do sleep 1; n=$((n+1)); done
+[ -b "/dev/$found" ] || refuse "no node /dev/$found"
+say "root is /dev/$found (PARTNAME=$ROOT)"
+mkdir -p /lower /ovl /newroot
+blockdev --setro "/dev/$found" || refuse "cannot set /dev/$found read-only"
+mount -t ext4 -o ro,nodiscard,noload "/dev/$found" /lower || refuse "the read-only ext4 mount of /dev/$found failed"
+# /sbin/init may be a symlink (Alpine: to /bin/busybox): resolve it inside the card's root, not in this initramfs
+if [ -L /lower/sbin/init ]; then
+  t=$(readlink /lower/sbin/init); case $t in /*) t=/lower$t ;; *) t=/lower/sbin/$t ;; esac
+  [ -e "$t" ] || refuse "/dev/$found: /sbin/init is a symlink to nothing ($t)"
+else
+  [ -x /lower/sbin/init ] || refuse "/dev/$found holds no /sbin/init"
+fi
+mount -t tmpfs -o mode=755,size=256m tmpfs /ovl || refuse "no tmpfs for the overlay"
+mkdir -p /ovl/upper /ovl/work
+mount -t overlay overlay -o lowerdir=/lower,upperdir=/ovl/upper,workdir=/ovl/work /newroot || refuse "the overlay mount failed"
+mkdir -p /newroot/proc /newroot/sys /newroot/dev /newroot/run /newroot/lower
+# the watchdog petter lives in the new root (its own copy of busybox in the tmpfs upper layer): the SoC watchdog resets the phone when nobody pets it
+mkdir -p /newroot/.walleye /newroot/run/walleye
+cp /bin/busybox /newroot/.walleye/busybox
+cat > /newroot/.walleye/hold.sh <<EOH
+#!/.walleye/busybox sh
+exec 3> /dev/watchdog || exit 0
+n=0
+while [ \$n -lt $((HOLD_SECONDS / 2)) ] || [ -e /run/walleye/hold ]; do echo >&3 2>/dev/null; n=\$((n+1)); /.walleye/busybox sleep 2; done
+echo "<3>walleye-ufs-root: hold over, the phone resets itself" > /dev/kmsg 2>/dev/null
+/.walleye/busybox sync; /.walleye/busybox reboot -f; /.walleye/busybox sleep 5; echo b > /proc/sysrq-trigger
+EOH
+chmod 755 /newroot/.walleye/hold.sh
+# PRODUCTION-BLOCK-BEGIN (2: the petters go on through the hand-over)
+# The supervisor ends, one last pass starts a petter for a device that probed since, and every petter must be alive: a dead one refuses (the clean restart) instead of handing over unpetted. The petters hold the watchdog devices, so the root's hold
+# script cannot open them: it only counts, then ends the petters with SIGKILL (a SIGTERM makes busybox write the magic close, which disarms the watchdog) and resets the phone (the way back to Android) when the hold is over.
+kill $(cat /tmp/wd.supervisor) 2>/dev/null
+wd_scan; sleep 1
+for m in /tmp/wd-started/*; do [ -e "$m" ] || continue; kill -0 "$(cat "$m")" 2>/dev/null || refuse "the petter of ${m#/tmp/wd-started/} is not alive: not handing over unpetted (see /tmp/walleye-wd.err)"; done
+cat > /newroot/.walleye/hold.sh <<EOH
+#!/.walleye/busybox sh
+n=0
+while [ \$n -lt $((HOLD_SECONDS / 2)) ] || [ -e /run/walleye/hold ]; do n=\$((n+1)); /.walleye/busybox sleep 2; done
+echo "<3>walleye-ufs-root: hold over, the phone resets itself" > /dev/kmsg 2>/dev/null
+/.walleye/busybox kill -9 \$(/.walleye/busybox cat /.walleye/wd.pids) 2>/dev/null
+/.walleye/busybox reboot -f; /.walleye/busybox sleep 5; echo b > /proc/sysrq-trigger
+EOH
+cp /tmp/wd.pids /newroot/.walleye/wd.pids
+cp /tmp/walleye-wd.err /newroot/.walleye/wd.err 2>/dev/null
+ls /tmp/wd-started > /newroot/.walleye/wd-devices
+# PRODUCTION-BLOCK-END
+say "handing over to the root's /sbin/init"   # before the moves: after them /dev/kmsg is the new root's, this init's is gone
+mount --move /proc /newroot/proc
+mount --move /sys /newroot/sys
+mount --move /dev /newroot/dev
+mount --move /lower /newroot/lower
+chroot /newroot /.walleye/busybox setsid /.walleye/busybox sh /.walleye/hold.sh > /newroot/.walleye/hold.log 2>&1 &
+exec switch_root /newroot /sbin/init
+refuse "switch_root did not run"

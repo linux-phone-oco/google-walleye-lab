@@ -10625,7 +10625,7 @@ Status
 : in-progress
 
 Note
-: STEP (1) DONE 2026-11-23 (walleye-builder): the live lists are assembled and pushed, read back with ls-remote: int/walleye/ufs-off/v7.3/1 (tag 816351bf0, commit 41f3b5fd6: v7.3 + topic/pmic-wdt-wake-in-suspend 8b2283da3) and int/walleye/ufs-on/v7.3/1 (tag 27a61af0c, commit 5caddde2d: + topic/walleye-fuel-gauge-rfc 064940411 + topic/ufs-match-android 0f3429f65); every topic tip is on origin; the recipes were unchanged (rhizoid assemble reused the tags), no worktree is left. Pushed with git push of the two tags (lpoco bringup kernel publish pushes only a tag a manifest's kernel_tag names; no image names these yet). NOT DONE: (2) the image waits for the stage 2 fix that run 7 decides (its kernel change must be a topic or wip branch added to the list, then reassembled as .../2 and built from the tag by scripts that take the tag, with kernel_tag and sha256 in the [images.*] row, built twice identical); (3) rhizoid status check. No report to the Top Coordinator yet: it comes when the image exists.
+: STEP (1) DONE earlier (tags int/walleye/ufs-off/v7.3/1 and int/walleye/ufs-on/v7.3/1). STEP (2) DONE 2026-11-23 (walleye-builder): the image is built from int/walleye/ufs-on/v7.3/1 by build/build-ufs-root-production.sh TAG (kernel from a detached checkout of the tag), [images.ufs-root-booted-slot-production] carries kernel_tag and sha256 b74af863, built twice identical; the report to the Top Coordinator can go with the run. STEP (3) NOT claimed: 12 older wt-k-* kernel worktrees are still on the clone; rhizoid status runs on docs' graph, not read here.
 
 About
 : walleye-kernel-dts
@@ -11369,10 +11369,10 @@ Rank
 ### The production stage 2 image: the debug init's petters first, no telnet gadget, the kernel from a live list's int/ tag, a short cmdline, the slot from the bootloader's sources; one rehearsal, one run
 
 Status
-: open
+: in-progress
 
 Note
-: THE TOP COORDINATOR'S ORDER (2026-11-23 21:40): lab-tools image recipes have landed (#368, #373, #375, #377, release v0.47.0): 'lpoco bringup image ensure NAME' builds an image from its recipe, a kernel from an int/ tag included, in the Nix sandbox, and attended boots a recipe image when the file is absent. Order: check 22 against every capture (DONE, PR 930), then the CLOSING STAGE 2 RUN (run 11 passed the debug image, PR 933; THIS image is the closing run's): build this image THROUGH ensure if the recipe row has landed by then: i.e. an [images.NAME.recipe] for the production image (the kernel from the live list's int/ tag, the debug-off init, the short cmdline), the declared sha256 checked by 'lpoco bringup image ensure', the file served from the store; if the recipe rows (walleye-image-recipe-z21, walleye-declares-its-kernel-build) have not landed, build it with the script and say so, and the recipe follows as part of walleye-retire-build-scripts. Either way the row names kernel_tag. | Next after stage 2 run 11 (PR 933): the debug image is for finding out, the production image is for staying. Also from run 11: build outputs (the image, walleye-reboot) are untracked and absent in a fresh worktree: the keepers link ~/Projects/walleye-build; a small item (walleye-build-images-link) makes that link part of the worktree setup. A question for the author that is NOT this item's: whether the phone should boot Linux by default (set_active a kept) or return to Android: today the way back always returns to Android b.
+: BUILT 2026-11-23 (walleye-builder) WITH THE SCRIPT, as the Top's order allows: the recipe rows (walleye-image-recipe-z21, walleye-declares-its-kernel-build) had not landed; the recipe follows in walleye-retire-build-scripts. After the programmer review (petting deadline 420 s, dead petters restarted, SIGKILL at the hold's end, stricter test, tag identity): [images.ufs-root-booted-slot-production] sha256 b74af863e4b49e2b3ff6e656c2f9ba3b92033b1e0f74063c3c2d47b81c83d570, kernel_tag int/walleye/ufs-on/v7.3/1 (commit 5caddde2d), built twice identical by build/build-ufs-root-production.sh, 37 checks ok; init build/initramfs-root-production/init (petters first, no gadget/telnet), tests/host/ufs-root-production-init.sh passes (QEMU). install-boot-on-the-pixel-2 and its rehearsal name it by one line each; dry runs 29 and 18 steps ok. NOT DONE (phone, keeper): the rehearsal for real (read only), the four-state walk, then ONE run under a go with outcomes naming b74af863. Open for the author: boot Linux by default or return to Android b. Not read: the supervisor's deadline and the SIGKILL end on the phone (QEMU proves petting only).
 
 About
 : walleye-bootimage
@@ -11381,7 +11381,7 @@ Opened
 : 2026-11-23
 
 Needs
-: build
+: phone
 
 Proof
 : (1) the init for the image that STAYS on the phone: the petter as its FIRST act (reuse the debug init's supervisor over every /dev/watchdog*: item walleye-init-pets-from-first-act, research walleye-android-watchdog-read-fix: Android pets one non-secure WDT0, bark 11 s, bite 14 s, pet 10 s), NO telnet and no debug gadget (the lab's ssh by the Alpine root is the way in), the slot read from the bootloader's sources as in PR 907, the header cmdline under the budget; (2) the kernel taken from the live list's int/ tag (walleye-next-image-from-an-int-tag: int/walleye/ufs-on/v7.3/N, assembled by rhizoid assemble, pushed, read back; the two pm8916_wdt review fixes included) with kernel_tag in the image's [images.*] row; the image built twice identical, declared in device.toml, the stage 2 command and its rehearsal name it by one line each; (3) the rehearsal for real (read only) passes, the four-state walk runs again, then ONE run under a go with outcomes: all 29 steps pass with the production image: STAGE 2 IS DONE for the image that stays; (4) dry run, check --host, tests, clippy, fmt, review; no phone for the builder
