@@ -103,6 +103,9 @@ Needs
 Proof
 : after a deliberate panic the next boot lets the keeper read the panic log from /sys/fs/pstore (test: walleye-pstore-panic)
 
+Rank
+: 35
+
 
 <a id="walleye-ufs-readonly"></a>
 ### UFS probes and the partitions are listed, read-only
@@ -1712,6 +1715,9 @@ Opened
 Needs
 : build
 
+Rank
+: 30
+
 
 <a id="walleye-porthole-known-good"></a>
 ### A known-good mainline kernel on this phone: porthole's 7.2.2 Pixel 2 XL kernel (their config, patches, dts) with our ml5a-style immediate-reboot init, to see whether ANY mainline kernel reaches init here
@@ -2629,6 +2635,9 @@ Needs
 
 Proof
 : pstore holds the marker after a plain reboot -f
+
+Rank
+: 8
 
 
 <a id="walleye-our-dts-gpio-reserved"></a>
@@ -3655,6 +3664,9 @@ Needs
 
 Proof
 : pmic-wdt-bites,pmic-wdt-wakes-in-suspend
+
+Rank
+: 34
 
 
 <a id="walleye-pmic-bite-reset-type"></a>
@@ -6034,6 +6046,9 @@ Needs
 Proof
 : walleye-tone-heard (a person)
 
+Rank
+: 33
+
 Witness
 : person
 
@@ -6061,6 +6076,9 @@ Needs
 
 Proof
 : research row for the SLIMbus NGD path, then a mic test
+
+Rank
+: 32
 
 
 <a id="walleye-audio-haptics-read"></a>
@@ -11442,3 +11460,6 @@ Needs
 
 Proof
 : walleye-wlan-scan: wlan0 scans and finds a network; hci0 is up
+
+Rank
+: 31
