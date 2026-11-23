@@ -10453,10 +10453,10 @@ Rank
 ### Stage 2 reads slot a's console from pstore the moment Android answers after a failed boot of the new slot, before anything else can reboot the phone
 
 Status
-: open
+: done
 
 Note
-: From stage 2 run 4 (PR 849) and the pstore read after it (PR 851): the console of slot a's boot, which would say whether our kernel started, was lost because the phone rebooted again before anything read /sys/fs/pstore (the stock Android kernel exposes the previous boot's console as console-ramoops-0 at ITS boot; the files are gone after the next reboot). Our dts carries the stock ramoops region (0xa1100000, console 0x20000). The rerun must therefore read pstore FIRST. The run item stays off the phone queue until this lands.
+: Landed: step 21 waits 420 s sending nothing, reads pstore first over adb, then the way back; rehearsal check 17. 312 tests, clippy, dry runs, check --host. Not seen failing first. The stage 2 rerun is the coordinator's go.
 
 About
 : walleye-bootimage

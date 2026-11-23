@@ -381,6 +381,7 @@ by_name = "/dev/block/by-name"                       # the phone's partition nam
 luns = 6                                             # the card's disks (sda to sdf): the GPT of each is read whole before and after
 flash_allow = "boot_a boot_b"                        # the only names a flash may take; the run picks the one that is not the slot Android runs from
 to_bootloader = "/tmp/walleye-reboot --command bootloader"   # what the lab runs over ssh on the new slot after pushing [images.walleye-reboot] to /tmp (the same tool and function as stage 1's way back; busybox's `reboot bootloader` drops the argument): whether OUR kernel reaches the bootloader with it is measured by the run (a hand step is said when it does not)
+fallback_wait = 420                                   # seconds to wait, sending the phone NOTHING, for Android to answer adb after the new slot gave no ssh (the bootloader fell back in about 3 to 4 minutes in run 4, research walleye-stage2-run4-stops-at-step-21-no-ssh-from-slot-a: the bound is 7 minutes); the pstore is read the moment adb answers
 
 # The rehearsal of that command (procedures/rehearse-install-boot-on-the-pixel-2.rs): every step but the flash, the set_active, the new slot's boot and the switch back; nothing is written and no go is needed.
 [procedures.rehearse-install-boot-on-the-pixel-2]
@@ -395,6 +396,7 @@ by_name = "/dev/block/by-name"
 luns = 6
 flash_allow = "boot_a boot_b"
 to_bootloader = "/tmp/walleye-reboot --command bootloader"
+fallback_wait = 420
 
 # The way back's reboot tool (item walleye-reboot-reason-restart2-tool): tools/walleye-reboot built static for aarch64 by build/build-reboot-bin.sh (reproducible: two builds, the same bytes), kept in the images folder.
 # The stage 1 way back checks this sha256, pushes the file over ssh into the phone's /tmp (the overlay's tmpfs: nothing touches the card) and runs it with `--command bootloader`: reboot(2) RESTART2, which busybox's `reboot bootloader` never sends.

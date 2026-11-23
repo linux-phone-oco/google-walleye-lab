@@ -3195,3 +3195,34 @@ Research
 
 Tracked by
 : walleye-stage2-slot-a-pstore-try
+
+
+<a id="2026-11-23-walleye-stage2-pstore-first-then-way-back"></a>
+### 2026-11-23-walleye-stage2-pstore-first-then-way-back
+
+Date
+: 2026-11-23
+
+Brief
+: When the new slot gives no ssh, stage 2 sends the phone nothing for up to 420 s, reads the failed boot (pstore first) the moment adb answers, and only then runs the way back
+
+Decision
+: At step 21, after device_wait without ssh, the step calls only reads (adb get-state, fastboot devices) until adb says device or fallback_wait (420 s, the procedure table's key) is over; the first act on Android is ls -la /sys/fs/pstore and a cat of each file whole, then cmdline, bootreason, sys.boot.reason, slot suffix, verifiedbootstate, uptime, id; kept in failed-boot-read.txt (serial redacted) and printed. adb root (adbd only, not the phone) is asked once, only when the listing or a pstore file says Permission denied; what was read before it is kept first, and the second read waits for id 0. The step still fails; the watching parent's existing way back runs after. The same read is a read-only step of the rehearsal.
+
+Why
+: Run 4 lost slot a's console: the phone fell back to Android by watchdog in about 3 to 4 minutes, and the next restart cleared /sys/fs/pstore before anything read it (PR 849, PR 851). 420 s is the longest wait seen (about 4 min) with margin; it is in the procedure table because the manifest's [boot] table is lab-tools' typed one and takes no new key.
+
+Rejected
+: Sending the way back at once on a silent step 21 (restarts the phone and clears the pstore: run 4); adb root before the first read (restarts adbd mid-boot, is no read); a [boot] key (lab-tools' manifest refuses it); reusing back_wait 240 s (no margin); failing the step without the wait (the keeper had nothing to read)
+
+About
+: walleye-bootimage
+
+Research
+: walleye-stage2-run4-pstore-read-finding
+
+Scope
+: tools/walleye-tries flash_boot (stage 2 step 21), device.toml [procedures.install-boot-on-the-pixel-2] and the rehearsal
+
+Tracked by
+: walleye-stage2-pstore-first-on-fallback

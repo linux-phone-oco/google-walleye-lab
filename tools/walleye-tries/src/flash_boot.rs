@@ -1095,7 +1095,8 @@ impl FlashBoot {
                     Ok(text) if text.contains("---end") => break text,
                     other => {
                         if Instant::now() >= until {
-                            return Err(format!("no ssh login within {} s as {}@{}: {}", u.s.device_wait, u.s.ssh_user, u.s.address, other.err().unwrap_or_else(|| "the read did not finish".into())));
+                            let why = format!("no ssh login within {} s as {}@{}: {}", u.s.device_wait, u.s.ssh_user, u.s.address, other.err().unwrap_or_else(|| "the read did not finish".into()));
+                            return Err(u.pstore_first_after_no_ssh(why));
                         }
                         std::thread::sleep(Duration::from_secs(3));
                     }
@@ -1162,6 +1163,137 @@ impl FlashBoot {
             for ((disk, before), (_, after)) in b.iter().zip(&a) {
                 let said = gpt_switch_only(before, after).map_err(|e| format!("{disk}: {e}"))?;
                 println!("  {disk}: {said}");
+            }
+            Ok(())
+        }
+    }
+
+    /// The new slot gave no ssh. Sends the phone NOTHING (no reboot, no fastboot verb, no way back) while it waits up to `fallback_wait` seconds for the bootloader's own
+    /// fallback to bring Android up and adb to answer; the FIRST thing it does then is the read-only read of the failed boot (pstore first), kept and printed. What it did
+    /// is appended to the reason the step stops with; the existing way back runs after, from the watching parent.
+    fn pstore_first_after_no_ssh(&self, why: String) -> String {
+        println!(
+            "  no ssh from the new slot: sending the phone nothing; waiting up to {} s for Android to answer adb, then the pstore is read first",
+            self.s.fallback_wait
+        );
+        let waited = match self.android_answers_adb_within(self.s.fallback_wait) {
+            Ok(w) => w,
+            Err(e) => return format!("{why}; {e}"),
+        };
+        println!("  adb answered {waited} s after the wait began");
+        match self.read_the_failed_boot(FAILED_BOOT_FILE) {
+            Ok(_) => format!("{why}; Android answered adb {waited} s after the wait began and the failed boot was read first: {FAILED_BOOT_FILE} in the run's folder (pstore, command line, boot reason, slot)"),
+            Err(e) => format!("{why}; Android answered adb {waited} s after the wait began, but the read of the failed boot did not finish: {e}"),
+        }
+    }
+
+    /// Waits, calling nothing that could restart the phone (`adb get-state` and the listing of fastboot's devices only read), until adb says `device`: the seconds it took. A phone that
+    /// fastboot lists is not on Android: said, not waited for.
+    fn android_answers_adb_within(&self, secs: u64) -> Result<u64, String> {
+        let began = Instant::now();
+        let until = began + Duration::from_secs(secs);
+        loop {
+            if self
+                .android
+                .adb(&["get-state"])
+                .is_ok_and(|s| s.trim() == "device")
+            {
+                return Ok(began.elapsed().as_secs());
+            }
+            if self.lab.in_fastboot().unwrap_or(false) {
+                return Err(
+                    "the phone is in the bootloader, not on Android: nothing was read".into(),
+                );
+            }
+            if Instant::now() >= until {
+                return Err(format!("adb did not answer within {secs} s of the wait (the bootloader's fallback to Android took about 3 to 4 minutes in run 4): nothing was read"));
+            }
+            std::thread::sleep(Duration::from_secs(2));
+        }
+    }
+
+    /// The read of a failed boot over adb, kept as `file` (the phone's serial redacted) and printed. When the pstore is closed to the shell user, `adb root` (it restarts adbd, not
+    /// the phone) is asked once and the read is taken again, both kept.
+    fn read_the_failed_boot(&self, file: &str) -> Result<String, String> {
+        let take = || failed_boot_report(&mut |c| self.android.adb(&["shell", c]));
+        let mut text = take();
+        // adbd early in a boot may still be restarting: a listing that was not read is asked again, a few times
+        for _ in 0..3 {
+            if !text.contains("---pstore-listing\n(not read") {
+                break;
+            }
+            std::thread::sleep(Duration::from_secs(2));
+            text = take();
+        }
+        // what was read is kept and shown before anything else is asked of the phone
+        let first = crate::touch::redact(&text);
+        println!("{first}");
+        self.lab.save(file, &first)?;
+        if pstore_is_closed(&text) {
+            let rooted = self.android.adb(&["root"]);
+            text.push_str(&format!(
+                "---adb-root\n{}\n",
+                rooted.unwrap_or_else(|e| format!("(not done: {e})"))
+            ));
+            // adbd answers as root, not just as a device: the old adbd may still say `device` as it ends
+            match self.adb_answers_as_root_within(ROOT_ADB_WAIT) {
+                Ok(()) => text.push_str(&take()),
+                Err(e) => text.push_str(&format!("---adb-root-wait\n(not done: {e})\n")),
+            }
+            let all = crate::touch::redact(&text);
+            println!("{all}");
+            self.lab.save(file, &all)?;
+        }
+        Ok(crate::touch::redact(&text))
+    }
+
+    fn adb_answers_as_root_within(&self, secs: u64) -> Done {
+        let until = Instant::now() + Duration::from_secs(secs);
+        loop {
+            match self.android.adb(&["shell", "id -u"]) {
+                Ok(id) if id.trim() == "0" => return Ok(()),
+                other if Instant::now() >= until => {
+                    return Err(format!(
+                        "adbd did not answer as root within {secs} s: {other:?}"
+                    ))
+                }
+                _ => std::thread::sleep(Duration::from_secs(1)),
+            }
+        }
+    }
+
+    /// The rehearsal's step, safe on Android as it is: the same read, taken now, has its pstore listing, the command line with the slot Android runs from, and a boot reason.
+    pub fn the_failed_boot_read_works_on_android(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let text = u.read_the_failed_boot("rehearsal-failed-boot-read.txt")?;
+            let parts = sections(&text);
+            let get = |n: &str| {
+                parts
+                    .iter()
+                    .rev()
+                    .find(|(k, _)| k == n)
+                    .map(|(_, t)| t.trim().to_string())
+                    .ok_or_else(|| format!("the read has no {n} section"))
+            };
+            for n in ["pstore-listing", "cmdline", "bootreason", "slot-suffix"] {
+                let body = get(n)?;
+                if body.is_empty() || body.starts_with("(not read") {
+                    return Err(format!("the {n} section was not read: {body:?}"));
+                }
+            }
+            let want = format!("_{}", u.android_slot()?);
+            if get("slot-suffix")? != want {
+                return Err(format!(
+                    "ro.boot.slot_suffix says {:?}, adb read {want:?} before",
+                    get("slot-suffix")?
+                ));
+            }
+            if !get("cmdline")?
+                .split_whitespace()
+                .any(|w| w == format!("androidboot.slot_suffix={want}"))
+            {
+                return Err("the command line does not carry the slot suffix".into());
             }
             Ok(())
         }
@@ -1307,6 +1439,81 @@ impl FlashBoot {
             lab.way_back()
         }
     }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// the read of a failed boot (item walleye-stage2-pstore-first-on-fallback)
+// ---------------------------------------------------------------------------------------------------------------------
+
+/// The file the read is kept in, in the run's folder (the console of the new slot's boot, when Android's kernel kept it).
+pub const FAILED_BOOT_FILE: &str = "failed-boot-read.txt";
+
+/// The pstore of Android's kernel: the previous boot's console is `console-ramoops-0` there, until the next restart.
+const PSTORE: &str = "/sys/fs/pstore";
+
+/// How long adb has to answer again after `adb root` restarts adbd.
+const ROOT_ADB_WAIT: u64 = 40;
+
+/// What adb reads after the pstore, one adb call each, read only: nothing here restarts the phone, writes, or changes a property
+/// (the test `the_failed_boot_read_only_reads` holds the list to that). The phone's own words for why the last boot ended.
+pub const FAILED_BOOT_READS: [(&str, &str); 7] = [
+    ("uptime", "uptime"),
+    ("id", "id"),
+    ("cmdline", "cat /proc/cmdline"),
+    ("bootreason", "getprop ro.boot.bootreason"),
+    ("sys-bootreason", "getprop sys.boot.reason"),
+    ("slot-suffix", "getprop ro.boot.slot_suffix"),
+    ("verifiedbootstate", "getprop ro.boot.verifiedbootstate"),
+];
+
+/// The names of the regular files in an `ls -la` listing (the pstore's `console-ramoops-0`, `dmesg-ramoops-0`); a name with a character
+/// that is not a letter, a digit or one of `. _ -` is left out, never put into a command.
+pub fn pstore_files(listing: &str) -> Vec<String> {
+    listing
+        .lines()
+        .filter(|l| l.starts_with('-'))
+        .filter_map(|l| l.split_whitespace().last())
+        .filter(|n| {
+            !n.is_empty()
+                && n.chars()
+                    .all(|c| c.is_ascii_alphanumeric() || "._-".contains(c))
+        })
+        .map(str::to_string)
+        .collect()
+}
+
+/// The text of one section of a read: `---NAME` then what the phone said (an unreadable one says why).
+fn section(name: &str, body: &str) -> String {
+    format!("---{name}\n{}\n", body.trim_end())
+}
+
+/// One read-only command on the phone; a command that fails is written as not read, with its reason, and the read goes on.
+fn said(ask: &mut dyn FnMut(&str) -> Result<String, String>, command: &str) -> String {
+    ask(command).unwrap_or_else(|e| format!("(not read: {e})"))
+}
+
+/// The read of a failed boot, in its order: the pstore FIRST (the listing, then each file whole), then the rest. `ask` runs one read-only
+/// command on the phone.
+pub fn failed_boot_report(ask: &mut dyn FnMut(&str) -> Result<String, String>) -> String {
+    let listing = said(ask, &format!("ls -la {PSTORE}"));
+    let mut out = section("pstore-listing", &listing);
+    for name in pstore_files(&listing) {
+        let body = said(ask, &format!("cat {PSTORE}/{name}"));
+        out.push_str(&section(&format!("pstore:{name}"), &body));
+    }
+    for (name, command) in FAILED_BOOT_READS {
+        out.push_str(&section(name, &said(ask, command)));
+    }
+    out.push_str("---end\n");
+    out
+}
+
+/// The listing or a file says the pstore is closed to this user (adb is the shell user, not root): the one thing that makes a second read worth asking `adb root` for.
+pub fn pstore_is_closed(report: &str) -> bool {
+    sections(report)
+        .iter()
+        .filter(|(k, _)| k.starts_with("pstore"))
+        .any(|(_, t)| t.contains("Permission denied"))
 }
 
 /// The `init` file of a boot image's ramdisk (gzip or xz compressed cpio), as text.
@@ -2446,6 +2653,257 @@ mod tests {
         assert!(gpt_switch_only(&repeat, &repeat).is_ok());
         assert!(gpt_switch_only(&repeat, &switched()).is_ok());
         assert!(gpt_switch_only(&switched(), &repeat).is_ok());
+    }
+
+    // ---- the pstore is read first when the new slot gives no ssh (item walleye-stage2-pstore-first-on-fallback) ----
+    // The fixtures are text the phone printed: the empty /sys/fs/pstore of the read after run 4 (PR 851), an `ls -la` of a folder with files from the same read, and the
+    // command line of Android's slot b.
+
+    const EMPTY_PSTORE: &str = include_str!("../fixtures/android-pstore-empty-listing.txt");
+    const DIR_WITH_FILES: &str = include_str!("../fixtures/android-dir-listing-with-files.txt");
+    const ANDROID_B_CMDLINE: &str = include_str!("../fixtures/android-b-cmdline.txt");
+
+    #[test]
+    fn the_pstore_the_phone_printed_empty_has_no_file_to_read_and_a_folder_with_files_names_them() {
+        assert!(pstore_files(EMPTY_PSTORE).is_empty());
+        assert_eq!(pstore_files(DIR_WITH_FILES), ["priv.pem", "pub.pem"]);
+        let odd = "-r-------- 1 root root 5 2026-11-23 13:23 console;reboot\n-r-------- 1 root root 5 2026-11-23 13:23 console-ramoops-0\n";
+        assert_eq!(pstore_files(odd), ["console-ramoops-0"]);
+    }
+
+    fn phone_says<'a>(
+        listing: &'static str,
+        asked: &'a mut Vec<String>,
+    ) -> impl FnMut(&str) -> Result<String, String> + 'a {
+        move |c: &str| {
+            asked.push(c.to_string());
+            Ok(match c {
+                "ls -la /sys/fs/pstore" => listing.to_string(),
+                "cat /proc/cmdline" => ANDROID_B_CMDLINE.to_string(),
+                "getprop ro.boot.slot_suffix" => "_b\n".into(),
+                "getprop ro.boot.bootreason" => "reboot\n".into(),
+                _ if c.starts_with("cat /sys/fs/pstore/") => format!("console of {c}\n"),
+                _ => "x\n".into(),
+            })
+        }
+    }
+
+    #[test]
+    fn the_failed_boot_read_starts_with_the_pstore_and_reads_each_file_whole() {
+        let mut asked = Vec::new();
+        let report = failed_boot_report(&mut phone_says(DIR_WITH_FILES, &mut asked));
+        assert_eq!(asked[0], "ls -la /sys/fs/pstore");
+        assert_eq!(asked[1], "cat /sys/fs/pstore/priv.pem");
+        assert_eq!(asked[2], "cat /sys/fs/pstore/pub.pem");
+        let parts = sections(&report);
+        let names: Vec<&str> = parts.iter().map(|(k, _)| k.as_str()).collect();
+        assert_eq!(
+            &names[..3],
+            ["pstore-listing", "pstore:priv.pem", "pstore:pub.pem"],
+            "{names:?}"
+        );
+        assert_eq!(names.last(), Some(&"end"));
+        let cmdline = &parts.iter().find(|(k, _)| k == "cmdline").unwrap().1;
+        assert!(
+            cmdline.contains("androidboot.slot_suffix=_b")
+                && cmdline.contains("androidboot.verifiedbootstate=orange")
+        );
+        assert!(!pstore_is_closed(&report));
+    }
+
+    #[test]
+    fn an_empty_pstore_is_a_listing_and_no_file_read_and_the_rest_still_follows() {
+        let mut asked = Vec::new();
+        let report = failed_boot_report(&mut phone_says(EMPTY_PSTORE, &mut asked));
+        assert!(
+            asked.iter().all(|c| !c.starts_with("cat /sys/fs/pstore/")),
+            "{asked:?}"
+        );
+        assert!(
+            report.contains("---pstore-listing\ntotal 0\n")
+                && report.contains("---bootreason\nreboot\n"),
+            "{report}"
+        );
+    }
+
+    #[test]
+    fn a_command_the_phone_refuses_is_written_as_not_read_and_a_closed_pstore_is_seen() {
+        let mut ask = |c: &str| -> Result<String, String> {
+            if c.starts_with("ls ") {
+                Ok("ls: /sys/fs/pstore: Permission denied\n".into())
+            } else {
+                Err("adb: device offline".into())
+            }
+        };
+        let report = failed_boot_report(&mut ask);
+        assert!(pstore_is_closed(&report));
+        assert!(
+            report.contains("---uptime\n(not read: adb: device offline)"),
+            "{report}"
+        );
+    }
+
+    #[test]
+    fn the_failed_boot_read_only_reads() {
+        let mut asked = Vec::new();
+        failed_boot_report(&mut phone_says(DIR_WITH_FILES, &mut asked));
+        for c in &asked {
+            let program = c.split_whitespace().next().unwrap();
+            assert!(
+                ["ls", "cat", "getprop", "uptime", "id"].contains(&program),
+                "{c}"
+            );
+            for word in [
+                "reboot", "fastboot", "setprop", "svc", "stop", "start", "rm", "dd", "echo",
+                "sysrq", ">", "|", ";", "&",
+            ] {
+                assert!(
+                    !c.split_whitespace().any(|w| w.contains(word)),
+                    "{c} has {word}"
+                );
+            }
+        }
+    }
+
+    /// Stage 2 at step 21 against a stand-in ssh that never logs in, a fastboot that lists the phone only on request and an adb that answers only
+    /// when `up` exists: nothing but reads is sent while it waits.
+    fn bench_no_ssh(
+        name: &str,
+        adb_up: bool,
+        fallback_wait: u64,
+    ) -> (FlashBoot, std::path::PathBuf) {
+        let (mut f, d) = bench_asked(name, None);
+        let adb = d.join("adb");
+        std::fs::write(d.join("pstore.txt"), DIR_WITH_FILES).unwrap();
+        std::fs::write(d.join("cmdline.txt"), ANDROID_B_CMDLINE).unwrap();
+        if adb_up {
+            std::fs::write(d.join("up"), "").unwrap();
+        }
+        executable(
+            &adb,
+            &format!(
+                "#!/bin/sh\necho \"$@\" >> {d}/adb.calls\ncase \"$3\" in get-state) if [ -e {d}/up ]; then echo device; else echo \"error: device 'SER1' not found\" >&2; exit 1; fi;; shell) case \"$4\" in 'ls -la /sys/fs/pstore') cat {d}/pstore.txt;; 'cat /proc/cmdline') cat {d}/cmdline.txt;; 'getprop ro.boot.slot_suffix') echo _b;; 'getprop ro.boot.bootreason') echo reboot;; 'cat /sys/fs/pstore/'*) echo \"console of $4\";; *) echo x;; esac;; esac\nexit 0\n",
+                d = d.display()
+            ),
+        );
+        let mut s = (*f.s).clone();
+        s.adb = adb.to_string_lossy().into_owned();
+        s.fallback_wait = fallback_wait;
+        f.s = std::rc::Rc::new(s);
+        f.lab = Lab::new(f.s.clone());
+        f.android = Android::new(f.s.clone(), f.lab.clone());
+        (f, d)
+    }
+
+    fn adb_calls(d: &std::path::Path) -> String {
+        std::fs::read_to_string(d.join("adb.calls")).unwrap_or_default()
+    }
+
+    #[test]
+    fn no_ssh_then_android_answers_adb_and_the_pstore_is_read_first_with_nothing_sent_that_restarts_the_phone(
+    ) {
+        let (f, d) = bench_no_ssh("pstore-first", true, 5);
+        let said = (f.the_new_slot_boots_and_the_lab_logs_in())().unwrap_err();
+        assert!(
+            said.contains("no ssh login within 1 s")
+                && said.contains("failed-boot-read.txt")
+                && said.contains("read first"),
+            "{said}"
+        );
+        let adb = adb_calls(&d);
+        let first_shell = adb.lines().find(|l| l.contains(" shell ")).unwrap();
+        assert!(
+            first_shell.ends_with("shell ls -la /sys/fs/pstore"),
+            "{adb}"
+        );
+        assert!(adb.contains("shell cat /sys/fs/pstore/priv.pem"), "{adb}");
+        for banned in ["reboot", "root", "setprop"] {
+            assert!(!adb.contains(banned), "{banned} in {adb}");
+        }
+        // the only fastboot calls are the one `reboot` that started the boot, and the listing of devices
+        let fb = calls(&d);
+        assert_eq!(
+            fb.lines().filter(|l| l.contains("reboot")).count(),
+            1,
+            "{fb}"
+        );
+        assert!(!fb.contains("set_active") && !fb.contains("flash"), "{fb}");
+        // the one ssh that could restart the phone (the way back's tool) is not made by this step
+        assert!(
+            !ssh_calls(&d).contains("walleye-reboot"),
+            "{}",
+            ssh_calls(&d)
+        );
+        let kept = std::fs::read_to_string(f.s.out.join(FAILED_BOOT_FILE)).unwrap();
+        assert!(
+            kept.starts_with("---pstore-listing")
+                && kept.contains("androidboot.serialno=REDACTED")
+                && !kept.contains("FA81N1A00790"),
+            "{kept}"
+        );
+    }
+
+    #[test]
+    fn no_ssh_and_no_adb_within_the_bound_reads_nothing_and_sends_nothing() {
+        let (f, d) = bench_no_ssh("no-adb", false, 1);
+        let said = (f.the_new_slot_boots_and_the_lab_logs_in())().unwrap_err();
+        assert!(
+            said.contains("adb did not answer within 1 s") && said.contains("nothing was read"),
+            "{said}"
+        );
+        assert!(!adb_calls(&d).contains(" shell "), "{}", adb_calls(&d));
+        assert!(!f.s.out.join(FAILED_BOOT_FILE).exists());
+        assert!(!ssh_calls(&d).contains("walleye-reboot"));
+    }
+
+    #[test]
+    fn a_phone_the_bootloader_lists_is_not_waited_for_as_android() {
+        let (f, d) = bench_no_ssh("in-bootloader", false, 30);
+        std::fs::write(d.join("in-fastboot"), "").unwrap();
+        let said = (f.the_new_slot_boots_and_the_lab_logs_in())().unwrap_err();
+        assert!(said.contains("in the bootloader, not on Android"), "{said}");
+    }
+
+    #[test]
+    fn the_rehearsals_step_reads_the_same_on_android_as_it_is_and_checks_the_slot() {
+        let (f, d) = bench_no_ssh("rehearsal-read", true, 5);
+        (f.the_failed_boot_read_works_on_android())().unwrap();
+        assert!(f.s.out.join("rehearsal-failed-boot-read.txt").exists());
+        assert!(!adb_calls(&d).contains("reboot"));
+        // Android on the other slot than adb says: the step fails and says both
+        f.lab.save(ANDROID_SLOT_FILE, "a").unwrap();
+        let said = (f.the_failed_boot_read_works_on_android())().unwrap_err();
+        assert!(said.contains("ro.boot.slot_suffix"), "{said}");
+    }
+
+    #[test]
+    fn a_file_the_shell_user_may_not_read_closes_the_pstore_as_a_listing_does() {
+        let report = "---pstore-listing\n-r--r----- 1 system log 9 x dmesg-ramoops-0\n---pstore:dmesg-ramoops-0\ncat: /sys/fs/pstore/dmesg-ramoops-0: Permission denied\n---end\n";
+        assert!(pstore_is_closed(report));
+    }
+
+    #[test]
+    fn a_closed_pstore_is_kept_as_read_then_adb_root_is_asked_and_the_read_is_taken_again_as_root()
+    {
+        let (f, d) = bench_no_ssh("closed", true, 5);
+        executable(
+            &d.join("adb"),
+            &format!(
+                "#!/bin/sh\necho \"$@\" >> {d}/adb.calls\ncase \"$3\" in get-state) echo device;; root) touch {d}/rooted;; shell) case \"$4\" in 'ls -la /sys/fs/pstore') if [ -e {d}/rooted ]; then cat {d}/pstore.txt; else echo 'ls: /sys/fs/pstore: Permission denied'; fi;; 'id -u') if [ -e {d}/rooted ]; then echo 0; else echo 2000; fi;; 'cat /sys/fs/pstore/'*) echo \"console of $4\";; *) echo x;; esac;; esac\nexit 0\n",
+                d = d.display()
+            ),
+        );
+        let text = f.read_the_failed_boot("closed.txt").unwrap();
+        let adb = adb_calls(&d);
+        let (listing, root, again) = (
+            adb.find("ls -la").unwrap(),
+            adb.find(" root").unwrap(),
+            adb.rfind("ls -la").unwrap(),
+        );
+        assert!(listing < root && root < again, "{adb}");
+        assert!(text.contains("---pstore:priv.pem"), "{text}");
+        let kept = std::fs::read_to_string(f.s.out.join("closed.txt")).unwrap();
+        assert!(kept.contains("Permission denied") && kept.contains("---pstore:priv.pem"));
     }
 }
 

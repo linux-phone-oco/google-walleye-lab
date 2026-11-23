@@ -40,5 +40,6 @@ fn main() {
     step("the phone is on Android, adbd as root", boot.the_phone_is_on_android_as_root());
     check("the phone is back on Android", boot.android_is_back());
     check("the GPT read again is the same, whole, and passes the switch checker unchanged", boot.the_gpt_reads_the_same_again());
+    check("the read of a failed boot (the pstore first, the command line, the boot reason, the slot) works on Android as it is: read only, nothing sent", boot.the_failed_boot_read_works_on_android());
     check("the boot chain read again equals the stored set", boot.the_boot_chain_is_as_stored());
 }
