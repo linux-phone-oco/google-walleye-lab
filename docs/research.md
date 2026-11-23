@@ -5754,3 +5754,22 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-rootfs-boots-run-4-check-17-wants-noload-mounts-say-norecovery"></a>
+### walleye-rootfs-boots-run-4-check-17-wants-noload-mounts-say-norecovery
+
+Date
+: 2026-11-23
+
+Brief
+: Root boot run 4: booted, ssh by the lab key, checks 1-16 pass; check 17 failed on a checker bug: /proc/mounts shows the noload option as norecovery (ext4 alias); the mount itself is right
+
+Question
+: Does the stage 1 boot (image c3373d71) pass with check 17 reading PID 1 and the overlay?
+
+Found
+: Run rootfs-boots-20261123-062054 (PR 749 main): the phone booted, the lab key logged in as root, checks 1-16 pass. Check 17 failed: '/lower is not mounted with noload: /dev/sda22 /lower ext4 ro,relatime,norecovery 0 0'. The card is mounted ro, norecovery (the kernel's /proc/mounts name for noload), under overlay on /: the mount is what the check wants; the check string is wrong (tools/walleye-tries/src/rootfs_boot.rs:380 needs ro and noload; its stand-in MOUNTS line at :1184 uses 'noload', not what the kernel prints). Fix for a builder: accept norecovery (or noload), add the kernel's real line to the stand-in test. After the stop: partition tables and root partition, boot chain, both slots' flags measured equal to before; phone on Android slot b. Nothing flashed or written; no second run without the coordinator.
+
+About
+: walleye-display-s6e3fa5
