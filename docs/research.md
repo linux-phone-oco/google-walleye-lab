@@ -6911,3 +6911,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-stage2-step21-slot-source-built"></a>
+### walleye-stage2-step21-slot-source-built
+
+Date
+: 2026-11-23
+
+Brief
+: Step 21 now reads WHICH slot booted: androidboot.slot_suffix, else root=PARTUUID through the root disk's GPT, else the device tree; equal to fastboot's current-slot; run 9's text passes
+
+Question
+: Can step 21 accept the booted slot from what the bootloader supplied when the bootloader cuts the command line before androidboot.slot_suffix (run 9)?
+
+Found
+: Built in tools/walleye-tries/src/flash_boot.rs (booted_slot, header_has_no_root, the step): every source that answers is read, they must agree and equal the slot the switch made current (fastboot's current-slot in slots-after-switch.txt); none, two that differ, a header command line with root=, a PARTUUID naming no system_a/system_b entry: refused; new-slot-source.txt records which source answered; the GPT is saved before any refusal. Tests from run 9's printed text (fixtures stage2-run9-new-slot-read.txt, -android-gpt-sda.txt, -slots-after-switch.txt; material ~/lab-material/walleye/install-boot-20261123-192731): the step test failed on the old code with run 9's own refusal and passes now; root=PARTUUID 0x16 = entry 22 of sda = system_a. 332 tests, clippy, fmt, lpoco attended check --host, the procedure's --dry-run pass. NOT KNOWN YET: what this phone's /proc/device-tree/firmware/android/slot_suffix prints (the device-tree tests give AOSP's _a as a rule test only); the rehearsal and the run are the keeper's.
+
+About
+: walleye-bootimage

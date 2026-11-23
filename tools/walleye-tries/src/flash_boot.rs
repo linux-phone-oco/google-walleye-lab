@@ -100,6 +100,163 @@ pub fn slot_of_boot(partition: &str) -> Result<&str, String> {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// which slot booted (step 21)
+// ---------------------------------------------------------------------------------------------------------------------
+
+/// The slot a booted kernel says it runs from, and which sources said it (each `(source, slot)`, in the order of [`booted_slot`]).
+#[derive(Debug, PartialEq)]
+pub struct SlotAnswer {
+    /// `a` or `b`
+    pub slot: String,
+    pub answers: Vec<(&'static str, String)>,
+}
+
+/// `_a` / `_b` (as Android's `androidboot.slot_suffix` and the device tree write them) as `a` / `b`; anything else is not a slot.
+fn suffix_slot(suffix: &str) -> Result<String, String> {
+    match suffix {
+        "_a" => Ok("a".into()),
+        "_b" => Ok("b".into()),
+        other => Err(format!("{other:?} is not _a or _b")),
+    }
+}
+
+/// Source 1: the word `androidboot.slot_suffix=_X` the bootloader puts on the command line. None when the word is not there.
+fn slot_of_cmdline_word(cmdline: &str) -> Result<Option<String>, String> {
+    let mut found: Vec<String> = Vec::new();
+    for value in cmdline
+        .split_whitespace()
+        .filter_map(|w| w.strip_prefix("androidboot.slot_suffix="))
+    {
+        let slot = suffix_slot(value).map_err(|e| format!("androidboot.slot_suffix: {e}"))?;
+        if !found.contains(&slot) {
+            found.push(slot);
+        }
+    }
+    match found.as_slice() {
+        [] => Ok(None),
+        [one] => Ok(Some(one.clone())),
+        _ => Err(format!(
+            "the command line has androidboot.slot_suffix for more than one slot ({})",
+            found.join(", ")
+        )),
+    }
+}
+
+/// Source 2: the `root=PARTUUID=0000NNNN-...` word the bootloader names the booted slot's system partition with: NNNN (hex) is the number of the partition, its entry in the GPT of the disk
+/// (`root_disk`, the dump of the disk the root is mounted from) is named `system_a` or `system_b`. None when no `root=PARTUUID=` word is there.
+fn slot_of_root_partuuid(cmdline: &str, root_disk: &[u8]) -> Result<Option<String>, String> {
+    let Some(partuuid) = cmdline
+        .split_whitespace()
+        .filter_map(|w| w.strip_prefix("root=PARTUUID="))
+        .next_back()
+    else {
+        return Ok(None);
+    };
+    let parts: Vec<&str> = partuuid.split('-').collect();
+    let group = parts[0];
+    if group.len() != 8
+        || !group.bytes().all(|b| b.is_ascii_hexdigit())
+        || parts[1..] != ["0000", "0000", "0000", "000000000000"]
+    {
+        return Err(format!(
+            "root=PARTUUID={partuuid} is not the bootloader's form 0000NNNN-0000-0000-0000-000000000000"
+        ));
+    }
+    let number =
+        usize::from_str_radix(group, 16).map_err(|e| format!("root=PARTUUID={partuuid}: {e}"))?;
+    let layout = gpt_layout(root_disk).map_err(|e| {
+        format!("root=PARTUUID names partition {number}, the GPT of its disk is not whole: {e}")
+    })?;
+    if !(1..=layout.count).contains(&number) {
+        return Err(format!(
+            "root=PARTUUID names partition {number}, the disk's GPT has {} entries",
+            layout.count
+        ));
+    }
+    let at = P_ENT + (number - 1) * ENTRY;
+    let name = entry_name(root_disk, at);
+    match name.as_str() {
+        "system_a" => Ok(Some("a".into())),
+        "system_b" => Ok(Some("b".into())),
+        other => Err(format!("root=PARTUUID names partition {number}, which the GPT calls {other:?}, not system_a or system_b")),
+    }
+}
+
+/// Source 3: `/proc/device-tree/firmware/android/slot_suffix`, as the phone printed it (a NUL ends the string). None when the node is not there (an empty read).
+fn slot_of_device_tree(printed: &str) -> Result<Option<String>, String> {
+    let value = printed.trim_matches(|c: char| c == '\0' || c.is_whitespace());
+    if value.is_empty() {
+        return Ok(None);
+    }
+    suffix_slot(value)
+        .map(Some)
+        .map_err(|e| format!("device tree firmware/android/slot_suffix: {e}"))
+}
+
+/// Which slot the kernel booted from, from what the BOOTLOADER supplied and never from the words of our own boot.img, in the order Android's own init takes
+/// (AOSP fs_mgr, fs_mgr_get_slot_suffix): the command line's `androidboot.slot_suffix`, else the `root=PARTUUID` the bootloader names the root with, mapped through the GPT of the root's disk,
+/// else the device tree's `firmware/android/slot_suffix`. Every source that answers is read and they must agree; none, or two that differ, is an error. The answer says which sources spoke.
+pub fn booted_slot(
+    cmdline: &str,
+    device_tree: &str,
+    root_disk: &[u8],
+) -> Result<SlotAnswer, String> {
+    let sources: [(&'static str, Option<String>); 3] = [
+        ("androidboot.slot_suffix", slot_of_cmdline_word(cmdline)?),
+        ("root=PARTUUID", slot_of_root_partuuid(cmdline, root_disk)?),
+        ("device-tree", slot_of_device_tree(device_tree)?),
+    ];
+    let answers: Vec<(&'static str, String)> = sources
+        .into_iter()
+        .filter_map(|(source, slot)| slot.map(|s| (source, s)))
+        .collect();
+    let Some((_, slot)) = answers.first().cloned() else {
+        return Err("no source gives the booted slot: no androidboot.slot_suffix on the command line, no root=PARTUUID, no device-tree firmware/android/slot_suffix".into());
+    };
+    if let Some((source, other)) = answers.iter().find(|(_, s)| *s != slot) {
+        let said: Vec<String> = answers
+            .iter()
+            .map(|(src, s)| format!("{src} says {s}"))
+            .collect();
+        return Err(format!(
+            "the sources of the booted slot disagree ({}): {source} is not {slot}, it is {other}",
+            said.join(", ")
+        ));
+    }
+    Ok(SlotAnswer { slot, answers })
+}
+
+/// The image's own header must not carry a `root=` word: the root=PARTUUID the kernel sees is then the bootloader's, and the slot it names is the slot booted - not our own words.
+pub fn header_has_no_root(image: &[u8]) -> Result<(), String> {
+    let header = crate::rootfs_boot::header_cmdline(image)?;
+    match header
+        .split_whitespace()
+        .find(|w| w.starts_with("root=") || w.starts_with("androidboot.slot_suffix="))
+    {
+        Some(word) => Err(format!("the image's own header command line carries {word}: the slot sources could no longer tell which slot the bootloader booted")),
+        None => Ok(()),
+    }
+}
+
+/// The disk letter of a root device `/dev/sdXN`.
+fn disk_letter_of(device: &str) -> Result<char, String> {
+    let name = device.strip_prefix("/dev/sd").unwrap_or("");
+    let mut chars = name.chars();
+    match (chars.next(), chars.as_str()) {
+        (Some(letter), digits)
+            if letter.is_ascii_lowercase()
+                && !digits.is_empty()
+                && digits.bytes().all(|b| b.is_ascii_digit()) =>
+        {
+            Ok(letter)
+        }
+        _ => Err(format!(
+            "{device:?} is not a partition /dev/sd<letter><number>"
+        )),
+    }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 // the slot flags
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -1107,7 +1264,7 @@ impl FlashBoot {
             u.fastboot(&["-s".into(), u.lab.serial()?, "reboot".into()])?;
             let until = Instant::now() + Duration::from_secs(u.s.device_wait);
             let read = loop {
-                match u.ssh("echo ---id; id -u; echo ---cmdline; cat /proc/cmdline; echo ---pid1; cat /proc/1/cmdline; echo; echo ---mounts; cat /proc/mounts; echo ---end", 40) {
+                match u.ssh("echo ---id; id -u; echo ---cmdline; cat /proc/cmdline; echo ---pid1; cat /proc/1/cmdline; echo; echo ---mounts; cat /proc/mounts; echo ---dt-slot; { tr -d '\\000' < /proc/device-tree/firmware/android/slot_suffix; } 2>/dev/null; echo; echo ---end", 40) {
                     Ok(text) if text.contains("---end") => break text,
                     other => {
                         if Instant::now() >= until {
@@ -1135,22 +1292,55 @@ impl FlashBoot {
             if get("id")?.trim() != "0" {
                 return Err("the login is not root's".into());
             }
-            let want = format!("androidboot.slot_suffix=_{}", slot_of_boot(&u.target()?)?);
-            if !get("cmdline")?.split_whitespace().any(|w| w == want) {
-                return Err(format!("the kernel was not booted with {want} (the bootloader booted the other slot): {}", get("cmdline")?.trim()));
-            }
+            let image =
+                std::fs::read(&u.s.image).map_err(|e| format!("{}: {e}", u.s.image.display()))?;
+            header_has_no_root(&image)?;
             pid1_is_the_roots_init(get("pid1")?)?;
             let device = mounts_are_read_only(get("mounts")?)?;
-            println!("  booted from the card with {want}; {device} is mounted read-only under the overlay");
+            let root_letter = disk_letter_of(&device)?;
             let mut gpt = String::new();
+            let mut root_hex = None;
             for letter in disk_letters(u.s.luns)? {
                 let hex = u.ssh(&gpt_dump_command("/dev/sd", letter)?, 60)?;
-                gpt.push_str(&format!(
-                    "sd{letter} {}\n",
-                    hex.split_whitespace().collect::<String>()
+                let hex: String = hex.split_whitespace().collect();
+                if letter == root_letter {
+                    root_hex = Some(hex.clone());
+                }
+                gpt.push_str(&format!("sd{letter} {hex}\n"));
+            }
+            u.lab.save("gpt-new-slot.txt", gpt.trim_end())?;
+            let root_hex = root_hex.ok_or_else(|| {
+                format!("the root {device} is on sd{root_letter}, a disk this run did not read")
+            })?;
+            let root_disk = dump_bytes(&root_hex)
+                .map_err(|e| format!("sd{root_letter}, the root's disk: {e}"))?;
+            let answer = booted_slot(get("cmdline")?, get("dt-slot")?, &root_disk)?;
+            let want = slot_of_boot(&u.target()?)?.to_string();
+            let flags = flags_of(&u.saved("slots-after-switch.txt")?);
+            let current = flags.get("current-slot").map(String::as_str).unwrap_or("");
+            if answer.slot != want || current != want {
+                return Err(format!(
+                    "the booted slot is {} ({}), the switch made slot {want} current and fastboot's current-slot says {current:?}: the bootloader booted another slot",
+                    answer.slot,
+                    answer.answers.iter().map(|(s, v)| format!("{s} says {v}")).collect::<Vec<_>>().join(", ")
                 ));
             }
-            u.lab.save("gpt-new-slot.txt", gpt.trim_end())
+            let said: Vec<String> = answer
+                .answers
+                .iter()
+                .map(|(s, v)| format!("{s}: _{v}"))
+                .collect();
+            u.lab.save(
+                "new-slot-source.txt",
+                &format!(
+                    "slot _{} from {} (answered: {})",
+                    answer.slot,
+                    answer.answers[0].0,
+                    said.join(", ")
+                ),
+            )?;
+            println!("  booted slot _{} from {} (answered: {}), equal to fastboot's current-slot; {device} is mounted read-only under the overlay", answer.slot, answer.answers[0].0, said.join(", "));
+            Ok(())
         }
     }
 
@@ -3360,6 +3550,259 @@ mod tests {
             .parse()
             .unwrap();
         assert!((at - now_epoch().unwrap()).abs() < 60);
+    }
+
+    // ---- step 21: WHICH SLOT booted, from what the bootloader supplied (item walleye-stage2-step21-slot-source) ----
+    // The stand-in phone prints run 9's own text (research walleye-stage2-run9-booted-alpine-cmdline-still-cut-no-slot-suffix, material
+    // ~/lab-material/walleye/install-boot-20261123-192731): new-slot-read.txt, sda's GPT read from Android (gpt-before.txt) and slots-after-switch.txt.
+    // The device-tree line is the one thing not captured: this phone's /proc/device-tree/firmware/android/slot_suffix has not been printed yet (NOT KNOWN YET), so the tests
+    // that need it give the value AOSP's fs_mgr reads (`_a`), as a unit test of the rule only.
+    const RUN9_READ: &str = include_str!("../fixtures/stage2-run9-new-slot-read.txt");
+    const RUN9_GPT_SDA: &str = include_str!("../fixtures/stage2-run9-android-gpt-sda.txt");
+    const RUN9_FLAGS: &str = include_str!("../fixtures/stage2-run9-slots-after-switch.txt");
+
+    /// A stage 2 bench whose ssh prints `read`, the device-tree line and sda's GPT, with an image whose header command line is `header`, and the flags the switch left.
+    fn bench_run9(
+        name: &str,
+        read: &str,
+        dt_slot: &str,
+        header: &str,
+        flags: &str,
+    ) -> (FlashBoot, std::path::PathBuf) {
+        let (mut f, d) = bench_asked(name, None);
+        std::fs::write(d.join("read.txt"), read).unwrap();
+        std::fs::write(d.join("dt.txt"), dt_slot).unwrap();
+        std::fs::write(d.join("gpt.txt"), RUN9_GPT_SDA).unwrap();
+        executable(
+            &d.join("ssh"),
+            &format!(
+                "#!/bin/sh\necho \"$@\" >> {d}/ssh.calls\ncase \"$*\" in\n *'---id'*) cat {d}/read.txt; printf -- '---dt-slot\\n%s\\n' \"$(cat {d}/dt.txt)\";;\n *'/sys/block/sda/size'*) cut -d' ' -f2 {d}/gpt.txt;;\nesac\nexit 0\n",
+                d = d.display()
+            ),
+        );
+        let mut image = vec![0u8; 12288];
+        image[..8].copy_from_slice(b"ANDROID!");
+        image[64..64 + header.len()].copy_from_slice(header.as_bytes());
+        let mut s = (*f.s).clone();
+        s.luns = 1;
+        s.image = d.join("NOT-TO-BOOT-boot.img");
+        std::fs::write(&s.image, image).unwrap();
+        f.s = std::rc::Rc::new(s);
+        f.lab = Lab::new(f.s.clone());
+        f.android = Android::new(f.s.clone(), f.lab.clone());
+        f.lab.save(ANDROID_SLOT_FILE, "b").unwrap();
+        f.lab.save("slots-after-switch.txt", flags).unwrap();
+        (f, d)
+    }
+
+    /// The words of the header command line the stage 2 debug image carries (no root=).
+    const DEBUG_HEADER: &str = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.dtbo_idx=3 walleye.root=system_a walleye.booted-slot walleye.debug";
+
+    #[test]
+    fn run_9s_boot_without_the_slot_word_is_accepted_by_the_slot_the_bootloaders_root_names() {
+        let (f, _d) = bench_run9("run9-step21", RUN9_READ, "", DEBUG_HEADER, RUN9_FLAGS);
+        (f.the_new_slot_boots_and_the_lab_logs_in())().unwrap();
+        let source = std::fs::read_to_string(f.s.out.join("new-slot-source.txt")).unwrap();
+        assert!(
+            source.contains("root=PARTUUID") && source.contains("_a"),
+            "{source}"
+        );
+        assert!(f.s.out.join("gpt-new-slot.txt").exists());
+    }
+
+    fn run9_cmdline() -> String {
+        sections(RUN9_READ)
+            .into_iter()
+            .find(|(k, _)| k == "cmdline")
+            .unwrap()
+            .1
+    }
+
+    fn run9_sda() -> Vec<u8> {
+        dump_bytes(RUN9_GPT_SDA.split_once(' ').unwrap().1).unwrap()
+    }
+
+    /// A command line with nothing of the three sources on it.
+    const NO_SOURCE: &str =
+        "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye";
+
+    #[test]
+    fn each_source_of_the_slot_answers_alone_and_the_answer_says_which() {
+        let sda = run9_sda();
+        // root=PARTUUID alone: run 9's own line (partition 0x16 = 22, system_a in sda's GPT)
+        let got = booted_slot(&run9_cmdline(), "", &sda).unwrap();
+        assert_eq!(got.slot, "a");
+        assert_eq!(got.answers, vec![("root=PARTUUID", "a".to_string())]);
+        // the word alone: Android's own line (fixtures/android-b-cmdline.txt carries androidboot.slot_suffix=_b; it also carries root=PARTUUID=0000002b = system_b, so BOTH sources answer and agree)
+        let both = booted_slot(ANDROID_B_CMDLINE, "", &sda).unwrap();
+        assert_eq!(both.answers.len(), 2, "{both:?}");
+        let word_only: Vec<&str> = ANDROID_B_CMDLINE
+            .split_whitespace()
+            .filter(|w| !w.starts_with("root="))
+            .collect();
+        let got = booted_slot(&word_only.join(" "), "", &sda).unwrap();
+        assert_eq!(got.answers.len(), 1);
+        assert_eq!(
+            (got.slot.as_str(), got.answers[0].0),
+            ("b", "androidboot.slot_suffix")
+        );
+        // the device tree alone (the value AOSP's fs_mgr reads, NUL-ended as the node is; not printed by this phone yet)
+        let got = booted_slot(NO_SOURCE, "_b\0\n", &sda).unwrap();
+        assert_eq!(got.answers, vec![("device-tree", "b".to_string())]);
+    }
+
+    #[test]
+    fn sources_that_agree_pass_and_the_first_in_the_order_leads() {
+        let line = format!("{} androidboot.slot_suffix=_a", run9_cmdline().trim());
+        let got = booted_slot(&line, "_a", &run9_sda()).unwrap();
+        assert_eq!(got.slot, "a");
+        assert_eq!(got.answers.len(), 3);
+        assert_eq!(got.answers[0].0, "androidboot.slot_suffix");
+    }
+
+    #[test]
+    fn two_sources_that_disagree_and_no_source_at_all_refuse() {
+        let sda = run9_sda();
+        let word_b = format!("{} androidboot.slot_suffix=_b", run9_cmdline().trim());
+        let said = booted_slot(&word_b, "", &sda).unwrap_err();
+        assert!(
+            said.contains("disagree") && said.contains("root=PARTUUID says a"),
+            "{said}"
+        );
+        let said = booted_slot(&run9_cmdline(), "_b", &sda).unwrap_err();
+        assert!(
+            said.contains("disagree") && said.contains("device-tree says b"),
+            "{said}"
+        );
+        let said = booted_slot(NO_SOURCE, "", &sda).unwrap_err();
+        assert!(said.contains("no source gives the booted slot"), "{said}");
+        let said = booted_slot(
+            "androidboot.slot_suffix=_a androidboot.slot_suffix=_b",
+            "",
+            &sda,
+        )
+        .unwrap_err();
+        assert!(said.contains("more than one slot"), "{said}");
+        assert!(booted_slot("androidboot.slot_suffix=a", "", &sda).is_err());
+    }
+
+    #[test]
+    fn a_partuuid_that_names_no_system_partition_or_no_entry_is_refused() {
+        let sda = run9_sda();
+        // entry 1 of sda is not a system partition; the 0xFFFF entry does not exist
+        let said = booted_slot(
+            "root=PARTUUID=00000001-0000-0000-0000-000000000000",
+            "",
+            &sda,
+        )
+        .unwrap_err();
+        assert!(said.contains("not system_a or system_b"), "{said}");
+        let said = booted_slot(
+            "root=PARTUUID=0000ffff-0000-0000-0000-000000000000",
+            "",
+            &sda,
+        )
+        .unwrap_err();
+        assert!(said.contains("entries"), "{said}");
+        assert!(booted_slot("root=PARTUUID=zz", "", &sda).is_err());
+        for odd in [
+            "root=PARTUUID=16",
+            "root=PARTUUID=00000016",
+            "root=PARTUUID=00000016-01",
+            "root=PARTUUID=a1b2c3d4-0000-0000-0000-000000000000x",
+        ] {
+            assert!(
+                booted_slot(odd, "", &sda)
+                    .unwrap_err()
+                    .contains("bootloader's form"),
+                "{odd}"
+            );
+        }
+        // a root= word that is not a PARTUUID gives no slot
+        assert!(booted_slot("root=/dev/sda22", "", &sda)
+            .unwrap_err()
+            .contains("no source"));
+    }
+
+    #[test]
+    fn an_image_whose_own_header_carries_root_is_refused() {
+        let image = |header: &str| {
+            let mut b = vec![0u8; 12288];
+            b[..8].copy_from_slice(b"ANDROID!");
+            b[64..64 + header.len()].copy_from_slice(header.as_bytes());
+            b
+        };
+        header_has_no_root(&image(DEBUG_HEADER)).unwrap();
+        let said = header_has_no_root(&image(
+            "a root=PARTUUID=00000016-0000-0000-0000-000000000000 b",
+        ))
+        .unwrap_err();
+        assert!(said.contains("carries root=PARTUUID"), "{said}");
+        assert!(header_has_no_root(b"not a boot image").is_err());
+        let said = header_has_no_root(&image("a androidboot.slot_suffix=_a")).unwrap_err();
+        assert!(said.contains("androidboot.slot_suffix=_a"), "{said}");
+        // and the step refuses with it, before it reads a slot
+        let (f, _d) = bench_run9(
+            "header-root",
+            RUN9_READ,
+            "",
+            "a root=/dev/sda22",
+            RUN9_FLAGS,
+        );
+        assert!((f.the_new_slot_boots_and_the_lab_logs_in())()
+            .unwrap_err()
+            .contains("carries root=/dev/sda22"));
+    }
+
+    #[test]
+    fn the_step_refuses_a_slot_that_is_not_the_one_fastboot_says_is_current() {
+        let flags_b = RUN9_FLAGS.replace("current-slot:a", "current-slot:b");
+        let (f, _d) = bench_run9("flags-disagree", RUN9_READ, "", DEBUG_HEADER, &flags_b);
+        let said = (f.the_new_slot_boots_and_the_lab_logs_in())().unwrap_err();
+        assert!(
+            said.contains("another slot") && said.contains("current-slot says \"b\""),
+            "{said}"
+        );
+        // the sources disagree among themselves
+        let (f, _d) = bench_run9(
+            "sources-disagree",
+            RUN9_READ,
+            "_b",
+            DEBUG_HEADER,
+            RUN9_FLAGS,
+        );
+        assert!((f.the_new_slot_boots_and_the_lab_logs_in())()
+            .unwrap_err()
+            .contains("disagree"));
+        // none of them answers: the root names no slot and nothing else is there
+        let no_root = RUN9_READ.replace("root=PARTUUID=00000016-0000-0000-0000-000000000000", "");
+        let (f, _d) = bench_run9("no-source", &no_root, "", DEBUG_HEADER, RUN9_FLAGS);
+        assert!((f.the_new_slot_boots_and_the_lab_logs_in())()
+            .unwrap_err()
+            .contains("no source gives the booted slot"));
+    }
+
+    #[test]
+    fn the_device_tree_alone_passes_the_step_and_is_the_source_logged() {
+        let no_root = RUN9_READ.replace("root=PARTUUID=00000016-0000-0000-0000-000000000000", "");
+        let (f, _d) = bench_run9("dt-only", &no_root, "_a\n", DEBUG_HEADER, RUN9_FLAGS);
+        (f.the_new_slot_boots_and_the_lab_logs_in())().unwrap();
+        let source = std::fs::read_to_string(f.s.out.join("new-slot-source.txt")).unwrap();
+        assert!(source.starts_with("slot _a from device-tree"), "{source}");
+    }
+
+    #[test]
+    fn the_read_asks_the_device_tree_node_and_writes_nothing() {
+        let (f, d) = bench_run9("read-only", RUN9_READ, "", DEBUG_HEADER, RUN9_FLAGS);
+        (f.the_new_slot_boots_and_the_lab_logs_in())().unwrap();
+        let ssh = ssh_calls(&d);
+        assert!(
+            ssh.contains("/proc/device-tree/firmware/android/slot_suffix"),
+            "{ssh}"
+        );
+        for banned in [">>", "rm ", "mount ", "umount", "reboot", "dd of="] {
+            assert!(!ssh.contains(banned), "{banned} in {ssh}");
+        }
     }
 }
 
