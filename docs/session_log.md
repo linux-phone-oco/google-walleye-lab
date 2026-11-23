@@ -6583,3 +6583,21 @@ Done
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-1630-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel, boot_a holds stage 2 image e337de53; read the pstore item: empty, the phone had rebooted since run 4; cmdline compared; nothing written, no reboot; item walleye-stage2-run4-pstore-read done
+
+Considered
+: next: coordinator decides check 18 and the stage 2 rerun, with a pstore read before any Android reboot after it; then walleye-ufs-silent-ramped-pinned-try (needs the author's go), transport-real-phone-run, nfc node
+
+About
+: walleye-bootimage
