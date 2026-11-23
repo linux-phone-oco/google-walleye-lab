@@ -72,7 +72,7 @@ pub fn build(ctx: &Ctx, pins: &[Pin]) -> Result<PathBuf, String> {
     fs::create_dir_all(&xz_build).map_err(|e| e.to_string())?;
     run_in(
         &xz_build,
-        &path(&root.join("xz/configure")).to_string(),
+        path(&root.join("xz/configure")),
         &[
             "-q",
             &format!("--host={CROSS}"),
