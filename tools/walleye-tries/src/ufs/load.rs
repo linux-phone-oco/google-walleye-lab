@@ -144,6 +144,157 @@ pub fn writes_to_the_card(cmd: &str) -> bool {
             .any(|w| cmd.contains(w))
 }
 
+/// The phone's RAM log of the ramp: one line before each step and one after it, in a file under /tmp the lab reads at once
+/// (decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try: the log is written BEFORE the step, no channel is known to survive a reset).
+pub const RAM_LOG: &str = "/tmp/ramp.log";
+
+/// The seconds between two polls of the shell, and the pause between two steps; a test does not wait that long.
+#[cfg(not(test))]
+const POLL_MS: u64 = 1000;
+#[cfg(test)]
+const POLL_MS: u64 = 5;
+
+/// A devfreq node name is the only thing a path is built from: lower-case hex, letters, dots, dashes, underscores.
+pub fn is_a_node_name(n: &str) -> bool {
+    !n.is_empty()
+        && n.chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || matches!(c, '.' | '-' | '_'))
+}
+
+/// The command that reads the node's governor, the governors it has and its clock; a node that is not there says `no-governor-node`.
+pub fn governor_read_command(node: &str) -> Result<String, String> {
+    if !is_a_node_name(node) {
+        return Err(format!("devfreq node {node:?} is not a node name"));
+    }
+    Ok(format!(
+        "d=/sys/class/devfreq/{node}; if [ -e $d/governor ]; then echo governor=$(cat $d/governor); echo available=$(cat $d/available_governors); echo cur_freq=$(cat $d/cur_freq); else echo no-governor-node; fi"
+    ))
+}
+
+/// The one sysfs write of the try: the governor of the UFS host's devfreq node set to powersave (a runtime setting of the phone's RAM kernel: nothing flashed, nothing written to the card).
+pub fn governor_pin_command(node: &str) -> Result<String, String> {
+    if !is_a_node_name(node) {
+        return Err(format!("devfreq node {node:?} is not a node name"));
+    }
+    Ok(format!(
+        "echo powersave > /sys/class/devfreq/{node}/governor; echo pinned-$((6*7))"
+    ))
+}
+
+/// What the governor read said.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Governor {
+    pub present: bool,
+    pub current: Option<String>,
+    pub available: Vec<String>,
+    pub cur_freq: Option<String>,
+}
+
+impl Governor {
+    pub fn of(text: &str) -> Governor {
+        let value = |k: &str| {
+            text.lines()
+                .find_map(|l| l.trim().strip_prefix(k)?.strip_prefix('='))
+                .map(|v| v.trim().to_string())
+                .filter(|v| !v.is_empty())
+        };
+        Governor {
+            present: !text.contains("no-governor-node") && value("governor").is_some(),
+            current: value("governor"),
+            available: value("available")
+                .map(|v| v.split_whitespace().map(str::to_string).collect())
+                .unwrap_or_default(),
+            cur_freq: value("cur_freq"),
+        }
+    }
+
+    pub fn can_powersave(&self) -> bool {
+        self.present && self.available.iter().any(|g| g == "powersave")
+    }
+
+    pub fn line(&self) -> String {
+        format!(
+            "governor {}, clock {}",
+            self.current.as_deref().unwrap_or("not known yet"),
+            self.cur_freq.as_deref().unwrap_or("not known yet")
+        )
+    }
+}
+
+/// The command that starts ONE step of the ramp in the background: first one line in the RAM log (step, size, uptime), then the
+/// bounded O_DIRECT read to /dev/null under `timeout`, its exit code in /tmp/load.done and a line after it in the RAM log.
+pub fn ramp_step_command(
+    lun: &str,
+    step: usize,
+    steps: usize,
+    mb: u64,
+    limit: u64,
+) -> Result<String, String> {
+    if !lun_is_a_disk(lun) {
+        return Err(format!("lun {lun:?} is not a disk name like sda"));
+    }
+    let up = "$(cut -d' ' -f1 /proc/uptime)";
+    Ok(format!(
+        "rm -f /tmp/load.done /tmp/load.out; echo \"step {step}/{steps} start {mb} MiB uptime {up}\" >> {RAM_LOG}; (timeout {limit} dd if=/dev/{lun} of=/dev/null bs=1M count={mb} iflag=direct 2>/tmp/load.out; rc=$?; echo rc=$rc >/tmp/load.done; echo \"step {step}/{steps} end rc=$rc uptime {up}\" >> {RAM_LOG}) </dev/null >/dev/null 2>&1 & echo load-started-$((6*7))"
+    ))
+}
+
+/// The command that prints the RAM log.
+pub fn ram_log_command() -> String {
+    format!("cat {RAM_LOG}; echo log-read-$((6*7))")
+}
+
+/// How one step of the ramp went on the host's side.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Step {
+    /// The read ended with `rc`; `silent` state reads were not answered on the way (the first at `first_silent` seconds), `inside` gear reads answered.
+    Ended {
+        rc: i32,
+        inside: u32,
+        silent: u32,
+        first_silent: Option<f32>,
+    },
+    /// The shell never came back within the step's limit and the margin.
+    NoEnd { silent: u32, first_silent: f32 },
+}
+
+/// The result file of the ramp, kept as a result: how far it got and the first silent step with its gear and clock.
+pub fn ramp_result(done: &[(u64, Step)], steps: &[u64], gear: &str) -> String {
+    let mut t = String::new();
+    for (n, (mb, how)) in done.iter().enumerate() {
+        match how {
+            Step::Ended { rc, silent: 0, .. } => t.push_str(&format!(
+                "step {}/{} {mb} MiB: ended rc={rc}, the shell answered every poll\n",
+                n + 1,
+                steps.len()
+            )),
+            Step::Ended { rc, silent, first_silent, .. } => t.push_str(&format!(
+                "step {}/{} {mb} MiB: FIRST SILENT STEP: {silent} polls not answered from {:.1} s, then the read ended rc={rc}; last gear read: {gear}\n",
+                n + 1,
+                steps.len(),
+                first_silent.unwrap_or(0.0)
+            )),
+            Step::NoEnd { silent, first_silent } => t.push_str(&format!(
+                "step {}/{} {mb} MiB: FIRST SILENT STEP: {silent} polls not answered from {first_silent:.1} s and the read did not end; last gear read: {gear}\n",
+                n + 1,
+                steps.len()
+            )),
+        }
+    }
+    if done.len() == steps.len()
+        && done
+            .iter()
+            .all(|(_, h)| matches!(h, Step::Ended { silent: 0, .. }))
+    {
+        t.push_str("no silent step: the shell answered every poll through the whole ramp\n");
+    } else if let Some(last) = steps.get(done.len()..).filter(|r| !r.is_empty()) {
+        t.push_str(&format!(
+            "steps not started after the silence: {last:?} MiB\n"
+        ));
+    }
+    t
+}
+
 impl Ufs {
     fn read_gear(&self, name: &str) -> Result<Gear, String> {
         let mut sh = self.lab.shell(10)?;
@@ -163,81 +314,212 @@ impl Ufs {
         move || u.read_gear("gear-before.txt").map(|_| ())
     }
 
-    /// The bounded read-only read of the disk, the gear and the clock sampled while it runs (at least one sample must fall inside it).
-    /// The read's state is asked on a shell of its own, so a gear read that waits cannot hide the read's end; a gear read that is
-    /// not answered is written down with its time and the sampling goes on on a fresh shell. The samples are saved however the step ends.
-    pub fn the_gear_is_read_under_load(&self) -> impl FnOnce() -> Done + 'static {
+    /// The governor of the UFS host's devfreq node is read and set to powersave, BEFORE any load: no node, or no powersave among its
+    /// governors, stops the run here; what was read before and after is saved, and the clock it holds is said.
+    pub fn the_governor_is_pinned_to_powersave(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
-            let start = load_start_command(&u.s.lun, u.s.load_mb, u.s.load_limit)?;
-            let mut state_sh = u.lab.shell(10)?;
-            let began = Instant::now();
-            if !state_sh
-                .run(&start, Duration::from_secs(10))?
-                .contains("load-started-42")
-            {
-                return Err("the read did not start".into());
+            let node = &u.s.devfreq;
+            let mut sh = u.lab.shell(10)?;
+            let wait = Duration::from_secs(u.s.gear_wait);
+            let before = Governor::of(&sh.run(&governor_read_command(node)?, wait)?);
+            u.lab.save("governor-before.txt", &before.line())?;
+            if !before.can_powersave() {
+                return Err(format!(
+                    "devfreq {node} has no powersave to pin ({}; governors: {}): the run stops before any load",
+                    if before.present { "node there" } else { "no governor node" },
+                    before.available.join(" ")
+                ));
             }
-            let mut samples = String::new();
-            let sampled = u.sample_until_the_read_ends(&mut state_sh, began, &mut samples);
-            u.lab.save("gear-load.txt", &redact(&samples))?;
-            let (rc, inside) = sampled?;
-            let out = state_sh.run("cat /tmp/load.out", Duration::from_secs(10))?;
-            u.lab.save("load.txt", &out)?;
-            println!("  read: {}", out.lines().last().unwrap_or(""));
-            match rc {
-                0 | 124 if inside > 0 => Ok(()),
-                0 | 124 => Err(
-                    "the read ended before the gear could be read under load: not known yet".into(),
-                ),
-                other => Err(format!("the read ended with {other}: {out}")),
+            sh.run(&governor_pin_command(node)?, wait)?;
+            let after = Governor::of(&sh.run(&governor_read_command(node)?, wait)?);
+            u.lab.save("governor-after.txt", &after.line())?;
+            if after.current.as_deref() != Some("powersave") {
+                return Err(format!(
+                    "the governor did not take powersave: {}",
+                    after.line()
+                ));
             }
+            println!("  {node}: {} -> {}", before.line(), after.line());
+            Ok(())
         }
     }
 
-    /// Ask the read's state on its own shell until it ends (at most its limit and SILENCE_MARGIN_S, checked between samples; a gear read in
-    /// flight may run on to `gear_wait` after that), read the gear in between. Returns the exit code and the answered gear reads.
+    /// The ramped, bounded, read-only read of the disk (decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try): each step of
+    /// `ramp_mb` is one O_DIRECT read to /dev/null with a line in the phone's RAM log before it, the shell polled every second and the gear
+    /// sampled in between. The first silent step is kept as a RESULT (ramp-result.txt: its size, the second it began, the last gear and
+    /// clock), not an error: the ramp stops there and the way back runs. A step that ends with an error code, or a phone that hung up, is
+    /// an error. At least one gear read must have been answered in the whole ramp.
+    pub fn the_gear_is_read_under_load(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let mut state_sh = u.lab.shell(10)?;
+            let (mut samples, mut done, mut inside_all) = (String::new(), Vec::new(), 0);
+            let mut last_gear = String::from("not known yet");
+            let ramped = u.ramp(
+                &mut state_sh,
+                &mut samples,
+                &mut done,
+                &mut inside_all,
+                &mut last_gear,
+            );
+            u.lab.save("gear-load.txt", &redact(&samples))?;
+            let result = ramp_result(&done, &u.s.ramp_mb, &last_gear);
+            u.lab.save("ramp-result.txt", &result)?;
+            print!("{result}");
+            u.save_the_ram_log();
+            ramped?;
+            if inside_all == 0
+                && !done
+                    .iter()
+                    .any(|(_, h)| matches!(h, Step::NoEnd { .. } | Step::Ended { silent: 1.., .. }))
+            {
+                return Err(
+                    "the ramp ended before the gear could be read under load: not known yet".into(),
+                );
+            }
+            Ok(())
+        }
+    }
+
+    /// The RAM log, read at once on a fresh shell; a phone that does not answer is said so (not known yet), never an error.
+    fn save_the_ram_log(&self) {
+        let said = self
+            .lab
+            .shell(10)
+            .and_then(|mut sh| sh.run(&ram_log_command(), Duration::from_secs(10)));
+        let text = match said {
+            Ok(t) => t,
+            Err(e) => {
+                format!("not known yet: the phone did not answer the read of {RAM_LOG}: {e}\n")
+            }
+        };
+        println!(
+            "  RAM log: {}",
+            text.lines()
+                .rev()
+                .find(|l| !l.starts_with("log-read-"))
+                .unwrap_or("empty")
+        );
+        let _ = self.lab.save("ramp-log.txt", &text);
+    }
+
+    fn ramp(
+        &self,
+        state_sh: &mut Shell,
+        samples: &mut String,
+        done: &mut Vec<(u64, Step)>,
+        inside_all: &mut u32,
+        last_gear: &mut String,
+    ) -> Done {
+        let steps = &self.s.ramp_mb;
+        for (i, &mb) in steps.iter().enumerate() {
+            let start = ramp_step_command(&self.s.lun, i + 1, steps.len(), mb, self.s.load_limit)?;
+            samples.push_str(&format!("=== step {}/{} {mb} MiB\n", i + 1, steps.len()));
+            let began = Instant::now();
+            match state_sh.run(&start, Duration::from_secs(10)) {
+                Ok(t) if t.contains("load-started-42") => {}
+                Ok(_) => return Err(format!("step {} ({mb} MiB) did not start", i + 1)),
+                Err(e) => {
+                    // a phone that does not answer the start is this step's silence: kept as the result
+                    samples.push_str(&format!(
+                        "--- the start of the step was not answered: {e}\n"
+                    ));
+                    done.push((
+                        mb,
+                        Step::NoEnd {
+                            silent: 1,
+                            first_silent: 0.0,
+                        },
+                    ));
+                    return Ok(());
+                }
+            }
+            let how = self.sample_until_the_read_ends(state_sh, began, samples, last_gear);
+            let (rc, inside, silent) = match &how {
+                Step::Ended {
+                    rc, inside, silent, ..
+                } => (Some(*rc), *inside, *silent),
+                Step::NoEnd { silent, .. } => (None, 0, *silent),
+            };
+            *inside_all += inside;
+            done.push((mb, how));
+            match rc {
+                Some(0) | Some(124) => {}
+                Some(other) => {
+                    let out = state_sh
+                        .run("cat /tmp/load.out", Duration::from_secs(10))
+                        .unwrap_or_default();
+                    return Err(format!(
+                        "step {} ({mb} MiB) ended with {other}: {out}",
+                        i + 1
+                    ));
+                }
+                None => return Ok(()), // the shell never came back: the result is kept, the way back runs
+            }
+            if silent > 0 {
+                return Ok(()); // the first silent step is the result: no bigger step after it
+            }
+            std::thread::sleep(Duration::from_millis(POLL_MS * 2));
+        }
+        Ok(())
+    }
+
+    /// Ask the step's state on its own shell every second until it ends (at most its limit and SILENCE_MARGIN_S, checked between polls; a
+    /// gear read in flight may run on to `gear_wait` after that), read the gear in between. A poll not answered is a reading kept with its
+    /// time; the shell is then asked on a fresh connection.
     fn sample_until_the_read_ends(
         &self,
         state_sh: &mut Shell,
         began: Instant,
         samples: &mut String,
-    ) -> Result<(i32, u32), String> {
+        last_gear: &mut String,
+    ) -> Step {
         let until = began + Duration::from_secs(self.s.load_limit + SILENCE_MARGIN_S);
         let state_wait = Duration::from_secs(self.s.gear_wait.min(10));
-        let mut gear_sh = self.lab.shell(10)?;
-        let (mut inside, mut unanswered, mut silent, mut hung_up) = (0, 0, 0, 0);
+        let Ok(mut gear_sh) = self.lab.shell(10) else {
+            samples.push_str("--- no shell for the gear reads: the phone does not answer\n");
+            return Step::NoEnd {
+                silent: 1,
+                first_silent: 0.0,
+            };
+        };
+        let (mut inside, mut unanswered, mut silent, mut hung_up) = (0, 0, 0u32, 0);
+        let mut first_silent: Option<f32> = None;
         let rc = loop {
             if Instant::now() >= until {
                 samples.push_str(&format!(
                     "--- no end of the read within its limit and {SILENCE_MARGIN_S} s ({silent} silent state reads)\n"
                 ));
-                return Err(format!(
-                    "the read did not end within its time limit and {SILENCE_MARGIN_S} s: the shell stayed silent ({silent} state reads not answered)"
-                ));
+                return Step::NoEnd {
+                    silent,
+                    first_silent: first_silent.unwrap_or(0.0),
+                };
             }
-            std::thread::sleep(Duration::from_millis(500));
+            std::thread::sleep(Duration::from_millis(POLL_MS));
             let (at, asked) = (began.elapsed(), Instant::now());
             match state_sh.run(load_state_command(), state_wait) {
                 Ok(said) => {
+                    hung_up = 0;
                     if let Some(rc) = load_rc(&said) {
                         break rc;
                     }
                 }
                 Err(e) => {
-                    // runs 1 and 2: the shell went silent while the read ran. That is a reading, kept with its time; the shell is
-                    // asked again on a fresh connection until the read's own limit and the margin are over.
+                    // runs 1 to 3: the shell went silent while the read ran. That is a reading, kept with its time; the shell is
+                    // asked again on a fresh connection until the step's own limit and the margin are over.
                     silent += 1;
+                    first_silent.get_or_insert(at.as_secs_f32());
                     if asked.elapsed() < Duration::from_secs(1) {
                         hung_up += 1; // an answer at once is the phone hanging up, not a silence
                         if hung_up >= 5 {
                             samples.push_str(
                                 "--- the shell hung up five times at once: the phone is gone\n",
                             );
-                            return Err(
-                                "the shell hung up under load (not a silence): the phone is gone"
-                                    .into(),
-                            );
+                            return Step::NoEnd {
+                                silent,
+                                first_silent: first_silent.unwrap_or(0.0),
+                            };
                         }
                     }
                     println!("  under load: the shell is silent ({e}); waiting for it");
@@ -255,8 +537,14 @@ impl Ufs {
             match gear_sh.run(&gear_command(), Duration::from_secs(self.s.gear_wait)) {
                 Ok(said) => {
                     inside += 1;
-                    println!("  under load: {}", Gear::of(&said).line());
+                    let gear = Gear::of(&said);
+                    println!("  under load: {}", gear.line());
+                    *last_gear = format!("{} at {:.1} s", gear.line(), at.as_secs_f32());
                     samples.push_str(&sample_line(at, asked.elapsed(), Some(&said)));
+                    if asked.elapsed() >= Duration::from_secs(3) {
+                        silent += 1; // a gear read that held the poll for 3 s or more is a silence of the shell
+                        first_silent.get_or_insert(at.as_secs_f32());
+                    }
                 }
                 Err(e) => {
                     unanswered += 1;
@@ -265,7 +553,17 @@ impl Ufs {
                         self.s.gear_wait
                     );
                     samples.push_str(&sample_line(at, asked.elapsed(), None));
-                    gear_sh = self.lab.shell(10)?;
+                    silent += 1; // a stalled gear read is silence too (run 1)
+                    first_silent.get_or_insert(at.as_secs_f32());
+                    match self.lab.shell(10) {
+                        Ok(fresh) => gear_sh = fresh,
+                        Err(_) => {
+                            return Step::NoEnd {
+                                silent,
+                                first_silent: first_silent.unwrap_or(0.0),
+                            }
+                        }
+                    }
                 }
             }
         };
@@ -273,13 +571,63 @@ impl Ufs {
             "--- the read ended at {:.1} s with rc={rc}; {inside} gear reads answered, {unanswered} not, {silent} state reads silent\n",
             began.elapsed().as_secs_f32()
         ));
-        Ok((rc, inside))
+        Step::Ended {
+            rc,
+            inside,
+            silent,
+            first_silent,
+        }
+    }
+
+    /// On the way back, once Android answers: why the phone booted, read only by adb (the boot reason properties and the kernel log's
+    /// reset lines when adb may read them). A watchdog bite or a warm reset shows here or it is "not known yet": nothing is judged or written.
+    pub fn the_pon_reason_is_read(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let android = crate::android::Android::new(u.s.clone(), u.lab.clone());
+            let mut text = String::new();
+            for prop in [
+                "ro.boot.bootreason",
+                "sys.boot.reason",
+                "sys.boot.reason.last",
+            ] {
+                let said = android
+                    .adb(&["shell", "getprop", prop])
+                    .map(|t| t.trim().to_string())
+                    .ok()
+                    .filter(|t| !t.is_empty())
+                    .unwrap_or_else(|| "not known yet".into());
+                text.push_str(&format!("{prop}={said}\n"));
+            }
+            let kernel = android
+                .adb(&["shell", "dmesg 2>/dev/null | grep -iwE 'pon|poff|qpnp-pon|reset reason|warm reset|watchdog' | head -20"])
+                .ok()
+                .filter(|t| !t.trim().is_empty())
+                .unwrap_or_else(|| "kernel log lines: not known yet (adb may not read dmesg)".into());
+            text.push_str(&kernel);
+            println!("  PON reason: {}", text.lines().next().unwrap_or(""));
+            u.lab.save("pon-reason.txt", &redact(&text))
+        }
+    }
+
+    /// Did the ramp end on a silent step (ramp-result.txt)? Then the phone is not known to answer: the steps after the load say "not known yet"
+    /// and let the run reach the hold release and the way back, where the PON reason is read.
+    fn the_ramp_was_silent(&self) -> bool {
+        std::fs::read_to_string(self.s.out.join("ramp-result.txt"))
+            .is_ok_and(|t| t.contains("FIRST SILENT STEP"))
     }
 
     /// The gear and the clock again, 2 s after the read ended.
     pub fn the_gear_is_read_two_seconds_after(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
+            if u.the_ramp_was_silent() {
+                println!("  the ramp ended silent: the gear after the read is not known yet");
+                return u.lab.save(
+                    "gear-after.txt",
+                    "not known yet: the ramp ended on a silent step\n",
+                );
+            }
             std::thread::sleep(Duration::from_secs(2));
             u.read_gear("gear-after.txt").map(|_| ())
         }
@@ -306,6 +654,13 @@ impl Ufs {
     pub fn the_gpt_is_unchanged(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
+            if u.the_ramp_was_silent() {
+                println!("  the ramp ended silent: the GPT after the read is not known yet");
+                return u.lab.save(
+                    "gpt-after.txt",
+                    "not known yet: the ramp ended on a silent step\n",
+                );
+            }
             u.gpt_read("gpt-after.txt")?;
             let read =
                 |n: &str| std::fs::read_to_string(u.s.out.join(n)).map_err(|e| format!("{n}: {e}"));
@@ -497,7 +852,10 @@ mod tests {
         let u = ufs(t, "load");
         u.the_gear_is_read_under_load()().unwrap();
         let saved = std::fs::read_to_string(out("load").join("gear-load.txt")).unwrap();
-        assert!(out("load").join("load.txt").exists());
+        assert!(
+            out("load").join("ramp-result.txt").exists()
+                && out("load").join("ramp-log.txt").exists()
+        );
         assert!(
             saved.contains("answered in") && saved.contains("2 gear reads answered, 0 not"),
             "{saved}"
@@ -517,8 +875,10 @@ mod tests {
             ("power_info", "?"),
             ("cat /tmp/load.out", "x"),
         ];
-        let e = ufs(t, "silent").the_gear_is_read_under_load()().unwrap_err();
-        assert!(e.contains("not known yet"), "{e}");
+        let u = ufs(t, "silent");
+        u.the_gear_is_read_under_load()().unwrap(); // a stalled gear read is a recorded silence, not an error
+        let r = std::fs::read_to_string(out("silent").join("ramp-result.txt")).unwrap();
+        assert!(r.contains("FIRST SILENT STEP"), "{r}");
         let saved = std::fs::read_to_string(out("silent").join("gear-load.txt")).unwrap();
         assert!(
             saved.contains("not answered") && saved.contains("0 gear reads answered, 3 not"),
@@ -680,7 +1040,9 @@ mod more_tests {
         let s = Settings::stand_in(Try::Ufs);
         let t = crate::ufs::expect(&s);
         assert!(
-            t.contains("6 disks") && t.contains("sda for at most 4 MiB or 20 seconds"),
+            t.contains("6 disks")
+                && t.contains("sda in steps of 1, 2, 4 MiB (at most 20 seconds each)")
+                && t.contains("governor to powersave"),
             "{t}"
         );
     }
@@ -723,5 +1085,342 @@ mod more_tests {
         assert!(crate::host::slot_flags(fb.to_str().unwrap(), "SER")
             .unwrap()
             .contains("current-slot:b"));
+    }
+}
+
+#[cfg(test)]
+mod ramp_tests {
+    use super::*;
+    use crate::phone::fake;
+    use crate::settings::{Settings, Try};
+
+    /// What the phone printed under load in run 3 of try 2 (~/lab-material/walleye/ufs-20261123-105319/gear-load.txt, saved as fixtures)
+    const RUN3_LOAD: &str = include_str!("../../fixtures/ufs-try2-run3-gear-load.txt");
+    const RUN3_BEFORE: &str = include_str!("../../fixtures/ufs-try2-run3-gear-before.txt");
+    const NOT_DONE: &str = "state-42";
+    const DONE0: &str = "rc=0\nstate-42";
+    /// ASSUMED text, not phone-printed: no governor read has come from the phone yet (the first run prints the real one); the clocks are run 3's idle 50 MHz and load 200 MHz at best
+    /// ASSUMED text, not phone-printed: no governor read has come from the phone yet (the first run prints the real one)
+    const POWERSAVE: &str = "governor=simple_ondemand\navailable=powersave performance simple_ondemand\ncur_freq=300000000";
+    const PINNED: &str =
+        "governor=powersave\navailable=powersave performance simple_ondemand\ncur_freq=50000000";
+
+    fn ufs(table: Vec<(&'static str, &'static str)>, name: &str) -> Ufs {
+        let mut s = Settings::stand_in(Try::Ufs);
+        s.port = fake::phone(table, vec![]);
+        s.out = std::env::temp_dir().join(format!("wt-ramp-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&s.out);
+        s.device_wait = 2;
+        s.load_limit = 1;
+        Ufs::new(s)
+    }
+
+    fn saved(u: &Ufs, name: &str) -> String {
+        std::fs::read_to_string(u.s.out.join(name)).unwrap_or_default()
+    }
+
+    /// The blocks of run 3's gear-load.txt that carry a gear read, as the host's reading of them.
+    fn run3_samples() -> Vec<Gear> {
+        RUN3_LOAD
+            .split("--- ")
+            .filter(|b| b.starts_with("sample at"))
+            .map(|b| Gear::of(b.split_once('\n').unwrap().1))
+            .collect()
+    }
+
+    #[test]
+    fn the_text_run_3_printed_is_read_as_gear_3_at_200_mhz_then_silence() {
+        let g = run3_samples();
+        assert_eq!(g.len(), 7);
+        assert!(g
+            .iter()
+            .all(|x| x.link.speed() == Speed::Full && x.ufs_clock() == Some("200000000")));
+        let silent = RUN3_LOAD.matches("not answered in 10.1 s").count();
+        assert_eq!(silent, 6); // run 3: six state reads unanswered over 110 s
+        assert_eq!(Gear::of(RUN3_BEFORE).ufs_clock(), Some("50000000"));
+        assert_ne!(Gear::of(RUN3_BEFORE).link.speed(), Speed::Full);
+    }
+
+    #[test]
+    fn the_first_silent_step_is_a_result_kept_with_its_gear_and_clock() {
+        let steps = [64, 256, 1024];
+        let silent = Step::NoEnd {
+            silent: 4,
+            first_silent: 4.6,
+        };
+        let r = ramp_result(
+            &[
+                (
+                    64,
+                    Step::Ended {
+                        rc: 0,
+                        inside: 1,
+                        silent: 0,
+                        first_silent: None,
+                    },
+                ),
+                (256, silent),
+            ],
+            &steps,
+            "gear 3 200 MHz at 4.0 s",
+        );
+        assert!(
+            r.contains("step 2/3 256 MiB: FIRST SILENT STEP: 4 polls not answered from 4.6 s"),
+            "{r}"
+        );
+        assert!(
+            r.contains("last gear read: gear 3 200 MHz at 4.0 s")
+                && r.contains("steps not started after the silence: [1024] MiB"),
+            "{r}"
+        );
+        let all = ramp_result(
+            &steps.map(|m| {
+                (
+                    m,
+                    Step::Ended {
+                        rc: 0,
+                        inside: 1,
+                        silent: 0,
+                        first_silent: None,
+                    },
+                )
+            }),
+            &steps,
+            "x",
+        );
+        assert!(all.contains("no silent step"), "{all}");
+    }
+
+    #[test]
+    fn the_governor_is_read_and_a_missing_node_or_powersave_is_said() {
+        let g = Governor::of(POWERSAVE);
+        assert!(
+            g.can_powersave()
+                && g.current.as_deref() == Some("simple_ondemand")
+                && g.cur_freq.as_deref() == Some("300000000")
+        );
+        assert!(!Governor::of("no-governor-node").can_powersave());
+        assert!(!Governor::of("governor=a\navailable=performance\ncur_freq=1").can_powersave());
+        assert!(Governor::of("").line().contains("not known yet"));
+    }
+
+    #[test]
+    fn the_commands_of_the_ramp_are_shell_and_read_only() {
+        let cmds = [
+            governor_read_command("1da4000.ufshc").unwrap(),
+            governor_pin_command("1da4000.ufshc").unwrap(),
+            ramp_step_command("sda", 2, 3, 256, 60).unwrap(),
+            ram_log_command(),
+        ];
+        for c in &cmds {
+            assert!(
+                std::process::Command::new("sh")
+                    .args(["-n", "-c", c])
+                    .status()
+                    .unwrap()
+                    .success(),
+                "{c}"
+            );
+            assert!(!writes_to_the_card(c), "{c}");
+        }
+        let step = &cmds[2];
+        assert!(
+            step.contains("iflag=direct")
+                && step.contains("count=256")
+                && step.contains("timeout 60")
+        );
+        assert!(
+            step.find(RAM_LOG).unwrap() < step.find("dd if=").unwrap(),
+            "the RAM log line is written BEFORE the read"
+        );
+        assert!(cmds[1].contains("powersave > /sys/class/devfreq/1da4000.ufshc/governor"));
+        for bad in ["", "../x", "a b", "a;b", "A"] {
+            assert!(
+                governor_read_command(bad).is_err() && governor_pin_command(bad).is_err(),
+                "{bad}"
+            );
+        }
+        assert!(ramp_step_command("sda1", 1, 1, 1, 1).is_err());
+    }
+
+    #[test]
+    fn a_node_without_powersave_stops_the_run_before_any_load() {
+        let u = ufs(vec![("cat $d/governor", "no-governor-node")], "nonode");
+        let e = u.the_governor_is_pinned_to_powersave()().unwrap_err();
+        assert!(
+            e.contains("no powersave to pin") && e.contains("before any load"),
+            "{e}"
+        );
+        let u = ufs(
+            vec![(
+                "cat $d/governor",
+                "governor=performance\navailable=performance\ncur_freq=1",
+            )],
+            "nops",
+        );
+        assert!(u.the_governor_is_pinned_to_powersave()()
+            .unwrap_err()
+            .contains("no powersave"));
+    }
+
+    #[test]
+    fn the_governor_is_pinned_and_read_back() {
+        // the first read says simple_ondemand, the second (after the pin) powersave at 50 MHz
+        let t = vec![
+            (
+                "cat $d/governor",
+                Box::leak(format!("{POWERSAVE}|||{PINNED}").into_boxed_str()) as &'static str,
+            ),
+            ("pinned-", "pinned-42"),
+        ];
+        let u = ufs(t, "pin");
+        u.the_governor_is_pinned_to_powersave()().unwrap();
+        assert!(
+            saved(&u, "governor-before.txt").contains("simple_ondemand")
+                && saved(&u, "governor-after.txt").contains("powersave")
+        );
+        // a pin that did not take is an error
+        let t = vec![("cat $d/governor", POWERSAVE), ("pinned-", "pinned-42")];
+        assert!(ufs(t, "notaken").the_governor_is_pinned_to_powersave()()
+            .unwrap_err()
+            .contains("did not take powersave"));
+    }
+
+    #[test]
+    fn a_ramp_with_an_answering_shell_runs_every_step_and_reads_the_ram_log() {
+        let t = vec![
+            ("load-started-", "load-started-42"),
+            (
+                "echo state-",
+                Box::leak(format!("{NOT_DONE}|||{DONE0}").into_boxed_str()) as &'static str,
+            ),
+            (
+                "power_info",
+                "gear=HS_GEAR1\nlane=2\nlink_state=ACTIVE\nclock_1da4000.ufshc=50000000",
+            ),
+            (
+                "cat /tmp/ramp.log",
+                "step 1/3 start 1 MiB uptime 40.1\nstep 1/3 end rc=0 uptime 40.4\nlog-read-42",
+            ),
+        ];
+        let u = ufs(t, "all");
+        u.the_gear_is_read_under_load()().unwrap();
+        let r = saved(&u, "ramp-result.txt");
+        assert!(
+            r.contains("no silent step") && r.matches("ended rc=0").count() == 3,
+            "{r}"
+        );
+        assert!(saved(&u, "ramp-log.txt").contains("step 1/3 start 1 MiB"));
+        assert!(saved(&u, "gear-load.txt").contains("=== step 3/3 4 MiB"));
+    }
+
+    #[test]
+    fn a_silent_step_is_a_result_not_an_error_and_stops_the_ramp() {
+        // the first state read of step 2 is never answered (like run 3 at 4.6 s); the shell comes back on a fresh connection
+        let t = vec![
+            ("load-started-", "load-started-42"),
+            (
+                "echo state-",
+                Box::leak(
+                    format!("{NOT_DONE}|||{DONE0}|||?once={NOT_DONE}|||{DONE0}").into_boxed_str(),
+                ) as &'static str,
+            ),
+            (
+                "power_info",
+                "gear=HS_GEAR3\nlane=2\nlink_state=ACTIVE\nclock_1da4000.ufshc=200000000",
+            ),
+            (
+                "cat /tmp/ramp.log",
+                "step 2/3 start 2 MiB uptime 40.1\nlog-read-42",
+            ),
+        ];
+        let u = ufs(t, "silent");
+        u.the_gear_is_read_under_load()().unwrap();
+        let r = saved(&u, "ramp-result.txt");
+        assert!(
+            r.contains("FIRST SILENT STEP: 1 polls not answered") && r.contains("clock 200000000"),
+            "{r}"
+        );
+        assert!(
+            !r.contains("no silent step") && r.contains("steps not started after the silence"),
+            "{r}"
+        );
+    }
+
+    #[test]
+    fn a_step_that_ends_with_an_error_code_is_an_error() {
+        let t = vec![
+            ("load-started-", "load-started-42"),
+            ("echo state-", "rc=1\nstate-42"),
+            ("cat /tmp/load.out", "dd: I/O error"),
+            ("power_info", "gear=HS_GEAR1\nlink_state=ACTIVE"),
+        ];
+        let e = ufs(t, "err").the_gear_is_read_under_load()().unwrap_err();
+        assert!(e.contains("ended with 1") && e.contains("I/O error"), "{e}");
+    }
+
+    #[test]
+    fn the_pon_reason_is_saved_even_when_adb_says_nothing() {
+        let mut s = Settings::stand_in(Try::Ufs);
+        s.adb = "/nonexistent/adb".into();
+        s.out = std::env::temp_dir().join(format!("wt-pon-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&s.out);
+        let u = Ufs::new(s);
+        u.the_pon_reason_is_read()().unwrap();
+        let t = saved(&u, "pon-reason.txt");
+        assert!(t.contains("ro.boot.bootreason=not known yet"), "{t}");
+    }
+}
+
+#[cfg(test)]
+mod after_silence_tests {
+    use super::*;
+    use crate::phone::fake;
+    use crate::settings::{Settings, Try};
+
+    fn ufs(name: &str, silent: bool) -> Ufs {
+        let mut s = Settings::stand_in(Try::Ufs);
+        s.port = fake::phone(vec![("sha256sum", "no digest")], vec![]);
+        s.out = std::env::temp_dir().join(format!("wt-after-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&s.out);
+        std::fs::create_dir_all(&s.out).unwrap();
+        if silent {
+            std::fs::write(
+                s.out.join("ramp-result.txt"),
+                "step 2/3 256 MiB: FIRST SILENT STEP: 4 polls\n",
+            )
+            .unwrap();
+        }
+        Ufs::new(s)
+    }
+
+    #[test]
+    fn after_a_silent_ramp_the_load_steps_say_not_known_yet_and_the_run_goes_on() {
+        let u = ufs("silent", true);
+        u.the_gear_is_read_two_seconds_after()().unwrap();
+        u.the_gpt_is_unchanged()().unwrap();
+        for n in ["gear-after.txt", "gpt-after.txt"] {
+            let t = std::fs::read_to_string(u.s.out.join(n)).unwrap();
+            assert!(t.starts_with("not known yet"), "{n}: {t}");
+        }
+    }
+
+    #[test]
+    fn after_a_ramp_that_never_went_silent_a_failed_read_is_still_an_error() {
+        let u = ufs("answering", false);
+        assert!(u.the_gpt_is_unchanged()().is_err());
+    }
+
+    #[test]
+    fn a_phone_that_hangs_up_under_load_is_a_result_naming_its_step() {
+        // the stand-in has no listener for the shell: every connection is refused at once
+        let mut s = Settings::stand_in(Try::Ufs);
+        s.port = 1; // nothing listens
+        s.out = std::env::temp_dir().join(format!("wt-gone-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&s.out);
+        s.device_wait = 1;
+        let u = Ufs::new(s);
+        // no shell at the start of the ramp is an error of the run (the phone was not there), never a silent step
+        assert!(u.the_gear_is_read_under_load()().is_err());
     }
 }

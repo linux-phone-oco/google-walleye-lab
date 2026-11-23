@@ -10247,10 +10247,10 @@ Rank
 ### UFS try: the procedure change for the ramped, pinned-low read: tools/walleye-tries load.rs ramps 64/256/1024 MiB with a RAM log line before each step, devfreq powersave pinned first, the PON reason read on the way back, and the failing check tests/health/base/ufs-sustained-read.sh
 
 Status
-: open
+: done
 
 Note
-: Split by the coordinator (2026-11-23) from the researcher's phone item walleye-ufs-silent-ramped-pinned-try, which names a procedure change that no one had queued as a build: the keeper's try waits for this. After it lands the coordinator opens the go on walleye-try-ufs-match for the matched image (the author's standing go covers a read-only UFS try of the same kind, one command, tested first).
+: Built 2026-11-23: load.rs ramps ramp_mb 64/256/1024 (device.toml); devfreq 1da4000.ufshc governor pinned to powersave first (no node or no powersave: stops before any load); RAM log /tmp/ramp.log line before and after each step; shell polled every second; the first silent step (a silent poll, a gear read held 3 s or more, a hang-up, an unanswered start) is kept in ramp-result.txt, not an error, and the ramp stops there; after it the gear/GPT-after steps say not known yet so the run reaches the hold release, the way back and the PON read (pon-reason.txt, adb, read only). Procedure 23 -> 25 steps. tests/health/base/ufs-sustained-read.sh is the ramped check with a 1 s heartbeat. Fixtures: run 3's gear-load/gear-before as the phone printed them; governor texts in the tests are ASSUMED (no governor read has come from the phone yet). 281 tests, clippy, fmt, dry run, check --host, programmer review. NOT run on the phone: the keeper's try waits for the coordinator's go on walleye-try-ufs-match (image 461077869fb2 unchanged). Not done: a second RAM-log read after the shell returns from a silence (it is read once, at once, on a fresh shell).
 
 About
 : walleye-bootimage

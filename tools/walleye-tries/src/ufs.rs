@@ -32,7 +32,7 @@ pub const PHY_LINECFG: &str = "UFS_PHY_LINECFG_DISABLE";
 /// What the author is told before the step that boots the UFS-on image (the go note has the rest).
 /// What the author is told before the step that boots the UFS-on image: the numbers are the settings', never typed twice.
 pub fn expect(s: &Settings) -> String {
-    format!("One command, about 5 minutes: the phone boots the matched UFS-on image once, from memory. It reads the card (its {} disks and their partition tables), then reads {} for at most {} MiB or {} seconds, read only, while the link gear and the clock are noted; the disk's partition table is hashed before and after. NOTHING is written to the card. The glass stays dark. The phone returns to Android by itself and visits fastboot once more to read the slot flags; if it is not on Android after 4 minutes, hold the power button about 15 seconds.", s.luns, s.lun, s.load_mb, s.load_limit)
+    format!("One command, about 5 minutes: the phone boots the matched UFS-on image once, from memory. It reads the card (its {} disks and their partition tables), first pins the UFS host's devfreq governor to powersave, then reads {} in steps of {} MiB (at most {} seconds each), read only, a line in its RAM log before each step and the shell polled every second, while the link gear and the clock are noted; the first silent step is a result, the ramp stops there; the disk's partition table is hashed before and after. NOTHING is written to the card. The glass stays dark. The phone returns to Android by itself and visits fastboot once more to read the slot flags; if it is not on Android after 4 minutes, hold the power button about 15 seconds.", s.luns, s.lun, s.ramp_mb.iter().map(u64::to_string).collect::<Vec<_>>().join(", "), s.load_limit)
 }
 
 /// Is the text the strict shape `ikb backlog-go` writes (`date -Is`: YYYY-MM-DDTHH:MM:SS+HH:MM or Z)? Nothing relative
@@ -530,7 +530,11 @@ impl Ufs {
     pub fn the_hold_is_released(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
-            let mut sh = u.lab.shell(10)?;
+            // a phone silent after the ramp may not answer a shell at all: the way back is what is left
+            let Ok(mut sh) = u.lab.shell(10) else {
+                println!("  no shell to release the hold: the way back runs");
+                return Ok(());
+            };
             // the phone hangs up as it goes down: the end of the answer is not read
             let _ = sh.run_partial(RELEASE_COMMAND, Duration::from_secs(5));
             Ok(())
