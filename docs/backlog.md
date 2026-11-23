@@ -10205,9 +10205,6 @@ About
 Opened
 : 2026-11-23
 
-Needs
-: phone
-
 Proof
 : the one command passes every step: the boot of the new slot from the card on ssh, the GPT changed only by the slot switch, the way back set_active, the phone on Android, the boot chain as stored
 
@@ -10419,6 +10416,31 @@ Needs
 
 Proof
 : (1) tools/walleye-tries/src/flash_boot.rs check 16 ('the partition reads back as the image, and no other boot/dtbo/vbmeta changed'): passes when boot_a reads back as the declared image and boot_b, dtbo and vbmeta (both slots) and every other hashed partition equal their values before the flash, whether or not boot_a changed (a flash of an image the partition already holds changes nothing); fails when boot_a does not read back as the image, or any other partition changed; stand-in tests from the printed text of rerun 3 (research walleye-stage2-rerun-3-stops-at-check-16-flash-changes-nothing, the run's log stage2-run3.log): fails on today's code with boot_a already the image, passes on the amended one, one test each for 'boot_a differs from the image after the flash' and 'dtbo changed'; (2) THE REPEAT AUDIT, the point of this item: this is the THIRD stop of the same class (check 18: slot a's flags after the first flash, PR 836; check 9: boot_a already the image, PR 841; now check 16): read every one of the command's 29 steps and its rehearsal's 17 and for each say whether it assumes the state of a FIRST run (boot_a stock, slot a flags as before any flash, boot_a.img backup equal to boot_a, no earlier flash), and run the whole step list OFFLINE through the stand-in against the state the phone is in NOW, built from the printed text of the keeper's rerun 3 log and the rehearsal 3 material (research walleye-install-boot-rehearsal-3-passed): boot_a = e337de53, slot a retry 1 successful no, b untouched and successful, Android on b, stock backup on file: every step up to and including the flash and the checks after it must pass in that state, and the steps after set_active (the boot of the new slot, the way back) are walked against the first-run expectation they were written for and listed in the PR with what each expects; any step that assumes a first run is amended or says why not; (3) dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-run4-pstore-read"></a>
+### URGENT, read only, NO REBOOT: what slot a's boot left in pstore/ramoops, read from the Android that is running now, and what the bootloader put on the command line
+
+Status
+: open
+
+Note
+: From stage 2 run 4 (PR 849): steps 1-20 passed (flash a no-op, set_active a ok, flags as the switch describes), slot a never answered ssh at 172.16.43.1 in 170 s, the phone fell back to Android b BY ITSELF (bootreason watchdog): set_active a spent slot a's tries (retry 1 to 0) and the bootloader marked a unbootable and booted b: the count-zero fall back that the forced-way-back research had NOT measured is now MEASURED and needs no hand. NOT KNOWN YET: whether our kernel started at all. WHY URGENT: our dts has the stock ramoops region (0xa1100000, console 0x20000): the Android kernel exposes the previous boot's console as /sys/fs/pstore/console-ramoops-0 at ITS boot; any further reboot of the phone overwrites it. So: no reboot, no walleye-idle-android that restarts anything, no other phone item first. The stage 2 run item stays off the queue and its go (open to 15:00) is not used until the cause is read.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: from the running Android b (adb root; read only; NO reboot, no fastboot verb, nothing written, no setprop that restarts anything): (1) ls -la /sys/fs/pstore and cat every file there (console-ramoops-0, dmesg-ramoops-*, pmsg if any): the console of the boot BEFORE Android's own, which is slot a's kernel if it started, kept in a research row's material and said whether it shows our kernel's boot lines (a line from our 7.3 kernel: 'Linux version 7.3', the init's walleye-init lines, the usb gadget, the ssh) or nothing; if /sys/fs/pstore is empty, ls -la /data/vendor_ce/0/ramoops /data/vendor/pstore /data/misc/pstore and read what is readable without an unlock (say if the files need the author to unlock the screen once: then stop and tell the coordinator, who asks him: that is one hands step); (2) cat /proc/cmdline of THIS Android boot, getprop | grep -E 'ro.boot|bootreason|verified|slot', cat /proc/bootloader_log or /sys/firmware/... if present, and the stored stock boot image's header cmdline (the boot_a.img backup on file: abootimg or unpackbootimg read on the lab machine) so the research can compare the words the bootloader adds to a normal boot with the words a fastboot boot gets; (3) the slot flags again by adb only (getprop ro.boot.slot_suffix) and the phone is left exactly as found
 
 Rank
 : 1
