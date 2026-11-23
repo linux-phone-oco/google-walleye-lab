@@ -80,6 +80,8 @@ pub struct Settings {
     pub min_window: u64,
     pub device_wait: u64,
     pub back_wait: u64,
+    /// how long stage 2 waits, sending the phone nothing, for Android to answer adb after the new slot gave no ssh: `fallback_wait` of the stage 2 procedure's table
+    pub fallback_wait: u64,
     /// the lowest battery voltage (mV) a try may start at: `[health] battery_floor_mv`
     pub battery_floor_mv: u64,
     pub address: String,
@@ -273,6 +275,7 @@ impl Settings {
             load_mb: 0,
             load_limit: 0,
             gear_wait: 0,
+            fallback_wait: 0,
             luns: 0,
             ramp_mb: Vec::new(),
             devfreq: String::new(),
@@ -406,6 +409,7 @@ impl Settings {
                 s.luns = number("luns", proc("luns"));
                 s.flash_allow = proc("flash_allow");
                 s.to_bootloader = proc("to_bootloader");
+                s.fallback_wait = number("fallback_wait", proc("fallback_wait"));
                 s.reboot_tool = image(REBOOT_TOOL);
                 s.reboot_tool_sha256 = dev(&format!("images.{REBOOT_TOOL}.sha256"));
                 assert!(
@@ -550,6 +554,7 @@ impl Settings {
             ("by_name", "/dev/block/by-name"),
             ("flash_allow", "boot_a boot_b"),
             ("to_bootloader", "/tmp/walleye-reboot --command bootloader"),
+            ("fallback_wait", "420"),
         ]
         .into_iter()
         .collect();

@@ -6601,3 +6601,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-builder-pstore-first"></a>
+### Builder: stage 2 reads pstore first on the fallback
+
+Entry date
+: 2026-11-23
+
+Done
+: flash_boot step 21: no ssh now waits up to fallback_wait (420 s) sending nothing, reads the failed boot over adb first (pstore listing and files, cmdline, boot reasons, slot), keeps failed-boot-read.txt, then the existing way back runs; the rehearsal has the same read as a read-only check 17. 310 tests, clippy, fmt, dry runs of both procedures (29 and 18 steps), check --host ok. Tests written with the change, not seen failing first. rust-script caches a script by its own text: after a change in tools/walleye-tries run it with --force or the dry run shows the old crate.
+
+Considered
+: adb root before the first read; a [boot] manifest key
+
+Rejected
+: see decision 2026-11-23-walleye-stage2-pstore-first-then-way-back
+
+About
+: walleye-bootimage
