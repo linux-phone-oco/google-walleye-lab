@@ -7285,3 +7285,31 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-device-config-firmware"></a>
+### walleye-device-config-firmware
+
+Date
+: 2026-11-23
+
+Brief
+: Firmware part of the wahoo config: modem set is on modem partition, adsp/slpi/venus/wlan/ipa/a540_zap on vendor_a /vendor/firmware; stock cmdline sets firmware_class.path=/vendor/firmware
+
+Question
+: Which firmware files do the modem, adsp, slpi, venus, wlan, ipa and GPU zap need, where do they live on the phone, and what do we already hold?
+
+Found
+: Read 2026-11-23 from ProjectElixir-Devices/device_google_walleye, branch udc, commit 603421fd (Elixir's tree, not Google's: Google's has no proprietary-*.txt). Read only; nothing copied into git.
+1. proprietary-firmware.txt lists 13 A/B partition images from factory image RP1A.201005.004.A1 (Dec 2020): abl, aes, cmnlib, cmnlib64, devcfg, hyp, keymaster, laf, modem, pmic, rpm, tz, xbl. So the modem set (mba.mbn, modem.mdt/bNN) is on the modem partition, as our own dump showed; no adsp, venus or wlan image is a partition.
+2. proprietary-files-vendor.txt puts the rest under vendor/firmware/ (the vendor_a partition): adsp.mdt+b00..b11, slpi_v2.mdt+bNN, venus.mdt+bNN+venus.mbn, bdwlan.* and bdwlan.bin, wlanmdsp.mbn, ipa_fws.*, a540_zap.mdt+bNN (GPU secure init), a540_gpmu.fw2, cpe_9340.* (WCD934x codec DSP), cppf.* and widevine.* (not needed), crbtfw21.tlv and crnv21.bin (Bluetooth), tas2557s_PG21_uCDSP.bin and tas2557s_uCDSP.bin (amp), Tfa98xx.cnt, drv2624.bin (haptics), synaptics_0.img and synaptics_1.img (touch).
+3. The stock boot cmdline (research/walleye-bootimage/2026-11-23/stock-boot_a-header.txt) has firmware_class.path=/vendor/firmware: the firmware-reachable step is a rootfs that offers /vendor/firmware, or our cmdline naming where the files are.
+4. What we hold in ~/lab-material/walleye (outside git): modem-2026-11-19 (modem_a/b, fsg, fsc, modemst1/2; build 2020-06-09), slpi-firmware-20261122, tas2557s_PG21_uCDSP.bin. NOT yet held: adsp, venus, bdwlan/wlanmdsp, ipa_fws, a540_zap, cpe_9340, Bluetooth files.
+5. The Elixir list is the factory build of Dec 2020; the phone's own files are the authority for versions (our modem partition is the 2020-06-09 build): extract from the phone, use the list only as the names to look for.
+Next: a read-only pull of vendor_a/firmware from the phone (keeper queue item walleye-vendor-firmware-pull). The audio, init.insmod, thermal, touch and Wi-Fi parts stay for their steps.
+
+Sources
+: src-projectelixir-device-google-walleye,src-google-device-wahoo
+
+About
+: walleye-device-config-sources-read
