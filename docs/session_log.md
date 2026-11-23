@@ -5890,3 +5890,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-0720-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Root boot rerun 5 passed all 26 steps; item walleye-install-rootfs-boots-try done; step rootfs-boots done. Phone on Android slot b, stock kernel, nothing flashed
+
+Considered
+: next: walleye-display-alpine-getty-experiments, the author's look walleye-display-look-b2; ufs-root-display image U-d5 boot try
+
+About
+: walleye-display-s6e3fa5
