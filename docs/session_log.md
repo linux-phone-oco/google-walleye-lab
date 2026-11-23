@@ -7201,3 +7201,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-2230-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Stage 2 run 12 with the production image b74af863 passed all 29 steps (research walleye-stage2-run12-production-image-all-29-passed): flash read back, new slot booted from the card, ssh answered with no debug gadget, GPT changed only by the slot switch, way back to Android b, boot chain as stored. Phone on Android slot b by adb, boot_a holds b74af863, nothing else written. Items walleye-install-flash-boot-run and walleye-stage2-production-image done. No bringup step claimed: rootfs-boots is already done.
+
+Considered
+: next: walleye-wdt0-first-instant-read; stage 3 stays gated by the UFS items. build/images must link to ~/Projects/walleye-build in a fresh worktree
+
+About
+: walleye-bootimage

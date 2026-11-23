@@ -10163,14 +10163,10 @@ Rank
 ### Run stage 2 once: install-boot-on-the-pixel-2.rs under the coordinator's go (flash boot_<other>, set_active, observe, set_active back)
 
 Status
-: in-progress
+: done
 
 Note
-: TAKE THIS ITEM NOW: STAGE 2 RUN 12, THE PRODUCTION IMAGE (the coordinator, 22:00 2026-11-23), sha256 b74af863e4b49e2b3ff6e656c2f9ba3b92033b1e0f74063c3c2d47b81c83d570 ONLY ([images.ufs-root-booted-slot-production], PR 937: the kernel from int/walleye/ufs-on/v7.3/1, the petters first, NO telnet gadget, the short cmdline, the slot from the bootloader's sources). Run 11 passed all 29 steps with the debug image (PR 933); rehearsal 8 passed 18 of 18 with this image declared and the four-state walk passes (57 cases, PR 939). THE STATE: Android b, boot_a holds the debug image a0a55cd0 (this run's flash is a REAL write of a different image: the flash step, its read-back and check 16's 'only boot_a changed' now have something to see), slot a retry 1 successful no, b successful and current. WITHOUT the debug gadget the evidence if it fails is the host's USB log (journalctl -k usb 3-2 in host-usb-log.txt), the new-slot read over ssh, and the way back's reads; the keeper keeps them whole. THE KEEPER: tee the whole stdout; the watch rule (a step with no ok or FAIL for 3 minutes, except step 21's wait, is a stall: kill the stalled host adb child and tell the coordinator); link build/images to ~/Projects/walleye-build itself (not its images/ folder); tell the Top Coordinator (local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'stage 2: starting' and ONE result line naming the outcome; no improvising; no second run. | proven by run 11 (2026-11-23 ~21:00): the one command passed all 29 steps, image a0a55cd0, phone back on Android b; research walleye-stage2-run11-all-29-steps-passed. Next: production init image (petter first, no telnet); fresh worktrees lack untracked build/images - link ~/Projects/walleye-build
-go until 2026-11-24T00:00:45+01:00, outcomes: if all 29 steps pass with the production image then stage 2 is done for the image that stays: our kernel from int/walleye/ufs-on/v7.3/1 and our Alpine root boot from the phone's own storage with the petter first and no debug gadget, and the way back returns to Android b with the boot chain equal
-if the boot fails or ssh does not answer then the host's USB log and the way back's reads say whether the petting, the slot or the root failed, and nothing is guessed: the debug image a0a55cd0 is the known-good comparison
-if step 21 passes and a later step stops then that step's text is the finding, and the supervisor's 420 s deadline and SIGKILL end (never run on a phone before) are named if they are the cause
-if the flash step or its read-back stops then it is the first real write of a different image since run 1: its text is the finding and boot_a is restored from the copy kept in lab-material
+: proven by run 12 (2026-11-23): all 29 steps passed with production image b74af863; research walleye-stage2-run12-production-image-all-29-passed
 
 Blocked by
 : walleye-stage2-pstore-first-on-fallback
@@ -11373,10 +11369,10 @@ Rank
 ### The production stage 2 image: the debug init's petters first, no telnet gadget, the kernel from a live list's int/ tag, a short cmdline, the slot from the bootloader's sources; one rehearsal, one run
 
 Status
-: in-progress
+: done
 
 Note
-: built; rehearsal 8 passed 18 of 18 (2026-11-23). Remaining: the four-state walk, then ONE run under a go naming b74af863 with outcomes (walleye-install-flash-boot-run)
+: proven by run 12: all 29 steps passed with b74af863
 
 About
 : walleye-bootimage
