@@ -6430,3 +6430,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-walleye-builder-check-18-flash-flags"></a>
+### Stage 2 check 18 allows what the flash sets
+
+Entry date
+: 2026-11-23
+
+Done
+: Check 18 amended to exactly the flashed slot's successful (no) and positive retry count; tests from run 1's text; nothing else may differ.
+
+Considered
+: Hard-coding retry 1 (observed): AOSP says usually 3.
+
+Rejected
+: Dropping check 18 or comparing only the current slot: too loose; b's flags and a's unbootable must stay equal.
+
+About
+: walleye-bootimage

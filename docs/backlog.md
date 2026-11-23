@@ -10322,10 +10322,10 @@ Rank
 ### Stage 2's check 18 allows exactly what the flash does to the flashed slot's flags, and nothing else; a stand-in from run 1's printed text; then ONE rerun
 
 Status
-: open
+: done
 
 Note
-: The Top Coordinator's rule (2026-11-23, after stage 2 run 1): amend check 18 to allow exactly that change and nothing else, then rerun once; the state now: boot_a holds e337de53 (read back equal), slot a has retry 1 successful no (the flash did it), b untouched, Android on b, no set_active made; the go on walleye-install-flash-boot-run is open until 13:21 (the coordinator extends it if the rerun needs).
+: Built 2026-11-23: flash_boot.rs flash_resets_only_the_flashed_slots_flags: after the flash of boot_X only slot-successful:X (must end no) and slot-retry-count:X (must end a positive number, not fixed to 1) may differ; unbootable, the other slot, current-slot and the key set are equal. Stand-in tests from run 1's printed flags (before/after) plus failing cases: b changes, a unbootable, current slot moves, count 0, successful still yes, a flag gone, wrong slot. The step in install-boot is renamed (29 steps, unchanged count). 286 tests, clippy, fmt, dry runs. The priority byte (0x72 to 0x3b) is covered by the GPT check, not check 18. Not run on the phone; a keeper reruns stage 2 once after landing.
 
 Blocked by
 : walleye-stage2-flash-resets-flags-source,walleye-stage2-run-1-gpt-after-flash

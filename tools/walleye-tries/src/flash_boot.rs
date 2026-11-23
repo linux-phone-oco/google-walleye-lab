@@ -156,6 +156,46 @@ pub fn switch_is_the_abls(before: &str, after: &str, from: &str, to: &str) -> Re
     Ok(())
 }
 
+/// After the flash of `boot_X` (check 18; research walleye-stage2-flash-resets-flags-documented, AOSP's A/B spec): a write to a slot's partition makes
+/// the bootloader clear that slot's `successful` and reset its retry count. So EXACTLY slot X's `slot-successful` ends `no` and its
+/// `slot-retry-count` ends a positive number (observed 1, AOSP says usually 3: the number is not fixed here); `slot-unbootable:X`, the other slot's
+/// every flag, the current slot and every name are what they were, and no flag appeared or went.
+pub fn flash_resets_only_the_flashed_slots_flags(
+    before: &str,
+    after: &str,
+    flashed: &str,
+) -> Result<(), String> {
+    let (b, a) = (flags_of(before), flags_of(after));
+    if b.keys().ne(a.keys()) {
+        return Err(format!(
+            "the flags' names changed:\n{before}\nthen\n{after}"
+        ));
+    }
+    let (successful, retry) = (
+        format!("slot-successful:{flashed}"),
+        format!("slot-retry-count:{flashed}"),
+    );
+    for (k, v) in &b {
+        if *k != successful && *k != retry && a[k] != *v {
+            return Err(format!("{k} changed from {v} to {}: the flash changes only slot {flashed}'s successful and retry count\n{before}\nthen\n{after}", a[k]));
+        }
+    }
+    match a.get(&successful).map(String::as_str) {
+        Some("no") => {}
+        other => {
+            return Err(format!(
+                "after the flash {successful} is {other:?}, the bootloader's reset leaves \"no\"\n{before}\nthen\n{after}"
+            ))
+        }
+    }
+    match a.get(&retry).and_then(|v| v.parse::<u8>().ok()) {
+        Some(n) if n >= 1 => Ok(()),
+        other => Err(format!(
+            "after the flash {retry} is {other:?}, the bootloader's reset leaves a positive count\n{before}\nthen\n{after}"
+        )),
+    }
+}
+
 /// After the way back: Android's slot is the current one and is not unbootable, and no flag appeared or went. (The flags of its boot counting, successful and the retry count, are the bootloader's and Android's own to set.)
 pub fn way_back_restored(before: &str, after: &str, android: &str) -> Result<(), String> {
     let (b, a) = (flags_of(before), flags_of(after));
@@ -926,7 +966,7 @@ impl FlashBoot {
         }
     }
 
-    /// The flash changed no slot flag.
+    /// The flash changed only what the bootloader resets on a write: the flashed slot's successful (to no) and retry count (to a positive number).
     pub fn the_flash_changed_no_flag(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
@@ -935,11 +975,8 @@ impl FlashBoot {
                 u.saved("slots-before.txt")?,
                 u.saved("slots-after-flash.txt")?,
             );
-            if a == b {
-                Ok(())
-            } else {
-                Err(format!("the flash changed the slot flags:\n{a}\nthen\n{b}"))
-            }
+            let target = u.target()?; // boot_a or boot_b: the slot is its last letter
+            flash_resets_only_the_flashed_slots_flags(&a, &b, &target[target.len() - 1..])
         }
     }
 
@@ -2138,5 +2175,80 @@ mod tests {
                 || said.contains("key"),
             "{said}"
         );
+    }
+}
+
+#[cfg(test)]
+mod flash_flag_tests {
+    use super::*;
+
+    /// Stage 2 run 1's own printed flags (research/walleye-display-s6e3fa5/2026-11-23/stage2-run.log, check 18): before the flash and after it.
+    const RUN1_BEFORE: &str = "current-slot:b\nslot-retry-count:a:0\nslot-retry-count:b:0\nslot-successful:a:yes\nslot-successful:b:yes\nslot-unbootable:a:no\nslot-unbootable:b:no";
+    const RUN1_AFTER: &str = "current-slot:b\nslot-retry-count:a:1\nslot-retry-count:b:0\nslot-successful:a:no\nslot-successful:b:yes\nslot-unbootable:a:no\nslot-unbootable:b:no";
+
+    fn with(text: &str, from: &str, to: &str) -> String {
+        assert!(text.contains(from), "{from}");
+        text.replace(from, to)
+    }
+
+    #[test]
+    fn what_run_1_printed_is_the_flash_resetting_slot_a() {
+        flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, RUN1_AFTER, "a").unwrap();
+    }
+
+    #[test]
+    fn the_retry_count_is_any_positive_number_not_one() {
+        for n in ["1", "3", "7"] {
+            let after = with(
+                RUN1_AFTER,
+                "slot-retry-count:a:1",
+                &format!("slot-retry-count:a:{n}"),
+            );
+            flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, &after, "a").unwrap();
+        }
+        let zero = with(RUN1_AFTER, "slot-retry-count:a:1", "slot-retry-count:a:0");
+        assert!(
+            flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, &zero, "a")
+                .unwrap_err()
+                .contains("positive")
+        );
+        let junk = with(RUN1_AFTER, "slot-retry-count:a:1", "slot-retry-count:a:x");
+        assert!(flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, &junk, "a").is_err());
+    }
+
+    #[test]
+    fn nothing_else_may_change() {
+        let bad = |from: &str, to: &str| {
+            flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, &with(RUN1_AFTER, from, to), "a")
+                .unwrap_err()
+        };
+        assert!(bad("slot-retry-count:b:0", "slot-retry-count:b:1").contains("slot-retry-count:b")); // b's count
+        assert!(bad("slot-successful:b:yes", "slot-successful:b:no").contains("slot-successful:b")); // b's flags
+        assert!(bad("slot-unbootable:b:no", "slot-unbootable:b:yes").contains("slot-unbootable:b"));
+        assert!(bad("slot-unbootable:a:no", "slot-unbootable:a:yes").contains("slot-unbootable:a")); // the flashed slot becomes unbootable
+        assert!(bad("current-slot:b", "current-slot:a").contains("current-slot"));
+        // the current slot moved
+    }
+
+    #[test]
+    fn the_flashed_slot_must_end_not_successful() {
+        let still = with(RUN1_AFTER, "slot-successful:a:no", "slot-successful:a:yes");
+        assert!(
+            flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, &still, "a")
+                .unwrap_err()
+                .contains("slot-successful:a")
+        );
+    }
+
+    #[test]
+    fn a_flag_that_appeared_or_went_is_an_error_and_the_other_slot_is_not_allowed_to_reset() {
+        let gone = RUN1_AFTER.replace("slot-unbootable:b:no", "");
+        assert!(
+            flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, gone.trim(), "a")
+                .unwrap_err()
+                .contains("names changed")
+        );
+        // the same text is NOT allowed for slot b: b's flags would be the ones that changed nothing, a's would have changed
+        assert!(flash_resets_only_the_flashed_slots_flags(RUN1_BEFORE, RUN1_AFTER, "b").is_err());
     }
 }
