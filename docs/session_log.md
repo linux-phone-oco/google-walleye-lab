@@ -7393,3 +7393,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-24-walleye-research-ufs-pin-100mhz-read"></a>
+### Why the UFS pin read back 100 MHz
+
+Entry date
+: 2026-11-23
+
+Done
+: walleye-research (scheduled research lead) took the lane's ready research item walleye-ufs-pin-100mhz-read (rank 1; the first listed row, walleye-device-config-sources-read, is in progress with its remaining parts waiting on their steps). Read v7.3 devfreq, governor_userspace, ufshcd and gcc-msm8998 at topic/ufs-match-android 0f3429f65ce4 and Android 4.4.302's ufshcd and clock-gcc-8998 at the local tag, and runs 6-7's captured files; recorded research walleye-ufs-pin-100mhz-read with three new sources, decision 2026-11-24-walleye-ufs-pin-asserts-the-holding-setting, unblocked the builder item walleye-ufs-pin-print-its-evidence. No phone.
+
+Considered
+: Whether 100 MHz meant G3 or a refused write; whether to queue a 50 MHz entry for gcc-msm8998's ufs_axi_clk_src as Android has.
+
+Rejected
+: Queuing the clock-table change now: nothing yet ties the 100 MHz core clock to the silence under load; the next run's evidence (debugfs clk_rate) comes first.
+
+About
+: walleye-bootimage

@@ -3335,3 +3335,34 @@ About
 
 Tracked by
 : walleye-stage2-production-image
+
+
+<a id="2026-11-24-walleye-ufs-pin-asserts-the-holding-setting"></a>
+### 2026-11-24-walleye-ufs-pin-asserts-the-holding-setting
+
+Date
+: 2026-11-23
+
+Brief
+: Step 16 asserts governor userspace, set_freq 50 MHz read back and gear HS_GEAR1; cur_freq 50 or 100 MHz both pass (100 is core_clk's rounding), 200 MHz fails
+
+Decision
+: The pin stays 'userspace + set_freq 50000000' (max_freq 50000000 on a node without userspace). Step 16 asserts what holds the pin and the state it gives: governor reads userspace, userspace/set_freq reads 50000000 (or max_freq reads 50000000), power_info gear reads HS_GEAR1; cur_freq is printed and passes as 50000000 or 100000000 and fails at anything else. It captures and prints the full evidence named in the research (before/after the governor write and after set_freq, dmesg after the write, debugfs gcc_ufs_axi_clk clk_rate where present).
+
+Why
+: Research walleye-ufs-pin-100mhz-read: on v7.3 ufshcd_devfreq_target rounds the request through clk_round_rate(GCC_UFS_AXI_CLK), whose mainline table starts at 100 MHz, and returns early while clock scaling is idle-suspended, so cur_freq (devfreq's previous_freq) reads 100 MHz for a pin that is in force; the gear follows the scale-down state (min_gear HS-G1). Runs 6 and 7 refused a correct pin.
+
+Rejected
+: Asserting cur_freq == 50000000 (runs 6-7's check): false refusal at idle, cur_freq is bookkeeping, not the clock. Asserting min_freq: the QoS floor, unchanged by the write, proves nothing. Switching to the max_freq clamp only: the same target() and the same rounding, and it would leave simple_ondemand free to re-evaluate; no gain. Adding a 50 MHz entry to gcc-msm8998's ufs_axi_clk_src (Android has one) now: a kernel change before anything shows the 100 MHz core clock bears on the silence; kept as a question for the evidence. Holding low by clkscale_enable=0: scales UP on both trees (research walleye-ufs-hold-the-clock-read).
+
+About
+: walleye-bootimage
+
+Research
+: walleye-ufs-pin-100mhz-read
+
+Scope
+: google-walleye-lab: walleye-tries step 16 (the_clock_is_pinned_low), its builder and the phone keeper's next UFS run
+
+Tracked by
+: walleye-ufs-pin-print-its-evidence

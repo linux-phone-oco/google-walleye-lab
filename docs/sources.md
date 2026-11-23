@@ -1894,3 +1894,33 @@ By
 
 Takes
 : mount pstore at /sys/fs/pstore and chmod console-ramoops (l.357-366); init only mounts it
+
+
+<a id="src-mainline-v73-gcc-msm8998-ufs-axi"></a>
+### Linux v7.3 drivers/clk/qcom/gcc-msm8998.c: ftbl_ufs_axi_clk_src and gcc_ufs_axi_clk
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/clk/qcom/gcc-msm8998.c?h=v7.3
+
+Takes
+: ufs_axi_clk_src's table is 100, 200, 240 MHz - no 50 MHz entry; gcc_ufs_axi_clk (the UFS core_clk) is CLK_SET_RATE_PARENT, so a 50 MHz request rounds/sets to 100 MHz (read at our tree topic/ufs-match-android 0f3429f65ce4)
+
+
+<a id="src-lineage-wahoo-4-4-302-clock-gcc-8998"></a>
+### LineageOS android_kernel_google_wahoo 4.4.302 drivers/clk/msm/clock-gcc-8998.c and msm8998.dtsi ufshc
+
+Url
+: https://github.com/LineageOS/android_kernel_google_wahoo
+
+Takes
+: Android's ftbl_ufs_axi_clk_src has 50, 100, 200, 240 MHz: the 50 MHz low clock exists there; the ufshc freq-table-hz is <50000000 200000000> as ours (local tag reference/android-walleye/4.4.302-g113bd1cfa6f5)
+
+
+<a id="src-mainline-v73-devfreq-core"></a>
+### Linux v7.3 drivers/devfreq/devfreq.c and governor_userspace.c
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/devfreq/devfreq.c?h=v7.3
+
+Takes
+: set_freq_store -> update_devfreq -> devfreq_update_target (clamp to min/max only) -> devfreq_set_target: previous_freq = the freq the driver's target() hands back; cur_freq_show prints previous_freq when the profile has no get_cur_freq (ufs-qcom's has none)

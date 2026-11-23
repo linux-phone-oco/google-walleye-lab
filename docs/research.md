@@ -7370,3 +7370,32 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-ufs-pin-100mhz-read"></a>
+### walleye-ufs-pin-100mhz-read
+
+Date
+: 2026-11-23
+
+Brief
+: The pin's 100 MHz is the AXI clock's rounding of 50 MHz (mainline gcc-msm8998 has no 50 MHz entry), reported while clock scaling is idle-suspended; the pin is the low state, not a refusal
+
+Question
+: Why does 'userspace + set_freq 50000000' read back cur_freq 100000000 on our v7.3 kernel (runs 6 and 7), what does that mean for the link, and what must step 16 assert?
+
+Found
+: Read only, from our tree topic/ufs-match-android 0f3429f65ce4 (v7.3, the matched image's) and the local tag reference/android-walleye/4.4.302-g113bd1cfa6f5; runs 6 and 7 (lab-material ufs-20261124-000728, -001519) both read 'simple_ondemand, clock 50000000' before and 'userspace, clock 100000000' after, gear HS_GEAR1 before. No phone.
+(1) The path. set_freq_store sets user_frequency=50000000 and calls update_devfreq -> devfreq_update_target, which only clamps to the node's min/max (50 MHz..200 MHz, the two OPPs ufshcd_devfreq_init adds from core_clk's freq-table-hz, since msm8998 has no operating-points-v2 so use_pm_opp=false): 50 MHz passes. devfreq_set_target calls ufshcd_devfreq_target, which FIRST overrides *freq = clk_round_rate(core_clk, 50 MHz) (ufshcd.c 1609-1612). core_clk is GCC_UFS_AXI_CLK, CLK_SET_RATE_PARENT on ufs_axi_clk_src, whose mainline table is 100/200/240 MHz - no 50 MHz - and rcg2 rounds up: *freq = 100 MHz. Then, if hba->clk_scaling.is_suspended (it is at idle: ufshcd_clk_scaling_suspend_work suspends scaling when a window ends with no requests), it warns 'clock scaling is suspended, skip' and returns 0 with *freq still 100 MHz (1620-1624). devfreq_set_target stores previous_freq = 100 MHz, and cur_freq_show prints previous_freq (ufs-qcom's profile has no get_cur_freq). Nothing in the hardware changed. Had scaling been active, scale_up = (100 MHz == max 200 MHz) is false, *freq = clki->min_freq = 50 MHz, scaling-not-required (already down): previous_freq 50 MHz. So 100 MHz is bookkeeping of the skipped request, not a clock change and not a refusal.
+(2) The 50 MHz one check earlier is the same bookkeeping: the last real scale-down (simple_ondemand, scaling active) handed back min_freq. clki->curr_freq is also the requested min_freq, never clk_get_rate. The real core clock at the 'low' OPP on our kernel is 100 MHz always: clk_set_rate(core_clk, 50 MHz) sets the RCG's ceiling entry, 100 MHz. Android's clock-gcc-8998.c table has 50 MHz, so Android's low state runs core_clk at 50 MHz; ours at 100 MHz. A difference from Android, NOT KNOWN YET whether it matters to the silent load (not shown to).
+(3) Android 4.4.302, the same two writes: its ufshcd_devfreq_target accepts only 0 (down) or UINT_MAX (up) and returns -EINVAL 'invalid freq' for 50000000; it registers no OPPs. So 'set_freq 50000000' FAILS on Android; the way there is set_freq 0. This corrects research walleye-ufs-hold-the-clock-read §4 ('on both trees'): the 50 MHz write is mainline's way only.
+(4) Gear: on the legacy path the gear follows the scale-up/down state, not the number: scale-down sets clk_scaling.min_gear = HS_G1. The read 100 MHz is the low state, HS-G1 on this card (gear-before HS_GEAR1 in runs 6 and 7); it is not G3. Under userspace the governor keeps requesting 50 MHz, so when load resumes scaling (resume_work -> update_devfreq) the target is scale-down again: no scale-up while userspace holds 50 MHz.
+What step 16 must assert: NOT cur_freq == 50000000 (it reads 100 MHz at idle by the rounding above, 50 MHz once scaling is active), NOT min_freq (the QoS floor, untouched by the write, proves nothing). Assert the setting that holds and the state it gives: governor reads 'userspace', userspace/set_freq reads 50000000, and power_info gear reads HS_GEAR1; cur_freq is printed and accepted as either the lowest OPP (50000000) or that OPP's rounding by core_clk (100000000), never 200000000. On a node without userspace (max_freq path), max_freq reads back 50000000 and the same gear.
+The next run must capture, before the governor write, after it and after set_freq: governor, available_governors, available_frequencies, min_freq, max_freq, cur_freq, userspace/set_freq, trans_stat, power_info gear/mode/lane; dmesg AFTER the write (the 'clock scaling is suspended, skip' line proves this read directly - runs 6 and 7's dmesg.txt was taken at boot, before the write); and /sys/kernel/debug/clk/gcc_ufs_axi_clk/clk_rate where debugfs is mounted (NOT KNOWN YET whether it is in the run's ramdisk), which should read 100000000 at the low state.
+NOT KNOWN YET: the warning line itself (not captured); the hardware clk_rate; whether the 100 MHz vs Android's 50 MHz core clock bears on the silence under load.
+
+Sources
+: src-mainline-v73-devfreq-core,src-ufs-mainline-v7-3-ufshcd,src-mainline-v73-gcc-msm8998-ufs-axi,src-lineage-wahoo-4-4-302-clock-gcc-8998,src-ufs-lineage-wahoo-4-4-302
+
+About
+: walleye-bootimage
