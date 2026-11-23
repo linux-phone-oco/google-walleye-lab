@@ -9461,40 +9461,6 @@ Rank
 : 8
 
 
-<a id="walleye-install-rootfs-boots-try"></a>
-### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
-
-Status
-: done
-
-Note
-: proven by run 5, all 26 steps passed (research walleye-rootfs-boots-run-5-passed)
-
-Blocked by
-: walleye-rootfs-boots-check-17-accepts-norecovery
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-23
-
-Needs
-: phone
-
-Proof
-: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
-
-Rank
-: 1
-
-Witness
-: person
-
-Go until
-: 2026-11-23T08:41:04+01:00
-
-
 <a id="walleye-rootfs-boots-check-17-live-state"></a>
 ### Check 17 of the stage 1 boot proves the hand-over from the live state (PID 1, the overlay root, the card read-only), not from a log line the init cannot write after it moved /dev
 
@@ -9670,7 +9636,7 @@ Status
 : open
 
 Note
-: From the stage 2 builder (PR 760, research walleye-install-flash-boot-procedure-built): the stage 2 command's way back needs our kernel to restart into the bootloader (fastboot set_active <Android's slot>), and that is NOT KNOWN YET (reboot-mode in the pon node; CONFIG_POWER_RESET_QCOM_PON=y is already in build/walleye.config). The coordinator's rule (the author's: attend only when the step is one command away): the run must not end in a hand step, so this try comes BEFORE the stage 2 run and is hands-free. The image with reboot-mode comes from item walleye-install-stage2-init-booted-slot (part two); a keeper tries it by RAM boot, one command. | 2026-11-23 UPDATE: no dts change needed (mode-bootloader=<2> is in the pon node from mainline, PR 765). The try is the NEXT STAGE 1 RUN on the rebuilt ufs-root image (item walleye-install-stage2-boot-image), whose way back tries reboot bootloader first (item walleye-way-back-reboot-bootloader-first): one command, no extra visit, a go naming the new image's sha256.
+: From the stage 2 builder (PR 760, research walleye-install-flash-boot-procedure-built): the stage 2 command's way back needs our kernel to restart into the bootloader (fastboot set_active <Android's slot>), and that is NOT KNOWN YET (reboot-mode in the pon node; CONFIG_POWER_RESET_QCOM_PON=y is already in build/walleye.config). The coordinator's rule (the author's: attend only when the step is one command away): the run must not end in a hand step, so this try comes BEFORE the stage 2 run and is hands-free. The image with reboot-mode comes from item walleye-install-stage2-init-booted-slot (part two); a keeper tries it by RAM boot, one command. | 2026-11-23 UPDATE: no dts change needed (mode-bootloader=<2> is in the pon node from mainline, PR 765). The try is the NEXT STAGE 1 RUN on the rebuilt ufs-root image (item walleye-install-stage2-boot-image), whose way back tries reboot bootloader first (item walleye-way-back-reboot-bootloader-first): one command, no extra visit, a go naming the new image's sha256. | 2026-11-23: its run is RERUN 6 under item walleye-install-rootfs-boots-try (the go carrier of the stage 1 procedure); this item closes when that run's research row says whether the bootloader was reached.
 
 Blocked by
 : walleye-install-stage2-boot-image,walleye-way-back-reboot-bootloader-first
@@ -9680,9 +9646,6 @@ About
 
 Opened
 : 2026-11-23
-
-Needs
-: phone
 
 Proof
 : from a fastboot boot (nothing written) of an image whose board dts has reboot-mode in the pon node: over ssh 'reboot bootloader' and the phone appears in fastboot (fastboot devices) within 60 s; then 'fastboot reboot' and Android answers on adb (idle-android); the GPT, boot chain and both slots' flags read equal before and after; no flash, no set_active, no fastboot oem; the mode value and register written come from READING the Android kernel's reboot-reason write (qpnp-power-on / msm-poweroff restart reason for bootloader, PON_SOFT_RB_SPARE) and mainline's qcom-pon driver, kept in a research row, not guessed; a run that does not reach the bootloader ends with the way back by the normal reboot (Android) and the research says what was written
@@ -9839,3 +9802,34 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-install-rootfs-boots-try"></a>
+### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
+
+Status
+: in-progress
+
+Note
+: TAKE THIS ITEM (the coordinator, 2026-11-23): RERUN 6 of the stage 1 boot, whose point is the BOOTLOADER WAY BACK (item walleye-reboot-bootloader-from-linux-try). Stage 1 passed on this image (run 5, all 26 steps, PR 759); PR 773 changed the way back: after the checks it runs 'reboot bootloader' over ssh, waits up to 60 s for fastboot to list the phone, reads fastboot getvar current-slot (must equal the slot read at the start), then fastboot reboot and waits for adb; if fastboot does not see the phone the old forced way back runs and the log says 'bootloader not reached'. Either end is a result: write it as a research row (the fastboot text it printed, bootloader-way-back.txt, is kept in the research row's material: it was never recorded before) with the GPT/boot chain/slot flags measured equal. The image is the one whose sha256 is c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9 and ONLY it (the stage 2 boot image e337de53 is for the flash and is not booted from RAM: its init needs the booted slot to be its own). The go below is the author's standing go, decision 2026-11-22-walleye-author-go-per-stage-not-per-step. Never fastboot set_active, flash, erase or oem in this run; never the bootloader partitions, the GPT written by our code, erase or purge. KEEPER: worktree from main with ln -s ~/Projects/walleye-build build/images, battery rule first, no short timeout, 'boot: starting' and ONE result line to the Top Coordinator local_12b18c70-1b6d-4783-bb6f-50113ab63250; a failed check: the evidence is read, write the research row, release the lease, no second run without the coordinator. | EARLIER: proven by run 5, all 26 steps passed (research walleye-rootfs-boots-run-5-passed)
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: ssh login succeeds and the health suite runs on the root (docs step rootfs-boots); the bootchain read-back check passes again against the stored set
+
+Rank
+: 1
+
+Witness
+: person
+
+Go until
+: 2026-11-23T11:22:54+01:00
