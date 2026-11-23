@@ -10956,10 +10956,10 @@ Rank
 ### The stage 2 rehearsal for real with the debug image declared: the init gate accepts ec741a98 and every read passes; nothing is written
 
 Status
-: open
+: done
 
 Note
-: Asked for by the coordinator (2026-11-23 16:00): the declared image changed (the first rehearsals found bugs the real run would have hit, checks 9, 18, and the pstore read's wiring). The stage 2 run (walleye-install-flash-boot-run) is opened after this passes, with an OUTCOMES paragraph in its note.
+: proven by research walleye-install-flash-boot-rehearsal-5-passed: 18 of 18 on main after PR 893, nothing written, phone on Android slot b
 
 About
 : walleye-bootimage

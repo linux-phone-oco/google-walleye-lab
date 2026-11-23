@@ -6886,3 +6886,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-1710-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Took walleye-install-flash-boot-rehearsal-5: real run 18 of 18, nothing written. Phone on Android slot b (adb device), stock slots as stored; no kept kernel change; healthy.
+
+Considered
+: next: the coordinator opens walleye-install-flash-boot-run with a go and an OUTCOMES paragraph; boot_a holds e337de53 (copy kept), stock backup on file. Fresh worktree needs build/images linked to ~/Projects/walleye-build.
+
+About
+: walleye-bootimage
