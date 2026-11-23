@@ -6861,3 +6861,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-stage2-run9-booted-alpine-cmdline-still-cut-no-slot-suffix"></a>
+### walleye-stage2-run9-booted-alpine-cmdline-still-cut-no-slot-suffix
+
+Date
+: 2026-11-23
+
+Brief
+: Run 9 (a0a55cd0): kernel, init and Alpine root ran (telnet, sda22), but /proc/cmdline ends at androidboot.pk=g-pxl-p: no slot_suffix; step 21 refused
+
+Question
+: With the header cmdline shortened to 149 characters, does the bootloader's androidboot.slot_suffix arrive, and does the debug image boot from slot a?
+
+Found
+: Run 9, 2026-11-23 19:27-19:31, go open, phone Android slot b. Checks 1-20 passed: boot_a flashed and read back as the image, set_active a made, GPT read. Step 21: USB 19:29:22 'Pixel 2 walleye (stage 2 debug init)' (first boot, gone after 21 s), then 19:30:06 'Pixel 2 walleye (Alpine)'; read over telnet: pid1 /sbin/init, /dev/sda22 ro on /lower with an overlay root, pstore mounted. So kernel, init and root work (outcome 2 of the go note; the slot came from the last-resort root=PARTUUID source, root system_a). But /proc/cmdline is about 1136 characters and ends inside the bootloader's own words at 'androidboot.pk=g-pxl-p'; androidboot.slot_suffix=_a, which Android's own line carries after pk, is missing again. Our header words (149) are not the cause: the cut falls in the bootloader's appended words, so shortening the header cannot bring it. The procedure refused (kernel not booted with slot_suffix=_a) and its way back ran: Android back on slot b (adb ro.boot.slot_suffix _b); flags a retry-count 1 successful no, b successful yes. Nothing else written. Files: ~/lab-material/walleye/install-boot-20261123-192731 (new-slot-read.txt, host-usb-log.txt, gpt-before.txt, slots-*.txt). Next, the coordinator decides: accept the slot from root=PARTUUID or the DT firmware/android node as step 21's proof, or find what cuts the line.
+
+About
+: walleye-display-s6e3fa5

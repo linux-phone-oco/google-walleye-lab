@@ -7030,3 +7030,18 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-1935-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Stage 2 run 9 made: kernel+init+Alpine root ran from boot_a (telnet read, sda22), step 21 refused for a cut cmdline (no slot_suffix); way back ran, phone on Android slot b, adb device; boot_a holds image a0a55cd0
+
+Considered
+: next: coordinator decides step 21 accepting the slot from root=PARTUUID or the DT node, or a cmdline-cut fix; no second run without a new go. Lease released.
