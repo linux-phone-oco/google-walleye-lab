@@ -9346,10 +9346,10 @@ Rank
 ### Alpine's login prompt on the Pixel's glass, with ssh over usb-network: B-r5's kernel and display modules with the Alpine userland as the root in RAM (UFS off), and the author's look as one command
 
 Status
-: in-progress
+: done
 
 Note
-: Keeper's unattended run done 2026-11-22: checks 1-15 pass, stopped at the look, phone on Android. NEXT: the author's look as the same one command on lpoco-attended with the answer file (research walleye-ramroot-b-a5-unattended-run-1). THE LOOK IS A KEEPER'S RUN, NOT A WAIT (2026-11-22, coordinator): the author's go is open on this item (the Pixel is in his hand, screen facing him, when the go is opened); the keeper RUNS procedures/alpine-login-on-the-glass-on-the-pixel-2.rs for real, NOW, with --answer-limit 300 (the answer file ~/.cache/lpoco-attended/google-walleye/answer; the Top Coordinator reads the prompt file and writes his answer); no dry run, no other item first (not the sensor hub, not anything else: the author is waiting); a worktree of google-walleye-lab on origin/main with ln -s ~/Projects/walleye-build build/images; NO short timeout (the prompt comes about 3 minutes after the start and the run waits up to 300 s); tell the Top Coordinator (SendMessage to local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'look: at the prompt now' when the prompt file is written and ONE result line at the end (his answer, the phone back on Android). Whatever ends the run, the way back runs. If a check fails before the look: stop, tell the Top Coordinator and the coordinator, do not rerun. At the end release the lease INSIDE the worktree and read lpoco-lab keeper status back as free; if the land conflicts, do not make a third branch: tell the coordinator. 2026-11-22 20:18 (coordinator):  THE AUTHOR'S WORD (2026-11-22, relayed by the Top Coordinator), verbatim: "ok, dont wait on me for the look" (the author, 2026-11-22, relayed by the Top Coordinator). So the attended look is DROPPED from this item: the lab's own measurement (the screen text over ssh showing 'walleye login:') is the result, reported to the Top Coordinator. The author saw the kernel log and OpenRC's text on the glass at the first look (his words in item walleye-display-alpine-getty-on-the-glass).
+: DONE 2026-11-23: the result is CHECK 15 of the keeper's unattended run on B-a5 83b9c4c6: the login prompt is the last row of the glass text (research walleye-ramroot-b-a5-v5-run-2-check-15-passes); the attended look is dropped (the author, 2026-11-22: 'ok, dont wait on me for the look'). The display, fbcon, Alpine's userland and ssh work together on the real glass.
 
 Blocked by
 : walleye-display-alpine-getty-on-the-glass
@@ -9374,10 +9374,10 @@ Rank
 ### The login prompt on the glass: find on which VT the getty and the glass are, fix it, and MEASURE it from the lab (the screen's text through /dev/vcs) before the author is asked to look again
 
 Status
-: in-progress
+: done
 
 Note
-: Built 2026-11-22 (walleye-builder): host side done and landed; B-a5 sha 3cb5adb8, rootfs v3 886ef625. Open: the keeper's unattended run of procedures/alpine-login-on-the-glass-on-the-pixel-2.rs - check 15 must pass (prompt in the screen's text) and only then the run stops at the look; if it fails, screen.txt and read.txt (active VT, consoles, ps tty) name the next cause. Next write to system_a takes [images.alpine-rootfs-v3]. 2026-11-22 (the second look, B-a5 3cb5adb8 with getty on tty1): the check's own measurement and the author's words are in item walleye-display-alpine-getty-experiments: the getty on tty1 is alive and the VT is the right one, yet no prompt on the screen text; the experiments item finds the cause.
+: DONE 2026-11-23: measured by the lab itself: B-a5 83b9c4c6 (rootfs v5), the keeper's unattended run alpine-login on 2026-11-23: checks 1-17 pass, check 15 passes with 'walleye login:' on the LAST row of the active VT's text read over ssh from /dev/vcs (research walleye-ramroot-b-a5-v5-run-2-check-15-passes); the run stops at the author's look (ask 18) as expected, and the author said not to wait for the look (2026-11-22). The cause was the order of OpenRC's output and then the kernel's late sync_state lines, fixed by rootfs v4 (respawn at the end of the default runlevel, PR 744) and v5 (dmesg -n 3, PR 758).
 
 Blocked by
 : walleye-display-alpine-getty-experiments
