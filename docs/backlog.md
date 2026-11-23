@@ -10208,9 +10208,6 @@ About
 Opened
 : 2026-11-23
 
-Needs
-: phone
-
 Proof
 : the one command passes every step: the boot of the new slot from the card on ssh, the GPT changed only by the slot switch, the way back set_active, the phone on Android, the boot chain as stored
 
@@ -10544,6 +10541,56 @@ Needs
 
 Proof
 : procedures/rehearse-install-boot-on-the-pixel-2.rs run by a keeper against the phone on Android (no go needed; nothing written; no fastboot flash, set_active, erase, oem or reboot verb; NO reboot of the phone): every step passes on main after PR 855, rust-script --force; its read-only pstore read (ls -la and cat of /sys/fs/pstore/*, /proc/cmdline, the boot-reason props) works over adb as root on the Android that is running and its text is kept as research material (whatever pstore holds now: it may be empty); one research row; the phone left as found
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-check-18-unbootable-clears"></a>
+### Stage 2's check 18 also allows the flash to clear the flashed slot's unbootable bit (yes to no, never no to yes), and the repeat audit is walked again against the state AFTER A FAILED BOOT of slot a
+
+Status
+: open
+
+Note
+: Run 5 (PR 859) stopped at check 18 after a no-op flash: the bootloader's flash cleared a's unbootable (yes to no) and reset retry (0 to 1); checks 1-17 passed, no set_active, no step 21, no pstore read. Fourth stop of one class (checks 18, 9, 16, 18 again): each a state the earlier audits did not walk. The run item is off the phone queue until this lands; the go (to 16:00) is extended by the coordinator.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) tools/walleye-tries/src/flash_boot.rs check 18: after the flash the flashed slot's successful may end no, its retry count may end positive (PR 836), and its unbootable bit may go from yes to no (NEW); it must NEVER go from no to yes; slot b's flags, the current slot, the flag names and every other byte stay equal; stand-in tests from run 5's printed text (research walleye-stage2-run5-stops-at-check-18-flash-resets-unbootable-too, the run's log): fails on today's code with a before-state of unbootable yes retry 0, passes on the amended one; one test each for 'unbootable goes no to yes', 'slot b changes', 'successful goes no to yes'; (2) THE AUDIT AGAIN: the audit of PR 847 walked all 29 steps against the state after rerun 3 (a: retry 1, successful no, unbootable no); run 5 met a DIFFERENT repeat state (a: unbootable yes, retry 0, successful no, left by the bootloader's fall back after run 4). Walk every step and the rehearsal against EACH state the command can start from: (i) the stock state, (ii) after one flash (a retry 1, unbootable no), (iii) after a failed boot of a (unbootable yes, retry 0), (iv) after a successful stage 2 and its way back, and say for each step which states it passes and which it assumes; amend any step that assumes (i); state-based test, not a per-step guess: one table in the research row; (3) dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-run-5-gpt-after-flash"></a>
+### Stage 2 run 5: what changed in the GPT when the flash cleared slot a's unbootable and reset its retry? Read it from Android and compare with the run's gpt-before
+
+Status
+: open
+
+Note
+: The Top Coordinator's rule for any change of check 18 (2026-11-23): the GPT must show only slot a's attribute bits. Run 5 stopped before its own GPT-after, so it is read now from Android.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: phone
+
+Proof
+: as walleye-stage2-run-1-gpt-after-flash (PR 834): from the running Android b, read only, NO reboot, no fastboot verb: the six disks' GPTs read whole the way the stage 2 command reads them, compared with run 5's own gpt-before (kept by the run): every differing byte listed with disk, offset and class; the verdict says whether ONLY slot a's attribute bits and the CRCs they imply differ; the boot chain equal; one research row; if anything else differs STOP and tell the coordinator and the Top Coordinator at once
 
 Rank
 : 1
