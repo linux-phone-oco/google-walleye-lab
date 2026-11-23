@@ -6130,3 +6130,24 @@ Done
 
 Considered
 : next: coordinator decides third run (load in a lower-priority/bounded form, or read the after GPT and flags separately as PR 776 did); walleye-install-flash-boot waits on the stage 2 image
+
+---
+
+
+<a id="2026-11-23-walleye-kernel-topics-branches-pushed-lists"></a>
+### Walleye kernel topics: branches pushed, lists written, reproduction differs by two commits
+
+Entry date
+: 2026-11-23
+
+Done
+: Gave the three held commits branches on the fork before anything else; cut topics on v7.3 for fuel gauge, UFS (six commits), audio (8 of 9 patches), panel, MDSS reset; pushed all; wrote kernel/topics.toml; ran rhizoid assemble for ufs-off and ufs-on with --reproduces: DIFFERS in pm8916_wdt.c only (the two reboot/reset-type fixes of the topic tip).
+
+Considered
+: Moving topic/pmic-wdt-wake-in-suspend back to e123d3bff (force push of a branch the upstream row cites); splitting the two fixes into a stacked topic
+
+Rejected
+: Calling the result equal: the tool says differs; a branch pointing at e123d3bff only to satisfy the check hides the two fixes
+
+About
+: walleye-kernel-dts
