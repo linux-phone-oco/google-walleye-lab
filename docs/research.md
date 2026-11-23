@@ -6776,3 +6776,25 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-install-flash-boot-rehearsal-6-passed"></a>
+### walleye-install-flash-boot-rehearsal-6-passed
+
+Date
+: 2026-11-23
+
+Brief
+: Stage 2 rehearsal 6 on main (9ec5118): 18 of 18 passed, nothing written; whole stdout and the slot flags kept as a captured fixture
+
+Question
+: What do the slot flags, the six GPTs and the init gate print on the phone now, as captured text for the offline walk and the sourced-checks gate?
+
+Found
+: 18 of 18 passed in 89 s, nothing written, phone on Android slot b. Flags read twice and equal (steps 12/13, in rehearsal-6-slots-before/again.txt): current b; retry a 0, b 0; successful a no, b yes; unbootable a yes, b no. Six GPTs (4096-byte sectors) equal before and after; entry counts sda 48, sdb 4, sdc 4, sdd 20, sde 8, sdf 8. boot_a holds e337de53 (stock backup 2a5cd3b2 on file, hashes to its record). Debug image's init says: names its root system_a; accepts the slot it is booted from. pstore empty after the excursion (up 0 min), bootreason reboot, sys bootreason bootloader, verifiedbootstate orange. Note: stdout prints no flag text at steps 12/13; the flags are in the kept slots files. Full stdout: rehearsal-6-stdout.txt; fuller material in ~/lab-material/walleye/install-boot-rehearsal-20261123-172447 (GPT dumps 540 kB each).
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/

@@ -11053,10 +11053,10 @@ Rank
 ### The stage 2 rehearsal once more, 80 s read only, with the WHOLE stdout kept as captured text: the flags and states the walk and the sourced checks need
 
 Status
-: open
+: done
 
 Note
-: From the keeper's report on rehearsal 5 (PR 895): the run passed 18 of 18 but only the last 40 lines of stdout were kept, so the flags text at steps 12/13 is not on file; the sources gate (walleye-checks-name-their-sources) needs captured text. Rule for every keeper run from now: tee the whole output into the research material.
+: proven by rehearsal 6: 18 of 18 passed, whole stdout and slot flags kept in research/walleye-bootimage/2026-11-23/rehearsal-6-*.txt; phone on Android slot b
 
 About
 : walleye-bootimage
