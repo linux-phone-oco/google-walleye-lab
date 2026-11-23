@@ -5944,3 +5944,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ufs-try-2-run-1-gpt-equal-result"></a>
+### walleye-ufs-try-2-run-1-gpt-equal-result
+
+Date
+: 2026-11-23
+
+Brief
+: UFS try 2 run 1: EQUAL - sda's GPT hash is 2de02f2b...57cb before (the run) and after (Android), the boot chain reads back the same bytes
+
+Question
+: Is the card's GPT unchanged after UFS try 2 run 1, which stopped at step 16 before its own hash-equal check?
+
+Found
+: EQUAL. From Android (adb root, read only, nothing written, battery 4376 mV): sha256 of sda's GPT read as rootfs_boot::gpt_command reads it (dd 6 blocks at the start and 5 at the end of /dev/block/sda, 4096 B) = 2de02f2bb790342885ebb3d70683d3db6d0cf70ead73a4b3cf738ca9b4cd57cb; the run's hash was 2de02f2b...57cb. tests/host/bootchain-readback.sh read 32 partitions to ~/lab-material/walleye/bootchain-2026-11-23-gpt-equal; bootchain-readback-check.sh against bootchain-2026-11-19-2: pass, same bytes. Active slot b (ro.boot.slot_suffix); nothing sent that could change the flags (no fastboot, no set_active). Not read this time: the slot flags by getvar (phone stays on Android). So the run harmed nothing the checks can see.
+
+About
+: walleye-first-fastboot-boot

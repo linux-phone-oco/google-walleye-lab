@@ -9795,10 +9795,10 @@ Go until
 ### UFS try 2 run 1: is the card's GPT unchanged? Read it again from Android as root and compare with the hash the run took before
 
 Status
-: open
+: done
 
 Note
-: UFS try 2 run 1 stopped at step 16 (PR 772), so the run's own GPT hash-equal check (17) did not run and 'unharmed' is NOT KNOWN YET. The run wrote nothing (read only, UFS-on kernel from RAM) but the check is cheap and read only, so it is made now: a keeper on Android, no boot.
+: proven by research walleye-ufs-try-2-run-1-gpt-equal-result: EQUAL (2de02f2b...57cb both times), boot chain read-back check pass
 
 About
 : walleye-display-s6e3fa5
