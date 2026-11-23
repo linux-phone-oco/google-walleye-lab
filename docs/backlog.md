@@ -10981,10 +10981,57 @@ Rank
 ### Stage 2's check on the boot partition accepts a boot_a that holds an EARLIER image of ours (not only the stock backup or the declared image), the stock backup on file; and the walk by state gets that state
 
 Status
+: done
+
+Note
+: SUPERSEDED 2026-11-23 by walleye-stage2-state-model-walk and walleye-stage2-checks-should-they-exist (the Top Coordinator's order: five stops are one sign; no more one-at-a-time patches). Nothing of it was landed. | Rehearsal 5 (the keeper local_574b1b94, PR 888 era) stopped at check 8 on a real run, twice: boot_a holds e337de53 (an earlier stage 2 image), neither the stock backup 2a5cd3b2 nor the declared ec741a98: 'the flash could not be undone'. Nothing written, Android on b. Fifth stop of the first-run class (checks 18, 9, 16, 18 again, 8): the audit by state did not have 'boot_a holds a different image of ours'. Rejected: restoring the stock boot_a first (a write, a go of its own, to satisfy a check). The stage 2 run goes ahead after the rehearsal passes.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Proof
+: (1) tools/walleye-tries/src/flash_boot.rs: the check that boot_a read now is its backup OR the declared image (check 8 of the rehearsal, 9 of the command) also passes when boot_a equals any EARLIER image of ours the lane recorded: the list is named in device.toml ([procedures.install-boot-on-the-pixel-2] earlier_images = the [images.*] names, today ufs-root-booted-slot = e337de53, never typed shas), each row's file and sha256 read from device.toml, WHILE the stock backup boot_a.img is on file and still hashes to its record 2a5cd3b2; it fails for any other content, a missing or changed backup, and says which; (2) stand-in tests from the printed text of rehearsal 5 (research walleye-install-flash-boot-rehearsal-5-stops-at-check-8: boot_a e337de53, backup 2a5cd3b2, declared ec741a98): fails on today's code, passes on the amended; one test each for the failing cases; (3) the walk by state (research walleye-stage2-walk-by-state) gets state (v): boot_a holds an earlier image of ours, slot a flags after a failed boot (unbootable, retry 0) AND after a flash; every step of the command and the rehearsal is walked against it offline and the table in the research row is extended; (4) the by-state audit of item walleye-checks-name-their-sources is NOT done here; dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-checks-should-they-exist"></a>
+### Stage 2 as a whole, questions (1) and (2): which of the 29 steps' pre-checks protect anything, and how do fastboot's flash path, update_engine and boot_control write a slot: the table step by step, keep, relax or drop, each with its reason and source
+
+Status
 : open
 
 Note
-: Rehearsal 5 (the keeper local_574b1b94, PR 888 era) stopped at check 8 on a real run, twice: boot_a holds e337de53 (an earlier stage 2 image), neither the stock backup 2a5cd3b2 nor the declared ec741a98: 'the flash could not be undone'. Nothing written, Android on b. Fifth stop of the first-run class (checks 18, 9, 16, 18 again, 8): the audit by state did not have 'boot_a holds a different image of ours'. Rejected: restoring the stock boot_a first (a write, a go of its own, to satisfy a check). The stage 2 run goes ahead after the rehearsal passes.
+: THE TOP COORDINATOR'S ORDER (2026-11-23, under 0.3.71: five stops are one sign, not five fixes): before check 8 is patched, answer the three questions for the command AS A WHOLE, fix every state at once, then ONE rehearsal; no phone time on a sixth one-at-a-time stop. Questions (1) and (2). The builder's item walleye-stage2-state-model-walk (question 3) runs in parallel and applies this table. Nothing is patched one at a time any more.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row (one table) with sources and lines: (1) SHOULD THEY EXIST: for each of the 29 steps of procedures/install-boot-on-the-pixel-2.rs (and its rehearsal's 17): what it PROTECTS, in terms of the invariants safety really rests on (boot_b and every other partition untouched; the GPT changed only in the flashed slot's attribute bits and the CRCs they imply; the written image verified by read-back; a way back proven and the bootloader's counter as the second path), and keep, relax or DROP with the reason: the pre-checks that assert what boot_a held BEFORE (we overwrite boot_a, keep a backup and verify after writing) are the ones to test hardest: say which of them protect anything; (2) HOW THE WORKING SYSTEM DOES IT: read fastboot's flash path (system/core/fastboot: fb_flash / do_flash, what it verifies), AOSP's update_engine (writes the inactive slot whatever it held, SetSlotAsUnbootable before, SetActiveBootSlot after) and boot_control (markBootSuccessful, setSlotAsUnbootable): they judge a slot by verification and the boot counter, not by its prior contents; cited by file and line (AOSP is Apache-2.0: read for behaviour only); (3) the table also answers WHAT LET EACH STOP THROUGH (checks 18, 9, 16, 18 again, 8): which review or rehearsal could have caught it; no phone
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-state-model-walk"></a>
+### Stage 2 as a whole, question (3): every start state the command can meet, all 29 steps (and the rehearsal's 17) walked offline over every combination from captured text, every failing state fixed at once, then ONE rehearsal
+
+Status
+: open
+
+Note
+: THE TOP COORDINATOR'S ORDER (2026-11-23, under 0.3.71: five stops are one sign, not five fixes): before check 8 is patched, answer the three questions for the command AS A WHOLE, fix every state at once, then ONE rehearsal; no phone time on a sixth one-at-a-time stop. Question (3). Replaces the one-at-a-time patch of check 8. Start now with the model and the harness (they do not wait for the research); apply the keep/relax/drop table when walleye-stage2-checks-should-they-exist lands. The five stops so far: check 18 (flags after the flash), 9 (boot_a equals the stock backup), 16 (the flash changes boot_a), 18 again (unbootable clears), 8 (boot_a holds an earlier image of ours).
 
 About
 : walleye-bootimage
@@ -10996,7 +11043,7 @@ Needs
 : build
 
 Proof
-: (1) tools/walleye-tries/src/flash_boot.rs: the check that boot_a read now is its backup OR the declared image (check 8 of the rehearsal, 9 of the command) also passes when boot_a equals any EARLIER image of ours the lane recorded: the list is named in device.toml ([procedures.install-boot-on-the-pixel-2] earlier_images = the [images.*] names, today ufs-root-booted-slot = e337de53, never typed shas), each row's file and sha256 read from device.toml, WHILE the stock backup boot_a.img is on file and still hashes to its record 2a5cd3b2; it fails for any other content, a missing or changed backup, and says which; (2) stand-in tests from the printed text of rehearsal 5 (research walleye-install-flash-boot-rehearsal-5-stops-at-check-8: boot_a e337de53, backup 2a5cd3b2, declared ec741a98): fails on today's code, passes on the amended; one test each for the failing cases; (3) the walk by state (research walleye-stage2-walk-by-state) gets state (v): boot_a holds an earlier image of ours, slot a flags after a failed boot (unbootable, retry 0) AND after a flash; every step of the command and the rehearsal is walked against it offline and the table in the research row is extended; (4) the by-state audit of item walleye-checks-name-their-sources is NOT done here; dry run, check --host, tests, clippy, fmt, review; no phone
+: (1) a STATE MODEL in the code or a table next to the tests: boot_a content in {stock backup, an earlier image of ours (every [images.*] row that was flashed, by name), the declared image, unknown (any other bytes, or unreadable)}; slot a flags in {as stock (retry, successful as the bootloader had them), after one flash (retry reset, successful no, unbootable no), after a failed boot and fall back (unbootable yes, retry 0, successful no), after a flash that cleared unbootable, after a successful stage 2 and its way back}; slot b's flags {successful yes current} and a b that is NOT successful (unknown); the current slot and the priority as far as getvar shows; (2) a table-driven offline harness walks ALL 29 steps and the rehearsal's 17 over every combination of these, from CAPTURED text (research material of runs 1 to 7 and rehearsals 1 to 5: no typed fixture), and says per step and per state: passes, stops (and why), or is not reachable; every state in which a step stops that the research (item walleye-stage2-checks-should-they-exist) says should NOT stop is FIXED in the same change (the check relaxed or dropped, with the research row cited as its source in procedures/SOURCES.toml); a step that must stop (an unsafe state: b not successful, the GPT differs in more than the slot bits, the image does not verify) has a test that it does; (3) after it, the stage 2 command passes its dry run and ONE rehearsal for real is queued (a keeper): no run before it; (4) the earlier item walleye-stage2-check-8-earlier-images is superseded by this one; dry run, check --host, tests, clippy, fmt, review; no phone
 
 Rank
 : 1
