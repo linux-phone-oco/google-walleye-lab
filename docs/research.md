@@ -6694,3 +6694,28 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-stage2-checks-should-they-exist"></a>
+### walleye-stage2-checks-should-they-exist
+
+Date
+: 2026-11-23
+
+Brief
+: Of stage 2's 29 steps three assertions guard nothing (8 marker, 9 live content, 18 flashed-slot flags); fastboot and update_engine judge a slot by verification and counter, not prior content
+
+Question
+: Which of install-boot's 29 steps protect safety, and how do fastboot, update_engine and boot_control write a slot?
+
+Found
+: Table in research/walleye-bootimage/2026-11-23/stage2-checks-should-they-exist.md. Invariants: I1 other partitions untouched, I2 GPT only slot bits+CRC, I3 read-back, I4 way back + counter. fastboot flash asserts nothing of the target's old content and does not read back; update_engine marks the target unbootable first (download_action.cc l.199), verifies the target hash, sets active only after success: every flag state of the target is legal before the switch. Verdicts: DROP 8's marker refusal, 9's live-content assertion (keep backup-on-file), 18's flashed-slot flag assertion (keep Android slot's flags unchanged); RELAX 20, 29; the rest KEEP, 12 and 16 hardest. Flags 13/18/20/24 are the GPT bits 10/22/28 read: one nature two routes. Stops let through by asserting values of state the command changes. Not known yet: walleye ABL's vendor boot_control behaviour on set_active; stop 8's text.
+
+Sources
+: aosp-fastboot-cpp-android11,aosp-update-engine-download-action,aosp-update-engine-postinstall,aosp-update-engine-boot-control-android,aosp-boot-hal-bootcontrol,aosp-update-engine-fs-verifier,aosp-update-attempter-android
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/

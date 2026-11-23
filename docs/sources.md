@@ -1728,3 +1728,94 @@ By
 
 Takes
 : probe: is_running reads WDT_EN bit 0, then qcom_wdt_start (EN=0, RST, bark=timeout-pretimeout, bite=timeout, EN=1) and WDOG_HW_RUNNING; default timeout 30 s, pretimeout 1; the core pets a HW_RUNNING watchdog only while userspace has not activated it (watchdog_need_worker)
+
+
+<a id="aosp-fastboot-cpp-android11"></a>
+### AOSP system/core fastboot/fastboot.cpp (android11-release)
+
+Url
+: https://android.googlesource.com/platform/system/core/+/refs/heads/android11-release/fastboot/fastboot.cpp
+
+By
+: Google
+
+Takes
+: do_flash l.1232, flash_buf l.1044, set_active l.1246: what fastboot flash does and does not verify (behaviour only)
+
+
+<a id="aosp-update-engine-download-action"></a>
+### AOSP update_engine payload_consumer/download_action.cc (android11-release)
+
+Url
+: https://android.googlesource.com/platform/system/update_engine/+/refs/heads/android11-release/payload_consumer/download_action.cc
+
+By
+: Google
+
+Takes
+: l.199: the target slot is marked unbootable before the write
+
+
+<a id="aosp-update-engine-postinstall"></a>
+### AOSP update_engine payload_consumer/postinstall_runner_action.cc (android11-release)
+
+Url
+: https://android.googlesource.com/platform/system/update_engine/+/refs/heads/android11-release/payload_consumer/postinstall_runner_action.cc
+
+By
+: Google
+
+Takes
+: l.343-347: the target slot is made active only after success
+
+
+<a id="aosp-update-engine-boot-control-android"></a>
+### AOSP update_engine boot_control_android.cc (android11-release)
+
+Url
+: https://android.googlesource.com/platform/system/update_engine/+/refs/heads/android11-release/boot_control_android.cc
+
+By
+: Google
+
+Takes
+: MarkSlotUnbootable l.107, SetActiveBootSlot l.124, MarkBootSuccessfulAsync l.138
+
+
+<a id="aosp-boot-hal-bootcontrol"></a>
+### AOSP hardware/interfaces boot/1.0/default/BootControl.cpp (android11-release)
+
+Url
+: https://android.googlesource.com/platform/hardware/interfaces/+/refs/heads/android11-release/boot/1.0/default/BootControl.cpp
+
+By
+: Google
+
+Takes
+: the HIDL boot control: thin wrapper over the vendor module
+
+
+<a id="aosp-update-engine-fs-verifier"></a>
+### AOSP update_engine payload_consumer/filesystem_verifier_action.cc (android11-release)
+
+Url
+: https://android.googlesource.com/platform/system/update_engine/+/refs/heads/android11-release/payload_consumer/filesystem_verifier_action.cc
+
+By
+: Google
+
+Takes
+: l.92-100: source and target hash steps: the written slot is verified, not judged by prior content
+
+
+<a id="aosp-update-attempter-android"></a>
+### AOSP update_engine update_attempter_android.cc (android11-release)
+
+Url
+: https://android.googlesource.com/platform/system/update_engine/+/refs/heads/android11-release/update_attempter_android.cc
+
+By
+: Google
+
+Takes
+: l.362-372: cancel path re-sets the current slot active and successful
