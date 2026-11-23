@@ -6337,3 +6337,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-23-1100-walleye-keeper-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-23
+
+Done
+: Android slot b, stock kernel, nothing flashed. UFS try 2 run 3 ran and stopped at step 16 (shell silent under load, as run 2); GPT re-read EQUAL, boot chain 32 partitions same bytes; adb root left on after the read
+
+Considered
+: next: coordinator closes try 2 (no fourth run); then install stage 2 image from the build lane, slpi-boot-qrtr, nfc node
+
+About
+: walleye-first-fastboot-boot

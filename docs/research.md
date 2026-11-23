@@ -6177,3 +6177,22 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-23/
+
+
+<a id="walleye-ufs-try-2-run-3-silent-shell-gpt-equal"></a>
+### walleye-ufs-try-2-run-3-silent-shell-gpt-equal
+
+Date
+: 2026-11-23
+
+Brief
+: UFS try 2 run 3: 3.1.0, PHY 3.1.0, HS-G3 2 lanes 200 MHz under load (7 samples), shell silent again at step 16; GPT EQUAL after; Android back
+
+Question
+: With the silent shell kept as a reading and the wait run to the limit plus 60 s (PR 812), does the matched UFS image finish the bounded read, the 2 s-after gear and the hash-equal check?
+
+Found
+: No. Checks 1-15 pass: UFS_HW_VERSION 3.1.0, PHY table 3.1.0, 6 disks, sda 45 partitions, GPT hash before 2de02f2bb790342885ebb3d70683d3db6d0cf70ead73a4b3cf738ca9b4cd57cb, idle HS_GEAR1 clock 50 MHz, under load HS_GEAR3 2 lanes 200 MHz for 7 samples. Then the shell stopped answering 'cat /tmp/load.done' (10 s each, 6 reads unanswered) and the run stopped at step 16 after the wait to the read's limit plus 60 s: the shell did not come back. Same stop as run 2. Phone-side cause of the silence NOT KNOWN YET. Not reached: gear 2 s after load, GPT-after, no-purge check, slot flags. Way back ran: phone on Android slot b. Read again from Android (adb root, read only): GPT hash 2de02f2b...57cb EQUAL to before; bootchain-readback of 32 partitions, check against bootchain-2026-11-19-2: pass, same bytes. Log kept at ~/lab-material/walleye/ufs-try2-run3.log; no gear-load.txt was kept by the run. Per the run sheet no fourth run without the coordinator, who closes try 2 on the facts.
+
+About
+: walleye-first-fastboot-boot
