@@ -10800,3 +10800,78 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-checks-name-their-sources"></a>
+### Every check in procedures/*.rs and every expectation in tests/host/*.sh names its source, host selftest fixtures are text a phone printed kept as files, and a CI gate refuses the rest
+
+Status
+: open
+
+Note
+: THE ORDER (the Steward, relaying the Top Coordinator and the author's words of 2026-11-23, ideal-agent 0.3.71, decision 2026-11-23-a-stop-is-read-before-the-fix): walleye's procedure tests refuse unsourced checks; one report to the Steward when it has landed, nothing before. Orchestration has the lab-tools half (lpoco attended check refuses a check with no source); this item is walleye's half: giving every existing check its source and the CI step. It ranks with the phone work: a go without outcomes opens no run (see item walleye-go-lists-outcomes). Lands between keeper runs when it touches procedures.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) SOURCES: every check(..) step of the 13 procedures/*.rs (about 150) and every expectation of the tests/host/*.sh (96 scripts) names its source: a research row id (data/research.json), a doc (path or URL kept as a source row), or a captured-text file under the repo (research/.../ material); the convention is machine-read: a table procedures/SOURCES.toml (step name to source) and a tests/host/SOURCES.toml (script to source), or the 'source=' argument that lpoco attended check will require once orchestration's half lands (lab-tools: refuses a check with no source): the interim gate is tests/host/checks-have-sources.sh, which fails on any check or expectation without a source and on a source that does not exist (research id absent, file missing), and is a step of .github/workflows/check.yml; (2) FIXTURES: every fixture of a host selftest is TEXT A PHONE PRINTED, kept as a file under tests/fixtures/phone-text/ with a provenance line (the run, the date, the research row it came from); a fixture typed as a stand-in is refused by the gate (a typed one is replaced by a captured one or its check is marked as not yet sourced and listed); (3) THE STOPS AS TEST CASES: each of today's stops is refused BEFORE its fix or carries a source AFTER it: stage 2 checks 9, 16 and 18 (the first versions assumed a first run; the amended ones cite research walleye-stage2-flash-resets-flags-documented, walleye-stage2-run-1-gpt-after-flash-finding, walleye-stage2-rerun-2-stops-at-check-9-boot-a-is-the-image, walleye-stage2-rerun-3-stops-at-check-16-flash-changes-nothing, walleye-stage2-run5-stops-at-check-18-flash-resets-unbootable-too), the stage 1 check 17 (norecovery vs noload stand-in; research walleye-rootfs-boots-run-4-check-17-wants-noload-mounts-say-norecovery) and the run 7 pstore read (tests/host/pstore-*-read.sh, ml3-ramoops-read.sh: their source is the claim that pstore survives the reset, which research walleye-pstore-warm-reset-how-it-stands and walleye-ml3-pstore-empty do not support after a hard reset): the gate has a test that the OLD form of each is refused (a fixture of the unsourced form), and the new form passes; (4) nothing changes what a phone run does; dry run, check --host, tests, clippy, fmt, review
+
+Rank
+: 2
+
+
+<a id="walleye-stops-three-answers"></a>
+### For each of today's stops, three answers recorded through ikb: should the check exist, how does Android or upstream do it (source plus captured text), and what let it through
+
+Status
+: open
+
+Note
+: THE ORDER (the Steward, relaying the Top Coordinator and the author's words of 2026-11-23, ideal-agent 0.3.71, decision 2026-11-23-a-stop-is-read-before-the-fix): walleye's procedure tests refuse unsourced checks; one report to the Steward when it has landed, nothing before. This item is the Steward's 'three answers' for each stop; the coordinator already knows part of (c): each of check 9, 16 and 18 assumed the state of a first run, and the typed stand-ins (check 17) were never taken from a phone.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: one research row per stop (or one row with a section per stop, each id cited by the backlog items it concerns), each answering with sources: (a) SHOULD IT EXIST: the check's purpose in one sentence and whether that purpose still stands; (b) HOW ANDROID OR UPSTREAM DOES IT: from source plus captured text (AOSP boot_control and update_engine for the slot flags, the bootloader's flash handling, mainline qcom-wdt, the ext4 /proc/mounts printing norecovery for noload, Android's pstore handling), cited; (c) WHAT LET IT THROUGH: the review step or rehearsal that did not catch it (a typed stand-in; a first-run assumption; a state the audit did not walk; an expectation without a source). Stops: stage 2 check 18 (flags after flash, twice: successful and retry; then unbootable), check 9 (boot_a equals the stock backup), check 16 (the flash changes boot_a), stage 1 check 17 (the log line, then noload versus norecovery), the run 4 and 7 pstore reads (pstore as the evidence channel for slot a), the UFS try 2 step 16 (silent shell under load); the rows feed the gate's test cases of item walleye-checks-name-their-sources
+
+Rank
+: 2
+
+
+<a id="walleye-go-lists-outcomes"></a>
+### A run's go lists its outcomes and what each proves; ikb backlog-go refuses a go without them (idealkb's record, asked of orchestration), and until then every walleye go carries them in its item note
+
+Status
+: open
+
+Note
+: THE ORDER (the Steward, relaying the Top Coordinator and the author's words of 2026-11-23, ideal-agent 0.3.71, decision 2026-11-23-a-stop-is-read-before-the-fix): walleye's procedure tests refuse unsourced checks; one report to the Steward when it has landed, nothing before. Part 3 of the order. Asked of orchestration 2026-11-23. The coordinator's rule from now: the item's note carries an OUTCOMES paragraph before the go is set; a go without outcomes opens no run.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: (1) records/backlog-go.sql is idealkb's generic record (ideal-knowledge-base 0.21.0, not in this base's own list: tables.toml and records/backlog.sql are): the change (a required --outcomes option, one line per outcome as 'if X then it proves Y', refused when missing) belongs to idealkb and is ASKED of orchestration and the ikb session, not made here; (2) UNTIL THEN walleye's own rule, enforced by a gate in this repo: tests/host/go-has-outcomes.sh fails when an item with an open go (go_until in the future) has a note without an 'OUTCOMES:' paragraph listing at least two outcomes with what each proves, and it is a step of check.yml (the coordinator writes every go that way from now on); dry run, tests, review
+
+Rank
+: 2
