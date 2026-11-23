@@ -1,4 +1,10 @@
-# Building the first walleye image
+# build - scripts that build the Pixel 2's kernel, initramfs and boot images
+
+They run on the lab machine and write into `~/Projects/walleye-build/` (outside git); `device.toml [images.*]`
+says which image is which. One script per try grew here (about 175); once test kernels come from `int/walleye`
+tags (docs decision 2026-11-23-structure-kernel-topics-and-integration), one image build replaces them.
+
+## Building the first walleye image
 
 Everything here builds the first thing the phone is tried with: mainline v7.3 + our own `dt/msm8998-google-walleye.dts`, a
 small initramfs with a USB gadget, a v0 boot image. Nothing here touches the phone (no fastboot, no adb); the keeper boots
