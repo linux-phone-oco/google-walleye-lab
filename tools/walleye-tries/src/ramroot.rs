@@ -53,8 +53,8 @@ pub const PROMPT_WAIT: u64 = 30;
 /// with its tty, the inittab, the kernel's command line and the hostname - what the next try needs if the screen's check fails.
 pub const READ_COMMAND: &str = "echo ---id; id -u; echo ---kernel; uname -r; echo ---mounts; cat /proc/mounts; echo ---ps; (ps -o pid,args 2>&1 || ps 2>&1); echo ---pstty; (ps -o pid,tty,args 2>&1 || true); echo ---active; cat /sys/class/tty/tty0/active 2>&1; echo ---consoles; cat /proc/consoles 2>&1; echo ---inittab; cat /etc/inittab 2>&1; echo ---cmdline; cat /proc/cmdline 2>&1; echo ---hostname; hostname; echo ---dmesg; dmesg; echo ---services; rc-status --crashed 2>&1 || true; echo ---net; ip -o addr show usb0 2>&1; echo ---end";
 
-/// The screen's text, read by the lab: the hostname, the VT the glass shows, then that VT's text (/dev/vcs is the active VT's), one line per screen row.
-pub const SCREEN_COMMAND: &str = "echo ---hostname; hostname; echo ---active; cat /sys/class/tty/tty0/active 2>&1; echo ---screen; c=$(stty size </dev/tty0 2>/dev/null | cut -d' ' -f2); if [ \"${c:-0}\" -gt 0 ] && fold -w \"$c\" /dev/vcs 2>/dev/null; then :; else cat /dev/vcs 2>&1; fi; echo ---end";
+/// The screen's text, read by the lab: the hostname, the VT the glass shows, then that VT's text (/dev/vcs is the active VT's), one line per screen row. /dev/vcs ends without a newline (the last row is padding), so `echo` ends that row before the marker.
+pub const SCREEN_COMMAND: &str = "echo ---hostname; hostname; echo ---active; cat /sys/class/tty/tty0/active 2>&1; echo ---screen; c=$(stty size </dev/tty0 2>/dev/null | cut -d' ' -f2); if [ \"${c:-0}\" -gt 0 ] && fold -w \"$c\" /dev/vcs 2>/dev/null; then :; else cat /dev/vcs 2>&1; fi; echo; echo ---end";
 
 /// The screen's text ends in the login prompt of this host: `HOSTNAME login:` on the LAST non-blank row, the cursor's row (white space between the words counts as one space).
 /// A prompt with init output after it (keeper run alpine-login-20261122-204417: the prompt at row 84, `Starting local` last) is not the prompt the author sees.
@@ -597,6 +597,67 @@ mod tests {
         // after the fix: init respawns the getty at the end of the default runlevel, the prompt is below everything
         let last = " * Starting local ... [ ok ]\n\nwalleye login:   \n\n\n";
         assert!(screen_has_login_prompt(last, "walleye"));
+    }
+
+    /// Runs `command` in sh as the phone would, with the phone's own files stood in: `/dev/vcs` is `vcs` (rows laid end to end, no newline at all, as the
+    /// kernel gives them), the tty is 40 columns wide, the host is `walleye`.
+    fn run_screen_command(name: &str, command: &str, vcs: &str) -> String {
+        let d = std::env::temp_dir().join(format!("wt-vcs-{name}-{}", std::process::id()));
+        std::fs::create_dir_all(&d).unwrap();
+        let file = d.join("vcs");
+        std::fs::write(&file, vcs).unwrap();
+        let standin = command
+            .replace("/dev/vcs", &file.to_string_lossy())
+            .replace("</dev/tty0", "</dev/null");
+        let script = format!("hostname() {{ echo walleye; }}; stty() {{ echo 10 40; }}; {standin}");
+        let out = std::process::Command::new("sh")
+            .args(["-c", &script])
+            .output()
+            .unwrap();
+        String::from_utf8(out.stdout).unwrap()
+    }
+
+    #[test]
+    fn the_end_marker_starts_its_own_line_after_a_screen_without_a_final_newline() {
+        // the keeper's run alpine-login-real-20261123-072829: /dev/vcs ends in the last row's padding, `echo ---end` landed at the end of that row
+        let row = |t: &str| format!("{t:<40}");
+        let vcs = [
+            row("[    6.0] Console: switching to fb"),
+            row(" * Starting local ... [ ok ]"),
+            row(""),
+            row("walleye login:"),
+            row(""),
+        ]
+        .concat();
+        let before = SCREEN_COMMAND.replace("echo; echo ---end", "echo ---end");
+        assert_ne!(
+            before, SCREEN_COMMAND,
+            "the stand-in of the old command differs"
+        );
+        let part = |said: &str| {
+            let seen = sections(said);
+            (
+                section(&seen, "hostname").unwrap_or_default().to_string(),
+                section(&seen, "screen").unwrap_or_default().to_string(),
+            )
+        };
+        let (host, screen) = part(&run_screen_command("before", &before, &vcs));
+        assert!(
+            screen
+                .lines()
+                .last()
+                .unwrap()
+                .trim_end()
+                .ends_with("---end"),
+            "the marker sits in the last row: {screen:?}"
+        );
+        assert!(
+            !screen_has_login_prompt(&screen, &host),
+            "the old command fails the check on a screen that shows the prompt"
+        );
+        let (host, screen) = part(&run_screen_command("after", SCREEN_COMMAND, &vcs));
+        assert!(!screen.contains("---end"), "{screen:?}");
+        assert!(screen_has_login_prompt(&screen, &host), "{screen:?}");
     }
 
     #[test]
