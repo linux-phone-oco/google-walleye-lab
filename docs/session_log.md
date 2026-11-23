@@ -5965,3 +5965,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-23-walleye-builder-stage2-init-booted-slot"></a>
+### Builder: the stage 2 init - walleye.booted-slot, the say before the moves, the pon reboot-mode test
+
+Entry date
+: 2026-11-23
+
+Done
+: Both root inits: the word walleye.booted-slot (root must be system$SLOT; says walleye-init: mounts-the-booted-slot on a code line); without it the stage 1 guard refuses as before (worded 'the slot Android is on'); 'handing over' said before the moves in the root init. QEMU cases 12-14 and a kmsg check (seen failing first); display text test now exact; the gate reads the mark on code lines only (review finding); build-ufs-root*-image.sh counts the reworded guard; tests/host/dtb-pon-reboot-mode.sh. cargo test 244, both QEMU proofs pass.
+
+Considered
+: A separate stage 2 init file; loosening the guard for everyone
+
+Rejected
+: A separate file: one init with a word is one text to prove; loosening: stage 1 must keep refusing its own slot.
+
+About
+: walleye-display-s6e3fa5
