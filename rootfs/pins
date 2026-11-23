@@ -3,3 +3,9 @@
 # a download whose sha256 is not here stops the build. A new Alpine release moves them together (fetch, sha256sum, edit, read the diff).
 apk-tools-static 3.0.9-r0 0a1a0682375f66a83b7b903f6e4638ccfe312547d50d336b5f2be9fc391281be
 alpine-keys 2.6-r0 dd211936d544f4050924ce8aec078d24e7b1b036ae70b30bd07867349587c708
+# Known limits (review 2026-11-23): the toolchain is the host's aarch64-linux-gnu gcc, binutils and static glibc (LGPL-2.1: relink obligation), not pinned - the image is the same on this host, not proven on another; a github archive by commit could change its gzip bytes and break a pin without a source change.
+# pd-mapper has no Alpine package: the build compiles it static for aarch64 from these three source archives (item walleye-install-rootfs-pd-mapper).
+# NAME COMMIT-OR-VERSION SHA256 of the archive github serves for it (pd-mapper and qrtr by commit, xz by release). Licences read: pd-mapper and qrtr BSD-3-Clause, liblzma 0BSD.
+pd-mapper 5ecd2fe926aca7abfe40724177f63b942cff3947 08972b8813d08da5e20d27e57c5989398a0b750be92cd4398b5b21190c6ccdd0
+qrtr 29e36ae164389580a0f8ea7a7fdb728140ae978d 66f846c447a0a0302e7dd9b5450c38945081100b04697bb9eb39994c45ddae4e
+xz 5.8.2 ce09c50a5962786b83e5da389c90dd2c15ecd0980a258dd01f70f9e7ce58a8f1

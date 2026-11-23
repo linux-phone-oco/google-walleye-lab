@@ -6094,3 +6094,24 @@ Done
 
 Considered
 : next: the coordinator decides on the bootloader way back (reboot bootloader from Linux does not reach fastboot - cause not known yet); walleye-install-flash-boot waits on the stage 2 boot image; then walleye-slpi-boot-qrtr
+
+---
+
+
+<a id="2026-11-23-pd-mapper-in-rootfs"></a>
+### pd-mapper in the Alpine image
+
+Entry date
+: 2026-11-23
+
+Done
+: walleye-rootfs builds pd-mapper, libqrtr and liblzma static for aarch64 from three pinned archives, installs usr/sbin/pd-mapper; is_static_aarch64_elf test seen failing first, then made total after review; image sha256 22b4fed2... identical over three runs
+
+Considered
+: Alpine aarch64 -dev packages (musl): no musl cross compiler here
+
+Rejected
+: a dynamic build (glibc on a musl image); copying postmarketOS patches unread (upstream master builds as is); a shell build script (practice 21)
+
+About
+: walleye-display-s6e3fa5

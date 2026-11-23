@@ -92,6 +92,33 @@ pub fn is_aarch64_elf(head: &[u8]) -> bool {
     head.len() >= 20 && head[..4] == [0x7f, b'E', b'L', b'F'] && head[18] == 0xb7 && head[19] == 0
 }
 
+/// True when the whole file is an aarch64 ELF64 with no PT_INTERP program header: nothing to load but itself, so no library to miss.
+pub fn is_static_aarch64_elf(data: &[u8]) -> bool {
+    const PT_LOAD: u32 = 1;
+    const PT_INTERP: u32 = 3;
+    const PHDR_MIN: usize = 56;
+    if !(is_aarch64_elf(data) && data.len() >= 64 && data[4] == 2 && data[5] == 1) {
+        return false;
+    }
+    let le16 = |at: usize| u16::from_le_bytes([data[at], data[at + 1]]);
+    let le64 = |at: usize| u64::from_le_bytes(data[at..at + 8].try_into().unwrap());
+    let (kind, size, count) = (le16(16), le16(54) as usize, le16(56) as usize);
+    let Ok(off) = usize::try_from(le64(32)) else {
+        return false;
+    };
+    if !(kind == 2 || kind == 3) || count == 0 || size < PHDR_MIN {
+        return false;
+    }
+    let types: Option<Vec<u32>> = (0..count)
+        .map(|i| {
+            let at = off.checked_add(i.checked_mul(size)?)?;
+            let end = at.checked_add(4)?;
+            Some(u32::from_le_bytes(data.get(at..end)?.try_into().ok()?))
+        })
+        .collect();
+    types.is_some_and(|t| t.contains(&PT_LOAD) && !t.contains(&PT_INTERP))
+}
+
 /// The services of `runlevels` as (level, service), comments and blank lines left out.
 pub fn runlevel_lines(text: &str) -> Vec<(String, String)> {
     text.lines()
@@ -516,6 +543,59 @@ pub fn init_script_provides(text: &str) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A 64-byte ELF64 header and one 56-byte program header of the given type: aarch64, little endian.
+    fn elf_with_header_type(p_type: u32) -> Vec<u8> {
+        let mut b = vec![0u8; 64 + 56];
+        b[..4].copy_from_slice(&[0x7f, b'E', b'L', b'F']);
+        b[4] = 2;
+        b[5] = 1;
+        b[16] = 2;
+        b[18] = 0xb7;
+        b[32..40].copy_from_slice(&64u64.to_le_bytes());
+        b[54..56].copy_from_slice(&56u16.to_le_bytes());
+        b[56..58].copy_from_slice(&1u16.to_le_bytes());
+        b[64..68].copy_from_slice(&p_type.to_le_bytes());
+        b
+    }
+
+    #[test]
+    fn a_static_aarch64_elf_has_no_interpreter() {
+        assert!(
+            is_static_aarch64_elf(&elf_with_header_type(1)),
+            "PT_LOAD only: static"
+        );
+        assert!(
+            !is_static_aarch64_elf(&elf_with_header_type(3)),
+            "PT_INTERP: dynamic"
+        );
+        let mut x86 = elf_with_header_type(1);
+        x86[18] = 0x3e;
+        assert!(!is_static_aarch64_elf(&x86), "not aarch64");
+        assert!(!is_static_aarch64_elf(&[0x7f, b'E']), "truncated");
+        let mut none = elf_with_header_type(1);
+        none[56] = 0;
+        assert!(!is_static_aarch64_elf(&none), "no program headers");
+        let mut far = elf_with_header_type(1);
+        far[32..40].copy_from_slice(&u64::MAX.to_le_bytes());
+        assert!(
+            !is_static_aarch64_elf(&far),
+            "program headers out of the file"
+        );
+        let mut obj = elf_with_header_type(1);
+        obj[16] = 1;
+        assert!(
+            !is_static_aarch64_elf(&obj),
+            "a relocatable object is no program"
+        );
+        assert!(
+            !is_static_aarch64_elf(&elf_with_header_type(4)),
+            "no PT_LOAD"
+        );
+        let mut elf32 = elf_with_header_type(1);
+        elf32[4] = 1;
+        assert!(!is_static_aarch64_elf(&elf32), "ELF32");
+    }
 
     #[test]
     fn firmware_and_modem_paths_are_refused() {

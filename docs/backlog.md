@@ -9047,10 +9047,10 @@ Rank
 ### pd-mapper for the Alpine image: a static aarch64 build from the upstream source (it is in no Alpine repo)
 
 Status
-: open
+: done
 
 Note
-: From the Alpine builder's look-around (PR 664): Alpine's repos have qrtr, rmtfs and tqftpserv; pd-mapper is postmarketOS's package. Due when the remoteproc and firmware steps need it (step pd-mapper-before-remoteproc), not for stage 1. Look at how postmarketOS and the linux-msm tree make it before building: contribute back, do not copy a patch we do not understand. 2026-11-22 (coordinator): rank 4: the step pd-mapper-before-remoteproc unlocks 44 steps of the bring-up chain (read off docs' bringup_step_edges), with firmware-reachable (47): the next front after stage 1.
+: Done 2026-11-23: walleye-rootfs builds pd-mapper static aarch64 from pinned sources (rootfs/pins), installed at usr/sbin/pd-mapper, linked into no runlevel; image check counts it a static aarch64 ELF; image sha256 22b4fed2e7790a45fa9ff63ee0837b048d76a5848695734b313c6d2d3108a73c reproduced across two runs. Not started: needs firmware (step pd-mapper-before-remoteproc).
 
 About
 : walleye-display-s6e3fa5

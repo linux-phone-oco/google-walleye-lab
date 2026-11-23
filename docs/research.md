@@ -6004,3 +6004,22 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-23/
+
+
+<a id="walleye-pd-mapper-static-from-source"></a>
+### walleye-pd-mapper-static-from-source
+
+Date
+: 2026-11-23
+
+Brief
+: pd-mapper builds static for aarch64 from pinned upstream sources (pd-mapper, qrtr, xz) with aarch64-linux-gnu-gcc: 796 KB, reproducible here, BSD-3 and 0BSD
+
+Question
+: How does pd-mapper get into the Alpine image, when no Alpine repo has it?
+
+Found
+: linux-msm/pd-mapper at 5ecd2fe (BSD-3-Clause) needs libqrtr (linux-msm/qrtr 29e36ae, BSD-3-Clause) and liblzma (xz 5.8.2, 0BSD). All three pinned by archive sha256 in rootfs/pins, compiled by walleye-rootfs with the host's cross gcc and static glibc, stripped: 795656 bytes, binary sha256 9b5331e2...b268 and image sha256 22b4fed2...a73c identical across separate runs. Installed at usr/sbin/pd-mapper, linked into no runlevel; the image check proves a static aarch64 ELF. Limits (programmer review): the toolchain and glibc (LGPL-2.1 relink duty) are the host's and unpinned, so identical here, not proven elsewhere; a github by-commit archive may change gzip bytes and break a pin; a musl build would match the image but needs a musl cross compiler. Not run: needs the remoteproc firmware.
+
+About
+: walleye-display-s6e3fa5
