@@ -10199,6 +10199,9 @@ Status
 Note
 : STOPPED at step 21 (the keeper, 2026-11-23 13:13): no ssh from slot a in 170 s; phone back on Android b by watchdog; slot a unbootable, b successful current. Research walleye-stage2-run4-stops-at-step-21-no-ssh-from-slot-a. DO NOT RERUN until the coordinator decides how to see the new slot's boot.
 
+Blocked by
+: walleye-stage2-pstore-first-on-fallback
+
 About
 : walleye-display-s6e3fa5
 
@@ -10441,6 +10444,56 @@ Needs
 
 Proof
 : from the running Android b (adb root; read only; NO reboot, no fastboot verb, nothing written, no setprop that restarts anything): (1) ls -la /sys/fs/pstore and cat every file there (console-ramoops-0, dmesg-ramoops-*, pmsg if any): the console of the boot BEFORE Android's own, which is slot a's kernel if it started, kept in a research row's material and said whether it shows our kernel's boot lines (a line from our 7.3 kernel: 'Linux version 7.3', the init's walleye-init lines, the usb gadget, the ssh) or nothing; if /sys/fs/pstore is empty, ls -la /data/vendor_ce/0/ramoops /data/vendor/pstore /data/misc/pstore and read what is readable without an unlock (say if the files need the author to unlock the screen once: then stop and tell the coordinator, who asks him: that is one hands step); (2) cat /proc/cmdline of THIS Android boot, getprop | grep -E 'ro.boot|bootreason|verified|slot', cat /proc/bootloader_log or /sys/firmware/... if present, and the stored stock boot image's header cmdline (the boot_a.img backup on file: abootimg or unpackbootimg read on the lab machine) so the research can compare the words the bootloader adds to a normal boot with the words a fastboot boot gets; (3) the slot flags again by adb only (getprop ro.boot.slot_suffix) and the phone is left exactly as found
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-pstore-first-on-fallback"></a>
+### Stage 2 reads slot a's console from pstore the moment Android answers after a failed boot of the new slot, before anything else can reboot the phone
+
+Status
+: open
+
+Note
+: From stage 2 run 4 (PR 849) and the pstore read after it (PR 851): the console of slot a's boot, which would say whether our kernel started, was lost because the phone rebooted again before anything read /sys/fs/pstore (the stock Android kernel exposes the previous boot's console as console-ramoops-0 at ITS boot; the files are gone after the next reboot). Our dts carries the stock ramoops region (0xa1100000, console 0x20000). The rerun must therefore read pstore FIRST. The run item stays off the phone queue until this lands.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: build
+
+Proof
+: tools/walleye-tries/src/flash_boot.rs and the stage 2 procedure: when the new slot does not answer ssh (step 21) the command makes NO call that could restart the phone (no reboot, no fastboot verb, no way back that sends anything) while it waits up to a bounded time (the bootloader's own counter fall back, measured in run 4 as about 3 to 4 minutes: say the longest wait seen and set the bound from it) for adb to answer from Android; the FIRST thing it does when adb answers is a read-only read, kept in the log and as research material: ls -la and cat of /sys/fs/pstore/* (console-ramoops-0, dmesg-ramoops-*), /proc/cmdline, getprop ro.boot.bootreason ro.boot.slot_suffix ro.boot.verifiedbootstate, uptime, and the fastboot-free slot facts adb can give; only then the existing way back; the same read is a step of the rehearsal that is safe to run on Android as it is (read only); stand-in tests use the text run 4 and the pstore read PR 851 printed (the cmdline words, the empty /sys/fs/pstore) as fixtures; dry run, check --host, tests, clippy, fmt, review; no phone
+
+Rank
+: 1
+
+
+<a id="walleye-stage2-slot-a-no-ssh-causes"></a>
+### Why slot a did not answer ssh after a normal boot of our image when fastboot boot of the same kernel does: the causes ranked from sources and from what the bootloader adds to a normal boot
+
+Status
+: open
+
+Note
+: From stage 2 run 4: steps 1-20 passed, slot a never answered ssh at 172.16.43.1 in 170 s, bootreason=watchdog, the bootloader fell back to b by the retry counter (measured: no hand needed), NOT KNOWN YET whether our kernel started. The coordinator's own thought, to be tested not assumed: a normal boot starts from a cold USB state that a fastboot boot never has.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-23
+
+Needs
+: research
+
+Proof
+: a research row with sources and lines ranking the candidates, each with the smallest falsifiable check: (a) the words the bootloader adds to a NORMAL boot (research walleye-stage2-run4-pstore-read-finding: verifiedbootstate=orange, keymaster, root=PARTUUID=..., bootdevice, want_initramfs rootwait ro init=/init androidboot.force_normal_boot=1, the slot suffix) against what our init and the mainline kernel do with root=, init=, want_initramfs, rootwait; (b) the hardware state a normal boot leaves versus a fastboot boot: the USB controller and PHY (in fastboot boot the bootloader's USB is up and handed over; in a normal boot it is cold: does our dwc3/qusb2 bring-up work from cold, what does the stock kernel's dts do that ours does not: regulators, clocks, QUSB2 tune values, the extcon/typec), the UFS (HS gear left by the bootloader), the display and the watchdog the bootloader arms (bootreason=watchdog in run 4: who armed it, what petting the normal boot expects, after how long it bites, whether it can fit inside our 170 s window: a bite before the gadget is up); (c) the dtbo overlay of dtbo_idx=3 applied on a normal boot, and whether fastboot boot applies it too; (d) AVB/vbmeta handling of an image with an AVB footer algorithm NONE on an unlocked device (orange); (e) our init's booted-slot path never having run on real hardware; ends in ONE read-only or RAM-only check that tells (a)-(e) apart without another flash, and in what the pstore read on the next try must show for each candidate; no phone
 
 Rank
 : 1
