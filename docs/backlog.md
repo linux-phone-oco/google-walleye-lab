@@ -10166,7 +10166,7 @@ Status
 : in-progress
 
 Note
-: Rehearsal 7 passed (18/18, research walleye-install-flash-boot-rehearsal-7-passed) for the rebuilt debug image a0a55cd0. The go's row names only ec741a98 (run 8's image, no second run): the run needs the coordinator's go naming the FULL sha256 a0a55cd060343d7acc1af07247c48b930789e2318afb77cfe31ea83acba25751 in this row's note (ikb backlog-go with the note), then one command: procedures/install-boot-on-the-pixel-2.rs. Phone on Android slot b.
+: TAKE THIS ITEM NOW: STAGE 2 RUN 9, THE GO IS OPEN (the coordinator, 19:12 2026-11-23), for the REBUILT debug image, sha256 a0a55cd060343d7acc1af07247c48b930789e2318afb77cfe31ea83acba25751, and ONLY it ([images.ufs-root-booted-slot-debug] after PR 907). What changed since run 8 (research walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing, PR 903): the header cmdline is 149 characters (was 372), 126 under run 8's cut at 1363, so the bootloader's own androidboot.slot_suffix should arrive; the init reads the slot like Android's fs_mgr (cmdline, DT firmware/android, bootconfig) and root=PARTUUID as a logged last resort, refusing on none or a disagreement. Rehearsal 7 passed 18 of 18 (PR 909). OUTCOMES (what each result proves): (1) ssh from slot a answers: the short cmdline brought the slot suffix and the root mounted, so the truncation WAS the cause and the kernel, init and root work on a normal boot: the full stage 2 proceeds (new slot boot, GPT, way back). (2) no ssh but telnet 172.16.43.1 answers: the init has the slot now (its log says which of the four sources gave it) and the root or the Alpine services did not come up: the log says why. (3) the init still refuses for want of the slot: /proc/cmdline in the log shows its length and whether it is still cut, and which sources were empty: the next read is the DT firmware/android node and the bootloader's other words. (4) no USB device of ours in the host's journal: the kernel did not run (not expected after run 8). THE KEEPER: read this WHOLE note and the older run sheet below (telnet poll during step 21: cat /tmp/walleye-debug.log; dmesg; cat /proc/cmdline; the watchdog sysfs; mount; the watch rule; tee the whole stdout); tell the Top Coordinator (local_12b18c70-1b6d-4783-bb6f-50113ab63250) 'stage 2: starting' and ONE result line naming the outcome; no improvising, no second run. | Rehearsal 7 passed (18/18, research walleye-install-flash-boot-rehearsal-7-passed) for the rebuilt debug image a0a55cd0. The go's row names only ec741a98 (run 8's image, no second run): the run needs the coordinator's go naming the FULL sha256 a0a55cd060343d7acc1af07247c48b930789e2318afb77cfe31ea83acba25751 in this row's note (ikb backlog-go with the note), then one command: procedures/install-boot-on-the-pixel-2.rs. Phone on Android slot b.
 
 Blocked by
 : walleye-stage2-pstore-first-on-fallback
@@ -10190,7 +10190,7 @@ Witness
 : person
 
 Go until
-: 2026-11-23T19:30:42+01:00
+: 2026-11-23T21:12:53+01:00
 
 
 <a id="walleye-fastboot-reboot-stays-in-fastboot"></a>
