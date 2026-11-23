@@ -6776,3 +6776,25 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-android-watchdog-read"></a>
+### walleye-android-watchdog-read
+
+Date
+: 2026-11-23
+
+Brief
+: Android arms ONE apps watchdog (kernel-armed, bark 11 s/bite 14 s, pet 10 s), no PMIC wdt, no TZ arming; a mainline kernel needs no extra step, only to pet; bootloader arming still not known
+
+Question
+: What arms which watchdog on walleye's Android kernel, which one bites, and what must a mainline kernel do?
+
+Found
+: All from android:PATH@113bd1cfa6f5 (Lineage wahoo 4.4.302). (1) drivers/soc/qcom/watchdog_v2.c: one device, qcom,msm-watchdog at 0x17817000 (reg-names wdt-base), irqs SPI3 bark and SPI4 bite (msm8998.dtsi:2969-2979). Regs RST 0x04, EN 0x08, STS 0x0C, BARK 0x10, BITE 0x14, WDT_HZ 32765. init_watchdog_data (l.736-780): bark=bark-time*WDT_HZ/1000, bite=bark+3 s, then EN=1 (plus bit1 unmasked-int when qcom,wakeup-enable) and RST=1: the KERNEL arms it at probe; nothing in the driver reads that it was running. Dts: bark-time 11000, pet-time 10000, ipi-ping, wakeup-enable, scandump-size 0x40000 -> bark 11 s, bite 14 s, pet every 10 s (deferrable timer, kthread). Pet = write 1 to RST (pet_watchdog l.332). (2) SECURE watchdog: the driver never arms one by SCM. Its only SCM watchdog call is SCM_SVC_BOOT/SEC_WDOG_DIS (id 0x7), made only when userspace writes the sysfs 'disable' file, i.e. TZ may hold a secure wdog that Android can switch off, never pet; it is a 'disable', not part of boot. configure_bark_dump gives TZ a register-save page (SCM_SVC_UTIL/SET_REGSAVE) so a bite dumps registers; optional, a failure only loses the dump. No qcom,wdog-secure property exists in this tree. (3) suspend_noirq/resume_noirq: with wakeup-enable (set on walleye) the watchdog stays ENABLED across suspend: suspend writes RST=1 only, no EN=0; without wakeup-enable it writes EN=0 and resume EN=1,RST=1. Bark irq is a wake source. On panic the handler lengthens bark/bite to (panic_timeout+10) s so the panic can finish; on bark it logs, tries msm_trigger_wdog_bite (bite=1,RST=1, 10 s wait) then panics. (4) PMIC (msm-pm8998.dtsi:29-60): qcom,power-on@800 has only key reset: pon_3 (kpdpwr+resin) s1 6720 ms, s2 2000 ms, hard reset, use-bark; qcom,system-reset, store-hard-reset-reason. NO pon-wdt, NO s3-reset-timer and NO restart-reason node for a PMIC watchdog in this tree: the PMIC does not time the kernel; only the apps watchdog (and a possible secure one) can bite. A mainline kernel therefore does not need to touch PM8998 for the watchdog. (5) Bootloader: the kernel does not tell what xbl/abl arm before it (driver ignores prior state), so how long a kernel has before the first bite stays NOT KNOWN YET; what would show it: a bootloader_log read (htc,bldr_log regions 0xa1300000/0xa1380000, readable only from the bootloader or a kernel that maps them) or timing a kernel that never pets from the jump. Our qcom-wdt already takes over a running watchdog (prechecks-read). (6) OUR SIDE vs ANDROID, field by field: base/size same; bark irq SPI3 same (ours edge-rising, Android type 0 is the same SPI); bite irq SPI4 not used by qcom-wdt (fine: bite is a hardware reset); layout equal (qcom,kpss-wdt table); times differ by choice (ours 30 s timeout/29 s bark, Android 14 s/11 s); the clock 32765 vs 32768 is immaterial. The difference that matters is not in the dts or driver: the stops come from our init's echo to /dev/watchdog (research walleye-stage2-watchdog-prechecks-read). THE FIX, smallest changes, each 'based on' Android: (a) pet from the kernel until a userspace pets for real: keep WATCHDOG_HANDLE_BOOT_ENABLED and make init NOT open /dev/watchdog without a pet loop that continues after switch_root (mirror of watchdog_v2.c kthread l.432-460, kernel-timer petting, no userspace need); or (b) the Android shape: have the kernel pet by its own worker for the life of the system (a nowayout-like qcom-wdt flag, as watchdog_v2.c needs no userspace); (c) set wakeup-enable-like behaviour only when we do deep sleep: our suspend must write RST, not EN=0, if the bootloader or TZ arms (watchdog_v2.c l.130-168); (d) optionally register the regsave page only when we want bite dumps (SET_REGSAVE) - not needed to boot. Reuse allowed with authorship kept (decision 2026-11-23-walleye-reuse-android-kernel-gpl). NOT KNOWN YET: the bootloader's arming and its length; whether TZ holds a secure watchdog on this phone (Android could show it by reading sysfs /sys/devices/soc/17817000.qcom,wdt/disable only as root and a write is a change: not done). No phone touched.
+
+Sources
+: android-kernel-wahoo-lineage-4-4-302
+
+About
+: walleye-bootimage

@@ -1819,3 +1819,16 @@ By
 
 Takes
 : l.362-372: cancel path re-sets the current slot active and successful
+
+
+<a id="android-kernel-wahoo-lineage-4-4-302"></a>
+### LineageOS android_kernel_google_wahoo lineage-22.1, tag reference/android-walleye/4.4.302-g113bd1cfa6f5 (local tree)
+
+Url
+: https://github.com/LineageOS/android_kernel_google_wahoo
+
+By
+: LineageOS
+
+Takes
+: watchdog_v2.c and msm8998.dtsi/msm-pm8998.dtsi, read as android:PATH@113bd1cfa6f5; GPL-2.0
