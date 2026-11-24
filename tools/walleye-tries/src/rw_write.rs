@@ -19,7 +19,9 @@
 
 //! NOT KNOWN YET (no rw boot, no fsck on a mounted root has been captured): the rw lines of `/proc/mounts` (the positive case is run 4 with its two root lines replaced by what the init is built to make), the `mounts-rw` and `EXT4-fs error` log lines (typed from the init and the kernel source), and the stdout of `fsck.ext4 -n` on the mounted root (the judge is strict: the line Android printed on an unmounted partition, and `rc=0`; if the first run refuses a good root the run, not the judge, tells what it prints). The first real rw run replaces these by captured text. The procedure must judge the mounts BEFORE it writes (the write is not tied to the mounts judge by a type), and the init says `mounts-rw` BEFORE it mounts: the line shows which init ran, the mounts judge shows the mount.
 
-use crate::rootfs_boot::{disk_letters, root_for, sections, InitSaw, RootfsBoot, ROOT_KEY};
+use crate::rootfs_boot::{
+    disk_letters, root_for, sections, InitSaw, RootfsBoot, INIT_TAG, ROOT_KEY,
+};
 use crate::ufs::Probe;
 
 type Done = Result<(), String>;
@@ -268,6 +270,71 @@ pub fn dmesg_is_clean(dmesg: &str, root: &str) -> Done {
         return Err(format!("the kernel log says: {t}"));
     }
     Ok(())
+}
+
+/// The file of the run's folder the stop's console is kept in (the pstore's `console-ramoops*`, read from Android).
+pub const PSTORE_FILE: &str = "pstore-console.txt";
+
+/// The one read-only command that reads the previous boot's console on Android (as root: `adb root` first, which restarts adbd and not the phone).
+/// `ls` first so an absent file is said, then every `console-ramoops*` whole.
+pub const PSTORE_COMMAND: &str = "ls -la /sys/fs/pstore; cat /sys/fs/pstore/console-ramoops*";
+
+/// The last line the rw init says before it hands over (its `say "handing over to the root's /sbin/init"`, build/initramfs-root-rw-write/init).
+const HANDING_OVER: &str = "handing over to the root's /sbin/init";
+
+/// What the previous boot's console (`console-ramoops`) says the rw init got to. Research walleye-rw-run-1-refused-by-booted-slot: run 1's refusal line
+/// was lost when Android rebooted, so a stop is read from the pstore BEFORE any other reboot.
+#[derive(Debug, PartialEq, Clone)]
+pub enum StopSaid {
+    /// the init refused: the reason it gave (`refused: WHICH ...`)
+    Refused(String),
+    /// the init mounted the root rw and said it hands over
+    HandedOver,
+    /// the init mounted the root rw and said nothing after: it stopped (or its last line was lost) after the mount
+    MountedNotHandedOver,
+    /// the init started and said nothing more: it stopped before the mount
+    StartedNotMounted,
+    /// no line of the init in the console (an empty or absent pstore, or another boot's text)
+    Nothing,
+}
+
+impl StopSaid {
+    /// What the console says, in one line for the run's log.
+    pub fn said(&self) -> String {
+        match self {
+            StopSaid::Refused(why) => format!("the init REFUSED: {why}"),
+            StopSaid::HandedOver => "the init mounted the root rw and handed over to the root's init".into(),
+            StopSaid::MountedNotHandedOver => "the init mounted the root rw and said nothing after: it did not hand over (or the last line was lost)".into(),
+            StopSaid::StartedNotMounted => "the init started and never mounted the root".into(),
+            StopSaid::Nothing => "NOT KNOWN YET: the console has no line of the init (the pstore is empty or holds another boot)".into(),
+        }
+    }
+}
+
+/// Which stop the previous boot's console tells: the init's own lines ([`InitSaw::of`] for the start and the refusal, [`INIT_RW_LINE`] for the rw mount,
+/// the hand-over line). A refusal wins over everything else it said before.
+pub fn the_stop_in_the_console(console: &str) -> StopSaid {
+    let saw = InitSaw::of(console);
+    if let Some(why) = saw.refused {
+        return StopSaid::Refused(why);
+    }
+    let said = |what: &str| {
+        console
+            .lines()
+            .any(|l| l.contains(INIT_TAG) && l.contains(what))
+    };
+    if said(INIT_RW_LINE) {
+        return if said(HANDING_OVER) {
+            StopSaid::HandedOver
+        } else {
+            StopSaid::MountedNotHandedOver
+        };
+    }
+    if saw.root.is_some() {
+        StopSaid::StartedNotMounted
+    } else {
+        StopSaid::Nothing
+    }
 }
 
 /// What the root partition's digest must do between the two card reads: nothing (the run stopped before the boot), whatever (it booted and mounted rw, which alone
@@ -859,6 +926,55 @@ mod tests {
             !line.split_whitespace().any(|w| w == "walleye.booted-slot"),
             "the run's line [{line}] carries walleye.booted-slot with the root {root} while the running slot is {running}: the init refuses it (system{running} is not {root}) before any mount, no gadget comes up"
         );
+    }
+    /// Fixtures: the kernel-log lines of the REAL rw init (`^.*\[ts\] walleye-ufs-root:` cut out of the console of its QEMU proof,
+    /// tests/host/ufs-root-rw-init.sh at loglevel=7, 2026-11-24: the R3 booted-slot refusal, the R1 run on the declared line, that run without its last
+    /// line, an empty file). QEMU, not a phone: no pstore of a refused or handing-over rw boot has been captured (run 1's refusal was lost);
+    /// the framing a phone's console-ramoops gives those lines is NOT KNOWN YET and is read when run 2 stops or passes.
+    const PSTORE_REFUSED: &str = include_str!("../fixtures/rw-pstore-qemu-refused.txt");
+    const PSTORE_HANDING_OVER: &str = include_str!("../fixtures/rw-pstore-qemu-handing-over.txt");
+    const PSTORE_MOUNTED: &str =
+        include_str!("../fixtures/rw-pstore-qemu-mounted-not-handed-over.txt");
+    const PSTORE_EMPTY: &str = include_str!("../fixtures/rw-pstore-qemu-empty.txt");
+    /// The phone's own text of a boot of the init that got no further than its start: run 3's kernel log (a phone printed it).
+    const PHONE_START_ONLY: &str = "[    1.725738] walleye-ufs-root: start, kernel 7.3.0-00013-g3644090c7f6d-dirty, root=[system_a] running slot suffix=[_b]\n";
+    #[test]
+    fn the_console_of_a_stop_names_what_the_init_got_to() {
+        match the_stop_in_the_console(PSTORE_REFUSED) {
+            StopSaid::Refused(why) => assert!(why.starts_with("walleye.booted-slot:"), "{why}"),
+            other => panic!("{other:?}"),
+        }
+        assert_eq!(
+            the_stop_in_the_console(PSTORE_HANDING_OVER),
+            StopSaid::HandedOver
+        );
+        assert_eq!(
+            the_stop_in_the_console(PSTORE_MOUNTED),
+            StopSaid::MountedNotHandedOver
+        );
+        assert_eq!(
+            the_stop_in_the_console(PHONE_START_ONLY),
+            StopSaid::StartedNotMounted
+        );
+        assert_eq!(the_stop_in_the_console(PSTORE_EMPTY), StopSaid::Nothing);
+        assert_eq!(
+            the_stop_in_the_console("ls: /sys/fs/pstore: No such file or directory\n"),
+            StopSaid::Nothing
+        );
+    }
+    #[test]
+    fn a_refusal_wins_over_the_lines_before_it_and_each_stop_says_itself() {
+        let refused_after_mount = format!(
+            "{PSTORE_MOUNTED}[    9.9] walleye-ufs-root: refused: the petter of x is not alive\n"
+        );
+        assert!(matches!(
+            the_stop_in_the_console(&refused_after_mount),
+            StopSaid::Refused(w) if w.contains("petter")
+        ));
+        assert!(the_stop_in_the_console(PSTORE_REFUSED)
+            .said()
+            .contains("REFUSED: walleye.booted-slot"));
+        assert!(StopSaid::Nothing.said().contains("NOT KNOWN YET"));
     }
     #[test]
     fn the_expectation_names_the_numbers() {

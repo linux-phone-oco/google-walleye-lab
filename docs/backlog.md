@@ -12112,10 +12112,10 @@ Rank
 ### The rw write reads pstore from Android at once when no gadget comes up, and names the init's last line
 
 Status
-: open
+: done
 
 Note
-: From research walleye-rw-run-1-refused-by-booted-slot: run 1's refusal line was lost when Android rebooted. On a check-14 stop the way back reaches Android, then reads /sys/fs/pstore/console-ramoops* by adb root BEFORE any other reboot, saves it in the run folder and judges it. Read only.
+: DONE (walleye-builder, 2026-11-24): rw_write::the_stop_in_the_console names Refused(WHICH) / HandedOver / MountedNotHandedOver / StartedNotMounted / Nothing from console-ramoops text, test the_console_of_a_stop_names_what_the_init_got_to; RootfsBoot::way_back reads /sys/fs/pstore/console-ramoops* by adb root right after the phone is back on Android (before any other reboot), keeps it as pstore-console.txt in the run's folder and says what the init got to; read only, a failed read is NOT KNOWN YET. HONEST LIMIT: the fixtures are the real rw init's kernel-log lines cut from its QEMU proof at loglevel=7 (tools/walleye-tries/fixtures/rw-pstore-qemu-*.txt), not a phone's pstore: none of a refused or handing-over rw boot exists (run 1's was lost) - how a phone's console-ramoops frames those lines is not known yet; run 2 shows it.
 
 About
 : walleye-bootimage
