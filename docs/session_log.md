@@ -7528,3 +7528,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-24-go-decision-names-the-sha-field-it-wants"></a>
+### go_decision names the sha field it wants
+
+Entry date
+: 2026-11-24
+
+Done
+: ufs.rs go_decision takes the item id; a short sha in the go note (a prefix of the image sha256, 8+ hex) is refused naming the field and what was found, no sha says found none; the exact 64-hex check is unchanged. Callers in ufs, flash_boot (install-boot gate) and rootfs_boot pass the go_item. Host tests from the captured run-5 row (research walleye-go-row-run5-short-sha); 369 tests, clippy, fmt clean. Reviewed by the programmer subagent.
+
+Considered
+: ikb backlog-go --image-sha256 as its own option: ASKED of idealkb (orchestration), not done here; until it lands the note carries the sha
+
+Rejected
+: accepting a prefix in go_decision: loosens the exact-sha safeguard
+
+About
+: walleye-bootimage

@@ -11593,10 +11593,10 @@ Rank
 ### The go and its gate read the image sha from one place: the gate's error says which field it wants, or ikb backlog-go takes the image sha as its own option
 
 Status
-: open
+: done
 
 Note
-: The Top Coordinator's sign 1, 2026-11-24 00:05, after UFS run 5 stopped at check 6 because the go note named the image by its 12-hex short sha. The keeper rightly did not loosen go_decision to a prefix (a stop is read before the fix; the exact-sha check is the safeguard).
+: (1) and (2) done: go_decision refuses a short sha naming the field and what was found, test from the captured run-5 row; (3) ikb backlog-go --image-sha256 is asked of idealkb, until it lands the go note carries the full sha
 
 About
 : walleye-bootimage

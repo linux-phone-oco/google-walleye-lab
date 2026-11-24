@@ -1017,7 +1017,7 @@ impl FlashBoot {
                 ));
             }
             let now = now_epoch().ok_or("no go: the clock could not be read")?;
-            go_decision(&said.text, now, &u.s.image_sha256)
+            go_decision(&said.text, now, &u.s.image_sha256, &u.s.go_item)
         }
     }
 
