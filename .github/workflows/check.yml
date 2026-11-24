@@ -58,6 +58,17 @@ jobs:
         run: sh tests/host/image-recipe-selftest.sh
       - name: the header check passes a header equal to the recipe and fails a word more or less, also in the additional field (stand-ins, no store)
         run: sh tests/host/image-header-equals-recipe-selftest.sh
+  kernel-config:
+    name: every kernel fragment keeps the protection domain mapper built in
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: the check passes this repository's fragments and fails each way they can lose CONFIG_QCOM_PD_MAPPER=y, QRTR included (no kernel tree, no phone)
+        run: sh tests/host/kernel-pd-mapper-selftest.sh
+      - name: the fragments set it (the merged .config is read back on the lab host, tests/host/kernel-pd-mapper.sh KERNEL_TREE)
+        run: |
+          out=$(sh tests/host/kernel-pd-mapper.sh || true); echo "$out"
+          case "$out" in "skip walleye-kernel-pd-mapper host the fragments set it"*|pass*) ;; *) exit 1 ;; esac
   checks-have-sources:
     name: every host script names its source
     runs-on: ubuntu-latest

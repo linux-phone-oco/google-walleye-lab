@@ -12002,10 +12002,10 @@ Rank
 ### walleye's kernel builds carry CONFIG_QCOM_PD_MAPPER=y: plain Alpine 3.24 has no userspace pd-mapper, the kernel's own has served since 6.12
 
 Status
-: open
+: done
 
 Note
-: From orchestration 2026-11-24, by decision 2026-11-24-plain-alpine-not-nura (root is plain Alpine 3.24, not Nura). No build/*.config sets it today (git grep, c6c018f). qrtr, rmtfs and tqftpserv come from Alpine community; the apk boot.img trigger and firmware rule are lab-tools items layer-apk-bootimg-trigger and layer-firmware-rule-plain-alpine, not this lane's. Next: add it to build/walleye.config, and to the ufs-on kernel declared by walleye-declares-ufs-on-kernel-build; not into the stage 3 rw-write image's kernel part (that kernel stays the sha256 one).
+: From orchestration 2026-11-24, by decision 2026-11-24-plain-alpine-not-nura (root is plain Alpine 3.24, not Nura). No build/*.config sets it today (git grep, c6c018f). qrtr, rmtfs and tqftpserv come from Alpine community; the apk boot.img trigger and firmware rule are lab-tools items layer-apk-bootimg-trigger and layer-firmware-rule-plain-alpine, not this lane's. Next: add it to build/walleye.config, and to the ufs-on kernel declared by walleye-declares-ufs-on-kernel-build; not into the stage 3 rw-write image's kernel part (that kernel stays the sha256 one). | DONE (walleye-builder, 2026-11-24): build/walleye.config (merged by every build-kernel.sh and build-display*.sh build) now sets CONFIG_QRTR=y, CONFIG_QRTR_SMD=y, CONFIG_QCOM_PD_MAPPER=y - defconfig has all three =m, and the symbol 'depends on NET && QRTR' (tests/fixtures/kernel-text/pd-mapper-Kconfig.txt), so QRTR had to follow or the symbol stays =m. tests/host/kernel-pd-mapper.sh: the fragments set it once and =y, no other fragment takes it back, and with a kernel tree the merged defconfig+walleye.config .config read back =y (run on the lab against linux-v7.3: pass); its selftest edits the real fragments five ways, each fails (CI job kernel-config). Not built into an image: the stage 3 rw-write image keeps its sha256 kernel; the ufs-on kernel declaration (walleye-declares-ufs-on-kernel-build) merges the same walleye.config.
 
 About
 : walleye-bootimage
