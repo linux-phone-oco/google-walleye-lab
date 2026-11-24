@@ -7525,3 +7525,25 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-24/
+
+
+<a id="walleye-image-recipe-z21-rebuilt-equal"></a>
+### walleye-image-recipe-z21-rebuilt-equal
+
+Date
+: 2026-11-24
+
+Brief
+: z21 rebuilt from its recipe (control z20 + its dtb, by sha256) in Nix's sandbox equals the declared sha256 bdc0a891...c7ff
+
+Question
+: Does device.toml's [images.z21.recipe] let lpoco bringup image ensure z21 rebuild the image byte for byte?
+
+Found
+: Measured 2026-11-23 with a private lpoco-bringup 0.47.1 after deleting z21's store path: built from its recipe, equal to its declared sha256 (text in ensure-z21.txt); 2026-11-24 on the host's lpoco-bringup 0.48.4 the store serves it and the proof test image-recipe.sh z21 passes. z20 (fe9e0cce...) is the control, NOT TO BOOT. Kernel, ramdisk, header and cmdline are z20's: building from the int/ tag is walleye-next-image-from-an-int-tag.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-23/

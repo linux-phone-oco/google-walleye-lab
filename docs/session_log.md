@@ -7570,3 +7570,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-walleye-image-recipe-z21"></a>
+### z21's recipe row landed from PR 951 rebased
+
+Entry date
+: 2026-11-24
+
+Done
+: PR 951's z21 recipe, z20 control, proof test and its CI selftest rebased onto main (data and docs re-recorded, not merged); ensure z21 passes on the host's 0.48.4.
+
+Considered
+: merging 951's generated data/docs: they conflict, re-recording is the canon
+
+About
+: walleye-bootimage
