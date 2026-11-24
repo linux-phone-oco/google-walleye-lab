@@ -8068,3 +8068,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-procedures-run-own-cli"></a>
+### procedures run their own lpoco-attended
+
+Entry date
+: 2026-11-24
+
+Done
+: bin/attended, CI uses it, host test for no bare call; procedures/README says how.
+
+Considered
+: cargo run -p lpoco-attended from the steps crate: refused, the dependency is not a workspace member. A [[bin]] in walleye-tries re-exporting the CLI: the bin's main lives in lab-tools, not in the lib.
+
+Rejected
+: cargo install into ~/.local/bin: that is the host binary again.
+
+About
+: walleye-bootimage

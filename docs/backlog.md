@@ -12234,10 +12234,10 @@ Rank
 ### Walleye's procedures and keepers run the CLI its own steps crate builds (cargo run --manifest-path tools/walleye-tries/Cargo.toml), never the host's ~/.local/bin/lpoco-attended
 
 Status
-: open
+: done
 
 Note
-: From orchestration 2026-11-24 (docs item attended-pin-is-one-pin, rank 2, docs #884): the host binary sits in no lab.toml pin, so neither follow nor lpoco host check sees it; run 3's keeper found 0.44.3 refusing main's device.toml and installed 0.45.4 by hand (old kept as ~/.local/bin/lpoco-attended.before-0.45.4). Each lab runs its own crate's CLI; the host binary is then retired by orchestration. Until this lands, 0.45.4 stays.
+: From orchestration 2026-11-24 (docs item attended-pin-is-one-pin, rank 2, docs #884): the host binary sits in no lab.toml pin, so neither follow nor lpoco host check sees it; run 3's keeper found 0.44.3 refusing main's device.toml and installed 0.45.4 by hand (old kept as ~/.local/bin/lpoco-attended.before-0.45.4). Each lab runs its own crate's CLI; the host binary is then retired by orchestration. Until this lands, 0.45.4 stays. | DONE 2026-11-24 (walleye-builder): bin/attended builds the lpoco-attended the steps crate's Cargo.lock names (once per revision, ~/.cache/walleye-attended/REV) and runs it; check.yml's dry-run job uses it; tests/host/no-bare-lpoco-attended.sh (seen failing on a bare call in bin/check-device-toml.sh's comment, fixed) finds no bare call and runs the CLI through bin/attended; bin/attended check passes all procedures. The host binary can now be retired by orchestration.
 
 About
 : walleye-bootimage
