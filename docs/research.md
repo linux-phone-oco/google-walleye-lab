@@ -7808,3 +7808,25 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-rw-image-header-equals-recipe-built"></a>
+### walleye-rw-image-header-equals-recipe-built
+
+Date
+: 2026-11-24
+
+Brief
+: The rw image rebuilt from its recipe, header without walleye.booted-slot: 07df9842...dd8a, equal twice by image ensure; 2477...b54f refused by its header
+
+Question
+: Why did run 4 boot an image with walleye.booted-slot, and what is the image built only from its recipe?
+
+Found
+: build-ufs-root-rw-write.sh put the control's command line plus walleye.rw on the header (walleye.booted-slot kept); device.toml's sha256 was that output's and image ensure served it from the store, so the recipe (cmdline without the word) was never followed, and check 2 read the sha256 not the header. Now the script takes the recipe's cmdline; sha256 07df9842b0bdd4fe22b1277fff99ca340742ca7ada3d76c260ea6a5a8cc9dd8a (ramdisk 7423aa8d..., control the production image) was built by image ensure from the recipe, equal to the declared sha256, twice (the store path deleted between); tests/host/image-header-equals-recipe.sh fails on 2477 and passes on it; check 2 now refuses a header unequal to the recipe's (rw_write::header_equals_recipe, tested on the unpack_bootimg text of 2477). NOT KNOWN YET: pstore was empty after run 4's self-reboot (unlike stage 2 runs 4 and 7): the pstore instrument is not proven for the rw image.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-24/

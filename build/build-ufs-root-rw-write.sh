@@ -20,8 +20,9 @@ total=0
 ck() { if [ "$2" = "$3" ]; then echo "ok   $1"; else echo "FAIL $1: got '$2', want '$3'"; total=$((total+1)); fi; }
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 dev() { "$B" "$@" --device "$HERE/device.toml"; }
-CMD0=$(dev image info "$CONTROL" | sed -n 's/^cmdline = "\(.*\)"$/\1/p')
-CMDLINE="$CMD0 walleye.rw"
+# the command line is the RECIPE'S, never the control's plus a word (item walleye-rw-image-header-equals-recipe: run 4's image kept walleye.booted-slot, which the recipe lacks)
+CMDLINE=$(awk -v t="[images.$NAME.recipe]" '$0==t{on=1;next} /^\[/{on=0} on && /^cmdline *=/{sub(/^cmdline *= *"/,"");sub(/".*$/,"");print;exit}' "$HERE/device.toml")
+[ -n "$CMDLINE" ] || { echo "build-ufs-root-rw-write: device.toml has no cmdline in [images.$NAME.recipe]" >&2; exit 1; }
 INIT_DIR=$HERE/build/initramfs-root-rw-write "$HERE/build/build-initramfs.sh" ufs-root "$W" "$T/ramdisk1.cpio.gz" >/dev/null
 INIT_DIR=$HERE/build/initramfs-root-rw-write "$HERE/build/build-initramfs.sh" ufs-root "$W" "$T/ramdisk2.cpio.gz" >/dev/null
 ck "the initramfs builds to the same bytes twice" "$(cmp -s "$T/ramdisk1.cpio.gz" "$T/ramdisk2.cpio.gz" && echo same || echo differs)" same
@@ -42,8 +43,8 @@ ck "the kernel blob (Image.gz and dtb) is the production image's, byte for byte"
 ck "the image's ramdisk is the initramfs built here, byte for byte" "$(cmp -s "$T/ui/ramdisk" "$T/ramdisk1.cpio.gz" && echo same || echo differs)" same
 hdr() { grep -v -e 'ramdisk size' -e '^command line args' "$1"; }
 ck "the header equals the production image's but the ramdisk size and the command line" "$(hdr "$T/ui.info")" "$(hdr "$T/uc.info" | sed 's/^$//')"
-ck "the command line is the production image's plus walleye.rw, and nothing else" "$(sed -n 's/^command line args: *//p' "$T/ui.info" | head -n1)" "$CMDLINE"
-ck "the word walleye.rw is on the command line once, and walleye.booted-slot and walleye.root stay" "$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -c -x walleye.rw)/$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -c -x walleye.booted-slot)/$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -c '^walleye.root=')" 1/1/1
+ck "the command line is the recipe's, word for word" "$(sed -n 's/^command line args: *//p' "$T/ui.info" | head -n1)" "$CMDLINE"
+ck "the word walleye.rw is on the command line once, walleye.booted-slot is not (the init refuses it with a root that is not the booted slot's), walleye.root stays" "$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -c -x walleye.rw)/$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -c -x walleye.booted-slot)/$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -c '^walleye.root=')" 1/0/1
 ck "the command line stays under the budget of 160 characters (the bootloader cuts our line at 1363 with its own words after it; research walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing)" "$([ ${#CMDLINE} -le 160 ] && echo yes || echo "no: ${#CMDLINE}")" yes
 ck "the command line names no ufs but the bootloader's own words, and no root=, no init=, no bare rw" "$(printf '%s\n' "$CMDLINE" | tr ' ' '\n' | grep -v '^androidboot\.' | grep -i -c -e ufs -e '^root=' -e '^init=' -e '^rw$')" 0
 ck "the image's size is the production image's" "$(stat -c %s "$IMG")" "$(stat -c %s "$CONTROL")"

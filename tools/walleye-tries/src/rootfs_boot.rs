@@ -715,7 +715,15 @@ impl RootfsBoot {
             let root = root_in_image(&bytes)?;
             // the word walleye.rw makes the init mount the root read-write: the rw write's image must carry it once, every other image must not
             if u.rw {
-                crate::rw_write::cmdline_carries_the_word(&header_cmdline(&bytes)?)?;
+                let header = header_cmdline(&bytes)?;
+                crate::rw_write::cmdline_carries_the_word(&header)?;
+                // the image is its recipe's and nothing else (item walleye-rw-image-header-equals-recipe): the header of the file itself
+                let manifest = std::fs::read_to_string(u.s.device_toml())
+                    .map_err(|e| format!("{}: {e}", u.s.device_toml().display()))?;
+                crate::rw_write::header_equals_recipe(
+                    &header,
+                    &crate::rw_write::recipe_cmdline(&manifest, &u.s.image_name)?,
+                )?;
             } else if bytes
                 .split(|b| b.is_ascii_whitespace() || *b == 0)
                 .any(|w| w == crate::rw_write::WORD.as_bytes())
@@ -2449,12 +2457,24 @@ mod tests {
             .to_string();
             (img, sha)
         };
-        let with = put("rw", "walleye.root=system_a walleye.booted-slot walleye.rw");
-        let without = put("ro", "walleye.root=system_a walleye.booted-slot");
+        // the manifest's recipe for the rw image: its command line is what the file's header must equal (item walleye-rw-image-header-equals-recipe)
+        std::fs::write(
+            d.join("device.toml"),
+            "[images.rwimg.recipe]\ncmdline = \"walleye.root=system_a walleye.rw\"\n",
+        )
+        .unwrap();
+        let with = put("rw", "walleye.root=system_a walleye.rw");
+        let kept = put(
+            "kept",
+            "walleye.root=system_a walleye.booted-slot walleye.rw",
+        );
+        let without = put("ro", "walleye.root=system_a");
         let judge = |rw: bool, (img, sha): &(std::path::PathBuf, String)| {
             let mut s = (*r.s).clone();
             s.image = img.clone();
             s.image_sha256 = sha.clone();
+            s.lab = d.clone();
+            s.image_name = "rwimg".into();
             let t = if rw {
                 RootfsBoot::rw_write(s)
             } else {
@@ -2463,6 +2483,9 @@ mod tests {
             (t.the_image_is_the_declared_one())()
         };
         assert!(judge(true, &with).is_ok());
+        assert!(judge(true, &kept)
+            .unwrap_err()
+            .contains("walleye.booted-slot"));
         assert!(judge(true, &without)
             .unwrap_err()
             .contains("read-only image"));

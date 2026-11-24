@@ -1,0 +1,7 @@
+# lpoco-bringup image ensure ufs-root-booted-slot-production-rw, 2026-11-24, device.toml with sha256 07df9842b0bdd4fe22b1277fff99ca340742ca7ada3d76c260ea6a5a8cc9dd8a (ramdisk seeded alone), twice: the store path deleted between
+ufs-root-booted-slot-production-rw: built from its recipe, equal to its declared sha256
+/nix/store/gphwl8vj4abfpzhjk0nq4js4hym5n6vl-NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-rw.img
+# sha256 of that file, first and second build: 07df9842b0bdd4fe22b1277fff99ca340742ca7ada3d76c260ea6a5a8cc9dd8a (both)
+# tests/host/image-header-equals-recipe.sh on the manifest declaring 2477...b54f (before) and 07df9842...dd8a (after):
+fail walleye-image-header-equals-recipe ...header command line [... walleye.root=system_a walleye.booted-slot walleye.rw], its recipe says [... walleye.root=system_a walleye.rw]
+pass walleye-image-header-equals-recipe ufs-root-booted-slot-production-rw: the header of /nix/store/gphwl8vj4abfpzhjk0nq4js4hym5n6vl-NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-rw.img is its recipe's command line

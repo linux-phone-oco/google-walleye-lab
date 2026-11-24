@@ -313,3 +313,9 @@ source = "research:walleye-rw-clean-end-holders-and-alpine-path"
 
 [scripts."no-bare-lpoco-attended.sh"]
 source = "file:data/backlog.json"  # item walleye-procedures-run-own-cli: from orchestration 2026-11-24 (docs item attended-pin-is-one-pin)
+
+[scripts."image-header-equals-recipe.sh"]
+source = "research:walleye-rw-image-header-equals-recipe-built"
+
+[scripts."image-header-equals-recipe-selftest.sh"]
+source = "file:tools/walleye-tries/fixtures/rw-image-2477-unpack-info.txt"
