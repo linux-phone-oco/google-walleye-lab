@@ -8224,3 +8224,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-way-back-sends-fastboot-reboot-twice"></a>
+### way back sends fastboot reboot twice
+
+Entry date
+: 2026-11-24
+
+Done
+: Lab::way_back: a second bounded fastboot reboot when the phone still lists in fastboot, each leg timed; tests first (seen failing), review addressed.
+
+Rejected
+: a third reboot (the item says one more); a new reboot function in flash_boot.rs (the shared way back in lab.rs serves both stages)
+
+About
+: walleye-bootimage
