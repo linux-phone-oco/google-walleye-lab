@@ -7710,3 +7710,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-rw-fsck-counts-stale-superblock"></a>
+### walleye-rw-fsck-counts-stale-superblock
+
+Date
+: 2026-11-24
+
+Brief
+: system_a's fsck 'count wrong' lines are superblock totals not written back after run 2's rw boot ended uncleanly; group data clean; built image clean
+
+Question
+: Are run 2's and the unmounted e2fsck -fn 'Free blocks/inodes count wrong' lines damage?
+
+Found
+: Measured on the host 2026-11-24: the image stage 1 wrote (walleye-alpine-v2-key.ext4) has superblock free blocks 252516, free inodes 64600, and e2fsck -fn on it passes 1-5 clean with no 'wrong' line. The phone's system_a (PR 1021, unmounted, from Android b) still carries those exact superblock totals while its group data counts 252253 free blocks and 64586 free inodes: about 1 MiB and 14 inodes more in use, written while the rw boot ran (the 16 MiB test file was removed). Passes 1-4 clean. The filesystem has no journal, so the superblock totals are written only when the fs is unmounted or remounted read-only cleanly; run 2 left through the bootloader (step 24) without that. e2fsck -p would correct the totals; the kernel recomputes the free counts from the group descriptors at mount. Judgement (coordinator): not damage, stale totals from an unclean end. NOT KNOWN YET: which 14 inodes the boot wrote (OpenRC state, logs, ssh host keys are candidates, not read).
+
+About
+: walleye-bootimage

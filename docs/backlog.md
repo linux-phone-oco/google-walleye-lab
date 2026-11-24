@@ -12133,6 +12133,31 @@ Rank
 : 2
 
 
+<a id="walleye-run-uses-ensured-image-not-build-file"></a>
+### A run takes its image from lpoco bringup image ensure by sha256, never a file in walleye-build that may be stale
+
+Status
+: open
+
+Note
+: Run 2: the declared image's file in ~/Projects/walleye-build still held the old cb79c975 build after PR 1016; the keeper replaced it by hand with the Nix-store copy whose sha256 equals 1bfb3667. The run's step that makes the image should call image ensure (or refuse on a sha256 mismatch before the go check). Also: the keeper's pkill of its own wait loops ended other sessions' loops; waits should end by their own pid.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: a test where a stale build file makes the run refuse before any phone step
+
+Rank
+: 3
+
+
 <a id="walleye-rw-fsck-unmounted-from-android"></a>
 ### From Android slot b, read only: e2fsck -fn on the unmounted system_a (by-name), to judge run 2's mounted-root fsck counts
 
@@ -12140,7 +12165,7 @@ Status
 : done
 
 Note
-: ran: rc 0, no structural error, but free blocks/inodes count wrong persists unmounted (252516 vs 252253; 64600 vs 64586): literal proof 'no wrong line' not met; research judges stale summary counts after an unclean end of run 2
+: Done by the keeper (PR 1021): rc 0, passes 1-4 clean, superblock totals stale. Judged in research walleye-rw-fsck-counts-stale-superblock: not damage. The clean end (umount or remount ro before the reboot) and its proof (e2fsck -fn with no 'wrong' line after the next rw boot) go to walleye-rw-write-way-back-after-bootloader.
 
 About
 : walleye-bootimage
@@ -12165,7 +12190,7 @@ Status
 : open
 
 Note
-: Run 2 (PR 1019, folder ~/lab-material/walleye/rw-write-20261124-150514). Read the run log: did the phone sit in the bootloader (a second fastboot reboot needed, like the reboot-reason item walleye-fastboot-reboot-twice-timed-try) or boot slowly? Fix the step from what the log shows, tested on its text; then the procedure's proof (all 30 steps) can pass.
+: Run 2 (PR 1019, folder ~/lab-material/walleye/rw-write-20261124-150514). Read the run log: did the phone sit in the bootloader (a second fastboot reboot needed, like the reboot-reason item walleye-fastboot-reboot-twice-timed-try) or boot slowly? Fix the step from what the log shows, tested on its text; then the procedure's proof (all 30 steps) can pass. Also (research walleye-rw-fsck-counts-stale-superblock): the rw boot must end with the root unmounted or remounted read-only before the reboot, and a step reads which files the boot itself wrote.
 
 About
 : walleye-bootimage
@@ -12177,32 +12202,7 @@ Needs
 : build
 
 Proof
-: a unit test on run 2's captured step 24-26 text
+: a unit test on run 2's captured step 24-26 text; after the next rw boot e2fsck -fn from Android prints no 'wrong' line
 
 Rank
-: 3
-
-
-<a id="walleye-run-uses-ensured-image-not-build-file"></a>
-### A run takes its image from lpoco bringup image ensure by sha256, never a file in walleye-build that may be stale
-
-Status
-: open
-
-Note
-: Run 2: the declared image's file in ~/Projects/walleye-build still held the old cb79c975 build after PR 1016; the keeper replaced it by hand with the Nix-store copy whose sha256 equals 1bfb3667. The run's step that makes the image should call image ensure (or refuse on a sha256 mismatch before the go check). Also: the keeper's pkill of its own wait loops ended other sessions' loops; waits should end by their own pid.
-
-About
-: walleye-bootimage
-
-Opened
-: 2026-11-24
-
-Needs
-: build
-
-Proof
-: a test where a stale build file makes the run refuse before any phone step
-
-Rank
-: 3
+: 2
