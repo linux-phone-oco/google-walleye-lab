@@ -7830,3 +7830,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-24/
+
+
+<a id="walleye-rw-write-run-5-30-steps-clean-end-fsck-clean"></a>
+### walleye-rw-write-run-5-30-steps-clean-end-fsck-clean
+
+Date
+: 2026-11-24
+
+Brief
+: rw write run 5 (image 07df9842): 30/30 passed, the init's end reached fastboot by itself, e2fsck -fn from Android b prints no 'wrong' line: stage 3 passes
+
+Question
+: With the image without walleye.booted-slot and the init ending through Alpine's shutdown level, does the rw write pass and leave system_a clean?
+
+Found
+: Folder ~/lab-material/walleye/rw-write-20261124-190730 (kept). Rehearsal 15/15; run 5 30/30: gadget up, init mounted /dev/sda22 (system_a) with slot suffix _b, ext4 rw no overlay no discard, 16 MiB write read back equal, kernel log clean, 'clean end reached: init was asked to end, the shutdown level ran and fastboot lists the phone', then fastboot reboot and Android b back; six tables, boot chain and flags equal, root partition changed. fsck.ext4 -n on the MOUNTED root printed two wrong lines (free blocks 252252/counted 252251, free inodes 64586/counted 64583; expected on a mounted fs). After the clean end, e2fsck 1.46.6 -fn from Android b on the unmounted system_a: passes 1-5 clean, no 'wrong' line, 957/65536 files, 9902/262144 blocks (run 3 had 'Free blocks count wrong (252253, counted=252252)'). No settled.txt this run (the end is the init's). Run 4's no-gadget cause (walleye.booted-slot in the header) is consistent with this: the word was gone and the gadget came up; pstore empty again, so pstore is still not a proven console instrument. NOT KNOWN YET: whether the free-count 'wrong' lines of runs 2-3 return with a longer write.
+
+About
+: walleye-bootimage
