@@ -7786,3 +7786,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-1400-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-24
+
+Done
+: rw-write rehearsal passed 15/15; the one run stopped at check 14 (no USB gadget 1d6b:0104), nothing written, every table, the boot chain and the flags equal, Android on slot b by itself; stock kept
+
+Considered
+: next: research reads the run folder ($AGENT_BUILD/walleye-rw) for why the gadget did not come up; no second try before it; remaining ready: gpt-hash-from-android-read and vendor-firmware-pull (one Android visit), wdt0-first-instant-read. build/images in a fresh worktree must link to ~/Projects/walleye-build (not its images/ folder)
+
+About
+: walleye-bootimage

@@ -7626,3 +7626,25 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-rw-write-run-1-stopped-no-usb-gadget"></a>
+### walleye-rw-write-run-1-stopped-no-usb-gadget
+
+Date
+: 2026-11-24
+
+Brief
+: rw write run 1 (2026-11-24 13:5x): rehearsal 15/15 passed; the run stopped at check 14, USB 1d6b:0104 never on the bus; card, boot chain, flags equal after; nothing written
+
+Question
+: Does the rw-write image boot, bring up the Alpine usb gadget, and take the 16 MiB write?
+
+Found
+: Rehearsal passed all 15 steps. The run passed checks 1-13 (go names the full sha256 cb79c975...), booted the image from memory (step 13), then stopped at check 14: 1d6b:0104 not on the USB bus (wait_for_gadget 30 x 5). After the stop: partition tables, the root partition, the boot chain and both slots' flags equal, the phone on Android slot b by itself. No go outcome matches this stop: it is before any write, the root was equal. NOT KNOWN YET: whether the image booted to the Alpine root at all, or booted but the OpenRC gadget unit did not come up (the init does no gadget; Alpine's usb gadget unit brings it up), or the 180 s self-reboot raced. Folder kept: $AGENT_BUILD/walleye-rw/run.log and run.out. Per the go: no second try before research reads it.
+
+Sources
+: none
+
+About
+: walleye-bootimage
