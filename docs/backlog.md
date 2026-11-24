@@ -12228,3 +12228,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-procedures-run-own-cli"></a>
+### Walleye's procedures and keepers run the CLI its own steps crate builds (cargo run --manifest-path tools/walleye-tries/Cargo.toml), never the host's ~/.local/bin/lpoco-attended
+
+Status
+: open
+
+Note
+: From orchestration 2026-11-24 (docs item attended-pin-is-one-pin, rank 2, docs #884): the host binary sits in no lab.toml pin, so neither follow nor lpoco host check sees it; run 3's keeper found 0.44.3 refusing main's device.toml and installed 0.45.4 by hand (old kept as ~/.local/bin/lpoco-attended.before-0.45.4). Each lab runs its own crate's CLI; the host binary is then retired by orchestration. Until this lands, 0.45.4 stays.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: a host test that no procedure, script or keeper brief in this repo calls a bare lpoco-attended; one procedure dry-run through cargo run
+
+Rank
+: 3
