@@ -12137,10 +12137,10 @@ Rank
 ### A run takes its image from lpoco bringup image ensure by sha256, never a file in walleye-build that may be stale
 
 Status
-: open
+: done
 
 Note
-: Run 2: the declared image's file in ~/Projects/walleye-build still held the old cb79c975 build after PR 1016; the keeper replaced it by hand with the Nix-store copy whose sha256 equals 1bfb3667. The run's step that makes the image should call image ensure (or refuse on a sha256 mismatch before the go check). Also: the keeper's pkill of its own wait loops ended other sessions' loops; waits should end by their own pid.
+: DONE for the rootfs boot and the rw write (walleye-builder, 2026-11-24): the image step asks lpoco-bringup image ensure when the build file's sha256 is not the declared one, replaces the file (copy hashed again before the rename) when the ensured file equals the declared sha256, and otherwise stops before any phone step. NOT done: the display and touch tries check only the SHA256SUMS beside the file and ensure never refreshes it, so they can still run on a stale build file; the keeper's waits ending by their own pid is not this tool's.
 
 About
 : walleye-bootimage

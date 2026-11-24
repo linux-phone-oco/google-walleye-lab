@@ -79,6 +79,8 @@ pub struct DelayImage {
 pub struct Settings {
     pub lab: PathBuf,
     pub image: PathBuf,
+    /// the `[images.NAME]` this try boots, when `image ensure` may replace a stale build file (empty: no ensure)
+    pub image_name: String,
     pub out: PathBuf,
     pub window: u64,
     pub min_window: u64,
@@ -304,6 +306,7 @@ impl Settings {
             module_pause: 0,
             modules: 0,
             image_sha256: String::new(),
+            image_name: String::new(),
             delays: Vec::new(),
             delay_images: Vec::new(),
             dtb: PathBuf::new(),
@@ -404,6 +407,7 @@ impl Settings {
             }
             Try::RootfsBoot => {
                 s.image = image(ROOT_IMAGE);
+                s.image_name = ROOT_IMAGE.into();
                 s.image_sha256 = dev(&format!("images.{ROOT_IMAGE}.sha256"));
                 s.go_item = proc("go_item");
                 s.identity = home_path(&proc("identity"));
@@ -425,6 +429,7 @@ impl Settings {
                 // the rw write: the image is named by its [images.NAME] row (the sha256 the go names), the root is the system partition of the slot Android is not on
                 let name = proc("image");
                 s.image = image(&name);
+                s.image_name = name.clone();
                 s.image_sha256 = dev(&format!("images.{name}.sha256"));
                 s.go_item = proc("go_item");
                 s.identity = home_path(&proc("identity"));

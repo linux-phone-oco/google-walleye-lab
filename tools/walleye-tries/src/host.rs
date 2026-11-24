@@ -2,6 +2,7 @@
 //! The lab's host scripts (tests/host/*.sh) and programs run as checks: each prints a verdict line and exits 0
 //! only on pass. A try runs them, never copies their logic.
 
+use std::os::unix::fs::OpenOptionsExt;
 use std::path::Path;
 use std::process::Command;
 
@@ -118,6 +119,86 @@ pub fn image_is_the_built_one(image: &Path) -> Result<(), String> {
     } else {
         Err(format!("{name} is {got}, its SHA256SUMS line says {want}"))
     }
+}
+
+/// The path `lpoco-bringup image ensure NAME` names: the last line of a real run is the store path alone, the last line of a `--dry-run` ends in
+/// `(PATH)` (captured text of lpoco-bringup 0.47.1 in research/walleye-bootimage/2026-11-23/ensure-z21.txt, and of 0.48.4 in research walleye-image-recipe-z21-rebuilt-equal).
+pub fn ensured_path(said: &str) -> Option<String> {
+    let last = said.lines().rev().map(str::trim).find(|l| !l.is_empty())?;
+    if last.starts_with('/') && !last.contains(' ') {
+        return Some(last.to_string());
+    }
+    let open = last.rfind('(')?;
+    let path = last[open + 1..].strip_suffix(')')?;
+    path.starts_with('/').then(|| path.to_string())
+}
+
+/// A run takes its image from `image ensure` by sha256, never from a file in walleye-build that may be stale (item walleye-run-uses-ensured-image-not-build-file):
+/// the build file already has the declared sha256 - nothing is asked; otherwise `bringup image ensure NAME --device DEVICE_TOML` names a store path, that
+/// file's sha256 must equal the declared one, and it replaces the build file (written beside it, then renamed). Anything else is an error that names what was seen,
+/// and the run stops before any phone step. The sentence says what was done.
+pub fn the_image_is_ensured(
+    bringup: &str,
+    name: &str,
+    device_toml: &Path,
+    image: &Path,
+    want: &str,
+) -> Result<String, String> {
+    let stale = match image_has_sha256(image, want) {
+        Ok(()) => {
+            return Ok(format!(
+                "{name}: the file is the declared one; nothing ensured"
+            ))
+        }
+        Err(e) if want.trim().is_empty() => return Err(e),
+        Err(e) => e,
+    };
+    let mut c = Command::new(bringup);
+    c.args(["image", "ensure", name, "--device"])
+        .arg(device_toml);
+    let said = run(c).map_err(|e| format!("{stale}; image ensure could not be run: {e}"))?;
+    if !said.ok {
+        return Err(format!(
+            "{stale}; image ensure {name} failed: {}",
+            last_line(&said.text)
+        ));
+    }
+    let path = ensured_path(&said.text).ok_or_else(|| {
+        format!(
+            "{stale}; image ensure {name} named no store path: {}",
+            last_line(&said.text)
+        )
+    })?;
+    let store = Path::new(&path);
+    image_has_sha256(store, want)
+        .map_err(|e| format!("{stale}; the ensured file is not the declared one: {e}"))?;
+    let tmp = image.with_extension(format!("ensuring-{}", std::process::id()));
+    let _ = std::fs::remove_file(&tmp);
+    let wrote = (|| -> Result<(), String> {
+        use std::io::Write;
+        let mut from =
+            std::fs::File::open(store).map_err(|e| format!("{}: {e}", store.display()))?;
+        let mut to = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .mode(0o644)
+            .open(&tmp)
+            .map_err(|e| format!("{}: {e}", tmp.display()))?;
+        std::io::copy(&mut from, &mut to).map_err(|e| format!("{}: {e}", tmp.display()))?;
+        to.flush()
+            .and_then(|()| to.sync_all())
+            .map_err(|e| format!("{}: {e}", tmp.display()))?;
+        image_has_sha256(&tmp, want)
+            .map_err(|e| format!("the copy is not the declared one: {e}"))?;
+        std::fs::rename(&tmp, image).map_err(|e| format!("{}: {e}", image.display()))
+    })();
+    if let Err(e) = wrote {
+        let _ = std::fs::remove_file(&tmp);
+        return Err(format!("{stale}; {e}"));
+    }
+    Ok(format!(
+        "{name}: the build file was stale ({stale}); replaced by the ensured {path}"
+    ))
 }
 
 /// The image's sha256 is the one the manifest records.
@@ -287,6 +368,126 @@ pub fn slot_flags(fastboot: &str, serial: &str) -> Result<String, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
+
+    const ENSURE_Z21: &str =
+        include_str!("../../../research/walleye-bootimage/2026-11-23/ensure-z21.txt");
+
+    #[test]
+    fn the_ensured_path_is_read_off_the_text_lpoco_bringup_printed() {
+        // captured: research/walleye-bootimage/2026-11-23/ensure-z21.txt (a real run) and the 2026-11-24 --dry-run line of lpoco-bringup 0.48.4
+        let run: String = ENSURE_Z21.lines().take(5).collect::<Vec<_>>().join("\n");
+        assert_eq!(
+            ensured_path(&run).as_deref(),
+            Some("/nix/store/6vmx4fp4hbhsfam89mfa8ixks7rlj2n0-boot-z21.img")
+        );
+        let dry = "ufs-root-booted-slot-production-rw: in the store (/nix/store/h6d3g53lpqbiqw1nfkwh6s2q8mv4ky0b-NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-rw.img)\n";
+        assert_eq!(ensured_path(dry).as_deref(), Some("/nix/store/h6d3g53lpqbiqw1nfkwh6s2q8mv4ky0b-NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-rw.img"));
+        assert_eq!(ensured_path("z21: no recipe\n"), None);
+        assert!(
+            the_image_is_ensured("x", "n", Path::new("d"), Path::new("/nonexistent"), "")
+                .unwrap_err()
+                .contains("no sha256 recorded")
+        );
+    }
+
+    fn ensure_rig(
+        name: &str,
+        build: &str,
+        store: &str,
+        stub: &str,
+    ) -> (PathBuf, PathBuf, String, PathBuf) {
+        let d = std::env::temp_dir().join(format!("wt-ensure-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        let (image, store_file) = (d.join("NOT-TO-BOOT-x.img"), d.join("store.img"));
+        std::fs::write(&image, build).unwrap();
+        std::fs::write(&store_file, store).unwrap();
+        let want = sha256_of(&store_file).unwrap();
+        let program = d.join("lpoco-bringup");
+        crate::fixture::executable(
+            &program,
+            &stub.replace("STORE", &store_file.to_string_lossy()),
+        );
+        (image, program, want, d)
+    }
+
+    #[test]
+    fn a_stale_build_file_is_replaced_by_the_ensured_image_and_a_current_one_asks_nothing() {
+        let (image, program, want, d) = ensure_rig(
+            "replace",
+            "old build",
+            "the declared build",
+            "#!/bin/sh\necho 'x: in the store'\necho STORE\n",
+        );
+        let said = the_image_is_ensured(
+            &program.to_string_lossy(),
+            "x",
+            &d.join("device.toml"),
+            &image,
+            &want,
+        )
+        .unwrap();
+        assert!(
+            said.contains("stale") && said.contains("replaced"),
+            "{said}"
+        );
+        assert_eq!(
+            std::fs::read_to_string(&image).unwrap(),
+            "the declared build"
+        );
+        // current now: a program that fails is never run
+        let failing = d.join("failing");
+        crate::fixture::executable(&failing, "#!/bin/sh\nexit 1\n");
+        assert!(the_image_is_ensured(
+            &failing.to_string_lossy(),
+            "x",
+            &d.join("device.toml"),
+            &image,
+            &want
+        )
+        .unwrap()
+        .contains("nothing ensured"));
+    }
+
+    #[test]
+    fn a_stale_build_file_the_ensure_cannot_mend_stops_the_run_naming_both_shas() {
+        let (image, failing, want, d) = ensure_rig(
+            "fails",
+            "old build",
+            "the declared build",
+            "#!/bin/sh\necho 'x: no recipe' >&2\nexit 1\n",
+        );
+        let e = the_image_is_ensured(
+            &failing.to_string_lossy(),
+            "x",
+            &d.join("device.toml"),
+            &image,
+            &want,
+        )
+        .unwrap_err();
+        assert!(
+            e.contains("device.toml records") && e.contains("no recipe"),
+            "{e}"
+        );
+        assert_eq!(std::fs::read_to_string(&image).unwrap(), "old build");
+        let (image, wrong, want, d) = ensure_rig(
+            "wrong",
+            "old build",
+            "the declared build",
+            "#!/bin/sh\necho '/etc/hostname'\n",
+        );
+        let e = the_image_is_ensured(
+            &wrong.to_string_lossy(),
+            "x",
+            &d.join("device.toml"),
+            &image,
+            &want,
+        )
+        .unwrap_err();
+        assert!(e.contains("not the declared one"), "{e}");
+        assert_eq!(std::fs::read_to_string(&image).unwrap(), "old build");
+    }
 
     #[test]
     fn the_serial_is_the_first_of_the_manifest() {
