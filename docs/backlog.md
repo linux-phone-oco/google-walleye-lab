@@ -12306,16 +12306,16 @@ Rank
 
 
 <a id="walleye-ci-image-ensure-rebuild"></a>
-### Walleye's CI runs image ensure NAME --rebuild for every image whose sha256 or recipe a change touches
+### Walleye's images are proved by image ensure NAME --rebuild on the lab when a change touching their sha256 or recipe lands
 
 Status
 : open
 
 Note
-: From orchestration 2026-11-24, docs decision 2026-11-24-a-recipe-sha-is-proved-by-a-rebuild. RELEASED: lpoco-bringup 0.49.3 (lab-tools #423, read back by orchestration) carries 'lpoco bringup image ensure NAME --rebuild': a sandboxed rebuild ignoring store, cache and seed, failing unless it equals the declared sha256. It does not yet rebuild an image's control and parts inputs (lab-tools image-rebuild-proves-inputs, rank 4). Sighting: run 4's image 2477...b54f (PR 1039). Pin 0.49.3 the way the lab pins its tools, never the host binary. Start only after orchestration says its lab-tools builder has ended (one agent at a time). | RUN (walleye-builder, 2026-11-24), NOT BUILT - a blocker, read: 'lpoco-bringup 0.51.0 image ensure z21 --rebuild' on the lab machine prints 'z21 dtb: in the store / z20: in the store / z21: rebuilt from its recipe, equal to its declared sha256' because the recipe's control (z20), dtb and ramdisk are fetched by sha256 from the lab's nix store; every job of check.yml and tad.yml is runs-on: ubuntu-latest, which has no such store and no seed, so a hosted job would fail on the inputs, not on the recipe. Choices for the coordinator (not taken here): (1) a self-hosted runner on the lab machine for this one job (a standing runner on the lab host: the author's call); (2) the inputs published as release assets by sha256 and seeded with --seed in the hosted job (needs a place that holds the z20 and ramdisk bytes; walleye-build images are large); (3) the gate runs on the lab, before land (a lab-side step in land's flow, not CI). Pin lpoco-bringup 0.49.3+ by its release asset sha256 as bin/check-device-toml.sh does for lpoco-lab (assets lpoco-bringup-x86_64-unknown-linux-gnu(.sha256) exist for lpoco-bringup-v0.49.3). Pick one, then the build is small: a Rust gate (argenv) listing the images whose sha256 or recipe table a change touches (base vs head device.toml) and running ensure NAME --rebuild for each.
+: Re-scoped 2026-11-24 by the walleye coordinator. The builder found (PR 1049) that hosted CI (ubuntu-latest) has no nix store or seed, so --rebuild would fail on inputs, not on the recipe. Orchestration decided the proof runs on the lab when a change lands; lab-tools item image-rebuild-changed-since carries it. Once released, walleye's part is to wire it to its images (pinned by release, never the host binary). Origin: run 4's image 2477...b54f (PR 1039); docs decision 2026-11-24-a-recipe-sha-is-proved-by-a-rebuild.
 
 Waits
-: a choice of where the rebuild runs: the lab's CI has no store for the recipe's inputs (note, 2026-11-24 run)
+: lab-tools item image-rebuild-changed-since (rank 1): the rebuild proof runs on the lab at landing, not on hosted CI (orchestration via the Top, 2026-11-24)
 
 About
 : walleye-bootimage
@@ -12327,7 +12327,7 @@ Needs
 : build
 
 Proof
-: a CI job that fails on a change setting a declared sha256 the recipe does not build
+: a landing that sets a declared sha256 its recipe does not build is refused on the lab
 
 Rank
-: 2
+: 3
