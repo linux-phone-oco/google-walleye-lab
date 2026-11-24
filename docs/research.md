@@ -7729,3 +7729,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-rw-write-run-3-30-steps-pass-root-stays-rw"></a>
+### walleye-rw-write-run-3-30-steps-pass-root-stays-rw
+
+Date
+: 2026-11-24
+
+Brief
+: rw write run 3: all 30 steps passed and the way back worked; settle_rw's remount ro failed (Resource busy, 200 files written), e2fsck -fn from Android b still prints one wrong line
+
+Question
+: Does run 3 (fastboot reboot sent from the bootloader, clean end settle_rw) pass all 30 steps and leave system_a with no 'wrong' fsck line?
+
+Found
+: Folder ~/lab-material/walleye/rw-write-20261124-163645 (kept). Rehearsal 15/15 (one system_a read stalled at 760 s, its own retry passed), run 3 30/30: 16 MiB write read back equal, kernel log clean, tables/chain/flags as before, root partition changed, Android back after the bootloader's fastboot reboot (PR 1024 way back holds). NOT clean end: settle_rw 'mount -o remount,ro /' on /dev/sda22 failed 'Resource busy' rc=255, mount line stayed 'ext4 rw,relatime'; settled.txt lists 200 files from find -newer, mostly /lib, /usr/lib, /usr/sbin files (so find -newer /proc/1 seems to match the image's own files, NOT KNOWN YET why), so it does not name the file held open for writing. fsck.ext4 -n on the mounted root rc=0 (fsck.txt: not cleanly unmounted). e2fsck 1.46.6 -fn from Android b on unmounted system_a: 'Free blocks count wrong (252253, counted=252252)', 950/65536 inodes, 9891/262144 blocks; otherwise clean, one block off. Stop per the go: a boot process holds the root open for writing; research before run 4. No second try.
+
+About
+: walleye-bootimage

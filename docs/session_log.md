@@ -7987,3 +7987,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-1700-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-24
+
+Done
+: Android slot b, stock kept; run 3 of the rw write passed 30/30 and the way back worked, the root stayed rw (remount ro Resource busy), e2fsck -fn from Android b one wrong free-blocks line; host lpoco-attended upgraded 0.44.3 to 0.45.4 (old binary kept as .before-0.45.4)
+
+Considered
+: next: research which process holds the rw root open before run 4; settled.txt's find -newer lists image files, not the writer
+
+About
+: walleye-bootimage
