@@ -174,8 +174,8 @@ checksum = "65cd87c9a6d60536580b316ad985726104730a5151c99845f2490428ef91240a"
 
 [[package]]
 name = "lpoco-attended"
-version = "0.45.3"
-source = "git+https://github.com/linux-phone-oco/lab-tools?tag=lpoco-attended-v0.45.3#0cb933f0bbf0d48542955f281716b503d69622bb"
+version = "0.45.4"
+source = "git+https://github.com/linux-phone-oco/lab-tools?tag=lpoco-attended-v0.45.4#9c97a035d4d97d5c2f4f5f71ddb8b50672153f87"
 dependencies = [
  "argenv-resolve",
  "lpoco-manifest",
@@ -186,8 +186,8 @@ dependencies = [
 
 [[package]]
 name = "lpoco-manifest"
-version = "0.47.0"
-source = "git+https://github.com/linux-phone-oco/lab-tools?tag=lpoco-manifest-v0.47.0#dcec12611581f96d6b97c0d40157aa2943dfe137"
+version = "0.48.0"
+source = "git+https://github.com/linux-phone-oco/lab-tools?tag=lpoco-manifest-v0.48.0#1d3eb08412f7b58bd7c906587262e5f941cb0f3b"
 dependencies = [
  "argenv-resolve",
  "schemars",
