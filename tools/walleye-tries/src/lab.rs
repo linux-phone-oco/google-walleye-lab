@@ -20,6 +20,19 @@ pub const SYSRQ_REBOOT: &str = "echo b > /proc/sysrq-trigger";
 pub const POWER_HOLD: &str =
     "hold the power button about 15 seconds until the phone starts or shows the bootloader screen";
 
+/// What the way back says of one `fastboot reboot` leg: after how long Android came back, or that it did not within the wait (that long).
+fn leg_said(leg: u8, waited: Duration, back: bool) -> String {
+    let verdict = if back {
+        "brought Android back after"
+    } else {
+        "did not bring Android back within"
+    };
+    format!(
+        "way back: leg {leg} (`fastboot reboot`) {verdict} {} s",
+        waited.as_secs()
+    )
+}
+
 #[derive(Clone)]
 pub struct Lab {
     pub s: Rc<Settings>,
@@ -166,7 +179,7 @@ impl Lab {
     }
 
     /// The way back, the last step of an attended try however it ended: the phone ends on Android without a hand step.
-    /// Already on Android: nothing is sent. In fastboot: `fastboot reboot`. On a test image's shell: `reboot -f`, and
+    /// Already on Android: nothing is sent. In fastboot: `fastboot reboot`, and once more when the phone still lists in fastboot after it. On a test image's shell: `reboot -f`, and
     /// when Android does not come, the sysrq trigger. A phone that does not return is said so, with the power-hold
     /// sentence ([`POWER_HOLD`]) - the only hand step left.
     pub fn way_back(&self) -> Done {
@@ -175,15 +188,31 @@ impl Lab {
             println!("way back: the phone is on Android already; nothing sent");
             return Ok(());
         }
-        if self.in_fastboot().unwrap_or(false) {
+        // a phone that still lists in fastboot after the first `fastboot reboot` is sent ONE more (rerun 7: the second was the leg that worked), each leg timed, no third
+        let mut still_in_fastboot = false;
+        for leg in [1u8, 2] {
+            if !self.in_fastboot().unwrap_or(false) {
+                break;
+            }
             println!(
-                "way back: leg 1, `fastboot reboot`, then Android within {} s",
+                "way back: leg {leg}, `fastboot reboot`, then Android within {} s",
                 self.s.back_wait
             );
+            let sent = Instant::now();
             self.fastboot_reboot();
-            if self.android_within(self.s.back_wait, poll).is_ok() {
+            let back = self.android_within(self.s.back_wait, poll).is_ok();
+            println!("{}", leg_said(leg, sent.elapsed(), back));
+            if back {
                 return Ok(());
             }
+            still_in_fastboot = leg == 2 && self.in_fastboot().unwrap_or(false);
+        }
+        if still_in_fastboot {
+            // a phone in fastboot has no shell: nothing more is tried, the hand command is said at once
+            return Err(format!(
+                "the phone is still in fastboot after two `fastboot reboot` (each waited {} s): by hand `fastboot reboot`, else {POWER_HOLD}",
+                self.s.back_wait
+            ));
         }
         let mut shell_answered = false;
         for command in [REBOOT_NOW, SYSRQ_REBOOT] {
@@ -223,6 +252,79 @@ mod tests {
         let mut s = Settings::stand_in(crate::settings::Try::Touch);
         s.lab = d;
         Lab::new(Rc::new(s))
+    }
+
+    /// A lab whose fastboot lists the phone always and logs each `reboot` it is sent, and whose idle-android check passes once that log holds `needs` lines: the phone that
+    /// stays in fastboot after the first `fastboot reboot` (rerun 7, research walleye-fastboot-reboot-stays-in-fastboot-causes-ranked: a second `fastboot reboot` was the leg that
+    /// brought Android home). Returns the lab and the reboot log's path. No clock decides: the count does.
+    fn fastboot_lab(name: &str, needs: u32) -> (Lab, std::path::PathBuf) {
+        let lab = lab_in(name, Some("[connection]\nserial = \"SER1\"\n"));
+        let d = lab.s.lab.clone();
+        let log = d.join("fastboot.log");
+        std::fs::create_dir_all(d.join("tests/host")).unwrap();
+        crate::fixture::executable(
+            &d.join("tests/host/idle-android.sh"),
+            &format!(
+                "[ \"$(cat '{0}' 2>/dev/null | wc -l)\" -ge {needs} ] && echo 'pass walleye-idle-android host back' && exit 0\necho 'fail walleye-idle-android not yet'; exit 1\n",
+                log.display()
+            ),
+        );
+        crate::fixture::executable(
+            &d.join("fastboot"),
+            &format!(
+                "#!/bin/sh\nif [ \"$3\" = reboot ]; then echo reboot >> '{0}'; exit 0; fi\necho 'SER1 fastboot'\n",
+                log.display()
+            ),
+        );
+        let mut s = (*lab.s).clone();
+        s.fastboot = d.join("fastboot").to_string_lossy().into_owned();
+        s.back_wait = 2;
+        s.port = crate::phone::fake::closed();
+        s.address = "127.0.0.1".into();
+        (Lab::new(Rc::new(s)), log)
+    }
+
+    fn reboots(log: &std::path::Path) -> usize {
+        std::fs::read_to_string(log).map_or(0, |t| t.lines().count())
+    }
+
+    #[test]
+    fn a_phone_that_stays_in_fastboot_after_the_first_reboot_is_sent_one_more() {
+        let (lab, log) = fastboot_lab("twice", 2);
+        lab.way_back().unwrap();
+        assert_eq!(reboots(&log), 2);
+    }
+
+    #[test]
+    fn a_phone_that_is_back_after_the_first_reboot_is_sent_no_second() {
+        let (lab, log) = fastboot_lab("once", 1);
+        lab.way_back().unwrap();
+        assert_eq!(reboots(&log), 1);
+    }
+
+    #[test]
+    fn a_phone_still_in_fastboot_after_two_reboots_is_sent_no_third_and_gets_the_hand_command() {
+        let (lab, log) = fastboot_lab("never", 99);
+        let e = lab.way_back().unwrap_err();
+        assert_eq!(reboots(&log), 2);
+        assert!(
+            e.contains("still in fastboot after two `fastboot reboot`"),
+            "{e}"
+        );
+        assert!(e.contains("fastboot reboot"), "{e}");
+        assert!(e.contains(POWER_HOLD), "{e}");
+    }
+
+    #[test]
+    fn each_leg_is_said_with_its_time_and_whether_it_brought_android() {
+        assert_eq!(
+            leg_said(1, Duration::from_secs(42), true),
+            "way back: leg 1 (`fastboot reboot`) brought Android back after 42 s"
+        );
+        assert_eq!(
+            leg_said(2, Duration::from_secs(2), false),
+            "way back: leg 2 (`fastboot reboot`) did not bring Android back within 2 s"
+        );
     }
 
     #[test]

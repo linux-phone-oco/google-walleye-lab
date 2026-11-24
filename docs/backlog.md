@@ -10815,10 +10815,10 @@ Rank
 ### Stage 2's way back sends 'fastboot reboot' a second time, bounded, when the phone still lists in fastboot after the first (the last leg known to work in rerun 7)
 
 Status
-: open
+: done
 
 Note
-: From research walleye-fastboot-reboot-stays-in-fastboot-causes-ranked (PR 876): cause not known yet (the PMIC reason byte persisting is ranked first), the last leg known to work is a second fastboot reboot; the research's own try (walleye-fastboot-reboot-twice-timed-try, rank 5) is made unnecessary if stage 2's own way back gives the timed text.
+: DONE (walleye-builder 2026-11-24): lab.rs Lab::way_back (the one way back all tries share, stage 1 and 2): after the first 'fastboot reboot' a phone that still lists in fastboot is sent ONE more, each leg timed and said (leg_said), no third; still in fastboot after both ends with 'by hand fastboot reboot, else hold the power button'. Tests with a stand-in fastboot that logs each reboot and a phone back only after the Nth (no clock decides): twice, once, never; 414 tests, clippy, fmt; no phone. Source: research walleye-fastboot-reboot-stays-in-fastboot-causes-ranked (rerun 7). The research's own try (walleye-fastboot-reboot-twice-timed-try) is now answered by the way back's own timed lines on the next run.
 
 About
 : walleye-bootimage
