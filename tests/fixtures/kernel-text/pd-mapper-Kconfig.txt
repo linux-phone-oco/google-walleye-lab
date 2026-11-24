@@ -1,0 +1,17 @@
+# Captured text: drivers/soc/qcom/Kconfig of kernel.org v7.3 (/home/mll/Projects/walleye-build/linux-v7.3, git describe v7.3), lines 80-91, read 2026-11-24 for item walleye-kernel-pd-mapper.
+# And the lines `make ARCH=arm64 defconfig` of that tree wrote to .config (defconfig has them =m; the initramfs carries no modules):
+# CONFIG_QRTR=m
+# CONFIG_QRTR_SMD=m
+# CONFIG_QCOM_PD_MAPPER=m
+config QCOM_PD_MAPPER
+	tristate "Qualcomm Protection Domain Mapper"
+	select QCOM_QMI_HELPERS
+	select QCOM_PDR_MSG
+	select AUXILIARY_BUS
+	depends on NET && QRTR
+	default QCOM_RPROC_COMMON
+	help
+	  The Protection Domain Mapper maps registered services to the domains
+	  and instances handled by the remote DSPs. This is a kernel-space
+	  implementation of the service. It is a simpler alternative to the
+	  userspace daemon.
