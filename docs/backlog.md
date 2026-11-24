@@ -10746,7 +10746,7 @@ Status
 : in-progress
 
 Note
-: DONE (PR of builder/checks-name-sources): the lpoco-attended 0.45.2 bump (PR 966 closed) with every check(..) of the 13 procedures as check_from(what, research:ID, ..), each row in data/research.json, the five walleye-stop-* rows the sources of the stops; dry run of all 13 ok, a check without a source refused. STILL OPEN: (1) tests/host/*.sh expectations and procedures/SOURCES.toml, (2) fixtures as captured phone text under tests/fixtures/phone-text/, (3) the gate tests/host/checks-have-sources.sh in check.yml. Source choices are by procedure and subject; a finer per-check pass can replace a row.
+: PART 1 LANDED (PR 991): 0.45.2 and 145 checks as check_from(what, research:ID, ..), sources per procedure/subject. REMAINING: (a) the host scripts: scripts/SOURCES.toml for tests/host/*.sh expectations; (b) the fixtures of the host selftests as text a phone printed, kept as files with a provenance line; (c) the CI gate that refuses a check or expectation without a source and a source that does not exist; (d) a finer per-check pass where one research row stands for a whole procedure (the checks of the five stops first). Ranked after z21 and the kernel build (the Top Coordinator's order); the ONE report to the Steward goes when (a) to (c) have landed. | DONE (PR of builder/checks-name-sources): the lpoco-attended 0.45.2 bump (PR 966 closed) with every check(..) of the 13 procedures as check_from(what, research:ID, ..), each row in data/research.json, the five walleye-stop-* rows the sources of the stops; dry run of all 13 ok, a check without a source refused. STILL OPEN: (1) tests/host/*.sh expectations and procedures/SOURCES.toml, (2) fixtures as captured phone text under tests/fixtures/phone-text/, (3) the gate tests/host/checks-have-sources.sh in check.yml. Source choices are by procedure and subject; a finer per-check pass can replace a row.
 
 About
 : walleye-bootimage
@@ -10761,7 +10761,7 @@ Proof
 : (1) SOURCES: every check(..) step of the 13 procedures/*.rs (about 150) and every expectation of the tests/host/*.sh (96 scripts) names its source: a research row id (data/research.json), a doc (path or URL kept as a source row), or a captured-text file under the repo (research/.../ material); the convention is machine-read: a table procedures/SOURCES.toml (step name to source) and a tests/host/SOURCES.toml (script to source), or the 'source=' argument that lpoco attended check will require once orchestration's half lands (lab-tools: refuses a check with no source): the interim gate is tests/host/checks-have-sources.sh, which fails on any check or expectation without a source and on a source that does not exist (research id absent, file missing), and is a step of .github/workflows/check.yml; (2) FIXTURES: every fixture of a host selftest is TEXT A PHONE PRINTED, kept as a file under tests/fixtures/phone-text/ with a provenance line (the run, the date, the research row it came from); a fixture typed as a stand-in is refused by the gate (a typed one is replaced by a captured one or its check is marked as not yet sourced and listed); (3) THE STOPS AS TEST CASES: each of today's stops is refused BEFORE its fix or carries a source AFTER it: stage 2 checks 9, 16 and 18 (the first versions assumed a first run; the amended ones cite research walleye-stage2-flash-resets-flags-documented, walleye-stage2-run-1-gpt-after-flash-finding, walleye-stage2-rerun-2-stops-at-check-9-boot-a-is-the-image, walleye-stage2-rerun-3-stops-at-check-16-flash-changes-nothing, walleye-stage2-run5-stops-at-check-18-flash-resets-unbootable-too), the stage 1 check 17 (norecovery vs noload stand-in; research walleye-rootfs-boots-run-4-check-17-wants-noload-mounts-say-norecovery) and the run 7 pstore read (tests/host/pstore-*-read.sh, ml3-ramoops-read.sh: their source is the claim that pstore survives the reset, which research walleye-pstore-warm-reset-how-it-stands and walleye-ml3-pstore-empty do not support after a hard reset): the gate has a test that the OLD form of each is refused (a fixture of the unsourced form), and the new form passes; (4) nothing changes what a phone run does; dry run, check --host, tests, clippy, fmt, review
 
 Rank
-: 2
+: 6
 
 
 <a id="walleye-stops-three-answers"></a>
@@ -11142,9 +11142,6 @@ Status
 Note
 : From orchestration (2026-11-23): lab-tools #368 gives 'lpoco bringup image ensure NAME' (an image rebuilt from an [images.NAME.recipe] in the Nix sandbox, checked against the declared sha256, served from the store or a cache); proven on z21 in lab-tools; google-walleye-lab still needs z21's recipe row, its own file. Rank 3: behind the stage 2 run; it is also the way the build scripts retire.
 
-Blocked by
-: walleye-lpoco-attended-0-45-2-lands
-
 About
 : walleye-bootimage
 
@@ -11158,7 +11155,7 @@ Proof
 : device.toml [images.z21.recipe] in the form of decision 2026-11-23-image-recipes-on-nix-fixed-output-paths and lab-tools #368 (z20 plus z21's dtb is the proven example in lab-tools): 'lpoco bringup image ensure z21' (lab-tools released, installed on the host: v0.45.0 or later) rebuilds the image from the recipe, checks it against the declared sha256 of [images.z21] and serves it from the store afterwards; the inputs of the recipe are named (kernel_tag of the image: int/walleye/ufs-off-e123d3bff/v7.3/1, the dtb from the board dts at its commit, the ramdisk and header words), no tree path; nothing changes the declared sha256; then the same for the other images an [images.*] row names, one row per item or per change as the builder judges (these are the rebuild-identical proofs that let a build-*.sh retire: item walleye-retire-build-scripts); dry run, check --host, tests, review; no phone
 
 Rank
-: 3
+: 2
 
 
 <a id="walleye-stage2-step21-slot-source"></a>
@@ -11843,10 +11840,10 @@ Rank
 ### Land rhizoid's bump PR 966 (lpoco-attended 0.44.3 to 0.45.2): rebase on the one-pin pass, checks green, read back from main
 
 Status
-: open
+: done
 
 Note
-: The Top Coordinator's order 2026-11-24 (the author asked whether recipes are in use; they are not yet): after the unpinned ramp builder, land 966, then z21's recipe row (PR 951 waited on this pin), then the kernel build declared from the int/ tag. The next image a run needs is built through lpoco bringup image ensure, not by hand.
+: DONE by PR 991 (builder local_2e2bd77d): lpoco-attended 0.45.2 plus 145 checks of the 13 procedures as check_from(what, research:ID, ..); PR 966 closed with a comment pointing at it.
 
 Blocked by
 : walleye-checks-name-their-sources
