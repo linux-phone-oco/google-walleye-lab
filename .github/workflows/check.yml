@@ -56,6 +56,18 @@ jobs:
       - uses: actions/checkout@v4
       - name: the check passes a declared recipe the program finds or would build, fails a missing recipe table, a refusal or an unknown line, and skips without the program (stand-ins, no store, no phone)
         run: sh tests/host/image-recipe-selftest.sh
+  checks-have-sources:
+    name: every host script names its source
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: the gate proves itself on small trees, then refuses a script with no source, a source that does not exist, and a row for a gone script (tests/host/SOURCES.toml)
+        run: |
+          cd tools/walleye-sources
+          cargo test --locked
+          cargo fmt --check
+          cargo clippy --locked --all-targets -- -D warnings
+          cargo run --locked -q -- --root ../..
   licence-coverage:
     name: every tracked file is covered by a licence
     runs-on: ubuntu-latest
