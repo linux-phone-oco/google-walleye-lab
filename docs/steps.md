@@ -1499,30 +1499,6 @@ Updated
 ### Row 108
 
 Step
-: storage-readonly
-
-Status
-: done
-
-Proof
-: research walleye-ufs-try1-card-readable
-
-Run
-: research walleye-ufs-match-tried-version-ok-link-stays-gear1 (lab PR 580, 583, 584)
-
-Proven on
-: NOT-TO-BOOT-ufs-on-ufs-match.img sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5
-
-Notes
-: One read-only try on the author's go: UFS 3.1.0, six LUNs SKhynix H28U74301AMR D003, partition tables read by the kernel, no UFS error, nothing written. The link idles at HS gear 1 (speed, item walleye-ufs-why-gear1); by-name partition listing needs udev, not read.
-
-Updated
-: 2026-11-19
-
-
-### Row 109
-
-Step
 : battery-gauge-reads
 
 Status
@@ -1544,7 +1520,7 @@ Updated
 : 2026-11-19
 
 
-### Row 110
+### Row 109
 
 Step
 : haptics-buzz
@@ -1568,7 +1544,7 @@ Updated
 : 2026-11-19
 
 
-### Row 111
+### Row 110
 
 Step
 : storage-full-speed
@@ -1589,7 +1565,7 @@ Updated
 : 2026-11-19
 
 
-### Row 112
+### Row 111
 
 Step
 : watchdog-way-back
@@ -1613,7 +1589,7 @@ Updated
 : 2026-11-19
 
 
-### Row 113
+### Row 112
 
 Step
 : pmic-bound
@@ -1637,7 +1613,7 @@ Updated
 : 2026-11-19
 
 
-### Row 114
+### Row 113
 
 Step
 : display-boots-any-order
@@ -1661,7 +1637,7 @@ Updated
 : 2026-11-20
 
 
-### Row 115
+### Row 114
 
 Step
 : display-any-order
@@ -1685,7 +1661,7 @@ Updated
 : 2026-11-23
 
 
-### Row 116
+### Row 115
 
 Step
 : rootfs-boots
@@ -1707,3 +1683,27 @@ Notes
 
 Updated
 : 2026-11-23
+
+
+### Row 116
+
+Step
+: storage-readonly
+
+Status
+: partial
+
+Proof
+: ufs-matched-image-on-the-pixel-2
+
+Run
+: walleye-ufs-try-2-run-8-pin-holds-shell-silent-at-256mib
+
+Proven on
+: ufs-match image sha256 461077869fb2
+
+Notes
+: Card read: UFS 3.1.0, 6 disks, GPT hashed; a ramped read is fine at 64 MiB and the shell goes silent at 256 MiB (run 8, pin held at rest)
+
+Updated
+: 2026-11-24

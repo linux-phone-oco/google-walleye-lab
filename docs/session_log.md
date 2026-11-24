@@ -7435,3 +7435,18 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-0115-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-24
+
+Done
+: Run 8 of UFS try 2 (the one run of the go, now ended): step 16 passed with the PR 975 pin (userspace, set_freq 50 MHz read back, cur_freq 100 MHz, HS_GEAR1); 64 MiB read fine; shell silent at the 256 MiB step, gear at the silence not known, GPT after not read (shell dead); phone back on Android slot b by itself, nothing flashed or written; stock kept
+
+Considered
+: next: coordinator reads the run (research walleye-ufs-try-2-run-8-pin-holds-shell-silent-at-256mib): silence is not shown to be the gear; candidates are the 100 MHz core clock vs Android 50 MHz, the read path, or the shell stack on usb0 starving under O_DIRECT load; then decides a further read-only try (e.g. smaller steps 64/128, or console on the ACM tty instead of telnet). walleye-gpt-hash-from-android-read still open (needs adb root, not done here)

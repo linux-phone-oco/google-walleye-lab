@@ -7399,3 +7399,22 @@ Sources
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-ufs-try-2-run-8-pin-holds-shell-silent-at-256mib"></a>
+### walleye-ufs-try-2-run-8-pin-holds-shell-silent-at-256mib
+
+Date
+: 2026-11-24
+
+Brief
+: UFS try 2 run 8 (pinned, ramped): step 16 passed (userspace, 100 MHz, HS_GEAR1); 64 MiB read fine, shell silent at 256 MiB, gear then not known yet; GPT before 6cd7e48c; Android back
+
+Question
+: Does the PR 975 pin (userspace governor, set_freq 50 MHz, core_clk rounds to 100 MHz) hold the link in HS_GEAR1 under the ramped read, and does the shell stay answering?
+
+Found
+: Run 8 of the matched image (sha 46107786...), one run of the go. 3.1.0, PHY table 3.1.0, 6 disks, sda 45 partitions, GPT hash before 6cd7e48c...0174 (as expected). Step 16 PASSED: governor userspace, set_freq 50000000 read back, cur_freq 100000000 (core_clk rounding), gear HS_GEAR1 lanes 2, scaling log 'clock scaling is suspended, skip'; pin-*.txt kept in ~/lab-material/walleye/ufs-20261124-010239. Ramp: step 1 (64 MiB) ended rc=0 in 1.1 s with the shell answering; step 2 (256 MiB): the 1.0 s sample was not answered in 30.3 s and the read did not end; the shell (172.16.43.1:23) then timed out; step 3 (1024) not started. Gear at the silence NOT KNOWN (no gear read was answered after the pin), so the silence is not shown to be the gear going to G3; with the pin holding at rest and scaling suspended, the silence under a larger read is not cured by the pin alone. GPT after and RAM log not known (shell dead); phone went back to Android b by itself. Also: the link read at step 11 took 172 s. Nothing written.
+
+About
+: walleye-first-fastboot-boot
