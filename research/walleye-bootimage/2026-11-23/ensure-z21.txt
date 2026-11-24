@@ -1,0 +1,7 @@
+# lpoco-bringup 0.47.1 image ensure z21, 2026-11-23 (z21's store path deleted first; control z20 and the dtb seeded from walleye-build by sha256)
+z21 dtb: in the store
+z20: in the store
+z21: built from its recipe, equal to its declared sha256
+/nix/store/6vmx4fp4hbhsfam89mfa8ixks7rlj2n0-boot-z21.img
+# sha256sum of the store path:
+bdc0a89179d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff  /nix/store/6vmx4fp4hbhsfam89mfa8ixks7rlj2n0-boot-z21.img

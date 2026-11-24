@@ -142,6 +142,18 @@ path = "images-z21/boot-z21.img"
 kernel_tag = "int/walleye/ufs-off-e123d3bff/v7.3/1"
 sha256 = "bdc0a89179d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff"
 
+# z21 rebuilt from z20 and its own dtb (decision 2026-11-23-image-recipes-on-nix-fixed-output-paths): `lpoco bringup image ensure z21`
+# equals the sha256 above. Sources: z20's sha256 is walleye-build/images-z20/SHA256SUMS-z20; the dtb's is walleye-build/images-z21/SHA256SUMS-z21;
+# kernel, ramdisk, header and command line are z20's.
+[images.z21.recipe]
+control = "z20"
+dtb = "f9f2ca5d511f3a5cacc40fb7385bc1e84d96c396f634c065da9847c4ce708260"
+
+# z20: z21's control (UFS ON, NOT TO BOOT: tests/host/ufs-off-image.sh refuses it by design); no [kernels] list and no procedure names it.
+[images.z20]
+path = "images-z20/boot-z20.img"
+sha256 = "fe9e0cce681a3956b9c80955b0cb6447494793ef42b4eee453d31fbce52ec4c4"
+
 [images.l6]
 path = "images-display-stripes/boot-l6.img"
 sha256 = "8ca3af879b4c9d87ff98f8d269282557131ca8eef5d39bc42d5a97eb5e587bad"   # the late-probe kernel, display drivers as modules, the full display dtb, /bin/walleye-stripes

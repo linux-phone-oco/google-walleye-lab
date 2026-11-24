@@ -11137,10 +11137,10 @@ Rank
 ### z21's recipe row in device.toml: lpoco bringup image ensure z21 rebuilds the image in the Nix sandbox and equals the declared sha256
 
 Status
-: open
+: done
 
 Note
-: From orchestration (2026-11-23): lab-tools #368 gives 'lpoco bringup image ensure NAME' (an image rebuilt from an [images.NAME.recipe] in the Nix sandbox, checked against the declared sha256, served from the store or a cache); proven on z21 in lab-tools; google-walleye-lab still needs z21's recipe row, its own file. Rank 3: behind the stage 2 run; it is also the way the build scripts retire.
+: Done: device.toml [images.z21.recipe] (control z20, dtb by sha256) and [images.z20] (the control, NOT TO BOOT); image ensure z21 serves it from the store equal to the declared sha256 (research walleye-image-recipe-z21-rebuilt-equal); proof tests/host/image-recipe.sh z21 passes, its selftest is a CI job; the host's lpoco is now 0.48.4, so ensure runs here. Rebased from PR 951 onto main.
 
 About
 : walleye-bootimage
@@ -11862,3 +11862,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-image-recipes-other-images"></a>
+### A recipe row for each other image an [images.*] row names, each proven by image ensure
+
+Status
+: open
+
+Note
+: From walleye-image-recipe-z21 (done): z21's row is the form. Next the images whose control and parts are other images of the manifest (l7 from l6, b2 from b1, wdt1-a/b, b-dN from b2); the images that need a kernel built from an int/ tag wait on walleye-next-image-from-an-int-tag.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: tests/host/image-recipe.sh NAME passes for each, and image ensure NAME equals its declared sha256 (the rebuild-identical proofs that let a build-*.sh retire: walleye-retire-build-scripts)
+
+Rank
+: 3

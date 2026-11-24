@@ -49,6 +49,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: the check passes a battery within tolerance of fastboot's reading and fails a probe fault, a wrong type, an unreadable value or a voltage off by more than 100 mV (no phone)
         run: sh tests/host/fuel-gauge-selftest.sh
+  image-recipe:
+    name: the image recipe check proves itself
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: the check passes a declared recipe the program finds or would build, fails a missing recipe table, a refusal or an unknown line, and skips without the program (stand-ins, no store, no phone)
+        run: sh tests/host/image-recipe-selftest.sh
   licence-coverage:
     name: every tracked file is covered by a licence
     runs-on: ubuntu-latest
