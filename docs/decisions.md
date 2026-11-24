@@ -3366,3 +3366,34 @@ Scope
 
 Tracked by
 : walleye-ufs-pin-print-its-evidence
+
+
+<a id="2026-11-24-walleye-ufs-procedure-fits-the-image-not-the-image-the-procedure"></a>
+### 2026-11-24-walleye-ufs-procedure-fits-the-image-not-the-image-the-procedure
+
+Date
+: 2026-11-24
+
+Brief
+: The UFS try is made to fit the matched image's own 180 s self-reboot (idle link read once, no hold claim, steps checked against the deadline); the image is not rebuilt
+
+Decision
+: The UFS procedure changes, the matched image does not: (a) the idle link is read once - up at any gear is 'works', down fails - instead of waiting up to device_wait for HS-G3 that an idle link never shows; (b) the step 'the shell answers and the hold is on' no longer claims a hold for this image: it reads the image's reboot deadline (uptime of 'about to start the watchdog petter' + 90 x 2 s) and keeps it in the run's files; (c) before each ramp step the procedure reads /proc/uptime and runs the step only when its load_limit ends before the deadline less 10 s, else it stops and says so; (d) every run file of the load keeps the uptime at its start. No new UFS run before item walleye-ufs-procedure-fits-the-180s is landed. Stage 3 stays blocked as before; its reason (the card silent under load) is now NOT KNOWN rather than seen.
+
+Why
+: Research walleye-ufs-180s-is-the-init-self-reboot: the image's /init is z14's, rebooting after 90 beats with no hold; the 170 s idle link wait put every load 4-5 s before that reboot, in all four runs. With (a) the load starts about 10 s after the shell answers, leaving about 165 s; the ramp's 64/256/1024 MiB took 1.1 s for its first step.
+
+Rejected
+: Rebuilding the image with init-late's /tmp/hold (a new sha256, so a new author's go on a UFS-on image, for a hold the try does not need once the link wait is gone); killing or stopping the petter from the shell (qcom_wdt is open and would bite: an unplanned reset, not the designed way back); raising or lowering boot.device_wait (it is the wait for other images' device nodes too, and the HS-G3 wait at idle is wrong at any length); reading runs 1-3's silence as UFS (each ended 4.0-4.6 s into the load, at the reboot).
+
+About
+: walleye-ufs-match-android-z
+
+Research
+: walleye-ufs-180s-is-the-init-self-reboot
+
+Scope
+: walleye-builder (tools/walleye-tries ufs.rs), walleye-keeper (the next UFS run), walleye-coordinator
+
+Tracked by
+: walleye-ufs-procedure-fits-the-180s

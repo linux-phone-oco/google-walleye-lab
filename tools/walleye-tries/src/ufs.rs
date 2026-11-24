@@ -844,6 +844,31 @@ mod tests {
             let e = u.shell_answers_and_holds()().unwrap_err();
             assert!(e.contains("hold file"), "{e}");
         }
+
+        /// FAILING until item walleye-ufs-procedure-fits-the-180s (research walleye-ufs-180s-is-the-init-self-reboot):
+        /// the matched image's init (z14's, byte for byte) reboots the phone 90 beats of 2 s after it starts and knows no
+        /// hold, and an idle link reads HS_GEAR1 in HIBERN8 (run 8's own link.txt), so waiting for HS-G3 at idle spends the
+        /// whole device_wait (170 s in device.toml) and leaves the load about 4 s before the reboot. The link at idle is
+        /// read, not waited on: with the manifest's device_wait, the read of an idle slow link ends within 15 s.
+        #[test]
+        #[ignore = "failing until item walleye-ufs-procedure-fits-the-180s: its builder removes this line"]
+        fn an_idle_slow_link_is_read_without_spending_the_reboot_budget() {
+            let (tx, rx) = std::sync::mpsc::channel();
+            std::thread::spawn(move || {
+                let mut t = phone(DMESG);
+                t[1] = ("power_info", "dev_pm=SLEEP\ngear=HS_GEAR1\nlane=2\nlink_state=HIBERN8\nmode=FAST_MODE\nrate=HS_RATE_B");
+                let mut s = Settings::stand_in(Try::Ufs);
+                s.port = fake::phone(t, vec![]);
+                s.out = out("idle");
+                s.device_wait = 170; // the manifest's value, not the walkthrough's 2
+                let _ = tx.send(Ufs::new(s).the_link_is_read()());
+            });
+            let r = rx.recv_timeout(std::time::Duration::from_secs(15));
+            assert!(
+                matches!(r, Ok(Ok(()))),
+                "the idle link read did not end within 15 s ({r:?}): it would leave the load seconds before the init's 180 s self-reboot"
+            );
+        }
     }
 
     /// The matched-image step refuses an image whose sha256 is not the recorded one before it runs anything.

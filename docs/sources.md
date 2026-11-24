@@ -1924,3 +1924,35 @@ Url
 
 Takes
 : set_freq_store -> update_devfreq -> devfreq_update_target (clamp to min/max only) -> devfreq_set_target: previous_freq = the freq the driver's target() hands back; cur_freq_show prints previous_freq when the profile has no get_cur_freq (ufs-qcom's has none)
+
+
+<a id="src-walleye-init-z14"></a>
+### google-walleye-lab build/initramfs-mainline/init-z14: the banner shell init, its watchdog petter that reboots after 90 beats of 2 s
+
+Url
+: https://github.com/linux-phone-oco/google-walleye-lab/blob/main/build/initramfs-mainline/init-z14
+
+Year
+: 2026
+
+By
+: linux-phone-oco
+
+Takes
+: the matched UFS image's /init, byte for byte: the 180 s self-reboot, no hold
+
+
+<a id="src-walleye-ufs-procedure-link-read"></a>
+### google-walleye-lab tools/walleye-tries/src/ufs.rs: the UFS try's link read waits for HS-G3 up to boot.device_wait
+
+Url
+: https://github.com/linux-phone-oco/google-walleye-lab/blob/main/tools/walleye-tries/src/ufs.rs
+
+Year
+: 2026
+
+By
+: linux-phone-oco
+
+Takes
+: the_link_is_read polls until HS-G3 or device_wait (170 s); hold_command touches /tmp/hold
