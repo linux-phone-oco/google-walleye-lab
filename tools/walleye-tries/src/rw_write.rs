@@ -19,7 +19,7 @@
 
 //! NOT KNOWN YET (no rw boot, no fsck on a mounted root has been captured): the rw lines of `/proc/mounts` (the positive case is run 4 with its two root lines replaced by what the init is built to make), the `mounts-rw` and `EXT4-fs error` log lines (typed from the init and the kernel source), and the stdout of `fsck.ext4 -n` on the mounted root (the judge is strict: the line Android printed on an unmounted partition, and `rc=0`; if the first run refuses a good root the run, not the judge, tells what it prints). The first real rw run replaces these by captured text. The procedure must judge the mounts BEFORE it writes (the write is not tied to the mounts judge by a type), and the init says `mounts-rw` BEFORE it mounts: the line shows which init ran, the mounts judge shows the mount.
 
-use crate::rootfs_boot::{disk_letters, root_for, sections, ROOT_KEY};
+use crate::rootfs_boot::{disk_letters, root_for, sections, InitSaw, RootfsBoot, ROOT_KEY};
 use crate::ufs::Probe;
 
 type Done = Result<(), String>;
@@ -270,10 +270,34 @@ pub fn dmesg_is_clean(dmesg: &str, root: &str) -> Done {
     Ok(())
 }
 
-/// The card read from Android before and after (`gpt sdX DIGEST` for each of the `luns` disks, then one `root NAME DIGEST`): every disk's table
-/// equal, the same root named, the root partition's digest CHANGED (the write reached the partition). The lines must be exactly those, in
-/// that order, with 64-hex digests; anything else is a failure.
+/// What the root partition's digest must do between the two card reads: nothing (the run stopped before the boot), whatever (it booted and mounted rw, which alone
+/// rewrites the superblock and the journal, and made `/.walleye`), or change (the write was made: the read-back says it landed, this says the partition moved).
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum RootRule {
+    Equal,
+    Any,
+    Changed,
+}
+
+/// The rule the run's folder gives: `write.txt` (the write was sent) means Changed, `read.txt` (the phone was booted and read) means Any, neither means Equal.
+pub fn root_rule(out: &std::path::Path) -> RootRule {
+    if out.join("write.txt").exists() {
+        RootRule::Changed
+    } else if out.join("read.txt").exists() {
+        RootRule::Any
+    } else {
+        RootRule::Equal
+    }
+}
+
+/// [`card_judge`] for a run that wrote: the root must have CHANGED.
 pub fn card_changed_only_in_the_root(before: &str, after: &str, luns: u64) -> Done {
+    card_judge(before, after, luns, RootRule::Changed)
+}
+
+/// The card read from Android before and after (`gpt sdX DIGEST` for each of the `luns` disks, then one `root NAME DIGEST`): every disk's table
+/// equal, the same root named, the root's digest as the rule says. The lines must be exactly those, in that order, with 64-hex digests.
+pub fn card_judge(before: &str, after: &str, luns: u64, rule: RootRule) -> Done {
     let mut want: Vec<String> = disk_letters(luns)?
         .iter()
         .map(|l| format!("gpt sd{l}"))
@@ -326,13 +350,122 @@ pub fn card_changed_only_in_the_root(before: &str, after: &str, luns: u64) -> Do
             x[1], y[1]
         ));
     }
-    if x[2] == y[2] {
-        return Err(
+    match (rule, x[2] == y[2]) {
+        (RootRule::Changed, true) => Err(
             "the root partition is byte for byte what it was: the write did not reach the card"
                 .into(),
-        );
+        ),
+        (RootRule::Equal, false) => {
+            Err("the root partition changed although the run stopped before the boot".into())
+        }
+        _ => Ok(()),
     }
-    Ok(())
+}
+
+/// What the author is told before the rehearsal.
+pub fn expect_rehearsal(luns: u64) -> String {
+    format!("The rehearsal of the rw write, about 5 minutes: every step of the write except the boot and everything after it, run for real - the card read from Android (the partition tables of its {luns} disks and the root partition hashed), the image and its command line (it must carry {WORD} once), the guard with fastboot, the slots' flags, the boot chain read back and compared with the stored set. Nothing is booted and nothing is written to the card; the phone is in fastboot for a minute and ends on Android. The author's go is not needed and not read.")
+}
+
+/// What fsck's answer says, for the run's log: whether it printed a refusal marker, its `rc=`, and whether the `clean` line is there. NEVER a stop: `fsck.ext4 -n` on a root that is mounted
+/// rw is known to warn and to count differences of a live filesystem, and what it prints here has not been captured (NOT KNOWN YET); the whole answer is kept in fsck.txt.
+pub fn fsck_report(text: &str, device: &str) -> String {
+    let marker = [
+        "UNEXPECTED INCONSISTENCY",
+        "FILE SYSTEM WAS MODIFIED",
+        "Filesystem still has errors",
+        "contains a file system with errors",
+    ]
+    .into_iter()
+    .find(|m| text.contains(m));
+    let rc = text
+        .lines()
+        .rev()
+        .find_map(|l| l.strip_prefix("rc="))
+        .unwrap_or("none");
+    let clean = text
+        .lines()
+        .any(|l| l.contains(&format!("{device}: clean, ")));
+    format!(
+        "fsck.ext4 -n on the mounted root: rc={rc}, {}, {}; NOT KNOWN YET what it prints on a mounted root: the whole answer is in fsck.txt",
+        if clean { "the clean line is there" } else { "no clean line" },
+        marker.map_or("no refusal marker".to_string(), |m| format!("it says: {m}"))
+    )
+}
+
+/// The steps of the rw write that are its own; the rest are the root boot's (`RootfsBoot::rw_write` makes the try).
+impl RootfsBoot {
+    /// The card's device the init named (`sda22`), from the kernel log read at the login.
+    fn the_target_device(&self) -> Result<String, String> {
+        let dmesg = self.section_of_read("dmesg")?;
+        InitSaw::of(&dmesg)
+            .device
+            .ok_or_else(|| "the init's log names no device".to_string())
+    }
+
+    /// `/proc/mounts` says the root is the card's partition mounted rw, no overlay (the facts the init's own mount line makes).
+    pub fn the_root_is_mounted_read_write(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let device = u.the_target_device()?;
+            mounts_are_read_write(&u.section_of_read("mounts")?, &format!("/dev/{device}"))?;
+            println!("  /dev/{device} is the root, ext4 rw, no overlay, no discard; /.walleye is a tmpfs");
+            Ok(())
+        }
+    }
+
+    /// The one bounded write: `write_mib` MiB of zeros into the one fixed file, synced; its answer is kept.
+    pub fn the_bounded_write_is_made(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let said = u.on_phone(&write_command(u.settings().write_mib)?, 180)?;
+            u.kept("write.txt", &said)?;
+            println!("  {}", said.trim().replace('\n', " | "));
+            write_is_done(&said)
+        }
+    }
+
+    /// The file read back from the partition: its size and that every byte is zero.
+    pub fn the_file_reads_back_whole(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let said = u.on_phone(&readback_command(), 120)?;
+            u.kept("readback.txt", &said)?;
+            readback_is_whole(&said, u.settings().write_mib)
+        }
+    }
+
+    /// The filesystem checked, never repaired (`fsck.ext4 -n`); the whole answer is kept in fsck.txt. NOT KNOWN YET what it prints on a mounted root: the clean line is said when it is there.
+    pub fn the_filesystem_is_checked(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let device = format!("/dev/{}", u.the_target_device()?);
+            let said = u.on_phone(&fsck_command(&device)?, 300)?;
+            u.kept("fsck.txt", &said)?;
+            println!("{}", fsck_report(&said, &device));
+            Ok(())
+        }
+    }
+
+    /// The kernel log after the write: the rw init's line, no purge, oops, UFS failure or `EXT4-fs error`. Read again from the phone, kept in dmesg-after.txt.
+    pub fn the_kernel_log_after_the_write_is_clean(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let dmesg = u.on_phone("dmesg", 60)?;
+            u.kept("dmesg-after.txt", &dmesg)?;
+            dmesg_is_clean(&dmesg, &u.the_root()?)
+        }
+    }
+
+    /// The test file is removed and synced, so the root the phone leaves holds nothing of the run's.
+    pub fn the_test_file_is_removed(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let said = u.on_phone(&format!("rm -f {TEST_FILE}; r=$?; sync; [ ! -e {TEST_FILE} ] && echo rc=$r || echo rc=gone-not"), 120)?;
+            u.kept("remove.txt", &said)?;
+            returned_zero(&said, "the removal")
+        }
+    }
 }
 
 #[cfg(test)]
@@ -633,6 +766,74 @@ mod tests {
         assert!(readback_command().contains(TEST_FILE));
     }
 
+    #[test]
+    fn the_root_must_do_what_the_run_got_to() {
+        let dir = std::env::temp_dir().join(format!("wt-rule-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        assert_eq!(root_rule(&dir), RootRule::Equal);
+        std::fs::write(dir.join("read.txt"), "x").unwrap();
+        assert_eq!(root_rule(&dir), RootRule::Any);
+        std::fs::write(dir.join("write.txt"), "x").unwrap();
+        assert_eq!(root_rule(&dir), RootRule::Changed);
+        std::fs::remove_dir_all(&dir).unwrap();
+        // run 3's card read, real text, equal on both sides: right for a run that stopped before the boot or before the write, wrong for one that wrote
+        card_judge(CARD_BEFORE, CARD_AFTER, 6, RootRule::Equal).unwrap();
+        card_judge(CARD_BEFORE, CARD_AFTER, 6, RootRule::Any).unwrap();
+        assert!(card_judge(CARD_BEFORE, CARD_AFTER, 6, RootRule::Changed).is_err());
+        let root_line = CARD_AFTER.lines().find(|l| l.starts_with("root ")).unwrap();
+        let changed = CARD_AFTER.replace(root_line, &format!("root system_a {}", "1".repeat(64)));
+        card_judge(CARD_BEFORE, &changed, 6, RootRule::Any).unwrap();
+        card_judge(CARD_BEFORE, &changed, 6, RootRule::Changed).unwrap();
+        assert!(card_judge(CARD_BEFORE, &changed, 6, RootRule::Equal)
+            .unwrap_err()
+            .contains("stopped before the boot"));
+        // a table that moved fails under every rule
+        let gpt = CARD_AFTER
+            .lines()
+            .find(|l| l.starts_with("gpt sdc "))
+            .unwrap();
+        let moved = CARD_AFTER.replace(gpt, &format!("gpt sdc {}", "2".repeat(64)));
+        for rule in [RootRule::Equal, RootRule::Any, RootRule::Changed] {
+            assert!(card_judge(CARD_BEFORE, &moved, 6, rule).is_err());
+        }
+    }
+
+    #[test]
+    fn fsck_is_reported_never_a_stop() {
+        let line = DMESG_UFS
+            .lines()
+            .find(|l| l.contains("e2fsck:") && l.contains(": clean, "))
+            .unwrap();
+        let device = "/dev/block/platform/soc/1da4000.ufshc/by-name/userdata";
+        assert!(fsck_report(&format!("{line}\nrc=0"), device).contains("the clean line is there"));
+        let said = fsck_report("UNEXPECTED INCONSISTENCY; RUN fsck MANUALLY.\nrc=4", device);
+        assert!(
+            said.contains("rc=4")
+                && said.contains("UNEXPECTED INCONSISTENCY")
+                && said.contains("no clean line")
+                && said.contains("NOT KNOWN YET")
+        );
+        assert!(fsck_report("", device).contains("rc=none"));
+    }
+
+    #[test]
+    fn the_removal_judges_the_rm_and_that_the_file_is_gone() {
+        let dir = std::env::temp_dir().join(format!("wt-rm-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("f");
+        let cmd = |p: &str| {
+            format!("rm -f {p}; r=$?; sync; [ ! -e {p} ] && echo rc=$r || echo rc=gone-not")
+        };
+        std::fs::write(&path, "x").unwrap();
+        let said = run(&cmd(path.to_str().unwrap()));
+        assert!(said.contains("rc=0"), "{said}");
+        // a file that cannot be removed (a directory with a file in it) is not 'gone'
+        let stuck = dir.join("d");
+        std::fs::create_dir_all(stuck.join("x")).unwrap();
+        let said = run(&cmd(stuck.to_str().unwrap()));
+        assert!(!said.contains("rc=0"), "{said}");
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
     #[test]
     fn the_expectation_names_the_numbers() {
         let t = expect(16, 6);

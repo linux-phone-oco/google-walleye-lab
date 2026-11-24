@@ -408,6 +408,19 @@ by_name = "/dev/block/by-name"                              # the phone's partit
 luns = 6                                                    # the card's disks (sda to sdf): the partition table of each is hashed before and after
 write_mib = 16                                              # MiB of zeros the one write puts in /walleye-rw-write.test (1 to 64)
 
+# The rehearsal of the rw write (procedures/rehearse-rw-write-on-the-pixel-2.rs): every step but the boot and what follows it, the card read before and after and EQUAL (nothing is written), no go read.
+# The keys are the write's, read from this table, so a key renamed there fails in both.
+[procedures.rehearse-rw-write-on-the-pixel-2]
+image = "ufs-root-booted-slot-production-rw"
+go_item = "walleye-rw-write-run"
+identity = "~/lab-material/walleye/walleye-lab-ed25519"
+ssh_user = "root"
+ssh_port = 22
+bootchain = "~/lab-material/walleye/bootchain-2026-11-19"
+by_name = "/dev/block/by-name"
+luns = 6
+write_mib = 16
+
 # The Alpine login prompt on the glass (item walleye-display-alpine-ramroot-image; procedures/alpine-login-on-the-glass-on-the-pixel-2.rs): image B-a5, B-r5's kernel, dtb and 13 display modules with the
 # Alpine userland unpacked into a tmpfs root (UFS off), booted once from memory; ssh over usb-network by the lab key; then the author's look. Run unattended by the keeper it stops at the look; the way back runs after.
 [procedures.alpine-login-on-the-glass-on-the-pixel-2]

@@ -7607,3 +7607,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-rw-write-procedure-built"></a>
+### walleye-rw-write-procedure-built
+
+Date
+: 2026-11-24
+
+Brief
+: The rw write as one command (30 steps) and its rehearsal (15 steps), the root boot's steps in an rw mode plus the plumbing's; dry run passes, nothing run on the phone
+
+Question
+: What does the one-command rw write do, and what must it refuse?
+
+Found
+: procedures/rw-write-on-the-pixel-2.rs: the root boot's gates (battery, image sha256, the word walleye.rw once in the image's command line - and the read-only try refuses an image that carries it -, stored boot chain and key, adb/fastboot slot agreement, the other slot's system as root, slot flags), the go on item walleye-rw-write-run naming the image's FULL sha256 (short or none = no go, tested), the boot from memory, the root mounted rw (rw_write judges), ONE bounded write (16 MiB of zeros into /walleye-rw-write.test), read-back, fsck.ext4 -n (answer kept in fsck.txt; its clean line is a finding, NOT KNOWN YET), kernel log, removal and sync, the way back; after: every GPT and the boot chain equal, the root partition CHANGED (RootfsBoot::rw_write mode of the_card_is_as_before). The rehearsal procedures/rehearse-rw-write-on-the-pixel-2.rs does every step before the boot and measures the card EQUAL after; no go read. Both dry runs pass (30 and 15 steps); 3 new tests (image word in the rw and ro tries, the write steps' codes, the go gate); nothing was run on the phone. NOT KNOWN YET, kept as outcomes of the run: the rw lines of /proc/mounts, fsck.ext4 -n on a mounted root.
+
+About
+: walleye-bootimage

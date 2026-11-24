@@ -38,6 +38,7 @@ pub const REHEARSE_INSTALL_PROCEDURE: &str = "rehearse install rootfs on the Pix
 pub const ROOTFS_BOOT_PROCEDURE: &str = "rootfs boots on the Pixel 2";
 pub const REHEARSE_ROOTFS_BOOT_PROCEDURE: &str = "rehearse rootfs boots on the Pixel 2";
 pub const RW_WRITE_PROCEDURE: &str = "rw write on the Pixel 2";
+pub const REHEARSE_RW_WRITE_PROCEDURE: &str = "rehearse rw write on the Pixel 2";
 pub const RAMROOT_PROCEDURE: &str = "alpine login on the glass on the Pixel 2";
 pub const FLASH_BOOT_PROCEDURE: &str = "install boot on the Pixel 2";
 pub const REHEARSE_FLASH_BOOT_PROCEDURE: &str = "rehearse install boot on the Pixel 2";
@@ -207,6 +208,13 @@ impl Settings {
         Settings::read_linked(Try::RwWrite, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
+    }
+
+    /// The rw write's rehearsal reads the write's own keys, from its own table, and keeps its own folder (the real run's refuses a folder with files).
+    pub fn for_rehearse_rw_write() -> Settings {
+        let mut s = Settings::for_rw_write();
+        s.out = s.out_dir("rw-write-rehearsal");
+        s
     }
 
     /// Install stage 2's settings (flash the boot partition of the slot Android is not on, set_active it, the way back), read from the device's `device.toml`.
@@ -705,6 +713,7 @@ mod tests {
             (Try::RootfsBoot, ROOTFS_BOOT_PROCEDURE),
             (Try::RootfsBoot, REHEARSE_ROOTFS_BOOT_PROCEDURE),
             (Try::RwWrite, RW_WRITE_PROCEDURE),
+            (Try::RwWrite, REHEARSE_RW_WRITE_PROCEDURE),
             (Try::Ramroot, RAMROOT_PROCEDURE),
             (Try::FlashBoot, FLASH_BOOT_PROCEDURE),
             (Try::FlashBoot, REHEARSE_FLASH_BOOT_PROCEDURE),
