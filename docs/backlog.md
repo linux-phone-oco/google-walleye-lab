@@ -12023,41 +12023,6 @@ Rank
 : 3
 
 
-<a id="walleye-rw-write-run"></a>
-### The rw write on the phone: the rw-write image booted once, one bounded file written into the other slot's system partition
-
-Status
-: done
-
-Note
-: run 2 proven by the write, read-back, kernel log and equal tables; fsck on mounted root and the first fastboot reboot are not known yet, see research walleye-rw-write-run-2-write-proven-way-back-slow
-go until 2026-11-24T15:26:46+01:00, outcomes: Closed by the walleye coordinator: used by run 2 (research walleye-rw-write-run-2-write-proven-way-back-slow, PR 1019). Outcome that held: the 16 MiB write and read-back equal, kernel log clean, tables and boot chain equal, root changed: our kernel writes the phone's UFS. Not known yet: fsck on a mounted root (walleye-rw-fsck-unmounted-from-android), the way back's step 24 (walleye-rw-write-way-back-after-bootloader).
-
-Blocked by
-: walleye-rw-image-without-booted-slot,walleye-rw-write-reads-pstore-on-a-stop
-
-About
-: walleye-bootimage
-
-Opened
-: 2026-11-24
-
-Needs
-: phone
-
-Proof
-: procedures/rw-write-on-the-pixel-2.rs passes all 30 steps
-
-Rank
-: 2
-
-Witness
-: person
-
-Go until
-: 2026-11-24T15:26:46+01:00
-
-
 <a id="walleye-rw-run-1-why-no-gadget"></a>
 ### Why the rw-write image booted from memory but no USB gadget came up (run 1, check 14), and an instrument that tells the causes apart before run 2
 
@@ -12206,3 +12171,45 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-rw-write-run"></a>
+### The rw write on the phone: the rw-write image booted once, one bounded file written into the other slot's system partition
+
+Status
+: open
+
+Note
+: Reopened by the walleye coordinator 2026-11-24 for RUN 3, the proof of walleye-rw-write-way-back-after-bootloader (PR 1024: fastboot reboot sent from the bootloader, clean end settle_rw with settled.txt) and walleye-run-uses-ensured-image-not-build-file (PR 1025). Run 2 (PR 1019) proved the write itself; run 3 must pass all 30 steps, then e2fsck -fn on the unmounted system_a from Android (read only) must print no 'wrong' line. Same image as run 2: 1bfb3667305df216049d7913777503fcc363ac2affba5f1708fa7953ec1b7bcf.
+go until 2026-11-24T20:00:00+01:00, outcomes: Run 3. Image: [images.ufs-root-booted-slot-production-rw] sha256 1bfb3667305df216049d7913777503fcc363ac2affba5f1708fa7953ec1b7bcf (full; unchanged since run 2). The run of procedures/rw-write-on-the-pixel-2.rs after its rehearsal passes, then e2fsck -fn from Android on the unmounted system_a; this go ends with that one run. Standing per-stage go of the author (stage 3), opened by the walleye coordinator.
+if the rehearsal stops then nothing was booted or written and it proves a host or procedure fault, read before any retry
+if the image step stops on a sha256 mismatch then it proves the ensured-image gate (PR 1025) refused a stale or wrong file; nothing on the phone
+if the run stops before the boot step with every table and the root equal then it proves a gate refused and the phone is untouched
+if no gadget comes up then pstore-console.txt names how far the init got; stop, research before run 4
+if the write, read-back and kernel log pass but settle_rw cannot remount ro then it proves a boot process holds the root open for writing (settled.txt names the files); stop, research
+if all 30 steps pass and e2fsck -fn from Android prints no 'wrong' line then it proves the rw write and its clean end and way back: stage 3 passes, and settled.txt names what the boot wrote
+if all 30 steps pass but e2fsck -fn still prints a 'wrong' line then the clean end did not write the superblock totals back; not damage if passes 1-4 are clean, research
+if the read-back differs or the kernel log shows ufs or ext4 errors then it proves a write-path fault; stop, keep the folder, no second try before research
+if after the way back any partition table or boot chain partition differs then it proves a write outside the root: stop the lane and tell the author
+if Android does not come back on slot b then it proves the way back failed: stop, the author's hands
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: phone
+
+Proof
+: procedures/rw-write-on-the-pixel-2.rs passes all 30 steps
+
+Rank
+: 2
+
+Witness
+: person
+
+Go until
+: 2026-11-24T20:00:00+01:00
