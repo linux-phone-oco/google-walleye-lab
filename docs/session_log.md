@@ -7765,3 +7765,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-rw-write-procedure"></a>
+### The rw write procedure and its rehearsal
+
+Entry date
+: 2026-11-24
+
+Done
+: RootfsBoot got an rw mode; the entry and its rehearsal; the go item; dry runs of both; no phone.
+
+Considered
+: A separate step struct (copying the root boot's 2400 lines); an rw flag on the existing struct reuses every shared step
+
+Rejected
+: Writing fsck's clean line as an expectation: the step keeps the answer and says NOT KNOWN YET when the line is absent
+
+About
+: walleye-bootimage

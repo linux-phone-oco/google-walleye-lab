@@ -572,6 +572,10 @@ pub struct RootfsBoot {
     bootloader_wait: Duration,
     /// adb's suffix and fastboot's slot as read before the boot, and the root they give
     before: Rc<std::cell::RefCell<Before>>,
+    /// the rw write's mode (`RootfsBoot::rw_write`): the image must carry `walleye.rw`, the root is mounted read-write, the card must CHANGE in its root only
+    rw: bool,
+    /// the rw write's rehearsal: nothing is booted and nothing written, so the card must be EQUAL after, as in the root boot
+    rehearsal: bool,
 }
 
 #[derive(Default, Clone)]
@@ -597,7 +601,45 @@ impl RootfsBoot {
             ssh: ssh.to_string(),
             bootloader_wait: BOOTLOADER_WAIT,
             before: Rc::default(),
+            rw: false,
+            rehearsal: false,
         }
+    }
+
+    /// The rw write's try: the same steps on the rw-write image (item walleye-install-rw-write-procedure); the steps that differ judge the rw state
+    /// (`crate::rw_write`), the rest are the root boot's own.
+    pub fn rw_write(s: Settings) -> RootfsBoot {
+        let mut b = RootfsBoot::new(s);
+        b.rw = true;
+        b
+    }
+
+    /// The rw write's rehearsal: every step of the write but the boot (nothing booted, nothing written): the card must be as before.
+    pub fn rw_write_rehearsal(s: Settings) -> RootfsBoot {
+        let mut b = RootfsBoot::rw_write(s);
+        b.rehearsal = true;
+        b
+    }
+
+    pub(crate) fn settings(&self) -> &Settings {
+        &self.s
+    }
+
+    /// The root partition the run expects (`system_a`/`system_b`), read from the slot before the boot.
+    pub(crate) fn the_root(&self) -> Result<String, String> {
+        self.root()
+    }
+
+    pub(crate) fn on_phone(&self, command: &str, seconds: u64) -> Result<String, String> {
+        self.ssh(command, seconds)
+    }
+
+    pub(crate) fn kept(&self, name: &str, text: &str) -> Done {
+        self.lab.save(name, text)
+    }
+
+    pub(crate) fn section_of_read(&self, name: &str) -> Result<String, String> {
+        self.read_section(name)
     }
 
     fn root(&self) -> Result<String, String> {
@@ -652,6 +694,18 @@ impl RootfsBoot {
             let bytes =
                 std::fs::read(&u.s.image).map_err(|e| format!("{}: {e}", u.s.image.display()))?;
             let root = root_in_image(&bytes)?;
+            // the word walleye.rw makes the init mount the root read-write: the rw write's image must carry it once, every other image must not
+            if u.rw {
+                crate::rw_write::cmdline_carries_the_word(&header_cmdline(&bytes)?)?;
+            } else if bytes
+                .split(|b| b.is_ascii_whitespace() || *b == 0)
+                .any(|w| w == crate::rw_write::WORD.as_bytes())
+            {
+                return Err(format!(
+                    "the image's command line carries {}: this try is the read-only boot",
+                    crate::rw_write::WORD
+                ));
+            }
             println!("  the image names its root: {root}");
             Ok(())
         }
@@ -672,7 +726,11 @@ impl RootfsBoot {
 
     /// Say what to expect, before the first act on the phone.
     pub fn author_is_told(&self) -> impl FnOnce() -> Done + 'static {
-        let text = expect(&self.s);
+        let text = if self.rw {
+            crate::rw_write::expect(self.s.write_mib, self.s.luns)
+        } else {
+            expect(&self.s)
+        };
         move || {
             println!("  {text}");
             Ok(())
@@ -681,7 +739,11 @@ impl RootfsBoot {
 
     /// Say what to expect of the rehearsal.
     pub fn rehearsal_is_told(&self) -> impl FnOnce() -> Done + 'static {
-        let text = expect_rehearsal(&self.s);
+        let text = if self.rw {
+            crate::rw_write::expect_rehearsal(self.s.luns)
+        } else {
+            expect_rehearsal(&self.s)
+        };
         move || {
             println!("  {text}");
             Ok(())
@@ -726,6 +788,12 @@ impl RootfsBoot {
     fn forget_earlier_runs(&self) {
         for name in [
             "card-before.txt",
+            "read.txt",
+            "write.txt",
+            "readback.txt",
+            "fsck.txt",
+            "dmesg-after.txt",
+            "remove.txt",
             "card-after.txt",
             "slots-before.txt",
             "slots-after.txt",
@@ -750,6 +818,15 @@ impl RootfsBoot {
         move || {
             u.read_the_card("card-after.txt")?;
             let (a, b) = (u.saved("card-before.txt")?, u.saved("card-after.txt")?);
+            if u.rw && !u.rehearsal {
+                // the write must reach the root partition: every table equal, the root changed
+                return crate::rw_write::card_judge(
+                    &a,
+                    &b,
+                    u.s.luns,
+                    crate::rw_write::root_rule(&u.s.out),
+                );
+            }
             if a == b {
                 Ok(())
             } else {
@@ -1000,10 +1077,12 @@ impl RootfsBoot {
             let before = u.before.borrow().clone();
             saw.matches(&before.root, &before.suffix)?;
             pid1_is_the_roots_init(&u.read_section("pid1")?)?;
-            lower_is_the_named_card(
-                &u.read_section("mounts")?,
-                saw.device.as_deref().unwrap_or(""),
-            )?;
+            if !u.rw {
+                lower_is_the_named_card(
+                    &u.read_section("mounts")?,
+                    saw.device.as_deref().unwrap_or(""),
+                )?;
+            }
             println!(
                 "  the init mounted /dev/{} (PARTNAME {}) with slot suffix {}",
                 saw.device.as_deref().unwrap_or("?"),
@@ -1041,11 +1120,29 @@ impl RootfsBoot {
         }
     }
 
+    /// The rw write only: before the phone is sent away the root is settled over ssh - `sync`, then `mount -o remount,ro /` (the way back's own step; the init never remounts) - so a stop does not
+    /// cut off what was written. What it said is printed; a failure is NOT KNOWN YET, never a stop (the way back goes on).
+    fn settle_rw(&self) {
+        if !self.rw || self.rehearsal {
+            return;
+        }
+        match self.ssh("sync; mount -o remount,ro / 2>&1; echo rc=$?", 60) {
+            Ok(said) => println!(
+                "  the root is settled before the phone is sent away: {}",
+                said.trim().replace('\n', " | ")
+            ),
+            Err(e) => {
+                println!("NOT KNOWN YET: the root could not be settled (sync, remount ro): {e}")
+            }
+        }
+    }
+
     /// The phone is sent away from the image: to its bootloader first ([`RootfsBoot::the_bootloader_is_tried`]), and when that is
-    /// not reached busybox's forced reboot over ssh (nothing was written, so nothing needs a sync).
+    /// not reached busybox's forced reboot over ssh (in the rw write the root is settled first: sync, remount ro).
     pub fn the_phone_is_sent_back(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
+            u.settle_rw();
             if !u.the_bootloader_is_tried() {
                 // the phone hangs up as it goes down: the end of the answer is not read
                 let _ = u.ssh(REBOOT_COMMANDS[0], 10);
@@ -1241,6 +1338,7 @@ impl RootfsBoot {
                 while Instant::now() < until {
                     if u.ssh("true", 8).is_ok() {
                         let _ = u.the_evidence_is_read(); // FIRST, read-only; then the phone is sent away
+                        u.settle_rw();
                         if !u.the_bootloader_is_tried() {
                             for command in REBOOT_COMMANDS {
                                 let _ = u.ssh(command, 10);
@@ -1344,6 +1442,37 @@ mod tests {
                 .out_dir("rootfs-boots-rehearsal"),
         );
         assert_ne!(boot, rehearsal);
+    }
+
+    #[test]
+    fn the_rw_rehearsal_has_no_step_that_boots_writes_or_sends_away_and_its_own_folder() {
+        let entry = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../procedures/rehearse-rw-write-on-the-pixel-2.rs"
+        ))
+        .unwrap();
+        for boots in [
+            "boot_the_root_image",
+            "author_has_said_go",
+            "the_phone_is_sent_back",
+            "boot_image",
+            "the_login_works",
+            "the_bounded_write_is_made",
+            "the_test_file_is_removed",
+            "the_filesystem_is_checked",
+            "rw.way_back()",
+        ] {
+            assert!(
+                !entry.contains(boots),
+                "the rw rehearsal's entry names {boots}"
+            );
+        }
+        assert!(entry.contains("rw_write_rehearsal") && entry.contains("rehearsal_way_back"));
+        let (write, rehearsal) = (
+            Settings::stand_in(Try::RwWrite).out,
+            Settings::stand_in(Try::RwWrite).out_dir("rw-write-rehearsal"),
+        );
+        assert_ne!(write, rehearsal);
     }
 
     #[test]
@@ -1730,6 +1859,12 @@ mod tests {
         let r = rig("forget", "", 0);
         for n in [
             "card-before.txt",
+            "read.txt",
+            "write.txt",
+            "readback.txt",
+            "fsck.txt",
+            "dmesg-after.txt",
+            "remove.txt",
             "card-after.txt",
             "slots-after.txt",
             EVIDENCE_FILE,
@@ -1740,6 +1875,12 @@ mod tests {
         r.forget_earlier_runs();
         for n in [
             "card-before.txt",
+            "read.txt",
+            "write.txt",
+            "readback.txt",
+            "fsck.txt",
+            "dmesg-after.txt",
+            "remove.txt",
             "card-after.txt",
             "slots-after.txt",
             EVIDENCE_FILE,
@@ -2123,6 +2264,156 @@ mod tests {
         assert!((RootfsBoot::new(s.clone()).the_image_is_the_declared_one())().is_ok());
         s.image_sha256 = "0".repeat(64);
         assert!((RootfsBoot::new(s).the_image_is_the_declared_one())().is_err());
+    }
+
+    /// The rw write's try on a stand-in ssh that answers every command with `answer` (the stand-in is the program, not text a phone printed:
+    /// these tests prove the wiring of the steps; what the phone prints is judged by rw_write's own tests on captured text).
+    fn rw_rig(name: &str, answer: &str) -> RootfsBoot {
+        let d = std::env::temp_dir().join(format!("wt-rw-{name}-{}", std::process::id()));
+        std::fs::create_dir_all(&d).unwrap();
+        std::fs::write(d.join("answer.out"), answer).unwrap();
+        let ssh = d.join("ssh");
+        executable(
+            &ssh,
+            &format!(
+                "#!/bin/sh\necho \"$@\" >> {d}/ssh.calls\ncat {d}/answer.out\n",
+                d = d.display()
+            ),
+        );
+        let key = d.join("key");
+        std::fs::write(&key, "k").unwrap();
+        std::fs::set_permissions(&key, PermissionsExt::from_mode(0o600)).unwrap();
+        let mut s = Settings::stand_in(Try::RwWrite);
+        s.out = d.join("out");
+        s.identity = key;
+        s.address = "172.16.43.1".into();
+        let mut r = RootfsBoot::rw_write(s);
+        r.ssh = ssh.to_string_lossy().into_owned();
+        std::fs::create_dir_all(&r.s.out).unwrap();
+        *Rc::get_mut(&mut r.before).unwrap().borrow_mut() = Before {
+            suffix: "_b".into(),
+            root: "system_a".into(),
+            run_image: None,
+        };
+        r
+    }
+
+    #[test]
+    fn the_image_must_carry_walleye_rw_in_the_rw_try_and_must_not_in_the_read_only_one() {
+        let r = rw_rig("image", "");
+        let d = r.s.out.parent().unwrap().to_path_buf();
+        let put = |name: &str, cmdline: &str| {
+            let img = d.join(format!("NOT-TO-BOOT-{name}.img"));
+            std::fs::write(&img, boot_image(cmdline)).unwrap();
+            let sha = String::from_utf8_lossy(
+                &Command::new("sha256sum").arg(&img).output().unwrap().stdout,
+            )
+            .split_whitespace()
+            .next()
+            .unwrap()
+            .to_string();
+            (img, sha)
+        };
+        let with = put("rw", "walleye.root=system_a walleye.booted-slot walleye.rw");
+        let without = put("ro", "walleye.root=system_a walleye.booted-slot");
+        let judge = |rw: bool, (img, sha): &(std::path::PathBuf, String)| {
+            let mut s = (*r.s).clone();
+            s.image = img.clone();
+            s.image_sha256 = sha.clone();
+            let t = if rw {
+                RootfsBoot::rw_write(s)
+            } else {
+                RootfsBoot::new(s)
+            };
+            (t.the_image_is_the_declared_one())()
+        };
+        assert!(judge(true, &with).is_ok());
+        assert!(judge(true, &without)
+            .unwrap_err()
+            .contains("read-only image"));
+        assert!(judge(false, &without).is_ok());
+        assert!(judge(false, &with)
+            .unwrap_err()
+            .contains("this try is the read-only boot"));
+    }
+
+    #[test]
+    fn the_write_steps_keep_what_the_phone_said_and_judge_its_codes() {
+        let ok = rw_rig("write-ok", "16+0 records in\n16+0 records out\nrc=0\n");
+        (ok.the_bounded_write_is_made())().unwrap();
+        assert!(ok.saved("write.txt").unwrap().contains("rc=0"));
+        let calls = std::fs::read_to_string(ok.s.out.parent().unwrap().join("ssh.calls")).unwrap();
+        assert!(
+            calls.contains("dd if=/dev/zero of=/walleye-rw-write.test bs=1M count=16 conv=fsync"),
+            "{calls}"
+        );
+        let bad = rw_rig("write-bad", "dd: error writing\nrc=1\n");
+        assert!((bad.the_bounded_write_is_made())()
+            .unwrap_err()
+            .contains("rc=1"));
+        assert!(bad.saved("write.txt").unwrap().contains("error writing"));
+        let gone = rw_rig("remove", "rc=0\n");
+        (gone.the_test_file_is_removed())().unwrap();
+        assert!((rw_rig("remove-bad", "rc=1\n").the_test_file_is_removed())().is_err());
+        // the read-back and the fsck judge what the phone's commands print: the size, the zeros, no refusal marker
+        let size = 16 * 1024 * 1024;
+        (rw_rig("rb", &format!("---size\n{size}\n---nonzero\n0\n---end\n"))
+            .the_file_reads_back_whole())()
+        .unwrap();
+        assert!((rw_rig(
+            "rb-bad",
+            &format!("---size\n{size}\n---nonzero\n7\n---end\n")
+        )
+        .the_file_reads_back_whole())()
+        .is_err());
+    }
+
+    #[test]
+    fn the_rw_go_gate_wants_the_full_sha256_of_the_declared_image() {
+        // the image the manifest declares for the rw write has a 64-hex sha256, and a go row that names a short form or none is refused
+        let raw: toml::Value = toml::from_str(
+            &std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../device.toml"))
+                .unwrap(),
+        )
+        .unwrap();
+        let sha = raw["images"]["ufs-root-booted-slot-production-rw"]["sha256"]
+            .as_str()
+            .unwrap();
+        assert_eq!(sha.len(), 64);
+        let now = crate::ufs::now_epoch().unwrap();
+        let go = |note: &str| {
+            format!("backlog,\"{{\"\"note\"\":\"\"{note}\"\",\"\"go_until\"\":\"\"2099-01-01T00:00:00+00:00\"\"}}\"")
+        };
+        crate::ufs::go_decision(
+            &go(&format!("go for {sha}")),
+            now,
+            sha,
+            "walleye-rw-write-run",
+        )
+        .unwrap();
+        assert!(crate::ufs::go_decision(
+            &go(&format!("go for {}", &sha[..8])),
+            now,
+            sha,
+            "walleye-rw-write-run"
+        )
+        .unwrap_err()
+        .contains("64 hex"));
+        assert!(
+            crate::ufs::go_decision(&go("go"), now, sha, "walleye-rw-write-run")
+                .unwrap_err()
+                .contains("found none")
+        );
+        assert!(crate::ufs::go_decision(
+            &go(&format!("go for {sha}")).replace("2099", "2001"),
+            now,
+            sha,
+            "walleye-rw-write-run"
+        )
+        .is_err());
+        // the entry's boot step holds the same gate: with no tad row for the go item it stops before any boot
+        let r = rw_rig("go", "");
+        assert!((r.author_has_said_go())().is_err());
     }
 }
 
