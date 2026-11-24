@@ -11827,10 +11827,10 @@ Rank
 ### The UFS procedure runs the same read-only ramp UNPINNED (governor as found, no clock pin), gear and clock read at every step, nothing asserted about the gear
 
 Status
-: open
+: done
 
 Note
-: After run 9 (research walleye-ufs-try-2-run-9-ramp-passes-at-hs-gear1): the installed Linux will run UNPINNED, so the read-only baseline that matters is the unpinned one. Then a keeper run under a go on walleye-try-ufs-match (its proof names HS-G3), then stage 3.
+: Built and landed: WALLEYE_UFS_PIN=unpinned (default pinned) on procedures/ufs-matched-image-on-the-pixel-2.rs; unpinned writes no clock, reads node+gear before/after every ramp step, records the gear (gear-seen-unpinned.txt), adds 2048 MiB only if time allows; 367 tests, clippy, fmt, check --host ok. Not rehearsed on the phone (keeper). Next: keeper run under a go on walleye-try-ufs-match.
 
 About
 : walleye-ufs-match-android-z

@@ -172,6 +172,10 @@ pub const ROUNDED_HZ: &str = "100000000";
 /// The link gear the low state gives on this card (research walleye-ufs-pin-100mhz-read, (4); runs 6 and 7's `gear-before.txt` read it).
 pub const PIN_GEAR: &str = "HS_GEAR1";
 
+/// The one step the unpinned ramp adds after the settings' own, and only when the time left allows (item walleye-ufs-unpinned-ramp-variant: "a 2048 only if the time left allows"):
+/// it is started only when [`step_fits`] says its limit ends before the image's reboot, otherwise it is left out and said so, never an error.
+pub const UNPINNED_EXTRA_MB: u64 = 2048;
+
 /// The command that reads the node's governor, the governors it has, the clocks it offers, its floor, ceiling and clock, and the
 /// userspace governor's `set_freq` where there is one; a node that is not there says `no-governor-node`.
 pub fn governor_read_command(node: &str) -> Result<String, String> {
@@ -363,6 +367,12 @@ pub fn ramp_step_command(
     ))
 }
 
+/// What the unpinned ramp keeps of the gear: what it saw, never what it should be (research walleye-ufs-try-2-run-1-gpt-equal-result and
+/// the runs 1 to 3 gear-load files saw HS_GEAR3 under load; run 9, pinned, saw HS_GEAR1): "expect G3, record what it is".
+pub fn gear_seen(last_gear: &str) -> String {
+    format!("unpinned: the last gear read under load was: {last_gear}\nexpected: HS_GEAR3 as runs 1 to 3 saw it under load; recorded as read, nothing asserted\n")
+}
+
 /// The command that prints the RAM log.
 pub fn ram_log_command() -> String {
     format!("cat {RAM_LOG}; echo log-read-$((6*7))")
@@ -517,6 +527,68 @@ impl Ufs {
         }
     }
 
+    /// The UNPINNED variant of the step above (item walleye-ufs-unpinned-ramp-variant): NOTHING is written, no governor and no
+    /// `set_freq`. The node's governor, clocks and link are captured as found (`pin-before.txt`, `governor-before.txt`, the gear in
+    /// `gear-unpinned.txt`) and nothing is asserted about them: a node that is not there, or a governor of any kind, is a reading, not a
+    /// stop. Only a link that is down stops the run (the shared gear read).
+    pub fn the_clock_is_read_as_found(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || u.read_the_clock_as_found()
+    }
+
+    fn read_the_clock_as_found(&self) -> Done {
+        let node = &self.s.devfreq;
+        let mut sh = self.lab.shell(10)?;
+        let (found, gear) = self.pin_capture(&mut sh, "pin-before.txt")?;
+        self.lab.save("governor-before.txt", &found.line())?;
+        println!(
+            "  {node}: left as found: {} (gear {})",
+            found.line(),
+            if gear.is_empty() {
+                "not known yet"
+            } else {
+                &gear
+            }
+        );
+        self.read_gear("gear-unpinned.txt")?;
+        Ok(())
+    }
+
+    /// The steps of the ramp this run takes: the settings' own, and when unpinned the optional [`UNPINNED_EXTRA_MB`] after them.
+    fn ramp_steps(&self) -> Vec<u64> {
+        let mut steps = self.s.ramp_mb.clone();
+        if !self.pin.is_pinned() && steps.last().is_some_and(|&l| l < UNPINNED_EXTRA_MB) {
+            steps.push(UNPINNED_EXTRA_MB);
+        }
+        steps
+    }
+
+    /// The node's governor, clock and the link's gear read on a fresh shell and kept in `samples` under `label` (unpinned only: the pinned
+    /// run reads what it always read). A phone that does not answer is "not known yet" there, never an error.
+    fn read_node_into(&self, samples: &mut String, label: &str) {
+        if self.pin.is_pinned() {
+            return;
+        }
+        let wait = Duration::from_secs(self.s.gear_wait);
+        let said = self
+            .lab
+            .shell(10)
+            .and_then(|mut sh| sh.run(&pin_evidence_command(&self.s.devfreq)?, wait));
+        match said {
+            Ok(t) => samples.push_str(&format!(
+                "--- {label}: {}; {}\n",
+                Governor::of(&t).line(),
+                Gear::of(&t).line()
+            )),
+            Err(e) => samples.push_str(&format!("--- {label}: not known yet ({e})\n")),
+        }
+    }
+
+    /// Is step `i` of `mb` the one the unpinned variant adds (the last, [`UNPINNED_EXTRA_MB`], not one the settings name)?
+    fn is_the_optional_step(&self, i: usize, mb: u64) -> bool {
+        !self.pin.is_pinned() && mb == UNPINNED_EXTRA_MB && i >= self.s.ramp_mb.len()
+    }
+
     /// The ramped, bounded, read-only read of the disk (decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try): each step of
     /// `ramp_mb` is one O_DIRECT read to /dev/null with a line in the phone's RAM log before it, the shell polled every second and the gear
     /// sampled in between. The first silent step is kept as a RESULT (ramp-result.txt: its size, the second it began, the last gear and
@@ -528,7 +600,9 @@ impl Ufs {
             let mut state_sh = u.lab.shell(10)?;
             let (mut samples, mut done, mut inside_all) = (String::new(), Vec::new(), 0);
             let mut last_gear = String::from("not known yet");
+            let mut steps = u.ramp_steps();
             let ramped = u.ramp(
+                &mut steps,
                 &mut state_sh,
                 &mut samples,
                 &mut done,
@@ -536,8 +610,33 @@ impl Ufs {
                 &mut last_gear,
             );
             u.lab.save("gear-load.txt", &redact(&samples))?;
-            let result = ramp_result(&done, &u.s.ramp_mb, &last_gear);
+            let mut result = ramp_result(&done, &steps, &last_gear);
+            // a step the time did not allow is a result too, said in the result file and not only in the log
+            for l in samples
+                .lines()
+                .filter(|l| l.starts_with("--- optional step"))
+            {
+                result.push_str(&format!("{}\n", l.trim_start_matches("--- ")));
+            }
             u.lab.save("ramp-result.txt", &result)?;
+            if !u.pin.is_pinned() {
+                // what the node said before and after each step, and after the ramp (governor-after: read, never copied)
+                let per_step: String = samples
+                    .lines()
+                    .filter(|l| l.starts_with("--- rampstep"))
+                    .map(|l| format!("{}\n", l.trim_start_matches("--- ")))
+                    .collect();
+                u.lab.save(
+                    "gear-seen-unpinned.txt",
+                    &format!("{}{per_step}", gear_seen(&last_gear)),
+                )?;
+                let mut end = String::new();
+                u.read_node_into(&mut end, "after the ramp");
+                u.lab.save(
+                    "governor-after.txt",
+                    end.trim_start_matches("--- after the ramp: "),
+                )?;
+            }
             print!("{result}");
             u.save_the_ram_log();
             ramped?;
@@ -578,14 +677,15 @@ impl Ufs {
 
     fn ramp(
         &self,
+        steps: &mut Vec<u64>,
         state_sh: &mut Shell,
         samples: &mut String,
         done: &mut Vec<(u64, Step)>,
         inside_all: &mut u32,
         last_gear: &mut String,
     ) -> Done {
-        let steps = &self.s.ramp_mb;
-        for (i, &mb) in steps.iter().enumerate() {
+        for i in 0.. {
+            let Some(&mb) = steps.get(i) else { break };
             let start = ramp_step_command(&self.s.lun, i + 1, steps.len(), mb, self.s.load_limit)?;
             // the image's init reboots the phone at its deadline (decision 2026-11-24-walleye-ufs-procedure-fits-the-image-not-the-image-the-procedure):
             // a step runs only when its limit ends before it; the uptime at its start is kept with the step
@@ -618,6 +718,13 @@ impl Ufs {
                 steps.len()
             ));
             if let Err(why) = step_fits(up, deadline, self.s.load_limit) {
+                if self.is_the_optional_step(i, mb) {
+                    // "a 2048 only if the time left allows": left out and said so, not a refusal of the run
+                    samples.push_str(&format!("--- optional step {mb} MiB left out: {why}\n"));
+                    println!("  optional step {mb} MiB left out: {why}");
+                    steps.truncate(i);
+                    return Ok(());
+                }
                 samples.push_str(&format!("--- step refused: {why}\n"));
                 return Err(format!(
                     "step {}/{} ({mb} MiB) refused, not started: {why}",
@@ -625,6 +732,7 @@ impl Ufs {
                     steps.len()
                 ));
             }
+            self.read_node_into(samples, &format!("rampstep {} before", i + 1));
             let began = Instant::now();
             match state_sh.run(&start, Duration::from_secs(10)) {
                 Ok(t) if t.contains("load-started-42") => {}
@@ -645,6 +753,7 @@ impl Ufs {
                 }
             }
             let how = self.sample_until_the_read_ends(state_sh, began, samples, last_gear);
+            self.read_node_into(samples, &format!("rampstep {} after", i + 1));
             let (rc, inside, silent) = match &how {
                 Step::Ended {
                     rc, inside, silent, ..
@@ -1250,7 +1359,7 @@ mod more_tests {
     #[test]
     fn the_told_text_carries_the_settings_numbers() {
         let s = Settings::stand_in(Try::Ufs);
-        let t = crate::ufs::expect(&s);
+        let t = crate::ufs::expect(&s, crate::ufs::choice::Pin::Pinned);
         assert!(
             t.contains("6 disks")
                 && t.contains("sda in steps of 1, 2, 4 MiB (at most 20 seconds each)")
@@ -1954,5 +2063,255 @@ mod after_silence_tests {
         let u = Ufs::new(s);
         // no shell at the start of the ramp is an error of the run (the phone was not there), never a silent step
         assert!(u.the_gear_is_read_under_load()().is_err());
+    }
+}
+
+/// The unpinned variant (item walleye-ufs-unpinned-ramp-variant): the pin is a choice, unpinned writes nothing to the clock, keeps what it
+/// read, asserts nothing about the gear and adds the 2048 MiB step only when the time left allows. Its sources are text a phone printed:
+/// run 9's console (fixtures/ufs-try2-run9-ramp.out, research walleye-ufs-try-2-run-9-ramp-passes-at-hs-gear1), run 1's HS_GEAR3 sample
+/// (research walleye-ufs-try-2-stopped-at-step-16-gear-g3-under-load) and run 6's idle HS_GEAR1 read (fixtures/ufs-try2-run6-gear-before.txt).
+#[cfg(test)]
+mod unpinned_tests {
+    use super::*;
+    use crate::phone::fake;
+    use crate::settings::{Settings, Try};
+    use crate::ufs::choice::Pin;
+
+    const RUN9: &str = include_str!("../../fixtures/ufs-try2-run9-ramp.out");
+    const RUN6_G1: &str = include_str!("../../fixtures/ufs-try2-run6-gear-before.txt");
+    /// One HS_GEAR3 sample of run 3 (fixtures/ufs-try2-run3-gear-load.txt, text the phone printed; runs 1 to 3 all saw G3 under load)
+    const RUN3_LOAD: &str = include_str!("../../fixtures/ufs-try2-run3-gear-load.txt");
+    const FOUND: &str = "governor=simple_ondemand\navailable=userspace simple_ondemand\nfrequencies=50000000 200000000\ncur_freq=200000000";
+
+    fn ufs(pin: Pin, mut table: Vec<(&'static str, &'static str)>, name: &str) -> Ufs {
+        let mut s = Settings::stand_in(Try::Ufs);
+        table.push(("/proc/uptime", "40.10 300.20")); // last: a step command also names /proc/uptime
+        s.port = fake::phone(table, vec![]);
+        s.out = std::env::temp_dir().join(format!("wt-unpinned-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&s.out);
+        s.device_wait = 2;
+        s.load_limit = 1;
+        let u = Ufs::new(s).with_pin(pin);
+        u.deadline.set(Some(181.1)); // the matched image: petter at 1.1 s + 180 s
+        u
+    }
+
+    fn saved(u: &Ufs, name: &str) -> String {
+        std::fs::read_to_string(u.s.out.join(name)).unwrap_or_default()
+    }
+
+    /// The first sample of run 3 under load, as the phone printed it: HS_GEAR3.
+    fn g3() -> &'static str {
+        let block = RUN3_LOAD
+            .split("--- ")
+            .find(|b| b.starts_with("sample at"))
+            .and_then(|b| b.split_once('\n'))
+            .expect("run 3 printed a sample")
+            .1;
+        Box::leak(block.to_string().into_boxed_str())
+    }
+
+    fn found_table(gear: &'static str) -> Vec<(&'static str, &'static str)> {
+        vec![
+            (
+                "cat $d/governor",
+                Box::leak(format!("{FOUND}\n{gear}").into_boxed_str()),
+            ),
+            ("power_info", gear),
+        ]
+    }
+
+    #[test]
+    fn the_unpinned_step_writes_nothing_to_the_clock_and_keeps_what_it_read() {
+        // a table that would answer every write of the pin: none of them may be asked
+        let mut t = found_table(RUN6_G1);
+        t.insert(0, ("echo userspace >", "pinned-42"));
+        t.insert(0, ("set_freq; echo pinned", "pinned-42"));
+        let u = ufs(Pin::Unpinned, t, "found");
+        u.the_clock_is_read_as_found()().unwrap();
+        assert!(saved(&u, "pin-before.txt").contains("governor=simple_ondemand"));
+        assert!(saved(&u, "governor-before.txt").contains("simple_ondemand"));
+        assert!(saved(&u, "gear-unpinned.txt").contains("HS_GEAR1"));
+        // the pinned step keeps a file for each of its writes and its read-back: unpinned has none
+        for w in [
+            "pin-write-governor-write.txt",
+            "pin-write-set-freq.txt",
+            "pin-after-governor-write.txt",
+            "pin-after-set-freq.txt",
+            "pin-scaling-log-after.txt",
+            "gear-pinned.txt",
+        ] {
+            assert!(!u.s.out.join(w).exists(), "{w}");
+        }
+    }
+
+    #[test]
+    fn a_node_that_is_not_there_is_a_reading_when_unpinned_and_the_pinned_step_still_stops() {
+        let t = vec![
+            ("cat $d/governor", "no-governor-node"),
+            ("power_info", RUN6_G1),
+        ];
+        ufs(Pin::Unpinned, t.clone(), "nonode").the_clock_is_read_as_found()().unwrap();
+        let e = ufs(Pin::Pinned, t, "nonode-pinned").the_clock_is_pinned_low()().unwrap_err();
+        assert!(e.contains("no governor node"), "{e}");
+    }
+
+    #[test]
+    fn a_link_that_is_down_still_stops_the_unpinned_step() {
+        let t = vec![
+            ("cat $d/governor", FOUND),
+            ("power_info", "gear=\nlink_state=OFF"),
+        ];
+        assert!(ufs(Pin::Unpinned, t, "down").the_clock_is_read_as_found()().is_err());
+    }
+
+    fn ramp_table(gear: &'static str) -> Vec<(&'static str, &'static str)> {
+        vec![
+            ("load-started-", "load-started-42"),
+            ("echo state-", "state-42|||state-42|||rc=0\nstate-42"),
+            ("power_info", gear),
+        ]
+    }
+
+    #[test]
+    fn the_pinned_ramp_is_the_settings_and_the_unpinned_one_adds_2048() {
+        let pinned = ufs(Pin::Pinned, vec![], "steps-p").ramp_steps();
+        let unpinned = ufs(Pin::Unpinned, vec![], "steps-u").ramp_steps();
+        assert_eq!(pinned, vec![1, 2, 4]);
+        assert_eq!(unpinned, vec![1, 2, 4, UNPINNED_EXTRA_MB]);
+        // the real device.toml's ramp is 64,256,1024: run 9's three steps, and 2048 after them
+        let mut real = Settings::stand_in(Try::Ufs);
+        real.ramp_mb = vec![64, 256, 1024];
+        let u = Ufs::new(real).with_pin(Pin::Unpinned);
+        assert_eq!(u.ramp_steps(), vec![64, 256, 1024, 2048]);
+    }
+
+    #[test]
+    fn the_unpinned_ramp_records_gear_3_as_read_and_asserts_nothing_about_it() {
+        let u = ufs(Pin::Unpinned, ramp_table(g3()), "g3");
+        u.the_gear_is_read_under_load()().unwrap();
+        let seen = saved(&u, "gear-seen-unpinned.txt");
+        assert!(
+            seen.contains("HS_GEAR3") && seen.contains("nothing asserted"),
+            "{seen}"
+        );
+        let r = saved(&u, "ramp-result.txt");
+        assert!(r.contains("step 4/4 2048 MiB: ended rc=0"), "{r}");
+        assert!(r.contains("no silent step"), "{r}");
+    }
+
+    #[test]
+    fn the_unpinned_ramp_records_gear_1_as_read_too() {
+        let u = ufs(Pin::Unpinned, ramp_table(RUN6_G1), "g1");
+        u.the_gear_is_read_under_load()().unwrap();
+        assert!(saved(&u, "gear-seen-unpinned.txt").contains("HS_GEAR1"));
+    }
+
+    #[test]
+    fn the_pinned_ramp_keeps_its_three_steps_and_no_gear_seen_file() {
+        let u = ufs(Pin::Pinned, ramp_table(RUN6_G1), "pinned-ramp");
+        u.the_gear_is_read_under_load()().unwrap();
+        let r = saved(&u, "ramp-result.txt");
+        assert!(r.contains("step 3/3 4 MiB") && !r.contains("2048"), "{r}");
+        assert!(!u.s.out.join("gear-seen-unpinned.txt").exists());
+    }
+
+    #[test]
+    fn the_result_reads_as_run_9_printed_it() {
+        let ended = |mb| {
+            (
+                mb,
+                Step::Ended {
+                    rc: 0,
+                    inside: 5,
+                    silent: 0,
+                    first_silent: None,
+                },
+            )
+        };
+        let done = vec![ended(64), ended(256), ended(1024)];
+        let result = ramp_result(&done, &[64, 256, 1024], "x");
+        for line in result.lines() {
+            assert!(RUN9.lines().any(|l| l == line), "{line}");
+        }
+        assert_eq!(result.lines().count(), 4);
+    }
+
+    #[test]
+    fn the_2048_step_is_left_out_when_its_limit_does_not_end_before_the_reboot() {
+        // the uptime reads 40.1, 40.1, 40.1, then 175 s: the fourth step would end past the deadline 181.1 less 10 s
+        let mut t = ramp_table(g3());
+        t.insert(
+            0,
+            ("cat /proc/uptime", "40.10 1|||40.10 1|||40.10 1|||175.00 1"),
+        );
+        let u = ufs(Pin::Unpinned, t, "late");
+        u.the_gear_is_read_under_load()().unwrap();
+        let r = saved(&u, "ramp-result.txt");
+        assert!(r.contains("step 3/3 4 MiB") && !r.contains("step 4"), "{r}");
+        assert!(r.contains("no silent step"), "{r}");
+        assert!(r.contains("optional step 2048 MiB left out"), "{r}");
+        assert!(saved(&u, "gear-load.txt").contains("optional step 2048 MiB left out"));
+    }
+
+    #[test]
+    fn a_step_the_settings_name_is_still_refused_when_late() {
+        let mut t = ramp_table(g3());
+        t.insert(0, ("cat /proc/uptime", "40.10 1|||175.00 1"));
+        let u = ufs(Pin::Unpinned, t, "late-real");
+        let e = u.the_gear_is_read_under_load()().unwrap_err();
+        assert!(e.contains("refused, not started"), "{e}");
+    }
+}
+
+#[cfg(test)]
+mod unpinned_per_step_tests {
+    use super::*;
+    use crate::phone::fake;
+    use crate::settings::{Settings, Try};
+    use crate::ufs::choice::Pin;
+
+    const RUN3_LOAD: &str = include_str!("../../fixtures/ufs-try2-run3-gear-load.txt");
+
+    #[test]
+    fn every_step_is_read_before_and_after_and_the_governor_after_is_a_reading() {
+        let g3 = RUN3_LOAD
+            .split("--- ")
+            .find(|b| b.starts_with("sample at"))
+            .and_then(|b| b.split_once('\n'))
+            .expect("run 3 printed a sample")
+            .1;
+        let g3: &'static str = Box::leak(g3.to_string().into_boxed_str());
+        let mut s = Settings::stand_in(Try::Ufs);
+        s.port = fake::phone(
+            vec![
+                ("load-started-", "load-started-42"),
+                ("echo state-", "state-42|||state-42|||rc=0\nstate-42"),
+                (
+                    "cat $d/governor",
+                    "governor=simple_ondemand\navailable=userspace simple_ondemand\ncur_freq=200000000",
+                ),
+                ("power_info", g3),
+                ("/proc/uptime", "40.10 300.20"),
+            ],
+            vec![],
+        );
+        s.out = std::env::temp_dir().join(format!("wt-perstep-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&s.out);
+        s.device_wait = 2;
+        s.load_limit = 1;
+        let u = Ufs::new(s).with_pin(Pin::Unpinned);
+        u.deadline.set(Some(181.1));
+        u.the_gear_is_read_under_load()().unwrap();
+        let seen = std::fs::read_to_string(u.s.out.join("gear-seen-unpinned.txt")).unwrap();
+        for n in 1..=4 {
+            assert!(
+                seen.contains(&format!("rampstep {n} before: governor simple_ondemand")),
+                "{seen}"
+            );
+            assert!(seen.contains(&format!("rampstep {n} after:")), "{seen}");
+        }
+        let after = std::fs::read_to_string(u.s.out.join("governor-after.txt")).unwrap();
+        assert!(after.contains("simple_ondemand"), "{after}");
     }
 }

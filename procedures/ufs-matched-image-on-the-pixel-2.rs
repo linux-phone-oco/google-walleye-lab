@@ -5,7 +5,11 @@
 //! read-only O_DIRECT read of one disk) and 2 s after it; the disk's GPT hashed before and after; the slots' flags before and after.
 //! The boot runs only while the author's go is recorded on the item the manifest names (no go: the run stops there and the phone
 //! goes back to Android). NOTHING is written to the card. The UFS-off gate refuses this image by design and is not run, weakened or bypassed.
-//!   procedures/ufs-matched-image-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml [procedures.ufs-matched-image-on-the-pixel-2])
+//! The pin is a choice (item walleye-ufs-unpinned-ramp-variant), declared once with argenv in tools/walleye-tries (ufs/choice.rs) as the environment
+//! variable WALLEYE_UFS_PIN = pinned (the default, as runs 1 to 9) or unpinned: unpinned writes no governor and no set_freq (step 16 only reads and keeps
+//! the node's governor, clocks and gear as found), reads them at every ramp step, asserts nothing about the gear and records what it saw
+//! (gear-seen-unpinned.txt), and adds a 2048 MiB step after the settings' ramp only when its limit ends before the image's reboot.
+//!   [WALLEYE_UFS_PIN=unpinned] procedures/ufs-matched-image-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml [procedures.ufs-matched-image-on-the-pixel-2])
 //!
 //! ```cargo
 //! [dependencies]
@@ -14,11 +18,19 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use walleye_tries::lpoco_attended::{prelude::*, steps};
-use walleye_tries::{settings::{Settings, UFS_PROCEDURE}, ufs::Ufs, watch};
+use walleye_tries::{settings::{Settings, UFS_PROCEDURE}, ufs::{choice::Pin, Ufs}, watch};
+
+/// The clock step, by the choice: pinned as runs 1 to 9, or read as found and nothing written.
+const PINNED: &str = "the UFS host's devfreq clock is pinned low (userspace governor, set_freq 50 MHz read back, gear HS_GEAR1, cur_freq 50 or 100 MHz as core_clk's rounding: research walleye-ufs-pin-100mhz-read) and its evidence kept, before any load";
+const UNPINNED: &str = "the UFS host's devfreq clock is NOT pinned (WALLEYE_UFS_PIN=unpinned): its governor, clocks and gear are read as found and kept, nothing written, before any load";
 
 fn main() {
     let _run = procedure(UFS_PROCEDURE, "google-walleye");
-    let card = Ufs::new(Settings::for_ufs()); // every key from device.toml, read here
+    let pin = Pin::from_process_env().unwrap_or_else(|e| {
+        eprintln!("{UFS_PROCEDURE}: {e}");
+        std::process::exit(1) // a wrong argument, as argenv exits for every lpoco program
+    });
+    let card = Ufs::new(Settings::for_ufs()).with_pin(pin); // every key from device.toml, read here
     let args: Vec<String> = std::env::args().skip(1).collect();
     if watch::watches(&args) {
         watch::watch_the_try(card.way_back()); // whatever ends a real run, the way back runs after
@@ -39,8 +51,12 @@ fn main() {
     check("the card's six disks and the partition tables are read", card.the_card_is_identified());
     check("the GPT of the disk is hashed", card.the_gpt_is_hashed_before());
     check("the gear and the clock, before any load", card.the_gear_is_read_before_load());
-    step("the UFS host's devfreq clock is pinned low (userspace governor, set_freq 50 MHz read back, gear HS_GEAR1, cur_freq 50 or 100 MHz as core_clk's rounding: research walleye-ufs-pin-100mhz-read) and its evidence kept, before any load", card.the_clock_is_pinned_low());
-    step("a ramped, bounded, read-only read of the disk (each step only when its limit ends before the image's reboot deadline less 10 s, its start uptime kept), a RAM log line before each step, the shell polled every second, the gear sampled", card.the_gear_is_read_under_load());
+    if pin.is_pinned() {
+        step(PINNED, card.the_clock_is_pinned_low());
+    } else {
+        step(UNPINNED, card.the_clock_is_read_as_found());
+    }
+    step("a ramped, bounded, read-only read of the disk (unpinned: plus a 2048 MiB step only when its limit ends before the reboot; each step only when its limit ends before the image's reboot deadline less 10 s, its start uptime kept), a RAM log line before each step, the shell polled every second, the gear sampled", card.the_gear_is_read_under_load());
     check("the gear and the clock, 2 s after the read", card.the_gear_is_read_two_seconds_after());
     check("the GPT is hash-equal to before", card.the_gpt_is_unchanged());
     check("no purge was asked", card.no_purge_was_asked());
