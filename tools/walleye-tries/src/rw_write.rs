@@ -840,9 +840,8 @@ mod tests {
     /// (build/initramfs-root-rw-write/init: `[ "$ROOT" = "system$SLOT" ] || refuse "walleye.booted-slot: ..."`) refuses every such line that
     /// carries walleye.booted-slot - QEMU case R3 "booted-slot with a root that is not the booted slot's" of tests/host/ufs-root-rw-init.sh
     /// boots exactly run 1's line and sees the refusal. So the declared rw image's command line must not carry the word. Fails on
-    /// image cb79c975 (run 1's), passes on an image rebuilt without it.
+    /// image cb79c975 (run 1's); passes on 1bfb3667, rebuilt without it.
     #[test]
-    #[ignore = "FAILS until item walleye-rw-image-without-booted-slot lands (cargo test -- --ignored shows it); its builder removes this line"]
     fn the_rw_image_command_line_passes_the_inits_slot_guard_when_booted_from_memory() {
         let manifest: toml::Value = toml::from_str(
             &std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../device.toml"))

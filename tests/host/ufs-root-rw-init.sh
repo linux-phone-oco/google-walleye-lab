@@ -95,6 +95,12 @@ part "$T/a.img" 2 "$T/p2"
 [ "$(tree / "$T/p2")" = "$(printf "%s\n.walleye\nwritten-in-root\n" "$TREE0" | LC_ALL=C sort)" ] || say fail "R1: the partition's top level is not what it was plus written-in-root and the empty .walleye (a stray file on the card)"
 part "$T/a.img" 1 "$T/decoy1"; [ "$(sha "$T/decoy1")" = "$D0" ] || say fail "R1: the decoy partition changed"
 [ "$(sha "$T/b.img")" = "$B0" ] || say fail "R1: another disk changed"
+# R1 on the declared line: the rw image's command line in device.toml (its recipe) plus the one word the run adds (androidboot.slot_suffix=_b, the slot Android is on) is NOT refused by the guard: research walleye-rw-run-1-refused-by-booted-slot (a declared walleye.booted-slot made the init refuse before any mount)
+DECL=$(sed -n '/^\[images.ufs-root-booted-slot-production-rw.recipe\]/,/^$/s/^cmdline = "\(.*\)"$/\1/p' "$HERE/device.toml")
+[ -n "$DECL" ] || say fail "R1 (declared line): no cmdline in [images.ufs-root-booted-slot-production-rw.recipe] of device.toml"
+boot "$T/a.img" "$DECL androidboot.slot_suffix=_b" "$T/declared.log"
+want "$T/declared.log" "walleye-init: mounts-rw (system_a" "R1 (the declared line: the init mounts rw, the guard did not refuse)"
+want "$T/declared.log" "ROOT-INIT-RAN" "R1 (the declared line: the root's init ran)"
 # R2: no word: the production behaviour, the disk untouched
 cp "$T/b.img" "$T/b-keep.img"
 boot "$T/b.img" "walleye.root=system_b androidboot.slot_suffix=_a" "$T/ro.log"

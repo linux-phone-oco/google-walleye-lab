@@ -364,12 +364,12 @@ sha256 = "b74af863e4b49e2b3ff6e656c2f9ba3b92033b1e0f74063c3c2d47b81c83d570"
 [images.ufs-root-booted-slot-production-rw]
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-production-rw/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-rw.img"
 kernel_tag = "int/walleye/ufs-on/v7.3/1"
-sha256 = "cb79c97535642380d44258931facdaaba97630ea2913e08544a7e37c0531868c"
+sha256 = "1bfb3667305df216049d7913777503fcc363ac2affba5f1708fa7953ec1b7bcf"
 
 [images.ufs-root-booted-slot-production-rw.recipe]
 control = "ufs-root-booted-slot-production"
 ramdisk = "1734b936ec5377fa0623408b9893c89031ddca84520c4a52a0447ebf30a625e0"
-cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.dtbo_idx=3 walleye.root=system_a walleye.booted-slot walleye.rw"
+cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.dtbo_idx=3 walleye.root=system_a walleye.rw"
 
 # The read-only UFS-on boot of that image as ONE command (item walleye-install-boot-procedure; run by item walleye-install-rootfs-boots-try). The root is the system partition of the slot Android is NOT on, read at the run
 # (adb's ro.boot.slot_suffix equal to fastboot's current-slot, and equal to the root the image names); nothing here names a slot.
