@@ -3,7 +3,7 @@
 //! read-only O_DIRECT read of one disk, and 2 s after it; the disk's GPT hashed before and after; the slots' flags before
 //! and after. Nothing is written to the card: the read's output goes to /dev/null, nothing is mounted.
 
-use super::{Link, Speed, Ufs};
+use super::{step_fits, uptime_of, Link, Speed, Ufs, UPTIME_COMMAND};
 use crate::phone::Shell;
 use crate::touch::redact;
 use std::time::{Duration, Instant};
@@ -587,7 +587,44 @@ impl Ufs {
         let steps = &self.s.ramp_mb;
         for (i, &mb) in steps.iter().enumerate() {
             let start = ramp_step_command(&self.s.lun, i + 1, steps.len(), mb, self.s.load_limit)?;
-            samples.push_str(&format!("=== step {}/{} {mb} MiB\n", i + 1, steps.len()));
+            // the image's init reboots the phone at its deadline (decision 2026-11-24-walleye-ufs-procedure-fits-the-image-not-the-image-the-procedure):
+            // a step runs only when its limit ends before it; the uptime at its start is kept with the step
+            let deadline = self
+                .deadline
+                .get()
+                .ok_or("the image's reboot deadline is not known yet: no step is started")?;
+            let said = match state_sh.run(UPTIME_COMMAND, Duration::from_secs(10)) {
+                Ok(t) => t,
+                Err(e) => {
+                    // a phone that does not answer between steps is this step's silence: kept as the result, like an unanswered start
+                    samples.push_str(&format!(
+                        "--- the uptime before the step was not answered: {e}\n"
+                    ));
+                    done.push((
+                        mb,
+                        Step::NoEnd {
+                            silent: 1,
+                            first_silent: 0.0,
+                        },
+                    ));
+                    return Ok(());
+                }
+            };
+            let up =
+                uptime_of(&said).ok_or("the phone's uptime could not be read before the step")?;
+            samples.push_str(&format!(
+                "=== step {}/{} {mb} MiB at uptime {up:.1} s, image reboots at {deadline:.1} s\n",
+                i + 1,
+                steps.len()
+            ));
+            if let Err(why) = step_fits(up, deadline, self.s.load_limit) {
+                samples.push_str(&format!("--- step refused: {why}\n"));
+                return Err(format!(
+                    "step {}/{} ({mb} MiB) refused, not started: {why}",
+                    i + 1,
+                    steps.len()
+                ));
+            }
             let began = Instant::now();
             match state_sh.run(&start, Duration::from_secs(10)) {
                 Ok(t) if t.contains("load-started-42") => {}
@@ -783,7 +820,7 @@ impl Ufs {
     }
 
     /// Did the ramp end on a silent step (ramp-result.txt)? Then the phone is not known to answer: the steps after the load say "not known yet"
-    /// and let the run reach the hold release and the way back, where the PON reason is read.
+    /// and let the run reach the way back, where the PON reason is read.
     fn the_ramp_was_silent(&self) -> bool {
         std::fs::read_to_string(self.s.out.join("ramp-result.txt"))
             .is_ok_and(|t| t.contains("FIRST SILENT STEP"))
@@ -926,13 +963,16 @@ mod tests {
         std::env::temp_dir().join(format!("wt-load-{name}-{}", std::process::id()))
     }
 
-    fn ufs(table: Vec<(&'static str, &'static str)>, name: &str) -> Ufs {
+    fn ufs(mut table: Vec<(&'static str, &'static str)>, name: &str) -> Ufs {
         let mut s = Settings::stand_in(Try::Ufs);
+        table.push(("/proc/uptime", "40.10 300.20")); // last: a step command also names /proc/uptime
         s.port = fake::phone(table, vec![]);
         s.out = out(name);
         let _ = std::fs::remove_dir_all(&s.out);
         s.device_wait = 2;
-        Ufs::new(s)
+        let u = Ufs::new(s);
+        u.deadline.set(Some(181.1)); // the matched image: petter at 1.1 s + 180 s
+        u
     }
 
     #[test]
@@ -1302,14 +1342,17 @@ mod ramp_tests {
         )
     }
 
-    fn ufs(table: Vec<(&'static str, &'static str)>, name: &str) -> Ufs {
+    fn ufs(mut table: Vec<(&'static str, &'static str)>, name: &str) -> Ufs {
         let mut s = Settings::stand_in(Try::Ufs);
+        table.push(("/proc/uptime", "40.10 300.20")); // last: a step command also names /proc/uptime
         s.port = fake::phone(table, vec![]);
         s.out = std::env::temp_dir().join(format!("wt-ramp-{name}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&s.out);
         s.device_wait = 2;
         s.load_limit = 1;
-        Ufs::new(s)
+        let u = Ufs::new(s);
+        u.deadline.set(Some(181.1)); // the matched image: petter at 1.1 s + 180 s
+        u
     }
 
     fn saved(u: &Ufs, name: &str) -> String {
@@ -1739,6 +1782,68 @@ mod ramp_tests {
         );
         assert!(saved(&u, "ramp-log.txt").contains("step 1/3 start 1 MiB"));
         assert!(saved(&u, "gear-load.txt").contains("=== step 3/3 4 MiB"));
+    }
+
+    /// Proof of item walleye-ufs-procedure-fits-the-180s: the image reboots at 181.1 s (petter 1.1 s + 180 s); at uptime 130 s a step
+    /// that may take 60 s would end at 190 s: it is refused and named, nothing is started, and the uptime is kept.
+    #[test]
+    fn a_step_that_would_cross_the_reboot_deadline_is_refused_and_named() {
+        // no row answers a start command: a step that started would end "did not start", not "refused"
+        let t = vec![("/proc/uptime", "130.00 900.00")];
+        let mut s = Settings::stand_in(Try::Ufs);
+        s.port = fake::phone(t, vec![]);
+        s.out = std::env::temp_dir().join(format!("wt-ramp-deadline-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&s.out);
+        s.load_limit = 60;
+        let u = Ufs::new(s);
+        u.deadline.set(Some(181.1));
+        let e = u.the_gear_is_read_under_load()().unwrap_err();
+        assert!(
+            e.contains("step 1/3 (1 MiB) refused, not started")
+                && e.contains("130.0 s")
+                && e.contains("60 s")
+                && e.contains("181.1 s"),
+            "{e}"
+        );
+        let g = saved(&u, "gear-load.txt");
+        assert!(
+            g.contains("=== step 1/3 1 MiB at uptime 130.0 s, image reboots at 181.1 s")
+                && g.contains("--- step refused"),
+            "{g}"
+        );
+    }
+
+    #[test]
+    fn a_ramp_without_a_known_deadline_starts_no_step() {
+        let u = ufs(vec![("load-started-", "load-started-42")], "nodeadline");
+        u.deadline.set(None);
+        let e = u.the_gear_is_read_under_load()().unwrap_err();
+        assert!(e.contains("deadline is not known yet"), "{e}");
+    }
+
+    #[test]
+    fn every_step_keeps_the_uptime_at_its_start() {
+        let t = vec![
+            ("load-started-", "load-started-42"),
+            (
+                "echo state-",
+                Box::leak(format!("{NOT_DONE}|||{DONE0}").into_boxed_str()) as &'static str,
+            ),
+            (
+                "power_info",
+                "gear=HS_GEAR1\nlane=2\nlink_state=ACTIVE\nclock_1da4000.ufshc=50000000",
+            ),
+            ("cat /tmp/ramp.log", "log-read-42"),
+        ];
+        let u = ufs(t, "uptimes");
+        u.the_gear_is_read_under_load()().unwrap();
+        let g = saved(&u, "gear-load.txt");
+        assert_eq!(
+            g.matches("at uptime 40.1 s, image reboots at 181.1 s")
+                .count(),
+            3,
+            "{g}"
+        );
     }
 
     #[test]
