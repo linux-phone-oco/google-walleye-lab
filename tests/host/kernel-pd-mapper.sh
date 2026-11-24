@@ -33,5 +33,5 @@ M="make -s -C $K ARCH=arm64 O=$T"
 $M defconfig >"$T/log" 2>&1 || say fail "defconfig: $(tail -n1 "$T/log")"
 "$K/scripts/kconfig/merge_config.sh" -m -O "$T" "$T/.config" "$base" >/dev/null 2>&1 || say fail "merge_config of $base failed"
 $M olddefconfig >"$T/log" 2>&1 || say fail "olddefconfig: $(tail -n1 "$T/log")"
-for s in QRTR QRTR_SMD QCOM_PD_MAPPER; do grep -qx "CONFIG_$s=y" "$T/.config" || say fail "the merged .config reads $(grep -m1 "CONFIG_$s[ =]" "$T/.config"), not CONFIG_$s=y"; done
+for s in QRTR QRTR_SMD QCOM_PD_MAPPER; do grep -qx "CONFIG_$s=y" "$T/.config" || say fail "the merged .config reads $(grep -m1 "CONFIG_${s}[ =]" "$T/.config"), not CONFIG_$s=y"; done
 say pass "defconfig + walleye.config of $K read back QRTR, QRTR_SMD and QCOM_PD_MAPPER =y"
