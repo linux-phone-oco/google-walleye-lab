@@ -162,13 +162,25 @@ sha256 = "8ca3af879b4c9d87ff98f8d269282557131ca8eef5d39bc42d5a97eb5e587bad"   # 
 path = "images-display-l7/boot-l7.img"
 sha256 = "643d1f83c6aea4ecb2d08e95aebc7fb2694d86c5c021e8463dc902eff5b9e711"   # L6 with /bin/walleye-stripes replaced by B2's drawer (KDSETMODE KD_GRAPHICS while held, KD_TEXT after, also after a failed draw): the author's look on the known-good load order (item walleye-display-look-l7)
 
+[images.l7.recipe]
+control = "l6"
+ramdisk = "13142772d362a042caa8e862d3329f05bb69eed49ee8b028b7b9498772768a81"   # the B2 drawer as /bin/walleye-stripes; kernel, dtb, header and cmdline are l6s (unpacked: equal in l6, l7, b1, b2)
+
 [images.b1]
 path = "images-display-at-boot/boot-b1.img"
 sha256 = "57ab1b69de78a304e0fba1b2576a1781de2b9cbc41a02c2d73b5328c67b8ebd7"   # L5's kernel and dtb, init-display as /init: the init loads the 13 display modules itself (item walleye-display-at-boot)
 
+[images.b1.recipe]
+control = "l6"
+ramdisk = "9ff9e6f79fd77fd5dd062770cb34419b097a3b0dfc4ec24fc3370fe37496c1f1"   # init-display as /init; kernel, dtb, header and cmdline are l6s
+
 [images.b2]
 path = "images-display-look/boot-b2.img"
 sha256 = "b9dbd16290e7cbfe2a9550b80d5673b7bb5499be4f492f0a09b1508570038915"   # B1 plus /bin/walleye-stripes (KD_GRAPHICS on /dev/tty0 while held, KD_TEXT after; item walleye-display-look-b2); the author's look at the Pixel's screen
+
+[images.b2.recipe]
+control = "b1"
+ramdisk = "c2848c1eac82a61451eb9ba32fc1ec137ba0d93f30579f27d1316bbfee3fd63a"   # b1 plus /bin/walleye-stripes; the rest is b1s
 
 [images.wdt1-a]
 path = "images-wdt1-sysfsless/boot-wdt1-a.img"

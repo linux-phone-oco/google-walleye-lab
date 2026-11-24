@@ -11821,10 +11821,10 @@ Rank
 ### A recipe row for each other image an [images.*] row names, each proven by image ensure
 
 Status
-: open
+: in-progress
 
 Note
-: From walleye-image-recipe-z21 (done): z21's row is the form. Next the images whose control and parts are other images of the manifest (l7 from l6, b2 from b1, wdt1-a/b, b-dN from b2); the images that need a kernel built from an int/ tag wait on walleye-next-image-from-an-int-tag.
+: PART 1 (walleye-builder, 2026-11-24): recipes for l7 (control l6), b1 (control l6) and b2 (control b1), each a ramdisk by sha256; image ensure --rebuild equals the declared sha256 of each (research walleye-image-recipes-l7-b1-b2-rebuilt-equal); image-recipe.sh passes. LEFT: wdt1-a/b and b-dN (from b2), then the other [images.*] whose parts are images of the manifest; the ones needing a kernel from an int/ tag wait on walleye-next-image-from-an-int-tag.
 
 About
 : walleye-bootimage
