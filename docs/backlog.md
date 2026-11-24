@@ -12181,6 +12181,7 @@ Status
 
 Note
 : Run 4 used its go (2026-11-24 18:09): no gadget at check 14; image 24772768's header carries walleye.booted-slot (run 1's refusal) though its recipe cmdline lacks it (research walleye-rw-write-run-4-no-gadget-image-carries-booted-slot). Nothing written, phone on Android b. Run 5 needs the image rebuilt without the word, its header checked equal to the recipe, and a new go.
+go until 2026-11-24T18:27:45+01:00, outcomes: Closed by the walleye coordinator: used by run 4 (PR 1039), stopped at check 14 with nothing written; the image carried walleye.booted-slot. Run 5 needs a new go after walleye-rw-image-header-equals-recipe, naming its new full sha256.
 
 About
 : walleye-bootimage
@@ -12201,7 +12202,7 @@ Witness
 : person
 
 Go until
-: 2026-11-24T21:00:00+01:00
+: 2026-11-24T18:27:45+01:00
 
 
 <a id="walleye-rw-clean-end-who-holds-root"></a>
