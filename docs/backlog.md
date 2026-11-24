@@ -10770,7 +10770,7 @@ Proof
 : (1) SOURCES: every check(..) step of the 13 procedures/*.rs (about 150) and every expectation of the tests/host/*.sh (96 scripts) names its source: a research row id (data/research.json), a doc (path or URL kept as a source row), or a captured-text file under the repo (research/.../ material); the convention is machine-read: a table procedures/SOURCES.toml (step name to source) and a tests/host/SOURCES.toml (script to source), or the 'source=' argument that lpoco attended check will require once orchestration's half lands (lab-tools: refuses a check with no source): the interim gate is tests/host/checks-have-sources.sh, which fails on any check or expectation without a source and on a source that does not exist (research id absent, file missing), and is a step of .github/workflows/check.yml; (2) FIXTURES: every fixture of a host selftest is TEXT A PHONE PRINTED, kept as a file under tests/fixtures/phone-text/ with a provenance line (the run, the date, the research row it came from); a fixture typed as a stand-in is refused by the gate (a typed one is replaced by a captured one or its check is marked as not yet sourced and listed); (3) THE STOPS AS TEST CASES: each of today's stops is refused BEFORE its fix or carries a source AFTER it: stage 2 checks 9, 16 and 18 (the first versions assumed a first run; the amended ones cite research walleye-stage2-flash-resets-flags-documented, walleye-stage2-run-1-gpt-after-flash-finding, walleye-stage2-rerun-2-stops-at-check-9-boot-a-is-the-image, walleye-stage2-rerun-3-stops-at-check-16-flash-changes-nothing, walleye-stage2-run5-stops-at-check-18-flash-resets-unbootable-too), the stage 1 check 17 (norecovery vs noload stand-in; research walleye-rootfs-boots-run-4-check-17-wants-noload-mounts-say-norecovery) and the run 7 pstore read (tests/host/pstore-*-read.sh, ml3-ramoops-read.sh: their source is the claim that pstore survives the reset, which research walleye-pstore-warm-reset-how-it-stands and walleye-ml3-pstore-empty do not support after a hard reset): the gate has a test that the OLD form of each is refused (a fixture of the unsourced form), and the new form passes; (4) nothing changes what a phone run does; dry run, check --host, tests, clippy, fmt, review
 
 Rank
-: 2
+: 6
 
 
 <a id="walleye-stops-three-answers"></a>
@@ -11151,6 +11151,9 @@ Status
 Note
 : From orchestration (2026-11-23): lab-tools #368 gives 'lpoco bringup image ensure NAME' (an image rebuilt from an [images.NAME.recipe] in the Nix sandbox, checked against the declared sha256, served from the store or a cache); proven on z21 in lab-tools; google-walleye-lab still needs z21's recipe row, its own file. Rank 3: behind the stage 2 run; it is also the way the build scripts retire.
 
+Blocked by
+: walleye-lpoco-attended-0-45-2-lands
+
 About
 : walleye-bootimage
 
@@ -11164,7 +11167,7 @@ Proof
 : device.toml [images.z21.recipe] in the form of decision 2026-11-23-image-recipes-on-nix-fixed-output-paths and lab-tools #368 (z20 plus z21's dtb is the proven example in lab-tools): 'lpoco bringup image ensure z21' (lab-tools released, installed on the host: v0.45.0 or later) rebuilds the image from the recipe, checks it against the declared sha256 of [images.z21] and serves it from the store afterwards; the inputs of the recipe are named (kernel_tag of the image: int/walleye/ufs-off-e123d3bff/v7.3/1, the dtb from the board dts at its commit, the ramdisk and header words), no tree path; nothing changes the declared sha256; then the same for the other images an [images.*] row names, one row per item or per change as the builder judges (these are the rebuild-identical proofs that let a build-*.sh retire: item walleye-retire-build-scripts); dry run, check --host, tests, review; no phone
 
 Rank
-: 2
+: 3
 
 
 <a id="walleye-stage2-step21-slot-source"></a>
@@ -11398,6 +11401,9 @@ Status
 Note
 : From orchestration (2026-11-23): the follow-up 'walleye-declares-its-kernel-build' is this lane's. The measurement that remains is a keeper's RAM boot of z21 from the cache on the Pixel 2 (UFS off, read only, one command), which needs the z21 recipe row (item walleye-image-recipe-z21) and the lpoco-attended pin at the new release (item walleye-attended-pin-is-one-pin, done together with walleye-checks-name-their-sources).
 
+Blocked by
+: walleye-image-recipe-z21
+
 About
 : walleye-bootimage
 
@@ -11411,7 +11417,7 @@ Proof
 : following orchestration's lab-tools #373 and #375/#376 (an [images.NAME.recipe] with no image file: the procedure's boot_once runs 'lpoco-bringup image ensure NAME' and boots the store path; ensure can build the kernel from an int/ tag): this lab's device.toml declares what that build needs beyond the tag: (1) the dtbs: the board dts files under dt/ (msm8998-google-walleye.dts and the variants an [images.*] row names) as recipe inputs, copied into the tree by the recipe (the way build/build-kernel.sh does: one Makefile line), not by hand; (2) the dts patch of the lab (kernel/ topic or dt/ overlay: whatever carries the display reset and the watchdog node), (3) the fuel-gauge commits (topic/walleye-fuel-gauge-rfc, in the live list already) named by the list, not by a script; the build is declared once and reproduces a declared image byte for byte: the proof is 'lpoco bringup image ensure z21' (and one UFS-on image) equal to the declared sha256 on this host; the build-*.sh that an [images.*] row names retire as each image rebuilds (item walleye-retire-build-scripts); dry run, check --host, tests, review; no phone
 
 Rank
-: 3
+: 4
 
 
 <a id="walleye-install-flash-boot-rehearsal-8"></a>
@@ -11714,7 +11720,7 @@ Proof
 : (1) the keeper's rule in the item's note and the brief: the landing of a run under a go ends that go (ikb backlog-go --until the run's end) and says so in the record; (2) the procedures' go gate refuses a go whose item has a run recorded after the go was set (a research row or session-log entry of the run, read by id), with a message that names it: 'the go of ITEM was set at T and run R used it at T2: the coordinator re-issues it'; (3) a host test from the two keeper sessions of 2026-11-24 (run 6 by local_ca73871e at 00:10, run 7 started by local_4cf13bce at 00:15 on the same go): the second is refused; dry run, tests, clippy, fmt, review; no phone
 
 Rank
-: 2
+: 5
 
 
 <a id="walleye-gpt-hash-from-android-read"></a>
@@ -11840,3 +11846,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-lpoco-attended-0-45-2-lands"></a>
+### Land rhizoid's bump PR 966 (lpoco-attended 0.44.3 to 0.45.2): rebase on the one-pin pass, checks green, read back from main
+
+Status
+: open
+
+Note
+: The Top Coordinator's order 2026-11-24 (the author asked whether recipes are in use; they are not yet): after the unpinned ramp builder, land 966, then z21's recipe row (PR 951 waited on this pin), then the kernel build declared from the int/ tag. The next image a run needs is built through lpoco bringup image ensure, not by hand.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: PR 966 (branch rhizoid/bump/lpoco-attended-0.45.2, opened by rhizoid bump) is rebased on main (the one pin is in tools/walleye-tries since PR 955, so the bump touches that one place and CI's install rev), every procedure's lpoco-attended check passes at 0.45.2 on all 13, tests, clippy and fmt pass, landed with land, read back from main; if it does not rebase, replay the bump in a branch of its own and close 966 with a comment; no phone; lands only when no keeper run is in flight
+
+Rank
+: 2
