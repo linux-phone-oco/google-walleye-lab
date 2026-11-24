@@ -12306,16 +12306,13 @@ Rank
 
 
 <a id="walleye-ci-image-ensure-rebuild"></a>
-### Walleye's CI runs image ensure --rebuild NAME for every image whose sha256 or recipe a change touches
+### Walleye's CI runs image ensure NAME --rebuild for every image whose sha256 or recipe a change touches
 
 Status
 : open
 
 Note
-: From orchestration 2026-11-24, docs decision 2026-11-24-a-recipe-sha-is-proved-by-a-rebuild: ensure at run time keeps serving by sha256; the proof is a sandboxed rebuild ignoring store, cache and seed, failing unless it equals the declared sha256. Sighting: run 4's image 2477...b54f (PR 1039). Start once the release is out; until then walleye-rw-image-header-equals-recipe's own checks hold.
-
-Waits
-: the lpoco-bringup release carrying image ensure --rebuild (lab-tools item image-ensure-rebuild)
+: From orchestration 2026-11-24, docs decision 2026-11-24-a-recipe-sha-is-proved-by-a-rebuild. RELEASED: lpoco-bringup 0.49.3 (lab-tools #423, read back by orchestration) carries 'lpoco bringup image ensure NAME --rebuild': a sandboxed rebuild ignoring store, cache and seed, failing unless it equals the declared sha256. It does not yet rebuild an image's control and parts inputs (lab-tools image-rebuild-proves-inputs, rank 4). Sighting: run 4's image 2477...b54f (PR 1039). Pin 0.49.3 the way the lab pins its tools, never the host binary. Start only after orchestration says its lab-tools builder has ended (one agent at a time).
 
 About
 : walleye-bootimage
@@ -12330,4 +12327,4 @@ Proof
 : a CI job that fails on a change setting a declared sha256 the recipe does not build
 
 Rank
-: 3
+: 2
