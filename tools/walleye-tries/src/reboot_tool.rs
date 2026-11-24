@@ -65,6 +65,24 @@ pub fn ask_for_the_bootloader(s: &Settings, ssh: &str, command: &str) -> Result<
     ssh_from(s, ssh, command, 10, None)
 }
 
+/// The rw root's clean end (item walleye-rw-end-through-openrc-mount-ro): the tool and a marker go to /run/walleye (tmpfs: nothing touches the card) and the phone is asked to end through init
+/// (busybox `reboot`: init runs the inittab's `openrc shutdown`, whose level has mount-ro and, last, the walleye-end service that runs the tool and always reboots). Nothing remounts inside the live session.
+pub const SHUTDOWN_ON_PHONE: &str = "/run/walleye/walleye-reboot";
+/// Puts the standard input at [`SHUTDOWN_ON_PHONE`], makes it runnable and leaves the marker the walleye-end service looks for.
+pub const SEND_FOR_SHUTDOWN_COMMAND: &str = "mkdir -p /run/walleye && cat > /run/walleye/walleye-reboot && chmod 755 /run/walleye/walleye-reboot && : > /run/walleye/to-bootloader";
+/// Asks init to end: its shutdown level runs, then the service reboots (to the bootloader when the marker and the tool are there).
+pub const END_COMMAND: &str = "reboot";
+
+/// The tool is checked against its declared sha256, put with its marker on the phone's /run, and init is asked to end ([`END_COMMAND`]); the answer is not waited for as a judgement
+/// (the phone hangs up as it goes down). An error names the step that failed (the way back's old forced path follows in every case).
+pub fn ask_for_the_clean_end(s: &Settings, ssh: &str) -> Result<String, String> {
+    host::image_has_sha256(&s.reboot_tool, &s.reboot_tool_sha256)
+        .map_err(|e| format!("the reboot tool is not the declared one: {e}"))?;
+    ssh_from(s, ssh, SEND_FOR_SHUTDOWN_COMMAND, 30, Some(&s.reboot_tool))
+        .map_err(|e| format!("sending the reboot tool to {SHUTDOWN_ON_PHONE}: {e}"))?;
+    ssh_from(s, ssh, END_COMMAND, 10, None)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -32,7 +32,8 @@ ln -s ../bin/busybox "$R/sbin/init"
 grep '^::shutdown:' "$HERE/rootfs/overlay/etc/inittab" > "$R/etc/inittab" || say fail "rootfs/overlay/etc/inittab has no ::shutdown: line"
 grep '^shutdown ' "$RUNLEVELS" > "$R/etc/shutdown-level"
 echo "$SCENARIO" > "$R/etc/scenario"
-cp "$HERE/rootfs/overlay/etc/init.d/walleye-end" "$R/etc/walleye-end"
+# the root has an OpenRC shutdown level with mount-ro; the rw init puts walleye-end there itself (the stub below sources the file the init wrote)
+mkdir -p "$R/etc/init.d" "$R/etc/runlevels/shutdown"; printf "#!/sbin/openrc-run\n" > "$R/etc/init.d/mount-ro"; chmod 755 "$R/etc/init.d/mount-ro"
 cat >> "$R/etc/inittab" <<'EOI'
 ::sysinit:/bin/sh /etc/rc.boot
 ::once:/bin/sh /etc/rc.end
@@ -61,7 +62,7 @@ while read -r lvl svc; do
     killprocs) for sig in TERM KILL; do for d in /proc/[0-9]*; do p=${d#/proc/}; [ "$p" = 1 ] || [ "$p" = $$ ] || [ -z "$(tr -d "\000" < $d/cmdline 2>/dev/null)" ] || kill -$sig "$p" 2>/dev/null; done; sleep 2; done; echo "OPENRC killprocs" ;;
     mount-ro) sync; if mount -o remount,ro / 2>/run/mro; then echo "OPENRC mount-ro ok"; else echo "OPENRC mount-ro FAILED $(cat /run/mro)"; fi ;;
     savecache) echo "OPENRC savecache" ;;
-    walleye-end) ( ebegin() { echo "OPENRC ebegin $*"; }; reboot() { echo "OPENRC reboot $*"; /bin/busybox reboot "$@"; }; . /etc/walleye-end; start ) ;;
+    walleye-end) ( ebegin() { echo "OPENRC ebegin $*"; }; reboot() { echo "OPENRC reboot $*"; /bin/busybox reboot "$@"; }; . /etc/init.d/walleye-end; start ) ;;
     *) echo "OPENRC unknown service $svc skipped" ;;
   esac
 done < /etc/shutdown-level

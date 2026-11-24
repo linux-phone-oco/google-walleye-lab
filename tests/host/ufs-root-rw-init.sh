@@ -47,6 +47,8 @@ poweroff -f
 EOI
 chmod 755 "$T/root/sbin/init"
 echo marker > "$T/root/walleye-test-marker"
+# the root of the image has an OpenRC shutdown level with mount-ro (Alpine: openrc); the rw init adds walleye-end and the two links
+mkdir -p "$T/root/etc/init.d" "$T/root/etc/runlevels/shutdown"; printf "#!/sbin/openrc-run\n" > "$T/root/etc/init.d/mount-ro"; chmod 755 "$T/root/etc/init.d/mount-ro"
 mke2fs -q -t ext4 -L testroot -d "$T/root" "$T/root.ext4" 16M || say fail "mke2fs did not make the test rootfs"
 disk() { # FILE NAME: a GPT disk of 64 MiB with the test rootfs in the partition NAME and an empty decoy `userdata`
   truncate -s 64M "$1"
@@ -92,6 +94,10 @@ want "$T/rw.log" "ROOT-HAS-MARKER" "R1 (the card's files show)"
 part "$T/a.img" 2 "$T/p2"
 [ "$(debugfs -R 'cat /written-in-root' "$T/p2" 2>/dev/null)" = written-by-the-root-init ] || say fail "R1: the write did not land in the partition (read back with debugfs)"
 [ "$(tree /.walleye "$T/p2" | grep -v -x -e . -e ..)" = "" ] || say fail "R1: the card's /.walleye is not empty (the petter's files were written to the card)"
+# the clean end (item walleye-rw-end-through-openrc-mount-ro): walleye-end is the overlay's file byte for byte, and the shutdown level links mount-ro and walleye-end
+[ "$(debugfs -R "cat /etc/init.d/walleye-end" "$T/p2" 2>/dev/null)" = "$(cat "$HERE/rootfs/overlay/etc/init.d/walleye-end")" ] || say fail "R1: the root's etc/init.d/walleye-end is not rootfs/overlay/etc/init.d/walleye-end"
+for s in mount-ro walleye-end; do debugfs -R "stat /etc/runlevels/shutdown/$s" "$T/p2" 2>/dev/null | grep -q "/etc/init.d/$s" || say fail "R1: the shutdown level has no link to /etc/init.d/$s"; done
+want "$T/rw.log" "walleye-init: shutdown-level mount-ro and walleye-end" "R1 (the init says it linked them)"
 [ "$(tree / "$T/p2")" = "$(printf "%s\n.walleye\nwritten-in-root\n" "$TREE0" | LC_ALL=C sort)" ] || say fail "R1: the partition's top level is not what it was plus written-in-root and the empty .walleye (a stray file on the card)"
 part "$T/a.img" 1 "$T/decoy1"; [ "$(sha "$T/decoy1")" = "$D0" ] || say fail "R1: the decoy partition changed"
 [ "$(sha "$T/b.img")" = "$B0" ] || say fail "R1: another disk changed"

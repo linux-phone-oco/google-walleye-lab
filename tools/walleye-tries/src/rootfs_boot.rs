@@ -502,6 +502,9 @@ pub const BOOTLOADER_WAIT: Duration = Duration::from_secs(60);
 /// What the bootloader try saw, kept in the run's folder (a later way back in the same run does not try twice).
 pub const BOOTLOADER_FILE: &str = "bootloader-way-back.txt";
 
+/// What the rw write's clean end saw (init asked to end through its shutdown level), kept in the run's folder; tried once a run.
+pub const CLEAN_END_FILE: &str = "clean-end-way-back.txt";
+
 /// Where a post-run measurement stands, read from the run's folder alone.
 #[derive(Debug, PartialEq)]
 pub enum Measure {
@@ -816,6 +819,7 @@ impl RootfsBoot {
             EVIDENCE_FILE,
             SUFFIX_FILE,
             BOOTLOADER_FILE,
+            CLEAN_END_FILE,
         ] {
             let _ = std::fs::remove_file(self.s.out.join(name));
         }
@@ -1166,6 +1170,10 @@ impl RootfsBoot {
     pub fn the_phone_is_sent_back(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
+            if u.the_clean_end_is_tried() {
+                u.lab.fastboot_reboot();
+                return Ok(());
+            }
             u.settle_rw();
             if u.the_bootloader_is_tried() {
                 // the watched child's own way back step sends nothing (the parent runs it after the child ends), so the
@@ -1189,16 +1197,7 @@ impl RootfsBoot {
             return false;
         }
         let sent = self.the_bootloader_is_asked_for(); // the phone hangs up as it goes down
-        let until = Instant::now() + self.bootloader_wait;
-        let seen = loop {
-            match self.lab.in_fastboot() {
-                Ok(true) => break Ok(()),
-                Ok(false) if Instant::now() < until => {}
-                Ok(false) => break Err("fastboot lists no phone".to_string()),
-                Err(e) => break Err(e),
-            }
-            std::thread::sleep(Duration::from_secs(1).min(self.bootloader_wait));
-        };
+        let seen = self.fastboot_lists_the_phone();
         let (reached, said) = match seen {
             Ok(()) => (true, self.the_bootloader_slot_is_said()),
             Err(e) => {
@@ -1212,6 +1211,38 @@ impl RootfsBoot {
         println!("{said}");
         let _ = self.lab.save(BOOTLOADER_FILE, &said);
         reached
+    }
+
+    /// Fastboot lists the phone within `bootloader_wait`, or why not.
+    fn fastboot_lists_the_phone(&self) -> Result<(), String> {
+        let until = Instant::now() + self.bootloader_wait;
+        loop {
+            match self.lab.in_fastboot() {
+                Ok(true) => return Ok(()),
+                Ok(false) if Instant::now() < until => {}
+                Ok(false) => return Err("fastboot lists no phone".to_string()),
+                Err(e) => return Err(e),
+            }
+            std::thread::sleep(Duration::from_secs(1).min(self.bootloader_wait));
+        }
+    }
+
+    /// The rw write's way back (item walleye-rw-end-through-openrc-mount-ro): init is asked to end, so the root goes through its shutdown level (`mount-ro`, then the
+    /// walleye-end service, which runs the tool left on /run and always reboots) instead of a remount inside the live ssh session. True when fastboot lists the phone afterwards; false
+    /// leaves the old way (settle, the bootloader try, the forced reboots) to run, and says why. Tried once a run: what it saw is kept in [`CLEAN_END_FILE`].
+    pub fn the_clean_end_is_tried(&self) -> bool {
+        if !self.rw || self.rehearsal || self.s.out.join(CLEAN_END_FILE).exists() {
+            return false;
+        }
+        let sent = crate::reboot_tool::ask_for_the_clean_end(&self.s, &self.ssh);
+        let said = match (&sent, self.fastboot_lists_the_phone()) {
+            (Err(e), _) => format!("clean end not asked for: {e}; the old way back runs"),
+            (Ok(_), Ok(())) => "clean end reached: init was asked to end, the shutdown level ran and fastboot lists the phone; fastboot reboot follows".to_string(),
+            (Ok(_), Err(e)) => format!("clean end not reached: {e} within {} s; the old way back runs", self.bootloader_wait.as_secs()),
+        };
+        println!("{said}");
+        let _ = self.lab.save(CLEAN_END_FILE, &said);
+        said.starts_with("clean end reached")
     }
 
     /// The tool is checked against its declared sha256, sent to the phone's tmpfs over ssh, and run with `bootloader`.
@@ -2693,7 +2724,7 @@ mod bootloader_way_back {
         executable(
             &ssh,
             &format!(
-                "#!/bin/sh\necho \"$@\" >> {d}/ssh.calls\ncase \"$*\" in *'cat > /tmp/walleye-reboot'*) cat > {d}/pushed;; *'/tmp/walleye-reboot --command bootloader'*) {on};; esac\nexit 0\n",
+                "#!/bin/sh\necho \"$@\" >> {d}/ssh.calls\ncase \"$*\" in *'cat > /run/walleye/walleye-reboot'*) cat > {d}/pushed-run;; *' reboot') {on};; *'cat > /tmp/walleye-reboot'*) cat > {d}/pushed;; *'/tmp/walleye-reboot --command bootloader'*) {on};; esac\nexit 0\n",
                 d = d.display(),
                 on = if listed { format!("touch {}/in-fastboot", d.display()) } else { ":".to_string() }
             ),
@@ -2814,6 +2845,67 @@ mod bootloader_way_back {
             "{ssh}"
         );
         assert!(!calls(&d, "fastboot.calls").contains("getvar"));
+    }
+
+    #[test]
+    fn the_rw_write_ends_through_init_with_the_tool_and_marker_on_run_and_no_remount() {
+        let (mut r, d) = rig("cleanend", true, "_b");
+        r.rw = true;
+        assert!((r.the_phone_is_sent_back())().is_ok());
+        let said = r.saved(CLEAN_END_FILE).unwrap();
+        assert!(said.starts_with("clean end reached"), "{said}");
+        let ssh = calls(&d, "ssh.calls");
+        assert_eq!(
+            std::fs::read(d.join("pushed-run")).unwrap(),
+            std::fs::read(&r.s.reboot_tool).unwrap()
+        );
+        let (push, end) = (
+            ssh.find("cat > /run/walleye/walleye-reboot").unwrap(),
+            ssh.rfind(" reboot\n").unwrap(),
+        );
+        assert!(push < end, "{ssh}");
+        assert!(ssh.contains(": > /run/walleye/to-bootloader"), "{ssh}");
+        // nothing remounts in the live session, nothing is forced, the old tool path is not used
+        for word in ["remount", "reboot -f", "sysrq", "/tmp/walleye-reboot"] {
+            assert!(!ssh.contains(word), "{word}: {ssh}");
+        }
+        assert!(!d.join("out").join(BOOTLOADER_FILE).exists());
+        let fb = calls(&d, "fastboot.calls");
+        assert!(fb.lines().any(|l| l.ends_with(" reboot")), "{fb}");
+        for word in ["set_active", "flash", "erase", "oem"] {
+            assert!(!fb.contains(word), "{word}: {fb}");
+        }
+    }
+
+    #[test]
+    fn a_clean_end_that_does_not_reach_fastboot_leaves_the_old_way_back_to_run() {
+        let (mut r, d) = rig("cleanend-no", false, "_b");
+        r.rw = true;
+        assert!((r.the_phone_is_sent_back())().is_ok());
+        let said = r.saved(CLEAN_END_FILE).unwrap();
+        assert!(
+            said.contains("clean end not reached") && said.contains("the old way back runs"),
+            "{said}"
+        );
+        let ssh = calls(&d, "ssh.calls");
+        assert!(
+            ssh.contains("remount,ro") && ssh.contains("reboot -f"),
+            "{ssh}"
+        );
+        assert!(!calls(&d, "fastboot.calls")
+            .lines()
+            .any(|l| l.ends_with(" reboot")));
+    }
+
+    #[test]
+    fn a_read_only_or_rehearsed_run_never_tries_the_clean_end() {
+        let (r, d) = rig("cleanend-ro", true, "_b");
+        assert!(!r.the_clean_end_is_tried());
+        let (mut r2, _) = rig("cleanend-re", true, "_b");
+        r2.rw = true;
+        r2.rehearsal = true;
+        assert!(!r2.the_clean_end_is_tried());
+        assert!(!calls(&d, "ssh.calls").contains("/run/walleye"));
     }
 
     #[test]
