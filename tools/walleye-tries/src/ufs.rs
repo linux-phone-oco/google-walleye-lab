@@ -18,7 +18,10 @@ use std::time::{Duration, Instant};
 
 type Done = Result<(), String>;
 
+pub mod choice;
 pub mod load;
+
+use choice::Pin;
 
 /// What the matched-image tests print last when every check is ok.
 pub const MATCH_OK: &str = "ufs-match-android: all checks ok";
@@ -29,10 +32,20 @@ pub const HOST_LEFT: &str = "UFS_HOST_LEFT HCS";
 pub const PHY_TABLE: &str = "MSM8998 PHY table";
 pub const PHY_LINECFG: &str = "UFS_PHY_LINECFG_DISABLE";
 
-/// What the author is told before the step that boots the UFS-on image (the go note has the rest).
 /// What the author is told before the step that boots the UFS-on image: the numbers are the settings', never typed twice.
-pub fn expect(s: &Settings) -> String {
-    format!("One command, about 5 minutes: the phone boots the matched UFS-on image once, from memory. It reads the card (its {} disks and their partition tables), first pins the UFS host's devfreq clock at its lowest, 50 MHz (the userspace governor) and reads it back, then reads {} in steps of {} MiB (at most {} seconds each), read only, a line in its RAM log before each step and the shell polled every second, while the link gear and the clock are noted; a step starts only when it ends before the image's own reboot (180 s after its start, read from the kernel log); the first silent step is a result, the ramp stops there; the disk's partition table is hashed before and after. NOTHING is written to the card. The glass stays dark. The phone returns to Android by itself and visits fastboot once more to read the slot flags; if it is not on Android after 4 minutes, hold the power button about 15 seconds.", s.luns, s.lun, s.ramp_mb.iter().map(u64::to_string).collect::<Vec<_>>().join(", "), s.load_limit)
+pub fn expect(s: &Settings, pin: Pin) -> String {
+    let clock = match pin {
+        Pin::Pinned => "first pins the UFS host's devfreq clock at its lowest, 50 MHz (the userspace governor) and reads it back, then reads",
+        Pin::Unpinned => "leaves the UFS host's devfreq clock as the image has it (no governor or clock write; its governor, clock and gear are read and kept), then reads",
+    };
+    let more = match pin {
+        Pin::Pinned => String::new(),
+        Pin::Unpinned => format!(
+            " (and {} MiB when the time left allows)",
+            load::UNPINNED_EXTRA_MB
+        ),
+    };
+    format!("One command, about 5 minutes: the phone boots the matched UFS-on image once, from memory. It reads the card (its {} disks and their partition tables), {clock} {} in steps of {} MiB{more} (at most {} seconds each), read only, a line in its RAM log before each step and the shell polled every second, while the link gear and the clock are noted; a step starts only when it ends before the image's own reboot (180 s after its start, read from the kernel log); the first silent step is a result, the ramp stops there; the disk's partition table is hashed before and after. NOTHING is written to the card. The glass stays dark. The phone returns to Android by itself and visits fastboot once more to read the slot flags; if it is not on Android after 4 minutes, hold the power button about 15 seconds.", s.luns, s.lun, s.ramp_mb.iter().map(u64::to_string).collect::<Vec<_>>().join(", "), s.load_limit)
 }
 
 /// Is the text the strict shape `ikb backlog-go` writes (`date -Is`: YYYY-MM-DDTHH:MM:SS+HH:MM or Z)? Nothing relative
@@ -339,6 +352,8 @@ pub struct Ufs {
     lab: Lab,
     /// The uptime at which the image's init reboots the phone; set by the step that reads the petter's line, None until then.
     deadline: Rc<Cell<Option<f64>>>,
+    /// Whether the UFS host's clock is pinned low before the ramp (WALLEYE_UFS_PIN; pinned when none is given).
+    pin: Pin,
 }
 
 impl Ufs {
@@ -348,7 +363,14 @@ impl Ufs {
             lab: Lab::new(s.clone()),
             s,
             deadline: Rc::new(Cell::new(None)),
+            pin: Pin::Pinned,
         }
+    }
+
+    /// The same try with the pin as the caller chose it.
+    pub fn with_pin(mut self, pin: Pin) -> Ufs {
+        self.pin = pin;
+        self
     }
 
     /// The battery is above the lab's minimum (the shared step).
@@ -572,7 +594,7 @@ impl Ufs {
 
     /// Say what to expect, before the boot.
     pub fn author_is_told(&self) -> impl FnOnce() -> Done + 'static {
-        let text = expect(&self.s);
+        let text = expect(&self.s, self.pin);
         move || {
             println!("  {text}");
             Ok(())

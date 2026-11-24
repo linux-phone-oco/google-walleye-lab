@@ -7489,3 +7489,24 @@ Considered
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-24-ufs-procedure-the-unpinned-ramp-variant"></a>
+### UFS procedure: the unpinned ramp variant
+
+Entry date
+: 2026-11-24
+
+Done
+: WALLEYE_UFS_PIN=pinned|unpinned declared with argenv (env only: the attended runner refuses flags it does not declare, and the env is linted so a typo is refused); unpinned writes nothing to the clock, reads governor/clock/gear before and after each ramp step and after the ramp, asserts nothing about the gear, adds 2048 MiB only when the step fits before the image's reboot (left-out step named in ramp-result.txt); tests from run 9's console, run 3's G3 sample, run 6's idle gear. Programmer review found 9 points; fixed per-step reads, false governor-after, hidden left-out step, shared dispatch, typed fixtures.
+
+Considered
+: a --unpinned flag; the 2048 step as device.toml data (kept a constant guarded to be larger than the last step)
+
+Rejected
+: a flag: lpoco-attended's parse_and_lint(FailOnError) would refuse it before the procedure ran
+
+About
+: walleye-ufs-match-android-z
