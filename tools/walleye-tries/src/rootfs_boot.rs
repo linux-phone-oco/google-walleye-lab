@@ -19,7 +19,7 @@ use crate::install::{other_slot, parse_current_slot, slots_agree};
 use crate::lab::Lab;
 use crate::settings::Settings;
 use crate::touch::redact;
-use crate::ufs::{go_decision, now_epoch, Probe};
+use crate::ufs::{go_gate, now_epoch, run_name, spend_go, Probe};
 use crate::{host, watch};
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
@@ -976,7 +976,7 @@ impl RootfsBoot {
     }
 
     /// The author's go covers this image now: the item's row (`tad q row`) names the image's sha256 and has `go_until` in the future.
-    fn go_is_open_now(&self) -> Done {
+    fn go_is_open_now(&self, spend: bool) -> Done {
         let mut c = Command::new("tad");
         c.args(["q", "row", "--id", &self.s.go_item, "--format", "csv"])
             .current_dir(&self.s.lab);
@@ -988,22 +988,40 @@ impl RootfsBoot {
             ));
         }
         let now = now_epoch().ok_or("no go: the clock could not be read")?;
-        go_decision(&said.text, now, &self.s.image_sha256, &self.s.go_item)
+        go_gate(
+            &said.text,
+            now,
+            &self.s.image_sha256,
+            &self.s.go_item,
+            &self.s.go_state,
+        )?;
+        if spend {
+            spend_go(
+                &said.text,
+                &self.s.go_item,
+                &run_name(now),
+                &self.s.go_state,
+            )?;
+        }
+        Ok(())
     }
 
     /// The author's go is open on the item. Without it the run stops here, "no go", and the way back leaves the phone on Android.
     pub fn author_has_said_go(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
-        move || u.go_is_open_now()
+        move || u.go_is_open_now(false)
     }
 
     /// The boot itself, after the gate's other checks: this run's made image is the file booted (never the declared one), and it is still the
     /// bytes that were checked when it was made (their sha256) and still the declared image with only the slot added.
-    fn boot_the_made_image(&self) -> Done {
+    fn boot_the_made_image(&self, spend: bool) -> Done {
         let (made, sha) = self.before.borrow().run_image.clone().ok_or(
             "the run image is not made: the slot is not on its command line, nothing is booted",
         )?;
         self.the_made_image_is_this_runs(&made, &sha)?;
+        if spend {
+            self.go_is_open_now(true)?;
+        }
         self.lab.boot_image(&made)
     }
 
@@ -1031,8 +1049,8 @@ impl RootfsBoot {
             u.root()?;
             u.lab.battery_is_good()?;
             host::image_has_sha256(&u.s.image, &u.s.image_sha256)?;
-            u.go_is_open_now()?;
-            u.boot_the_made_image()
+            u.go_is_open_now(false)?;
+            u.boot_the_made_image(true)
         }
     }
 
@@ -2321,10 +2339,13 @@ mod tests {
             run_image: None,
         };
         // not made: nothing boots
-        assert!(r.boot_the_made_image().unwrap_err().contains("not made"));
+        assert!(r
+            .boot_the_made_image(false)
+            .unwrap_err()
+            .contains("not made"));
         assert!(!d.join("lpoco.calls").exists());
         (r.the_run_image_is_made())().unwrap();
-        r.boot_the_made_image().unwrap();
+        r.boot_the_made_image(false).unwrap();
         let calls = std::fs::read_to_string(d.join("lpoco.calls")).unwrap();
         assert!(calls.trim_end().ends_with(RUN_IMAGE), "{calls}");
         assert!(!calls.contains("NOT-TO-BOOT-d.img"), "{calls}");
@@ -2334,7 +2355,7 @@ mod tests {
         b[5000] ^= 1;
         std::fs::write(&made, b).unwrap();
         assert!(r
-            .boot_the_made_image()
+            .boot_the_made_image(false)
             .unwrap_err()
             .contains("changed since"));
         assert_eq!(

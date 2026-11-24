@@ -119,6 +119,8 @@ pub struct Settings {
     pub dtb: PathBuf,
     pub kernel_tree: PathBuf,
     pub go_item: String,
+    /// where the spent gos are kept: a go a run used is refused to the next (`ufs::go_gate`); a test points it at its own folder
+    pub go_state: PathBuf,
     /// the UFS try's read of the card: the disk it reads (`lun`, one lower-case letter after `sd`), how many MiB at most (`load_mb`), the most seconds it may take (`load_limit`), the disks the card has (`luns`)
     pub lun: String,
     pub load_mb: u64,
@@ -312,6 +314,7 @@ impl Settings {
             dtb: PathBuf::new(),
             kernel_tree: PathBuf::new(),
             go_item: String::new(),
+            go_state: crate::ufs::go_state_dir(),
             lun: String::new(),
             load_mb: 0,
             load_limit: 0,
@@ -639,7 +642,12 @@ impl Settings {
         .collect();
         keys.extend(over.iter().copied());
         let get = |k: &str| keys[k].to_string();
-        Settings::read(which, &get, &get)
+        let mut s = Settings::read(which, &get, &get);
+        // a test never spends a go of the lab machine: each stand-in has its own folder of spent gos
+        static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+        let n = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        s.go_state = std::env::temp_dir().join(format!("wt-spent-gos-{}-{n}", std::process::id()));
+        s
     }
 }
 

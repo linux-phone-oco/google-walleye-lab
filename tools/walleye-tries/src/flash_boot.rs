@@ -20,7 +20,7 @@ use crate::rootfs_boot::{
     disk_letters, identity_is_private, mounts_are_read_only, pid1_is_the_roots_init, sections,
 };
 use crate::settings::Settings;
-use crate::ufs::{go_decision, now_epoch};
+use crate::ufs::{go_gate, now_epoch, run_name, spend_go};
 use crate::{host, watch};
 use std::collections::BTreeMap;
 use std::process::Command;
@@ -1009,11 +1009,11 @@ impl FlashBoot {
     /// The author's go covers this image now (the coordinator's go on the item, naming the image's sha256).
     pub fn go_is_open(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
-        move || u.go_now()
+        move || u.go_now(false)
     }
 
     /// The go, asked at the start and again just before the flash.
-    fn go_now(&self) -> Done {
+    fn go_now(&self, spend: bool) -> Done {
         let u = self;
         {
             let mut c = Command::new(&u.tad);
@@ -1027,7 +1027,17 @@ impl FlashBoot {
                 ));
             }
             let now = now_epoch().ok_or("no go: the clock could not be read")?;
-            go_decision(&said.text, now, &u.s.image_sha256, &u.s.go_item)
+            go_gate(
+                &said.text,
+                now,
+                &u.s.image_sha256,
+                &u.s.go_item,
+                &u.s.go_state,
+            )?;
+            if spend {
+                spend_go(&said.text, &u.s.go_item, &run_name(now), &u.s.go_state)?;
+            }
+            Ok(())
         }
     }
 
@@ -1239,13 +1249,14 @@ impl FlashBoot {
             let target = u.target()?;
             let slot = parse_current_slot(&u.fastboot_getvar("current-slot")?)?;
             slots_agree(&format!("_{}", u.android_slot()?), &slot)?;
-            u.go_now()?;
+            u.go_now(false)?;
             host::image_has_sha256(&u.s.image, &u.s.image_sha256)?;
             u.the_root_is_the_flashed_slots_own(&slot)?;
             let image = u.s.image.to_string_lossy().into_owned();
             let args = flash_args(&u.lab.serial()?, &target, &image)?;
             u.lab
                 .save("flashed.txt", &format!("{target} {}", u.s.image_sha256))?;
+            u.go_now(true)?;
             u.fastboot(&args).map(|_| ())
         }
     }
@@ -2454,6 +2465,26 @@ mod tests {
 
     fn calls(d: &std::path::Path) -> String {
         std::fs::read_to_string(d.join("fastboot.calls")).unwrap_or_default()
+    }
+
+    /// 2026-11-24: two keeper sessions ran on one go (run 6 at 00:10, run 7 at 00:15). The flash spends the go; the second run on it is
+    /// refused at the gate, before fastboot is called.
+    #[test]
+    fn a_second_run_on_the_same_go_is_refused_before_it_flashes() {
+        let (f, d) = bench("spent-go", "b");
+        f.lab.save(ANDROID_SLOT_FILE, "b").unwrap();
+        (f.go_is_open())().unwrap();
+        (f.the_boot_image_is_flashed())().unwrap();
+        let flashes = calls(&d).matches(" flash ").count();
+        assert_eq!(flashes, 1, "{}", calls(&d));
+        let said = (f.go_is_open())().unwrap_err();
+        assert!(
+            said.starts_with("no go") && said.contains("was used by") && said.contains("re-issues"),
+            "{said}"
+        );
+        let again = (f.the_boot_image_is_flashed())().unwrap_err();
+        assert!(again.contains("was used by"), "{again}");
+        assert_eq!(calls(&d).matches(" flash ").count(), flashes);
     }
 
     #[test]

@@ -169,6 +169,93 @@ pub fn go_is_open(go_until: Option<&str>, now: i64) -> Result<(), String> {
     }
 }
 
+/// The folder the spent gos are kept in, on the lab machine: one small file per go, shared by every session that runs a procedure
+/// (`$XDG_STATE_HOME/walleye-go`, else `~/.local/state/walleye-go`).
+pub fn go_state_dir() -> std::path::PathBuf {
+    let base = std::env::var_os("XDG_STATE_HOME")
+        .filter(|v| !v.is_empty())
+        .map(std::path::PathBuf::from)
+        .or_else(|| {
+            std::env::var_os("HOME").map(|h| std::path::PathBuf::from(h).join(".local/state"))
+        })
+        .unwrap_or_else(|| std::path::PathBuf::from(".local/state"));
+    base.join("walleye-go")
+}
+
+/// The marker file of a go: the item and the date its go ends. The row carries no time the go was given, so a go is known by what the
+/// coordinator sets when it gives one - `ikb backlog-go --until` - and a go given again has another date, hence another marker.
+fn go_marker(
+    dir: &std::path::Path,
+    row: &str,
+    item: &str,
+) -> Result<(std::path::PathBuf, String), String> {
+    let until =
+        go_until_of(row).ok_or("no go: the item has no go_until, the author has not said go")?;
+    let name: String = format!("{item}@{until}")
+        .chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || "-@+.".contains(c) {
+                c
+            } else {
+                '_'
+            }
+        })
+        .collect();
+    Ok((dir.join(name), until))
+}
+
+/// The gate of a run: the go is open (`go_decision`) and no run has used it. A used go names the run that used it and says the coordinator
+/// re-issues it (decision: a go for one run ends with that run). Asking writes nothing.
+pub fn go_gate(
+    row: &str,
+    now: i64,
+    sha256: &str,
+    item: &str,
+    dir: &std::path::Path,
+) -> Result<(), String> {
+    go_decision(row, now, sha256, item)?;
+    let (marker, until) = go_marker(dir, row, item)?;
+    match std::fs::read_to_string(&marker) {
+        Ok(by) => Err(format!(
+            "no go: the go of {item} (until {until}) was used by {}: the coordinator re-issues it (ikb backlog-go)",
+            by.trim()
+        )),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(e) => Err(format!("no go: the spent gos could not be read at {}: {e}", marker.display())),
+    }
+}
+
+/// Who a run is in a marker: its start second and the procedure's process, enough to find it in the session log.
+pub fn run_name(now: i64) -> String {
+    format!("the run that began its boot at epoch {now}")
+}
+
+/// A run uses the go: its marker is written, exclusively, with who used it. Called right before the act the go allows (the boot or the flash);
+/// two runs asking at once cannot both write it, the second is refused.
+pub fn spend_go(row: &str, item: &str, by: &str, dir: &std::path::Path) -> Result<(), String> {
+    use std::io::Write;
+    let (marker, until) = go_marker(dir, row, item)?;
+    std::fs::create_dir_all(dir)
+        .map_err(|e| format!("the spent gos' folder {}: {e}", dir.display()))?;
+    match std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&marker)
+    {
+        Ok(mut f) => f
+            .write_all(format!("{by} (pid {})\n", std::process::id()).as_bytes())
+            .map_err(|e| format!("the go's marker {}: {e}", marker.display())),
+        Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
+            let first = std::fs::read_to_string(&marker).unwrap_or_default();
+            Err(format!(
+                "no go: the go of {item} (until {until}) was used by {}: the coordinator re-issues it (ikb backlog-go)",
+                first.trim()
+            ))
+        }
+        Err(e) => Err(format!("the go's marker {}: {e}", marker.display())),
+    }
+}
+
 /// The text of a line of `dmesg` after a marker, None when no line has it.
 pub fn line_with<'a>(dmesg: &'a str, marker: &str) -> Option<&'a str> {
     dmesg.lines().find(|l| l.contains(marker))
@@ -434,7 +521,7 @@ impl Ufs {
 
     /// The author's go covers this image now: the item's row (`tad q row`, read from the data, not from an argument) names the
     /// image's sha256 and has `go_until` in the future.
-    fn go_is_open_now(&self) -> Done {
+    fn go_is_open_now(&self, spend: bool) -> Done {
         let mut c = std::process::Command::new("tad");
         c.args(["q", "row", "--id", &self.s.go_item, "--format", "csv"])
             .current_dir(&self.s.lab);
@@ -446,13 +533,28 @@ impl Ufs {
             ));
         }
         let now = now_epoch().ok_or("no go: the clock could not be read")?;
-        go_decision(&said.text, now, &self.s.image_sha256, &self.s.go_item)
+        go_gate(
+            &said.text,
+            now,
+            &self.s.image_sha256,
+            &self.s.go_item,
+            &self.s.go_state,
+        )?;
+        if spend {
+            spend_go(
+                &said.text,
+                &self.s.go_item,
+                &run_name(now),
+                &self.s.go_state,
+            )?;
+        }
+        Ok(())
     }
 
     /// The author's go is open on the item. Without it the run stops here, "no go", and the way back leaves the phone on Android.
     pub fn author_has_said_go(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
-        move || u.go_is_open_now()
+        move || u.go_is_open_now(false)
     }
 
     /// The step that names the UFS-on image and boots it from the phone's fastboot, from memory: nothing is written.
@@ -462,7 +564,7 @@ impl Ufs {
         let u = self.clone();
         move || {
             crate::host::image_has_sha256(&u.s.image, &u.s.image_sha256)?;
-            u.go_is_open_now()?;
+            u.go_is_open_now(true)?;
             u.lab.boot_image(&u.s.image)
         }
     }
@@ -685,6 +787,85 @@ mod tests {
         );
     }
 
+    /// The item's row as `tad q row` prints it, with the go and the image the go covers.
+    fn go_row(go_until: &str, sha: &str) -> String {
+        format!(
+            "{{\"id\":\"walleye-ufs-try-2\",\"note\":\"image {sha}\",\"go_until\":\"{go_until}\"}}"
+        )
+    }
+
+    fn state_dir(name: &str) -> std::path::PathBuf {
+        let d = std::env::temp_dir().join(format!("wt-go-{name}-{}", std::process::id()));
+        std::fs::remove_dir_all(&d).ok();
+        d
+    }
+
+    /// 2026-11-24: run 6 (local_ca73871e, 00:10) and run 7 (local_4cf13bce, 00:15) used one go; the second is refused.
+    #[test]
+    fn a_go_used_by_one_run_is_refused_to_the_next() {
+        let sha = "a".repeat(64);
+        let now = epoch_of("2026-11-24T00:00:00+01:00").unwrap();
+        let row = go_row("2026-11-24T00:00:45+01:00", &sha);
+        let dir = state_dir("spent");
+        let item = "walleye-install-flash-boot-run";
+        go_gate(&row, now, &sha, item, &dir).unwrap();
+        spend_go(&row, item, "run 6", &dir).unwrap();
+        let second = go_gate(&row, now, &sha, item, &dir).unwrap_err();
+        assert!(
+            second.starts_with("no go")
+                && second.contains(item)
+                && second.contains("2026-11-24T00:00:45+01:00")
+                && second.contains("run 6")
+                && second.contains("the coordinator re-issues it"),
+            "{second}"
+        );
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn a_go_given_again_is_a_new_go() {
+        let sha = "b".repeat(64);
+        let now = epoch_of("2026-11-24T00:00:00+01:00").unwrap();
+        let dir = state_dir("again");
+        let item = "walleye-rw-write-run";
+        let first = go_row("2026-11-24T08:00:00+01:00", &sha);
+        spend_go(&first, item, "run 1", &dir).unwrap();
+        let again = go_row("2026-11-24T19:19:34+01:00", &sha);
+        go_gate(&again, now, &sha, item, &dir).unwrap();
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn a_go_that_is_not_open_is_not_spent_by_the_gate() {
+        let sha = "d".repeat(64);
+        let now = epoch_of("2026-11-25T00:00:00+01:00").unwrap();
+        let dir = state_dir("closed");
+        let row = go_row("2026-11-24T08:00:00+01:00", &sha);
+        let said = go_gate(&row, now, &sha, "x", &dir).unwrap_err();
+        assert!(said.contains("ran out"), "{said}");
+        assert!(!dir.exists(), "asking writes nothing");
+    }
+
+    #[test]
+    fn two_runs_spending_one_go_cannot_both_win() {
+        let dir = state_dir("race");
+        let row = go_row("2026-11-24T19:19:34+01:00", &"e".repeat(64));
+        spend_go(&row, "walleye-rw-write-run", "run A", &dir).unwrap();
+        let second = spend_go(&row, "walleye-rw-write-run", "run B", &dir).unwrap_err();
+        assert!(
+            second.contains("run A") && second.contains("re-issues"),
+            "{second}"
+        );
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn spending_a_row_without_a_go_is_refused() {
+        let dir = state_dir("nogo");
+        let said = spend_go("{\"go_until\":null}", "x", "run", &dir).unwrap_err();
+        assert!(said.starts_with("no go"), "{said}");
+        assert!(!dir.exists());
+    }
     #[test]
     fn the_probe_lines_are_found_and_the_missing_ones_named() {
         let p = Probe::of(DMESG);
