@@ -12155,7 +12155,7 @@ Status
 : in-progress
 
 Note
-: Run 2 (PR 1019, ~/lab-material/walleye/rw-write-20261124-150514). CAUSE: the watched child's way back step returns at once, so after step 24 reached the bootloader nothing sent fastboot reboot and check 26 waited 240 s. FIXED (walleye-builder, 2026-11-24): the_phone_is_sent_back sends fastboot reboot once the bootloader is reached; unit test seen failing first. CLEAN END (research walleye-rw-fsck-counts-stale-superblock): settle_rw lists the files the boot wrote, syncs, remounts ro and reads the root's mount line back, kept in settled.txt. NOT KNOWN YET: that busybox find takes -newer /proc/1, that the remount succeeds with the boot's open files. NEXT: run 3 of the rw write, then e2fsck -fn from Android must print no 'wrong' line; read settled.txt for which files the boot wrote.
+: Run 3 (folder rw-write-20261124-163645): the way back holds (fastboot reboot from the bootloader, Android back, 30/30). Clean end does NOT: remount ro Resource busy, e2fsck -fn still 'Free blocks count wrong (252253, counted=252252)'. NEXT research: which process holds the rw root open (/proc/*/fd; find -newer /proc/1 lists image files), then run 4 with a new go.
 
 About
 : walleye-bootimage
@@ -12180,18 +12180,7 @@ Status
 : open
 
 Note
-: Reopened by the walleye coordinator 2026-11-24 for RUN 3, the proof of walleye-rw-write-way-back-after-bootloader (PR 1024: fastboot reboot sent from the bootloader, clean end settle_rw with settled.txt) and walleye-run-uses-ensured-image-not-build-file (PR 1025). Run 2 (PR 1019) proved the write itself; run 3 must pass all 30 steps, then e2fsck -fn on the unmounted system_a from Android (read only) must print no 'wrong' line. Same image as run 2: 1bfb3667305df216049d7913777503fcc363ac2affba5f1708fa7953ec1b7bcf.
-go until 2026-11-24T20:00:00+01:00, outcomes: Run 3. Image: [images.ufs-root-booted-slot-production-rw] sha256 1bfb3667305df216049d7913777503fcc363ac2affba5f1708fa7953ec1b7bcf (full; unchanged since run 2). The run of procedures/rw-write-on-the-pixel-2.rs after its rehearsal passes, then e2fsck -fn from Android on the unmounted system_a; this go ends with that one run. Standing per-stage go of the author (stage 3), opened by the walleye coordinator.
-if the rehearsal stops then nothing was booted or written and it proves a host or procedure fault, read before any retry
-if the image step stops on a sha256 mismatch then it proves the ensured-image gate (PR 1025) refused a stale or wrong file; nothing on the phone
-if the run stops before the boot step with every table and the root equal then it proves a gate refused and the phone is untouched
-if no gadget comes up then pstore-console.txt names how far the init got; stop, research before run 4
-if the write, read-back and kernel log pass but settle_rw cannot remount ro then it proves a boot process holds the root open for writing (settled.txt names the files); stop, research
-if all 30 steps pass and e2fsck -fn from Android prints no 'wrong' line then it proves the rw write and its clean end and way back: stage 3 passes, and settled.txt names what the boot wrote
-if all 30 steps pass but e2fsck -fn still prints a 'wrong' line then the clean end did not write the superblock totals back; not damage if passes 1-4 are clean, research
-if the read-back differs or the kernel log shows ufs or ext4 errors then it proves a write-path fault; stop, keep the folder, no second try before research
-if after the way back any partition table or boot chain partition differs then it proves a write outside the root: stop the lane and tell the author
-if Android does not come back on slot b then it proves the way back failed: stop, the author's hands
+: Run 3 used its go (2026-11-24): 30/30 passed, e2fsck -fn from Android b prints one 'wrong' line (free blocks 252253 vs counted 252252); settle_rw remount ro failed Resource busy. Outcome: stop, research before run 4 (research walleye-rw-write-run-3-30-steps-pass-root-stays-rw). A run 4 needs a new go.
 
 About
 : walleye-bootimage
