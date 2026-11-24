@@ -22,7 +22,7 @@
 //! | the display delay bisect's values | `[images.b-d5]` ... `[images.b-d50]` (or the images `image_prefix` names: `b-s` and delays 5 give `[images.b-s5]`) (`path`, `sha256`), `[procedures.display-delay-bisect-on-the-pixel-2] delays`, `image_prefix`, `modules` |
 
 use lpoco_attended::prelude::{dev, proc};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// The procedure names of the tries: the entry files and the `[procedures.NAME]` tables agree on them.
@@ -145,40 +145,40 @@ pub struct Settings {
 impl Settings {
     /// The touch try's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_touch() -> Settings {
-        Settings::read(Try::Touch, &|k| dev(k).to_string(), &|k| {
+        Settings::read_linked(Try::Touch, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
 
     /// The display try's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_display() -> Settings {
-        Settings::read(Try::Display, &|k| dev(k).to_string(), &|k| {
+        Settings::read_linked(Try::Display, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
 
     /// The display-at-boot try's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_display_boot() -> Settings {
-        Settings::read(Try::DisplayBoot, &|k| dev(k).to_string(), &|k| {
+        Settings::read_linked(Try::DisplayBoot, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
 
     /// The display delay bisect's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_display_delay() -> Settings {
-        Settings::read(Try::DisplayDelay, &|k| dev(k).to_string(), &|k| {
+        Settings::read_linked(Try::DisplayDelay, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
 
     /// The UFS try's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_ufs() -> Settings {
-        Settings::read(Try::Ufs, &|k| dev(k).to_string(), &|k| proc(k).to_string())
+        Settings::read_linked(Try::Ufs, &|k| dev(k).to_string(), &|k| proc(k).to_string())
     }
 
     /// The install write's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_install() -> Settings {
-        Settings::read(Try::Install, &|k| dev(k).to_string(), &|k| {
+        Settings::read_linked(Try::Install, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
@@ -192,14 +192,14 @@ impl Settings {
 
     /// The root's boot try's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_rootfs_boot() -> Settings {
-        Settings::read(Try::RootfsBoot, &|k| dev(k).to_string(), &|k| {
+        Settings::read_linked(Try::RootfsBoot, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
 
     /// Install stage 2's settings (flash the boot partition of the slot Android is not on, set_active it, the way back), read from the device's `device.toml`.
     pub fn for_flash_boot() -> Settings {
-        Settings::read(Try::FlashBoot, &|k| dev(k).to_string(), &|k| {
+        Settings::read_linked(Try::FlashBoot, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
@@ -213,18 +213,34 @@ impl Settings {
 
     /// The Alpine-in-RAM login try's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_ramroot() -> Settings {
-        Settings::read(Try::Ramroot, &|k| dev(k).to_string(), &|k| {
+        Settings::read_linked(Try::Ramroot, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
 
     /// The PMIC try's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_pmic() -> Settings {
-        Settings::read(Try::Pmic, &|k| dev(k).to_string(), &|k| proc(k).to_string())
+        Settings::read_linked(Try::Pmic, &|k| dev(k).to_string(), &|k| proc(k).to_string())
     }
 
     /// Read every key through `dev` (a dotted key of a table) and `proc` (a key of the try's own table); a value
     /// of the wrong kind stops the program naming the key.
+    /// `read`, then the images folder linked as AGENTS.md says a fresh worktree needs (see `link_images`): what the `for_*` constructors call.
+    fn read_linked(
+        which: Try,
+        dev: &dyn Fn(&str) -> String,
+        proc: &dyn Fn(&str) -> String,
+    ) -> Settings {
+        let s = Settings::read(which, dev, proc);
+        let home = std::env::var_os("HOME")
+            .map(PathBuf::from)
+            .unwrap_or_default();
+        if let Err(e) = link_images(&s.lab, &dev("images.dir"), &home) {
+            panic!("{e}");
+        }
+        s
+    }
+
     pub fn read(
         which: Try,
         dev: &dyn Fn(&str) -> String,
@@ -674,5 +690,97 @@ mod tests {
             .to_string()
         };
         Settings::read(Try::Pmic, &get, &|_| "5".into());
+    }
+}
+
+/// A fresh worktree has no `build/images` (it is ignored, outside git): the lab's images live in `~/Projects/walleye-build`, which
+/// `images.dir` of device.toml names relative to the worktree. When the folder is absent and `HOME/Projects/walleye-build` is there,
+/// `images.dir` becomes a symlink to it (inside the worktree, nothing written outside it). Present (a folder or a link that
+/// resolves): left as it is. Where the target is absent (a CI runner), nothing is done: the image checks say what they miss.
+/// A link in the way that points nowhere, or a file, is refused with the command that fixes it.
+pub fn link_images(lab: &Path, dir: &str, home: &Path) -> Result<(), String> {
+    let at = lab.join(dir);
+    let target = home.join("Projects/walleye-build");
+    if at.exists() {
+        return Ok(());
+    }
+    if at.symlink_metadata().is_ok() {
+        return Err(format!(
+            "{} is a link that points nowhere (or a file): fix it with `ln -sfn {} {}`",
+            at.display(),
+            target.display(),
+            at.display()
+        ));
+    }
+    if !target.is_dir() {
+        return Ok(());
+    }
+    if let Some(parent) = at.parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|e| format!("cannot make {}: {e}", parent.display()))?;
+    }
+    std::os::unix::fs::symlink(&target, &at).map_err(|e| {
+        format!(
+            "cannot link {} to {}: {e}; fix it with `ln -sfn {} {}`",
+            at.display(),
+            target.display(),
+            target.display(),
+            at.display()
+        )
+    })
+}
+
+#[cfg(test)]
+mod link_tests {
+    use super::link_images;
+    use std::fs;
+
+    fn scratch(name: &str) -> std::path::PathBuf {
+        let d = std::env::temp_dir().join(format!("walleye-link-{name}-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&d);
+        fs::create_dir_all(&d).unwrap();
+        d
+    }
+
+    /// AGENTS.md and the session log of 2026-11-24 (run 6, keeper PR 964): a fresh worktree needs build/images linked to ~/Projects/walleye-build.
+    #[test]
+    fn a_fresh_worktree_gets_the_link_to_walleye_build_itself() {
+        let (lab, home) = (scratch("lab"), scratch("home"));
+        fs::create_dir_all(home.join("Projects/walleye-build/images-z21")).unwrap();
+        link_images(&lab, "build/images", &home).unwrap();
+        let at = lab.join("build/images");
+        assert_eq!(
+            fs::read_link(&at).unwrap(),
+            home.join("Projects/walleye-build")
+        );
+        assert!(at.join("images-z21").is_dir());
+        // present: left alone
+        link_images(&lab, "build/images", &home).unwrap();
+        assert_eq!(
+            fs::read_link(&at).unwrap(),
+            home.join("Projects/walleye-build")
+        );
+    }
+
+    #[test]
+    fn a_folder_already_there_is_left_and_a_dead_link_is_refused_with_the_fix() {
+        let (lab, home) = (scratch("lab2"), scratch("home2"));
+        fs::create_dir_all(home.join("Projects/walleye-build")).unwrap();
+        fs::create_dir_all(lab.join("build/images")).unwrap();
+        link_images(&lab, "build/images", &home).unwrap();
+        assert!(!lab.join("build/images").is_symlink());
+        let (lab, home) = (scratch("lab3"), scratch("home3"));
+        fs::create_dir_all(home.join("Projects/walleye-build")).unwrap();
+        fs::create_dir_all(lab.join("build")).unwrap();
+        std::os::unix::fs::symlink("/nowhere/at/all", lab.join("build/images")).unwrap();
+        let e = link_images(&lab, "build/images", &home).unwrap_err();
+        assert!(e.contains("ln -sfn") && e.contains("walleye-build"), "{e}");
+    }
+
+    #[test]
+    fn without_walleye_build_nothing_is_made() {
+        let (lab, home) = (scratch("lab4"), scratch("home4"));
+        link_images(&lab, "build/images", &home).unwrap();
+        assert!(!lab.join("build").exists());
     }
 }

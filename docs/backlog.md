@@ -11612,10 +11612,10 @@ Rank
 ### A fresh worktree needs build/images linked to ~/Projects/walleye-build: the procedure links it itself, or refuses with the exact fix
 
 Status
-: open
+: done
 
 Note
-: THE LINK TARGET (keeper local_ca73871e, run 6): build/images in a fresh worktree must link to ~/Projects/walleye-build itself, NOT to its images/ subfolder. | The Top Coordinator's sign 2, 2026-11-24 00:05: a step the keeper did by hand in every fresh worktree is the procedure's step.
+: Done: Settings::for_* link build/images -> ~/Projects/walleye-build itself when the folder is absent (settings.rs link_images); a dead link or file in the way is refused with the ln -sfn command naming both paths; where walleye-build is absent (CI) nothing is made. Host tests on tempdirs; a dry run of the UFS procedure in a fresh worktree made the link. The run-5 stop text is in the session log (no phone-printed fixture exists: the test is on the filesystem, not on printed text).
 
 About
 : walleye-bootimage
