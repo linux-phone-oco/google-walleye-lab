@@ -7503,3 +7503,25 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-go-row-run5-short-sha"></a>
+### walleye-go-row-run5-short-sha
+
+Date
+: 2026-11-24
+
+Brief
+: The go row run 5 stopped on, as tad q row printed it: its note names the image by 12 hex only; the fixture of go_decision's test
+
+Question
+: What exactly did the go row say when run 5 stopped at check 6?
+
+Found
+: Row of walleye-try-ufs-match before PR 967 (git data/backlog.json at f6cb47a^), csv form: note has 461077869fb2 (12 hex) once, go_until 2026-11-24T03:00+01:00. go_decision now refuses it with: the go row of ITEM must name the image sha256 (64 hex) of the image to boot in its note: found 461077869fb2 (12 hex).
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-24/

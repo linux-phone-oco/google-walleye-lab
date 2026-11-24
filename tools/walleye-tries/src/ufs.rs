@@ -102,16 +102,42 @@ fn date_epoch(text: &str) -> Option<i64> {
     String::from_utf8_lossy(&o.stdout).trim().parse().ok()
 }
 
-/// The go covers THIS image: the item's row names the image's sha256, and its go_until is a strict date in the future.
-/// A go given for another image (the row names another sha256) opens nothing.
-pub fn go_decision(row: &str, now: i64, sha256: &str) -> Result<(), String> {
+/// The go covers THIS image: the item's row names the image's sha256 whole (64 hex) in its note, and its go_until is a strict
+/// date in the future. A go given for another image (the row names another sha256) opens nothing; a note that names the
+/// image by a shorter form (a prefix of its sha256) is refused with the field wanted and what was found, never accepted.
+pub fn go_decision(row: &str, now: i64, sha256: &str, item: &str) -> Result<(), String> {
     let sha = sha256.trim().to_lowercase();
-    if sha.len() != 64 || !row.to_lowercase().contains(&sha) {
+    if sha.len() != 64 {
         return Err(format!(
             "no go: the item does not name this image's sha256 {sha} (the go covers the image its note names)"
         ));
     }
+    let lower = row.to_lowercase();
+    if !lower.contains(&sha) {
+        let runs = hex_runs(&lower, 8);
+        if let Some(short) = runs.iter().find(|r| r.len() < 64 && sha.starts_with(*r)) {
+            return Err(format!(
+                "the go row of {item} must name the image sha256 (64 hex) of the image to boot in its note: found {short} ({} hex)",
+                short.len()
+            ));
+        }
+        if runs.iter().any(|r| r.len() >= 64) {
+            return Err(format!(
+                "no go: the item does not name this image's sha256 {sha} (the go covers the image its note names)"
+            ));
+        }
+        return Err(format!(
+            "the go row of {item} must name the image sha256 (64 hex) of the image to boot in its note: found none"
+        ));
+    }
     go_is_open(go_until_of(row).as_deref(), now)
+}
+
+/// The runs of hex digits in `text` that are at least `min` long (the sha256s and their short forms a note names).
+fn hex_runs(text: &str, min: usize) -> Vec<&str> {
+    text.split(|c: char| !c.is_ascii_hexdigit())
+        .filter(|r| r.len() >= min)
+        .collect()
 }
 /// The `go_until` of an item row as `tad q row --id ID --format csv` (JSON with doubled quotes) or plain JSON prints it:
 /// the date text, None when it is null, missing or not a string.
@@ -420,7 +446,7 @@ impl Ufs {
             ));
         }
         let now = now_epoch().ok_or("no go: the clock could not be read")?;
-        go_decision(&said.text, now, &self.s.image_sha256)
+        go_decision(&said.text, now, &self.s.image_sha256, &self.s.go_item)
     }
 
     /// The author's go is open on the item. Without it the run stops here, "no go", and the way back leaves the phone on Android.
@@ -786,13 +812,45 @@ mod tests {
         let row = |note: &str, until: &str| {
             format!("backlog,\"{{\"\"note\"\":\"\"{note}\"\",\"\"go_until\"\":\"\"{until}\"\"}}\"")
         };
-        assert!(go_decision(&row(sha, "2026-11-19T13:00:00+00:00"), now, sha).is_ok());
+        assert!(go_decision(&row(sha, "2026-11-19T13:00:00+00:00"), now, sha, "ITEM").is_ok());
         let other = "f8f6215e0000000000000000000000000000000000000000000000000000004f45";
-        let e = go_decision(&row(other, "2026-11-19T13:00:00+00:00"), now, sha).unwrap_err();
+        let e =
+            go_decision(&row(other, "2026-11-19T13:00:00+00:00"), now, sha, "ITEM").unwrap_err();
         assert!(e.contains("does not name this image"), "{e}");
-        assert!(go_decision(&row(sha, "2026-11-19T11:00:00+00:00"), now, sha).is_err());
-        assert!(go_decision(&row(sha, "2026-11-19T13:00:00+00:00"), now, "4610").is_err());
-        assert!(go_decision(&row(sha, "2026-11-19T13:00:00+00:00"), now, "").is_err());
+        assert!(go_decision(&row(sha, "2026-11-19T11:00:00+00:00"), now, sha, "ITEM").is_err());
+        assert!(go_decision(&row(sha, "2026-11-19T13:00:00+00:00"), now, "4610", "ITEM").is_err());
+        assert!(go_decision(&row(sha, "2026-11-19T13:00:00+00:00"), now, "", "ITEM").is_err());
+    }
+
+    /// The row run 5 stopped on (captured: research/walleye-bootimage/2026-11-24/go-row-run5-short-sha.csv, `tad q row` of
+    /// walleye-try-ufs-match before PR 967): its note names the image by 12 hex only.
+    const RUN5_ROW: &str =
+        include_str!("../../../research/walleye-bootimage/2026-11-24/go-row-run5-short-sha.csv");
+
+    #[test]
+    fn a_short_sha_in_the_go_note_is_refused_naming_the_field_and_what_was_found() {
+        let sha = "461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5";
+        let now = epoch_of("2026-11-23T12:00:00+00:00").unwrap();
+        let e = go_decision(RUN5_ROW, now, sha, "walleye-try-ufs-match").unwrap_err();
+        assert_eq!(
+            e,
+            "the go row of walleye-try-ufs-match must name the image sha256 (64 hex) of the image to boot \
+             in its note: found 461077869fb2 (12 hex)"
+        );
+        // the full sha in the same note is accepted (its go_until 2026-11-24T03:00+01:00 is still ahead)
+        let full = RUN5_ROW.replace("461077869fb2 ", &format!("{sha} "));
+        assert_eq!(
+            go_decision(&full, now, sha, "walleye-try-ufs-match"),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn a_note_with_no_sha_at_all_says_found_none() {
+        let sha = "461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5";
+        let now = epoch_of("2026-11-23T12:00:00+00:00").unwrap();
+        let e = go_decision("backlog,\"{\"\"note\"\":\"\"go\"\"}\"", now, sha, "ITEM").unwrap_err();
+        assert!(e.contains("found none"), "{e}");
     }
 
     #[test]

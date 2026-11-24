@@ -883,7 +883,7 @@ impl RootfsBoot {
             ));
         }
         let now = now_epoch().ok_or("no go: the clock could not be read")?;
-        go_decision(&said.text, now, &self.s.image_sha256)
+        go_decision(&said.text, now, &self.s.image_sha256, &self.s.go_item)
     }
 
     /// The author's go is open on the item. Without it the run stops here, "no go", and the way back leaves the phone on Android.
