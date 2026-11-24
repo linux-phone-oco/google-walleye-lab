@@ -3,7 +3,7 @@
 # Checks device.toml with the newest lpoco-lab release (decision 2026-11-19-host-follows-releases (c)), so a file the
 # host cannot read cannot land: downloads that release's lpoco-lab asset, checks its sha256, and runs
 # `lpoco-lab manifest check --device device.toml`. The host follows each release within minutes and
-# `lpoco-attended check --host` covers the lag at run time, so no pin is read (lab.toml is private).
+# `bin/attended check --host` covers the lag at run time, so no pin is read (lab.toml is private).
 #   LPOCO_TAGS          the lpoco-lab release tags, newest first, one per line (else `gh release list`, needs GH_TOKEN)
 #   LPOCO_RELEASE_BASE  where releases are (default: github.com/linux-phone-oco/lab-tools/releases/download)
 #   DEVICE_TOML         the file to check (default: device.toml)

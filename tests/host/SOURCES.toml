@@ -310,3 +310,6 @@ source = "research:walleye-rw-write-image-built"
 
 [scripts."rw-root-clean-end.sh"]
 source = "research:walleye-rw-clean-end-holders-and-alpine-path"
+
+[scripts."no-bare-lpoco-attended.sh"]
+source = "file:data/backlog.json"  # item walleye-procedures-run-own-cli: from orchestration 2026-11-24 (docs item attended-pin-is-one-pin)
