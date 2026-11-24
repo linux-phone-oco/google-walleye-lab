@@ -3481,3 +3481,28 @@ Research
 
 Scope
 : rootfs/runlevels, tools/walleye-tries rw_write way back, the phone keeper's run 4
+
+
+<a id="2026-11-24-check22-allows-one-half-only-for-the-flashed-boot"></a>
+### 2026-11-24-check22-allows-one-half-only-for-the-flashed-boot
+
+Date
+: 2026-11-24
+
+Brief
+: Check 22: a slot bit may change on one half of a pair only for boot_a/boot_b; the boot chain's A/B stems are boot-chain.toml's ab_stems
+
+Decision
+: gpt_switch_only_across refuses a one-sided slot-bit change for every A/B pair except boot_a/boot_b (the flash's own target). The never-list is declared in boot-chain.toml [boot_chain] ab_stems, its source the stored read-back's file names (bootchain-2026-11-19); a test compares them.
+
+Why
+: The flash writes only boot_<other> and resets that entry's flags alone (run 1 check 18); a switch moves both halves. The coordinator's order: an explicit named list sourced from the read-back. The item's 12-name list lacked apdp, cmnlib64, lockbooter, msadp and held aop, qupfw the Pixel 2 does not have.
+
+Rejected
+: a [boot_chain] table in device.toml (lpoco-lab refuses a table it does not know: CI failed on it); an allowance of boot_<slot>, dtbo, vbmeta only (the flash writes neither); masking the exemption to the flash's bits (not told apart in a capture); the 12 names typed in the test (not sourced)
+
+About
+: walleye-bootimage
+
+Tracked by
+: walleye-check22-one-sided-same-disk

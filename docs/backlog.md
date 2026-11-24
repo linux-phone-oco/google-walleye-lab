@@ -11309,10 +11309,10 @@ Rank
 ### Check 22: a one-sided slot-bit change on a same-disk pair passes today; narrow it to the partitions the flash may change and refuse it for every never-list partition
 
 Status
-: open
+: done
 
 Note
-: Left open by the check 22 builder (PR 930); the Top Coordinator's rule: check 22 proves the never-list untouched, so it stays strict. Rank 3, after the stage 2 run 11.
+: DONE (walleye-builder 2026-11-24): flash_boot.rs gpt_switch_only_across refuses a one-sided slot-bit change of any same-disk A/B pair but boot_a/boot_b; never-list = boot-chain.toml [boot_chain] ab_stems, compared with the stored read-back's file names (decision 2026-11-24-check22-allows-one-half-only-for-the-flashed-boot); tests on run10 fixtures, a name found twice refuses 'cannot be paired'; 410 tests, clippy, fmt, sweep of real captures no stop; no phone.
 
 About
 : walleye-bootimage

@@ -8206,3 +8206,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-check-22-one-sided-same-disk"></a>
+### check 22 one-sided same-disk
+
+Entry date
+: 2026-11-24
+
+Done
+: Narrowed check 22 to boot_a/boot_b one-sided; never-list in device.toml; tests first (seen failing), programmer review addressed (doc, accepted whole-byte exemption).
+
+Rejected
+: masking bits; typed list
+
+About
+: walleye-bootimage
