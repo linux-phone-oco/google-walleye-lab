@@ -325,3 +325,6 @@ source = "file:tests/fixtures/kernel-text/pd-mapper-Kconfig.txt"
 
 [scripts."kernel-pd-mapper-selftest.sh"]
 source = "file:tests/fixtures/kernel-text/pd-mapper-Kconfig.txt"
+
+[scripts."wdt0-init.sh"]
+source = "research:walleye-android-watchdog-read-fix"

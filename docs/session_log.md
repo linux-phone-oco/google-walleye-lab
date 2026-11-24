@@ -8323,3 +8323,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-wdt0-read-image-built"></a>
+### WDT0-read image built from its recipe
+
+Entry date
+: 2026-11-24
+
+Done
+: walleye-builder: build/initramfs-root-wdt0/init (production init plus walleye.wdt0 blocks: the four WDT0 registers read first, read only, kept in the kernel log and /.walleye/wdt0, /run/walleye/wdt0), tests/host/wdt0-init.sh (seen failing on the production init), build/build-ufs-root-wdt0.sh (21 checks), the image and its recipe in device.toml, rebuilt equal by image ensure. Item walleye-wdt0-read-image done; walleye-wdt0-try-procedure opened for the keeper's one command.
+
+Considered
+: A word-less init that always reads; reading from a kernel module or earlycon.
+
+Rejected
+: Always-on read (the production init stays untouched without the word, like walleye.rw); pstore as the only place (not a proven console here); the cmdline with walleye.booted-slot (the init refuses it for a from-memory boot on the other slot).
+
+About
+: walleye-bootimage

@@ -7915,3 +7915,28 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-24/
+
+
+<a id="walleye-wdt0-read-image-built"></a>
+### walleye-wdt0-read-image-built
+
+Date
+: 2026-11-24
+
+Brief
+: WDT0-read image built: the production init plus a walleye.wdt0 first act that reads EN, STS, BARK_TIME, BITE_TIME with devmem, read only; image 17a9c21d rebuilt equal by image ensure; never booted
+
+Question
+: Can the production UFS-root image read WDT0 at its first instant, read only, and keep the four values where the lab reads them over ssh, behind one word, with the ro image untouched?
+
+Found
+: build/initramfs-root-wdt0/init is build/initramfs-root-production/init with WDT0 blocks (cut them and the file is the production init, line for line). With walleye.wdt0 the init's FIRST act after /proc, /sys, /dev (before the petters, the command line's other words, the slot and the card) reads 0x17817008 EN, 0x1781700c STS, 0x17817010 BARK_TIME, 0x17817014 BITE_TIME with 'devmem ADDR 32' (two arguments: no value is ever given, no write to any watchdog register); offsets are WDT0_EN 0x08, WDT0_STS 0x0C, WDT0_BARK_TIME 0x10, WDT0_BITE_TIME 0x14 of android:drivers/soc/qcom/watchdog_v2.c@113bd1cfa6f5 lines 39-42 on base 0x17817000. Each value goes to the kernel log as 'walleye-wdt0: NAME ADDR VALUE' (or FAILED and devmem's words, the next register still read) and to /tmp/wdt0.log, which the hand-over copies to /.walleye/wdt0 and /run/walleye/wdt0 of the root (the ro overlay in memory: nothing written to the card). tests/host/wdt0-init.sh (W0-W5) passes on the init, fails on the production init; the root init's whole QEMU proof (ufs-root-init.sh) passes with this init in its place. Image: control production b74af863, ramdisk 17d4286b872e3bbc2c7a5631a09f262eec636a864e085e626988767ba97439d7, cmdline = production's without walleye.booted-slot, plus walleye.wdt0 (the try boots from memory on the other slot): sha256 17a9c21d75ebb046e90abafac322e865d3bcbb7f90a262543e5c6b72a061f642, built twice equal by build/build-ufs-root-wdt0.sh (21 checks) and rebuilt equal from its recipe by lpoco-bringup image ensure (store path deleted between); the header equals the recipe. Never booted. Not known yet: whether our kernel's /dev/mem allows the read at 0x17817000 (a refusal is said as FAILED with devmem's words, not hidden), what the bootloader armed.
+
+Sources
+: src-wahoo-msm-watchdog-v2
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-24/

@@ -12262,10 +12262,10 @@ Rank
 ### An image whose init's first act reads WDT0 (0x17817000: EN, STS, BARK, BITE), read only, and keeps the four values where the lab reads them over ssh
 
 Status
-: open
+: done
 
 Note
-: Split from walleye-wdt0-first-instant-read by the walleye coordinator 2026-11-24: its proof test was still to write, so a keeper could not take it. Base it on the stage 2 read-only production image (one word on the command line, like walleye.rw), built only through image ensure from a recipe, header equal to the recipe. pstore is NOT a proven console on this phone (empty after runs 4 and 5), so the values go to the kernel log and a file under /run that the procedure reads over ssh, not only to pstore. Reads only: no write to any watchdog register. Then the keeper's try is one command.
+: Built 2026-11-24: image ufs-root-booted-slot-production-wdt0 sha256 17a9c21d75ebb046e90abafac322e865d3bcbb7f90a262543e5c6b72a061f642 (device.toml recipe, rebuilt equal by image ensure); proof tests/host/wdt0-init.sh passes; research walleye-wdt0-read-image-built. Never booted. The keeper's one-command try is item walleye-wdt0-try-procedure.
 
 About
 : walleye-bootimage
@@ -12293,7 +12293,7 @@ Note
 : From research walleye-android-watchdog-read-fix (6): the one unknown the source cannot settle. Read-only; the keeper's try, once walleye-wdt0-read-image has built its image and procedure.
 
 Blocked by
-: walleye-wdt0-read-image
+: walleye-wdt0-try-procedure
 
 About
 : walleye-bootimage
@@ -12387,3 +12387,28 @@ Proof
 
 Rank
 : 6
+
+
+<a id="walleye-wdt0-try-procedure"></a>
+### The WDT0 try as one command: boot the wdt0 image from memory, read the four values over ssh, judge them, restore Android
+
+Status
+: open
+
+Note
+: Follows walleye-wdt0-read-image (image 17a9c21d, name ufs-root-booted-slot-production-wdt0 in device.toml). Base it on procedures rootfs-boots-on-the-pixel-2 (boot from memory, ssh by the lab key, read-only root): add reading /run/walleye/wdt0 (four lines 'walleye-wdt0: NAME ADDR VALUE', or FAILED + devmem's words) and the kernel log lines, and judge: all four read, or the failure named; EN/STS/BARK/BITE kept in a research row; no write. Every check names its source (tests/host/SOURCES.toml). The go names the image sha256 17a9c21d.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: test walleye-wdt0-state-at-boot judges text a phone printed (the fixture of an earlier rootfs boot's ssh read for the shape), the dry run and the rehearsal pass, nothing flashed
+
+Rank
+: 2

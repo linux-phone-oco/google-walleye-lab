@@ -1,0 +1,7 @@
+ufs-root-booted-slot-production-wdt0 ramdisk: in the store
+ufs-root-booted-slot-production: in the store
+ufs-root-booted-slot-production-wdt0: built from its recipe, equal to its declared sha256
+/nix/store/sk79d1byxb0amn33na9xs98cb5q1jslh-NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-wdt0.img
+# sha256 of that store path: 17a9c21d75ebb046e90abafac322e865d3bcbb7f90a262543e5c6b72a061f642 (first build too: the store path was deleted between; build/build-ufs-root-wdt0.sh's own image, twice equal)
+# tests/host/wdt0-init.sh: pass walleye-wdt0-init W0-W5: the four registers WDT0 base+0x08/0x0c/0x10/0x14 are read first, read only, said to the kernel log, kept in /tmp/wdt0.log and copied to the new root; no word, no read; blocks cut, the production init
+pass walleye-image-header-equals-recipe ufs-root-booted-slot-production-wdt0: the header of /nix/store/sk79d1byxb0amn33na9xs98cb5q1jslh-NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-wdt0.img is its recipe's command line
