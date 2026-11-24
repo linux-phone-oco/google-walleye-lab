@@ -11792,31 +11792,6 @@ Rank
 : 2
 
 
-<a id="walleye-image-recipes-other-images"></a>
-### A recipe row for each other image an [images.*] row names, each proven by image ensure
-
-Status
-: in-progress
-
-Note
-: PART 1 (2026-11-24): l7, b1, b2 rebuild equal. PART 2: b-d5..b-d50 equal. PART 3 (walleye-builder, 2026-11-24): b-s5, b-r5 (dtb) and b-q5 (ramdisk), control b-d5, rebuild equal (research walleye-image-recipes-b-sqr-rebuilt-equal); a recipe takes the dtb alone, the unpacked kernel file holds its dtb. LEFT: wdt1-a/b (own kernel, dtb, cmdline), b-a5 and the alpine-rootfs/ufs images (their parts as images or files of the manifest); the ones needing a kernel from an int/ tag wait on walleye-next-image-from-an-int-tag.
-
-About
-: walleye-bootimage
-
-Opened
-: 2026-11-24
-
-Needs
-: build
-
-Proof
-: tests/host/image-recipe.sh NAME passes for each, and image ensure NAME equals its declared sha256 (the rebuild-identical proofs that let a build-*.sh retire: walleye-retire-build-scripts)
-
-Rank
-: 3
-
-
 <a id="walleye-declares-ufs-on-kernel-build"></a>
 ### Declare the ufs-on kernel build ([kernel_builds] for int/walleye/ufs-on/v7.3/1 with the fuel-gauge and ufs-match topics) and the next image's recipe from a declared kernel
 
@@ -12356,6 +12331,31 @@ Needs
 
 Proof
 : test walleye-wdt0-state-at-boot passes on the phone's own output: one boot of that image from memory, nothing flashed
+
+Rank
+: 4
+
+
+<a id="walleye-image-recipes-other-images"></a>
+### A recipe row for each other image an [images.*] row names, each proven by image ensure
+
+Status
+: open
+
+Note
+: PART 1 (2026-11-24): l7, b1, b2 rebuild equal. PART 2: b-d5..b-d50 equal. PART 3 (walleye-builder, 2026-11-24): b-s5, b-r5 (dtb) and b-q5 (ramdisk), control b-d5, rebuild equal (research walleye-image-recipes-b-sqr-rebuilt-equal); a recipe takes the dtb alone, the unpacked kernel file holds its dtb. LEFT: wdt1-a/b (own kernel, dtb, cmdline), b-a5 and the alpine-rootfs/ufs images (their parts as images or files of the manifest); the ones needing a kernel from an int/ tag wait on walleye-next-image-from-an-int-tag. | 2026-11-24 coordinator: set back to open, rank 4, so walleye-wdt0-read-image (rank 2) goes first; done so far: l7, b1, b2 (PR 1056), b-dN (1059), b-s5, b-r5, b-q5 (1060); left: wdt1-a/b, b-a5, the alpine-rootfs and ufs images.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: tests/host/image-recipe.sh NAME passes for each, and image ensure NAME equals its declared sha256 (the rebuild-identical proofs that let a build-*.sh retire: walleye-retire-build-scripts)
 
 Rank
 : 4
