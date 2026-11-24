@@ -8110,3 +8110,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-1800-ensured-path-reads-stdout-then-stderr"></a>
+### ensured_path finds the store path when stderr's status line follows it
+
+Entry date
+: 2026-11-24
+
+Done
+: Run 4's rehearsal stopped at check 2 (image ensure named no store path): lpoco-bringup prints the path on stdout and 'in the store' on stderr, host::run joins stdout then stderr, ensured_path took only the last line. Test first (failed, then passed), fix: the last bare absolute path line; nothing booted or written
+
+Considered
+: rejected: running ensure by hand and copying the file past the gate; next: rehearsal and run 4 again under the same go
+
+About
+: walleye-bootimage
