@@ -11389,9 +11389,6 @@ Status
 Note
 : From orchestration (2026-11-23): the follow-up 'walleye-declares-its-kernel-build' is this lane's. The measurement that remains is a keeper's RAM boot of z21 from the cache on the Pixel 2 (UFS off, read only, one command), which needs the z21 recipe row (item walleye-image-recipe-z21) and the lpoco-attended pin at the new release (item walleye-attended-pin-is-one-pin, done together with walleye-checks-name-their-sources).
 
-Blocked by
-: walleye-image-recipe-z21
-
 About
 : walleye-bootimage
 
