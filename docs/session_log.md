@@ -7924,3 +7924,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-walleye-pmic-dmesg-selftest-on-captured-phone"></a>
+### walleye: pmic-dmesg selftest on captured phone text
+
+Entry date
+: 2026-11-24
+
+Done
+: pmic-dmesg-selftest.sh now runs on the z7 try read (dmesg.txt, spmi-devices.txt copied to tests/fixtures/phone-text, rows in its SOURCES.toml) and cuts of it (each spmi device removed, dmesg cut short, files missing): 9 cases pass, a step of check.yml. The three typed faults (a reg-less node of ours, another address, a probe failure) moved to pmic-dmesg-typed-selftest.sh, listed not yet sourced. Gate: 80 sourced, 21 not yet sourced, 0 refused (same 21: one sourced, one typed split added).
+
+Considered
+: appending typed fault lines to the captured dmesg
+
+Rejected
+: appending typed lines to the captured text in the sourced selftest: it would claim a phone printed them
+
+About
+: walleye-checks-name-their-sources

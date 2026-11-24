@@ -75,6 +75,8 @@ jobs:
           sh tests/host/banner-loop-selftest.sh
           sh tests/host/banner-shell-selftest.sh
           sh tests/host/dmesg-clean-selftest.sh
+          sh tests/host/pmic-dmesg-selftest.sh
+          sh tests/host/pmic-dmesg-typed-selftest.sh
   licence-coverage:
     name: every tracked file is covered by a licence
     runs-on: ubuntu-latest

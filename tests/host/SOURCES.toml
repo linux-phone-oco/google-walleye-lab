@@ -185,7 +185,10 @@ source = "research:walleye-c3-hang-unproven"
 source = "research:walleye-z8-tried-no-pmic-wdt"
 
 [scripts."pmic-dmesg-selftest.sh"]
-unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+source = "file:tests/fixtures/phone-text/pmic-dmesg-z7-try1-dmesg.cap"
+
+[scripts."pmic-dmesg-typed-selftest.sh"]
+unsourced = "a reg-less node of ours, another address and a PMIC probe failure were never printed by our phone: typed text, not known yet from a phone"
 
 [scripts."pmic-wdt-bites.sh"]
 source = "research:walleye-z9-tried-pmic-wdt-bites"
