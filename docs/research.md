@@ -7418,3 +7418,22 @@ Found
 
 About
 : walleye-first-fastboot-boot
+
+
+<a id="walleye-ufs-try-leaves-the-bus-at-180s-every-run"></a>
+### walleye-ufs-try-leaves-the-bus-at-180s-every-run
+
+Date
+: 2026-11-24
+
+Brief
+: In all four UFS runs the debug image leaves the USB bus exactly 180 s after it appears; run 8's ramp began 3 s before that: the 'silent shell' may be a timer, not UFS
+
+Question
+: Is the shell silence under the UFS read a reset caused by the load, or the phone leaving the debug image at a fixed time?
+
+Found
+: COUNTED from the lab host's journalctl -k (usb 3-2) and run 8's own files: the walleye banner shell appears and disappears 180 s apart in all four runs: run 1 08:08:59 to 08:11:59, run 2 08:53:50 to 08:56:50, run 3 10:53:49 to 10:56:49, run 8 01:03:10 to 01:06:10; the Android device (18d1:4ee7) follows 20 s after in each. Run 8: kernel uptime 177.3 s at the pin step (pin-scaling-log-after.txt, boot at 01:03:10 = 01:06:07), step 1 (64 MiB) ended in 1.1 s, step 2 (256 MiB) began about 01:06:09, and the phone left the bus at 01:06:10, 180 s after boot and about 1-3 s into step 2: the shell was not silent for 30 s, it was already gone; the link read at step 11 took 172 s, which ate the time. The 180 s is not in the debug init (HOLD_SECONDS=900, build/initramfs-root-debug/init:20) nor in the procedure's deadman (device_wait*3+300, ufs.rs:312): where it comes from is NOT KNOWN yet (the matched image's own init or cmdline, a fuse, the watchdog). Runs 1-3 were read as 'silent under sustained 2-4 GiB read': whether they too ended at 180 s with the read still running is NOT counted yet; the gear under load HS_GEAR3 of run 1-3 is from samples before the end. So the cause of the silence is NOT shown to be UFS, the gear or the clock; a fixed 180 s exit fits all four. Source files: ~/lab-material/walleye/ufs-20261124-010239/{pin-scaling-log-after.txt,ramp-result.txt}, journalctl -k of the host.
+
+About
+: walleye-ufs-match-android-z

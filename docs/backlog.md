@@ -11764,3 +11764,28 @@ Needs
 
 Proof
 : host test reading the captured pin-*.txt of that run, no typed stand-in
+
+
+<a id="walleye-ufs-180s-read"></a>
+### Read where the 180 s comes from (the matched image's init, cmdline, a fuse) and what each run was doing at 180 s, before any new run
+
+Status
+: open
+
+Note
+: From the coordinator's reading of run 8 (research walleye-ufs-try-leaves-the-bus-at-180s-every-run): the phone left the bus at exactly 180 s in all four runs; a turning point for the UFS silent-shell cause: the capable model. Stage 3 (rw write test) stays blocked until this is read. No second UFS run before it.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-24
+
+Needs
+: research
+
+Proof
+: a research row with sources: (1) unpack the matched image (path under [images.ufs-match], read only, on the lab host) and read its initramfs init and header cmdline for 180, walleye.hold, a fuse, a watchdog timeout, a sleep; also kernel/qcom-wdt and the DT watchdog timeout (bark/bite) the image has; (2) for runs 1-3 and 8: the uptime at the first load sample from the run's files (gear-load.txt, dmesg.txt, ramp logs) against the 180 s, and where each run's last answered sample falls: does the silence always begin within seconds of 180 s; (3) why the link read took 172 s in run 8 (and what runs 1-3 took) and what in the procedure's own step order spends the first 170 s; (4) the smallest change that lets the ramp run its length (hold word on the cmdline, the init's hold file, the procedure moving the load before the slow reads) and what the next run must read back first (uptime at the load start vs the exit time); NOT KNOWN stays NOT KNOWN; no phone
+
+Rank
+: 1
