@@ -7871,3 +7871,25 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-24/
+
+
+<a id="walleye-image-recipes-b-dn-rebuilt-equal"></a>
+### walleye-image-recipes-b-dn-rebuilt-equal
+
+Date
+: 2026-11-24
+
+Brief
+: Recipes for the delay images b-d5 b-d15 b-d25 b-d35 b-d50 (control b2, a ramdisk each) rebuild their declared sha256
+
+Question
+: Do recipes for the display-delay images rebuild their declared sha256?
+
+Found
+: Measured 2026-11-24 with lpoco-bringup 0.51.0, image ensure NAME --rebuild: all five equal (text in ensure-bd.txt). Kernel, dtb and header equal b2's in each (image unpack); only the ramdisk differs. image-recipe.sh passes for each. wdt1-a and wdt1-b differ from b2 in kernel, dtb and cmdline, so they have no control-plus-ramdisk recipe: they need their own kernel and dtb parts.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-24/

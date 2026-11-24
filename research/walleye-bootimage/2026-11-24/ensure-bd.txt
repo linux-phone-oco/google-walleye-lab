@@ -1,0 +1,22 @@
+# Captured 2026-11-24 on the lab host, lpoco-bringup 0.51.0, builder walleye-builder: image ensure NAME --device device.toml --seed SEED --rebuild, SEED holding boot-b2.img and the ramdisk file of each image (image unpack).
+# Unpacked: kernel de8f84f0, appended.dtb d35395b5 and the header are equal in b2 and b-d5..b-d50; only the ramdisk differs. wdt1-a/b differ in kernel, dtb and cmdline: no recipe of this form.
+b-d5 ramdisk: taken from the seed /home/mll/.cache/agent-build/aae087/seed-recipes2/seed/ramdisk-b-d5
+b2: taken from the seed /home/mll/.cache/agent-build/aae087/seed-recipes2/seed/boot-b2.img
+b-d5: rebuilt from its recipe, equal to its declared sha256
+/nix/store/6lj00lqjpwxzgka2gm04fihablrkgj55-boot-b-d5.img
+b-d15 ramdisk: taken from the seed /home/mll/.cache/agent-build/aae087/seed-recipes2/seed/ramdisk-b-d15
+b2: in the store
+b-d15: rebuilt from its recipe, equal to its declared sha256
+/nix/store/jzhxqqp1q4csn4zalq2x09r7gjlf18zn-boot-b-d15.img
+b-d25 ramdisk: taken from the seed /home/mll/.cache/agent-build/aae087/seed-recipes2/seed/ramdisk-b-d25
+b2: in the store
+b-d25: rebuilt from its recipe, equal to its declared sha256
+/nix/store/a5jm8aj74nvc6shg46bmcn9vbc5kxg13-boot-b-d25.img
+b-d35 ramdisk: taken from the seed /home/mll/.cache/agent-build/aae087/seed-recipes2/seed/ramdisk-b-d35
+b2: in the store
+b-d35: rebuilt from its recipe, equal to its declared sha256
+/nix/store/448j5f0mizfch5nbjkina9m98yrqsyzd-boot-b-d35.img
+b-d50 ramdisk: taken from the seed /home/mll/.cache/agent-build/aae087/seed-recipes2/seed/ramdisk-b-d50
+b2: in the store
+b-d50: rebuilt from its recipe, equal to its declared sha256
+/nix/store/smd001n7033hs2x45dykba3972d0jgc8-boot-b-d50.img

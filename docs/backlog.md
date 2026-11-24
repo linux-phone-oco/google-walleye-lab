@@ -11799,7 +11799,7 @@ Status
 : in-progress
 
 Note
-: PART 1 (walleye-builder, 2026-11-24): recipes for l7 (control l6), b1 (control l6) and b2 (control b1), each a ramdisk by sha256; image ensure --rebuild equals the declared sha256 of each (research walleye-image-recipes-l7-b1-b2-rebuilt-equal); image-recipe.sh passes. LEFT: wdt1-a/b and b-dN (from b2), then the other [images.*] whose parts are images of the manifest; the ones needing a kernel from an int/ tag wait on walleye-next-image-from-an-int-tag.
+: PART 1 (2026-11-24): recipes for l7, b1, b2 rebuild equal (research walleye-image-recipes-l7-b1-b2-rebuilt-equal). PART 2 (walleye-builder, 2026-11-24): b-d5, b-d15, b-d25, b-d35, b-d50 (control b2, a ramdisk each) rebuild equal (research walleye-image-recipes-b-dn-rebuilt-equal); image-recipe.sh passes for each. LEFT: wdt1-a/b (own kernel, dtb, cmdline: need those parts as images or files of the manifest), then the other [images.*] whose parts are images of the manifest; the ones needing a kernel from an int/ tag wait on walleye-next-image-from-an-int-tag.
 
 About
 : walleye-bootimage
