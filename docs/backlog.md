@@ -11543,10 +11543,10 @@ Rank
 ### Pull /vendor/firmware (adsp, venus, bdwlan, wlanmdsp, ipa_fws, a540_zap, cpe_9340, BT) from the phone, read only, into ~/lab-material/walleye
 
 Status
-: open
+: done
 
 Note
-: From research walleye-device-config-firmware. Android on slot b, adb root as for the modem pull of 2026-11-19; copy only, mode 700, outside git, sha256sums kept. Names to look for are in the research.
+: proven by research walleye-android-read-visit-2026-11-24: 136 files, sha256sums
 
 About
 : walleye-device-config-sources-read
@@ -11668,10 +11668,10 @@ Rank
 ### Read sda's GPT hash from Android as root (read only): the same dd and sha256sum as the UFS try, expect 6cd7e48c...0174
 
 Status
-: open
+: done
 
 Note
-: From research walleye-sda-gpt-hash-changed-after-stage-2 (the run 7 keeper's open question). Same visit as the vendor firmware pull; no go needed, nothing is written.
+: proven by research walleye-android-read-visit-2026-11-24: digest equal 6cd7e48c
 
 About
 : walleye-bootimage
@@ -12137,10 +12137,10 @@ Rank
 ### From Android slot b, read only: e2fsck -fn on the unmounted system_a (by-name), to judge run 2's mounted-root fsck counts
 
 Status
-: open
+: done
 
 Note
-: Run 2 (PR 1019) fsck.ext4 -n on the MOUNTED root gave rc 0 but 'free blocks count wrong (252516 vs 252497)' and 'free inodes count wrong (64600 vs 64587)', Fix? no. e2fsck's own manual warns a check of a mounted filesystem gives such false errors, and ext4 keeps these summary counts loosely while mounted, so this is expected but not proven. Android slot b does not mount system_a: e2fsck -fn there (no -y, no -p, -n opens read only) is the clean proof. Combine in one read-only Android visit with walleye-gpt-hash-from-android-read and walleye-vendor-firmware-pull. Never write, never fsck without -n.
+: ran: rc 0, no structural error, but free blocks/inodes count wrong persists unmounted (252516 vs 252253; 64600 vs 64586): literal proof 'no wrong line' not met; research judges stale summary counts after an unclean end of run 2
 
 About
 : walleye-bootimage
