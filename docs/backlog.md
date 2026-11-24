@@ -12277,3 +12277,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-rw-image-header-equals-recipe"></a>
+### The rw image is built from its recipe and nothing else: its header's command line equals the recipe's, checked by the image step and check 2 on the image file itself
+
+Status
+: open
+
+Note
+: Run 4 (PR 1039) stopped at check 14 like run 1: the image booted (2477276882987c8e...b54f, PR 1035) carries 'walleye.root=system_a walleye.booted-slot walleye.rw' in its header (coordinator read with strings, 2026-11-24), while [images.ufs-root-booted-slot-production-rw.recipe] cmdline lacks walleye.booted-slot. It was built by build/build-ufs-root-rw-write.sh, whose command line still adds the word, and device.toml's sha256 was set to that output; image ensure found the sha in the store and did not rebuild from the recipe; check 2 (PR 1016) did not read the image file's header. Fix: (1) the rw image only through lpoco bringup image ensure from its recipe, the build script either removed or made to take the recipe's cmdline; (2) image-recipe.sh rebuilds from the recipe in a clean store and compares the sha256; (3) check 2 reads the header of the file it will boot and refuses walleye.booted-slot or any line unequal to the recipe's. Each test seen failing on 2477...b54f first. Then the new full sha256 for run 5's go. Also: pstore was empty after run 4's self-reboot (unlike runs 4 and 7 of stage 2): the pstore instrument is not proven for the rw image, say so in the run 5 go.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: check 2 refuses 2477...b54f by its header; image-recipe.sh fails on a sha not built from the recipe; a new image whose header equals the recipe, built twice equal
+
+Rank
+: 1
