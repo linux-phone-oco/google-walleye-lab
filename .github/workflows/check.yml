@@ -68,6 +68,12 @@ jobs:
           cargo fmt --check
           cargo clippy --locked --all-targets -- -D warnings
           cargo run --locked -q -- --root ../..
+          cargo run --locked -q -- --root ../.. --dir tests/fixtures/phone-text --table tests/fixtures/phone-text/SOURCES.toml --ext cap
+      - name: the banner checks pass the banners a phone printed and fail each cut of them (tests/fixtures/phone-text)
+        run: |
+          sh tests/host/banner-selftest.sh
+          sh tests/host/banner-loop-selftest.sh
+          sh tests/host/banner-shell-selftest.sh
   licence-coverage:
     name: every tracked file is covered by a licence
     runs-on: ubuntu-latest

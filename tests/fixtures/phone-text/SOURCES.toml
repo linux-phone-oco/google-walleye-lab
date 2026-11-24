@@ -1,0 +1,13 @@
+# Each fixture of a host selftest is text a phone printed: one row per file in this folder, naming where it was captured.
+# Read by tools/walleye-sources (--dir tests/fixtures/phone-text --table tests/fixtures/phone-text/SOURCES.toml --ext cap),
+# a job of .github/workflows/check.yml. source = "file:PATH" (the whole capture under research/) | "research:ID" | "source:ID".
+# A fixture is a cut of its source (head, grep), never retyped.
+
+[scripts."banner-z6-try1.cap"]
+source = "file:research/walleye-first-fastboot-boot/2026-11-19-z6-try1/banner.cap"
+
+[scripts."banner-loop-z6-try1.cap"]
+source = "file:research/walleye-first-fastboot-boot/2026-11-19-z6-try1/banner.cap"
+
+[scripts."banner-shell-z5b-try2.cap"]
+source = "file:research/walleye-first-fastboot-boot/2026-11-18-z5b-try2/banner.cap"

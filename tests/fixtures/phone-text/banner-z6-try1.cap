@@ -1,0 +1,8 @@
+
+WALLEYE-BANNER beat=1 up=3.57s steps=8 last=[step 8 gadget bound to a800000.usb] loop=[started=yes starts=1 cmds=1 last=[WALLEYE-BANNER  loop=?] rc=127 err=[none]]
+
+WALLEYE-BANNER beat=2 up=5.60s steps=8 last=[step 8 gadget bound to a800000.usb] loop=[started=yes starts=1 cmds=1 last=[WALLEYE-BANNER  loop=?] rc=127 err=[none]]
+
+WALLEYE-BANNER beat=3 up=7.63s steps=8 last=[step 8 gadget bound to a800000.usb] loop=[started=yes starts=1 cmds=1 last=[WALLEYE-BANNER  loop=?] rc=127 err=[none]]
+
+WALLEYE-BANNER-INFO beat=3 busybox-applets=401 sh=y stty=y tr=y cut=y cat=y tty=[echo=off,icanon=off,hupcl=off]
