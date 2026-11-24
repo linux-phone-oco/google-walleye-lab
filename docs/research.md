@@ -7484,3 +7484,22 @@ About
 
 Material
 : research/walleye-first-fastboot-boot/2026-11-24/
+
+
+<a id="walleye-ufs-try-2-run-10-unpinned-ramp-passes-at-hs-gear3"></a>
+### walleye-ufs-try-2-run-10-unpinned-ramp-passes-at-hs-gear3
+
+Date
+: 2026-11-24
+
+Brief
+: UFS run 10 (unpinned): the card chose HS_GEAR3 2 lanes at 200 MHz under load; 64/256/1024/2048 MiB reads all rc=0, shell answered every poll, done by uptime 25.6 s; GPT equal 6cd7e48c
+
+Question
+: Does a sustained unpinned read on this card at the gear it chooses work inside the image's 180 s, or does it silence the shell as the pin-less suspicion said?
+
+Found
+: Run 10, WALLEYE_UFS_PIN=unpinned, matched image 4610778...df5, 24/24 steps passed. UFS_HW_VERSION 3.1.0, MSM8998 PHY table 3.1.0; idle link HS_GEAR1 2 lanes HS_RATE_B HIBERN8, clock 50 MHz, governor simple_ondemand left as found. Under load the gear read HS_GEAR3 2 lanes HS_RATE_B FAST_MODE, clock 200 MHz, eight samples. Steps 64, 256, 1024 and 2048 MiB ended rc=0, the shell answered every poll, ramp ended at uptime 25.61 s of the image's 181.7 s reboot. After: HS_GEAR3, HIBERN8/SLEEP. GPT hash before and after 6cd7e48c...0174 (equal); both slots' flags as before; Android b back by itself, PON reason reboot. Nothing written. So HS-G3 reads are fine on this card: the silent shell of run 8 was the image's 180 s timer, not the gear. Stage 3's write test is not blocked by reads. The go is used by this run.
+
+About
+: walleye-first-fastboot-boot

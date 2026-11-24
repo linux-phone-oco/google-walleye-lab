@@ -7510,3 +7510,21 @@ Rejected
 
 About
 : walleye-ufs-match-android-z
+
+---
+
+
+<a id="2026-11-24-0300-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-24
+
+Done
+: Run 10 of UFS try 2 (the unpinned ramp, the go now ended): HS_GEAR3 2 lanes 200 MHz under load, 64/256/1024/2048 MiB reads rc=0, shell answered throughout, GPT equal 6cd7e48c, phone on Android slot b by itself, nothing flashed or written; stock kept; walleye-try-ufs-match done
+
+Considered
+: next: coordinator decides stage 3's write test (the reads are no longer the suspect; the 180 s image timer is). Ready for the keeper: gpt-hash-from-android-read and vendor-firmware-pull (one Android visit), wdt0-first-instant-read. build/images in a fresh worktree is a symlink to ~/Projects/walleye-build
+
+About
+: walleye-first-fastboot-boot

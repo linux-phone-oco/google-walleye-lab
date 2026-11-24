@@ -9656,14 +9656,10 @@ Rank
 ### Try the matched UFS image once from slot b: read UFS_HW_VERSION and the PHY table line, probe only (replaces walleye-try-z13)
 
 Status
-: in-progress
+: done
 
 Note
-: THE GO NAMES THE IMAGE BY ITS FULL sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 (device.toml [images.ufs-match]). THE UNPINNED RAMP, ONE RUN: run the command with WALLEYE_UFS_PIN=unpinned (builder PR 985: no governor or clock write, the node and the gear read before and after every ramp step, the gear recorded not asserted, 2048 MiB only if it fits the time before the image's 180 s reboot): WALLEYE_UFS_PIN=unpinned rust-script procedures/ufs-matched-image-on-the-pixel-2.rs. Why: the installed Linux runs unpinned, so the baseline that matters is a sustained unpinned read at the gear the card chooses (runs 1 to 3 saw HS_GEAR3 in samples that lasted 4 s before the image's own reboot). Rehearse as the procedure does, one run, the way back, GPT equal after. The keeper's landing of the run ends this go (ikb backlog-go --until the run's end, outcomes 'used by run N'); no second run without the coordinator. Never xbl, abl, GPT, erase, purge. If the phone leaves the bus before deadline minus 10 s, or the shell is silent while the host still lists the device: the procedure's own way back, then record the host USB log (journalctl -k, usb 3-2), the node and gear files and the last printed line; no second run. In a fresh worktree link build/images to ~/Projects/walleye-build itself (not its images/ folder). | EARLIER: run 9 (pinned) passed 24/24, PR 982.
-go until 2026-11-24T07:00:00+01:00, outcomes: if the unpinned ramp ends every step that fits rc=0 with the shell answering at each poll, and the gear and clock read at each step are recorded, then a sustained read on this card at the gear it chooses (HS_GEAR3 expected from runs 1 to 3, NOT KNOWN until read) works inside the image's time: nothing about UFS reads stops stage 3's write test, and the gear it ran at is the recorded fact
-if the shell goes silent while the host still lists the device before deadline minus 10 s, at a step where the gear is HS_GEAR3 or the clock is 200 MHz, then sustained reads at the fast gear are the problem on this card (the original suspicion stands for G3 only): the last printed line, the node and gear files and the host USB log are the evidence; the pin (run 9) is the way to run until read
-if the phone leaves the bus before deadline minus 10 s then something other than the image's own timer reset it under the fast gear: the disappearance time against the petter start in the kernel log says which, and no second run
-if the GPT hash of sda after equals the hash before (6cd7e48c...0174) and the boot chain is equal then the run changed nothing (read only)
+: proven by run 10 (research walleye-ufs-try-2-run-10-unpinned-ramp-passes-at-hs-gear3): UFS_HW_VERSION 3.1.0, PHY table 3.1.0, link up HS_GEAR3 2 lanes under load, six LUNs, GPT equal, no purge
 
 About
 : walleye-first-fastboot-boot
@@ -9682,9 +9678,6 @@ Rank
 
 Witness
 : person
-
-Go until
-: 2026-11-24T07:00:00+01:00
 
 
 <a id="walleye-ufs-try-2-run-1-gpt-equal"></a>

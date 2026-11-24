@@ -1547,27 +1547,6 @@ Updated
 ### Row 110
 
 Step
-: storage-full-speed
-
-Status
-: open
-
-Proof
-: storage-link-speed
-
-Run
-: research walleye-ufs-why-gear1-ranked; item walleye-ufs-try-2
-
-Notes
-: Not yet: UFS try 1 reads the link at HS gear 1, 2 lanes, FAST_MODE, HIBERN8. The power-mode change was made; gear 1 at idle is most likely clock scale-down (no operating-points table in msm8998.dtsi). A second try with read-only readings after a bounded read waits for the author's word.
-
-Updated
-: 2026-11-19
-
-
-### Row 111
-
-Step
 : watchdog-way-back
 
 Status
@@ -1589,7 +1568,7 @@ Updated
 : 2026-11-19
 
 
-### Row 112
+### Row 111
 
 Step
 : pmic-bound
@@ -1613,7 +1592,7 @@ Updated
 : 2026-11-19
 
 
-### Row 113
+### Row 112
 
 Step
 : display-boots-any-order
@@ -1637,7 +1616,7 @@ Updated
 : 2026-11-20
 
 
-### Row 114
+### Row 113
 
 Step
 : display-any-order
@@ -1661,7 +1640,7 @@ Updated
 : 2026-11-23
 
 
-### Row 115
+### Row 114
 
 Step
 : rootfs-boots
@@ -1685,10 +1664,34 @@ Updated
 : 2026-11-23
 
 
-### Row 116
+### Row 115
 
 Step
 : storage-readonly
+
+Status
+: done
+
+Proof
+: ufs-matched-image-on-the-pixel-2
+
+Run
+: walleye-ufs-try-2-run-10-unpinned-ramp-passes-at-hs-gear3
+
+Proven on
+: ufs-match image sha256 461077869fb2
+
+Notes
+: Card read: UFS 3.1.0, 6 disks, GPT hashed equal before and after; unpinned ramp 64 to 2048 MiB read rc=0 at HS_GEAR3, shell answered every poll (run 10)
+
+Updated
+: 2026-11-24
+
+
+### Row 116
+
+Step
+: storage-full-speed
 
 Status
 : partial
@@ -1697,13 +1700,13 @@ Proof
 : ufs-matched-image-on-the-pixel-2
 
 Run
-: walleye-ufs-try-2-run-8-pin-holds-shell-silent-at-256mib
+: walleye-ufs-try-2-run-10-unpinned-ramp-passes-at-hs-gear3
 
 Proven on
 : ufs-match image sha256 461077869fb2
 
 Notes
-: Card read: UFS 3.1.0, 6 disks, GPT hashed; a ramped read is fine at 64 MiB and the shell goes silent at 256 MiB (run 8, pin held at rest)
+: Run 10: under an unpinned read the card chose HS_GEAR3, 2 lanes, HS_RATE_B, 200 MHz, reads to 2048 MiB fine. Idle stays HS_GEAR1 at 50 MHz. Reads only; writes not tried (stage 3).
 
 Updated
 : 2026-11-24
