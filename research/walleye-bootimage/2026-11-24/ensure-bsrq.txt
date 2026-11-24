@@ -1,0 +1,14 @@
+# Captured 2026-11-24 on the lab host, lpoco-bringup 0.51.0, builder walleye-builder: image ensure NAME --device device.toml --seed SEED --rebuild, SEED holding boot-b-d5.img and the part files (image unpack).
+# Unpacked: b-q5 kernel de8f84f0 and appended.dtb d35395b5 equal b-d5's, ramdisk differs. b-r5 and b-s5: ramdisk equal b-d5's, only the appended dtb differs (the unpacked 'kernel' file is the kernel with its dtb appended, so a kernel part plus a dtb part appends it twice: first try b-s5 made b3957dc0, b-r5 85cf14c5, not equal; dtb alone is equal).
+b-s5 dtb: in the store
+b-d5: in the store
+b-s5: rebuilt from its recipe, equal to its declared sha256
+/nix/store/5s8f5nvdsdzyh04f7fadh91j33i3liaf-boot-b-s5.img
+b-r5 dtb: in the store
+b-d5: in the store
+b-r5: rebuilt from its recipe, equal to its declared sha256
+/nix/store/193kc2azidq1z84p79w18jq0l25ns834-boot-b-r5.img
+b-q5 ramdisk: in the store
+b-d5: in the store
+b-q5: rebuilt from its recipe, equal to its declared sha256
+/nix/store/ymbxwr3qs80n77r8cbx4jx7kf39n8n8b-boot-b-q5.img

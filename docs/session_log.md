@@ -8302,3 +8302,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-image-recipes-b-sqr"></a>
+### Recipes for b-s5, b-r5, b-q5
+
+Entry date
+: 2026-11-24
+
+Done
+: Three recipes (control b-d5; dtb for b-s5 and b-r5, ramdisk for b-q5), each rebuilt equal by image ensure --rebuild; image-recipe.sh passes for each.
+
+Considered
+: wdt1-a/b and the alpine/ufs images still need parts as files of the manifest
+
+Rejected
+: A recipe with the unpacked kernel file plus the dtb: it appends the dtb twice and does not equal the declared sha256 (measured)
+
+About
+: walleye-bootimage
