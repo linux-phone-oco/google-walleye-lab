@@ -307,3 +307,6 @@ source = "research:walleye-z6-built"
 
 [scripts."ufs-root-rw-init.sh"]
 source = "research:walleye-rw-write-image-built"
+
+[scripts."rw-root-clean-end.sh"]
+source = "research:walleye-rw-clean-end-holders-and-alpine-path"
