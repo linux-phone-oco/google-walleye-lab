@@ -15,4 +15,6 @@ default usb-gadget
 default sshd
 default local
 shutdown killprocs
+shutdown mount-ro
 shutdown savecache
+shutdown walleye-end
