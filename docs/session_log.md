@@ -7888,3 +7888,21 @@ Rejected
 
 About
 : walleye-rw-write-reads-pstore-on-a-stop
+
+---
+
+
+<a id="2026-11-24-1525-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-24
+
+Done
+: rw write run 2: write of 16 MiB equal, kernel log clean, tables and boot chain equal, root changed; stopped at check 26 (first fastboot reboot stayed in fastboot, the way back's leg 1 brought Android back on slot b); stock kept, nothing flashed
+
+Considered
+: next: research judges fsck on a mounted root (free-count diffs) and the step 24 way back (fastboot reboot twice); a fsck of the unmounted partition from Android is the cleaner proof; remaining ready: gpt-hash-from-android-read and vendor-firmware-pull, wdt0-first-instant-read
+
+About
+: walleye-bootimage
