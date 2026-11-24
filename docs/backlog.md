@@ -9659,12 +9659,12 @@ Status
 : in-progress
 
 Note
-: THE GO NAMES THE IMAGE BY ITS FULL sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 (device.toml [images.ufs-match]). ONE RUN: the keeper's landing of the run ends this go (ikb backlog-go --until the run's end, outcomes 'used by run N') in the same change; no second run without the coordinator. THE PIN (PR 975, decision 2026-11-24-walleye-ufs-pin-asserts-the-holding-setting, research walleye-ufs-pin-100mhz-read): runs 6 and 7 stopped on a CORRECT pin (core_clk rounds 50 MHz to 100 MHz on mainline; at idle scaling is suspended and cur_freq keeps 100 MHz); step 16 now asserts governor userspace, set_freq 50000000, gear HS_GEAR1, cur_freq 50 or 100 MHz (200 fails) and captures pin-*.txt at three points plus dmesg and debugfs gcc_ufs_axi_clk. The ramped read-only load follows; the gear and the clock are read at every ramp step. Never xbl, abl, GPT, erase, purge. If the shell goes silent or the gear reaches 3 under load: stop at the procedure's own way back, record the printed text and the pin files, no second run. | EARLIER: runs 6 and 7 stopped at step 16 (100 MHz read back); run 4 at the old step 16 (no powersave governor).
-go until 2026-11-24T04:30:00+01:00, outcomes: if step 16 passes (governor userspace, set_freq 50000000, gear HS_GEAR1, cur_freq 50 or 100 MHz) then the pin holds the link in the low state as the research says and the ramped read-only load runs; if it refuses then nothing ran under load and the pin-*.txt files and the dmesg say which of the four assertions failed
-if the gear stays HS_GEAR1 at every ramp step and the shell answers at each one then the silence under load was the fast gear or high clock and the pin cures it (stage 3 can run pinned low); if the gear reaches HS_GEAR3 under load although the pin held then the pin does not hold under load and the gear change comes from the driver's own scaling
-if the shell goes silent at a ramp step while the gear is still HS_GEAR1 then the silence is not the gear alone, the 100 MHz core clock against Android's 50 MHz and the read path are next, and the last printed line plus the pin files are the evidence
-if the GPT hash of sda after equals the hash before (6cd7e48c... 0174) and the boot chain is equal then the run changed nothing (read only)
-go until 2026-11-24T01:08:52+01:00, outcomes: used by run 8: step 16 passed (pin held at rest), shell silent at the 256 MiB step, gear at the silence not known; no second run without the coordinator
+: THE GO NAMES THE IMAGE BY ITS FULL sha256 461077869fb275ab8803b8bb771050d4f19724ccfd62e197dc1f3fe3a6297df5 (device.toml [images.ufs-match]). ONE RUN: the keeper's landing of the run ends this go (ikb backlog-go --until the run's end, outcomes 'used by run N') in the same change; no second run without the coordinator. WHAT CHANGED SINCE RUN 8 (research walleye-ufs-180s-read, PR 979; decision 2026-11-24-walleye-ufs-procedure-fits-the-image-not-the-image-the-procedure; builder PR 980): the matched image's own init reboots at about 180 s after boot (90 petter beats then reboot -f) and in runs 1, 2, 3 and 8 the idle-link read spent 170 s of it, so the load never had the time; the procedure now reads the idle link once, no longer claims a hold, reads the reboot deadline from the kernel log and runs a ramp step only if it ends before deadline minus 10 s, and keeps the start uptime of each step in gear-load.txt. The pin: PR 975 (userspace, set_freq 50 MHz, HS_GEAR1, cur_freq 50 or 100 MHz). Never xbl, abl, GPT, erase, purge. If the phone leaves the bus BEFORE the deadline minus 10 s, or the shell is silent while the host still lists the device: stop at the procedure's own way back, record the host USB log, the pin files and the last printed line, no second run. READ THE HOST USB LOG (journalctl -k, usb 3-2) of the run and quote the disappearance time against the boot time in the research row. | EARLIER: runs 6 and 7 stopped at the old step 16 (100 MHz), run 8 at 256 MiB at 180 s.
+go until 2026-11-24T06:00:00+01:00, outcomes: if the load starts well before the deadline (the uptime at each ramp step in gear-load.txt, the deadline read from the kernel log) and every step that fits ends rc=0 with the shell answering and the gear HS_GEAR1 then UFS reads of that size are fine with the pin on this card: the 180 s timer, not the card, ended runs 1 to 3 and 8, and stage 3's write test can be planned inside the same time budget
+if the shell goes silent while the host still lists the device before deadline minus 10 s then the silence is real (UFS or the kernel under load): the last printed line, the pin files and the host USB log are the evidence and the gear at that moment is read
+if the phone leaves the bus before deadline minus 10 s then something other than the image's own timer reset it (watchdog bite, secure reset): the disappearance time against the petter start in the kernel log says which, and no second run
+if the gear reaches HS_GEAR3 under load although the pin held then the driver's own scaling overrides the pin under load
+if the GPT hash of sda after equals the hash before (6cd7e48c...0174) and the boot chain is equal then the run changed nothing (read only)
 
 About
 : walleye-first-fastboot-boot
@@ -9685,7 +9685,7 @@ Witness
 : person
 
 Go until
-: 2026-11-24T01:08:52+01:00
+: 2026-11-24T06:00:00+01:00
 
 
 <a id="walleye-ufs-try-2-run-1-gpt-equal"></a>
