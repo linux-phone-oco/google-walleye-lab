@@ -7,6 +7,8 @@
 # It fails while rootfs/runlevels has no `shutdown mount-ro` (the root is then cut off rw) and passes when Alpine's own path (killprocs, then mount-ro) is in the level. INIT_DIR / RUNLEVELS: other files to judge.
 # Prints `pass|fail|skip walleye-rw-root-clean-end DETAIL`; exit 0 only on pass; a skip is not a pass.
 W=${1:-}
+# Scenarios of the last service: plain (no marker), marker (a walleye-reboot that fails), marker-missing (marker, no tool): each must still reach reboot -f. No SCENARIO: all three.
+if [ -z "${SCENARIO:-}" ]; then for s in plain marker marker-missing; do SCENARIO=$s sh "$0" "$@" || exit 1; done; exit 0; fi
 export GEN=${GEN:-}
 HERE=$(cd "$(dirname "$0")/../.." && pwd)
 PDIR=${INIT_DIR:-$HERE/build/initramfs-root-rw-write}
@@ -24,11 +26,13 @@ T=$(mktemp -d) || say skip "no temp dir"; [ -n "${KEEP:-}" ] || trap 'rm -rf "$T
 R=$T/root
 mkdir -p "$R/sbin" "$R/bin" "$R/proc" "$R/sys" "$R/dev" "$R/etc" "$R/run" "$R/tmp" "$R/var/log"
 cp "$W/busybox-x86_64" "$R/bin/busybox"
-for a in sh mount cat echo sync reboot kill sleep grep tr head; do ln -s busybox "$R/bin/$a"; done
+for a in sh mount cat echo sync reboot kill sleep grep tr head mkdir chmod printf; do ln -s busybox "$R/bin/$a"; done
 ln -s ../bin/busybox "$R/sbin/init"
 # the image's own inittab lines that matter: sysinit, a once, and the shutdown action (rootfs/overlay/etc/inittab)
 grep '^::shutdown:' "$HERE/rootfs/overlay/etc/inittab" > "$R/etc/inittab" || say fail "rootfs/overlay/etc/inittab has no ::shutdown: line"
 grep '^shutdown ' "$RUNLEVELS" > "$R/etc/shutdown-level"
+echo "$SCENARIO" > "$R/etc/scenario"
+cp "$HERE/rootfs/overlay/etc/init.d/walleye-end" "$R/etc/walleye-end"
 cat >> "$R/etc/inittab" <<'EOI'
 ::sysinit:/bin/sh /etc/rc.boot
 ::once:/bin/sh /etc/rc.end
@@ -36,6 +40,9 @@ EOI
 cat > "$R/etc/rc.boot" <<'EOI'
 mount -t proc proc /proc 2>/dev/null
 mount -t sysfs sys /sys 2>/dev/null
+mount -t tmpfs tmpfs /run
+mkdir -p /run/walleye
+case $(cat /etc/scenario) in marker) : > /run/walleye/to-bootloader; printf "#!/bin/sh\necho WALLEYE-REBOOT-RAN-AND-FAILED\nexit 1\n" > /run/walleye/walleye-reboot; chmod 755 /run/walleye/walleye-reboot;; marker-missing) : > /run/walleye/to-bootloader;; esac
 # syslogd's case: a process that holds a file of the root open for writing, as long as it runs
 ( exec 3>>/var/log/messages; while :; do echo tick >&3; sleep 1; done ) &
 echo "ROOT-BOOT $(grep ' / ' /proc/mounts | head -n1)"
@@ -54,6 +61,7 @@ while read -r lvl svc; do
     killprocs) for sig in TERM KILL; do for d in /proc/[0-9]*; do p=${d#/proc/}; [ "$p" = 1 ] || [ "$p" = $$ ] || [ -z "$(tr -d "\000" < $d/cmdline 2>/dev/null)" ] || kill -$sig "$p" 2>/dev/null; done; sleep 2; done; echo "OPENRC killprocs" ;;
     mount-ro) sync; if mount -o remount,ro / 2>/run/mro; then echo "OPENRC mount-ro ok"; else echo "OPENRC mount-ro FAILED $(cat /run/mro)"; fi ;;
     savecache) echo "OPENRC savecache" ;;
+    walleye-end) ( ebegin() { echo "OPENRC ebegin $*"; }; reboot() { echo "OPENRC reboot $*"; /bin/busybox reboot "$@"; }; . /etc/walleye-end; start ) ;;
     *) echo "OPENRC unknown service $svc skipped" ;;
   esac
 done < /etc/shutdown-level
@@ -78,6 +86,8 @@ s=$(sgdisk -i 2 "$T/a.img" | sed -n 's/^First sector: \([0-9]*\).*/\1/p'); e=$(s
 dd if="$T/a.img" of="$T/p2" bs=512 skip="$s" count=$((e - s + 1)) status=none
 e2fsck -fn "$T/p2" > "$T/fsck.txt" 2>&1; rc=$?
 OP=$(grep -a '^OPENRC' "$T/run.t" | tr '\n' '|')
+grep -aq "OPENRC reboot -f" "$T/run.t" || say fail "scenario $SCENARIO: the last service did not reach reboot -f (the end said: $OP)"
+[ "$SCENARIO" != marker ] || grep -aq WALLEYE-REBOOT-RAN-AND-FAILED "$T/run.t" || say fail "scenario marker: the walleye-reboot of /run/walleye was not tried"
 [ "$rc" = 0 ] || say fail "e2fsck -fn rc=$rc: $(grep -a -e wrong -e journal -e clean "$T/fsck.txt" | head -n3 | tr '\n' '|') (the end said: $OP)"
 grep -aq -e wrong -e 'skipping journal' "$T/fsck.txt" && say fail "e2fsck -fn is not clean: $(grep -a -e wrong -e 'skipping journal' "$T/fsck.txt" | head -n3 | tr '\n' '|') (the end said: $OP)"
-say pass "the root, held open for writing by a process, ends clean through the shutdown level $(tr '\n' ' ' < "$R/etc/shutdown-level"): $OP e2fsck -fn clean"
+say pass "scenario $SCENARIO: the root, held open for writing by a process, ends clean through the shutdown level $(tr '\n' ' ' < "$R/etc/shutdown-level"): $OP e2fsck -fn clean"

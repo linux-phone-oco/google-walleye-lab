@@ -1,0 +1,18 @@
+#!/sbin/openrc-run
+# The last service of the shutdown level (decision 2026-11-24-rw-root-ends-through-alpines-shutdown-level): it always ends the phone with a reboot.
+# killprocs has ended every process, the petters and the hold with them, so a shutdown that stops here would sit until the watchdog bites.
+# If the lab left /run/walleye/to-bootloader (and its walleye-reboot there), the reboot asks for the bootloader; if that tool fails or is missing, the plain reboot still comes.
+# Reads and runs only what is under /run/walleye (tmpfs); writes nothing.
+description="the end of shutdown: reboot, to the bootloader when asked"
+
+depend() {
+	after *
+}
+
+start() {
+	ebegin "Rebooting"
+	if [ -e /run/walleye/to-bootloader ] && [ -x /run/walleye/walleye-reboot ]; then
+		/run/walleye/walleye-reboot --command bootloader
+	fi
+	reboot -f
+}

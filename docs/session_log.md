@@ -8047,3 +8047,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-rw-end-through-openrc"></a>
+### rw root ends through mount-ro and a last reboot service
+
+Entry date
+: 2026-11-24
+
+Done
+: runlevels: shutdown killprocs, mount-ro, savecache, walleye-end; init.d/walleye-end always reboots (bootloader first when asked, from /run/walleye); rw-root-clean-end.sh fails before, passes in 3 scenarios in QEMU. Image rebuild and rw_write.rs left.
+
+Considered
+: Making walleye-end depend on named services: 'after *' keeps it last whatever is added.
+
+Rejected
+: Putting walleye-reboot into the rootfs: the lab already pushes it, and a /run copy keeps the image unchanged by it.
+
+About
+: walleye-bootimage
