@@ -7588,3 +7588,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-a-fresh-worktree-links-its-own-build-images"></a>
+### A fresh worktree links its own build/images
+
+Entry date
+: 2026-11-24
+
+Done
+: link_images in walleye-tries settings: the for_* constructors link build/images to ~/Projects/walleye-build when absent; 3 host tests; dry run in this fresh worktree made the link; 372 tests, clippy, fmt.
+
+Considered
+: refusing with the fix instead of linking: a CI runner has no walleye-build, so absent target does nothing
+
+About
+: walleye-bootimage
