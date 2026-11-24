@@ -7804,3 +7804,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-walleye-research-why-rw-run-1-had-no-gadget"></a>
+### walleye-research: why rw run 1 had no gadget
+
+Entry date
+: 2026-11-24
+
+Done
+: Read the rw init against the run's command line: the image (cb79c975, header read) carries walleye.booted-slot, the run boots it from memory on slot b with root system_a, the init's stage 2 guard refuses before any mount. Counted by tests/host/ufs-root-rw-init.sh (pass, case R3 is run 1's line). Phone read only (adb as shell: Android up 664 s, pstore not readable without root, not changed). Recorded research walleye-rw-run-1-refused-by-booted-slot, decision 2026-11-24-walleye-rw-run-2-after-image-without-booted-slot, build items walleye-rw-image-without-booted-slot and walleye-rw-write-reads-pstore-on-a-stop (walleye-rw-write-run now blocked by both), the failing test in rw_write.rs (ignored until the fix).
+
+Considered
+: The first ready row was walleye-device-config-sources-read, but its remaining parts wait for their steps; took the coordinator's newest research item, walleye-rw-run-1-why-no-gadget, placed by PR 1013.
+
+Rejected
+: adb root to read pstore: it changes adbd's state, and the boot's console was already gone (Android rebooted since).
+
+About
+: walleye-bootimage

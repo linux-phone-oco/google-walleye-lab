@@ -12033,6 +12033,9 @@ Note
 : run 1 stopped at check 14 (no USB gadget); see research walleye-rw-write-run-1-stopped-no-usb-gadget; no second try before research
 go until 2026-11-24T14:05:29+01:00, outcomes: Closed by the walleye coordinator: used by run 1 (research walleye-rw-write-run-1-stopped-no-usb-gadget, PR 1012), which stopped at check 14 with nothing written. A next run takes a new go after walleye-rw-run-1-why-no-gadget.
 
+Blocked by
+: walleye-rw-image-without-booted-slot,walleye-rw-write-reads-pstore-on-a-stop
+
 About
 : walleye-bootimage
 
@@ -12059,10 +12062,10 @@ Go until
 ### Why the rw-write image booted from memory but no USB gadget came up (run 1, check 14), and an instrument that tells the causes apart before run 2
 
 Status
-: open
+: done
 
 Note
-: Run 1 (research walleye-rw-write-run-1-stopped-no-usb-gadget, folder ~/.cache/agent-build/75c803/walleye-rw): fastboot boot ok at +67 s, 1d6b:0104 absent for 145 s, the phone back on Android slot b by itself (fits the image's 180 s self-reboot), card and boot chain equal, nothing written. Stage 2's ro image of the same init came up with the gadget, so the difference is the walleye.rw path on hardware (QEMU tests/host/ufs-root-rw-init.sh passes). Coordinator's off-phone read: the root image (walleye-alpine-v2-key.ext4, what stage 1 wrote) has NO journal, features ext_attr resize_inode dir_index filetype extent 64bit flex_bg metadata_csum_seed sparse_super large_file huge_file dir_nlink extra_isize metadata_csum: nothing a rw mount refuses, so a rw-mount refusal is not shown, not ruled out (the walleye kernel's EXT4 options not read yet). Candidates to tell apart: (a) the rw mount fails on hardware and the init's failure path reboots; (b) root is mounted but OpenRC or the gadget unit fails on a rw root without the overlay (e.g. a first-boot write, fsck at boot, or a service the overlay masked); (c) the self-reboot fires before the gadget on a slower rw boot. Read the init's walleye.rw path against the ro one, Android's and upstream's for (a), and choose an instrument proven on a known case (e.g. pstore/ramoops console, or a marker the init leaves on the USB bus or the glass) before any run 2.
+: Done 2026-11-24 by walleye-research: research walleye-rw-run-1-refused-by-booted-slot (the init's booted-slot guard refused run 1's own line; QEMU R3 counts it), decision 2026-11-24-walleye-rw-run-2-after-image-without-booted-slot, build items walleye-rw-image-without-booted-slot and walleye-rw-write-reads-pstore-on-a-stop, failing test in rw_write.rs (ignored until the first item).
 
 About
 : walleye-bootimage
@@ -12075,6 +12078,56 @@ Needs
 
 Proof
 : a research row naming the cause from a capture, and a test that fails before the fix
+
+Rank
+: 2
+
+
+<a id="walleye-rw-image-without-booted-slot"></a>
+### The rw-write image again without walleye.booted-slot (it boots from memory with the other slot's root), and check 2 refusing any rw image that carries the word
+
+Status
+: open
+
+Note
+: From research walleye-rw-run-1-refused-by-booted-slot. Recipe cmdline: the production line minus walleye.booted-slot, plus walleye.rw (the stage 1 guard, root not the running slot, then applies). New sha256 in [images.ufs-root-booted-slot-production-rw] (rename if the name now misleads); cmdline_carries_the_word (check 2) refuses walleye.booted-slot. Nothing on the phone.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: tools/walleye-tries rw_write test the_rw_image_command_line_passes_the_inits_slot_guard_when_booted_from_memory passes with its #[ignore] removed; tests/host/ufs-root-rw-init.sh passes with an R1 case booting the declared recipe's line plus androidboot.slot_suffix=_b; lpoco bringup image ensure rebuilds the new sha256
+
+Rank
+: 2
+
+
+<a id="walleye-rw-write-reads-pstore-on-a-stop"></a>
+### The rw write reads pstore from Android at once when no gadget comes up, and names the init's last line
+
+Status
+: open
+
+Note
+: From research walleye-rw-run-1-refused-by-booted-slot: run 1's refusal line was lost when Android rebooted. On a check-14 stop the way back reaches Android, then reads /sys/fs/pstore/console-ramoops* by adb root BEFORE any other reboot, saves it in the run folder and judges it. Read only.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: a rw_write unit test on captured console-ramoops text (fixtures: one refused, one handing-over, one empty) that names refused-WHICH, handed-over, mounted-not-handed-over or nothing
 
 Rank
 : 2

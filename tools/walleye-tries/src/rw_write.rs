@@ -834,6 +834,33 @@ mod tests {
         assert!(!said.contains("rc=0"), "{said}");
         std::fs::remove_dir_all(&dir).unwrap();
     }
+    /// Research walleye-rw-run-1-refused-by-booted-slot (item walleye-rw-run-1-why-no-gadget): the rw write boots the image FROM MEMORY
+    /// (`fastboot boot`) while Android's slot stays current, and its root is the OTHER slot's system; the run adds only
+    /// androidboot.slot_suffix=<the running slot> ([`crate::rootfs_boot::run_cmdline`]). The init's stage 2 guard
+    /// (build/initramfs-root-rw-write/init: `[ "$ROOT" = "system$SLOT" ] || refuse "walleye.booted-slot: ..."`) refuses every such line that
+    /// carries walleye.booted-slot - QEMU case R3 "booted-slot with a root that is not the booted slot's" of tests/host/ufs-root-rw-init.sh
+    /// boots exactly run 1's line and sees the refusal. So the declared rw image's command line must not carry the word. Fails on
+    /// image cb79c975 (run 1's), passes on an image rebuilt without it.
+    #[test]
+    #[ignore = "FAILS until item walleye-rw-image-without-booted-slot lands (cargo test -- --ignored shows it); its builder removes this line"]
+    fn the_rw_image_command_line_passes_the_inits_slot_guard_when_booted_from_memory() {
+        let manifest: toml::Value = toml::from_str(
+            &std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../device.toml"))
+                .unwrap(),
+        )
+        .unwrap();
+        let declared = manifest["images"]["ufs-root-booted-slot-production-rw"]["recipe"]
+            ["cmdline"]
+            .as_str()
+            .unwrap();
+        let root = cmdline_carries_the_word(declared).unwrap();
+        let running = if root == "system_a" { "_b" } else { "_a" };
+        let line = crate::rootfs_boot::run_cmdline(declared, running).unwrap();
+        assert!(
+            !line.split_whitespace().any(|w| w == "walleye.booted-slot"),
+            "the run's line [{line}] carries walleye.booted-slot with the root {root} while the running slot is {running}: the init refuses it (system{running} is not {root}) before any mount, no gadget comes up"
+        );
+    }
     #[test]
     fn the_expectation_names_the_numbers() {
         let t = expect(16, 6);
