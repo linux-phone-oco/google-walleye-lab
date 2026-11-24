@@ -8242,3 +8242,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-a-go-ends-with-its-run"></a>
+### a go ends with the run that used it
+
+Entry date
+: 2026-11-24
+
+Done
+: tools/walleye-tries: ufs::go_gate refuses a spent go, ufs::spend_go writes the exclusive marker right before the boot or flash of the ufs, rootfs and flash procedures; tests first (compile-failing), then a flash walk of two runs on one go.
+
+Considered
+: reading the run's research row or session-log entry after the go (the item's proposal)
+
+Rejected
+: the research-row compare: the row has no go-set time and research dates are days; a later run on the same day cannot be told from an earlier one. A marker per (item, go_until) says it exactly.
+
+About
+: walleye-bootimage
