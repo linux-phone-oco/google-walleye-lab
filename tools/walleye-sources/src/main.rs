@@ -6,13 +6,26 @@ mod cli;
 use argenv_resolve::InputResolveExt;
 use cli::Contract as C;
 use std::path::Path;
-use walleye_sources::{run_gate, Gate};
+use walleye_sources::{run_gate, run_procedures, Gate};
 
 fn main() {
     let r = C::parse_and_lint(argenv_resolve::OnProblems::FailOnError);
     if C::HELP.get_from(&r).unwrap_or(false) {
         print!("{}", cli::usage());
         return;
+    }
+    let procedures = C::PROCEDURES.get_from(&r);
+    if procedures.is_some()
+        && [
+            C::DIR.get_from(&r),
+            C::TABLE.get_from(&r),
+            C::EXT.get_from(&r),
+        ]
+        .iter()
+        .any(Option::is_some)
+    {
+        eprintln!("walleye-sources: --procedures stands alone (--dir, --table and --ext are the other mode's)");
+        std::process::exit(2);
     }
     let gate = Gate {
         root: C::ROOT.get_from(&r).unwrap_or_else(|| ".".into()),
@@ -22,7 +35,11 @@ fn main() {
             .unwrap_or_else(|| "tests/host/SOURCES.toml".into()),
         ext: C::EXT.get_from(&r).unwrap_or_else(|| "sh".into()),
     };
-    let (text, ok) = run_gate(&gate, Path::new(&gate.root));
+    let root = Path::new(&gate.root);
+    let (text, ok) = match procedures {
+        Some(dir) => run_procedures(&dir, root),
+        None => run_gate(&gate, root),
+    };
     print!("{text}");
     if !ok {
         std::process::exit(1);

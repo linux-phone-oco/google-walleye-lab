@@ -6,6 +6,9 @@ use serde::Deserialize;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::Path;
+use tokens::{tokens, Spot, Tok};
+
+mod tokens;
 
 /// Where to look, all relative to `root` except `root` itself.
 pub struct Gate {
@@ -45,7 +48,7 @@ struct Report {
 pub fn run_gate(gate: &Gate, root: &Path) -> (String, bool) {
     let report = judge_all(gate, root);
     let ok = report.problems.is_empty();
-    (render(&report, gate), ok)
+    (render(&report, &gate.dir), ok)
 }
 
 fn judge_all(gate: &Gate, root: &Path) -> Report {
@@ -172,7 +175,7 @@ fn ids_of(path: &Path) -> Result<BTreeSet<String>, String> {
     Ok(ids)
 }
 
-fn render(r: &Report, gate: &Gate) -> String {
+fn render(r: &Report, dir: &str) -> String {
     let mut out = String::new();
     for p in &r.problems {
         out.push_str(&format!("refused {p}\n"));
@@ -182,10 +185,88 @@ fn render(r: &Report, gate: &Gate) -> String {
     }
     out.push_str(&format!(
         "walleye-sources {}: {} sourced, {} not yet sourced, {} refused\n",
-        gate.dir,
+        dir,
         r.sourced,
         r.unsourced.len(),
         r.problems.len()
     ));
     out
+}
+
+/// The gate over a folder of procedures: every `check_from(WHAT, SOURCE, ..)` cites a source that exists, and no
+/// `check(..)` is left without one, read from tokens (comments, strings and char literals are not code). Only the
+/// `.rs` files directly in `dir`; a folder with no check_from passes on purpose: a procedure of steps only has no check to source.
+pub fn run_procedures(dir: &str, root: &Path) -> (String, bool) {
+    let mut r = Report {
+        problems: vec![],
+        unsourced: vec![],
+        sourced: 0,
+    };
+    match (read_known(root), list_files(&root.join(dir), "rs")) {
+        (Err(e), _) | (_, Err(e)) => r.problems.push(e),
+        (Ok(known), Ok(files)) => {
+            for f in &files {
+                match fs::read_to_string(root.join(dir).join(f)) {
+                    Ok(text) => judge_procedure(&mut r, f, &text, &known, root),
+                    Err(e) => r.problems.push(format!("{f}: {e}")),
+                }
+            }
+        }
+    }
+    (render(&r, dir), r.problems.is_empty())
+}
+
+fn judge_procedure(r: &mut Report, file: &str, text: &str, known: &Known, root: &Path) {
+    let toks = tokens(text);
+    for (n, (tok, line)) in toks.iter().enumerate() {
+        let Tok::Ident(name) = tok else { continue };
+        let is_call = toks.get(n + 1).map(|t| &t.0) == Some(&Tok::Punct('('));
+        let prev = n.checked_sub(1).map(|p| &toks[p].0);
+        let is_method_or_definition =
+            prev == Some(&Tok::Punct('.')) || prev == Some(&Tok::Ident("fn".into()));
+        if !is_call || is_method_or_definition {
+            continue;
+        }
+        let at = format!("{file}:{line}");
+        match name.as_str() {
+            "check" => r
+                .problems
+                .push(format!("{at}: check(..) names no source (use check_from)")),
+            "check_from" => match second_argument(&toks[n + 2..]) {
+                Some(Tok::Str(s)) => match resolve(s, known, root) {
+                    Ok(()) => r.sourced += 1,
+                    Err(why) => r.problems.push(format!("{at}: {why}")),
+                },
+                _ => r
+                    .problems
+                    .push(format!("{at}: the source must be a string literal")),
+            },
+            _ => {}
+        }
+    }
+}
+
+/// The one token that is the call's second argument, when that argument is a single token; the arguments are split at
+/// commas outside any bracket. `after` starts just after the opening parenthesis.
+fn second_argument(after: &[Spot]) -> Option<&Tok> {
+    let (mut depth, mut arg, mut in_arg) = (0usize, 0usize, vec![]);
+    for (t, _) in after {
+        match t {
+            Tok::Punct('(' | '[' | '{') => depth += 1,
+            Tok::Punct(')' | ']' | '}') if depth == 0 => break,
+            Tok::Punct(')' | ']' | '}') => depth -= 1,
+            Tok::Punct(',') if depth == 0 => {
+                arg += 1;
+                continue;
+            }
+            _ => {}
+        }
+        if arg == 1 {
+            in_arg.push(t);
+        }
+    }
+    match in_arg[..] {
+        [t] => Some(t),
+        _ => None,
+    }
 }

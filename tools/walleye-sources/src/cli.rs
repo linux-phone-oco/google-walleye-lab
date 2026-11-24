@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //! walleye-sources's invocation surface, declared once with argenv.
-//!   walleye-sources [--root DIR] [--dir DIR] [--table FILE] [--ext EXT]
+//!   walleye-sources [--root DIR] [--dir DIR] [--table FILE] [--ext EXT] [--procedures DIR]
 
 use argenv_resolve::*;
 
@@ -41,6 +41,15 @@ contract! {
         ..Input::EMPTY
     };
 
+    PROCEDURES: String = Input {
+        key: "procedures",
+        ty: Type::String,
+        arg: Some(Arg { value_name: "DIR", ..Arg::long("procedures") }),
+        env: Some(Env::new("WALLEYE_SOURCES_PROCEDURES")),
+        summary: "Read the procedures in DIR (under the root) instead: each check_from(..) must cite a source that exists, and no check(..) may be without one.",
+        ..Input::EMPTY
+    };
+
     HELP: bool = Input {
         key: "help",
         ty: Type::Bool,
@@ -53,7 +62,7 @@ contract! {
 /// The usage `--help` prints, read from the declaration above.
 pub fn usage() -> String {
     let mut out = String::from(
-        "Usage: walleye-sources [--root DIR] [--dir DIR] [--table FILE] [--ext EXT]\n\nRefuse a file with no source, a source that does not exist, and a table row for a file that is gone; list the files marked not yet sourced.\n\nArguments:\n",
+        "Usage: walleye-sources [--root DIR] [--dir DIR] [--table FILE] [--ext EXT] [--procedures DIR]\n\nRefuse a file with no source, a source that does not exist, and a table row for a file that is gone; list the files marked not yet sourced.\n\nArguments:\n",
     );
     for r in &Contract::records() {
         let sig = r.usage();
