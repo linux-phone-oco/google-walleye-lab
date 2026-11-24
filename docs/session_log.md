@@ -7627,3 +7627,18 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-walleye-kernel-build-row-waits-for-attended"></a>
+### The kernel build row waits for an attended release with manifest 0.47
+
+Entry date
+: 2026-11-24
+
+Done
+: PR 996's CI refused device.toml's [kernel_builds] (lpoco-attended 0.45.2 reads it with lpoco-manifest 0.46.0); the row, measured equal twice, is kept as research and lands in device.toml with the next attended release (lab-tools main already has manifest 0.47.0).
+
+About
+: walleye-bootimage
