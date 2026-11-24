@@ -2,56 +2,34 @@
 //! Test fixtures: stand-in programs the tests run (a fastboot, an adb, a check script).
 
 use std::io::Write;
-use std::os::unix::fs::OpenOptionsExt;
 use std::path::Path;
-use std::time::{Duration, Instant};
+use std::process::{Command, Stdio};
 
-/// Write an executable script at `path`, whole and closed before anyone can run it, and not held open for
-/// writing by any process.
+/// Write an executable script at `path`, whole and closed before anyone can run it.
 ///
-/// The file is a new one (an older file of that name is unlinked first, so a copy still running keeps its
-/// own), created with its mode, written, synced and closed. That alone is not enough: the tests run in threads
-/// of one process, and a thread that forks while this file is open hands the child a copy of the handle until
-/// the child's exec; exec of a file open for writing anywhere fails with "Text file busy". So the helper waits,
-/// for a bounded time, until no process holds the file open - a condition it reads, not a try it repeats. The wait is best-effort: a child is listed in /proc only once the fork has finished, a window of microseconds it cannot see.
+/// The file is written by a child process (`cat`), never by this one. The tests run in threads of one
+/// process, and a thread that forks while this process holds the file open for writing hands its child a copy
+/// of the handle until that child's exec; exec of a file open for writing anywhere fails with "Text file busy"
+/// (ETXTBSY, os error 26). A write handle that never exists in this process cannot be inherited: the child
+/// that holds it has exited, and been waited for, before this function returns. The only handle this process
+/// holds is the pipe to the child, which a forked sibling may keep for microseconds and which no exec cares
+/// about. An older file of that name is unlinked first, so a copy still running keeps its own.
 pub fn executable(path: &Path, body: &str) {
     let _ = std::fs::remove_file(path);
-    {
-        let mut f = std::fs::OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .mode(0o755)
-            .open(path)
-            .unwrap_or_else(|e| panic!("{}: {e}", path.display()));
-        f.write_all(body.as_bytes()).unwrap();
-        f.sync_all().unwrap();
-    }
-    let path = path.canonicalize().unwrap();
-    let until = Instant::now() + Duration::from_secs(10);
-    while held_open(&path) {
-        assert!(
-            Instant::now() < until,
-            "{} is still open in another process after 10 s",
-            path.display()
-        );
-        std::thread::sleep(Duration::from_millis(1));
-    }
-}
-
-/// Some process of ours has `path` open (a forked child that has not yet exec'd).
-fn held_open(path: &Path) -> bool {
-    let procs = std::fs::read_dir("/proc").unwrap_or_else(|e| panic!("/proc: {e}"));
-    procs
-        .flatten()
-        .filter(|p| {
-            p.file_name()
-                .to_string_lossy()
-                .bytes()
-                .all(|b| b.is_ascii_digit())
-        })
-        .filter_map(|p| std::fs::read_dir(p.path().join("fd")).ok())
-        .flat_map(|fds| fds.flatten())
-        .any(|fd| std::fs::read_link(fd.path()).is_ok_and(|l| l == path))
+    let mut writer = Command::new("sh")
+        .args(["-c", "set -C; cat > \"$1\" && chmod 755 \"$1\"", "sh"])
+        .arg(path)
+        .stdin(Stdio::piped())
+        .spawn()
+        .unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+    writer
+        .stdin
+        .take()
+        .expect("piped stdin")
+        .write_all(body.as_bytes())
+        .unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+    let status = writer.wait().unwrap();
+    assert!(status.success(), "{}: writing it failed", path.display());
 }
 
 #[cfg(test)]
