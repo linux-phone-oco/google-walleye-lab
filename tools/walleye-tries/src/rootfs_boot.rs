@@ -1623,6 +1623,33 @@ mod tests {
     }
 
     #[test]
+    fn the_wdt0_rehearsal_has_no_step_that_boots_reads_or_sends_away() {
+        let entry = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../procedures/rehearse-wdt0-state-on-the-pixel-2.rs"
+        ))
+        .unwrap();
+        for boots in [
+            "boot_the_root_image",
+            "author_has_said_go",
+            "the_phone_is_sent_back",
+            "boot_image",
+            "the_login_works",
+            "the_wdt0_registers_are_read",
+        ] {
+            assert!(
+                !entry.contains(boots),
+                "the wdt0 rehearsal's entry names {boots}"
+            );
+        }
+        assert!(entry.contains("wdt0_rehearsal") && entry.contains("rehearsal_way_back"));
+        assert_ne!(
+            Settings::stand_in(crate::settings::Try::Wdt0).out_dir("wdt0-state"),
+            Settings::stand_in(crate::settings::Try::Wdt0).out_dir("wdt0-state-rehearsal")
+        );
+    }
+
+    #[test]
     fn the_rehearsal_has_no_step_that_boots_and_its_own_folder() {
         let entry = std::fs::read_to_string(concat!(
             env!("CARGO_MANIFEST_DIR"),
@@ -2593,20 +2620,37 @@ mod tests {
         let kmsg = include_str!("../fixtures/wdt0-init-run-kmsg.txt");
         let ok = wdt0_rig("ok", file, kmsg);
         (ok.the_wdt0_registers_are_read())().unwrap();
-        assert!(ok.saved("wdt0.txt").unwrap().contains("BITE_TIME 0x17817014 = 0x0000ffff"));
+        assert!(ok
+            .saved("wdt0.txt")
+            .unwrap()
+            .contains("BITE_TIME 0x17817014 = 0x0000ffff"));
         let none = wdt0_rig("none", "", "");
-        assert!((none.the_wdt0_registers_are_read())().unwrap_err().contains("holds no reading"));
-        assert!(none.saved("wdt0.txt").is_err(), "nothing is kept when nothing was read");
-        let failed = file.replace("EN 0x17817008 0x00000003", "EN 0x17817008 FAILED devmem: mmap: Operation not permitted");
-        let kfailed = kmsg.replace("EN 0x17817008 0x00000003", "EN 0x17817008 FAILED devmem: mmap: Operation not permitted");
-        let e = (wdt0_rig("failed", &failed, &kfailed).the_wdt0_registers_are_read())().unwrap_err();
+        assert!((none.the_wdt0_registers_are_read())()
+            .unwrap_err()
+            .contains("holds no reading"));
+        assert!(
+            none.saved("wdt0.txt").is_err(),
+            "nothing is kept when nothing was read"
+        );
+        let failed = file.replace(
+            "EN 0x17817008 0x00000003",
+            "EN 0x17817008 FAILED devmem: mmap: Operation not permitted",
+        );
+        let kfailed = kmsg.replace(
+            "EN 0x17817008 0x00000003",
+            "EN 0x17817008 FAILED devmem: mmap: Operation not permitted",
+        );
+        let e =
+            (wdt0_rig("failed", &failed, &kfailed).the_wdt0_registers_are_read())().unwrap_err();
         assert!(e.contains("EN was not read"), "{e}");
     }
 
     #[test]
     fn the_wdt0_try_reads_the_file_after_the_login_and_the_other_tries_do_not() {
         let r = wdt0_rig("cmd", "", "");
-        assert!(r.read_command().contains("cat /run/walleye/wdt0 2>&1; echo ---end"));
+        assert!(r
+            .read_command()
+            .contains("cat /run/walleye/wdt0 2>&1; echo ---end"));
         assert_eq!(RootfsBoot::new((*r.s).clone()).read_command(), READ_COMMAND);
     }
 
@@ -2637,9 +2681,17 @@ mod tests {
             (RootfsBoot::wdt0(s).the_image_is_the_declared_one())()
         };
         assert!(judge("walleye.root=system_a walleye.wdt0").is_ok());
-        assert!(judge("walleye.root=system_a").unwrap_err().contains("no walleye.wdt0"));
-        assert!(judge("walleye.root=system_a walleye.wdt0 walleye.rw").unwrap_err().contains("read-only boot"));
-        assert!(judge("walleye.root=system_a walleye.wdt0 clk_ignore_unused").unwrap_err().contains("not its recipe's"));
+        assert!(judge("walleye.root=system_a")
+            .unwrap_err()
+            .contains("no walleye.wdt0"));
+        assert!(judge("walleye.root=system_a walleye.wdt0 walleye.rw")
+            .unwrap_err()
+            .contains("read-only boot"));
+        assert!(
+            judge("walleye.root=system_a walleye.wdt0 clk_ignore_unused")
+                .unwrap_err()
+                .contains("not its recipe's")
+        );
     }
 
     #[test]

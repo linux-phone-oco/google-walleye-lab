@@ -212,9 +212,7 @@ impl Settings {
 
     /// The WDT0 try's settings (item walleye-wdt0-try-procedure), read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_wdt0() -> Settings {
-        Settings::read_linked(Try::Wdt0, &|k| dev(k).to_string(), &|k| {
-            proc(k).to_string()
-        })
+        Settings::read_linked(Try::Wdt0, &|k| dev(k).to_string(), &|k| proc(k).to_string())
     }
 
     /// The WDT0 try's rehearsal reads the try's own keys, from its own table, and keeps its own folder (the real run's refuses a folder with files).

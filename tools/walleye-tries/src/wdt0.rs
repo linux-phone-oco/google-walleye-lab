@@ -37,11 +37,22 @@ pub fn cmdline_carries_the_word(cmdline: &str) -> Result<(), String> {
     let words: Vec<&str> = cmdline.split_whitespace().collect();
     match words.iter().filter(|w| **w == WORD).count() {
         1 => {}
-        0 => return Err(format!("the image's command line has no {WORD}: its init reads nothing")),
-        n => return Err(format!("the image's command line has {n} words {WORD}, expected one")),
+        0 => {
+            return Err(format!(
+                "the image's command line has no {WORD}: its init reads nothing"
+            ))
+        }
+        n => {
+            return Err(format!(
+                "the image's command line has {n} words {WORD}, expected one"
+            ))
+        }
     }
     if words.contains(&crate::rw_write::WORD) {
-        return Err(format!("the image's command line carries {}: this try reads, it never writes", crate::rw_write::WORD));
+        return Err(format!(
+            "the image's command line carries {}: this try reads, it never writes",
+            crate::rw_write::WORD
+        ));
     }
     Ok(())
 }
@@ -72,15 +83,21 @@ pub fn readings(text: &str) -> Result<Vec<Reading>, String> {
     let mut out: Vec<Reading> = Vec::new();
     for line in tagged(text) {
         let mut w = line.split_whitespace();
-        let (Some(name), Some(addr)) = (w.next(), w.next()) else { continue };
+        let (Some(name), Some(addr)) = (w.next(), w.next()) else {
+            continue;
+        };
         if name == "first" || name == "read" {
             continue;
         }
         let Some(&(_, own)) = REGISTERS.iter().find(|(n, _)| *n == name) else {
-            return Err(format!("the init read a register that is not one of the four: {line:?}"));
+            return Err(format!(
+                "the init read a register that is not one of the four: {line:?}"
+            ));
         };
         if hex(addr) != Some(own) {
-            return Err(format!("{name} was read at {addr}, its own address is {own:#x}"));
+            return Err(format!(
+                "{name} was read at {addr}, its own address is {own:#x}"
+            ));
         }
         if out.iter().any(|r| r.name == name) {
             return Err(format!("{name} was read twice: {line:?}"));
@@ -90,11 +107,23 @@ pub fn readings(text: &str) -> Result<Vec<Reading>, String> {
             ["FAILED", words @ ..] => Err(words.join(" ")),
             [v] => match hex(v).and_then(|n| u32::try_from(n).ok()) {
                 Some(n) => Ok(n),
-                None => return Err(format!("{name}'s value is not a 32-bit hex number: {line:?}")),
+                None => {
+                    return Err(format!(
+                        "{name}'s value is not a 32-bit hex number: {line:?}"
+                    ))
+                }
             },
-            _ => return Err(format!("{name}'s line has neither one value nor FAILED: {line:?}")),
+            _ => {
+                return Err(format!(
+                    "{name}'s line has neither one value nor FAILED: {line:?}"
+                ))
+            }
         };
-        out.push(Reading { name: name.into(), address: own, value });
+        out.push(Reading {
+            name: name.into(),
+            address: own,
+            value,
+        });
     }
     Ok(out)
 }
@@ -109,14 +138,23 @@ pub fn judge(file: &str, dmesg: &str) -> Result<Vec<Reading>, String> {
     }
     for (name, _) in REGISTERS {
         match kept.iter().find(|r| r.name == name) {
-            None => return Err(format!("{name} is not in {FILE}: the init read {} of the four", kept.len())),
-            Some(Reading { value: Err(words), .. }) => return Err(format!("{name} was not read: devmem said {words:?}")),
+            None => {
+                return Err(format!(
+                    "{name} is not in {FILE}: the init read {} of the four",
+                    kept.len()
+                ))
+            }
+            Some(Reading {
+                value: Err(words), ..
+            }) => return Err(format!("{name} was not read: devmem said {words:?}")),
             Some(_) => {}
         }
     }
     let said = readings(dmesg)?;
     if said != kept {
-        return Err(format!("the kernel log's readings {said:?} are not the file's {kept:?}"));
+        return Err(format!(
+            "the kernel log's readings {said:?} are not the file's {kept:?}"
+        ));
     }
     Ok(kept)
 }
@@ -145,7 +183,9 @@ mod tests {
 
     fn at_phone_time(kmsg: &str) -> String {
         // the kernel log puts a timestamp before each line
-        kmsg.lines().map(|l| format!("[    7.123456] {l}\n")).collect()
+        kmsg.lines()
+            .map(|l| format!("[    7.123456] {l}\n"))
+            .collect()
     }
 
     #[test]
@@ -158,21 +198,33 @@ mod tests {
     #[test]
     fn the_inits_file_and_kernel_log_are_judged_as_four_readings() {
         let r = judge(FILE_TEXT, &at_phone_time(KMSG)).unwrap();
-        assert_eq!(r.iter().map(|r| r.name.as_str()).collect::<Vec<_>>(), ["EN", "STS", "BARK_TIME", "BITE_TIME"]);
+        assert_eq!(
+            r.iter().map(|r| r.name.as_str()).collect::<Vec<_>>(),
+            ["EN", "STS", "BARK_TIME", "BITE_TIME"]
+        );
         assert_eq!(r[0].value, Ok(3));
         assert!(said(&r).starts_with("EN 0x17817008 = 0x00000003\n"));
     }
 
     #[test]
     fn a_failed_register_is_named_with_devmems_words() {
-        let failed = FILE_TEXT.replace("STS 0x1781700c 0x00000000", "STS 0x1781700c FAILED devmem: mmap: Operation not permitted");
+        let failed = FILE_TEXT.replace(
+            "STS 0x1781700c 0x00000000",
+            "STS 0x1781700c FAILED devmem: mmap: Operation not permitted",
+        );
         let e = judge(&failed, &failed).unwrap_err();
-        assert!(e.contains("STS was not read") && e.contains("devmem: mmap: Operation not permitted"), "{e}");
+        assert!(
+            e.contains("STS was not read") && e.contains("devmem: mmap: Operation not permitted"),
+            "{e}"
+        );
     }
 
     #[test]
     fn a_boot_that_read_nothing_says_so_with_a_phones_own_text() {
-        let dmesg = PHONE_READ.split("---dmesg").nth(1).expect("the phone's read has a dmesg section");
+        let dmesg = PHONE_READ
+            .split("---dmesg")
+            .nth(1)
+            .expect("the phone's read has a dmesg section");
         let e = judge("", dmesg).unwrap_err();
         assert!(e.contains("holds no reading"), "{e}");
     }
@@ -180,29 +232,45 @@ mod tests {
     #[test]
     fn a_missing_register_the_other_address_a_repeat_and_a_stranger_are_refused() {
         let without = FILE_TEXT.replace("walleye-wdt0: BITE_TIME 0x17817014 0x0000FFFF\n", "");
-        assert!(judge(&without, KMSG).unwrap_err().contains("BITE_TIME is not in"));
+        assert!(judge(&without, KMSG)
+            .unwrap_err()
+            .contains("BITE_TIME is not in"));
         let moved = FILE_TEXT.replace("EN 0x17817008", "EN 0x1781700c");
-        assert!(readings(&moved).unwrap_err().contains("its own address is 0x17817008"));
+        assert!(readings(&moved)
+            .unwrap_err()
+            .contains("its own address is 0x17817008"));
         let twice = format!("{FILE_TEXT}walleye-wdt0: EN 0x17817008 0x00000003\n");
         assert!(readings(&twice).unwrap_err().contains("twice"));
         let stranger = format!("{FILE_TEXT}walleye-wdt0: PET 0x1781700c 0x00000001\n");
-        assert!(readings(&stranger).unwrap_err().contains("not one of the four"));
+        assert!(readings(&stranger)
+            .unwrap_err()
+            .contains("not one of the four"));
     }
 
     #[test]
     fn the_kernel_log_must_say_what_the_file_keeps() {
         let other = at_phone_time(KMSG).replace("0x0000AAAA", "0x0000BBBB");
-        assert!(judge(FILE_TEXT, &other).unwrap_err().contains("are not the file's"));
-        assert!(judge(FILE_TEXT, "").unwrap_err().contains("are not the file's"));
+        assert!(judge(FILE_TEXT, &other)
+            .unwrap_err()
+            .contains("are not the file's"));
+        assert!(judge(FILE_TEXT, "")
+            .unwrap_err()
+            .contains("are not the file's"));
     }
 
     #[test]
     fn the_word_is_on_the_command_line_once_and_the_rw_word_never() {
         let ok = "clk_ignore_unused walleye.root=system_a walleye.wdt0";
         assert!(cmdline_carries_the_word(ok).is_ok());
-        assert!(cmdline_carries_the_word("walleye.root=system_a").unwrap_err().contains("no walleye.wdt0"));
-        assert!(cmdline_carries_the_word("walleye.wdt0 walleye.wdt0").unwrap_err().contains("2 words"));
+        assert!(cmdline_carries_the_word("walleye.root=system_a")
+            .unwrap_err()
+            .contains("no walleye.wdt0"));
+        assert!(cmdline_carries_the_word("walleye.wdt0 walleye.wdt0")
+            .unwrap_err()
+            .contains("2 words"));
         assert!(cmdline_carries_the_word("walleye.wdt0x").is_err());
-        assert!(cmdline_carries_the_word(&format!("{ok} walleye.rw")).unwrap_err().contains("never writes"));
+        assert!(cmdline_carries_the_word(&format!("{ok} walleye.rw"))
+            .unwrap_err()
+            .contains("never writes"));
     }
 }

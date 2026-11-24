@@ -8352,7 +8352,7 @@ About
 ### The WDT0 try as one command
 
 Entry date
-: 2026-11-24
+: 2026-11-25
 
 Done
 : Built the WDT0 try on the root boot's steps (RootfsBoot::wdt0 mode, Settings Try::Wdt0, device.toml tables for the try and its rehearsal), a judge in src/wdt0.rs, two procedures. Tests 430 pass, check and dry run pass; the phone was not touched.

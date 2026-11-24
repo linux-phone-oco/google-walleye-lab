@@ -45,10 +45,10 @@ fn main() {
     run_step(steps::wait_for_gadget(30, 5));
     step("log in over usb-network by ssh and read the phone and the watchdog's file", root.the_login_works_and_the_phone_is_read());
     check_from("it is root's login on the image, the network and the services are up", BOOT, root.the_phone_is_the_image_we_booted());
+    check_from("the init read all four registers of WDT0, and the file and the kernel log say the same", SOURCE, root.the_wdt0_registers_are_read());
     check_from("the init saw the slot adb saw and mounted the named partition", BOOT, root.the_init_saw_the_slot_adb_saw());
     check_from("the card is mounted read-only under the overlay", BOOT, root.the_root_is_mounted_read_only());
     check_from("the kernel log has no purge, oops or UFS failure", BOOT, root.the_kernel_log_is_clean());
-    check_from("the init read all four registers of WDT0, and the file and the kernel log say the same", SOURCE, root.the_wdt0_registers_are_read());
     step("send the phone back: to its bootloader first, the forced reboot if that is not reached", root.the_phone_is_sent_back());
     step("the phone is on Android (the way back, if it is not)", root.way_back());
     check_from("the phone is back on Android", BOOT, root.android_is_back());
