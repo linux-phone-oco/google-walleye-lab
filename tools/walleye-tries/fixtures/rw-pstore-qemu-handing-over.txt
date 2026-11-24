@@ -1,0 +1,7 @@
+[    0.756426] walleye-ufs-root: petting /dev/watchdog0 every 10s with the timeout 600s
+[    0.761510] walleye-ufs-root: the watchdogs: 1 petter(s) started at uptime 0 s, more when a driver probes later
+[    0.766506] walleye-ufs-root: slot source: androidboot.slot_suffix gave [_b]
+[    0.768961] walleye-ufs-root: start, kernel 7.3.4-1-cachyos, root=[system_a] running slot suffix=[_b]
+[    0.773160] walleye-ufs-root: root is /dev/vda2 (PARTNAME=system_a)
+[    0.775375] walleye-ufs-root: walleye-init: mounts-rw (system_a, ext4 rw,nodiscard)
+[    1.790383] walleye-ufs-root: handing over to the root's /sbin/init

@@ -1,0 +1,5 @@
+[    0.743775] walleye-ufs-root: petting /dev/watchdog0 every 10s with the timeout 600s
+[    0.748892] walleye-ufs-root: the watchdogs: 1 petter(s) started at uptime 0 s, more when a driver probes later
+[    0.753861] walleye-ufs-root: slot source: androidboot.slot_suffix gave [_b]
+[    0.756320] walleye-ufs-root: start, kernel 7.3.4-1-cachyos, root=[system_a] running slot suffix=[_b]
+[    0.759206] walleye-ufs-root: refused: walleye.booted-slot: system_a is not the system of the booted slot (androidboot.slot_suffix=_b)

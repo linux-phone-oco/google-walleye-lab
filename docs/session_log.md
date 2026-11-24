@@ -7867,3 +7867,24 @@ Rejected
 
 About
 : walleye-rw-image-without-booted-slot
+
+---
+
+
+<a id="2026-11-24-walleye-the-rw-write-reads-the-pstore-on-a-stop"></a>
+### walleye: the rw write reads the pstore on a stop
+
+Entry date
+: 2026-11-24
+
+Done
+: the_stop_in_the_console judge on four QEMU-captured init-line fixtures plus a phone-printed start line; way_back reads console-ramoops on Android and judges it, read only.
+
+Considered
+: waiting for a phone capture of a refusal
+
+Rejected
+: typing the lines: the fixtures are cuts of the real init's console; a phone pstore capture does not exist yet
+
+About
+: walleye-rw-write-reads-pstore-on-a-stop
