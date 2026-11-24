@@ -11996,3 +11996,28 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-kernel-pd-mapper"></a>
+### walleye's kernel builds carry CONFIG_QCOM_PD_MAPPER=y: plain Alpine 3.24 has no userspace pd-mapper, the kernel's own has served since 6.12
+
+Status
+: open
+
+Note
+: From orchestration 2026-11-24, by decision 2026-11-24-plain-alpine-not-nura (root is plain Alpine 3.24, not Nura). No build/*.config sets it today (git grep, c6c018f). qrtr, rmtfs and tqftpserv come from Alpine community; the apk boot.img trigger and firmware rule are lab-tools items layer-apk-bootimg-trigger and layer-firmware-rule-plain-alpine, not this lane's. Next: add it to build/walleye.config, and to the ufs-on kernel declared by walleye-declares-ufs-on-kernel-build; not into the stage 3 rw-write image's kernel part (that kernel stays the sha256 one).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: a host check that every walleye kernel config fragment the images use sets CONFIG_QCOM_PD_MAPPER=y, and the built kernel's .config read back
+
+Rank
+: 3
