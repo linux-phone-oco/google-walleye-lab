@@ -17,19 +17,19 @@ source = "research:walleye-audio-haptics-porthole-has-it"
 source = "research:walleye-banner-built"
 
 [scripts."banner-selftest.sh"]
-unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+source = "file:tests/fixtures/phone-text/banner-z6-try1.cap"
 
 [scripts."banner-loop-check.sh"]
 source = "research:walleye-z6-built"
 
 [scripts."banner-loop-selftest.sh"]
-unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+source = "file:tests/fixtures/phone-text/banner-loop-z6-try1.cap"
 
 [scripts."banner-shell-check.sh"]
 source = "research:walleye-z5-built"
 
 [scripts."banner-shell-selftest.sh"]
-unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+source = "file:tests/fixtures/phone-text/banner-shell-z5b-try2.cap"
 
 [scripts."battery-ok.sh"]
 unsourced = "the battery voltage floor has no research row naming where it came from"

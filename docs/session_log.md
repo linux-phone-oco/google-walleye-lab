@@ -7702,3 +7702,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-banner-selftests-captured"></a>
+### Banner selftests on text a phone printed
+
+Entry date
+: 2026-11-24
+
+Done
+: banner-selftest, banner-loop-selftest and banner-shell-selftest read tests/fixtures/phone-text/*.cap (the z6 and z5b banners the phone printed, copied from research); each failing case is a sed/awk/tac edit of that text; walleye-sources gates the fixtures folder in check.yml; 3 of 24 unsourced rows now sourced.
+
+Considered
+: A provenance line inside each .cap (it would be a line the phone did not print and breaks the banner checks) - a SOURCES.toml row per file instead, through the gate that already exists.
+
+Rejected
+: A new gate program for fixtures: walleye-sources already takes --dir, --table, --ext.
+
+About
+: walleye-bootimage
