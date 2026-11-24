@@ -7663,3 +7663,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-host-scripts-name-their-sources-the-gate"></a>
+### host scripts name their sources; the gate
+
+Entry date
+: 2026-11-24
+
+Done
+: tools/walleye-sources (argenv, 9 tests seen failing first), tests/host/SOURCES.toml for 98 scripts (74 sourced, 24 listed not yet sourced), check.yml job; programmer review fixes: empty reason, id-less data line, unreadable names refused
+
+Considered
+: a gate over procedures too (part 1's check_from already carries them)
+
+Rejected
+: marking the selftests sourced by the row of the thing they test: their fixtures are typed, so they are listed as not yet sourced
+
+About
+: walleye-bootimage
