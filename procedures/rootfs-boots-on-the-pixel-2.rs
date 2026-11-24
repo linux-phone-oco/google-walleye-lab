@@ -33,30 +33,30 @@ fn main() {
         watch::watch_the_try(root.way_back()); // whatever ends a real run, the way back runs after
     }
 
-    check("the battery is good enough", root.battery_is_good());
-    check("the image is the declared one and names one root", root.the_image_is_the_declared_one());
-    check("the stored boot chain is whole and the ssh key is private", root.the_stored_set_and_the_key_are_good());
+    check_from("the battery is good enough", "research:walleye-rootfs-boots-run-5-passed", root.battery_is_good());
+    check_from("the image is the declared one and names one root", "research:walleye-rootfs-boots-run-5-passed", root.the_image_is_the_declared_one());
+    check_from("the stored boot chain is whole and the ssh key is private", "research:walleye-rootfs-boots-run-5-passed", root.the_stored_set_and_the_key_are_good());
     step("say what to expect", root.author_is_told());
     step("the phone is on Android, adbd as root", root.the_phone_is_on_android_as_root());
-    check("adb reads the slot Android runs from", root.the_slot_is_read_by_adb());
-    check("the card is read from Android: its partition tables and the root partition", root.the_card_is_read_before());
+    check_from("adb reads the slot Android runs from", "research:walleye-rootfs-boots-run-5-passed", root.the_slot_is_read_by_adb());
+    check_from("the card is read from Android: its partition tables and the root partition", "research:walleye-stop-stage1-check-17-three-answers", root.the_card_is_read_before());
     step("take the phone to fastboot", root.phone_is_in_fastboot());
-    check("fastboot agrees on the slot and the image's root is the other one", root.the_guard_holds());
+    check_from("fastboot agrees on the slot and the image's root is the other one", "research:walleye-rootfs-boots-run-5-passed", root.the_guard_holds());
     step("make this run's image: the declared one with the slot read on its command line", root.the_run_image_is_made());
-    check("the slots' flags are read", root.the_slot_flags_are_read());
-    check("the author's go is recorded on the item", root.author_has_said_go());
+    check_from("the slots' flags are read", "research:walleye-rootfs-boots-run-5-passed", root.the_slot_flags_are_read());
+    check_from("the author's go is recorded on the item", "research:walleye-rootfs-boots-run-5-passed", root.author_has_said_go());
     step("boot the UFS-root image from memory, nothing flashed", root.boot_the_root_image());
     run_step(steps::wait_for_gadget(30, 5));
     step("log in over usb-network by ssh and read the phone", root.the_login_works_and_the_phone_is_read());
-    check("it is root's login on the image, the network and the services are up", root.the_phone_is_the_image_we_booted());
-    check("the init saw the slot adb saw and mounted the named partition", root.the_init_saw_the_slot_adb_saw());
-    check("the card is mounted read-only under the overlay", root.the_root_is_mounted_read_only());
-    check("the kernel log has no purge, oops or UFS failure", root.the_kernel_log_is_clean());
+    check_from("it is root's login on the image, the network and the services are up", "research:walleye-rootfs-boots-run-5-passed", root.the_phone_is_the_image_we_booted());
+    check_from("the init saw the slot adb saw and mounted the named partition", "research:walleye-rootfs-boots-run-5-passed", root.the_init_saw_the_slot_adb_saw());
+    check_from("the card is mounted read-only under the overlay", "research:walleye-rootfs-boots-run-5-passed", root.the_root_is_mounted_read_only());
+    check_from("the kernel log has no purge, oops or UFS failure", "research:walleye-rootfs-boots-run-5-passed", root.the_kernel_log_is_clean());
     step("send the phone back: to its bootloader first, the forced reboot if that is not reached", root.the_phone_is_sent_back());
     step("the phone is on Android (the way back, if it is not)", root.way_back());
-    check("the phone is back on Android", root.android_is_back());
+    check_from("the phone is back on Android", "research:walleye-rootfs-boots-run-5-passed", root.android_is_back());
     step("Android answers as root again", root.the_phone_is_on_android_as_root());
-    check("the partition tables and the root partition are as before", root.the_card_is_as_before());
-    check("the boot chain read again equals the stored set", root.the_boot_chain_is_as_stored());
-    check("both slots' flags are as before", root.the_slot_flags_are_as_before());
+    check_from("the partition tables and the root partition are as before", "research:walleye-stop-stage1-check-17-three-answers", root.the_card_is_as_before());
+    check_from("the boot chain read again equals the stored set", "research:walleye-rootfs-boots-run-5-passed", root.the_boot_chain_is_as_stored());
+    check_from("both slots' flags are as before", "research:walleye-rootfs-boots-run-5-passed", root.the_slot_flags_are_as_before());
 }

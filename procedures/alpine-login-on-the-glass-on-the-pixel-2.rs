@@ -30,13 +30,12 @@ fn main() {
         watch::watch_the_try(glass.way_back()); // whatever ends a real run, the way back runs after
     }
 
-    check("the battery is good enough", glass.battery_is_good());
-    check(
-        "the image is the declared one (sha256)",
+    check_from("the battery is good enough", "research:walleye-ramroot-b-a5-v5-run-2-check-15-passes", glass.battery_is_good());
+    check_from("the image is the declared one (sha256)", "research:walleye-ramroot-b-a5-v5-run-2-check-15-passes",
         glass.the_image_is_the_declared_one(),
     );
-    check("UFS is off in the image", glass.ufs_is_off());
-    check("the ssh key is private", glass.the_key_is_private());
+    check_from("UFS is off in the image", "research:walleye-ramroot-b-a5-v5-run-2-check-15-passes", glass.ufs_is_off());
+    check_from("the ssh key is private", "research:walleye-ramroot-b-a5-v5-run-2-check-15-passes", glass.the_key_is_private());
     step("say what to expect", glass.author_is_told());
     step("take the phone to fastboot", glass.phone_is_in_fastboot());
     step(
@@ -48,32 +47,25 @@ fn main() {
         "log in over usb-network by ssh and read the phone",
         glass.the_login_works_and_the_phone_is_read(),
     );
-    check(
-        "it is root's login, usb0 has the address and no service crashed",
+    check_from("it is root's login, usb0 has the address and no service crashed", "research:walleye-ramroot-b-a5-v5-run-2-check-15-passes",
         glass.the_phone_is_the_image_we_booted(),
     );
-    check(
-        "the init spoke and the root is a tmpfs",
+    check_from("the init spoke and the root is a tmpfs", "research:walleye-ramroot-b-a5-v5-run-2-check-15-passes",
         glass.the_root_is_a_tmpfs_the_init_made(),
     );
-    check(
-        "the display modules loaded at the delay, 13 of 13 ok, the three signs zero",
+    check_from("the display modules loaded at the delay, 13 of 13 ok, the three signs zero", "research:walleye-ramroot-b-a5-v5-run-2-check-15-passes",
         glass.the_modules_loaded_and_the_three_signs_are_zero(),
     );
-    check(
-        "a getty runs on tty1 (the glass) and on ttyGS0, and sshd runs",
+    check_from("a getty runs on tty1 (the glass) and on ttyGS0, and sshd runs", "research:walleye-ramroot-b-a5-v5-run-2-check-15-passes",
         glass.the_getties_and_sshd_run(),
     );
-    check(
-        "the kernel log has fbcon",
+    check_from("the kernel log has fbcon", "research:walleye-ramroot-b-a5-v5-run-2-check-15-passes",
         glass.the_kernel_log_has_fbcon(),
     );
-    check(
-        "the screen's text (/dev/vcs of the VT the glass shows) ends in `HOSTNAME login:` on the last non-blank row, the cursor's",
+    check_from("the screen's text (/dev/vcs of the VT the glass shows) ends in `HOSTNAME login:` on the last non-blank row, the cursor's", "research:walleye-ramroot-b-a5-v5-run-2-check-15-passes",
         glass.the_screen_holds_the_login_prompt(),
     );
-    check(
-        "the kernel log has no purge, oops or panic",
+    check_from("the kernel log has no purge, oops or panic", "research:walleye-ramroot-b-a5-v5-run-2-check-15-passes",
         glass.the_kernel_log_is_clean(),
     );
     step("hold the deadman for the look", glass.the_deadman_is_held());
@@ -90,5 +82,5 @@ fn main() {
         "the phone is on Android (the way back, if it is not)",
         glass.way_back(),
     );
-    check("the phone is back on Android", glass.android_is_back());
+    check_from("the phone is back on Android", "research:walleye-ramroot-b-a5-v5-run-2-check-15-passes", glass.android_is_back());
 }

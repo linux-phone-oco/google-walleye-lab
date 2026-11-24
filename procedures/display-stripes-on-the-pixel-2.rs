@@ -31,22 +31,22 @@ fn main() {
         watch::watch_the_try(l7.way_back());
     }
 
-    check("the battery is good enough", l7.battery_is_good());
-    check("the image is the one built", l7.image_is_the_built_one());
-    check("UFS is off in the image", l7.ufs_is_off());
+    check_from("the battery is good enough", "research:walleye-display-l7-built", l7.battery_is_good());
+    check_from("the image is the one built", "research:walleye-display-l7-built", l7.image_is_the_built_one());
+    check_from("UFS is off in the image", "research:walleye-display-l7-built", l7.ufs_is_off());
     step("take the phone to fastboot", l7.phone_is_in_fastboot());
     step("boot the image from memory", l7.boot_image());
     run_step(steps::wait_for_gadget(30, 5));
     step("the shell answers; set the hold and its deadman", l7.shell_answers_and_holds());
     step("load the display modules in the list's order", l7.modules_are_loaded());
-    check("the DSI connector says connected", l7.connector_is_connected());
+    check_from("the DSI connector says connected", "research:walleye-display-late-probe-l5-tried-dsi-connected-1080x1920", l7.connector_is_connected());
     step("say what to expect", l7.author_is_told());
     look_for(LOOK_FOR_LOG);
     step("say what the stripes are", l7.stripes_are_announced());
     step("start the stripe drawer, detached", l7.drawer_is_started());
-    check("the drawer drew the stripes, the console in graphics mode", l7.stripes_are_drawn());
+    check_from("the drawer drew the stripes, the console in graphics mode", "research:walleye-display-stripes-l6-tried-draw-calls-ok", l7.stripes_are_drawn());
     look_for(LOOK_FOR_STRIPES);
-    check("the drawer ended with 0 and the console is back in text mode", l7.drawer_has_ended());
+    check_from("the drawer ended with 0 and the console is back in text mode", "research:walleye-display-stripes-l6-tried-2-drawer-held-60s", l7.drawer_has_ended());
     step("send the phone back to Android", l7.way_back());
-    check("the phone is back on Android", l7.android_is_back());
+    check_from("the phone is back on Android", "research:walleye-display-l7-unanswered-run-way-back-ok", l7.android_is_back());
 }

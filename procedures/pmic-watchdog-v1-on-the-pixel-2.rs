@@ -24,35 +24,35 @@ fn main() {
         watch::watch_the_try(wdt.way_back());
     }
 
-    check("the battery is good enough", wdt.battery_is_good());
-    check("both images are the ones built", wdt.images_are_the_built_ones());
-    check("UFS is off in both images", wdt.ufs_is_off_in_both());
+    check_from("the battery is good enough", "research:walleye-pmic-wdt-v1-try-result", wdt.battery_is_good());
+    check_from("both images are the ones built", "research:walleye-pmic-wdt-v1-images-built", wdt.images_are_the_built_ones());
+    check_from("UFS is off in both images", "research:walleye-pmic-wdt-v1-images-built", wdt.ufs_is_off_in_both());
 
     step("take the phone to fastboot", wdt.phone_is_in_fastboot());
 
     // first test: the reboot; the phone is started and read first, the author is asked after
     step("boot image A from memory (B if A shows no banner)", wdt.boot_image());
-    check("the shell answers", wdt.shell_answers());
-    check("the watchdog probed and S2 is type 7", wdt.s2_type_is_seven());
+    check_from("the shell answers", "research:walleye-pmic-wdt-v1-try-result", wdt.shell_answers());
+    check_from("the watchdog probed and S2 is type 7", "research:walleye-pmic-bite-reset-type-how-it-stands", wdt.s2_type_is_seven());
     ask_author(words::TWO_TESTS);
     ask_author(words::REBOOT);
     step("arm the watchdog and reboot cleanly", wdt.arm_and_reboot());
-    check("Android is back", wdt.android_is_back());
-    check("Android stays up, no restart loop", wdt.android_stays_up());
+    check_from("Android is back", "research:walleye-pmic-wdt-v1-try-result", wdt.android_is_back());
+    check_from("Android stays up, no restart loop", "research:walleye-pmic-wdt-v1-try-result", wdt.android_stays_up());
 
     // second test: the bite, last
     step("back to fastboot", wdt.phone_is_in_fastboot());
     step("boot the same image again", wdt.boot_image());
-    check("the shell answers", wdt.shell_answers());
-    check("the watchdog probed and S2 is type 7", wdt.s2_type_is_seven());
-    check("S2 is off after the clean reboot", wdt.s2_is_off_after_the_reboot());
+    check_from("the shell answers", "research:walleye-pmic-wdt-v1-try-result", wdt.shell_answers());
+    check_from("the watchdog probed and S2 is type 7", "research:walleye-pmic-bite-reset-type-how-it-stands", wdt.s2_type_is_seven());
+    check_from("S2 is off after the clean reboot", "research:walleye-pmic-bite-reset-type-how-it-stands", wdt.s2_is_off_after_the_reboot());
     ask_author(words::BITE);
     step("arm the watchdog and never pet it", wdt.arm_and_bite());
-    check("the phone restarts by itself", wdt.restarts_by_itself());
+    check_from("the phone restarts by itself", "research:walleye-pmic-wdt-v1-try-result", wdt.restarts_by_itself());
     ask_author(words::HOLD_POWER);
-    check("Android is back", wdt.android_is_back());
-    check("Android stays up", wdt.android_stays_up_a_minute());
-    check("Android's boot reason and active slot are read", wdt.bootreason_and_slot_are_read());
+    check_from("Android is back", "research:walleye-pmic-wdt-v1-try-result", wdt.android_is_back());
+    check_from("Android stays up", "research:walleye-pmic-wdt-v1-try-result", wdt.android_stays_up_a_minute());
+    check_from("Android's boot reason and active slot are read", "research:walleye-pmic-wdt-v1-try-result", wdt.bootreason_and_slot_are_read());
     step("save the result", wdt.result_is_saved());
     step("the phone is on Android (the way back, if it is not)", wdt.way_back());
 }
