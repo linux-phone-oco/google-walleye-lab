@@ -7462,3 +7462,25 @@ About
 
 Material
 : research/walleye-ufs-match-android-z/2026-11-24/
+
+
+<a id="walleye-ufs-try-2-run-9-ramp-passes-at-hs-gear1"></a>
+### walleye-ufs-try-2-run-9-ramp-passes-at-hs-gear1
+
+Date
+: 2026-11-24
+
+Brief
+: UFS try 2 run 9: pin held (HS_GEAR1, 100 MHz); 64, 256, 1024 MiB reads all rc=0, shell answered every poll, done by uptime 19 s; GPT equal 6cd7e48c; Android b back
+
+Question
+: Does the matched UFS image read the card under load, pinned (PR 975), when the procedure fits the image's 180 s self-reboot?
+
+Found
+: Run 9 (the one run of the reopened go): idle link read once (HS_GEAR1, 2 lanes); image deadline read 181.7 s; step 16 pin held (userspace, cur_freq 100 MHz, HS_GEAR1); ramp 64/256/1024 MiB every step rc=0, shell answered every poll, load ended at uptime 19 s, far inside the 180 s deadline; gear stayed HS_GEAR1 under load; GPT before and after 6cd7e48c...0174 (equal, nothing written); no purge; phone back on Android slot b, flags as before, PON reason reboot. So the earlier silences were the 170 s idle wait leaving no time before the init's own reboot, not UFS failing under load at this gear. Open: the unpinned load (HS_GEAR3, runs 2-3 silent at step 16) is not shown fine. Output: ufs-try-2-run-9.out.
+
+About
+: walleye-first-fastboot-boot
+
+Material
+: research/walleye-first-fastboot-boot/2026-11-24/

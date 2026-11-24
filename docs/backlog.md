@@ -9665,6 +9665,7 @@ if the shell goes silent while the host still lists the device before deadline m
 if the phone leaves the bus before deadline minus 10 s then something other than the image's own timer reset it (watchdog bite, secure reset): the disappearance time against the petter start in the kernel log says which, and no second run
 if the gear reaches HS_GEAR3 under load although the pin held then the driver's own scaling overrides the pin under load
 if the GPT hash of sda after equals the hash before (6cd7e48c...0174) and the boot chain is equal then the run changed nothing (read only)
+go until 2026-11-24T02:01:15+01:00, outcomes: used by run 9: every ramp step rc=0 at HS_GEAR1, shell answering, GPT equal
 
 About
 : walleye-first-fastboot-boot
@@ -9685,7 +9686,7 @@ Witness
 : person
 
 Go until
-: 2026-11-24T06:00:00+01:00
+: 2026-11-24T02:01:15+01:00
 
 
 <a id="walleye-ufs-try-2-run-1-gpt-equal"></a>
