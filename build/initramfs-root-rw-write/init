@@ -168,6 +168,34 @@ if [ -n "$RW" ]; then
   mount -t tmpfs -o mode=755,size=16m tmpfs /newroot/run || refuse "no tmpfs for /run"
   mkdir -p /newroot/.walleye
   mount -t tmpfs -o mode=755,size=16m tmpfs /newroot/.walleye || refuse "no tmpfs for /.walleye"
+  # the clean end (decision 2026-11-24-rw-root-ends-through-alpines-shutdown-level; item walleye-rw-end-through-openrc-mount-ro): the root on the card was written before the shutdown level had mount-ro and the last service, and its OpenRC shutdown
+  # would leave it rw and cut off. This init puts both into the shutdown level, in /etc of the root it mounts rw (an idempotent write of one service file and two links; nothing else of the card is touched). The service text is
+  # the file of the rootfs tree, etc/init.d/walleye-end, byte for byte (tests/host/ufs-root-rw-init.sh compares them).
+  [ -d /newroot/etc/init.d ] && [ -d /newroot/etc/runlevels/shutdown ] && [ -x /newroot/etc/init.d/mount-ro ] || refuse "/dev/$found has no OpenRC shutdown level with mount-ro: the root cannot end clean"
+  cat > /newroot/etc/init.d/walleye-end <<'EOE'
+#!/sbin/openrc-run
+# The last service of the shutdown level (decision 2026-11-24-rw-root-ends-through-alpines-shutdown-level): it always ends the phone with a reboot.
+# killprocs has ended every process, the petters and the hold with them, so a shutdown that stops here would sit until the watchdog bites.
+# If the lab left /run/walleye/to-bootloader (and its walleye-reboot there), the reboot asks for the bootloader; if that tool fails or is missing, the plain reboot still comes.
+# Reads and runs only what is under /run/walleye (tmpfs); writes nothing.
+description="the end of shutdown: reboot, to the bootloader when asked"
+
+depend() {
+	after *
+}
+
+start() {
+	ebegin "Rebooting"
+	if [ -e /run/walleye/to-bootloader ] && [ -x /run/walleye/walleye-reboot ]; then
+		/run/walleye/walleye-reboot --command bootloader
+	fi
+	reboot -f
+}
+EOE
+  chmod 755 /newroot/etc/init.d/walleye-end || refuse "walleye-end could not be made executable"
+  ln -sf /etc/init.d/mount-ro /newroot/etc/runlevels/shutdown/mount-ro || refuse "the shutdown link of mount-ro failed"
+  ln -sf /etc/init.d/walleye-end /newroot/etc/runlevels/shutdown/walleye-end || refuse "the shutdown link of walleye-end failed"
+  say "walleye-init: shutdown-level mount-ro and walleye-end"
 else
 # RW-WRITE-BLOCK-END
 mkdir -p /lower /ovl /newroot

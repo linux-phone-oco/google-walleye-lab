@@ -8089,3 +8089,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-rw-clean-end-image-and-way-back"></a>
+### rw image rebuilt with the clean end; the way back asks init to end
+
+Entry date
+: 2026-11-24
+
+Done
+: rw init installs walleye-end and the shutdown links; image 2477276882987c8e1330f56b91cb07bac2afdcbe97e7b03e72b127f2bb69b54f built twice equal, recipe ramdisk and sha256 in device.toml; rootfs_boot.rs the_clean_end_is_tried, 3 tests; QEMU tests follow the init's own file.
+
+Considered
+: Rewriting system_a whole (out of scope); a rootfs-only change (the root on the card is already written: only the init reaches it); shipping the service in the ramdisk as a separate file (the heredoc is compared byte for byte with the rootfs file by tests/host/ufs-root-rw-init.sh).
+
+Rejected
+: A remount inside the live ssh session (busy: petters, syslogd hold the root open).
+
+About
+: walleye-bootimage
