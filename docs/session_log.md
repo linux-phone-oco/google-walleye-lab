@@ -8263,3 +8263,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-walleye-coordinator-handover-evening"></a>
+### Walleye coordinator hand-over, 2026-11-24 evening: stage 3 passed; builders on rank-3 items
+
+Entry date
+: 2026-11-24
+
+Done
+: STAGE 3 PASSED: run 5 (PR 1046) wrote 16 MiB to system_a through our kernel, read back equal, the root ended clean through Alpine's shutdown (mount-ro, walleye-end), e2fsck -fn from Android clean; tables and boot chain equal. Image 07df9842...dd8a, built by image ensure from its recipe (PR 1044). Runs 1 and 4 stopped on walleye.booted-slot in the image header (PRs 1012, 1039); run 3 on a busy remount (PR 1027). Every go is closed. Also landed: pd-mapper config (1052), flaky fixture fix (1051), check 22 never-list in boot-chain.toml (1053), way back reboots twice (1054), go spent-marker and kernel fork tags with no branch deleted (1055; the Top's rule: tip tag and git cherry first), recipes l7/b1/b2 (1056). IN FLIGHT: builder local_02098168 (walleye-image-recipes-other-images in-progress: wdt1-a/b, b-dN left); archive it when idle. WAITS: walleye-ci-image-ensure-rebuild on lab-tools image-rebuild-changed-since; proof (1) of walleye-go-is-consumed-by-its-run, a line in docs phone-keeper.md, sent to orchestration who owns the briefs; walleye-checks-name-their-sources: 21 host scripts need text a phone printed (a keeper capture item still to write). NEXT: keeper items wdt0-first-instant-read (its test still to write), cmdline-cut-check-slot-a, fastboot-reboot-twice-timed-try; kernel-series-to-topics step 5. SIGNS: launched builders take their launcher's top row before the coordinator's message arrives; keepers left used gos open; pgrep -f wait loops match themselves (two ended by pid); the app's cross-session send cap paused this coordinator's messages until the user types. The morning question for the author (Linux as default boot) is still not asked.
+
+Considered
+: Reusing the unarchivable run 3 keeper for runs 4 and 5 rather than starting a second keeper.
+
+Rejected
+: Deleting fork branches without a tip tag and a cherry check (the Top's condition).
+
+About
+: walleye-bootimage
