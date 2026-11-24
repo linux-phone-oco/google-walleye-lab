@@ -32,12 +32,11 @@ fn main() {
         watch::watch_the_try(bisect.way_back_after_any_stop());
     }
 
-    check("the battery is good enough", bisect.battery_is_good());
-    check(
-        "every image is the one built (sha256)",
+    check_from("the battery is good enough", "research:walleye-display-delay-bisect-flips-at-25s", bisect.battery_is_good());
+    check_from("every image is the one built (sha256)", "research:walleye-display-delay-bisect-flips-at-25s",
         bisect.every_image_is_the_built_one(),
     );
-    check("UFS is off in every image", bisect.ufs_is_off_in_every_image());
+    check_from("UFS is off in every image", "research:walleye-display-delay-bisect-flips-at-25s", bisect.ufs_is_off_in_every_image());
     for delay in bisect.delays() {
         step(
             &format!("B-d{delay}: take the phone to fastboot"),
@@ -52,16 +51,18 @@ fn main() {
             &format!("B-d{delay}: the shell answers and the image has its delay"),
             bisect.shell_answers_and_the_image_has_its_delay(delay),
         );
-        check(
+        check_from(
             &format!("B-d{delay}: the modules load at {delay} s and the three signs are counted"),
+            "research:walleye-display-delay-bisect-flips-at-25s",
             bisect.modules_load_and_the_signs_are_scored(delay),
         );
         step(
             &format!("B-d{delay}: send the phone back to Android"),
             bisect.way_back(),
         );
-        check(
+        check_from(
             &format!("B-d{delay}: the phone is back on Android"),
+            "research:walleye-display-flip-15-25-read-from-logs",
             bisect.android_is_back(),
         );
     }

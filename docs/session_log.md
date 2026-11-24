@@ -7549,3 +7549,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-every-check-of-the-13-procedures-names-its"></a>
+### Every check of the 13 procedures names its source; lpoco-attended 0.45.2
+
+Entry date
+: 2026-11-24
+
+Done
+: check(..) became check_from(what, research:ID, ..) in all 145 checks, sources from the research rows of each try and the five walleye-stop-* rows; the pin moved to 0.45.2 in the same change (rhizoid PR 966); 13 dry runs ok, a check without a source stops at check 1 (negative run); 369 tests, clippy, fmt. Reviewed by the programmer subagent; its five weak fits fixed.
+
+Considered
+: a procedures/SOURCES.toml table: later with the gate
+
+Rejected
+: one source per procedure: too coarse, a check should name the row of its own value
+
+About
+: walleye-bootimage

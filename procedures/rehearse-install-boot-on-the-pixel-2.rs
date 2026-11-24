@@ -23,22 +23,22 @@ fn main() {
         watch::watch_the_try(boot.rehearsal_way_back()); // whatever ends a real run, the way back runs after
     }
 
-    check("the battery is good enough", boot.battery_is_good());
-    check("the image is the declared one, a whole boot partition, its AVB footer verifies", boot.the_image_is_the_declared_one());
-    check("the image's init accepts the slot it is booted from", boot.the_init_accepts_the_slot_it_is_booted_from());
-    check("the stored boot chain is whole, the ssh key is private and the reboot tool is the declared one", boot.the_stored_set_and_the_key_are_good());
+    check_from("the battery is good enough", "research:walleye-install-stage2-android-verdict", boot.battery_is_good());
+    check_from("the image is the declared one, a whole boot partition, its AVB footer verifies", "research:walleye-install-flash-boot-procedure-built", boot.the_image_is_the_declared_one());
+    check_from("the image's init accepts the slot it is booted from", "research:walleye-install-flash-boot-procedure-built", boot.the_init_accepts_the_slot_it_is_booted_from());
+    check_from("the stored boot chain is whole, the ssh key is private and the reboot tool is the declared one", "research:walleye-install-boot-rehearsal-passed", boot.the_stored_set_and_the_key_are_good());
     step("say what to expect", boot.rehearsal_is_told());
     step("the phone is on Android, adbd as root", boot.the_phone_is_on_android_as_root());
-    check("adb reads the slot Android runs from", boot.the_slot_is_read_by_adb());
-    check("the boot partition to be flashed, read now, is recorded (its backup, the declared image or other content) and the stock backup is on file and hashes to its record; the boot, dtbo and vbmeta partitions are hashed", boot.the_slot_partitions_are_read_before());
-    check("the GPT of every disk is read whole and kept", boot.the_gpt_is_read_before());
+    check_from("adb reads the slot Android runs from", "research:walleye-install-boot-rehearsal-passed", boot.the_slot_is_read_by_adb());
+    check_from("the boot partition to be flashed, read now, is recorded (its backup, the declared image or other content) and the stock backup is on file and hashes to its record; the boot, dtbo and vbmeta partitions are hashed", "research:walleye-stop-stage2-checks-9-and-16-three-answers", boot.the_slot_partitions_are_read_before());
+    check_from("the GPT of every disk is read whole and kept", "research:walleye-stop-stage2-check-18-three-answers", boot.the_gpt_is_read_before());
     step("take the phone to fastboot", boot.phone_is_in_fastboot());
-    check("fastboot agrees on the slot and the flash target is the other slot's boot partition (its command is shown, not run)", boot.the_guard_holds());
-    check("the slot flags are read before, and the slot Android runs from is successful and bootable (the way back)", boot.the_slot_flags_are_read("slots-before.txt"));
-    check("the slot flags read again are kept beside the first (a difference is said, not refused)", boot.the_slot_flags_are_the_same());
+    check_from("fastboot agrees on the slot and the flash target is the other slot's boot partition (its command is shown, not run)", "research:walleye-install-boot-rehearsal-passed", boot.the_guard_holds());
+    check_from("the slot flags are read before, and the slot Android runs from is successful and bootable (the way back)", "research:walleye-stop-stage2-checks-9-and-16-three-answers", boot.the_slot_flags_are_read("slots-before.txt"));
+    check_from("the slot flags read again are kept beside the first (a difference is said, not refused)", "research:walleye-stop-stage2-checks-9-and-16-three-answers", boot.the_slot_flags_are_the_same());
     step("the phone is on Android, adbd as root", boot.the_phone_is_on_android_as_root());
-    check("the phone is back on Android", boot.android_is_back());
-    check("the GPT read again is the same, whole, and passes the switch checker unchanged", boot.the_gpt_reads_the_same_again());
-    check("the read of a failed boot (the pstore first, the command line, the boot reason, the slot) works on Android as it is: read only, nothing sent", boot.the_failed_boot_read_works_on_android());
-    check("the boot chain read again equals the stored set", boot.the_boot_chain_is_as_stored());
+    check_from("the phone is back on Android", "research:walleye-install-boot-rehearsal-passed", boot.android_is_back());
+    check_from("the GPT read again is the same, whole, and passes the switch checker unchanged", "research:walleye-stop-stage2-check-18-three-answers", boot.the_gpt_reads_the_same_again());
+    check_from("the read of a failed boot (the pstore first, the command line, the boot reason, the slot) works on Android as it is: read only, nothing sent", "research:walleye-stop-pstore-reads-runs-4-and-7-three-answers", boot.the_failed_boot_read_works_on_android());
+    check_from("the boot chain read again equals the stored set", "research:walleye-install-boot-rehearsal-passed", boot.the_boot_chain_is_as_stored());
 }

@@ -24,20 +24,20 @@ fn main() {
         watch::watch_the_try(install.way_back()); // whatever ends a real run, the way back runs after
     }
 
-    check("the battery is good enough", install.battery_is_good());
-    check("the backup of both slots is whole", install.the_backup_is_whole());
-    check("the image is the declared one and fits", install.the_image_is_the_declared_one());
+    check_from("the battery is good enough", "research:walleye-install-stage-how-it-stands", install.battery_is_good());
+    check_from("the backup of both slots is whole", "research:walleye-install-stage-how-it-stands", install.the_backup_is_whole());
+    check_from("the image is the declared one and fits", "research:walleye-install-stage-how-it-stands", install.the_image_is_the_declared_one());
     step("say what to expect", install.author_is_told());
     step("take the phone to fastboot", install.phone_is_in_fastboot());
-    check("the slot Android runs from is read, the other one is the target", install.the_slot_is_read());
+    check_from("the slot Android runs from is read, the other one is the target", "research:walleye-install-stage-how-it-stands", install.the_slot_is_read());
     step("the phone is on Android, adbd as root", install.the_phone_is_on_android_as_root());
     step("stage the image on the phone and check the copy", install.the_image_is_staged());
-    check("adb and fastboot name the same slot", install.the_slots_agree());
-    check("the target partition, read now, is its backup", install.the_backup_is_the_slot_as_it_is_now());
+    check_from("adb and fastboot name the same slot", "research:walleye-install-stage-how-it-stands", install.the_slots_agree());
+    check_from("the target partition, read now, is its backup", "research:walleye-install-slot-readback-done-twice-same-bytes", install.the_backup_is_the_slot_as_it_is_now());
     step("write the image to the target partition: one dd", install.the_image_is_written());
-    check("the partition reads back as the image", install.the_partition_reads_back_as_the_image());
-    check("every other partition of both slots is as its backup", install.the_other_partitions_are_unchanged());
+    check_from("the partition reads back as the image", "research:walleye-install-slot-readback-done-twice-same-bytes", install.the_partition_reads_back_as_the_image());
+    check_from("every other partition of both slots is as its backup", "research:walleye-install-slot-readback-done-twice-same-bytes", install.the_other_partitions_are_unchanged());
     step("take the staged copy off the phone", install.the_stage_is_removed());
     step("the phone is on Android (the way back, if it is not)", install.way_back());
-    check("the phone is back on Android", install.android_is_back());
+    check_from("the phone is back on Android", "research:walleye-install-stage-how-it-stands", install.android_is_back());
 }

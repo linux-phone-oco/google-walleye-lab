@@ -17,18 +17,18 @@ fn main() {
     let _run = procedure(TOUCH_PROCEDURE, "google-walleye");
     let z21 = Touch::new(Settings::for_touch());
 
-    check("the battery is good enough", z21.battery_is_good());
-    check("the image is the one built", z21.image_is_the_built_one());
-    check("UFS is off in the image", z21.ufs_is_off());
+    check_from("the battery is good enough", "research:walleye-z21-built", z21.battery_is_good());
+    check_from("the image is the one built", "research:walleye-z21-built", z21.image_is_the_built_one());
+    check_from("UFS is off in the image", "research:walleye-z21-built", z21.ufs_is_off());
     step("take the phone to fastboot", z21.phone_is_in_fastboot());
     step("boot the image from memory", z21.boot_image());
-    check("the phone's shell answers and its dmesg is saved", z21.shell_answers());
-    check("the touch controller is listed", z21.touch_device_is_listed());
-    check("the reader's window is long enough", z21.window_is_long_enough());
+    check_from("the phone's shell answers and its dmesg is saved", "research:walleye-z21-built", z21.shell_answers());
+    check_from("the touch controller is listed", "research:walleye-z21-touch-events-pass", z21.touch_device_is_listed());
+    check_from("the reader's window is long enough", "research:walleye-z21-touch-events-window-missed", z21.window_is_long_enough());
     step("start the touch reader", z21.reader_is_started());
-    check("the reader shows EVENTS-READY", z21.reader_shows_events_ready());
+    check_from("the reader shows EVENTS-READY", "research:walleye-z21-touch-events-pass", z21.reader_shows_events_ready());
     ask_author("swipe across the whole glass and tap each corner, until the reader window closes / the terminal counted your touches (say ok when done)");
     step("wait for the reader's window to close", z21.window_has_closed());
-    check("the phone is back on Android", z21.android_is_back());
-    check("a touch made events", z21.events_are_counted());
+    check_from("the phone is back on Android", "research:walleye-z21-built", z21.android_is_back());
+    check_from("a touch made events", "research:walleye-z21-touch-events-pass", z21.events_are_counted());
 }

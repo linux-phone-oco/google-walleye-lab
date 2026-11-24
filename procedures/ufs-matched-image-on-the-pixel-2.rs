@@ -36,32 +36,32 @@ fn main() {
         watch::watch_the_try(card.way_back()); // whatever ends a real run, the way back runs after
     }
 
-    check("the battery is good enough", card.battery_is_good());
-    check("the image is the matched one, its tests pass", card.image_is_the_matched_one());
+    check_from("the battery is good enough", "research:walleye-ufs-match-tried-version-ok-link-stays-gear1", card.battery_is_good());
+    check_from("the image is the matched one, its tests pass", "research:walleye-ufs-match-tried-version-ok-link-stays-gear1", card.image_is_the_matched_one());
     step("take the phone to fastboot", card.phone_is_in_fastboot());
-    check("the slots' flags are read", card.the_slot_flags_are_read());
+    check_from("the slots' flags are read", "research:walleye-ufs-match-tried-version-ok-link-stays-gear1", card.the_slot_flags_are_read());
     step("say what to expect", card.author_is_told());
-    check("the author's go is recorded on the item", card.author_has_said_go());
+    check_from("the author's go is recorded on the item", "research:walleye-ufs-go-note", card.author_has_said_go());
     step("boot the matched UFS-on image from memory, nothing flashed", card.boot_matched_image());
     run_step(steps::wait_for_gadget(30, 5));
     step("the shell answers and the image's reboot deadline is read (its init has no hold: it reboots 180 s after its petter starts, research walleye-ufs-180s-is-the-init-self-reboot)", card.shell_answers_and_the_deadline_is_read());
-    check("the probe lines are in the kernel log", card.the_probe_lines_are_read());
-    check("the link is read once (up at any gear works; no wait for HS-G3 at idle)", card.the_link_is_read());
-    check("the card's disks are listed, read only", card.the_luns_are_listed());
-    check("the card's six disks and the partition tables are read", card.the_card_is_identified());
-    check("the GPT of the disk is hashed", card.the_gpt_is_hashed_before());
-    check("the gear and the clock, before any load", card.the_gear_is_read_before_load());
+    check_from("the probe lines are in the kernel log", "research:walleye-ufs-match-tried-version-ok-link-stays-gear1", card.the_probe_lines_are_read());
+    check_from("the link is read once (up at any gear works; no wait for HS-G3 at idle)", "research:walleye-stop-ufs-try-2-step-16-three-answers", card.the_link_is_read());
+    check_from("the card's disks are listed, read only", "research:walleye-ufs-match-tried-version-ok-link-stays-gear1", card.the_luns_are_listed());
+    check_from("the card's six disks and the partition tables are read", "research:walleye-ufs-match-tried-version-ok-link-stays-gear1", card.the_card_is_identified());
+    check_from("the GPT of the disk is hashed", "research:walleye-ufs-try-2-run-1-gpt-equal-result", card.the_gpt_is_hashed_before());
+    check_from("the gear and the clock, before any load", "research:walleye-stop-ufs-try-2-step-16-three-answers", card.the_gear_is_read_before_load());
     if pin.is_pinned() {
         step(PINNED, card.the_clock_is_pinned_low());
     } else {
         step(UNPINNED, card.the_clock_is_read_as_found());
     }
     step("a ramped, bounded, read-only read of the disk (unpinned: plus a 2048 MiB step only when its limit ends before the reboot; each step only when its limit ends before the image's reboot deadline less 10 s, its start uptime kept), a RAM log line before each step, the shell polled every second, the gear sampled", card.the_gear_is_read_under_load());
-    check("the gear and the clock, 2 s after the read", card.the_gear_is_read_two_seconds_after());
-    check("the GPT is hash-equal to before", card.the_gpt_is_unchanged());
-    check("no purge was asked", card.no_purge_was_asked());
+    check_from("the gear and the clock, 2 s after the read", "research:walleye-stop-ufs-try-2-step-16-three-answers", card.the_gear_is_read_two_seconds_after());
+    check_from("the GPT is hash-equal to before", "research:walleye-ufs-try-2-run-1-gpt-equal-result", card.the_gpt_is_unchanged());
+    check_from("no purge was asked", "research:walleye-ufs-match-tried-version-ok-link-stays-gear1", card.no_purge_was_asked());
     step("the phone is on Android (the way back, if it is not)", card.way_back());
-    check("the phone is back on Android", card.android_is_back());
-    check("the PON reason is read on Android, read only", card.the_pon_reason_is_read());
-    check("both slots' flags are as before", card.the_slot_flags_are_as_before());
+    check_from("the phone is back on Android", "research:walleye-ufs-match-tried-version-ok-link-stays-gear1", card.android_is_back());
+    check_from("the PON reason is read on Android, read only", "research:walleye-ufs-match-tried-version-ok-link-stays-gear1", card.the_pon_reason_is_read());
+    check_from("both slots' flags are as before", "research:walleye-ufs-match-tried-version-ok-link-stays-gear1", card.the_slot_flags_are_as_before());
 }

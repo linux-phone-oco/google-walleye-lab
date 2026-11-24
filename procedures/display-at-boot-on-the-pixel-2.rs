@@ -25,12 +25,11 @@ fn main() {
     let _run = procedure(DISPLAY_BOOT_PROCEDURE, "google-walleye");
     let b2 = DisplayBoot::new(Settings::for_display_boot());
 
-    check(
-        "the image is the one built (sha256)",
+    check_from("the image is the one built (sha256)", "research:walleye-display-at-boot-b1-built",
         b2.image_is_the_built_one(),
     );
-    check("UFS is off in the image", b2.ufs_is_off());
-    check("the battery is good enough", b2.battery_is_good());
+    check_from("UFS is off in the image", "research:walleye-display-at-boot-b1-built", b2.ufs_is_off());
+    check_from("the battery is good enough", "research:walleye-display-at-boot-b1-built", b2.battery_is_good());
     step("take the phone to fastboot", b2.phone_is_in_fastboot());
     step(
         "boot the image from memory, nothing flashed",
@@ -41,12 +40,10 @@ fn main() {
         "the shell answers by itself and the init's hold is on",
         b2.shell_answers_and_the_hold_is_on(),
     );
-    check(
-        "every display module said ok in the kernel log",
+    check_from("every display module said ok in the kernel log", "research:walleye-display-at-boot-b1-tried-unattended-ok-backlight-fails",
         b2.every_module_said_ok(),
     );
-    check(
-        "card0 and the DSI-1 connector read connected",
+    check_from("card0 and the DSI-1 connector read connected", "research:walleye-display-late-probe-l5-tried-dsi-connected-1080x1920",
         b2.connector_is_connected(),
     );
     step(
@@ -65,10 +62,9 @@ fn main() {
         b2.stripes_are_drawn_held(),
     );
     look_for(LOOK_FOR_STRIPES);
-    check(
-        "the drawer ended with 0 and the console is back in text mode",
+    check_from("the drawer ended with 0 and the console is back in text mode", "research:walleye-display-stripes-l6-tried-2-drawer-held-60s",
         b2.stripes_have_ended(),
     );
     step("send the phone back to Android", b2.way_back());
-    check("the phone is back on Android", b2.android_is_back());
+    check_from("the phone is back on Android", "research:walleye-display-at-boot-b1-tried-unattended-ok-backlight-fails", b2.android_is_back());
 }
