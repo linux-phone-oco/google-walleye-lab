@@ -7569,3 +7569,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-24/
+
+
+<a id="walleye-rw-write-image-built"></a>
+### walleye-rw-write-image-built
+
+Date
+: 2026-11-24
+
+Brief
+: rw-write image built: the production init plus a walleye.rw switch; QEMU shows rw root + write on the partition, ro overlay without the word; image cb79c975 rebuilt equal by image ensure
+
+Question
+: Can the production UFS-root image get a read-write mode behind one word, with the ro image untouched?
+
+Found
+: build/initramfs-root-rw-write/init is build/initramfs-root-production/init with RW-WRITE blocks (cut them and the file is the production init, line for line). With walleye.rw, after every guard (named system_a/b, slot from the bootloader's sources, booted-slot rule, exactly one partition of the name) the root is mounted ext4 rw,nodiscard on /newroot: no overlay, mkfs, fsck, discard, remount, ufs_bsg or purge; /run and /.walleye are tmpfs, the card gets one empty dir /.walleye. tests/host/ufs-root-rw-init.sh (QEMU, loop-made rootfs): R1 word -> ROOT-MOUNT /dev/vda2 / ext4 rw, the write read back with debugfs, no busybox on the card, decoy and other disk untouched; R2 no word -> overlay, disk byte-equal; R3 decoy-only, running slot, foreign name, no slot, booted-slot mismatch, no root -> refuse, disk byte-equal; seen failing on the production init and on a copy without the /.walleye tmpfs. Image: control = production b74af863, ramdisk 1734b936 (build/build-ufs-root-rw-write.sh, built twice equal), cmdline = production's + walleye.rw (150 chars, budget 160): sha256 cb79c97535642380d44258931facdaaba97630ea2913e08544a7e37c0531868c; lpoco-bringup 0.49.2 image ensure rebuilds it from the recipe equal to the declared sha256 (seeded control and ramdisk). The hold script of the rw image syncs before its reset; R1 also compares the partition's top-level names before and after (a stray file is seen: tested with a mutant). Never booted.
+
+About
+: walleye-bootimage

@@ -7723,3 +7723,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-rw-write-image"></a>
+### The rw-write image
+
+Entry date
+: 2026-11-24
+
+Done
+: The production init got a walleye.rw switch (blocks that cut away to the production init); QEMU proof, build script, a recipe row, ensure equal.
+
+Considered
+: Where the petter's files live in a rw root: /.walleye as a tmpfs on one empty directory.
+
+Rejected
+: Anything that changes the ro image's ramdisk.
+
+About
+: walleye-bootimage

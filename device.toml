@@ -356,6 +356,21 @@ path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-production/NOT-TO-BOOT-uf
 kernel_tag = "int/walleye/ufs-on/v7.3/1"
 sha256 = "b74af863e4b49e2b3ff6e656c2f9ba3b92033b1e0f74063c3c2d47b81c83d570"
 
+# The RW-WRITE image (item walleye-rw-write-image, 2026-11-24): the production image above with ONE change in its ramdisk and ONE word on its command line. Init build/initramfs-root-rw-write/init: the production init plus RW-WRITE blocks that act
+# only with the word walleye.rw, which this image's command line carries: then, after every guard of the production init, the root is mounted ext4 rw,nodiscard straight onto /newroot (no overlay, no mkfs, no fsck, no discard, no remount;
+# the empty directory /.walleye on the card is its mount point, /run and /.walleye are tmpfs). Kernel Image.gz, dtb, header and AVB footer are the production image's byte for byte (the kernel_tag is the same). Built twice with this one sha256 by
+# build/build-ufs-root-rw-write.sh (checks: tests/host/ufs-root-rw-init.sh, QEMU) and rebuilt from the recipe below by `lpoco bringup image ensure` (tests/host/image-recipe.sh). The recipe: the ramdisk is the file build-ufs-root-rw-write.sh makes
+# (sha256 below), the cmdline the production image's plus walleye.rw. The hold script of this image syncs before it resets the phone (a rw root must not lose its writes to the hold's hard reset). NOT to boot or flash except by the rw-write procedure (item walleye-rw-write-plumbing) under the coordinator's go that names THIS sha256; tests/host/ufs-off-image.sh refuses it by design. Never booted.
+[images.ufs-root-booted-slot-production-rw]
+path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-production-rw/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-rw.img"
+kernel_tag = "int/walleye/ufs-on/v7.3/1"
+sha256 = "cb79c97535642380d44258931facdaaba97630ea2913e08544a7e37c0531868c"
+
+[images.ufs-root-booted-slot-production-rw.recipe]
+control = "ufs-root-booted-slot-production"
+ramdisk = "1734b936ec5377fa0623408b9893c89031ddca84520c4a52a0447ebf30a625e0"
+cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.dtbo_idx=3 walleye.root=system_a walleye.booted-slot walleye.rw"
+
 # The read-only UFS-on boot of that image as ONE command (item walleye-install-boot-procedure; run by item walleye-install-rootfs-boots-try). The root is the system partition of the slot Android is NOT on, read at the run
 # (adb's ro.boot.slot_suffix equal to fastboot's current-slot, and equal to the root the image names); nothing here names a slot.
 # The image booted is THIS run's: the declared one with androidboot.slot_suffix=_<the slot read> on its command line (lpoco-bringup image swap, checked equal in every other byte); the declared sha256 above stays the one the go names.

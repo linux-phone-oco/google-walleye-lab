@@ -11949,10 +11949,10 @@ Rank
 ### The rw-write image: the UFS-root image whose init mounts the target rw, nodiscard, and nothing else
 
 Status
-: open
+: done
 
 Note
-: Split from walleye-install-rw-write-procedure (walleye-builder, 2026-11-24: the item is three pieces, each a run of its own). The production init build/initramfs-root-production/init mounts ro,nodiscard,noload under a tmpfs overlay (lines 149-159); this image's init is that init with ONE switch (the word walleye.rw on the command line): ext4 rw,nodiscard, no overlay, no mkfs, no fsck, ufs_bsg never opened, the purge guard kept, the same slot guard and the system_<name> allow-list; the kernel is a sha256 part like z21's recipe (PR 993) until walleye-lpoco-attended-carries-manifest-0-47; a second [images.*] row with its own sha256, never the ro image's, built twice, through lpoco bringup image ensure.
+: DONE (walleye-builder, 2026-11-24): build/initramfs-root-rw-write/init (production init + RW-WRITE blocks), tests/host/ufs-root-rw-init.sh (QEMU: word -> rw ext4 root and the write read back from the partition; no word -> overlay; 6 refusals write nothing; seen failing on the production init and on a copy without the /.walleye tmpfs), build/build-ufs-root-rw-write.sh (17 checks, built twice equal), [images.ufs-root-booted-slot-production-rw] sha256 cb79c97535642380d44258931facdaaba97630ea2913e08544a7e37c0531868c, image-recipe.sh passes, image ensure rebuilt it equal from the recipe. Research walleye-rw-write-image-built, decision 2026-11-24-rw-write-is-one-word-in-the-production-init. The hold script syncs before its reset and the test compares the partition tree (review of the programmer: a stray file on the card is seen). Never booted; next walleye-rw-write-plumbing.
 
 About
 : walleye-bootimage
