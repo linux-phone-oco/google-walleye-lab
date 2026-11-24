@@ -10089,10 +10089,10 @@ Rank
 ### Why the phone's shell and usb network go silent under a sustained read of the card, and not for the first 7 or 8 samples: the cause on the phone's side, from sources and from a small falsifiable try
 
 Status
-: done
+: open
 
 Note
-: Researched 2026-11-23: causes ranked in walleye-ufs-silent-under-load-causes-ranked; decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try; the try is on the phone queue as walleye-ufs-silent-ramped-pinned-try; the cause itself is not known yet
+: 2026-11-24 (research walleye-ufs-180s-is-the-init-self-reboot): every run's silence began 4.0-4.6 s into the load, at the matched image's own 180 s self-reboot (z14's init, no hold); the 'silent under sustained read' is not shown to be UFS. Read again only after a run under item walleye-ufs-procedure-fits-the-180s loads the card well before the deadline.
 
 About
 : walleye-bootimage
@@ -10145,7 +10145,7 @@ Note
 : HELD OFF THE PHONE QUEUE (the coordinator, 2026-11-23 16:30): the keeper's run stopped safely at check 6, no go names the matched image 461077869fb2 (the decision says this changed procedure needs a new go) and 'tad q ready' still listed it. It returns to the queue (needs phone) with a go whose note carries an OUTCOMES paragraph, AFTER the stage 2 try, because the stage 2 try is the lane's weakest link and shares the one lease. | From walleye-ufs-silent-under-load-causes-ranked and decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try. Procedure change to walleye-tries/src/ufs/load.rs: ramp 64/256/1024 MiB, a RAM log line before each step, governor powersave set first (verify /sys/class/devfreq/1da4000.ufshc exists and governor_powersave is built; else the item says so and stops). Needs the author's go for the new procedure (same image sha). Read PON reason on the way back.
 
 Blocked by
-: walleye-ufs-silent-ramped-pinned-build
+: walleye-ufs-procedure-fits-the-180s
 
 About
 : walleye-ufs-match-android-z
@@ -11770,10 +11770,10 @@ Proof
 ### Read where the 180 s comes from (the matched image's init, cmdline, a fuse) and what each run was doing at 180 s, before any new run
 
 Status
-: open
+: done
 
 Note
-: From the coordinator's reading of run 8 (research walleye-ufs-try-leaves-the-bus-at-180s-every-run): the phone left the bus at exactly 180 s in all four runs; a turning point for the UFS silent-shell cause: the capable model. Stage 3 (rw write test) stays blocked until this is read. No second UFS run before it.
+: Answered by research walleye-ufs-180s-is-the-init-self-reboot: the 180 s is the matched image's z14 init rebooting after 90 beats (no hold); the link read's 170 s HS-G3 wait at idle put each load 4-5 s before it. Decision 2026-11-24-walleye-ufs-procedure-fits-the-image-not-the-image-the-procedure; build item walleye-ufs-procedure-fits-the-180s with its failing (ignored) test.
 
 About
 : walleye-ufs-match-android-z
@@ -11786,6 +11786,31 @@ Needs
 
 Proof
 : a research row with sources: (1) unpack the matched image (path under [images.ufs-match], read only, on the lab host) and read its initramfs init and header cmdline for 180, walleye.hold, a fuse, a watchdog timeout, a sleep; also kernel/qcom-wdt and the DT watchdog timeout (bark/bite) the image has; (2) for runs 1-3 and 8: the uptime at the first load sample from the run's files (gear-load.txt, dmesg.txt, ramp logs) against the 180 s, and where each run's last answered sample falls: does the silence always begin within seconds of 180 s; (3) why the link read took 172 s in run 8 (and what runs 1-3 took) and what in the procedure's own step order spends the first 170 s; (4) the smallest change that lets the ramp run its length (hold word on the cmdline, the init's hold file, the procedure moving the load before the slow reads) and what the next run must read back first (uptime at the load start vs the exit time); NOT KNOWN stays NOT KNOWN; no phone
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-procedure-fits-the-180s"></a>
+### UFS procedure fits the matched image's 180 s: read the idle link once, no hold claim, each ramp step only before the init's reboot deadline
+
+Status
+: open
+
+Note
+: From research walleye-ufs-180s-is-the-init-self-reboot, decision 2026-11-24-walleye-ufs-procedure-fits-the-image-not-the-image-the-procedure. The image and its sha256 stay; only tools/walleye-tries/src/ufs.rs (the_link_is_read, shell_answers_and_holds, the ramp) and device.toml keys change. The phone run after it is item walleye-ufs-silent-ramped-pinned-try, under a go that names the same image sha256.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: cargo test --lib -- --ignored an_idle_slow_link_is_read_without_spending_the_reboot_budget in tools/walleye-tries passes with its #[ignore] removed; plus a walkthrough test that a ramp step whose load_limit would cross the deadline (petter start uptime + 180 s, read from the image's kmsg) is refused and named, and the run's files keep the uptime at each step's start
 
 Rank
 : 1

@@ -7437,3 +7437,28 @@ Found
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-ufs-180s-is-the-init-self-reboot"></a>
+### walleye-ufs-180s-is-the-init-self-reboot
+
+Date
+: 2026-11-24
+
+Brief
+: The UFS runs' 180 s is the matched image's own init (z14's): it reboots after 90 beats of 2 s and has no hold; the 170 s idle link wait left every load 4-5 s before it
+
+Question
+: Where does the 180 s at which every UFS run left the bus come from, and what was each run doing at 180 s?
+
+Found
+: COUNTED, no phone. (1) The matched image (sha256 4610778...df5) unpacked read-only: its /init is byte-for-byte build/initramfs-mainline/init-z14; a subshell opens /dev/watchdog (qcom_wdt built in, opened in every run: no 'NO /dev/watchdog' line), pets it every 2 s and after 90 beats runs sync; reboot -f. The cmdline has no hold or 180. The init has no hold at all (grep -ci hold = 0): /tmp/hold is honoured only by init-late (decision 2026-11-19-walleye-late-probe-init-hold) and the root-debug init; the UFS procedure's hold-is-42 only proves the file was touched. (2) The petter starts at 1.6-1.7 s uptime in runs 1, 2, 3, 8; the load started 175.4-176.0 s after the gadget appeared in all four, and the bus left 4.0-4.6 s later: the 'silent about 4.5 s into the read' of runs 1-3 (research walleye-ufs-silent-under-load-causes-ranked) is the init's reboot, not shown to be UFS. (3) The link read took 171 s (run 3 log): the_link_is_read waits for HS-G3 up to boot.device_wait = 170 s, and the idle link reads HS_GEAR1 in HIBERN8, so it always waits the whole 170 s. (4) The smallest change is the procedure's, not the image's: read the idle link once, drop the hold claim, read the reboot deadline (petter start + 180 s) and refuse a ramp step that would cross it; the next run must show uptime at the load start against that deadline. Not known: the gadget-bind offset to the tenth of a second; whether the card is silent under load at all - no run has yet loaded it for more than 4.6 s.
+
+Sources
+: src-walleye-init-z14,src-walleye-ufs-procedure-link-read
+
+About
+: walleye-ufs-match-android-z
+
+Material
+: research/walleye-ufs-match-android-z/2026-11-24/
