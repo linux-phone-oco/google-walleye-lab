@@ -12032,6 +12032,19 @@ Status
 Note
 : run 1 stopped at check 14 (no USB gadget); see research walleye-rw-write-run-1-stopped-no-usb-gadget; no second try before research
 go until 2026-11-24T14:05:29+01:00, outcomes: Closed by the walleye coordinator: used by run 1 (research walleye-rw-write-run-1-stopped-no-usb-gadget, PR 1012), which stopped at check 14 with nothing written. A next run takes a new go after walleye-rw-run-1-why-no-gadget.
+go until 2026-11-24T19:30:00+01:00, outcomes: Run 2. Image: [images.ufs-root-booted-slot-production-rw] sha256 1bfb3667305df216049d7913777503fcc363ac2affba5f1708fa7953ec1b7bcf (full; PR 1016, no walleye.booted-slot). The run of procedures/rw-write-on-the-pixel-2.rs after its rehearsal passes; this go ends with that one run. Standing per-stage go of the author (stage 3), opened by the walleye coordinator 2026-11-24 after decision 2026-11-24-walleye-rw-run-2-after-image-without-booted-slot.
+if the rehearsal stops then nothing was booted or written and it proves a host or procedure fault, read before any retry
+if the run stops before the boot step with every table and the root equal then it proves a gate refused (slot, sha, allow-list) and the phone is untouched
+if no gadget comes up and pstore-console.txt names Refused(which) then it proves an init guard refused (named); nothing was written; research before run 3
+if no gadget comes up and pstore names StartedNotMounted then it proves the rw mount failed on hardware (candidate a); stop, research
+if no gadget comes up and pstore names MountedNotHandedOver or HandedOver then it proves the root mounted rw and the fault is after it (OpenRC, gadget, or the self-reboot: candidates b, c); stop, research
+if no gadget comes up and pstore names Nothing or cannot be read then the cause is not known yet; stop, no run 3 before an instrument
+if the image boots but the mount line is not rw,nodiscard on the other slot's system then it proves the word walleye.rw did not take; nothing was written (root equal)
+if the 16 MiB write and its read-back are equal and fsck.ext4 -n reports no errors and the kernel log has no ufs or ext4 error then it proves our kernel writes the phone's UFS correctly: stage 3 passes
+if the read-back differs or the kernel log shows ufs or ext4 errors then it proves a write-path fault in our UFS driver; stop, keep the folder, no second try before research
+if fsck.ext4 -n reports errors with the read-back equal then it is not known yet (fsck on a mounted root), judged by research, not a stop
+if after the way back any partition table or boot chain partition differs then it proves a write outside the root: stop the lane and tell the author
+if Android does not come back on slot b then it proves the way back failed: stop, the author's hands
 
 Blocked by
 : walleye-rw-image-without-booted-slot,walleye-rw-write-reads-pstore-on-a-stop
@@ -12055,7 +12068,7 @@ Witness
 : person
 
 Go until
-: 2026-11-24T14:05:29+01:00
+: 2026-11-24T19:30:00+01:00
 
 
 <a id="walleye-rw-run-1-why-no-gadget"></a>
