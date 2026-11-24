@@ -1,0 +1,5 @@
+walleye-wdt0: first read at uptime 7 s
+walleye-wdt0: EN 0x17817008 0x00000003
+walleye-wdt0: STS 0x1781700c 0x00000000
+walleye-wdt0: BARK_TIME 0x17817010 0x0000AAAA
+walleye-wdt0: BITE_TIME 0x17817014 0x0000FFFF

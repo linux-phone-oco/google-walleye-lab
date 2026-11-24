@@ -27,3 +27,4 @@ pub mod settings;
 pub mod touch;
 pub mod ufs;
 pub mod watch;
+pub mod wdt0;

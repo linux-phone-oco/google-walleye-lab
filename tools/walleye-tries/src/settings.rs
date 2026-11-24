@@ -39,6 +39,8 @@ pub const ROOTFS_BOOT_PROCEDURE: &str = "rootfs boots on the Pixel 2";
 pub const REHEARSE_ROOTFS_BOOT_PROCEDURE: &str = "rehearse rootfs boots on the Pixel 2";
 pub const RW_WRITE_PROCEDURE: &str = "rw write on the Pixel 2";
 pub const REHEARSE_RW_WRITE_PROCEDURE: &str = "rehearse rw write on the Pixel 2";
+pub const WDT0_PROCEDURE: &str = "wdt0 state on the Pixel 2";
+pub const REHEARSE_WDT0_PROCEDURE: &str = "rehearse wdt0 state on the Pixel 2";
 pub const RAMROOT_PROCEDURE: &str = "alpine login on the glass on the Pixel 2";
 pub const FLASH_BOOT_PROCEDURE: &str = "install boot on the Pixel 2";
 pub const REHEARSE_FLASH_BOOT_PROCEDURE: &str = "rehearse install boot on the Pixel 2";
@@ -60,6 +62,7 @@ pub enum Try {
     Install,
     RootfsBoot,
     RwWrite,
+    Wdt0,
     Ramroot,
     FlashBoot,
 }
@@ -205,6 +208,18 @@ impl Settings {
         Settings::read_linked(Try::RootfsBoot, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
+    }
+
+    /// The WDT0 try's settings (item walleye-wdt0-try-procedure), read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_wdt0() -> Settings {
+        Settings::read_linked(Try::Wdt0, &|k| dev(k).to_string(), &|k| proc(k).to_string())
+    }
+
+    /// The WDT0 try's rehearsal reads the try's own keys, from its own table, and keeps its own folder (the real run's refuses a folder with files).
+    pub fn for_rehearse_wdt0() -> Settings {
+        let mut s = Settings::for_wdt0();
+        s.out = s.out_dir("wdt0-state-rehearsal");
+        s
     }
 
     /// The rw write's settings, read from the device's `device.toml` (call after `procedure(...)`).
@@ -455,6 +470,28 @@ impl Settings {
                     crate::rw_write::MAX_WRITE_MIB
                 );
                 s.out = s.out_dir("rw-write");
+            }
+            Try::Wdt0 => {
+                // the WDT0 try: the root boot's keys, the image named by its [images.NAME] row (the sha256 the go names)
+                let name = proc("image");
+                s.image = image(&name);
+                s.image_name = name.clone();
+                s.image_sha256 = dev(&format!("images.{name}.sha256"));
+                s.go_item = proc("go_item");
+                s.identity = home_path(&proc("identity"));
+                s.ssh_user = proc("ssh_user");
+                s.ssh_port = u16::try_from(number("ssh_port", proc("ssh_port")))
+                    .expect("ssh_port in device.toml is a port number");
+                s.bootchain = home_path(&proc("bootchain"));
+                s.by_name = proc("by_name");
+                s.luns = number("luns", proc("luns"));
+                s.reboot_tool = image(REBOOT_TOOL);
+                s.reboot_tool_sha256 = dev(&format!("images.{REBOOT_TOOL}.sha256"));
+                assert!(
+                    s.by_name.starts_with('/') && (1..=26).contains(&s.luns),
+                    "by_name in device.toml is an absolute path on the phone, luns is 1 to 26"
+                );
+                s.out = s.out_dir("wdt0-state");
             }
             Try::Ramroot => {
                 let name = proc("image");
@@ -727,6 +764,8 @@ mod tests {
             (Try::RootfsBoot, REHEARSE_ROOTFS_BOOT_PROCEDURE),
             (Try::RwWrite, RW_WRITE_PROCEDURE),
             (Try::RwWrite, REHEARSE_RW_WRITE_PROCEDURE),
+            (Try::Wdt0, WDT0_PROCEDURE),
+            (Try::Wdt0, REHEARSE_WDT0_PROCEDURE),
             (Try::Ramroot, RAMROOT_PROCEDURE),
             (Try::FlashBoot, FLASH_BOOT_PROCEDURE),
             (Try::FlashBoot, REHEARSE_FLASH_BOOT_PROCEDURE),
