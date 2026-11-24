@@ -7770,3 +7770,22 @@ Sources
 
 About
 : walleye-device-config-sources-read
+
+
+<a id="walleye-rw-clean-end-holders-and-alpine-path"></a>
+### walleye-rw-clean-end-holders-and-alpine-path
+
+Date
+: 2026-11-24
+
+Brief
+: The image's shutdown level has killprocs and savecache but NO mount-ro; remount over a live ssh/syslog session is busy by design; a QEMU test reproduces run 3 and passes with killprocs then mount-ro
+
+Question
+: What holds the rw Alpine root open so mount -o remount,ro / says busy, and how does Alpine itself end a rw root?
+
+Found
+: (1) rootfs/runlevels: 'shutdown killprocs' and 'shutdown savecache' only; Alpine's own shutdown level also has mount-ro (after killprocs), which is what ends a rw root. (2) The run's end does not use it: settle_rw (tools/walleye-tries/src/rootfs_boot.rs, SETTLE_COMMAND) runs sync and mount -o remount,ro / inside a live ssh session, then walleye-reboot --command bootloader (a reboot syscall, no init shutdown). A remount ro is refused EBUSY while any process has a file of the root open for writing, so the live syslog (/var/log/messages, wtmp from utmps, seedrng, the ssh session) is enough; settled.txt of run 3 shows /var/log/messages and wtmp written. Not captured on the phone: which exact process held it (nothing was changed on the phone). (3) tests/host/rw-root-clean-end.sh (QEMU, rw-write init, writer holding /var/log/messages open, busybox init, the image's own inittab shutdown line, a stub openrc reading the shutdown level of rootfs/runlevels): today it FAILS with e2fsck -fn 'Free blocks count wrong (11490, counted=11488)' and 'skipping journal recovery' - run 3's own signature; with a level of mount-ro alone the remount says 'Device or resource busy'; with killprocs then mount-ro it remounts ro and e2fsck -fn is clean (passes). (4) Hazards seen: killprocs also kills the hold script and the petters (busybox watchdog's SIGTERM writes the magic close, disarming the watchdog), so the end must finish by itself in a reboot; and busybox init's own final reboot is a plain restart, not to the bootloader, so the bootloader step has to be a shutdown service after mount-ro. A stub's own file open on the root (a redirect to /tmp) also made the remount busy: the end's own tools write to /run only.
+
+About
+: walleye-bootimage

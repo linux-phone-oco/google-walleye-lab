@@ -12209,10 +12209,10 @@ Go until
 ### The rw boot's clean end: what holds the Alpine root open for writing, and the way Alpine itself ends a rw root, so run 4 leaves system_a cleanly unmounted
 
 Status
-: open
+: done
 
 Note
-: Run 3 (PR 1027, ~/lab-material/walleye/rw-write-20261124-163645, settled.txt): mount -o remount,ro / failed 'Resource busy', the root stayed ext4 rw; find -newer /proc/1 listed 200 files, mostly the image's own, so it did not name the writer. e2fsck -fn from Android after: passes 1-4 clean, 'Free blocks count wrong (252253, counted=252252)', 950 files. Look around first: Alpine's own shutdown (OpenRC's killprocs and mount-ro services, busybox reboot) is how Alpine ends a rw root; candidates for the holder are syslogd's log, the lab's own ssh session, OpenRC state, files open but deleted. Decide between (a) a capture of /proc/*/fd write-open files before the remount (an instrument proven on QEMU's rw case first), and (b) ending through Alpine's own path (openrc shutdown, then the bootloader) so mount-ro does it. End in a decision, a failing test, and the build item; nothing on the phone.
+: Decision 2026-11-24-rw-root-ends-through-alpines-shutdown-level, research walleye-rw-clean-end-holders-and-alpine-path, test tests/host/rw-root-clean-end.sh (fails today), build item walleye-rw-end-through-openrc-mount-ro.
 
 About
 : walleye-bootimage
@@ -12253,3 +12253,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-rw-end-through-openrc-mount-ro"></a>
+### Build the rw root's clean end: shutdown level mount-ro and a bootloader service, the way back ends through init
+
+Status
+: open
+
+Note
+: From decision 2026-11-24-rw-root-ends-through-alpines-shutdown-level. Steps: (1) rootfs/runlevels: 'shutdown mount-ro' between killprocs and savecache (the QEMU test then passes); (2) an OpenRC service in the shutdown level after mount-ro: if /run/walleye/to-bootloader exists run walleye-reboot --command bootloader, else reboot -f; it must always reboot (killprocs ends the petters and the hold); its files written to /run only; (3) rootfs build and the rw image rebuilt, sha256 declared, image-recipe.sh passes, and the go names the new sha256; (4) rw_write.rs settle_rw/way back: touch /run/to-bootloader then ask init to end (reboot), wait for fastboot; keep the old way as fallback; Rust test. Nothing on the phone before the keeper's run 4.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: tests/host/rw-root-clean-end.sh passes (fails today); image rebuilt from the recipe equal; then rw write run 4: e2fsck -fn from Android prints no 'wrong' line
+
+Rank
+: 2
