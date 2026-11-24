@@ -12031,6 +12031,15 @@ Status
 
 Note
 : The run of procedures/rw-write-on-the-pixel-2.rs (one command; its rehearsal procedures/rehearse-rw-write-on-the-pixel-2.rs needs no go and runs first). The image: [images.ufs-root-booted-slot-production-rw], sha256 cb79c97535642380d44258931facdaaba97630ea2913e08544a7e37c0531868c (the go names this FULL sha256 in its note; a short one or none is 'no go' and nothing is booted). What it does: boots the image once from memory, the root (system partition of the slot Android is NOT on) mounted READ-WRITE ext4 nodiscard, writes ONE 16 MiB file of zeros, syncs, reads it back, fsck.ext4 -n, reads the kernel log, removes the file, sends the phone back; after: every partition table and the boot chain equal, the root partition CHANGED. NOT KNOWN YET (the run captures them in its folder: read.txt, fsck.txt, dmesg-after.txt): the rw lines of /proc/mounts, what fsck.ext4 -n prints on a mounted root. Never: bootloader partitions, the GPT, erase, purge, fstrim, mkfs. The go is the coordinator's; it ends with the run.
+go until 2026-11-24T19:30:00+01:00, outcomes: Image: [images.ufs-root-booted-slot-production-rw] sha256 cb79c97535642380d44258931facdaaba97630ea2913e08544a7e37c0531868c (full; the run of procedures/rw-write-on-the-pixel-2.rs, after its rehearsal passes; the go ends with that run, outcomes used by that run only). Standing per-stage go of the author (stage 3), opened by the walleye coordinator 2026-11-24.
+if the rehearsal stops then nothing was booted or written and it proves a host or procedure fault, read before any retry
+if the run stops before the boot step with every table and the root equal then it proves a gate refused (slot, sha, allow-list) and the phone is untouched
+if the image boots but the init's mount line is not rw,nodiscard on system of the other slot then it proves the init or the word walleye.rw did not take; nothing was written (root equal)
+if the 16 MiB write and its read-back are equal and fsck.ext4 -n reports no errors and the kernel log has no ufs or ext4 error then it proves our kernel writes the phone's UFS correctly: stage 3 passes
+if the read-back differs or the kernel log shows ufs or ext4 errors then it proves a write-path fault in our UFS driver; stop, keep the folder, no second try before research
+if fsck.ext4 -n reports errors with the read-back equal then it is recorded as not known yet (fsck on a mounted root) and judged by research, not a stop
+if after the way back any partition table or boot chain partition differs then it proves a write outside the root: stop the lane and tell the author
+if Android does not come back on slot b then it proves the way back failed: stop, the author's hands
 
 About
 : walleye-bootimage
@@ -12049,3 +12058,6 @@ Rank
 
 Witness
 : person
+
+Go until
+: 2026-11-24T19:30:00+01:00
