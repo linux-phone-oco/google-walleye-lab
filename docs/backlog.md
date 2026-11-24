@@ -11183,31 +11183,6 @@ Rank
 : 2
 
 
-<a id="walleye-wdt0-first-instant-read"></a>
-### Read WDT0 (0x17817000: EN, STS, BARK, BITE) at our kernel's first instant: what does the bootloader arm?
-
-Status
-: open
-
-Note
-: From research walleye-android-watchdog-read-fix (6): the one unknown the source cannot settle. Read-only; the keeper's try.
-
-About
-: walleye-bootimage
-
-Opened
-: 2026-11-23
-
-Needs
-: phone
-
-Proof
-: test walleye-wdt0-state-at-boot (still to write: init's first act logs the four registers to the console/pstore, reads only, one boot of the existing image, nothing flashed beyond the keeper's own try)
-
-Rank
-: 4
-
-
 <a id="walleye-init-pets-from-first-act"></a>
 ### Init pets /dev/watchdog from its first instruction through switch_root (Android's pet never depends on userspace)
 
@@ -12331,3 +12306,56 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-wdt0-read-image"></a>
+### An image whose init's first act reads WDT0 (0x17817000: EN, STS, BARK, BITE), read only, and keeps the four values where the lab reads them over ssh
+
+Status
+: open
+
+Note
+: Split from walleye-wdt0-first-instant-read by the walleye coordinator 2026-11-24: its proof test was still to write, so a keeper could not take it. Base it on the stage 2 read-only production image (one word on the command line, like walleye.rw), built only through image ensure from a recipe, header equal to the recipe. pstore is NOT a proven console on this phone (empty after runs 4 and 5), so the values go to the kernel log and a file under /run that the procedure reads over ssh, not only to pstore. Reads only: no write to any watchdog register. Then the keeper's try is one command.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: test walleye-wdt0-state-at-boot (QEMU or a fixture of the init's output: the four registers read, nothing written), the recipe rebuilt equal
+
+Rank
+: 2
+
+
+<a id="walleye-wdt0-first-instant-read"></a>
+### Read WDT0 (0x17817000: EN, STS, BARK, BITE) at our kernel's first instant: what does the bootloader arm?
+
+Status
+: open
+
+Note
+: From research walleye-android-watchdog-read-fix (6): the one unknown the source cannot settle. Read-only; the keeper's try, once walleye-wdt0-read-image has built its image and procedure.
+
+Blocked by
+: walleye-wdt0-read-image
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: phone
+
+Proof
+: test walleye-wdt0-state-at-boot passes on the phone's own output: one boot of that image from memory, nothing flashed
+
+Rank
+: 4
