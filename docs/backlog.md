@@ -12031,6 +12031,7 @@ Status
 
 Note
 : run 1 stopped at check 14 (no USB gadget); see research walleye-rw-write-run-1-stopped-no-usb-gadget; no second try before research
+go until 2026-11-24T14:05:29+01:00, outcomes: Closed by the walleye coordinator: used by run 1 (research walleye-rw-write-run-1-stopped-no-usb-gadget, PR 1012), which stopped at check 14 with nothing written. A next run takes a new go after walleye-rw-run-1-why-no-gadget.
 
 About
 : walleye-bootimage
@@ -12051,4 +12052,29 @@ Witness
 : person
 
 Go until
-: 2026-11-24T19:30:00+01:00
+: 2026-11-24T14:05:29+01:00
+
+
+<a id="walleye-rw-run-1-why-no-gadget"></a>
+### Why the rw-write image booted from memory but no USB gadget came up (run 1, check 14), and an instrument that tells the causes apart before run 2
+
+Status
+: open
+
+Note
+: Run 1 (research walleye-rw-write-run-1-stopped-no-usb-gadget, folder ~/.cache/agent-build/75c803/walleye-rw): fastboot boot ok at +67 s, 1d6b:0104 absent for 145 s, the phone back on Android slot b by itself (fits the image's 180 s self-reboot), card and boot chain equal, nothing written. Stage 2's ro image of the same init came up with the gadget, so the difference is the walleye.rw path on hardware (QEMU tests/host/ufs-root-rw-init.sh passes). Coordinator's off-phone read: the root image (walleye-alpine-v2-key.ext4, what stage 1 wrote) has NO journal, features ext_attr resize_inode dir_index filetype extent 64bit flex_bg metadata_csum_seed sparse_super large_file huge_file dir_nlink extra_isize metadata_csum: nothing a rw mount refuses, so a rw-mount refusal is not shown, not ruled out (the walleye kernel's EXT4 options not read yet). Candidates to tell apart: (a) the rw mount fails on hardware and the init's failure path reboots; (b) root is mounted but OpenRC or the gadget unit fails on a rw root without the overlay (e.g. a first-boot write, fsck at boot, or a service the overlay masked); (c) the self-reboot fires before the gadget on a slower rw boot. Read the init's walleye.rw path against the ro one, Android's and upstream's for (a), and choose an instrument proven on a known case (e.g. pstore/ramoops console, or a marker the init leaves on the USB bus or the glass) before any run 2.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: research
+
+Proof
+: a research row naming the cause from a capture, and a test that fails before the fix
+
+Rank
+: 2
