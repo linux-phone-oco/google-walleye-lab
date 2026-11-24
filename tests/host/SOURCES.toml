@@ -1,0 +1,300 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Every script of tests/host names where its expectations came from (item walleye-checks-name-their-sources).
+# source = "research:ID" (data/research.json) | "source:ID" (data/sources.json) | "file:PATH" (under the repo);
+# unsourced = WHY: not yet sourced, listed by `walleye-sources` on every run (tools/walleye-sources, run by
+# .github/workflows/check.yml). The source is by script and subject; a finer per-check pass may replace a row.
+
+[scripts."adreno-smmu-disabled-selftest.sh"]
+unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+
+[scripts."adreno-smmu-disabled.sh"]
+source = "research:walleye-smmu-timeout-gpucc-module"
+
+[scripts."audio-adsp-q6-builds.sh"]
+source = "research:walleye-audio-haptics-porthole-has-it"
+
+[scripts."banner-check.sh"]
+source = "research:walleye-banner-built"
+
+[scripts."banner-selftest.sh"]
+unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+
+[scripts."banner-loop-check.sh"]
+source = "research:walleye-z6-built"
+
+[scripts."banner-loop-selftest.sh"]
+unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+
+[scripts."banner-shell-check.sh"]
+source = "research:walleye-z5-built"
+
+[scripts."banner-shell-selftest.sh"]
+unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+
+[scripts."battery-ok.sh"]
+unsourced = "the battery voltage floor has no research row naming where it came from"
+
+[scripts."battery-selftest.sh"]
+unsourced = "fake fastboot and adb output, and the floor of battery-ok.sh is itself unsourced"
+
+[scripts."bootchain-readback-check.sh"]
+source = "research:walleye-install-slot-readback-done-twice-same-bytes"
+
+[scripts."bootchain-readback-selftest.sh"]
+unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+
+[scripts."bootchain-readback.sh"]
+source = "research:walleye-install-slot-readback-done-twice-same-bytes"
+
+[scripts."c5-loader-selftest.sh"]
+source = "research:walleye-c5-built"
+
+[scripts."charger-check.sh"]
+unsourced = "no research row records what the charger probe printed on the phone"
+
+[scripts."charger-selftest.sh"]
+unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+
+[scripts."display-at-boot-init.sh"]
+source = "research:walleye-display-at-boot-b1-built"
+
+[scripts."display-delay-init.sh"]
+source = "research:walleye-display-delay-bisect-flips-at-25s"
+
+[scripts."display-late-probe-selftest.sh"]
+unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+
+[scripts."display-late-probe.sh"]
+source = "research:walleye-display-late-probe-l-images-built"
+
+[scripts."display-regs-init.sh"]
+unsourced = "no research row names the display registers it reads"
+
+[scripts."display-reset-gpio-single-claimant.sh"]
+source = "research:walleye-display-late-probe-l4-tried-dsi-binds-panel-defers-on-reset"
+
+[scripts."dmesg-clean-check.sh"]
+source = "research:walleye-z6-dmesg-mapped"
+
+[scripts."dmesg-clean-selftest.sh"]
+unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+
+[scripts."drv2624-builds.sh"]
+source = "research:walleye-drv2624-image-built"
+
+[scripts."dtb-display-pinctrl-labels.sh"]
+source = "research:walleye-display-dsi-defer-pinctrl-stubs"
+
+[scripts."dtb-display-reset.sh"]
+source = "research:walleye-display-reset-image-b-r5-tried-signs-vanish"
+
+[scripts."dtb-display-splash.sh"]
+source = "research:walleye-display-flip-15-25-read-from-logs"
+
+[scripts."dtbo-overlay-merges.sh"]
+source = "research:walleye-dtbo-overlay-merge-why-how-it-stands"
+
+[scripts."dtb-overlay-stub-refs.sh"]
+source = "research:walleye-overlay-stub-refs-other-nodes"
+
+[scripts."dtb-pon-reboot-mode.sh"]
+source = "research:walleye-pon-reboot-mode-already-in-the-board-dtb"
+
+[scripts."ffs-acm-up.sh"]
+source = "research:walleye-ffs-acm-helper-how-it-stands"
+
+[scripts."fixture-shell-read-per-command.sh"]
+source = "research:2026-11-18-walleye-first-mainline-shell-map"
+
+[scripts."fuel-gauge-check.sh"]
+source = "research:walleye-fg1-tried-capacity-matches"
+
+[scripts."fuel-gauge-selftest.sh"]
+unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+
+[scripts."gadget-up.sh"]
+source = "research:walleye-try-s1-gadget-up"
+
+[scripts."gpio-diag-boot.sh"]
+source = "research:walleye-touch-gpio-defer-leaves"
+
+[scripts."i2c-qup-after-merge.sh"]
+source = "research:walleye-z16-built"
+
+[scripts."idle-android.sh"]
+unsourced = "no research row records that fastboot mode drains the battery and the phone went dark"
+
+[scripts."image-recipe-selftest.sh"]
+source = "research:walleye-image-recipe-z21-rebuilt-equal"
+
+[scripts."image-recipe.sh"]
+source = "research:walleye-image-recipe-z21-rebuilt-equal"
+
+[scripts."kernel-build.sh"]
+source = "research:walleye-kernel-build-declared-reproduces-itself"
+
+[scripts."mainline-acm-up.sh"]
+source = "research:walleye-pk5l-tried"
+
+[scripts."mainline-light-up.sh"]
+source = "research:walleye-pk1-pk2-built"
+
+[scripts."mainline-shell-read.sh"]
+source = "research:2026-11-18-walleye-first-mainline-shell-map"
+
+[scripts."mainline-shell-selftest.sh"]
+unsourced = "a fake phone on a pty stands for the real one"
+
+[scripts."massstorage-read.sh"]
+source = "research:2026-11-17-walleye-m1-window-read"
+
+[scripts."ml3-ramoops-read.sh"]
+unsourced = "its claim, that pstore survives a hard reset, is not supported by walleye-pstore-warm-reset-how-it-stands and walleye-ml3-pstore-empty (stop: walleye-stop-pstore-reads-runs-4-and-7-three-answers)"
+
+[scripts."ml4-bin-table.sh"]
+source = "research:walleye-ml4-built"
+
+[scripts."ml5-bin-table.sh"]
+source = "research:walleye-ml5-built"
+
+[scripts."overlay-clock-gcc.sh"]
+source = "research:walleye-clock-gcc-stub-no-cells"
+
+[scripts."overlay-collisions-selftest.sh"]
+unsourced = "made-up dtbs stand for the vendor overlay"
+
+[scripts."overlay-collisions.sh"]
+source = "research:walleye-dtbo-overlay-merge-why-how-it-stands"
+
+[scripts."part-compare-selftest.sh"]
+unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+
+[scripts."part-compare.sh"]
+source = "research:walleye-z21-touch-part-compare"
+
+[scripts."phone-state-selftest.sh"]
+unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+
+[scripts."phone-state.sh"]
+source = "research:walleye-c3-hang-unproven"
+
+[scripts."pmic-dmesg-check.sh"]
+source = "research:walleye-z8-tried-no-pmic-wdt"
+
+[scripts."pmic-dmesg-selftest.sh"]
+unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+
+[scripts."pmic-wdt-bites.sh"]
+source = "research:walleye-z9-tried-pmic-wdt-bites"
+
+[scripts."pmic-wdt-pon-regs-banner.sh"]
+source = "research:walleye-z10-tried-pon-regs-not-read"
+
+[scripts."pmic-wdt-s2-regs-read.sh"]
+source = "research:walleye-pon-reasons-after-a-bite-how-to-read"
+
+[scripts."pmic-wdt-v1-init-selftest.sh"]
+source = "research:walleye-pmic-wdt-v1-images-built"
+
+[scripts."pon-regs-selftest.sh"]
+source = "research:walleye-z10-built"
+
+[scripts."pstore-t1-read.sh"]
+unsourced = "its claim, that pstore survives a reset, is not supported by walleye-pstore-warm-reset-how-it-stands (stop: walleye-stop-pstore-reads-runs-4-and-7-three-answers)"
+
+[scripts."pstore-t3-read.sh"]
+unsourced = "its claim, that pstore survives a watchdog bite, is not supported by walleye-pstore-warm-reset-how-it-stands (stop: walleye-stop-pstore-reads-runs-4-and-7-three-answers)"
+
+[scripts."ramroot-init.sh"]
+source = "research:walleye-ramroot-b-a5-getty-tty1-rebuilt"
+
+[scripts."restart-check.sh"]
+source = "research:walleye-c3-hang-how-it-stands"
+
+[scripts."restart-selftest.sh"]
+source = "research:walleye-c3-hang-how-it-stands"
+
+[scripts."slot-readback-check.sh"]
+source = "research:walleye-install-slot-readback-done-twice-same-bytes"
+
+[scripts."touch-check.sh"]
+source = "research:walleye-z21-touch-events-pass"
+
+[scripts."touch-gpio-single-claimant.sh"]
+source = "research:walleye-z20-tried-touch-gpio-leaf"
+
+[scripts."touch-gpio-specifier.sh"]
+source = "research:walleye-touch-gpio-defer-leaves"
+
+[scripts."touch-power-after-merge.sh"]
+source = "research:walleye-z17-built"
+
+[scripts."touch-read.sh"]
+source = "research:walleye-z15-built"
+
+[scripts."touch-selftest.sh"]
+unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+
+[scripts."ufs-lsblk-check.sh"]
+source = "research:walleye-z11-built"
+
+[scripts."ufs-lsblk-selftest.sh"]
+source = "research:walleye-z11-built"
+
+[scripts."ufs-match-android-selftest.sh"]
+source = "research:walleye-ufs-regs-reader-verdict"
+
+[scripts."ufs-match-android.sh"]
+source = "research:walleye-ufs-regs-reader-verdict"
+
+[scripts."ufs-off-image-selftest.sh"]
+unsourced = "made-up dtbs and images stand for the bootloader's"
+
+[scripts."ufs-off-image.sh"]
+source = "research:walleye-ufs-on-by-accident"
+
+[scripts."ufs-off-inventory.sh"]
+source = "research:walleye-ufs-on-by-accident"
+
+[scripts."ufs-root-debug-init.sh"]
+source = "research:walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing"
+
+[scripts."ufs-root-display-init.sh"]
+source = "research:walleye-ufs-root-display-image-u-d5-built"
+
+[scripts."ufs-root-init.sh"]
+source = "research:walleye-stage2-run8-debug-image-kernel-runs-slot-suffix-missing"
+
+[scripts."ufs-root-production-init.sh"]
+source = "research:walleye-stage2-run12-production-image-all-29-passed"
+
+[scripts."vendor-facts-poll-selftest-vf4.sh"]
+source = "research:walleye-vf4-built"
+
+[scripts."vendor-facts-poll-selftest.sh"]
+source = "research:walleye-vf3-built"
+
+[scripts."vendor-facts-poll.sh"]
+source = "research:walleye-vf3-built"
+
+[scripts."vendor-facts-read.sh"]
+source = "research:walleye-vf2-built"
+
+[scripts."vendor-facts-selftest.sh"]
+source = "research:walleye-vf2-built"
+
+[scripts."walleye-reboot-restart2.sh"]
+source = "research:walleye-reboot-reason-bootloader-read-finding"
+
+[scripts."window-payload-read.sh"]
+source = "research:walleye-vfx-built"
+
+[scripts."window-payload-selftest.sh"]
+source = "research:walleye-vfx-built"
+
+[scripts."z5-console-selftest.sh"]
+source = "research:walleye-z5-built"
+
+[scripts."z6-loop-selftest.sh"]
+source = "research:walleye-z6-built"
+
