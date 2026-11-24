@@ -17,7 +17,9 @@
 //! and captured runs of the root boot (tests fixtures/rootfs-boots-run3-*.txt, run4-*.txt). No rw boot has happened yet: the rw side of
 //! `/proc/mounts` is run 4's captured text with its two root lines replaced, and the tests say so.
 
-use crate::rootfs_boot::{root_for, sections, ROOT_KEY};
+//! NOT KNOWN YET (no rw boot, no fsck on a mounted root has been captured): the rw lines of `/proc/mounts` (the positive case is run 4 with its two root lines replaced by what the init is built to make), the `mounts-rw` and `EXT4-fs error` log lines (typed from the init and the kernel source), and the stdout of `fsck.ext4 -n` on the mounted root (the judge is strict: the line Android printed on an unmounted partition, and `rc=0`; if the first run refuses a good root the run, not the judge, tells what it prints). The first real rw run replaces these by captured text. The procedure must judge the mounts BEFORE it writes (the write is not tied to the mounts judge by a type), and the init says `mounts-rw` BEFORE it mounts: the line shows which init ran, the mounts judge shows the mount.
+
+use crate::rootfs_boot::{disk_letters, root_for, sections, ROOT_KEY};
 use crate::ufs::Probe;
 
 type Done = Result<(), String>;
@@ -105,6 +107,20 @@ pub fn target_is_allowed(current_slot: &str, image_root: &str) -> Result<String,
     Ok(other)
 }
 
+/// The `rc=N` line a command of this module prints is `rc=0`.
+fn returned_zero(text: &str, what: &str) -> Done {
+    match text.lines().rev().find_map(|l| l.strip_prefix("rc=")) {
+        Some("0") => Ok(()),
+        Some(n) => Err(format!("{what} returned rc={n}")),
+        None => Err(format!("{what} printed no rc= line")),
+    }
+}
+
+/// The dd of the write came back `rc=0`.
+pub fn write_is_done(text: &str) -> Done {
+    returned_zero(text, "the write")
+}
+
 /// The one command that writes: `write_mib` MiB of zeros into [`TEST_FILE`], flushed to the partition (`conv=fsync`, then `sync`). It prints `rc=N` of the dd.
 pub fn write_command(mib: u64) -> Result<String, String> {
     write_bytes(mib)?;
@@ -115,13 +131,13 @@ fn write_command_for(path: &str, mib: u64) -> String {
     format!("dd if=/dev/zero of={path} bs=1M count={mib} conv=fsync 2>&1; echo rc=$?; sync")
 }
 
-/// The read-back: the size of the file and how many bytes of it are not zero.
+/// The read-back: the page cache is dropped first (the bytes are read from the partition, not from memory), then the size of the file and how many bytes of it are not zero.
 pub fn readback_command() -> String {
     readback_command_for(TEST_FILE)
 }
 
 fn readback_command_for(path: &str) -> String {
-    format!("echo ---size; stat -c %s {path}; echo ---nonzero; tr -d '\\000' < {path} | wc -c; echo ---end")
+    format!("sync; echo 3 > /proc/sys/vm/drop_caches; echo ---size; stat -c %s {path}; echo ---nonzero; tr -d '\\000' < {path} | wc -c; echo ---end")
 }
 
 /// The read-back says the file is exactly `mib` MiB and all zeros.
@@ -168,6 +184,7 @@ pub fn fsck_command(device: &str) -> Result<String, String> {
 /// e2fsck's answer on the root: the line `DEVICE: clean, N/M files, A/B blocks` (the form Android's own e2fsck prints in the kernel log, research
 /// walleye-first-fastboot-boot/2026-11-18/dmesg-ufs.txt line 42) and none of its refusals.
 pub fn fsck_is_clean(text: &str, device: &str) -> Done {
+    returned_zero(text, "fsck")?;
     for bad in [
         "UNEXPECTED INCONSISTENCY",
         "FILE SYSTEM WAS MODIFIED",
@@ -253,61 +270,69 @@ pub fn dmesg_is_clean(dmesg: &str, root: &str) -> Done {
     Ok(())
 }
 
-/// The card read from Android before and after (`gpt sdX DIGEST` for every disk, `root system_x DIGEST`): every disk's table equal, the same
-/// root named, and the root partition's digest CHANGED (the write reached the partition). Anything else is a failure.
-pub fn card_changed_only_in_the_root(before: &str, after: &str) -> Done {
-    let lines = |t: &'static str, text: &str| -> Vec<Vec<String>> {
-        let _ = t;
-        text.lines()
+/// The card read from Android before and after (`gpt sdX DIGEST` for each of the `luns` disks, then one `root NAME DIGEST`): every disk's table
+/// equal, the same root named, the root partition's digest CHANGED (the write reached the partition). The lines must be exactly those, in
+/// that order, with 64-hex digests; anything else is a failure.
+pub fn card_changed_only_in_the_root(before: &str, after: &str, luns: u64) -> Done {
+    let mut want: Vec<String> = disk_letters(luns)?
+        .iter()
+        .map(|l| format!("gpt sd{l}"))
+        .collect();
+    want.push("root".into());
+    let parse = |which: &str, text: &str| -> Result<Vec<Vec<String>>, String> {
+        let rows: Vec<Vec<String>> = text
+            .lines()
             .map(|l| l.split_whitespace().map(str::to_string).collect())
-            .collect()
-    };
-    let (b, a) = (lines("before", before), lines("after", after));
-    if b.len() != a.len() || b.is_empty() {
-        return Err(format!(
-            "the card read has {} lines before and {} after",
-            b.len(),
-            a.len()
-        ));
-    }
-    let mut root_changed = false;
-    for (x, y) in b.iter().zip(&a) {
-        match (x.first().map(String::as_str), x.len(), y.len()) {
-            (Some("gpt"), 3, 3) => {
-                if x != y {
-                    return Err(format!(
-                        "the partition table changed: {} then {}",
-                        x.join(" "),
-                        y.join(" ")
-                    ));
-                }
-            }
-            (Some("root"), 3, 3) => {
-                if x[1] != y[1] {
-                    return Err(format!(
-                        "the root partition is named {} before and {} after",
-                        x[1], y[1]
-                    ));
-                }
-                root_changed = x[2] != y[2];
-            }
-            _ => {
+            .collect();
+        if rows.len() != want.len() {
+            return Err(format!(
+                "the card read {which} has {} lines, expected {} ({} disks and the root)",
+                rows.len(),
+                want.len(),
+                luns
+            ));
+        }
+        for (row, key) in rows.iter().zip(&want) {
+            let digest = row.last().map(String::as_str).unwrap_or("");
+            let shape = if key == "root" {
+                row.len() == 3 && row[0] == "root"
+            } else {
+                row.len() == 3 && format!("{} {}", row[0], row[1]) == *key
+            };
+            if !shape || digest.len() != 64 || !digest.chars().all(|c| c.is_ascii_hexdigit()) {
                 return Err(format!(
-                    "a line of the card read is not `gpt sdX D` or `root NAME D`: {} / {}",
-                    x.join(" "),
-                    y.join(" ")
-                ))
+                    "the card read {which} has a line that is not `{key} DIGEST` (64 hex): {}",
+                    row.join(" ")
+                ));
             }
         }
+        Ok(rows)
+    };
+    let (b, a) = (parse("before", before)?, parse("after", after)?);
+    let n = b.len() - 1;
+    for (x, y) in b[..n].iter().zip(&a[..n]) {
+        if x != y {
+            return Err(format!(
+                "the partition table changed: {} then {}",
+                x.join(" "),
+                y.join(" ")
+            ));
+        }
     }
-    if root_changed {
-        Ok(())
-    } else {
-        Err(
+    let (x, y) = (&b[n], &a[n]);
+    if x[1] != y[1] {
+        return Err(format!(
+            "the root partition is named {} before and {} after",
+            x[1], y[1]
+        ));
+    }
+    if x[2] == y[2] {
+        return Err(
             "the root partition is byte for byte what it was: the write did not reach the card"
                 .into(),
-        )
+        );
     }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -457,38 +482,66 @@ mod tests {
 
     #[test]
     fn the_card_read_must_change_in_the_root_only() {
-        // run 3 read the card before and after the boot: the card is byte for byte equal, so for a WRITE that is a failure
-        assert!(card_changed_only_in_the_root(CARD_BEFORE, CARD_AFTER)
+        // run 3 read the card before and after the boot: byte for byte equal, so for a WRITE that is a failure (real text, both sides)
+        assert!(card_changed_only_in_the_root(CARD_BEFORE, CARD_AFTER, 6)
             .unwrap_err()
             .contains("did not reach the card"));
-        // the root's digest changed (derived from the captured text by replacing the root line's digest)
+        // mutations of the captured text: the root line's digest replaced (a changed root), one table's digest replaced
         let root_line = CARD_AFTER.lines().find(|l| l.starts_with("root ")).unwrap();
-        let changed = CARD_AFTER.replace(
-            root_line,
-            "root system_a 0000000000000000000000000000000000000000000000000000000000000001",
-        );
-        card_changed_only_in_the_root(CARD_BEFORE, &changed).unwrap();
-        // a table changed
+        let changed = CARD_AFTER.replace(root_line, &format!("root system_a {}", "1".repeat(64)));
+        card_changed_only_in_the_root(CARD_BEFORE, &changed, 6).unwrap();
         let gpt = CARD_AFTER
             .lines()
             .find(|l| l.starts_with("gpt sdb "))
             .unwrap();
-        let moved = changed.replace(
-            gpt,
-            "gpt sdb 0000000000000000000000000000000000000000000000000000000000000002",
-        );
-        assert!(card_changed_only_in_the_root(CARD_BEFORE, &moved)
+        let moved = changed.replace(gpt, &format!("gpt sdb {}", "2".repeat(64)));
+        assert!(card_changed_only_in_the_root(CARD_BEFORE, &moved, 6)
             .unwrap_err()
             .contains("partition table changed"));
-        // another root named, a short read, an empty read
+        // another root named; a different keyword on the after side; a short read; no disks; the wrong number of disks; a digest that is not hex
         assert!(card_changed_only_in_the_root(
             CARD_BEFORE,
-            &changed.replace("root system_a", "root system_b")
+            &changed.replace("root system_a", "root system_b"),
+            6
         )
         .unwrap_err()
         .contains("named"));
-        assert!(card_changed_only_in_the_root(CARD_BEFORE, "gpt sda x\n").is_err());
-        assert!(card_changed_only_in_the_root("", "").is_err());
+        assert!(card_changed_only_in_the_root(
+            CARD_BEFORE,
+            &changed.replace("root system_a", "foo system_a"),
+            6
+        )
+        .is_err());
+        assert!(card_changed_only_in_the_root(CARD_BEFORE, "gpt sda x\n", 6).is_err());
+        let only_root = format!("root system_a {}\n", "3".repeat(64));
+        let only_root_after = format!("root system_a {}\n", "4".repeat(64));
+        assert!(card_changed_only_in_the_root(&only_root, &only_root_after, 6).is_err());
+        assert!(card_changed_only_in_the_root(CARD_BEFORE, &changed, 5).is_err());
+        assert!(card_changed_only_in_the_root(
+            CARD_BEFORE,
+            &changed.replace(&"1".repeat(64), "zz"),
+            6
+        )
+        .unwrap_err()
+        .contains("64 hex"));
+        assert!(card_changed_only_in_the_root("", "", 6).is_err());
+        assert!(card_changed_only_in_the_root(CARD_BEFORE, &changed, 0).is_err());
+    }
+
+    #[test]
+    fn the_returned_codes_of_the_write_and_the_check_are_judged() {
+        write_is_done("2+0 records in\n2+0 records out\nrc=0\n").unwrap();
+        assert!(write_is_done("rc=1\n").unwrap_err().contains("rc=1"));
+        assert!(write_is_done("no code here").is_err());
+        let line = DMESG_UFS
+            .lines()
+            .find(|l| l.contains("e2fsck:") && l.contains(": clean, "))
+            .unwrap();
+        let device = "/dev/block/platform/soc/1da4000.ufshc/by-name/userdata";
+        fsck_is_clean(&format!("{line}\nrc=0"), device).unwrap();
+        assert!(fsck_is_clean(&format!("{line}\nrc=4"), device)
+            .unwrap_err()
+            .contains("rc=4"));
     }
 
     #[test]
@@ -498,8 +551,8 @@ mod tests {
             .find(|l| l.contains("e2fsck:") && l.contains(": clean, "))
             .expect("the captured e2fsck line");
         let device = "/dev/block/platform/soc/1da4000.ufshc/by-name/userdata";
-        fsck_is_clean(line, device).unwrap();
-        assert!(fsck_is_clean(line, "/dev/sda22")
+        fsck_is_clean(&format!("{line}\nrc=0"), device).unwrap();
+        assert!(fsck_is_clean(&format!("{line}\nrc=0"), "/dev/sda22")
             .unwrap_err()
             .contains("no `/dev/sda22: clean"));
         for bad in [
@@ -507,12 +560,16 @@ mod tests {
             "FILE SYSTEM WAS MODIFIED",
         ] {
             assert!(
-                fsck_is_clean(&format!("{line}\n{bad}"), device).is_err(),
+                fsck_is_clean(&format!("{line}\n{bad}\nrc=0"), device).is_err(),
                 "{bad}"
             );
         }
-        assert!(fsck_is_clean(&line.replace(": clean, ", ": not clean, "), device).is_err());
-        assert!(fsck_is_clean("", device).is_err());
+        assert!(fsck_is_clean(
+            &format!("{}\nrc=0", line.replace(": clean, ", ": not clean, ")),
+            device
+        )
+        .is_err());
+        assert!(fsck_is_clean("rc=0", device).is_err());
     }
 
     #[test]
