@@ -7648,3 +7648,24 @@ Sources
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-rw-run-1-refused-by-booted-slot"></a>
+### walleye-rw-run-1-refused-by-booted-slot
+
+Date
+: 2026-11-24
+
+Brief
+: rw run 1 had no gadget because the init refused its own command line: walleye.booted-slot with root system_a while booted from memory on slot b; nothing was mounted
+
+Question
+: Why did the rw-write image, booted from memory in run 1, bring up no USB gadget (check 14), and what tells the causes apart before run 2?
+
+Found
+: Cause, from the code and a count (not from a hardware capture): the rw-write image cb79c975 was made from the STAGE 2 production image, whose command line carries walleye.booted-slot (read 2026-11-24 from the image's own header: "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.dtbo_idx=3 walleye.root=system_a walleye.booted-slot walleye.rw"). The rw write boots it the STAGE 1 way: fastboot boot from memory while Android's slot b stays current, root the other slot's system_a, and the run adds androidboot.slot_suffix=_b (rootfs_boot::run_cmdline). The init (build/initramfs-root-rw-write/init lines 131-134) then requires ROOT = system$SLOT under walleye.booted-slot: system_a is not system_b, so it refuses "walleye.booted-slot: system_a is not the system of the booted slot" BEFORE any mount, pauses 30 s petting the watchdog, and does reboot -f. That fits every measure of run 1: no gadget for 145 s, the phone back on Android slot b by itself, the card and boot chain equal. Counted: tests/host/ufs-root-rw-init.sh passes 2026-11-24 (30 s, QEMU); its case R3 "booted-slot with a root that is not the booted slot's" boots exactly run 1's line (walleye.root=system_a androidboot.slot_suffix=_b walleye.rw walleye.booted-slot) and sees that refusal. Its R1 (the rw success case) has no walleye.booted-slot, which is why the QEMU proof passed while the image could not work; the rehearsal never boots, so nothing caught it. The item's candidates (a) rw mount refused, (b) OpenRC or the gadget unit on a rw root, (c) the self-reboot racing a slow boot are not reached: the init stops before the mount. They stay not known until a boot gets past the guard.
+NOT captured on hardware: the refusal line was in ramoops after run 1, but Android rebooted since (uptime 664 s at 14:10, read by adb as shell; no root, so pstore was not read). Instrument for run 2: the refusal path is a warm reboot -f, which keeps console-ramoops (research walleye-stop-pstore-reads-runs-4-and-7-three-answers: only a PMIC bite empties it), so a no-gadget stop reads /sys/fs/pstore from Android AT ONCE, before any reboot, and tells apart: a "walleye-ufs-root: refused ..." line (a guard, which one), "handing over to the root's /sbin/init" with no gadget (cause b or c), "mounts-rw" without hand-over (cause a), nothing (no start or a bite).
+Failing test: tools/walleye-tries/src/rw_write.rs the_rw_image_command_line_passes_the_inits_slot_guard_when_booted_from_memory (ignored so main stays green; cargo test --lib -- --ignored shows it failing on cb79c975).
+
+About
+: walleye-bootimage

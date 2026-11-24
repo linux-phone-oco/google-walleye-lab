@@ -3422,3 +3422,34 @@ About
 
 Research
 : walleye-rw-write-image-built
+
+
+<a id="2026-11-24-walleye-rw-run-2-after-image-without-booted-slot"></a>
+### 2026-11-24-walleye-rw-run-2-after-image-without-booted-slot
+
+Date
+: 2026-11-24
+
+Brief
+: No rw run 2 on image cb79c975: rebuild the rw image without walleye.booted-slot, gate check 2 on it, read pstore on a stop; then a new go names the new sha256
+
+Decision
+: Run 2 of the rw write waits for two build items: walleye-rw-image-without-booted-slot (the image's line without the word, check 2 refusing it, the failing test passing) and walleye-rw-write-reads-pstore-on-a-stop (the instrument that tells the remaining causes apart). The coordinator's next go names the new image's full sha256; cb79c975 is never booted again.
+
+Why
+: Research walleye-rw-run-1-refused-by-booted-slot: the init refuses run 1's exact line (QEMU case R3 counts it), so a second run of the same image can only stop at check 14 again. The fix is one word off the recipe and keeps the init byte for byte, whose rw path QEMU R1 already proves. The pstore read is the cheapest witness for whatever stops run 2, since the refusal path is a warm reboot that keeps ramoops.
+
+Rejected
+: Boot from the root's own slot (set_active a, then fastboot boot) so walleye.booted-slot holds: it changes the slots' flags, which the rw write must leave equal, and puts Android's way back at risk. Have run_cmdline strip the word at run time: the run image would then differ from the declared one beyond the slot word, which the go's sha256 rule forbids. Drop the init's guard: it is the production guard, proven, and the rw blocks must stay additions only (R0). Run 2 unchanged to capture pstore first: the cause already follows from the code and a count, so the run would spend the phone and a go to see a known refusal.
+
+About
+: walleye-bootimage
+
+Research
+: walleye-rw-run-1-refused-by-booted-slot
+
+Scope
+: walleye-builder, walleye-keeper, walleye-coordinator (the next rw go)
+
+Tracked by
+: walleye-rw-image-without-booted-slot
