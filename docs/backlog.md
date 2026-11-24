@@ -12181,6 +12181,7 @@ Status
 
 Note
 : Run 3 used its go (2026-11-24): 30/30 passed, e2fsck -fn from Android b prints one 'wrong' line (free blocks 252253 vs counted 252252); settle_rw remount ro failed Resource busy. Outcome: stop, research before run 4 (research walleye-rw-write-run-3-30-steps-pass-root-stays-rw). A run 4 needs a new go.
+go until 2026-11-24T16:53:54+01:00, outcomes: Closed by the walleye coordinator: used by run 3 (research walleye-rw-write-run-3-30-steps-pass-root-stays-rw, PR 1027). Outcome that held: write, read-back, kernel log and way back pass, 30/30 steps; the remount ro failed busy. Run 4 needs a new go after walleye-rw-clean-end-who-holds-root.
 
 About
 : walleye-bootimage
@@ -12201,4 +12202,29 @@ Witness
 : person
 
 Go until
-: 2026-11-24T20:00:00+01:00
+: 2026-11-24T16:53:54+01:00
+
+
+<a id="walleye-rw-clean-end-who-holds-root"></a>
+### The rw boot's clean end: what holds the Alpine root open for writing, and the way Alpine itself ends a rw root, so run 4 leaves system_a cleanly unmounted
+
+Status
+: open
+
+Note
+: Run 3 (PR 1027, ~/lab-material/walleye/rw-write-20261124-163645, settled.txt): mount -o remount,ro / failed 'Resource busy', the root stayed ext4 rw; find -newer /proc/1 listed 200 files, mostly the image's own, so it did not name the writer. e2fsck -fn from Android after: passes 1-4 clean, 'Free blocks count wrong (252253, counted=252252)', 950 files. Look around first: Alpine's own shutdown (OpenRC's killprocs and mount-ro services, busybox reboot) is how Alpine ends a rw root; candidates for the holder are syslogd's log, the lab's own ssh session, OpenRC state, files open but deleted. Decide between (a) a capture of /proc/*/fd write-open files before the remount (an instrument proven on QEMU's rw case first), and (b) ending through Alpine's own path (openrc shutdown, then the bootloader) so mount-ro does it. End in a decision, a failing test, and the build item; nothing on the phone.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: research
+
+Proof
+: a decision row, and a QEMU test where the rw boot's end leaves the root clean (e2fsck -fn no 'wrong' line) that fails today
+
+Rank
+: 2
