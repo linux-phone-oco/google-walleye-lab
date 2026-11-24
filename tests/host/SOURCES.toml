@@ -176,7 +176,7 @@ unsourced = "its fixtures are made-up text, not text a phone printed (item part 
 source = "research:walleye-z21-touch-part-compare"
 
 [scripts."phone-state-selftest.sh"]
-unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+unsourced = "its tty answers with a banner line the phone printed (banner-z6-try1.cap), but the adb and fastboot device lists, the sysfs gadget and the other tty bytes are typed text, not known yet from a phone"
 
 [scripts."phone-state.sh"]
 source = "research:walleye-c3-hang-unproven"

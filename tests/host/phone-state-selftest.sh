@@ -1,7 +1,9 @@
 #!/bin/sh
 # walleye-phone-state-selftest: proves phone-state.sh against fake adb, fastboot, sysfs and tty; the phone is never touched.
+# The banner the tty answers with is a line a phone printed (tests/fixtures/phone-text/banner-z6-try1.cap, sourced in its SOURCES.toml); the adb and fastboot lists, the sysfs and the other tty bytes stay typed (listed unsourced).
 # Prints one line, `pass|fail walleye-phone-state-selftest host DETAIL`; exit 0 only on pass.
 HERE=$(cd "$(dirname "$0")" && pwd)
+CAP="$HERE/../fixtures/phone-text/banner-z6-try1.cap"
 T=$(mktemp -d) || exit 1; trap 'rm -rf "$T"' EXIT
 fail() { echo "fail walleye-phone-state-selftest host $1"; exit 1; }
 mkdir "$T/bin" "$T/usb"
@@ -16,7 +18,7 @@ mkfake adb 'echo "List of devices attached"; echo "FA81N1A00790	device"'; mkfake
 # adb device with a stale gadget listed -> android
 gadget; : > "$T/tty"; case_ "android with a stale gadget" 0 android
 # gadget listed and tty beat -> mainline-answering
-mkfake adb 'echo "List of devices attached"'; printf 'WALLEYE-BANNER beat=0 up=1s steps=1 last=[x]\n' > "$T/tty"; case_ "gadget and beat" 0 mainline-answering
+mkfake adb 'echo "List of devices attached"'; grep -m1 '^WALLEYE-BANNER beat=' "$CAP" > "$T/tty"; case_ "gadget and beat" 0 mainline-answering
 # gadget listed and tty silent -> not known (mainline-silent), exit 2
 : > "$T/tty"; case_ "gadget and silent tty" 2 mainline-silent
 out=$(run); echo "$out" | grep -q 'NOT KNOWN' || fail "silent gadget does not say NOT KNOWN: $out"
