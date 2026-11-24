@@ -8284,3 +8284,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-image-recipes-b-dn"></a>
+### Recipes for the five delay images
+
+Entry date
+: 2026-11-24
+
+Done
+: b-d5..b-d50 each a recipe of control b2 plus a ramdisk sha256; image ensure --rebuild equals each declared sha256; image-recipe.sh passes. wdt1-a/b left: their kernel, dtb and cmdline differ from b2's.
+
+Considered
+: Giving wdt1-a/b a recipe now: no control image shares their kernel and dtb
+
+About
+: walleye-bootimage

@@ -230,21 +230,41 @@ devfreq = "1da4000.ufshc"  # the UFS host's devfreq node: its clock is pinned at
 path = "images-display-delay/boot-b-d5.img"
 sha256 = "0c285abb05d5d001c58adc9f33d79654fd541e056bd68cbc2c5577f061099973"
 
+[images.b-d5.recipe]
+control = "b2"
+ramdisk = "0b6e0a6bcb07a3216deca0c735c7ceafd794e7d72b5f6d0436261282f09dd8c5"   # B2 with the init that waits 5 s before the display modules; the rest is B2s
+
 [images.b-d15]
 path = "images-display-delay/boot-b-d15.img"
 sha256 = "d678b2d5a07dbc5796091e868d8c3fbd55d959f387912e83a96fa84b5f573e72"
+
+[images.b-d15.recipe]
+control = "b2"
+ramdisk = "ffa8e213e3bd2a11006583b4eed2a78d149e44b47d62e59f616a8c6596f45a4c"   # B2 with the init that waits 15 s before the display modules; the rest is B2s
 
 [images.b-d25]
 path = "images-display-delay/boot-b-d25.img"
 sha256 = "76976e0bb88ef0ad46f4639fc11de5f71e872480fa65c331d7a5da83ccc6f445"
 
+[images.b-d25.recipe]
+control = "b2"
+ramdisk = "0567e2dd60b3dedde9b8e8f48d5934971bccbaf2332915fc2752d8371c7580da"   # B2 with the init that waits 25 s before the display modules; the rest is B2s
+
 [images.b-d35]
 path = "images-display-delay/boot-b-d35.img"
 sha256 = "d10f607691aa8c8d892008878b5069a06692aef9a627cc6335798dc4e527cbfa"
 
+[images.b-d35.recipe]
+control = "b2"
+ramdisk = "8d912489c6f23787d8b1de53fde8c698616a2aeb23f62ee5970df9088f4533c0"   # B2 with the init that waits 35 s before the display modules; the rest is B2s
+
 [images.b-d50]
 path = "images-display-delay/boot-b-d50.img"
 sha256 = "f6ea1d15fd149ab886c086db4ef24fcd77e5a6517737aa22388fa161a62b88b2"
+
+[images.b-d50.recipe]
+control = "b2"
+ramdisk = "22e73e5fdab27b49434da7c7ecfca36de7d18425737db2388bba1cd01d3ce18f"   # B2 with the init that waits 50 s before the display modules; the rest is B2s
 
 # The splash image B-s5 (item walleye-display-splash-region-dts): B-d5 whose dtb reserves the bootloader splash (memory@9d400000, no-map) and holds it with a simple-framebuffer
 # (build/build-display-splash-image.sh; kernel, ramdisk with its 5 s delay, header and size are B-d5's). The proof: the delay bisect at 5 s, do the faults and warnings vanish?
