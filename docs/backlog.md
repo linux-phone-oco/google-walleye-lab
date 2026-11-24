@@ -11284,10 +11284,10 @@ Rank
 ### The test a_fixture_runs_at_once_while_other_threads_spawn fails now and then with ExecutableFileBusy (ETXTBSY) and blocks landings: make it deterministic
 
 Status
-: open
+: done
 
 Note
-: Seen failing in the 'attended tries prove themselves' check on records-only PRs (885, 925) and on at least one other: each time a rerun passed. It costs a landing each time; small. Rank 3: behind the stage 2 work.
+: Seen failing in the 'attended tries prove themselves' check on records-only PRs (885, 925) and on at least one other: each time a rerun passed. It costs a landing each time; small. Rank 3: behind the stage 2 work. | DONE (walleye-builder, 2026-11-24): cause read - the fixture wrote the script through a handle in the test process, so a sibling thread's fork inherited it and its exec of the script failed with ETXTBSY; the /proc wait before could not see a child between fork and its listing. Now a short-lived cat child writes the file and has exited before executable() returns, so the test process never holds a write handle. Measured on the lab: fixture test 200 runs and the whole suite 30 runs, 0 failures; the OLD code also passed 200 of 200 here, so the failure was not reproduced locally (it showed under CI load) and the fix rests on the cause, not on a seen failure. clippy and fmt clean; product code unchanged.
 
 About
 : walleye-bootimage
