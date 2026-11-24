@@ -7669,3 +7669,25 @@ Failing test: tools/walleye-tries/src/rw_write.rs the_rw_image_command_line_pass
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-rw-write-run-2-write-proven-way-back-slow"></a>
+### walleye-rw-write-run-2-write-proven-way-back-slow
+
+Date
+: 2026-11-24
+
+Brief
+: rw write run 2: 16 MiB write read back equal, kernel log clean, tables equal; fsck -n on the mounted root and the first fastboot reboot not known yet
+
+Question
+: Does our UFS-on kernel write the Pixel 2's system partition correctly, and does the phone come back?
+
+Found
+: Rehearsal 15/15, then the run (folder ~/lab-material/walleye/rw-write-20261124-150514). Checks 1-23 passed: gadget up, init mounted /dev/sda22 (system_a) with suffix _b, ext4 rw no overlay no discard, 16 MiB of zeros written rc=0, read back whole and all zero, kernel log without purge, oops, UFS or EXT4 error (its one error line is msm_serial probe -2, unrelated). fsck.ext4 -n on the MOUNTED root: rc=0 but printed Free blocks count wrong (252516, counted=252497) and Free inodes count wrong (64600, counted=64587), Fix? no: under the go that is errors with the read-back equal, NOT KNOWN YET (a live fs), judged by research, not a stop. After: the tables of 6 disks, the boot chain and both slots flags equal, the root partition changed as expected. Then stopped at check 26: Android not back within 240 s after step 24 (bootloader, fastboot reboot); the way back leg 1 (fastboot reboot) brought it back on slot b, adbd root, boot_completed 1. pstore had no console-ramoops (the gadget came up, so nothing to read).
+
+Sources
+: none
+
+About
+: walleye-bootimage
