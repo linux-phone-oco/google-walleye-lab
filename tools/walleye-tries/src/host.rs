@@ -2,6 +2,7 @@
 //! The lab's host scripts (tests/host/*.sh) and programs run as checks: each prints a verdict line and exits 0
 //! only on pass. A try runs them, never copies their logic.
 
+use std::os::unix::fs::OpenOptionsExt;
 use std::path::Path;
 use std::process::Command;
 
@@ -143,12 +144,15 @@ pub fn the_image_is_ensured(
     image: &Path,
     want: &str,
 ) -> Result<String, String> {
-    if image_has_sha256(image, want).is_ok() {
-        return Ok(format!(
-            "{name}: the file is the declared one; nothing ensured"
-        ));
-    }
-    let stale = image_has_sha256(image, want).unwrap_err();
+    let stale = match image_has_sha256(image, want) {
+        Ok(()) => {
+            return Ok(format!(
+                "{name}: the file is the declared one; nothing ensured"
+            ))
+        }
+        Err(e) if want.trim().is_empty() => return Err(e),
+        Err(e) => e,
+    };
     let mut c = Command::new(bringup);
     c.args(["image", "ensure", name, "--device"])
         .arg(device_toml);
@@ -168,9 +172,30 @@ pub fn the_image_is_ensured(
     let store = Path::new(&path);
     image_has_sha256(store, want)
         .map_err(|e| format!("{stale}; the ensured file is not the declared one: {e}"))?;
-    let tmp = image.with_extension("ensuring");
-    std::fs::copy(store, &tmp).map_err(|e| format!("{}: {e}", tmp.display()))?;
-    std::fs::rename(&tmp, image).map_err(|e| format!("{}: {e}", image.display()))?;
+    let tmp = image.with_extension(format!("ensuring-{}", std::process::id()));
+    let _ = std::fs::remove_file(&tmp);
+    let wrote = (|| -> Result<(), String> {
+        use std::io::Write;
+        let mut from =
+            std::fs::File::open(store).map_err(|e| format!("{}: {e}", store.display()))?;
+        let mut to = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .mode(0o644)
+            .open(&tmp)
+            .map_err(|e| format!("{}: {e}", tmp.display()))?;
+        std::io::copy(&mut from, &mut to).map_err(|e| format!("{}: {e}", tmp.display()))?;
+        to.flush()
+            .and_then(|()| to.sync_all())
+            .map_err(|e| format!("{}: {e}", tmp.display()))?;
+        image_has_sha256(&tmp, want)
+            .map_err(|e| format!("the copy is not the declared one: {e}"))?;
+        std::fs::rename(&tmp, image).map_err(|e| format!("{}: {e}", image.display()))
+    })();
+    if let Err(e) = wrote {
+        let _ = std::fs::remove_file(&tmp);
+        return Err(format!("{stale}; {e}"));
+    }
     Ok(format!(
         "{name}: the build file was stale ({stale}); replaced by the ensured {path}"
     ))
@@ -359,6 +384,11 @@ mod tests {
         let dry = "ufs-root-booted-slot-production-rw: in the store (/nix/store/h6d3g53lpqbiqw1nfkwh6s2q8mv4ky0b-NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-rw.img)\n";
         assert_eq!(ensured_path(dry).as_deref(), Some("/nix/store/h6d3g53lpqbiqw1nfkwh6s2q8mv4ky0b-NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-rw.img"));
         assert_eq!(ensured_path("z21: no recipe\n"), None);
+        assert!(
+            the_image_is_ensured("x", "n", Path::new("d"), Path::new("/nonexistent"), "")
+                .unwrap_err()
+                .contains("no sha256 recorded")
+        );
     }
 
     fn ensure_rig(

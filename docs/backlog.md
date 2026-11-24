@@ -12140,7 +12140,7 @@ Status
 : done
 
 Note
-: DONE (walleye-builder, 2026-11-24): the image step asks lpoco-bringup image ensure when the build file's sha256 is not the declared one, replaces the file by the ensured store file when its sha256 equals the declared, and otherwise stops before any phone step. Not done: the keeper's waits ending by their own pid (not this tool's).
+: DONE for the rootfs boot and the rw write (walleye-builder, 2026-11-24): the image step asks lpoco-bringup image ensure when the build file's sha256 is not the declared one, replaces the file (copy hashed again before the rename) when the ensured file equals the declared sha256, and otherwise stops before any phone step. NOT done: the display and touch tries check only the SHA256SUMS beside the file and ensure never refreshes it, so they can still run on a stale build file; the keeper's waits ending by their own pid is not this tool's.
 
 About
 : walleye-bootimage
