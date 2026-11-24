@@ -1,0 +1,7 @@
+OPY arch/arm64/boot/Image
+  GZIP    arch/arm64/boot/Image.gz
+make[1]: Leaving directory '/build/b'
+make: Leaving directory '/build/tree'
+error: hash mismatch in fixed-output derivation '/nix/store/2nlc60yb9jc6h9nc8ym411y4dvsyxh0m-kernel-000000000000.drv':
+         specified: sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+            got:    sha256-iK+010L/WaOtC48c/6incJx+maCpJtynMs8zxfkNl6w=
