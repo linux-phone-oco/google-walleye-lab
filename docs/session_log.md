@@ -7906,3 +7906,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-1540-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-24
+
+Done
+: Android slot b, stock kept, nothing flashed or written; one read-only visit did gpt-hash (equal), vendor-firmware-pull (136 files) and the unmounted fsck (rc 0, free counts wrong)
+
+Considered
+: next: research judges the stale free counts (e2fsck -fn after a clean rw mount+umount is the way to tell); remaining ready: wdt0-first-instant-read, cmdline-cut-check-slot-a, fastboot-reboot-twice-timed-try
+
+About
+: walleye-bootimage

@@ -7691,3 +7691,22 @@ Sources
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-android-read-visit-2026-11-24"></a>
+### walleye-android-read-visit-2026-11-24
+
+Date
+: 2026-11-24
+
+Brief
+: One read-only Android b visit: GPT hash equals 6cd7e48c; unmounted system_a e2fsck -fn rc 0 but free counts wrong; /vendor/firmware 136 files pulled
+
+Question
+: Does Android read sda's GPT like the debug image; is the free-count diff of rw run 2 only a mounted-fsck artefact; pull vendor firmware
+
+Found
+: Android slot b, adb root, nothing written, no reboot. (1) GPT hash (first 6 + last 5 blocks of sda) = 6cd7e48c21bc7a1f2cea8c12dc773003ca71a8681f2b3f0c43f428d55d250174, equal to the expected: the debug image and Android read the disk alike. (2) e2fsck -fn on unmounted system_a (sda22, not in mount): rc 0, passes 1-4 clean, pass 5 'Free blocks count wrong (252516, counted=252253)' and 'Free inodes count wrong (64600, counted=64586)'; 936/65536 files, 9628/262144 blocks. So the free-count lines are NOT only a mounted-fsck artefact: they stay on the unmounted partition; the superblock summary counts are stale (run 2's rw mount ended by reboot, not a clean umount; on-disk summary lags, group descriptors and bitmaps are what e2fsck trusts). No structural error. Not proven which write left the stale counts: judge by research. (3) /vendor/firmware pulled whole: 136 files, 68 MB, ~/lab-material/walleye/vendor-firmware-2026-11-24 (mode 700, outside git) with sha256sums; adsp, venus, bdwlan, wlanmdsp, ipa_fws, a540_zap, cpe_9340, crbtfw21/crnv21 BT all present; /vendor/firmware_mnt does not exist.
+
+About
+: walleye-bootimage
