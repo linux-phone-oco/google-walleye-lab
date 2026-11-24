@@ -11899,7 +11899,10 @@ Status
 : open
 
 Note
-: UNBLOCKED BY THE UFS RESULTS (runs 9 and 10, PR 982 and 987): sustained reads of 64 to 2048 MiB at the gear the card chooses (HS_GEAR3, 2 lanes, 200 MHz) end rc=0 with the shell answering, GPT equal, inside the image's time; the earlier silence was the matched image's own 180 s self-reboot, not UFS. NOT KNOWN YET: writes (storage-full-speed is partial because writes are untried). The stage 3 image must be built through lpoco bringup image ensure (recipe row, kernel from an int/ tag), so it follows the z21 recipe row and the declared kernel build; its init must not carry the matched image's 180 s self-reboot (use the stage 1 family's hold, HOLD_SECONDS). Order of the builder queue: land 966, z21, kernel build declared, THIS, then the go-consumed gate (before the run). | From the stage 3 verdict (research walleye-install-stage3-android-ufs-comparison-verdict, PR 708): for one rw mount with nodiscard, no fstrim, no mkfs, ufs_bsg unopened and the purge guard kept, our kernel sends the card no command class Android's did not (UNMAP: we send none, Android sent some; write SAME off in both; purge set by neither; the write booster never probed on this UFS 2.1 card; START STOP, background operations and the Hynix SAVECONFIGTIME quirk the same in both; link gear scaling in both; the differences left are power and speed). Not known yet: the Lineage fork's UFS code, the card firmware's own reactions, whether the LUN reports discard support. Runs after the stage 1 boot and UFS try 2 (item walleye-install-rw-write-test). Never: bootloader partitions, the GPT, erase, purge. | 2026-11-24 coordinator: ranked 2, the next builder item (the kernel row waits on a lpoco-attended release, item walleye-lpoco-attended-carries-manifest-0-47, so this image takes its kernel as a part by sha256, the way PR 993's z21 recipe takes z20's, and goes through lpoco bringup image ensure; the declared ufs-on kernel replaces that part when walleye-declares-ufs-on-kernel-build can land).
+: UNBLOCKED BY THE UFS RESULTS (runs 9 and 10, PR 982 and 987): sustained reads of 64 to 2048 MiB at the gear the card chooses (HS_GEAR3, 2 lanes, 200 MHz) end rc=0 with the shell answering, GPT equal, inside the image's time; the earlier silence was the matched image's own 180 s self-reboot, not UFS. NOT KNOWN YET: writes (storage-full-speed is partial because writes are untried). The stage 3 image must be built through lpoco bringup image ensure (recipe row, kernel from an int/ tag), so it follows the z21 recipe row and the declared kernel build; its init must not carry the matched image's 180 s self-reboot (use the stage 1 family's hold, HOLD_SECONDS). Order of the builder queue: land 966, z21, kernel build declared, THIS, then the go-consumed gate (before the run). | From the stage 3 verdict (research walleye-install-stage3-android-ufs-comparison-verdict, PR 708): for one rw mount with nodiscard, no fstrim, no mkfs, ufs_bsg unopened and the purge guard kept, our kernel sends the card no command class Android's did not (UNMAP: we send none, Android sent some; write SAME off in both; purge set by neither; the write booster never probed on this UFS 2.1 card; START STOP, background operations and the Hynix SAVECONFIGTIME quirk the same in both; link gear scaling in both; the differences left are power and speed). Not known yet: the Lineage fork's UFS code, the card firmware's own reactions, whether the LUN reports discard support. Runs after the stage 1 boot and UFS try 2 (item walleye-install-rw-write-test). Never: bootloader partitions, the GPT, erase, purge. | 2026-11-24 coordinator: ranked 2, the next builder item (the kernel row waits on a lpoco-attended release, item walleye-lpoco-attended-carries-manifest-0-47, so this image takes its kernel as a part by sha256, the way PR 993's z21 recipe takes z20's, and goes through lpoco bringup image ensure; the declared ufs-on kernel replaces that part when walleye-declares-ufs-on-kernel-build can land). | SPLIT 2026-11-24 (walleye-builder): into walleye-rw-write-image (the init switch and its image row) and walleye-rw-write-plumbing (module, settings, tests); this item is then the procedure file procedures/rw-write-on-the-pixel-2.rs, its rehearsal, and the dry run of all steps.
+
+Blocked by
+: walleye-rw-write-image,walleye-rw-write-plumbing
 
 About
 : walleye-display-s6e3fa5
@@ -11940,3 +11943,56 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-rw-write-image"></a>
+### The rw-write image: the UFS-root image whose init mounts the target rw, nodiscard, and nothing else
+
+Status
+: open
+
+Note
+: Split from walleye-install-rw-write-procedure (walleye-builder, 2026-11-24: the item is three pieces, each a run of its own). The production init build/initramfs-root-production/init mounts ro,nodiscard,noload under a tmpfs overlay (lines 149-159); this image's init is that init with ONE switch (the word walleye.rw on the command line): ext4 rw,nodiscard, no overlay, no mkfs, no fsck, ufs_bsg never opened, the purge guard kept, the same slot guard and the system_<name> allow-list; the kernel is a sha256 part like z21's recipe (PR 993) until walleye-lpoco-attended-carries-manifest-0-47; a second [images.*] row with its own sha256, never the ro image's, built twice, through lpoco bringup image ensure.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: tests/host/ufs-root-rw-init.sh (QEMU, like ufs-root-init.sh: with the word the root is rw and a write lands in the test partition; without it the init is the ro one; a partition outside the allow-list or no slot refuses and writes nothing), image-recipe.sh for the new row
+
+Rank
+: 2
+
+
+<a id="walleye-rw-write-plumbing"></a>
+### walleye-tries rw_write: the gates, the before/after measures and the bounded write, tested on text a phone printed
+
+Status
+: open
+
+Note
+: Split from walleye-install-rw-write-procedure. A module tools/walleye-tries/src/rw_write.rs on the pattern of rootfs_boot.rs (the guard, the card read before and after, the boot chain and GPT equal, the way back) plus: the dd with fsync of a bounded size into a file, sync, umount, fsck.ext4 -n clean, the error counters and dmesg free of UFS errors; its settings keys in device.toml [procedures.rw-write-on-the-pixel-2] and settings.rs. Each expectation names a source (walleye-sources gate, PR 1001); fixtures are text a phone printed (research/ captures of runs 5 to 12), never typed.
+
+Blocked by
+: walleye-rw-write-image
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: cargo test in tools/walleye-tries from captured phone text; clippy, fmt
+
+Rank
+: 2

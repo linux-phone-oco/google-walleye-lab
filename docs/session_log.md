@@ -7684,3 +7684,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-rw-write-item-looked-at-and-split"></a>
+### rw-write item looked at and split
+
+Entry date
+: 2026-11-24
+
+Done
+: read the stage 1 and 2 procedures, the production init and device.toml image rows; split walleye-install-rw-write-procedure into the image, the plumbing and the procedure file, each ranked 2 and blocked in order; walleye-go-is-consumed-by-its-run read: it needs a record of when a go was set, which the item row does not carry, so its design is a decision first
+
+Considered
+: building the procedure in one run: about 2500 lines of plumbing like rootfs_boot.rs plus a new image; a half-built one would fail lpoco-attended check
+
+About
+: walleye-bootimage
