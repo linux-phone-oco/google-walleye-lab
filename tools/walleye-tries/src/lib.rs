@@ -22,6 +22,7 @@ pub mod ramroot;
 pub mod reader;
 pub mod reboot_tool;
 pub mod rootfs_boot;
+pub mod rw_write;
 pub mod settings;
 pub mod touch;
 pub mod ufs;

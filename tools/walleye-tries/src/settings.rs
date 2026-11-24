@@ -17,6 +17,7 @@
 //! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item`, `lun`, `load_mb`, `load_limit`, `luns`, `ramp_mb`, `devfreq` |
 //! | the install write's values | `[images.alpine-rootfs]` (`path`, `sha256`), `[procedures.install-rootfs-on-the-pixel-2]` `backup`, `stage_dir`, `by_name` |
 //! | the root boot's values | `[images.ufs-root]` (`path`, `sha256`), `[procedures.rootfs-boots-on-the-pixel-2]` `go_item`, `identity`, `ssh_user`, `ssh_port`, `bootchain`, `by_name`, `luns` |
+//! | the rw write's values | `[images.ufs-root-booted-slot-production-rw]` (`path`, `sha256`; named by `image`), `[procedures.rw-write-on-the-pixel-2]` `image`, `go_item`, `identity`, `ssh_user`, `ssh_port`, `bootchain`, `by_name`, `luns`, `write_mib` |
 //! | the display-at-boot try's values | `[images.b2]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules, hold` |
 //! | the Alpine-in-RAM login try's values | `[procedures.alpine-login-on-the-glass-on-the-pixel-2]` `image` (the name of its `[images.NAME]`: `path`, `sha256`), `delay`, `modules`, `identity`, `ssh_user`, `ssh_port` |
 //! | the display delay bisect's values | `[images.b-d5]` ... `[images.b-d50]` (or the images `image_prefix` names: `b-s` and delays 5 give `[images.b-s5]`) (`path`, `sha256`), `[procedures.display-delay-bisect-on-the-pixel-2] delays`, `image_prefix`, `modules` |
@@ -36,6 +37,7 @@ pub const INSTALL_PROCEDURE: &str = "install rootfs on the Pixel 2";
 pub const REHEARSE_INSTALL_PROCEDURE: &str = "rehearse install rootfs on the Pixel 2";
 pub const ROOTFS_BOOT_PROCEDURE: &str = "rootfs boots on the Pixel 2";
 pub const REHEARSE_ROOTFS_BOOT_PROCEDURE: &str = "rehearse rootfs boots on the Pixel 2";
+pub const RW_WRITE_PROCEDURE: &str = "rw write on the Pixel 2";
 pub const RAMROOT_PROCEDURE: &str = "alpine login on the glass on the Pixel 2";
 pub const FLASH_BOOT_PROCEDURE: &str = "install boot on the Pixel 2";
 pub const REHEARSE_FLASH_BOOT_PROCEDURE: &str = "rehearse install boot on the Pixel 2";
@@ -56,6 +58,7 @@ pub enum Try {
     Ufs,
     Install,
     RootfsBoot,
+    RwWrite,
     Ramroot,
     FlashBoot,
 }
@@ -82,6 +85,8 @@ pub struct Settings {
     pub back_wait: u64,
     /// how long stage 2 waits, sending the phone nothing, for Android to answer adb after the new slot gave no ssh: `fallback_wait` of the stage 2 procedure's table
     pub fallback_wait: u64,
+    /// the rw write: how many MiB of zeros the one bounded write puts in its test file (`write_mib` of the rw write procedure's table; 1 to `rw_write::MAX_WRITE_MIB`)
+    pub write_mib: u64,
     /// the words that pick the phone's lines out of the lab host's kernel log (`3-2`: the port, which also picks the driver-bind lines (cdc_ether 3-2:1.0) the phone is cabled to): `usb_log_match` of the stage 2 procedure's table
     pub usb_log_match: String,
     /// the lowest battery voltage (mV) a try may start at: `[health] battery_floor_mv`
@@ -197,6 +202,13 @@ impl Settings {
         })
     }
 
+    /// The rw write's settings, read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_rw_write() -> Settings {
+        Settings::read_linked(Try::RwWrite, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
     /// Install stage 2's settings (flash the boot partition of the slot Android is not on, set_active it, the way back), read from the device's `device.toml`.
     pub fn for_flash_boot() -> Settings {
         Settings::read_linked(Try::FlashBoot, &|k| dev(k).to_string(), &|k| {
@@ -294,6 +306,7 @@ impl Settings {
             load_limit: 0,
             gear_wait: 0,
             fallback_wait: 0,
+            write_mib: 0,
             usb_log_match: String::new(),
             luns: 0,
             ramp_mb: Vec::new(),
@@ -399,6 +412,33 @@ impl Settings {
                     "by_name in device.toml is an absolute path on the phone, luns is 1 to 26"
                 );
                 s.out = s.out_dir("rootfs-boots");
+            }
+            Try::RwWrite => {
+                // the rw write: the image is named by its [images.NAME] row (the sha256 the go names), the root is the system partition of the slot Android is not on
+                let name = proc("image");
+                s.image = image(&name);
+                s.image_sha256 = dev(&format!("images.{name}.sha256"));
+                s.go_item = proc("go_item");
+                s.identity = home_path(&proc("identity"));
+                s.ssh_user = proc("ssh_user");
+                s.ssh_port = u16::try_from(number("ssh_port", proc("ssh_port")))
+                    .expect("ssh_port in device.toml is a port number");
+                s.bootchain = home_path(&proc("bootchain"));
+                s.by_name = proc("by_name");
+                s.luns = number("luns", proc("luns"));
+                s.write_mib = number("write_mib", proc("write_mib"));
+                s.reboot_tool = image(REBOOT_TOOL);
+                s.reboot_tool_sha256 = dev(&format!("images.{REBOOT_TOOL}.sha256"));
+                assert!(
+                    s.by_name.starts_with('/') && (1..=26).contains(&s.luns),
+                    "by_name in device.toml is an absolute path on the phone, luns is 1 to 26"
+                );
+                assert!(
+                    (1..=crate::rw_write::MAX_WRITE_MIB).contains(&s.write_mib),
+                    "write_mib in device.toml is 1 to {} (the bound of the one write)",
+                    crate::rw_write::MAX_WRITE_MIB
+                );
+                s.out = s.out_dir("rw-write");
             }
             Try::Ramroot => {
                 let name = proc("image");
@@ -579,6 +619,7 @@ impl Settings {
             ("flash_allow", "boot_a boot_b"),
             ("to_bootloader", "/tmp/walleye-reboot --command bootloader"),
             ("fallback_wait", "420"),
+            ("write_mib", "16"),
             ("usb_log_match", "3-2"),
         ]
         .into_iter()
@@ -663,6 +704,7 @@ mod tests {
             (Try::Install, REHEARSE_INSTALL_PROCEDURE),
             (Try::RootfsBoot, ROOTFS_BOOT_PROCEDURE),
             (Try::RootfsBoot, REHEARSE_ROOTFS_BOOT_PROCEDURE),
+            (Try::RwWrite, RW_WRITE_PROCEDURE),
             (Try::Ramroot, RAMROOT_PROCEDURE),
             (Try::FlashBoot, FLASH_BOOT_PROCEDURE),
             (Try::FlashBoot, REHEARSE_FLASH_BOOT_PROCEDURE),

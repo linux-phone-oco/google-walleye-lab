@@ -7744,3 +7744,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-rw-write-plumbing"></a>
+### The rw write's plumbing
+
+Entry date
+: 2026-11-24
+
+Done
+: rw_write.rs with its judges and settings, tested from captured text; no phone
+
+Considered
+: Typing the dd and fsck output (refused: the write and its read-back run on the host on a known case; the fsck line is the one Android printed)
+
+Rejected
+: Writing the ssh/adb steps without a phone to test them against: left to walleye-install-rw-write-procedure
+
+About
+: walleye-bootimage
