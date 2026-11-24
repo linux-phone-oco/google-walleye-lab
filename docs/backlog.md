@@ -11392,6 +11392,9 @@ Note
 Waits
 : an lpoco-attended release whose lpoco-manifest is 0.47.0 or later (attended main has it, released 0.45.2 still has 0.46.0, which refuses [kernel_builds] in the CI dry run)
 
+Blocked by
+: walleye-lpoco-attended-carries-manifest-0-47
+
 About
 : walleye-bootimage
 
@@ -11909,6 +11912,31 @@ Needs
 
 Proof
 : [kernel_builds.walleye-ufs-on] declared with the tag's rev; two builds equal; tests/host/kernel-build.sh walleye-ufs-on passes; no phone
+
+Rank
+: 4
+
+
+<a id="walleye-lpoco-attended-carries-manifest-0-47"></a>
+### A lpoco-attended release that reads manifests with lpoco-manifest 0.47.0 (the [kernel_builds] table), asked of orchestration
+
+Status
+: open
+
+Note
+: Lab-tools work, orchestration's half. Found by the builder 2026-11-24 (PR 996's CI said 'unknown field kernel_builds' from lpoco-manifest 0.46.0; PR 997 kept the row as a research file). Asked of orchestration by the walleye coordinator 2026-11-24. Item walleye-declares-its-kernel-build waits on this.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: orchestration's lab-tools releases lpoco-attended at a version whose lpoco-manifest is 0.47.0 or newer (today lpoco-attended-v0.45.2 carries 0.46.0; tag lpoco-manifest-v0.47.0 exists, no attended release carries it); rhizoid's bump PR for the pin in tools/walleye-tries/Cargo.toml follows; then the builder puts research/walleye-bootimage/2026-11-24/kernel-build-row.toml into device.toml and the dry run in CI passes; read back from the lab-tools tags (git ls-remote --tags)
 
 Rank
 : 4
