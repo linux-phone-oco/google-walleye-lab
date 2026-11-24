@@ -7748,3 +7748,25 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-device-config-public-tree"></a>
+### walleye-device-config-public-tree
+
+Date
+: 2026-11-24
+
+Brief
+: Public wahoo tree (0bf3c7b, 2025-02-27) holds none of the item's audio, thermal, touch idc or WCNSS files; init.insmod.sh only reads the vendor image's init.insmod.cfg
+
+Question
+: Which of the wahoo config files the item names (mixer_paths_tavil.xml, audio_platform_info_tavil.xml, init.insmod.cfg, thermal-engine.conf, thermal_info_config.json, synaptics_dsxv26.idc, WCNSS_qcom_cfg.ini) are in Google's public device/google/wahoo, and what does the public tree give for parts 2-6?
+
+Found
+: Read device/google/wahoo at 0bf3c7b47d87 (Apache 2.0). Its files: init.insmod.sh (reads /vendor/etc/init.insmod.cfg, or init.insmod_charger.cfg when ro.boot.mode=charger; runs insmod lines in order, then sets sys.all.modules.ready), sound_trigger_mixer_paths_wcd9340.xml and sound_trigger_platform_info.xml (sound trigger only), audio_policy_configuration.xml, wpa_supplicant_wcn.conf, wifi_concurrency_cfg.txt, uinput-fpc.idc (fingerprint keys only), ueventd.hardware.rc. NOT in it: mixer_paths_tavil.xml, audio_platform_info_tavil.xml, init.insmod.cfg, thermal-engine.conf, thermal_info_config.json, synaptics_dsxv26.idc, WCNSS_qcom_cfg.ini - those are vendor-image files (proprietary, under /vendor/etc and /vendor/firmware on the phone's own vendor_a) or in Project Elixir's tree. So parts 2-6 of the item read the phone's own vendor partition (read-only extraction) or the Elixir tree, not googlesource. Parts 2-6 stay waiting for their steps; the first to come due is touch (z21), whose idc is on vendor_a.
+
+Sources
+: src-google-device-wahoo
+
+About
+: walleye-device-config-sources-read

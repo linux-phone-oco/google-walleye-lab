@@ -9068,7 +9068,7 @@ Status
 : in-progress
 
 Note
-: Firmware part done 2026-11-23 (research walleye-device-config-firmware); audio, init.insmod, thermal, touch, Wi-Fi parts wait for their steps.
+: Firmware part done 2026-11-23 (walleye-device-config-firmware). 2026-11-24 walleye-device-config-public-tree: public device/google/wahoo has NONE of the audio, thermal, touch idc, WCNSS files nor init.insmod.cfg (vendor-image files): parts 2-6 read the phone's own vendor_a (read-only extraction) or the Elixir tree, each when its step comes due (touch/z21 first).
 
 About
 : walleye-display-s6e3fa5
