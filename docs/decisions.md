@@ -3397,3 +3397,28 @@ Scope
 
 Tracked by
 : walleye-ufs-procedure-fits-the-180s
+
+
+<a id="2026-11-24-rw-write-is-one-word-in-the-production-init"></a>
+### 2026-11-24-rw-write-is-one-word-in-the-production-init
+
+Date
+: 2026-11-24
+
+Brief
+: The rw-write image is the production init with one word, walleye.rw: a second image row from a recipe, the ro image and its init untouched
+
+Decision
+: build/initramfs-root-rw-write/init is the production init plus RW-WRITE blocks (cut them: the production init, line for line, checked by the test and the build). With the word the root is mounted ext4 rw,nodiscard on /newroot after every production guard; /run and /.walleye are tmpfs; the card gets only the empty directory /.walleye. The image is [images.ufs-root-booted-slot-production-rw]: control the production image, new ramdisk, cmdline + walleye.rw, rebuilt equal by image ensure.
+
+Why
+: The note asked for the production init with ONE switch and its own sha256, never the ro image's. Keeping the guards in one file means the rw mode cannot be reached except through them; the blocks make the difference small enough to read and to test.
+
+Rejected
+: A separate full init copy: drifts from the production guards. Overlay with the card as upper: not what the item asks (the write must land in the partition). A tmpfs-only .walleye with no directory on the card: the production lines say /newroot/.walleye, and changing them would change the ro image's ramdisk (its sha256 is recorded); one empty directory is the price. A hold script kept in /run: OpenRC mounts a fresh tmpfs there and the hold script's later sleeps would not find the busybox. Rebuilding the kernel: the control's kernel is the same bytes, so the recipe swaps only the ramdisk and the cmdline.
+
+About
+: walleye-bootimage
+
+Research
+: walleye-rw-write-image-built
