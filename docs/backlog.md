@@ -12152,10 +12152,10 @@ Rank
 ### rw-write procedure: after step 24 (to the bootloader, fastboot reboot) Android was not back within 240 s at check 26; the way back's leg 1 fastboot reboot brought it
 
 Status
-: in-progress
+: done
 
 Note
-: Run 3 (folder rw-write-20261124-163645): the way back holds (fastboot reboot from the bootloader, Android back, 30/30). Clean end does NOT: remount ro Resource busy, e2fsck -fn still 'Free blocks count wrong (252253, counted=252252)'. NEXT research: which process holds the rw root open (/proc/*/fd; find -newer /proc/1 lists image files), then run 4 with a new go.
+: proven by run 5 (30/30; the way back from the bootloader and the init's own clean end; e2fsck -fn clean)
 
 About
 : walleye-bootimage
@@ -12177,22 +12177,11 @@ Rank
 ### The rw write on the phone: the rw-write image booted once, one bounded file written into the other slot's system partition
 
 Status
-: open
+: done
 
 Note
-: Run 4 used its go (2026-11-24 18:09): no gadget at check 14; image 24772768's header carries walleye.booted-slot (run 1's refusal) though its recipe cmdline lacks it (research walleye-rw-write-run-4-no-gadget-image-carries-booted-slot). Nothing written, phone on Android b. Run 5 needs the image rebuilt without the word, its header checked equal to the recipe, and a new go.
-go until 2026-11-24T18:27:45+01:00, outcomes: Closed by the walleye coordinator: used by run 4 (PR 1039), stopped at check 14 with nothing written; the image carried walleye.booted-slot. Run 5 needs a new go after walleye-rw-image-header-equals-recipe, naming its new full sha256.
-go until 2026-11-24T22:30:00+01:00, outcomes: Run 5. Image: [images.ufs-root-booted-slot-production-rw] sha256 07df9842b0bdd4fe22b1277fff99ca340742ca7ada3d76c260ea6a5a8cc9dd8a (full; PR 1044, built by image ensure from its recipe; header read by the coordinator: '... walleye.root=system_a walleye.rw', no walleye.booted-slot). The run through bin/attended after its rehearsal passes, then e2fsck -fn from Android b on the unmounted system_a (read only); this go ends with that one run. The stale 2477...b54f file in walleye-build must be replaced by the image step through ensure, or the run stops (PR 1025). Instrument NOT proven: pstore was empty after run 4's self-reboot, so a no-gadget stop may leave no console. Standing per-stage go of the author (stage 3), opened by the walleye coordinator.
-if the rehearsal or the image step stops then nothing was booted or written: a host, procedure or image fault, read before any retry
-if check 2 refuses the image by its header then the header guard (PR 1044) caught a wrong file; nothing on the phone
-if the run stops before the boot step with every table and the root equal then a gate refused and the phone is untouched
-if no gadget comes up and pstore names how far the init got then that names the stop; if pstore is empty the cause is not known yet: stop, no run 6 before a console instrument proven on the phone
-if the write, read-back and kernel log pass and the init's end reaches fastboot by itself and e2fsck -fn prints no 'wrong' line then it proves the rw write and its clean end through Alpine's shutdown: stage 3 passes
-if the init's end does not reach fastboot and the old way back brings Android then walleye-end or the pushed tool failed; the clean end is not proven, research
-if e2fsck -fn still prints a 'wrong' line with passes 1-4 clean then mount-ro did not take: stale totals, not damage, research
-if the read-back differs or the kernel log shows ufs or ext4 errors then a write-path fault; stop, keep the folder, no second try before research
-if after the way back any partition table or boot chain partition differs then a write outside the root: stop the lane and tell the author
-if Android does not come back on slot b then the way back failed: stop, the author's hands
+: Run 5 proven: 30/30, the init's end reached fastboot by itself, e2fsck -fn from Android b clean (research walleye-rw-write-run-5-30-steps-clean-end-fsck-clean, folder rw-write-20261124-190730).
+go until 2026-11-24T19:19:34+01:00, outcomes: used by run 5 (2026-11-24T19:19:34+01:00): 30/30 passed, clean end reached fastboot by itself, e2fsck -fn from Android b clean; stage 3 passes (research walleye-rw-write-run-5-30-steps-clean-end-fsck-clean)
 
 About
 : walleye-bootimage
@@ -12213,7 +12202,7 @@ Witness
 : person
 
 Go until
-: 2026-11-24T22:30:00+01:00
+: 2026-11-24T19:19:34+01:00
 
 
 <a id="walleye-rw-clean-end-who-holds-root"></a>

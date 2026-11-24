@@ -8188,3 +8188,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-1920-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-24
+
+Done
+: Android slot b, stock kept; rw write run 5 passed 30/30, the init's end reached fastboot by itself, e2fsck -fn on unmounted system_a clean (stage 3 passes); system_a now holds one removed 16 MiB test file's history, nothing flashed
+
+Considered
+: next: remaining ready: wdt0-first-instant-read, cmdline-cut-check-slot-a, fastboot-reboot-twice-timed-try; pstore still not a proven console instrument
+
+About
+: walleye-bootimage
