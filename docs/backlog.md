@@ -12180,18 +12180,7 @@ Status
 : open
 
 Note
-: Run 3 used its go (2026-11-24): 30/30 passed, e2fsck -fn from Android b prints one 'wrong' line (free blocks 252253 vs counted 252252); settle_rw remount ro failed Resource busy. Outcome: stop, research before run 4 (research walleye-rw-write-run-3-30-steps-pass-root-stays-rw). A run 4 needs a new go.
-go until 2026-11-24T16:53:54+01:00, outcomes: Closed by the walleye coordinator: used by run 3 (research walleye-rw-write-run-3-30-steps-pass-root-stays-rw, PR 1027). Outcome that held: write, read-back, kernel log and way back pass, 30/30 steps; the remount ro failed busy. Run 4 needs a new go after walleye-rw-clean-end-who-holds-root.
-go until 2026-11-24T21:00:00+01:00, outcomes: Run 4. Image: [images.ufs-root-booted-slot-production-rw] sha256 2477276882987c8e1330f56b91cb07bac2afdcbe97e7b03e72b127f2bb69b54f (full; PR 1035: the rw init adds mount-ro and walleye-end to the root's shutdown level, only /etc of system_a). The run through bin/attended run rw-write-on-the-pixel-2 after its rehearsal passes, then e2fsck -fn from Android b on the unmounted system_a (read only); this go ends with that one run. Standing per-stage go of the author (stage 3), opened by the walleye coordinator after decision 2026-11-24-rw-root-ends-through-alpines-shutdown-level.
-if the rehearsal or the ensured-image step stops then nothing was booted or written: a host, procedure or image fault, read before any retry
-if the run stops before the boot step with every table and the root equal then a gate refused and the phone is untouched
-if no gadget comes up then pstore-console.txt names how far the init got (the new /etc write included); stop, research before run 5
-if the write, read-back and kernel log pass and the init's end reaches fastboot by itself and e2fsck -fn prints no 'wrong' line then it proves the rw write and its clean end through Alpine's shutdown: stage 3 passes
-if the init's end does not reach fastboot and the old way back (settle, bootloader try, forced) brings Android then walleye-end or the pushed tool failed; the clean end is not proven, research, no stop of the lane
-if e2fsck -fn still prints a 'wrong' line with passes 1-4 clean then mount-ro did not take: stale totals, not damage, research (the fd capture fallback of the decision)
-if the read-back differs or the kernel log shows ufs or ext4 errors then a write-path fault; stop, keep the folder, no second try before research
-if after the way back any partition table or boot chain partition differs then a write outside the root: stop the lane and tell the author
-if Android does not come back on slot b then the way back failed: stop, the author's hands
+: Run 4 used its go (2026-11-24 18:09): no gadget at check 14; image 24772768's header carries walleye.booted-slot (run 1's refusal) though its recipe cmdline lacks it (research walleye-rw-write-run-4-no-gadget-image-carries-booted-slot). Nothing written, phone on Android b. Run 5 needs the image rebuilt without the word, its header checked equal to the recipe, and a new go.
 
 About
 : walleye-bootimage

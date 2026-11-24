@@ -7789,3 +7789,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-rw-write-run-4-no-gadget-image-carries-booted-slot"></a>
+### walleye-rw-write-run-4-no-gadget-image-carries-booted-slot
+
+Date
+: 2026-11-24
+
+Brief
+: rw write run 4: stopped at check 14, no gadget; the new image 24772768 carries walleye.booted-slot in its header, the word that made run 1's init refuse its own command line; nothing written
+
+Question
+: Does run 4 (image 24772768, init ends through Alpine's shutdown level) pass the 30 steps and the e2fsck -fn read?
+
+Found
+: Folder ~/lab-material/walleye/rw-write-20261124-180952 (kept). Rehearsal 15/15 on the second try (the first stopped at check 2: ensure's path was stdout, its status line stderr; fixed in PR 1038, tests first). Run: gates, ensure, boot passed; check 14 failed after 145 s, 1d6b:0104 never on the bus. Phone back on Android slot b by itself (up 2 min when read), pstore empty, no pstore-console.txt (NOT KNOWN YET how far the init got). e2fsck -fn not run (nothing was booted that wrote). FOUND, read from the files: run-image.txt of run 4 has the command line 'walleye.root=system_a walleye.booted-slot walleye.rw androidboot.slot_suffix=_b'; run 3's had no walleye.booted-slot. strings of the ensured store image /nix/store/hpy6xxy9...-rw.img show the same header line with walleye.booted-slot, while device.toml's recipe cmdline for [images.ufs-root-booted-slot-production-rw] lacks it. The init (build/initramfs-root-rw-write/init line 83) takes that word as 'booted from the root's own slot' and refuses root system_a on slot b: exactly run 1's cause (research walleye-rw-run-1-refused-by-booted-slot). So the image's header does not equal its recipe's cmdline; why the build/ensure path kept the control's word is NOT KNOWN YET. Not proven that this alone stopped the init (no console). Stop per the go: research before run 5; no second try.
+
+About
+: walleye-bootimage

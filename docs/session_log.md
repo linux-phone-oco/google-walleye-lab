@@ -8128,3 +8128,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-1830-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-24
+
+Done
+: Android slot b, stock kept, nothing written or flashed; run 4 of the rw write stopped at check 14 (no gadget): the new image's header carries walleye.booted-slot, which its recipe lacks; PR 1038 fixed ensured_path (stdout then stderr) earlier in the run
+
+Considered
+: next: research why the built rw image keeps the control's walleye.booted-slot; rebuild and check header equals recipe before run 5
+
+About
+: walleye-bootimage
