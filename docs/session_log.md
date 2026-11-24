@@ -7606,3 +7606,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-walleye-declares-its-ufs-off-kernel-build-it"></a>
+### walleye declares its ufs-off kernel build; it reproduces itself
+
+Entry date
+: 2026-11-24
+
+Done
+: [kernel_builds.walleye-ufs-off] in device.toml; build 1 gave the hash, build 2 was equal (Nix accepted it); tests/host/kernel-build.sh; the shipped z21 kernel's version line shows why a rebuild cannot equal it.
+
+Considered
+: the dts patch and fuel-gauge commits as patches: Image.gz holds no dtb, and a .patch file in a lab is refused by MAP.md; the fuel gauge belongs to a ufs-on tag
+
+Rejected
+: declaring the shipped kernel's hash: a rebuild can never meet it
+
+About
+: walleye-bootimage

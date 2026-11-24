@@ -11384,10 +11384,10 @@ Rank
 ### walleye declares its kernel build so lpoco bringup image ensure can build it from an int/ tag: the board dtbs, our dts patch, the fuel-gauge commits as the recipe's inputs
 
 Status
-: open
+: done
 
 Note
-: From orchestration (2026-11-23): the follow-up 'walleye-declares-its-kernel-build' is this lane's. The measurement that remains is a keeper's RAM boot of z21 from the cache on the Pixel 2 (UFS off, read only, one command), which needs the z21 recipe row (item walleye-image-recipe-z21) and the lpoco-attended pin at the new release (item walleye-attended-pin-is-one-pin, done together with walleye-checks-name-their-sources).
+: Done for the ufs-off kernel: device.toml [kernel_builds.walleye-ufs-off] (tag, rev, epoch, walleye.config, Image.gz); two Nix builds equal (research walleye-kernel-build-declared-reproduces-itself); proof tests/host/kernel-build.sh walleye-ufs-off. The shipped images' kernels cannot be equalled by a rebuild (-dirty, mll@grig, clang 23.1.5, Nov 19), so that part of the proof is replaced by self-reproduction; the ufs-on kernels follow in walleye-declares-ufs-on-kernel-build.
 
 About
 : walleye-bootimage
@@ -11884,3 +11884,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-declares-ufs-on-kernel-build"></a>
+### Declare the ufs-on kernel build ([kernel_builds] for int/walleye/ufs-on/v7.3/1 with the fuel-gauge and ufs-match topics) and the next image's recipe from a declared kernel
+
+Status
+: open
+
+Note
+: From walleye-declares-its-kernel-build: the ufs-off kernel reproduces itself; the ufs-on list adds branches (topic/walleye-fuel-gauge-rfc, topic/ufs-match-android) that need a tag pushed to the fork and its rev. The dtbs stay recipe parts by sha256 (Image.gz holds none). Next image from a declared kernel: item walleye-next-image-from-an-int-tag.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: [kernel_builds.walleye-ufs-on] declared with the tag's rev; two builds equal; tests/host/kernel-build.sh walleye-ufs-on passes; no phone
+
+Rank
+: 4

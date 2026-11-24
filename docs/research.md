@@ -7547,3 +7547,25 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-23/
+
+
+<a id="walleye-kernel-build-declared-reproduces-itself"></a>
+### walleye-kernel-build-declared-reproduces-itself
+
+Date
+: 2026-11-24
+
+Brief
+: device.toml declares [kernel_builds.walleye-ufs-off]; two Nix builds from the tag give the same bytes (88afb4d7...97ac); a shipped image's kernel cannot be matched
+
+Question
+: Can lpoco bringup image ensure build walleye's kernel from its int/ tag, and equal a shipped image's declared kernel?
+
+Found
+: Declared: tag int/walleye/ufs-off-e123d3bff/v7.3/1, rev 0e20c7a8, epoch 1795421895 (the tag's time), configs walleye.config (5424de9b), target Image.gz. Build 1 (3000 s cap unit, 12 threads) ended in Nix's hash mismatch giving the hash 88afb4d742ff59a3ad0b8f1cffa8a7709c7e99a0a926dca732cf33c5f90d97ac; build 2 with that hash was built again from the recipe and accepted: equal to its declared sha256 (research/walleye-bootimage/2026-11-24/kernel-ensure-*.log). A SHIPPED kernel cannot be matched: z21's kernel (sha256 bcefb20d...0c25, unpacked with lpoco-bringup image unpack) says 'Linux version 7.3.0-00004-ge123d3bff47d-dirty (mll@grig) (clang version 23.1.5, LLD 23.1.5) #1 SMP PREEMPT Thu Nov 19 00:11:57 CET 2026': a dirty tree, the host's clang, another user, host and date; z20/z21 also carry walleye-diag.config on top. So 'ensure z21 equals the declared sha256' stays the recipe's control-plus-dtb (done in PR 993) and the next images take their kernel from this row. NOT KNOWN YET: the ufs-on lists (fuel-gauge and ufs-match topics are branches, not in a tag of the ufs-off list) and the dtbs as recipe inputs; the Image.gz holds no dtb, so the dtb stays a recipe part by sha256.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-24/
