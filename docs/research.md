@@ -7849,3 +7849,25 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-image-recipes-l7-b1-b2-rebuilt-equal"></a>
+### walleye-image-recipes-l7-b1-b2-rebuilt-equal
+
+Date
+: 2026-11-24
+
+Brief
+: l7 (from l6), b1 (from l6) and b2 (from b1), each a ramdisk swapped in, rebuild byte for byte from their recipes
+
+Question
+: Do recipes for the display images l7, b1 and b2 rebuild their declared sha256?
+
+Found
+: Measured 2026-11-24 with lpoco-bringup 0.51.0, image ensure NAME --rebuild: all three equal (text in ensure-l7-b1-b2.txt). Kernel, dtb, header and cmdline are equal in l6, l7, b1 and b2 (image unpack); only the ramdisk differs, so each recipe is control plus ramdisk sha256. tests/host/image-recipe.sh passes for each.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-24/

@@ -1,0 +1,15 @@
+# Captured 2026-11-24 on the lab host, lpoco-bringup 0.51.0, builder walleye-builder: `lpoco-bringup image ensure NAME --device device.toml --seed SEED --rebuild`
+# SEED held boot-l6.img, boot-b1.img (walleye-build images-display-stripes, images-display-at-boot) and the ramdisk file of each image unpacked with `image unpack`.
+# Unpacked parts: kernel de8f84f0..., appended.dtb d35395b5... are equal in l6, l7, b1, b2; boot.toml differs only in the ramdisk size line.
+l7 ramdisk: taken from the seed .../ramdisk-l7
+l6: taken from the seed .../boot-l6.img
+l7: rebuilt from its recipe, equal to its declared sha256
+/nix/store/sh46x7fv5a8jpdnwmgdyi9achxw87kfb-boot-l7.img
+b1 ramdisk: taken from the seed .../ramdisk-b1
+l6: in the store
+b1: rebuilt from its recipe, equal to its declared sha256
+/nix/store/dcqrhw9mympag64a2pld261xbisls9cp-boot-b1.img
+b2 ramdisk: taken from the seed .../ramdisk-b2
+b1: taken from the seed .../boot-b1.img
+b2: rebuilt from its recipe, equal to its declared sha256
+/nix/store/ncwz7a5wszfv6mgb8hdvgyrysw4kf2qr-boot-b2.img
