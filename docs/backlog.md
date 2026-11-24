@@ -11974,10 +11974,10 @@ Rank
 ### walleye-tries rw_write: the gates, the before/after measures and the bounded write, tested on text a phone printed
 
 Status
-: open
+: done
 
 Note
-: Split from walleye-install-rw-write-procedure. A module tools/walleye-tries/src/rw_write.rs on the pattern of rootfs_boot.rs (the guard, the card read before and after, the boot chain and GPT equal, the way back) plus: the dd with fsync of a bounded size into a file, sync, umount, fsck.ext4 -n clean, the error counters and dmesg free of UFS errors; its settings keys in device.toml [procedures.rw-write-on-the-pixel-2] and settings.rs. Each expectation names a source (walleye-sources gate, PR 1001); fixtures are text a phone printed (research/ captures of runs 5 to 12), never typed.
+: Split from walleye-install-rw-write-procedure. A module tools/walleye-tries/src/rw_write.rs on the pattern of rootfs_boot.rs (the guard, the card read before and after, the boot chain and GPT equal, the way back) plus: the dd with fsync of a bounded size into a file, sync, umount, fsck.ext4 -n clean, the error counters and dmesg free of UFS errors; its settings keys in device.toml [procedures.rw-write-on-the-pixel-2] and settings.rs. Each expectation names a source (walleye-sources gate, PR 1001); fixtures are text a phone printed (research/ captures of runs 5 to 12), never typed. | DONE (walleye-builder, 2026-11-24): tools/walleye-tries/src/rw_write.rs (the gates, the judges, the one bounded write), settings Try::RwWrite and write_mib, [procedures.rw-write-on-the-pixel-2] in device.toml; 10 tests from captured run text and a known-case write on the host, the settings test reads the table; clippy, fmt clean; research walleye-rw-write-plumbing-built. NOT here: the phone-facing steps and the entry file (walleye-install-rw-write-procedure, now unblocked). The rw side of /proc/mounts is derived from run 4's capture: the first real rw run replaces it.
 
 Blocked by
 : walleye-rw-write-image

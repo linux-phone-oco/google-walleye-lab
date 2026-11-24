@@ -7588,3 +7588,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-rw-write-plumbing-built"></a>
+### walleye-rw-write-plumbing-built
+
+Date
+: 2026-11-24
+
+Brief
+: rw_write.rs: the gates, the card/mounts/fsck/kernel-log judges and the one bounded write, tested on captured run text; the rw side of /proc/mounts is derived (no rw boot yet)
+
+Question
+: What does the rw-write procedure ask of the phone and how does it judge it, testable without a phone?
+
+Found
+: tools/walleye-tries/src/rw_write.rs: gates (cmdline_carries_the_word: walleye.rw once and one root, read from the image's real info text; target_is_allowed: only the other slot's system; write_bytes: 1..=64 MiB), commands (one dd of zeros into the fixed file /walleye-rw-write.test with conv=fsync and sync; a read-back of size and non-zero bytes; fsck.ext4 -n on a /dev/sdXN only), judges (mounts_are_read_write; readback_is_whole; fsck_is_clean on e2fsck's line as Android printed it; dmesg_is_clean; card_changed_only_in_the_root). Sources: run 3/4 captured read.txt, card-before/after of run 3 (copied byte for byte to fixtures/), the e2fsck line of research walleye-first-fastboot-boot/2026-11-18/dmesg-ufs.txt, the rw image's info, the init, kernel EXT4-fs error. The write and its read-back are run on the host on a known case (temp file). NOT KNOWN YET: no rw boot has happened, so the rw /proc/mounts is run 4's captured text with its two root lines replaced; run 3's real card read (equal before and after) is refused as 'the write did not reach the card'. Settings: Try::RwWrite, write_mib, [procedures.rw-write-on-the-pixel-2] in device.toml. Not built: the phone-facing steps (ssh, adb, fastboot) and the entry file procedures/rw-write-on-the-pixel-2.rs: item walleye-install-rw-write-procedure.
+
+About
+: walleye-bootimage

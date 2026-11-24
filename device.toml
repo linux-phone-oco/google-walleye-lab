@@ -394,6 +394,20 @@ bootchain = "~/lab-material/walleye/bootchain-2026-11-19"
 by_name = "/dev/block/by-name"
 luns = 6
 
+# The rw write on the Pixel 2 (item walleye-rw-write-plumbing; plumbing in tools/walleye-tries/src/rw_write.rs): the rw-write image booted once from memory with its root, the system partition of the slot Android is NOT on, mounted READ-WRITE;
+# ONE bounded file of zeros is written into it, synced, read back, the filesystem checked read-only (fsck.ext4 -n), the kernel log read; the card's partition tables and the boot chain must be equal, the root partition changed. The keys are the root boot's
+# (same image kind, same ssh and card reads) plus `write_mib`, the size of the one write (1 to 64). The procedure that composes the steps is its own item; NOT to boot except under the coordinator's go that names the image's sha256.
+[procedures.rw-write-on-the-pixel-2]
+image = "ufs-root-booted-slot-production-rw"   # the name of its [images.NAME] (path, sha256): the rw-write image; the go names this sha256
+go_item = "walleye-rw-write-run"                # the item whose go_until holds the coordinator's go AND whose row names the image's sha256
+identity = "~/lab-material/walleye/walleye-lab-ed25519"   # the lab-only ssh key (mode 600)
+ssh_user = "root"
+ssh_port = 22
+bootchain = "~/lab-material/walleye/bootchain-2026-11-19"   # the stored boot chain read-back: read again at the end it must equal it
+by_name = "/dev/block/by-name"                              # the phone's partition names on Android
+luns = 6                                                    # the card's disks (sda to sdf): the partition table of each is hashed before and after
+write_mib = 16                                              # MiB of zeros the one write puts in /walleye-rw-write.test (1 to 64)
+
 # The Alpine login prompt on the glass (item walleye-display-alpine-ramroot-image; procedures/alpine-login-on-the-glass-on-the-pixel-2.rs): image B-a5, B-r5's kernel, dtb and 13 display modules with the
 # Alpine userland unpacked into a tmpfs root (UFS off), booted once from memory; ssh over usb-network by the lab key; then the author's look. Run unattended by the keeper it stops at the look; the way back runs after.
 [procedures.alpine-login-on-the-glass-on-the-pixel-2]
