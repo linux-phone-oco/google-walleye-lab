@@ -121,13 +121,16 @@ pub fn image_is_the_built_one(image: &Path) -> Result<(), String> {
     }
 }
 
-/// The path `lpoco-bringup image ensure NAME` names: the last line of a real run is the store path alone, the last line of a `--dry-run` ends in
-/// `(PATH)` (captured text of lpoco-bringup 0.47.1 in research/walleye-bootimage/2026-11-23/ensure-z21.txt, and of 0.48.4 in research walleye-image-recipe-z21-rebuilt-equal).
+/// The path `lpoco-bringup image ensure NAME` names, read off its text as `host::run` joins it: stdout, then stderr. A real run prints the store path
+/// alone on stdout and a status line on stderr, so the path is the last line that is a bare absolute path; a `--dry-run` prints no such line and its
+/// last line ends in `(PATH)` (captured text of lpoco-bringup 0.47.1 in research/walleye-bootimage/2026-11-23/ensure-z21.txt, of 0.48.4 in research
+/// walleye-image-recipe-z21-rebuilt-equal, and of the 2026-11-24 run 4 in the test below).
 pub fn ensured_path(said: &str) -> Option<String> {
-    let last = said.lines().rev().map(str::trim).find(|l| !l.is_empty())?;
-    if last.starts_with('/') && !last.contains(' ') {
-        return Some(last.to_string());
+    let lines = || said.lines().rev().map(str::trim).filter(|l| !l.is_empty());
+    if let Some(bare) = lines().find(|l| l.starts_with('/') && !l.contains(' ')) {
+        return Some(bare.to_string());
     }
+    let last = lines().next()?;
     let open = last.rfind('(')?;
     let path = last[open + 1..].strip_suffix(')')?;
     path.starts_with('/').then(|| path.to_string())
@@ -388,6 +391,16 @@ mod tests {
             the_image_is_ensured("x", "n", Path::new("d"), Path::new("/nonexistent"), "")
                 .unwrap_err()
                 .contains("no sha256 recorded")
+        );
+    }
+
+    #[test]
+    fn the_ensured_path_is_found_when_stderr_s_status_line_comes_after_it() {
+        // captured 2026-11-24 run 4: host::run joins stdout (the path) then stderr (the status line)
+        let said = "/nix/store/hpy6xxy9brw7nzcinilm8ddwi46nyr0y-NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-rw.img\nufs-root-booted-slot-production-rw: in the store";
+        assert_eq!(
+            ensured_path(said).as_deref(),
+            Some("/nix/store/hpy6xxy9brw7nzcinilm8ddwi46nyr0y-NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-rw.img")
         );
     }
 
