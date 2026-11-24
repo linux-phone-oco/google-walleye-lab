@@ -9161,31 +9161,6 @@ Rank
 : 3
 
 
-<a id="walleye-install-rw-write-procedure"></a>
-### Stage 3 as ONE command: one bounded rw mount of system_<other> from our kernel, nodiscard, a bounded dd with fsync, umount, fsck, the bootchain read-back equal before and after, and its rehearsal
-
-Status
-: open
-
-Note
-: UNBLOCKED BY THE UFS RESULTS (runs 9 and 10, PR 982 and 987): sustained reads of 64 to 2048 MiB at the gear the card chooses (HS_GEAR3, 2 lanes, 200 MHz) end rc=0 with the shell answering, GPT equal, inside the image's time; the earlier silence was the matched image's own 180 s self-reboot, not UFS. NOT KNOWN YET: writes (storage-full-speed is partial because writes are untried). The stage 3 image must be built through lpoco bringup image ensure (recipe row, kernel from an int/ tag), so it follows the z21 recipe row and the declared kernel build; its init must not carry the matched image's 180 s self-reboot (use the stage 1 family's hold, HOLD_SECONDS). Order of the builder queue: land 966, z21, kernel build declared, THIS, then the go-consumed gate (before the run). | From the stage 3 verdict (research walleye-install-stage3-android-ufs-comparison-verdict, PR 708): for one rw mount with nodiscard, no fstrim, no mkfs, ufs_bsg unopened and the purge guard kept, our kernel sends the card no command class Android's did not (UNMAP: we send none, Android sent some; write SAME off in both; purge set by neither; the write booster never probed on this UFS 2.1 card; START STOP, background operations and the Hynix SAVECONFIGTIME quirk the same in both; link gear scaling in both; the differences left are power and speed). Not known yet: the Lineage fork's UFS code, the card firmware's own reactions, whether the LUN reports discard support. Runs after the stage 1 boot and UFS try 2 (item walleye-install-rw-write-test). Never: bootloader partitions, the GPT, erase, purge.
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-22
-
-Needs
-: build
-
-Proof
-: procedures/rw-write-on-the-pixel-2.rs on the current lpoco-attended, a plain checklist, on the UFS-root image's kernel (a variation of the stage 1 boot command whose init mounts the target rw instead of ro: a second image or an init switch named in device.toml, never the same sha as the ro image): gates (battery; the slot Android runs from read by adb and fastboot; the partition is system_<other> by NAME only, from an allow-list); BEFORE: the bootchain read-back (every file sha256) and the GPT of every disk kept; ONE rw mount, ext4 nodiscard (no discard, no fstrim, no mkfs, ufs_bsg never opened, the purge guard kept); a bounded dd with fsync into a file under a directory, then sync, umount, fsck.ext4 -n clean; AFTER: the bootchain read-back equal to BEFORE, the GPT equal, the card's error counters and dmesg free of UFS errors; the way back (the phone resets and returns to Android; the image's written file is removed or the partition restored from the stored backup, whichever the run needs); a rehearsal command of every step but the rw mount; dry run, check --host, stand-in tests, clippy, fmt, review
-
-Rank
-: 5
-
-
 <a id="walleye-install-rw-write-test"></a>
 ### Stage 3: one rw mount (nodiscard, no fstrim, purge guard) of the rootfs partition under our kernel, a write run, and proof the bootloader files are unchanged
 
@@ -11689,31 +11664,6 @@ Rank
 : 1
 
 
-<a id="walleye-go-is-consumed-by-its-run"></a>
-### A go for one run ends with that run: the run's record closes the go in the same landing, so a second keeper session cannot reuse it
-
-Status
-: open
-
-Note
-: Why a second keeper could start (2026-11-24 00:07): the launcher task refuses a second run only while a session of it is RUNNING; local_4cf13bce was idle between turns waiting for the go, so my dispatch of local_ca73871e started a second live session. The phone lease (lpoco lab keeper take) was taken and released in turn, so no two touched the phone at once, but the one go was used twice (run 6, then run 7 by the older keeper which had not seen run 6). The coordinator's rule from now: before starting the keeper, list sessions of the task that are not ended and message the idle one instead of starting another; the author's rule of 2026-11-24 (one agent at a time) agrees.
-
-About
-: walleye-bootimage
-
-Opened
-: 2026-11-23
-
-Needs
-: build
-
-Proof
-: (1) the keeper's rule in the item's note and the brief: the landing of a run under a go ends that go (ikb backlog-go --until the run's end) and says so in the record; (2) the procedures' go gate refuses a go whose item has a run recorded after the go was set (a research row or session-log entry of the run, read by id), with a message that names it: 'the go of ITEM was set at T and run R used it at T2: the coordinator re-issues it'; (3) a host test from the two keeper sessions of 2026-11-24 (run 6 by local_ca73871e at 00:10, run 7 started by local_4cf13bce at 00:15 on the same go): the second is refused; dry run, tests, clippy, fmt, review; no phone
-
-Rank
-: 6
-
-
 <a id="walleye-gpt-hash-from-android-read"></a>
 ### Read sda's GPT hash from Android as root (read only): the same dd and sha256sum as the UFS try, expect 6cd7e48c...0174
 
@@ -11940,3 +11890,53 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-install-rw-write-procedure"></a>
+### Stage 3 as ONE command: one bounded rw mount of system_<other> from our kernel, nodiscard, a bounded dd with fsync, umount, fsck, the bootchain read-back equal before and after, and its rehearsal
+
+Status
+: open
+
+Note
+: UNBLOCKED BY THE UFS RESULTS (runs 9 and 10, PR 982 and 987): sustained reads of 64 to 2048 MiB at the gear the card chooses (HS_GEAR3, 2 lanes, 200 MHz) end rc=0 with the shell answering, GPT equal, inside the image's time; the earlier silence was the matched image's own 180 s self-reboot, not UFS. NOT KNOWN YET: writes (storage-full-speed is partial because writes are untried). The stage 3 image must be built through lpoco bringup image ensure (recipe row, kernel from an int/ tag), so it follows the z21 recipe row and the declared kernel build; its init must not carry the matched image's 180 s self-reboot (use the stage 1 family's hold, HOLD_SECONDS). Order of the builder queue: land 966, z21, kernel build declared, THIS, then the go-consumed gate (before the run). | From the stage 3 verdict (research walleye-install-stage3-android-ufs-comparison-verdict, PR 708): for one rw mount with nodiscard, no fstrim, no mkfs, ufs_bsg unopened and the purge guard kept, our kernel sends the card no command class Android's did not (UNMAP: we send none, Android sent some; write SAME off in both; purge set by neither; the write booster never probed on this UFS 2.1 card; START STOP, background operations and the Hynix SAVECONFIGTIME quirk the same in both; link gear scaling in both; the differences left are power and speed). Not known yet: the Lineage fork's UFS code, the card firmware's own reactions, whether the LUN reports discard support. Runs after the stage 1 boot and UFS try 2 (item walleye-install-rw-write-test). Never: bootloader partitions, the GPT, erase, purge. | 2026-11-24 coordinator: ranked 2, the next builder item (the kernel row waits on a lpoco-attended release, item walleye-lpoco-attended-carries-manifest-0-47, so this image takes its kernel as a part by sha256, the way PR 993's z21 recipe takes z20's, and goes through lpoco bringup image ensure; the declared ufs-on kernel replaces that part when walleye-declares-ufs-on-kernel-build can land).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: procedures/rw-write-on-the-pixel-2.rs on the current lpoco-attended, a plain checklist, on the UFS-root image's kernel (a variation of the stage 1 boot command whose init mounts the target rw instead of ro: a second image or an init switch named in device.toml, never the same sha as the ro image): gates (battery; the slot Android runs from read by adb and fastboot; the partition is system_<other> by NAME only, from an allow-list); BEFORE: the bootchain read-back (every file sha256) and the GPT of every disk kept; ONE rw mount, ext4 nodiscard (no discard, no fstrim, no mkfs, ufs_bsg never opened, the purge guard kept); a bounded dd with fsync into a file under a directory, then sync, umount, fsck.ext4 -n clean; AFTER: the bootchain read-back equal to BEFORE, the GPT equal, the card's error counters and dmesg free of UFS errors; the way back (the phone resets and returns to Android; the image's written file is removed or the partition restored from the stored backup, whichever the run needs); a rehearsal command of every step but the rw mount; dry run, check --host, stand-in tests, clippy, fmt, review
+
+Rank
+: 2
+
+
+<a id="walleye-go-is-consumed-by-its-run"></a>
+### A go for one run ends with that run: the run's record closes the go in the same landing, so a second keeper session cannot reuse it
+
+Status
+: open
+
+Note
+: Why a second keeper could start (2026-11-24 00:07): the launcher task refuses a second run only while a session of it is RUNNING; local_4cf13bce was idle between turns waiting for the go, so my dispatch of local_ca73871e started a second live session. The phone lease (lpoco lab keeper take) was taken and released in turn, so no two touched the phone at once, but the one go was used twice (run 6, then run 7 by the older keeper which had not seen run 6). The coordinator's rule from now: before starting the keeper, list sessions of the task that are not ended and message the idle one instead of starting another; the author's rule of 2026-11-24 (one agent at a time) agrees. | 2026-11-24 coordinator: ranked 3, right after the stage 3 procedure and before its run.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: (1) the keeper's rule in the item's note and the brief: the landing of a run under a go ends that go (ikb backlog-go --until the run's end) and says so in the record; (2) the procedures' go gate refuses a go whose item has a run recorded after the go was set (a research row or session-log entry of the run, read by id), with a message that names it: 'the go of ITEM was set at T and run R used it at T2: the coordinator re-issues it'; (3) a host test from the two keeper sessions of 2026-11-24 (run 6 by local_ca73871e at 00:10, run 7 started by local_4cf13bce at 00:15 on the same go): the second is refused; dry run, tests, clippy, fmt, review; no phone
+
+Rank
+: 3
