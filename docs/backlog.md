@@ -9183,7 +9183,7 @@ Proof
 : procedures/rw-write-on-the-pixel-2.rs on the current lpoco-attended, a plain checklist, on the UFS-root image's kernel (a variation of the stage 1 boot command whose init mounts the target rw instead of ro: a second image or an init switch named in device.toml, never the same sha as the ro image): gates (battery; the slot Android runs from read by adb and fastboot; the partition is system_<other> by NAME only, from an allow-list); BEFORE: the bootchain read-back (every file sha256) and the GPT of every disk kept; ONE rw mount, ext4 nodiscard (no discard, no fstrim, no mkfs, ufs_bsg never opened, the purge guard kept); a bounded dd with fsync into a file under a directory, then sync, umount, fsck.ext4 -n clean; AFTER: the bootchain read-back equal to BEFORE, the GPT equal, the card's error counters and dmesg free of UFS errors; the way back (the phone resets and returns to Android; the image's written file is removed or the partition restored from the stored backup, whichever the run needs); a rehearsal command of every step but the rw mount; dry run, check --host, stand-in tests, clippy, fmt, review
 
 Rank
-: 6
+: 3
 
 
 <a id="walleye-install-rw-write-test"></a>
@@ -9196,7 +9196,7 @@ Note
 : ~4 keeper-h. The only stage with the Sony-class hazard; no erase, purge or unmap is ever sent. 2026-11-22 (the author's standing rule, decision 2026-11-22-walleye-author-research-then-proceed): no word of his is waited for once the research verdict (item walleye-install-stage3-android-ufs-comparison) says our kernel does nothing Android's UFS path does not, on this phone; the step is then ONE tested command (one partition, no erase, no purge, the purge guard kept, the bootchain read-back identical after), rehearsed, with a way back; the coordinator opens the go; the result and the verdict go to the Top Coordinator. NEVER: bootloader partitions, the GPT, erase, purge. 2026-11-22 (research walleye-install-stage3-android-ufs-comparison-verdict, PR 708): the verdict is in: our kernel sends no command class Android's did not for this step; the one command is item walleye-install-rw-write-procedure; no word of the author's is waited for (decision 2026-11-22-walleye-author-research-then-proceed).
 
 Blocked by
-: walleye-install-rootfs-boots-try,walleye-ufs-try-2,walleye-install-rw-write-procedure,walleye-ufs-silent-under-load-cause
+: walleye-install-rootfs-boots-try,walleye-ufs-try-2,walleye-install-rw-write-procedure,walleye-try-ufs-match
 
 About
 : walleye-display-s6e3fa5
@@ -10090,10 +10090,10 @@ Rank
 ### Why the phone's shell and usb network go silent under a sustained read of the card, and not for the first 7 or 8 samples: the cause on the phone's side, from sources and from a small falsifiable try
 
 Status
-: open
+: done
 
 Note
-: 2026-11-24 (research walleye-ufs-180s-is-the-init-self-reboot): every run's silence began 4.0-4.6 s into the load, at the matched image's own 180 s self-reboot (z14's init, no hold); the 'silent under sustained read' is not shown to be UFS. Read again only after a run under item walleye-ufs-procedure-fits-the-180s loads the card well before the deadline.
+: ANSWERED: the silence of runs 1 to 3 and 8 was the matched image's own self-reboot at 180 s (init-z14: 90 petter beats then reboot -f), reached because the procedure's idle-link read waited 170 s (research walleye-ufs-180s-read, PR 979; fix PR 980). With the load started at uptime ~15 s a pinned 1 GiB read ends in 19 s rc=0, shell answering (run 9, PR 982). NOT KNOWN YET: a sustained UNPINNED read at HS_GEAR3 (what the installed system will run): item walleye-ufs-unpinned-ramp-try.
 
 About
 : walleye-bootimage
@@ -10140,10 +10140,10 @@ Rank
 ### UFS silent-under-load: the ramped, pinned-low read-only try (same image)
 
 Status
-: open
+: done
 
 Note
-: HELD OFF THE PHONE QUEUE (the coordinator, 2026-11-23 16:30): the keeper's run stopped safely at check 6, no go names the matched image 461077869fb2 (the decision says this changed procedure needs a new go) and 'tad q ready' still listed it. It returns to the queue (needs phone) with a go whose note carries an OUTCOMES paragraph, AFTER the stage 2 try, because the stage 2 try is the lane's weakest link and shares the one lease. | From walleye-ufs-silent-under-load-causes-ranked and decision 2026-11-23-walleye-ufs-silent-one-ramped-pinned-try. Procedure change to walleye-tries/src/ufs/load.rs: ramp 64/256/1024 MiB, a RAM log line before each step, governor powersave set first (verify /sys/class/devfreq/1da4000.ufshc exists and governor_powersave is built; else the item says so and stops). Needs the author's go for the new procedure (same image sha). Read PON reason on the way back.
+: DONE by run 9 (keeper local_6a1fcac5, PR 982): the pinned read-only ramp passed all 24 steps, 64, 256 and 1024 MiB rc=0 with the shell answering every poll at HS_GEAR1 and 100 MHz, finished by uptime 19 s against the deadline 181.7 s, GPT equal (6cd7e48c), nothing written.
 
 Blocked by
 : walleye-ufs-procedure-fits-the-180s
@@ -11639,7 +11639,7 @@ Proof
 : (1) checks 1-2 of the procedures that read build/images (ufs-matched, install-boot, rootfs-boots, the rehearsals) either create the link build/images -> ~/Projects/walleye-build (a symlink inside the worktree, nothing written outside it, nothing in git: build/images is ignored) or refuse with the one command that fixes it, naming the path; (2) a host test: a worktree without the link gets the fix; with it, passes; (3) the run-5 stop text (keeper PR 964: 'a fresh worktree needs build/images linked ... checks 1-2 fail without it') is the fixture; dry run, tests, clippy, fmt, review; no phone
 
 Rank
-: 3
+: 2
 
 
 <a id="walleye-ufs-pin-100mhz-read"></a>
@@ -11812,6 +11812,31 @@ Needs
 
 Proof
 : cargo test --lib -- --ignored an_idle_slow_link_is_read_without_spending_the_reboot_budget in tools/walleye-tries passes with its #[ignore] removed; plus a walkthrough test that a ramp step whose load_limit would cross the deadline (petter start uptime + 180 s, read from the image's kmsg) is refused and named, and the run's files keep the uptime at each step's start
+
+Rank
+: 1
+
+
+<a id="walleye-ufs-unpinned-ramp-variant"></a>
+### The UFS procedure runs the same read-only ramp UNPINNED (governor as found, no clock pin), gear and clock read at every step, nothing asserted about the gear
+
+Status
+: open
+
+Note
+: After run 9 (research walleye-ufs-try-2-run-9-ramp-passes-at-hs-gear1): the installed Linux will run UNPINNED, so the read-only baseline that matters is the unpinned one. Then a keeper run under a go on walleye-try-ufs-match (its proof names HS-G3), then stage 3.
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: the UFS procedure takes the pin as a choice (its own option, declared with argenv, default pinned as run 9): unpinned it skips step 16's writes (no governor or set_freq write), still reads and keeps governor, cur_freq, power_info/gear at the start of every ramp step and after it; it asserts only what run 9 asserted that is not about the pin (shell answers while the device is on the bus, GPT equal, the step ends before the deadline minus 10 s), and records the gear it saw rather than requiring HS_GEAR1 or HS_GEAR3 (runs 1 to 3 saw HS_GEAR3 under load: research walleye-ufs-try-2-run-1-gpt-equal-result and the gear-load files, cited as the source of 'expect G3, record what it is'); the ramp sizes of run 9 (64, 256, 1024 MiB) and a 2048 only if the time left allows (starts at uptime ~15 s); rehearsed read-only; host test from run 9's captured gear-load/ramp text and run 1's G3 sample as fixtures (text a phone printed); dry run, check --host, tests, clippy, fmt, review; no phone
 
 Rank
 : 1
