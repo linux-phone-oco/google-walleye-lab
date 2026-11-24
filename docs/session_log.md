@@ -7450,3 +7450,24 @@ Done
 
 Considered
 : next: coordinator reads the run (research walleye-ufs-try-2-run-8-pin-holds-shell-silent-at-256mib): silence is not shown to be the gear; candidates are the 100 MHz core clock vs Android 50 MHz, the read path, or the shell stack on usb0 starving under O_DIRECT load; then decides a further read-only try (e.g. smaller steps 64/128, or console on the ACM tty instead of telnet). walleye-gpt-hash-from-android-read still open (needs adb root, not done here)
+
+---
+
+
+<a id="2026-11-24-ufs-procedure-fits-the-image-s-180-s"></a>
+### UFS procedure fits the image's 180 s
+
+Entry date
+: 2026-11-24
+
+Done
+: Built decision 2026-11-24-walleye-ufs-procedure-fits-the-image (a)-(d) in tools/walleye-tries ufs.rs/load.rs and the procedure; programmer review found an unanswered uptime read erased the silence result and a vacuous assert: both fixed. 352 tests, clippy -D warnings, fmt pass.
+
+Considered
+: Polling a down link until device_wait (kept: only a down link waits).
+
+Rejected
+: Keeping the release-hold step: the image has no hold, way_back reboots from the shell. Not measured: /proc/uptime fixtures are format-standard, not captured; start uptime is kept in gear-load.txt only.
+
+About
+: walleye-ufs-match-android-z

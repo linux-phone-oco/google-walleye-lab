@@ -9,10 +9,10 @@
 //! The one step that boots it, [`Ufs::boot_matched_image`], names it, and checks instead its sha256 and
 //! tests/host/ufs-match-android.sh. NOTHING is written to the card: no mount, no dd, no fstrim, no reset_controller.
 
-use crate::display::HOLD_FILE;
 use crate::lab::Lab;
 use crate::settings::Settings;
 use crate::touch::redact;
+use std::cell::Cell;
 use std::rc::Rc;
 use std::time::{Duration, Instant};
 
@@ -32,7 +32,7 @@ pub const PHY_LINECFG: &str = "UFS_PHY_LINECFG_DISABLE";
 /// What the author is told before the step that boots the UFS-on image (the go note has the rest).
 /// What the author is told before the step that boots the UFS-on image: the numbers are the settings', never typed twice.
 pub fn expect(s: &Settings) -> String {
-    format!("One command, about 5 minutes: the phone boots the matched UFS-on image once, from memory. It reads the card (its {} disks and their partition tables), first pins the UFS host's devfreq clock at its lowest, 50 MHz (the userspace governor) and reads it back, then reads {} in steps of {} MiB (at most {} seconds each), read only, a line in its RAM log before each step and the shell polled every second, while the link gear and the clock are noted; the first silent step is a result, the ramp stops there; the disk's partition table is hashed before and after. NOTHING is written to the card. The glass stays dark. The phone returns to Android by itself and visits fastboot once more to read the slot flags; if it is not on Android after 4 minutes, hold the power button about 15 seconds.", s.luns, s.lun, s.ramp_mb.iter().map(u64::to_string).collect::<Vec<_>>().join(", "), s.load_limit)
+    format!("One command, about 5 minutes: the phone boots the matched UFS-on image once, from memory. It reads the card (its {} disks and their partition tables), first pins the UFS host's devfreq clock at its lowest, 50 MHz (the userspace governor) and reads it back, then reads {} in steps of {} MiB (at most {} seconds each), read only, a line in its RAM log before each step and the shell polled every second, while the link gear and the clock are noted; a step starts only when it ends before the image's own reboot (180 s after its start, read from the kernel log); the first silent step is a result, the ramp stops there; the disk's partition table is hashed before and after. NOTHING is written to the card. The glass stays dark. The phone returns to Android by itself and visits fastboot once more to read the slot flags; if it is not on Android after 4 minutes, hold the power button about 15 seconds.", s.luns, s.lun, s.ramp_mb.iter().map(u64::to_string).collect::<Vec<_>>().join(", "), s.load_limit)
 }
 
 /// Is the text the strict shape `ikb backlog-go` writes (`date -Is`: YYYY-MM-DDTHH:MM:SS+HH:MM or Z)? Nothing relative
@@ -275,11 +275,54 @@ pub fn luns_of(partitions: &str) -> Vec<String> {
         .collect()
 }
 
-/// The command that sets the hold and, on the phone itself, a deadman that removes it after `deadman` seconds.
-pub fn hold_command(deadman: u64) -> String {
-    format!(
-        "touch {HOLD_FILE}; setsid sh -c 'sleep {deadman}; rm -f {HOLD_FILE}' </dev/null >/dev/null 2>&1 & test -e {HOLD_FILE} && echo hold-is-$((6*7))"
-    )
+/// The line the matched image's init (build/initramfs-mainline/init-z14) writes to the kernel log just before it starts the
+/// watchdog petter, whose 90 beats of 2 s end in `reboot -f` (research walleye-ufs-180s-is-the-init-self-reboot).
+pub const PETTER_LINE: &str = "about to start the watchdog petter";
+
+/// The init's reboot comes this many seconds after the petter starts: 90 beats of 2 s (init-z14 lines 26-34).
+pub const PETTER_REBOOT_S: f64 = 180.0;
+
+/// A ramp step ends at least this many seconds before the reboot (decision 2026-11-24-walleye-ufs-procedure-fits-the-image-not-the-image-the-procedure, (c)).
+pub const DEADLINE_MARGIN_S: f64 = 10.0;
+
+/// The command that prints the petter's kernel-log line.
+pub const PETTER_COMMAND: &str = "dmesg | grep -F 'about to start the watchdog petter'";
+
+/// The command that prints the phone's uptime: `SECONDS IDLE_SECONDS`.
+pub const UPTIME_COMMAND: &str = "cat /proc/uptime";
+
+/// The uptime at which the petter started, from a kernel-log line (`[    1.102560] walleye-banner: step 2: about to start the watchdog petter`).
+pub fn petter_started_at(dmesg: &str) -> Option<f64> {
+    let line = line_with(dmesg, PETTER_LINE)?;
+    line.trim_start()
+        .strip_prefix('[')?
+        .split(']')
+        .next()?
+        .trim()
+        .parse()
+        .ok()
+}
+
+/// The uptime at which the image's init reboots the phone: the petter's start and 180 s.
+pub fn reboot_deadline_of(dmesg: &str) -> Option<f64> {
+    petter_started_at(dmesg).map(|t| t + PETTER_REBOOT_S)
+}
+
+/// The phone's uptime, the first field of /proc/uptime.
+pub fn uptime_of(text: &str) -> Option<f64> {
+    text.split_whitespace().next()?.parse().ok()
+}
+
+/// A step that takes at most `limit` seconds, started at `uptime`, ends before the deadline less the margin; else the refusal that names it.
+pub fn step_fits(uptime: f64, deadline: f64, limit: u64) -> Result<(), String> {
+    let ends = uptime + limit as f64;
+    if ends <= deadline - DEADLINE_MARGIN_S {
+        Ok(())
+    } else {
+        Err(format!(
+            "uptime {uptime:.1} s + its limit {limit} s ends at {ends:.1} s, past the image's reboot at {deadline:.1} s less {DEADLINE_MARGIN_S:.0} s"
+        ))
+    }
 }
 
 /// The command that reads the host's link, one `name=value` line each.
@@ -289,14 +332,13 @@ pub const LINK_COMMAND: &str = "for f in /sys/devices/platform/*/*.ufshc/power_i
 pub const LIST_COMMAND: &str =
     "cat /proc/partitions; ls /sys/class/scsi_disk 2>&1; lsblk 2>&1 || true";
 
-/// The command that lets the phone's own init end the run: the hold removed, the init restarts the phone.
-pub const RELEASE_COMMAND: &str = "rm -f /tmp/hold; echo released-$((6*7))";
-
 /// The UFS try: its settings and the lab it shares with the other tries. Cheap to clone: each step takes its own.
 #[derive(Clone)]
 pub struct Ufs {
     s: Rc<Settings>,
     lab: Lab,
+    /// The uptime at which the image's init reboots the phone; set by the step that reads the petter's line, None until then.
+    deadline: Rc<Cell<Option<f64>>>,
 }
 
 impl Ufs {
@@ -305,12 +347,8 @@ impl Ufs {
         Ufs {
             lab: Lab::new(s.clone()),
             s,
+            deadline: Rc::new(Cell::new(None)),
         }
-    }
-
-    /// What the hold may last at most if nothing releases it: past every wait of the steps.
-    fn deadman_s(&self) -> u64 {
-        self.s.device_wait * 3 + 300
     }
 
     /// The battery is above the lab's minimum (the shared step).
@@ -381,17 +419,30 @@ impl Ufs {
         }
     }
 
-    /// The shell answers (the gadget is up) and the hold is set, so the init does not restart the phone while the log is read.
-    pub fn shell_answers_and_holds(&self) -> impl FnOnce() -> Done + 'static {
+    /// The shell answers (the gadget is up) and the image's reboot deadline is read: the matched image's init has no hold and reboots
+    /// the phone 180 s after its petter starts (research walleye-ufs-180s-is-the-init-self-reboot), so the petter's line in the kernel log
+    /// gives the deadline, kept with the uptime now in deadline.txt.
+    pub fn shell_answers_and_the_deadline_is_read(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
             let mut sh = u.lab.shell_when_up()?;
-            let said = sh.run(&hold_command(u.deadman_s()), Duration::from_secs(10))?;
-            if said.contains("hold-is-42") {
-                Ok(())
-            } else {
-                Err("the hold file could not be set".into())
-            }
+            let petter = sh.run(PETTER_COMMAND, Duration::from_secs(10))?;
+            let now = sh.run(UPTIME_COMMAND, Duration::from_secs(10))?;
+            let (Some(started), Some(deadline)) =
+                (petter_started_at(&petter), reboot_deadline_of(&petter))
+            else {
+                return Err(format!(
+                    "the kernel log has no line '{PETTER_LINE}': the image's reboot deadline is not known"
+                ));
+            };
+            let up = uptime_of(&now).ok_or("the phone's uptime could not be read")?;
+            u.lab.save(
+                "deadline.txt",
+                &format!("petter_started_s={started}\nreboot_deadline_s={deadline}\nuptime_when_read_s={up}"),
+            )?;
+            u.deadline.set(Some(deadline));
+            println!("  the image reboots the phone at uptime {deadline:.1} s; now {up:.1} s");
+            Ok(())
         }
     }
 
@@ -441,8 +492,10 @@ impl Ufs {
         }
     }
 
-    /// The link is read, not judged by its gear: polled until it reaches HS-G3 on two lanes ("works at full speed") or the wait ends
-    /// with the link up in a lower gear ("works, slow"); it fails only when the link is down. Every reading is saved to link.txt.
+    /// The link is read once, not judged by its gear and not waited on for HS-G3: an idle link reads HS_GEAR1 in HIBERN8 (run 8's
+    /// link.txt), so a wait for HS-G3 spends the whole device_wait of the image's 180 s (research walleye-ufs-180s-is-the-init-self-reboot).
+    /// Up at any gear is "works" (HS-G3 on two lanes "works at full speed", below it "works, slow"); a link that reads down is asked
+    /// again until the wait ends (the probe may not be done) and fails only then. The reading is saved to link.txt.
     pub fn the_link_is_read(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
@@ -452,7 +505,7 @@ impl Ufs {
                 let said = sh.run(LINK_COMMAND, Duration::from_secs(10))?;
                 let link = Link::of(&said);
                 let speed = link.speed();
-                if speed == Speed::Full || Instant::now() >= until {
+                if speed != Speed::Down || Instant::now() >= until {
                     u.lab.save("link.txt", &said)?;
                     println!("  link: {}", link.line());
                     return match speed {
@@ -522,21 +575,6 @@ impl Ufs {
         let text = expect(&self.s);
         move || {
             println!("  {text}");
-            Ok(())
-        }
-    }
-
-    /// The hold is released: the image's own init restarts the phone (the way back's first way).
-    pub fn the_hold_is_released(&self) -> impl FnOnce() -> Done + 'static {
-        let u = self.clone();
-        move || {
-            // a phone silent after the ramp may not answer a shell at all: the way back is what is left
-            let Ok(mut sh) = u.lab.shell(10) else {
-                println!("  no shell to release the hold: the way back runs");
-                return Ok(());
-            };
-            // the phone hangs up as it goes down: the end of the answer is not read
-            let _ = sh.run_partial(RELEASE_COMMAND, Duration::from_secs(5));
             Ok(())
         }
     }
@@ -645,6 +683,28 @@ mod tests {
     }
 
     #[test]
+    fn the_deadline_is_the_petters_start_and_180_s_and_a_step_must_end_before_it() {
+        // the line of the matched image (research walleye-first-fastboot-boot, c2-try1 read/dmesg.txt line 312)
+        let dm = "[    1.087] x: y\n[    1.102560] walleye-banner: step 2: about to start the watchdog petter\n[    2.0] z";
+        assert_eq!(petter_started_at(dm), Some(1.10256));
+        assert!((reboot_deadline_of(dm).unwrap() - 181.10256).abs() < 1e-9);
+        assert_eq!(reboot_deadline_of("[    1.0] nothing"), None);
+        assert_eq!(uptime_of("12.34 45.67\n"), Some(12.34));
+        assert_eq!(uptime_of(""), None);
+        let deadline = 181.1;
+        assert!(step_fits(30.0, deadline, 60).is_ok());
+        assert!(
+            step_fits(111.1, deadline, 60).is_ok(),
+            "ends exactly at the deadline less the margin"
+        );
+        let e = step_fits(111.2, deadline, 60).unwrap_err();
+        assert!(
+            e.contains("111.2") && e.contains("60 s") && e.contains("181.1"),
+            "{e}"
+        );
+    }
+
+    #[test]
     fn the_luns_are_the_whole_disks_of_proc_partitions() {
         let p = "major minor  #blocks  name\n 8 0 1000 sda\n 8 1 100 sda1\n 8 16 1000 sdb\n 259 0 5 mmcblk0\n";
         assert_eq!(luns_of(p), vec!["sda", "sdb"]);
@@ -654,10 +714,10 @@ mod tests {
     #[test]
     fn the_commands_are_valid_shell_and_write_nothing_to_the_card() {
         for c in [
-            hold_command(500),
             LINK_COMMAND.to_string(),
             LIST_COMMAND.to_string(),
-            RELEASE_COMMAND.to_string(),
+            PETTER_COMMAND.to_string(),
+            UPTIME_COMMAND.to_string(),
         ] {
             let ok = std::process::Command::new("sh")
                 .args(["-n", "-c", &c])
@@ -675,7 +735,6 @@ mod tests {
                 assert!(!c.contains(forbidden), "{forbidden} in {c}");
             }
         }
-        assert!(hold_command(500).contains("sleep 500; rm -f /tmp/hold"));
     }
 
     #[test]
@@ -748,13 +807,16 @@ mod tests {
 
         const UP: &str = "gear=3\nlane=2\nmode=FAST_MODE\nrate=B\nlink_state=ACTIVE";
         const PARTS: &str = "major minor  #blocks  name\n 8 0 1000 sda\n 8 1 100 sda1";
+        /// The petter line as the matched image printed it (research/walleye-first-fastboot-boot/2026-11-19-c2-try1/read/dmesg.txt line 312).
+        const PETTER: &str =
+            "[    1.102560] walleye-banner: step 2: about to start the watchdog petter";
 
         fn phone(dmesg: &'static str) -> Vec<(&'static str, &'static str)> {
             vec![
-                ("hold-is-", "hold-is-42"),
+                ("watchdog petter", PETTER),
                 ("power_info", UP),
                 ("/proc/partitions", PARTS),
-                ("released-", "released-42"),
+                ("/proc/uptime", "12.34 45.67"),
                 ("dmesg", dmesg),
                 ("echo up-", "up-42"),
             ]
@@ -763,15 +825,21 @@ mod tests {
         #[test]
         fn the_probe_the_link_the_disks_and_no_purge_pass_on_a_phone_that_has_them() {
             let u = ufs(phone(DMESG), "pass");
-            u.shell_answers_and_holds()().unwrap();
+            u.shell_answers_and_the_deadline_is_read()().unwrap();
             u.the_probe_lines_are_read()().unwrap();
             u.the_link_is_read()().unwrap();
             u.the_luns_are_listed()().unwrap();
             u.no_purge_was_asked()().unwrap();
-            u.the_hold_is_released()().unwrap();
             let saved = std::fs::read_to_string(out("pass").join("dmesg.txt")).unwrap();
             assert!(saved.contains("UFS_HW_VERSION 3.0.0"));
             assert!(out("pass").join("luns.txt").exists());
+            let d = std::fs::read_to_string(out("pass").join("deadline.txt")).unwrap();
+            assert!(
+                d.contains("petter_started_s=1.10256")
+                    && d.contains("reboot_deadline_s=181.10256")
+                    && d.contains("uptime_when_read_s=12.34"),
+                "{d}"
+            );
         }
 
         #[test]
@@ -837,21 +905,23 @@ mod tests {
         }
 
         #[test]
-        fn a_shell_that_cannot_hold_is_named() {
+        fn a_log_without_the_petter_line_names_the_unknown_deadline() {
             let mut t = phone(DMESG);
-            t[0] = ("hold-is-", "");
-            let u = ufs(t, "nohold");
-            let e = u.shell_answers_and_holds()().unwrap_err();
-            assert!(e.contains("hold file"), "{e}");
+            t[0] = ("watchdog petter", "");
+            let u = ufs(t, "nopetter");
+            let e = u.shell_answers_and_the_deadline_is_read()().unwrap_err();
+            assert!(
+                e.contains("about to start the watchdog petter") && e.contains("not known"),
+                "{e}"
+            );
         }
 
-        /// FAILING until item walleye-ufs-procedure-fits-the-180s (research walleye-ufs-180s-is-the-init-self-reboot):
+        /// Proof of item walleye-ufs-procedure-fits-the-180s (was failing before it; research walleye-ufs-180s-is-the-init-self-reboot):
         /// the matched image's init (z14's, byte for byte) reboots the phone 90 beats of 2 s after it starts and knows no
         /// hold, and an idle link reads HS_GEAR1 in HIBERN8 (run 8's own link.txt), so waiting for HS-G3 at idle spends the
         /// whole device_wait (170 s in device.toml) and leaves the load about 4 s before the reboot. The link at idle is
         /// read, not waited on: with the manifest's device_wait, the read of an idle slow link ends within 15 s.
         #[test]
-        #[ignore = "failing until item walleye-ufs-procedure-fits-the-180s: its builder removes this line"]
         fn an_idle_slow_link_is_read_without_spending_the_reboot_budget() {
             let (tx, rx) = std::sync::mpsc::channel();
             std::thread::spawn(move || {

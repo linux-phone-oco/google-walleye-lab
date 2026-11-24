@@ -11795,10 +11795,10 @@ Rank
 ### UFS procedure fits the matched image's 180 s: read the idle link once, no hold claim, each ramp step only before the init's reboot deadline
 
 Status
-: open
+: done
 
 Note
-: From research walleye-ufs-180s-is-the-init-self-reboot, decision 2026-11-24-walleye-ufs-procedure-fits-the-image-not-the-image-the-procedure. The image and its sha256 stay; only tools/walleye-tries/src/ufs.rs (the_link_is_read, shell_answers_and_holds, the ramp) and device.toml keys change. The phone run after it is item walleye-ufs-silent-ramped-pinned-try, under a go that names the same image sha256.
+: Landed: the idle link is read once (up at any gear works); shell_answers_and_the_deadline_is_read keeps the petter's start + 180 s in deadline.txt; each ramp step is refused when uptime + load_limit crosses deadline - 10 s and its start uptime is in gear-load.txt; the hold step and its release are gone. Proof: an_idle_slow_link_is_read_without_spending_the_reboot_budget (un-ignored) and a_step_that_would_cross_the_reboot_deadline_is_refused_and_named pass. Next: walleye-ufs-silent-ramped-pinned-try (phone, a go naming sha256 4610778...df5).
 
 About
 : walleye-ufs-match-android-z
