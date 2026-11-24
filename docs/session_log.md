@@ -7966,3 +7966,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-walleye-a-run-takes-its-image-from-image-ensure"></a>
+### walleye: a run takes its image from image ensure, never a stale build file
+
+Entry date
+: 2026-11-24
+
+Done
+: host::the_image_is_ensured: when the declared image's file does not have the declared sha256, lpoco-bringup image ensure NAME names a store path (parsed from captured ensure text: research/walleye-bootimage/2026-11-23/ensure-z21.txt and the 0.48.4 dry-run line), its sha256 must equal the declared one, and it replaces the build file (copy beside, rename); anything else stops the run at the image check, before any phone step, naming both shas. Wired in RootfsBoot::the_image_is_the_declared_one for tries that set Settings.image_name (the rootfs boot and the rw write). 3 host tests and a step test; 398 tests pass, clippy clean.
+
+Considered
+: making the image path the store path in Settings (every later step then reads a file we do not own; the run image is also made beside the build file)
+
+Rejected
+: refusing only: the keeper would again mend the file by hand, as in run 2
+
+About
+: walleye-bootimage

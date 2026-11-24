@@ -688,6 +688,18 @@ impl RootfsBoot {
     pub fn the_image_is_the_declared_one(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
+            if !u.s.image_name.is_empty() {
+                println!(
+                    "  {}",
+                    host::the_image_is_ensured(
+                        &u.s.bringup,
+                        &u.s.image_name,
+                        &u.s.device_toml(),
+                        &u.s.image,
+                        &u.s.image_sha256
+                    )?
+                );
+            }
             host::image_has_sha256(&u.s.image, &u.s.image_sha256)?;
             if !u.s.image.to_string_lossy().contains("NOT-TO-BOOT") {
                 return Err(format!(
@@ -2342,6 +2354,18 @@ mod tests {
         std::fs::copy(&img, &ok).unwrap();
         s.image = ok;
         assert!((RootfsBoot::new(s.clone()).the_image_is_the_declared_one())().is_ok());
+        // a stale build file and an image named for ensure: the step asks ensure, and when that cannot mend it the run stops here, before any phone step
+        let failing = d.join("lpoco-bringup-fails");
+        crate::fixture::executable(&failing, "#!/bin/sh\necho no recipe >&2\nexit 1\n");
+        let mut stale = s.clone();
+        stale.image_sha256 = "0".repeat(64);
+        stale.image_name = "x".into();
+        stale.bringup = failing.to_string_lossy().into_owned();
+        let e = (RootfsBoot::new(stale).the_image_is_the_declared_one())().unwrap_err();
+        assert!(
+            e.contains("device.toml records") && e.contains("no recipe"),
+            "{e}"
+        );
         s.image_sha256 = "0".repeat(64);
         assert!((RootfsBoot::new(s).the_image_is_the_declared_one())().is_err());
     }
