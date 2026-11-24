@@ -77,6 +77,7 @@ jobs:
           sh tests/host/dmesg-clean-selftest.sh
           sh tests/host/pmic-dmesg-selftest.sh
           sh tests/host/pmic-dmesg-typed-selftest.sh
+          sh tests/host/phone-state-selftest.sh
   licence-coverage:
     name: every tracked file is covered by a licence
     runs-on: ubuntu-latest

@@ -8026,3 +8026,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-phone-state-selftest-banner"></a>
+### phone-state-selftest on a captured banner, in CI
+
+Entry date
+: 2026-11-24
+
+Done
+: the gadget-and-beat case reads the banner line a phone printed (banner-z6-try1.cap); phone-state-selftest.sh is a step of check.yml (it ran in no job); its unsourced reason now says what stays typed: adb/fastboot lists, sysfs, other tty bytes. adreno-smmu-disabled-selftest and touch-selftest looked at: no phone print of a dtb or of touch input exists, so they stay unsourced.
+
+Considered
+: Capturing adb/fastboot device lines from research: none holds one (grep of research/ found no FA81N1A00790 device line).
+
+Rejected
+: Marking phone-state-selftest sourced: only one of its fixtures is captured.
+
+About
+: walleye-bootimage
