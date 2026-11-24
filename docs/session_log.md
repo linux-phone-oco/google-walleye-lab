@@ -8005,3 +8005,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-rw-clean-end-researched"></a>
+### rw clean end: researched, QEMU test fails today
+
+Entry date
+: 2026-11-24
+
+Done
+: Read the rw init, runlevels, inittab, settle_rw and run 3's settled.txt. Wrote tests/host/rw-root-clean-end.sh (QEMU), seen failing on today's runlevels with run 3's e2fsck signature, passing with mount-ro after killprocs, busy with mount-ro alone. Decision and build item recorded.
+
+Considered
+: capturing the write-open fds on the phone first
+
+Rejected
+: that capture as the first step: the Alpine path ends clean without naming the holder
+
+About
+: walleye-bootimage

@@ -3453,3 +3453,31 @@ Scope
 
 Tracked by
 : walleye-rw-image-without-booted-slot
+
+
+<a id="2026-11-24-rw-root-ends-through-alpines-shutdown-level"></a>
+### 2026-11-24-rw-root-ends-through-alpines-shutdown-level
+
+Date
+: 2026-11-24
+
+Brief
+: The rw root ends through Alpine's own path: shutdown level killprocs, mount-ro, then a service that reboots to the bootloader; not a pre-remount capture of the holder
+
+Decision
+: Add mount-ro to the shutdown level of rootfs/runlevels (after killprocs, before savecache) and add a last shutdown service that, when /run/walleye/to-bootloader exists, runs walleye-reboot --command bootloader (always ending in a reboot, since killprocs disarms the petters). The rw write's way back asks the init to end (busybox reboot / openrc shutdown through init) instead of remounting inside the live ssh session. Proven first in QEMU by tests/host/rw-root-clean-end.sh, which fails today; then on the phone by run 4 (e2fsck -fn from Android prints no 'wrong' line).
+
+Why
+: Alpine's own mount-ro is how every Alpine rw root ends and the image simply lacks it; the QEMU test reproduces run 3's e2fsck signature and passes with it. Naming the holder is not needed to end clean: killprocs removes every holder.
+
+Rejected
+: (a) a capture of /proc/*/fd write-open files before the remount, an instrument proven on QEMU first: kept only as a fallback if run 4 still ends dirty with the Alpine path (it would name the survivor); it names the holder but does not end the root clean, and costs a phone try. (c) remount ro from the live ssh session after stopping syslogd by hand: a list of daemons to maintain, and the ssh session itself and the next service added would hold it again. (d) leaving the root rw and accepting fsck repair on Android: a rw boot's one-block-off result is run 3's finding, a root that must be repaired each time is not a clean end.
+
+About
+: walleye-bootimage
+
+Research
+: walleye-rw-clean-end-holders-and-alpine-path
+
+Scope
+: rootfs/runlevels, tools/walleye-tries rw_write way back, the phone keeper's run 4
