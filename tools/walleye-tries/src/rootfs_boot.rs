@@ -583,6 +583,8 @@ pub struct RootfsBoot {
     rw: bool,
     /// the rw write's rehearsal: nothing is booted and nothing written, so the card must be EQUAL after, as in the root boot
     rehearsal: bool,
+    /// the WDT0 try's mode (`RootfsBoot::wdt0`): the read-only boot of the wdt0 image, whose init reads the watchdog's four registers; the image must carry `walleye.wdt0`
+    wdt0: bool,
 }
 
 #[derive(Default, Clone)]
@@ -610,6 +612,7 @@ impl RootfsBoot {
             before: Rc::default(),
             rw: false,
             rehearsal: false,
+            wdt0: false,
         }
     }
 
@@ -626,6 +629,19 @@ impl RootfsBoot {
         let mut b = RootfsBoot::rw_write(s);
         b.rehearsal = true;
         b
+    }
+
+    /// The WDT0 try: the read-only boot of the wdt0 image (item walleye-wdt0-try-procedure); the steps that differ judge the image's word and the
+    /// four registers' reading (`crate::wdt0`), the rest are the root boot's own - nothing is written to the card, and the card must be equal after.
+    pub fn wdt0(s: Settings) -> RootfsBoot {
+        let mut b = RootfsBoot::new(s);
+        b.wdt0 = true;
+        b
+    }
+
+    /// The WDT0 try's rehearsal: every step but the boot (nothing booted, nothing written).
+    pub fn wdt0_rehearsal(s: Settings) -> RootfsBoot {
+        RootfsBoot::wdt0(s)
     }
 
     pub(crate) fn settings(&self) -> &Settings {
@@ -733,6 +749,17 @@ impl RootfsBoot {
                     crate::rw_write::WORD
                 ));
             }
+            // the WDT0 try's image carries the reading's word once, and is its recipe's and nothing else
+            if u.wdt0 {
+                let header = header_cmdline(&bytes)?;
+                crate::wdt0::cmdline_carries_the_word(&header)?;
+                let manifest = std::fs::read_to_string(u.s.device_toml())
+                    .map_err(|e| format!("{}: {e}", u.s.device_toml().display()))?;
+                crate::rw_write::header_equals_recipe(
+                    &header,
+                    &crate::rw_write::recipe_cmdline(&manifest, &u.s.image_name)?,
+                )?;
+            }
             println!("  the image names its root: {root}");
             Ok(())
         }
@@ -753,7 +780,9 @@ impl RootfsBoot {
 
     /// Say what to expect, before the first act on the phone.
     pub fn author_is_told(&self) -> impl FnOnce() -> Done + 'static {
-        let text = if self.rw {
+        let text = if self.wdt0 {
+            crate::wdt0::expect(self.s.luns)
+        } else if self.rw {
             crate::rw_write::expect(self.s.write_mib, self.s.luns)
         } else {
             expect(&self.s)
@@ -766,7 +795,9 @@ impl RootfsBoot {
 
     /// Say what to expect of the rehearsal.
     pub fn rehearsal_is_told(&self) -> impl FnOnce() -> Done + 'static {
-        let text = if self.rw {
+        let text = if self.wdt0 {
+            crate::wdt0::expect_rehearsal(self.s.luns)
+        } else if self.rw {
             crate::rw_write::expect_rehearsal(self.s.luns)
         } else {
             expect_rehearsal(&self.s)
@@ -1061,7 +1092,7 @@ impl RootfsBoot {
         move || {
             let until = Instant::now() + Duration::from_secs(u.s.device_wait);
             let read = loop {
-                match u.ssh(READ_COMMAND, 40) {
+                match u.ssh(&u.read_command(), 40) {
                     Ok(text) if text.contains("---end") => break text,
                     other => {
                         if Instant::now() >= until {
@@ -1080,6 +1111,31 @@ impl RootfsBoot {
                 }
             };
             u.lab.save("read.txt", &redact(&read))
+        }
+    }
+
+    /// The one read after the login: the root boot's, and in the WDT0 try the file the init kept the registers in, before the end mark.
+    fn read_command(&self) -> String {
+        if self.wdt0 {
+            READ_COMMAND.replacen(
+                "echo ---end",
+                &format!("echo ---wdt0; cat {} 2>&1; echo ---end", crate::wdt0::FILE),
+                1,
+            )
+        } else {
+            READ_COMMAND.to_string()
+        }
+    }
+
+    /// The WDT0 try: the init read the watchdog's four registers, kept them in the root and said them to the kernel log, and the two agree.
+    /// The readings are kept in the run's folder (wdt0.txt) for the research row; their meaning is not judged here.
+    pub fn the_wdt0_registers_are_read(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let readings = crate::wdt0::judge(&u.read_section("wdt0")?, &u.read_section("dmesg")?)?;
+            let said = crate::wdt0::said(&readings);
+            print!("  the init read WDT0, read only:\n{said}");
+            u.lab.save("wdt0.txt", &said)
         }
     }
 
@@ -2514,6 +2570,76 @@ mod tests {
         assert!(judge(false, &with)
             .unwrap_err()
             .contains("this try is the read-only boot"));
+    }
+
+    /// The WDT0 try's rig: the rw rig's stand-in ssh and folder, in the WDT0 mode; the saved read is the phone's own (a rootfs boot's, research
+    /// walleye-rootfs-boots-run-4) with the init's readings (fixtures/wdt0-init-run-*) in its dmesg and its wdt0 section.
+    fn wdt0_rig(name: &str, file: &str, kmsg: &str) -> RootfsBoot {
+        let r = rw_rig(&format!("wdt0-{name}"), "");
+        let mut b = RootfsBoot::wdt0((*r.s).clone());
+        b.ssh = r.ssh.clone();
+        let phone = include_str!("../fixtures/rootfs-boots-run4-read.txt");
+        let stamped: String = kmsg.lines().map(|l| format!("[    7.1] {l}\n")).collect();
+        let read = phone
+            .replacen("---services", &format!("{stamped}---services"), 1)
+            .replacen("---end", &format!("---wdt0\n{file}---end"), 1);
+        std::fs::write(b.s.out.join("read.txt"), read).unwrap();
+        b
+    }
+
+    #[test]
+    fn the_wdt0_step_judges_the_phones_read_and_keeps_the_readings() {
+        let file = include_str!("../fixtures/wdt0-init-run-file.txt");
+        let kmsg = include_str!("../fixtures/wdt0-init-run-kmsg.txt");
+        let ok = wdt0_rig("ok", file, kmsg);
+        (ok.the_wdt0_registers_are_read())().unwrap();
+        assert!(ok.saved("wdt0.txt").unwrap().contains("BITE_TIME 0x17817014 = 0x0000ffff"));
+        let none = wdt0_rig("none", "", "");
+        assert!((none.the_wdt0_registers_are_read())().unwrap_err().contains("holds no reading"));
+        assert!(none.saved("wdt0.txt").is_err(), "nothing is kept when nothing was read");
+        let failed = file.replace("EN 0x17817008 0x00000003", "EN 0x17817008 FAILED devmem: mmap: Operation not permitted");
+        let kfailed = kmsg.replace("EN 0x17817008 0x00000003", "EN 0x17817008 FAILED devmem: mmap: Operation not permitted");
+        let e = (wdt0_rig("failed", &failed, &kfailed).the_wdt0_registers_are_read())().unwrap_err();
+        assert!(e.contains("EN was not read"), "{e}");
+    }
+
+    #[test]
+    fn the_wdt0_try_reads_the_file_after_the_login_and_the_other_tries_do_not() {
+        let r = wdt0_rig("cmd", "", "");
+        assert!(r.read_command().contains("cat /run/walleye/wdt0 2>&1; echo ---end"));
+        assert_eq!(RootfsBoot::new((*r.s).clone()).read_command(), READ_COMMAND);
+    }
+
+    #[test]
+    fn the_wdt0_image_must_carry_the_word_once_and_be_its_recipes() {
+        let r = wdt0_rig("image", "", "");
+        let d = r.s.out.parent().unwrap().to_path_buf();
+        std::fs::write(
+            d.join("device.toml"),
+            "[images.wdtimg.recipe]\ncmdline = \"walleye.root=system_a walleye.wdt0\"\n",
+        )
+        .unwrap();
+        let judge = |cmdline: &str| {
+            let img = d.join("NOT-TO-BOOT-wdt0.img");
+            std::fs::write(&img, boot_image(cmdline)).unwrap();
+            let sha = String::from_utf8_lossy(
+                &Command::new("sha256sum").arg(&img).output().unwrap().stdout,
+            )
+            .split_whitespace()
+            .next()
+            .unwrap()
+            .to_string();
+            let mut s = (*r.s).clone();
+            s.image = img;
+            s.image_sha256 = sha;
+            s.lab = d.clone();
+            s.image_name = "wdtimg".into();
+            (RootfsBoot::wdt0(s).the_image_is_the_declared_one())()
+        };
+        assert!(judge("walleye.root=system_a walleye.wdt0").is_ok());
+        assert!(judge("walleye.root=system_a").unwrap_err().contains("no walleye.wdt0"));
+        assert!(judge("walleye.root=system_a walleye.wdt0 walleye.rw").unwrap_err().contains("read-only boot"));
+        assert!(judge("walleye.root=system_a walleye.wdt0 clk_ignore_unused").unwrap_err().contains("not its recipe's"));
     }
 
     #[test]

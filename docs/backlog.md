@@ -12290,7 +12290,7 @@ Status
 : open
 
 Note
-: From research walleye-android-watchdog-read-fix (6): the one unknown the source cannot settle. Read-only; the keeper's try, once walleye-wdt0-read-image has built its image and procedure.
+: From research walleye-android-watchdog-read-fix (6): the one unknown the source cannot settle. Read-only; the keeper's try. Built (item walleye-wdt0-try-procedure): FIRST bin/attended run rehearse-wdt0-state-on-the-pixel-2 (no boot, no go; its real run is not yet made), THEN bin/attended run wdt0-state-on-the-pixel-2 under a go that names image sha256 17a9c21d (ufs-root-booted-slot-production-wdt0), battery rule as AGENTS.md; keep the run folder's wdt0.txt (EN, STS, BARK_TIME, BITE_TIME) in a research row, end on Android.
 
 Blocked by
 : walleye-wdt0-try-procedure
@@ -12393,10 +12393,10 @@ Rank
 ### The WDT0 try as one command: boot the wdt0 image from memory, read the four values over ssh, judge them, restore Android
 
 Status
-: open
+: done
 
 Note
-: Follows walleye-wdt0-read-image (image 17a9c21d, name ufs-root-booted-slot-production-wdt0 in device.toml). Base it on procedures rootfs-boots-on-the-pixel-2 (boot from memory, ssh by the lab key, read-only root): add reading /run/walleye/wdt0 (four lines 'walleye-wdt0: NAME ADDR VALUE', or FAILED + devmem's words) and the kernel log lines, and judge: all four read, or the failure named; EN/STS/BARK/BITE kept in a research row; no write. Every check names its source (tests/host/SOURCES.toml). The go names the image sha256 17a9c21d.
+: DONE 2026-11-25 (walleye-builder): procedures/wdt0-state-on-the-pixel-2.rs (the root boot's steps on the wdt0 image, then the step that reads /run/walleye/wdt0 and the kernel log and judges all four registers read, the readings kept in the run's wdt0.txt) and procedures/rehearse-wdt0-state-on-the-pixel-2.rs (every step but the boot); tools/walleye-tries src/wdt0.rs (the judge, 7 tests: the init's own output for the shape, a rootfs boot's phone read for the no-reading case), RootfsBoot::wdt0 mode, Settings Try::Wdt0, [procedures.wdt0-state-on-the-pixel-2] and the rehearse table in device.toml. cargo test 430 pass; bin/attended check and run --dry-run pass for both (27 and 15 steps). NOT run on the phone: the real rehearsal and the try are the keeper's, queued on walleye-wdt0-first-instant-read. No phone has printed the init's reading yet, so the judge's positive case is the init's own output with stand-in values: it proves the shape, not a state.
 
 About
 : walleye-bootimage

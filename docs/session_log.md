@@ -8344,3 +8344,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-wdt0-try-procedure"></a>
+### The WDT0 try as one command
+
+Entry date
+: 2026-11-24
+
+Done
+: Built the WDT0 try on the root boot's steps (RootfsBoot::wdt0 mode, Settings Try::Wdt0, device.toml tables for the try and its rehearsal), a judge in src/wdt0.rs, two procedures. Tests 430 pass, check and dry run pass; the phone was not touched.
+
+Considered
+: A new RootfsBoot-free procedure; a separate read after the login
+
+Rejected
+: Copying the root boot into a new module (3000 lines to keep equal): one mode of the same steps instead, as the rw write did. Reading the registers over devmem from the lab: the init already reads them first, before anything can move them.
+
+About
+: walleye-bootimage
