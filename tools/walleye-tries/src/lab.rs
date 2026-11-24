@@ -158,6 +158,13 @@ impl Lab {
         }
     }
 
+    /// `fastboot reboot` for the phone in the bootloader; what it answers is not read (the phone is on its way).
+    pub fn fastboot_reboot(&self) {
+        let mut c = std::process::Command::new(&self.s.fastboot);
+        c.args(["-s", &self.serial().unwrap_or_default(), "reboot"]);
+        let _ = host::run(c);
+    }
+
     /// The way back, the last step of an attended try however it ended: the phone ends on Android without a hand step.
     /// Already on Android: nothing is sent. In fastboot: `fastboot reboot`. On a test image's shell: `reboot -f`, and
     /// when Android does not come, the sysrq trigger. A phone that does not return is said so, with the power-hold
@@ -173,9 +180,7 @@ impl Lab {
                 "way back: leg 1, `fastboot reboot`, then Android within {} s",
                 self.s.back_wait
             );
-            let mut c = std::process::Command::new(&self.s.fastboot);
-            c.args(["-s", &self.serial().unwrap_or_default(), "reboot"]);
-            let _ = host::run(c);
+            self.fastboot_reboot();
             if self.android_within(self.s.back_wait, poll).is_ok() {
                 return Ok(());
             }
