@@ -69,6 +69,7 @@ jobs:
           cargo clippy --locked --all-targets -- -D warnings
           cargo run --locked -q -- --root ../..
           cargo run --locked -q -- --root ../.. --dir tests/fixtures/phone-text --table tests/fixtures/phone-text/SOURCES.toml --ext cap
+          cargo run --locked -q -- --root ../.. --procedures procedures
       - name: the host checks pass the text a phone printed and fail each fault in it (tests/fixtures/phone-text)
         run: |
           sh tests/host/banner-selftest.sh

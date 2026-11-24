@@ -182,3 +182,179 @@ fn a_missing_source_row_and_a_data_line_with_no_id_are_refused() {
     assert_eq!(rc, 1, "{out}");
     assert!(out.contains("line 1: no id"), "{out}");
 }
+
+/// A tree with one procedure, `procedures/p.rs`, holding `body`; the research rows are `research`.
+fn procedures_tree(body: &str, research: &[&str]) -> tempdir::T {
+    let t = tree("", &[], research);
+    fs::create_dir_all(t.path().join("procedures")).unwrap();
+    fs::write(t.path().join("procedures/p.rs"), body).unwrap();
+    t
+}
+
+fn procedures_gate(root: &Path) -> (i32, String) {
+    let o = Command::new(env!("CARGO_BIN_EXE_walleye-sources"))
+        .args([
+            "--root",
+            root.to_str().unwrap(),
+            "--procedures",
+            "procedures",
+        ])
+        .output()
+        .unwrap();
+    (
+        o.status.code().unwrap_or(-1),
+        String::from_utf8_lossy(&o.stdout).into(),
+    )
+}
+
+#[test]
+fn a_procedure_check_citing_a_research_row_passes() {
+    let t = procedures_tree(
+        "fn main() {\n    check_from(\"the slot is read\", \"research:r1\", x.slot());\n    step(\"go\", x.go());\n}\n",
+        &["r1"],
+    );
+    let (rc, out) = procedures_gate(t.path());
+    assert_eq!(rc, 0, "{out}");
+    assert!(out.contains("1 sourced"), "{out}");
+}
+
+#[test]
+fn a_procedure_check_citing_a_research_row_that_does_not_exist_is_refused() {
+    let t = procedures_tree(
+        "check_from(\"the slot is read\", \"research:gone\", x.slot());\n",
+        &["r1"],
+    );
+    let (rc, out) = procedures_gate(t.path());
+    assert_eq!(rc, 1, "{out}");
+    assert!(
+        out.contains("p.rs:1: research row gone does not exist"),
+        "{out}"
+    );
+}
+
+#[test]
+fn a_procedure_check_with_no_source_is_refused() {
+    let t = procedures_tree(
+        "step(\"a\", x.a());\ncheck(\"the slot is read\", x.slot());\n",
+        &["r1"],
+    );
+    let (rc, out) = procedures_gate(t.path());
+    assert_eq!(rc, 1, "{out}");
+    assert!(
+        out.contains("p.rs:2: check(..) names no source (use check_from)"),
+        "{out}"
+    );
+}
+
+#[test]
+fn a_check_from_with_a_source_that_is_not_kind_and_what_is_refused() {
+    let t = procedures_tree("check_from(\"x\", \"it-was-fine\", x.y());\n", &[]);
+    let (rc, out) = procedures_gate(t.path());
+    assert_eq!(rc, 1, "{out}");
+    assert!(
+        out.contains("p.rs:1: the source \"it-was-fine\" is not KIND:WHAT"),
+        "{out}"
+    );
+}
+
+#[test]
+fn a_check_from_over_several_lines_is_read_whole() {
+    let body = "check_from(\n    &format!(\"B-d{d}: loads\"),\n    \"research:r1\",\n    b.x(d),\n);\ncheck_from(\n    \"y\",\n    \"research:gone\",\n    b.y(),\n);\n";
+    let t = procedures_tree(body, &["r1"]);
+    let (rc, out) = procedures_gate(t.path());
+    assert_eq!(rc, 1, "{out}");
+    assert!(
+        out.contains("p.rs:6: research row gone does not exist"),
+        "{out}"
+    );
+    assert!(out.contains("1 sourced"), "{out}");
+}
+
+fn refused(body: &str, research: &[&str], want: &str) {
+    let t = procedures_tree(body, research);
+    let (rc, out) = procedures_gate(t.path());
+    assert_eq!(rc, 1, "{out}");
+    assert!(out.contains(want), "{out}");
+}
+
+fn passes(body: &str, research: &[&str]) {
+    let t = procedures_tree(body, research);
+    let (rc, out) = procedures_gate(t.path());
+    assert_eq!(rc, 0, "{out}");
+}
+
+#[test]
+fn the_source_is_the_second_argument_not_the_second_literal() {
+    passes("check_from(\"w\", \"research:r1\", x.a(\"b\"));\n", &["r1"]);
+    refused(
+        "check_from(\"w\", SRC, x.a(\"research:r1\"));\n",
+        &["r1"],
+        "p.rs:1: the source must be a string literal",
+    );
+    refused(
+        "check_from(what, \"research:gone\", f());\n",
+        &["r1"],
+        "p.rs:1: research row gone does not exist",
+    );
+}
+
+#[test]
+fn comments_strings_and_char_literals_hide_nothing_and_show_nothing() {
+    passes(
+        "step(\"a\", x.a()); // then check(\"x\", y)\n/* check(\"z\", w) */\ncheck_from(\"uses check( inside\", \"research:r1\", f('\"'));\nlet s = r#\"check(\"q\", r)\"#;\n",
+        &["r1"],
+    );
+    refused(
+        "let c = '\"';\ncheck(\"x\", f());\n",
+        &[],
+        "p.rs:2: check(..) names no source",
+    );
+}
+
+#[test]
+fn a_spaced_bare_check_is_refused_and_a_method_or_definition_is_not_a_call() {
+    refused(
+        "check (\"x\", f());\n",
+        &[],
+        "p.rs:1: check(..) names no source",
+    );
+    passes(
+        "fn check_from(a: &str, b: &str) {}\nfn check(a: u8) {}\nx.check(1);\nx.check_from(1);\n",
+        &[],
+    );
+}
+
+#[test]
+fn an_unknown_kind_and_source_and_file_rows_are_judged_in_procedures_too() {
+    refused(
+        "check_from(\"w\", \"hunch:x\", f());\n",
+        &[],
+        "the source kind hunch",
+    );
+    passes("check_from(\"w\", \"source:src-a\", f());\n", &[]);
+    refused(
+        "check_from(\"w\", \"file:no/such\", f());\n",
+        &[],
+        "file no/such does not exist",
+    );
+}
+
+#[test]
+fn a_missing_procedures_folder_and_options_of_the_other_mode_are_refused() {
+    let t = tree("", &[], &[]);
+    let (rc, out) = procedures_gate(t.path());
+    assert_eq!(rc, 1, "{out}");
+    let o = Command::new(env!("CARGO_BIN_EXE_walleye-sources"))
+        .args([
+            "--root",
+            t.path().to_str().unwrap(),
+            "--procedures",
+            "procedures",
+            "--ext",
+            "cap",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(o.status.code(), Some(2));
+    assert!(String::from_utf8_lossy(&o.stderr).contains("--procedures stands alone"));
+}

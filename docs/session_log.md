@@ -8146,3 +8146,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-the-gate-reads-procedures-too-every-check-from"></a>
+### The gate reads procedures too: every check_from cites a row that exists
+
+Entry date
+: 2026-11-24
+
+Done
+: walleye-sources --procedures DIR reads each procedures/*.rs as tokens (comments, strings, char and raw literals are not code): every check_from(..) (172, over several lines too) must have a string-literal second argument citing a research, source or file row that exists; a bare check(..) is refused; the option stands alone (exit 2 with --dir/--table/--ext); a step of check.yml. 19 tests, the new ones seen failing first; the review's findings (second literal vs second argument, comments, char literals, methods) each have one.
+
+Considered
+: a procedures/SOURCES.toml table beside the sources in the code
+
+Rejected
+: procedures/SOURCES.toml: the source already sits in the call (check_from), a second table would drift from it
+
+About
+: walleye-bootimage
