@@ -579,9 +579,15 @@ pub fn gpt_switch_only(before: &[u8], after: &[u8]) -> Result<String, String> {
 
 /// `gpt_switch_only` for the disks of the phone together (check 22): the A/B partner of an entry is found BY NAME across every disk, in the same copy (primary or backup), never by disk, because the
 /// bootloader's boot LUNs hold one half of a pair each (run 10: `xbl_a` on sdb, `xbl_b` on sdc) and its own `set_active` moves both. Every disk is still judged byte by byte as above; an entry whose
-/// partner is on another disk must swap its type GUID with that partner's, and a change on one half only (or on a name with no partner anywhere, or a name found twice) refuses.
+/// partner is on another disk must swap its type GUID with that partner's, and a change on one half only (or on a name with no partner anywhere, or a name found twice) refuses - except the slot byte of
+/// `boot_a`/`boot_b` (`FLASH_RESETS_ONE_HALF`): the flash resets its own entry alone; that exemption covers the whole byte, accepted because no other bit of it is told apart from the flash's.
 /// The A/B names the boot LUNs split over two disks: `xbl_a` on sdb, `xbl_b` on sdc (stage 2 run 10).
 const CROSS_DISK_PAIRS: &str = "xbl_";
+
+/// The one A/B family whose slot bits may change on one half alone: the flash's own `fastboot flash boot_<other>` resets that entry's flags and its partner's stay (stage 2 run 1, check 18: slot-successful:a
+/// yes -> no after the flash of boot_a). The flash writes nothing else (`flash_boot`'s one target), so every other pair - the boot chain's xbl, abl, tz, hyp, keymaster, rpm, pmic, devcfg, aop, qupfw,
+/// storsec, cmnlib included - moves both halves or none, on whichever disk it sits.
+const FLASH_RESETS_ONE_HALF: [&str; 2] = ["boot_a", "boot_b"];
 
 pub fn gpt_switch_only_across(
     before: &[(&str, &[u8])],
@@ -640,8 +646,12 @@ pub fn gpt_switch_only_across(
                 }
                 if let Some(t) = twin {
                     let (tat, tb, ta) = (at(t.1, t.2), before[t.1].1, after[t.1].1);
-                    if t.1 != *d && tb[tat + 54] == ta[tat + 54] {
+                    let partner_stayed = tb[tat + 54] == ta[tat + 54];
+                    if t.1 != *d && partner_stayed {
                         return Err(format!("{copy}: the slot bits of {name:?} ({disk}) changed and its partner's on {} did not: a pair on two boot LUNs moves together", before[t.1].0));
+                    }
+                    if partner_stayed && !FLASH_RESETS_ONE_HALF.contains(&name.as_str()) {
+                        return Err(format!("{copy}: the slot bits of {name:?} changed on one half of its pair only: only the entry the flash writes ({}) may, a switch moves both halves", FLASH_RESETS_ONE_HALF.join(", ")));
                     }
                 }
                 if primary {
@@ -4271,5 +4281,154 @@ mod flash_flag_tests {
         };
         let said = across(&rename(b), &rename(a));
         assert!(said.unwrap_err().contains("no A/B partner"));
+    }
+
+    // One-sided slot-bit changes (research walleye-check22-pairs-by-name-across-disks, open review notes of PR 930; item walleye-check22-one-sided-same-disk). Source of the names: the boot chain
+    /// The boot chain's A/B stems, the never-list of check 22: boot-chain.toml's `[boot_chain] ab_stems`.
+    fn never_list() -> Vec<String> {
+        let t: toml::Table = include_str!("../../../boot-chain.toml").parse().unwrap();
+        t["boot_chain"]["ab_stems"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|s| s.as_str().unwrap().to_string())
+            .collect()
+    }
+
+    /// Source: the stored boot chain read-back (`bootchain` of device.toml, ~/lab-material/walleye/bootchain-2026-11-19): the A/B stems of its image file names. Skipped where the lab material is not.
+    #[test]
+    fn the_boot_chain_list_is_the_stored_readbacks_file_names() {
+        let dir = std::path::Path::new(&std::env::var("HOME").unwrap())
+            .join("lab-material/walleye/bootchain-2026-11-19");
+        let Ok(files) = std::fs::read_dir(&dir) else {
+            println!("no lab material at {}: not measured here", dir.display());
+            return;
+        };
+        let mut stems: Vec<String> = files
+            .flatten()
+            .filter_map(|f| {
+                f.file_name()
+                    .to_string_lossy()
+                    .strip_suffix("_a.img")
+                    .map(String::from)
+            })
+            .collect();
+        stems.sort();
+        let mut want = never_list();
+        want.sort();
+        assert_eq!(stems, want);
+    }
+
+    /// Where an entry named `name` sits on `disk` in the primary copy: its index.
+    fn index_of(d: &[u8], name: &str) -> Vec<usize> {
+        let lay = gpt_layout(d).unwrap();
+        (0..lay.count)
+            .filter(|i| entry_name(d, P_ENT + i * ENTRY) == name)
+            .collect()
+    }
+
+    /// `d` with the slot byte of entry `i` flipped by `bit` in both copies, CRCs fixed: a change on one half of a pair only.
+    fn one_sided(d: &[u8], i: usize, bit: u8) -> Vec<u8> {
+        let lay = gpt_layout(d).unwrap();
+        let mut o = d.to_vec();
+        for base in [P_ENT, lay.b_ent] {
+            o[base + i * ENTRY + 54] ^= bit;
+        }
+        tests::fix_crcs(&mut o);
+        o
+    }
+
+    /// Every disk of the run 10 read on which both halves of `stem` sit: (disk position, index of stem_a, index of stem_b).
+    fn same_disk_pairs(b: &[(String, Vec<u8>)], stem: &str) -> Vec<(usize, usize, usize)> {
+        let mut found = Vec::new();
+        for (d, (_, bytes)) in b.iter().enumerate() {
+            for (ia, ib) in index_of(bytes, &format!("{stem}_a"))
+                .into_iter()
+                .zip(index_of(bytes, &format!("{stem}_b")))
+            {
+                found.push((d, ia, ib));
+            }
+        }
+        found
+    }
+
+    #[test]
+    fn a_one_sided_slot_bit_change_of_a_never_list_partition_on_one_disk_refuses_on_either_half() {
+        let b = run10(RUN10_BEFORE);
+        let mut tried = 0;
+        for stem in never_list() {
+            for (d, ia, ib) in same_disk_pairs(&b, &stem) {
+                for i in [ia, ib] {
+                    let mut a = b.clone();
+                    a[d].1 = one_sided(&b[d].1, i, 0x40);
+                    let said = across(&b, &a).unwrap_err();
+                    assert!(said.contains("one half"), "{stem} {i}: {said}");
+                    tried += 1;
+                }
+            }
+        }
+        // the read holds same-disk pairs of the list (a test that tried nothing proves nothing)
+        assert!(tried >= 4, "{tried}");
+    }
+
+    #[test]
+    fn the_flash_resetting_its_own_boot_slot_alone_passes_and_no_other_name_may() {
+        let b = run10(RUN10_BEFORE);
+        let pairs = same_disk_pairs(&b, "boot");
+        assert!(!pairs.is_empty());
+        for (d, ia, ib) in pairs {
+            for i in [ia, ib] {
+                let mut a = b.clone();
+                a[d].1 = one_sided(&b[d].1, i, 0x40);
+                assert!(across(&b, &a).is_ok(), "boot entry {i}");
+            }
+        }
+        // every other same-disk A/B pair the read holds refuses on one half
+        let mut refused = 0;
+        for (d, (_, bytes)) in b.iter().enumerate() {
+            for i in 0..gpt_layout(bytes).unwrap().count {
+                let name = entry_name(bytes, P_ENT + i * ENTRY);
+                let Some(twin) = partner(&name) else { continue };
+                if name == "boot_a" || name == "boot_b" || index_of(bytes, &twin).is_empty() {
+                    continue;
+                }
+                let mut a = b.clone();
+                a[d].1 = one_sided(bytes, i, 0x40);
+                assert!(across(&b, &a).is_err(), "{name}");
+                refused += 1;
+            }
+        }
+        assert!(refused >= 10, "{refused}");
+    }
+
+    #[test]
+    fn a_name_found_twice_refuses_by_design_not_as_a_side_effect() {
+        let b = run10(RUN10_BEFORE);
+        let (d, ia, _) = same_disk_pairs(&b, "abl")[0];
+        // a third entry named abl_b: copy abl_b's name over the entry of a partition without a partner (userdata or any other) in both reads and both copies
+        let other = (0..gpt_layout(&b[d].1).unwrap().count)
+            .find(|i| {
+                let n = entry_name(&b[d].1, P_ENT + i * ENTRY);
+                !n.is_empty() && partner(&n).is_none()
+            })
+            .unwrap();
+        let rename = |bytes: &[u8]| {
+            let lay = gpt_layout(bytes).unwrap();
+            let mut o = bytes.to_vec();
+            for base in [P_ENT, lay.b_ent] {
+                let abl_b = index_of(bytes, "abl_b")[0];
+                let from: Vec<u8> =
+                    bytes[base + abl_b * ENTRY + 56..base + abl_b * ENTRY + ENTRY].to_vec();
+                o[base + other * ENTRY + 56..base + other * ENTRY + ENTRY].copy_from_slice(&from);
+            }
+            tests::fix_crcs(&mut o);
+            o
+        };
+        let mut b2 = b.clone();
+        b2[d].1 = rename(&b[d].1);
+        let mut a2 = b2.clone();
+        a2[d].1 = one_sided(&b2[d].1, ia, 0x40);
+        let said = across(&b2, &a2).unwrap_err();
+        assert!(said.contains("cannot be paired"), "{said}");
     }
 }
