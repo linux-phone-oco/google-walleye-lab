@@ -189,7 +189,7 @@ arm64 defconfig has `CONFIG_MSM_GPUCC_8998=m` while the initramfs carries no mod
 refuses a kernel without it). `build/build-z2.sh WORK_DIR Y2_BOOT_IMG KERNEL_OUT_DIR OUT_DIR` makes `boot-z2.img` = y2's image with the dtb of `dt/` now (z1's) and the new
 Image.gz, ramdisk, header, command line and AVB footer y2's; 19 checks, among them that the new `.config` differs from y2's kernel's in the gpucc line only.
 `tests/host/dmesg-clean-check.sh DIR` reads the shell reader's output and passes only when `devices_deferred` is empty and the dmesg has no `-110` probe timeout and no
-`could not find phandle`; `dmesg-clean-selftest.sh` proves it on made-up files. z2 does not touch the other two faults (the overlay's `serial@c16f000` waiting on the
+`could not find phandle`; `dmesg-clean-selftest.sh` proves it on the z6, z7 and c2 reads a phone printed (`dmesg-clean-typed-selftest.sh` keeps the -110 and phandle cases, which no phone has printed yet). z2 does not touch the other two faults (the overlay's `serial@c16f000` waiting on the
 `clock_gcc` stub, the overlay's phandles): one change per image, those come next.
 
 ## z3: z2 with the overlay's clock supplier on the real gcc (walleye-dmesg-clean)

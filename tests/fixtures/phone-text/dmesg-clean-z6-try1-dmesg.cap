@@ -1,0 +1,590 @@
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x51af8014]
+[    0.000000] Linux version 7.3.0-dirty (mll@grig) (clang version 23.1.5, LLD 23.1.5) #1 SMP PREEMPT Wed Nov 18 08:50:34 CET 2026
+[    0.000000] KASLR enabled
+[    0.000000] Machine model: Google Pixel 2
+[    0.000000] printk: debug: ignoring loglevel setting.
+[    0.000000] efi: UEFI not found.
+[    0.000000] [Firmware Bug]: Kernel image misaligned at boot, please fix your bootloader!
+[    0.000000] OF: reserved mem: 0x00000000bfffc000..0x00000000bfffffff (16 KiB) nomap non-reusable mpss-metadata
+[    0.000000] OF: reserved mem: 0x0000000085800000..0x0000000085dfffff (6144 KiB) nomap non-reusable memory@85800000
+[    0.000000] OF: reserved mem: 0x0000000085e00000..0x0000000085efffff (1024 KiB) nomap non-reusable memory@85e00000
+[    0.000000] OF: reserved mem: 0x0000000086000000..0x00000000861fffff (2048 KiB) nomap non-reusable smem-mem@86000000
+[    0.000000] OF: reserved mem: 0x0000000086200000..0x0000000088efffff (46080 KiB) nomap non-reusable memory@86200000
+[    0.000000] OF: reserved mem: 0x0000000088f00000..0x00000000890fffff (2048 KiB) nomap non-reusable memory@88f00000
+[    0.000000] OF: reserved mem: 0x000000008ab00000..0x000000008b1fffff (7168 KiB) nomap non-reusable memory@8ab00000
+[    0.000000] OF: reserved mem: 0x000000008b200000..0x000000008cbfffff (26624 KiB) nomap non-reusable memory@8b200000
+[    0.000000] OF: reserved mem: 0x000000008cc00000..0x00000000943fffff (122880 KiB) nomap non-reusable memory@8cc00000
+[    0.000000] OF: reserved mem: 0x0000000095200000..0x000000009520ffff (64 KiB) nomap non-reusable memory@95200000
+[    0.000000] OF: reserved mem: 0x0000000095210000..0x0000000095214fff (20 KiB) nomap non-reusable memory@95210000
+[    0.000000] OF: reserved mem: 0x0000000095600000..0x00000000956fffff (1024 KiB) nomap non-reusable memory@95600000
+[    0.000000] OF: reserved mem: 0x0000000095700000..0x00000000957fffff (1024 KiB) nomap non-reusable memory@95700000
+[    0.000000] OF: reserved mem: 0x0000000094400000..0x00000000948fffff (5120 KiB) nomap non-reusable memory@94400000
+[    0.000000] OF: reserved mem: 0x0000000094900000..0x0000000094afffff (2048 KiB) nomap non-reusable memory@94900000
+[    0.000000] OF: reserved mem: 0x0000000094b00000..0x00000000951fffff (7168 KiB) nomap non-reusable memory@94b00000
+[    0.000000] OF: reserved mem: 0x00000000a1100000..0x00000000a12fffff (2048 KiB) map non-reusable ramoops@a1100000
+[    0.000000] NUMA: Faking a node at [mem 0x0000000080000000-0x000000017e4bffff]
+[    0.000000] NODE_DATA(0) allocated [mem 0x17dc514c0-0x17dc53bbf]
+[    0.000000] cma: Reserved 32 MiB at 0x00000000fe000000
+[    0.000000] psci: probing for conduit method from DT.
+[    0.000000] psci: PSCIv1.0 detected in firmware.
+[    0.000000] psci: Using standard PSCI v0.2 function IDs
+[    0.000000] psci: MIGRATE_INFO_TYPE not supported.
+[    0.000000] psci: SMC Calling Convention v1.0
+[    0.000000] psci: OSI mode supported.
+[    0.000000] psci: [Firmware Bug]: failed to set PC mode: -3
+[    0.000000] Zone ranges:
+[    0.000000]   DMA      [mem 0x0000000080000000-0x00000000ffffffff]
+[    0.000000]   DMA32    empty
+[    0.000000]   Normal   [mem 0x0000000100000000-0x000000017e4bffff]
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000080000000-0x00000000857fffff]
+[    0.000000]   node   0: [mem 0x0000000085800000-0x0000000085efffff]
+[    0.000000]   node   0: [mem 0x0000000085f00000-0x0000000085ffffff]
+[    0.000000]   node   0: [mem 0x0000000086000000-0x00000000890fffff]
+[    0.000000]   node   0: [mem 0x0000000089100000-0x000000008aafffff]
+[    0.000000]   node   0: [mem 0x000000008ab00000-0x0000000095214fff]
+[    0.000000]   node   0: [mem 0x0000000095215000-0x00000000955fffff]
+[    0.000000]   node   0: [mem 0x0000000095600000-0x00000000957fffff]
+[    0.000000]   node   0: [mem 0x0000000095800000-0x00000000bfffbfff]
+[    0.000000]   node   0: [mem 0x00000000bfffc000-0x00000000bfffffff]
+[    0.000000]   node   0: [mem 0x00000000c0000000-0x000000017e4bffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000080000000-0x000000017e4bffff]
+[    0.000000] On node 0, zone Normal: 6976 pages in unavailable ranges
+[    0.000000] percpu: Embedded 26 pages/cpu s67416 r8192 d30888 u106496
+[    0.000000] pcpu-alloc: s67416 r8192 d30888 u106496 alloc=26*4096
+[    0.000000] pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 [0] 4 [0] 5 [0] 6 [0] 7 
+[    0.000000] Detected VIPT I-cache on CPU0
+[    0.000000] CPU features: detected: GICv3 CPU interface
+[    0.000000] CPU features: detected: Spectre-v4
+[    0.000000] CPU features: kernel page table isolation forced ON by KASLR
+[    0.000000] CPU features: detected: Kernel page table isolation (KPTI)
+[    0.000000] CPU features: detected: ARM erratum 845719
+[    0.000000] alternatives: applying boot alternatives
+[    0.000000] Kernel command line: clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3 androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=0000002b-0000-0000-0000-000000000000 androidboot.bootdevice=1da4000.ufshc androidboot.serialno=REDACTED androidboot.wificountrycode=00 androidboot.boottime=1BLL:221,1BLE:774,2BLL:871,2BLE:14054,SW:10017,KL:0,KD:2241,ODT:74,AVB:37 androidboot.baseband=msm mdss_mdp.panel=1:dsi:0:htc,mdss_dsi_samsung_s6e3fa5_1080p_cmd:1:none:cfg:single_dsi androidboot.fpsensor=fpc1075 androidboot.fpmodule=ofilm androidboot.usbradioflag=0 androidboot.temp_protect_ignore=0 androidboot.hardware.ufs=64GB,Hynix androidboot.mid=G011A androidboot.hardware.sku=G011A androidboot.revision=MP1 androidboot.ddrsize=4GB androidboot.ddrinfo=000000FF androidboot.hardware.ddr=4096MB,Micron,LPDDR4 androidboot.bootloader=mw8998-003.0085.00 androidboot.bootreason=reboot androidboot.cid=00000000 \
+[    0.000000] Kernel command line: androidboot.hardware.color=VEN00 androidboot.theme=1 androidboot.sf=1 androidboot.msm.hw_ver_id=2005E0E1 androidboot.qf.st=2 androidboot.pk=g-pxl-p androidboot.slot_suffix=_b skip_initramfs rootwait ro init=/init
+[    0.000000] printk: log buffer data + meta data: 131072 + 458752 = 589824 bytes
+[    0.000000] Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+[    0.000000] software IO TLB: area num 8.
+[    0.000000] software IO TLB: mapped [mem 0x00000000fa000000-0x00000000fe000000] (64MB)
+[    0.000000] Fallback order for Node 0: 0 
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 1041600
+[    0.000000] Policy zone: Normal
+[    0.000000] mem auto-init: stack:all(zero), heap alloc:off, heap free:off
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=8, Nodes=1
+[    0.000000] rcu: Preemptible hierarchical RCU implementation.
+[    0.000000] rcu: 	RCU event tracing is enabled.
+[    0.000000] rcu: 	RCU restricting CPUs from NR_CPUS=512 to nr_cpu_ids=8.
+[    0.000000] 	Trampoline variant of Tasks RCU enabled.
+[    0.000000] 	Tracing variant of Tasks RCU enabled.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=8
+[    0.000000] RCU Tasks: Setting shift to 3 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=8.
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] GICv3: 608 SPIs implemented
+[    0.000000] GICv3: 0 Extended SPIs implemented
+[    0.000000] Root IRQ handler: gic_handle_irq
+[    0.000000] GICv3: GICv3 features: 16 PPIs
+[    0.000000] GICv3: GICD_CTLR.DS=0, SCR_EL3.FIQ=1
+[    0.000000] GICv3: CPU0: found redistributor 0 region 0:0x0000000017b00000
+[    0.000000] ITS: No ITS available, not enabling LPIs
+[    0.000000] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[    0.000000] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.000000] arch_timer: cp15 timer running at 19.20MHz (virt).
+[    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x46d987e47, max_idle_ns: 440795202767 ns
+[    0.000000] sched_clock: 56 bits at 19MHz, resolution 52ns, wraps every 4398046511078ns
+[    0.004114] Console: colour dummy device 80x25
+[    0.004125] printk: legacy console [tty0] enabled
+[    0.004858] Calibrating delay loop (skipped), value calculated using timer frequency.. 38.40 BogoMIPS (lpj=76800)
+[    0.004879] pid_max: default: 32768 minimum: 301
+[    0.005243] Mount-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.005268] Mountpoint-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.005551] VFS: Finished mounting rootfs on nullfs
+[    0.007353] rcu: Hierarchical SRCU implementation.
+[    0.007365] rcu: 	Max phase no-delay instances is 1000.
+[    0.007547] Timer migration: 1 hierarchy levels; 8 children per group; 1 crossnode level
+[    0.013791] EFI services will not be available.
+[    0.014202] smp: Bringing up secondary CPUs ...
+[    0.015939] Detected VIPT I-cache on CPU1
+[    0.016064] GICv3: CPU1: found redistributor 1 region 0:0x0000000017b20000
+[    0.016132] CPU1: Booted secondary processor 0x0000000001 [0x51af8014]
+[    0.017790] Detected VIPT I-cache on CPU2
+[    0.017884] GICv3: CPU2: found redistributor 2 region 0:0x0000000017b40000
+[    0.017936] CPU2: Booted secondary processor 0x0000000002 [0x51af8014]
+[    0.019503] Detected VIPT I-cache on CPU3
+[    0.019596] GICv3: CPU3: found redistributor 3 region 0:0x0000000017b60000
+[    0.019647] CPU3: Booted secondary processor 0x0000000003 [0x51af8014]
+[    0.021567] CPU features: detected: Spectre-v2
+[    0.021593] CPU features: detected: Spectre-BHB
+[    0.021620] Detected VIPT I-cache on CPU4
+[    0.021927] GICv3: CPU4: found redistributor 100 region 0:0x0000000017b80000
+[    0.022021] CPU4: Booted secondary processor 0x0000000100 [0x51af8001]
+[    0.023960] Detected VIPT I-cache on CPU5
+[    0.024269] GICv3: CPU5: found redistributor 101 region 0:0x0000000017ba0000
+[    0.024357] CPU5: Booted secondary processor 0x0000000101 [0x51af8001]
+[    0.026297] Detected VIPT I-cache on CPU6
+[    0.026614] GICv3: CPU6: found redistributor 102 region 0:0x0000000017bc0000
+[    0.026703] CPU6: Booted secondary processor 0x0000000102 [0x51af8001]
+[    0.028605] Detected VIPT I-cache on CPU7
+[    0.028931] GICv3: CPU7: found redistributor 103 region 0:0x0000000017be0000
+[    0.029021] CPU7: Booted secondary processor 0x0000000103 [0x51af8001]
+[    0.029282] smp: Brought up 1 node, 8 CPUs
+[    0.029419] SMP: Total of 8 processors activated.
+[    0.029428] CPU: All CPU(s) started at EL1
+[    0.029453] CPU features: detected: 32-bit EL0 Support
+[    0.029462] CPU features: detected: 32-bit EL1 Support
+[    0.029472] CPU features: detected: CRC32 instructions
+[    0.029485] CPU features: detected: PMUv3
+[    0.029575] alternatives: applying system-wide alternatives
+[    0.032903] Memory: 3704340K/4166400K available (17792K kernel code, 5718K rwdata, 14220K rodata, 3072K init, 700K bss, 422956K reserved, 32768K cma-reserved)
+[    0.034282] devtmpfs: initialized
+[    0.054623] posixtimers hash table entries: 4096 (order: 4, 65536 bytes, linear)
+[    0.054774] futex hash table entries: 2048 (131072 bytes on 1 NUMA nodes, total 128 KiB, linear).
+[    0.055188] 2G module region forced by RANDOMIZE_MODULE_REGION_FULL
+[    0.055210] 0 pages in range for non-PLT usage
+[    0.055213] 513840 pages in range for PLT usage
+[    0.061514] DMI: not present or invalid.
+[    0.063824] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.064844] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.065012] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.065044] audit: initializing netlink subsys (disabled)
+[    0.065219] audit: type=2000 audit(0.060:1): state=initialized audit_enabled=0 res=1
+[    0.070442] thermal_sys: Registered thermal governor 'step_wise'
+[    0.070459] thermal_sys: Registered thermal governor 'power_allocator'
+[    0.070570] cpuidle: using governor menu
+[    0.071056] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+[    0.071312] ASID allocator initialised with 32768 entries
+[    0.075289] Serial: AMBA PL011 UART driver
+[    0.077162] pstore: Using crash dump compression: deflate
+[    0.077179] printk: legacy console [ramoops-1] enabled
+[    0.077588] pstore: Registered ramoops as persistent store backend
+[    0.077600] ramoops: using 0x200000@0xa1100000, ecc: 0
+[    0.092017] /soc@0/interrupt-controller@17a00000: Fixed dependency cycle(s) with /soc@0/interrupt-controller@17a00000
+[    0.153554] HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
+[    0.153616] HugeTLB: 0 KiB vmemmap can be freed for a 1.00 GiB page
+[    0.153661] HugeTLB: registered 32.0 MiB page size, pre-allocated 0 pages
+[    0.153699] HugeTLB: 0 KiB vmemmap can be freed for a 32.0 MiB page
+[    0.153739] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+[    0.153774] HugeTLB: 0 KiB vmemmap can be freed for a 2.00 MiB page
+[    0.153813] HugeTLB: registered 64.0 KiB page size, pre-allocated 0 pages
+[    0.153848] HugeTLB: 0 KiB vmemmap can be freed for a 64.0 KiB page
+[    0.158920] ACPI: Interpreter disabled.
+[    0.173152] iommu: Default domain type: Translated
+[    0.173205] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.174488] SCSI subsystem initialized
+[    0.174778] libata version 3.00 loaded.
+[    0.175297] usbcore: registered new interface driver usbfs
+[    0.175442] usbcore: registered new interface driver hub
+[    0.175561] usbcore: registered new device driver usb
+[    0.179067] pps_core: LinuxPPS API ver. 1 registered
+[    0.179109] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    0.179174] PTP clock support registered
+[    0.179649] EDAC MC: Ver: 3.0.0
+[    0.181855] scmi_core: SCMI protocol bus registered
+[    0.182132] qcom_scm: convention: smc arm 64
+[    0.182336] qcom_scm firmware:scm: SHM Bridge not supported
+[    0.182775] qcom_scm firmware:scm: qseecom: found qseecom with version 0x1001000
+[    0.182900] qcom_scm firmware:scm: qseecom: untested machine, skipping
+[    0.188352] FPGA manager framework
+[    0.190584] vgaarb: loaded
+[    0.192189] clocksource: Switched to clocksource arch_sys_counter
+[    0.192920] VFS: Disk quotas dquot_6.6.0
+[    0.192995] VFS: Dquot-cache hash table entries: 512 (4096 bytes)
+[    0.193635] pnp: PnP ACPI: disabled
+[    0.203845] s3: Bringing 0uV into 1352000-1352000uV
+[    0.204155] s4: Bringing 0uV into 1800000-1800000uV
+[    0.204339] s5: Bringing 0uV into 1904000-1904000uV
+[    0.204411] bob: Bringing 0uV into 3312000-3312000uV
+[    0.204492] s7: Bringing 0uV into 900000-900000uV
+[    0.204639] l1: Bringing 0uV into 880000-880000uV
+[    0.204782] l2: Bringing 0uV into 1200000-1200000uV
+[    0.205050] l12: Bringing 0uV into 1800000-1800000uV
+[    0.205214] l24: Bringing 0uV into 3088000-3088000uV
+[    0.206021] NET: Registered PF_INET protocol family
+[    0.206481] IP idents hash table entries: 65536 (order: 7, 524288 bytes, linear)
+[    0.214964] tcp_listen_portaddr_hash hash table entries: 2048 (order: 3, 32768 bytes, linear)
+[    0.215103] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.215168] TCP established hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[    0.215669] TCP bind hash table entries: 32768 (order: 8, 1048576 bytes, linear)
+[    0.217721] TCP: Hash tables configured (established 32768 bind 32768)
+[    0.217931] UDP hash table entries: 2048 (order: 5, 131072 bytes, linear)
+[    0.218616] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    0.219390] RPC: Registered named UNIX socket transport module.
+[    0.219444] RPC: Registered udp transport module.
+[    0.219480] RPC: Registered tcp transport module.
+[    0.219513] RPC: Registered tcp-with-tls transport module.
+[    0.219546] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.219590] PCI: CLS 0 bytes, default 64
+[    0.219867] Unpacking initramfs...
+[    0.224546] kvm [1]: HYP mode not available
+[    0.226856] Initialise system trusted keyrings
+[    0.227141] workingset: timestamp_bits=42 (anon: 37) max_order=20 bucket_order=0 (anon: 0)
+[    0.227909] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.228514] NFS: Registering the id_resolver key type
+[    0.228607] Key type id_resolver registered
+[    0.228645] Key type id_legacy registered
+[    0.228719] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[    0.228759] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
+[    0.229651] Key type asymmetric registered
+[    0.229700] Asymmetric key parser 'x509' registered
+[    0.229820] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 243)
+[    0.229868] io scheduler mq-deadline registered
+[    0.229908] io scheduler kyber registered
+[    0.230013] io scheduler bfq registered
+[    0.288452] ledtrig-cpu: registered to indicate activity on CPUs
+[    0.461061] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[    0.474863] msm_serial: REDACTED initialized
+[    0.477205] SuperH (H)SCI(F) driver initialized
+[    0.478257] STM32 USART driver initialized
+[    0.492962] arm-smmu 1680000.iommu: probing hardware configuration...
+[    0.493020] arm-smmu 1680000.iommu: SMMUv2 with:
+[    0.493092] arm-smmu 1680000.iommu: 	stage 1 translation
+[    0.493143] arm-smmu 1680000.iommu: 	address translation ops
+[    0.493183] arm-smmu 1680000.iommu: 	non-coherent table walk
+[    0.493223] arm-smmu 1680000.iommu: 	(IDR0.CTTW overridden by FW configuration)
+[    0.493269] arm-smmu 1680000.iommu: 	stream matching with 16 register groups
+[    0.493337] arm-smmu 1680000.iommu: 	6 context banks (0 stage-2 only)
+[    0.493742] arm-smmu 1680000.iommu: 	Supported page sizes: 0x63315000
+[    0.493797] arm-smmu 1680000.iommu: 	Stage-1: 36-bit VA -> 36-bit IPA
+[    0.493880] arm-smmu 1680000.iommu: 	preserved 0 boot mappings
+[    0.497392] arm-smmu 16c0000.iommu: probing hardware configuration...
+[    0.497450] arm-smmu 16c0000.iommu: SMMUv2 with:
+[    0.497515] arm-smmu 16c0000.iommu: 	stage 1 translation
+[    0.497565] arm-smmu 16c0000.iommu: 	address translation ops
+[    0.497605] arm-smmu 16c0000.iommu: 	non-coherent table walk
+[    0.497644] arm-smmu 16c0000.iommu: 	(IDR0.CTTW overridden by FW configuration)
+[    0.497689] arm-smmu 16c0000.iommu: 	stream matching with 14 register groups
+[    0.497757] arm-smmu 16c0000.iommu: 	10 context banks (0 stage-2 only)
+[    0.498103] arm-smmu 16c0000.iommu: 	Supported page sizes: 0x63315000
+[    0.498157] arm-smmu 16c0000.iommu: 	Stage-1: 36-bit VA -> 36-bit IPA
+[    0.498239] arm-smmu 16c0000.iommu: 	preserved 0 boot mappings
+[    0.516598] loop: module loaded
+[    0.520847] megasas: 07.734.00.00-rc1
+[    0.539245] spmi_pmic_arb 800f000.spmi: PMIC arbiter version v3 (0x30000000)
+[    0.575388] spmi spmi-0: node /soc@0/spmi@800f000/qcom,pm8998@0 err (-22) does not have 'reg' property
+[    0.575485] spmi spmi-0: node /soc@0/spmi@800f000/qcom,pmi8998@3 err (-22) does not have 'reg' property
+[    0.583557] tun: Universal TUN/TAP device driver, 1.6
+[    0.584961] VFIO - User Level meta-driver version: 0.3
+[    0.603673] usbcore: registered new interface driver usb-storage
+[    0.621234] i2c_dev: i2c /dev entries driver
+[    0.736271] clocksource: arch_mmio_counter: mask: 0xffffffffffffff max_cycles: 0x46d987e47, max_idle_ns: 440795202767 ns
+[    0.736375] arch-timer-mmio 17920000.timer: mmio timer running at 19.20MHz (virt)
+[    0.740028] usbcore: registered new interface driver usbhid
+[    0.740113] usbhid: USB HID core driver
+[    0.799522] NET: Registered PF_INET6 protocol family
+[    0.801511] Segment Routing with IPv6
+[    0.801638] In-situ OAM (IOAM) with IPv6
+[    0.801799] NET: Registered PF_PACKET protocol family
+[    0.801981] Key type dns_resolver registered
+[    0.878799] registered taskstats version 1
+[    0.879515] Loading compiled-in X.509 certificates
+[    0.902626] Demotion targets for Node 0: null
+[    0.951981] Freeing initrd memory: 888K
+[    0.992912] msm_serial REDACTED.serial: msm_serial: REDACTED port #0
+[    0.993143] msm_serial REDACTED.serial: REDACTED = 19200000
+[    0.994004] c1b0000.serial: REDACTED MMIO:0x000000000c1b0000 (irq = 44, base_baud = 1200000) is a MSM
+[    1.000078] msm_serial REDACTED.serial: msm_serial: REDACTED port #1
+[    1.000198] qcom_cc_clk_hw_get: invalid index 3351654288
+[    1.000248] msm_serial REDACTED.serial: probe with driver msm_serial REDACTED with error -2
+[    1.009320] ------------[ cut here ]------------
+[    1.009382] gpu_gx status stuck at 'off'
+[    1.009541] WARNING: drivers/clk/qcom/gdsc.c:192 at gdsc_toggle_logic+0x14c/0x170, CPU#6: kworker/u34:1/71
+[    1.009671] Modules linked in:
+[    1.009714] CPU: 6 UID: 0 PID: 71 Comm: kworker/u34:1 Not tainted 7.3.0-dirty #1 PREEMPT 
+[    1.009776] Hardware name: Google Pixel 2 (DT)
+[    1.009816] Workqueue: events_unbound deferred_probe_work_func
+[    1.009881] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    1.009928] pc : gdsc_toggle_logic+0x14c/0x170
+[    1.009971] lr : gdsc_toggle_logic+0x148/0x170
+[    1.010011] sp : ffff8000808bb990
+[    1.010042] x29: ffff8000808bb990 x28: 000000007fffffff x27: ffffc0ca16ef6000
+[    1.010109] x26: ffff000080a94048 x25: 0000000000000000 x24: ffffc0ca171a8228
+[    1.010170] x23: ffffc0ca171a8228 x22: 0000000000000000 x21: 00000000ffffff92
+[    1.010230] x20: 0000000000000001 x19: ffffc0ca171a7e00 x18: 0000000000036da4
+[    1.010290] x17: 772064656c696166 x16: 206c61697265735f x15: 0000000000000003
+[    1.010350] x14: ffffc0ca16f2c698 x13: 0000000000000fff x12: 0000000000000003
+[    1.010409] x11: 0000000000000003 x10: 0000000000000002 x9 : 492e01b5bf129a00
+[    1.010469] x8 : 492e01b5bf129a00 x7 : 7461206b63757473 x6 : 0000000000000027
+[    1.010528] x5 : ffffc0ca174a038c x4 : ffffc0ca16975d8f x3 : 0000000000000000
+[    1.010586] x2 : 0000000000000000 x1 : ffff8000808bb760 x0 : 00000000ffffff92
+[    1.010646] Call trace:
+[    1.010679]  gdsc_toggle_logic+0x14c/0x170 (P)
+[    1.010728]  gdsc_enable+0x158/0x234
+[    1.010771]  genpd_power_on+0x18c/0x364
+[    1.010814]  __genpd_dev_pm_attach+0x29c/0x384
+[    1.010873]  genpd_dev_pm_attach+0x50/0x68
+[    1.010926]  dev_pm_domain_attach+0x3c/0x64
+[    1.010983]  platform_probe+0x48/0x9c
+[    1.011036]  really_probe+0x144/0x2e8
+[    1.011079]  __driver_probe_device+0xb0/0x130
+[    1.011124]  driver_probe_device+0x3c/0x1ec
+[    1.011168]  __device_attach_driver+0x124/0x170
+[    1.011213]  bus_for_each_drv+0xf4/0x14c
+[    1.011266]  __device_attach+0xfc/0x188
+[    1.011308]  device_initial_probe+0x38/0x54
+[    1.011352]  bus_probe_device+0x8c/0xf8
+[    1.011409]  deferred_probe_work_func+0x88/0xc4
+[    1.011453]  process_scheduled_works+0x1d8/0x308
+[    1.011512]  worker_thread+0x2b0/0x3dc
+[    1.011562]  kthread+0x10c/0x12c
+[    1.011608]  ret_from_fork+0x10/0x20
+[    1.011652] ---[ end trace 0000000000000000 ]---
+[    1.020052] arm-smmu cd00000.iommu: probing hardware configuration...
+[    1.020109] arm-smmu cd00000.iommu: SMMUv2 with:
+[    1.020270] arm-smmu cd00000.iommu: 	stage 1 translation
+[    1.020325] arm-smmu cd00000.iommu: 	address translation ops
+[    1.020365] arm-smmu cd00000.iommu: 	non-coherent table walk
+[    1.020404] arm-smmu cd00000.iommu: 	(IDR0.CTTW overridden by FW configuration)
+[    1.020449] arm-smmu cd00000.iommu: 	stream matching with 54 register groups
+[    1.020527] arm-smmu cd00000.iommu: 	17 context banks (0 stage-2 only)
+[    1.021572] arm-smmu cd00000.iommu: 	Supported page sizes: 0x63315000
+[    1.021627] arm-smmu cd00000.iommu: 	Stage-1: 32-bit VA -> 36-bit IPA
+[    1.021713] arm-smmu cd00000.iommu: 	preserved 0 boot mappings
+[    1.056302] ------------[ cut here ]------------
+[    1.056361] gpu_gx status stuck at 'off'
+[    1.056504] WARNING: drivers/clk/qcom/gdsc.c:192 at gdsc_toggle_logic+0x14c/0x170, CPU#4: kworker/u34:1/71
+[    1.056612] Modules linked in:
+[    1.056659] CPU: 4 UID: 0 PID: 71 Comm: kworker/u34:1 Tainted: G        W           7.3.0-dirty #1 PREEMPT 
+[    1.056725] Tainted: [W]=WARN
+[    1.056755] Hardware name: Google Pixel 2 (DT)
+[    1.056790] Workqueue: events_unbound deferred_probe_work_func
+[    1.056848] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    1.056896] pc : gdsc_toggle_logic+0x14c/0x170
+[    1.056940] lr : gdsc_toggle_logic+0x148/0x170
+[    1.056981] sp : ffff8000808bb990
+[    1.057013] x29: ffff8000808bb990 x28: 000000007fffffff x27: ffffc0ca16ef6000
+[    1.057081] x26: ffff000080a94048 x25: 0000000000000000 x24: ffffc0ca171a8228
+[    1.057143] x23: ffffc0ca171a8228 x22: 0000000000000000 x21: 00000000ffffff92
+[    1.057204] x20: 0000000000000001 x19: ffffc0ca171a7e00 x18: 000000000000ec00
+[    1.057264] x17: 0000000000000001 x16: 0000000000000000 x15: 0000000000000003
+[    1.057324] x14: ffffc0ca16f2c698 x13: 0000000000000fff x12: 0000000000000003
+[    1.057384] x11: 0000000000000003 x10: 0000000000000002 x9 : 492e01b5bf129a00
+[    1.057443] x8 : 492e01b5bf129a00 x7 : 7461206b63757473 x6 : 0000000000000027
+[    1.057503] x5 : ffffc0ca174a0fbc x4 : ffffc0ca16975d8f x3 : 0000000000000000
+[    1.057562] x2 : 0000000000000000 x1 : ffff8000808bb760 x0 : 00000000ffffff92
+[    1.057622] Call trace:
+[    1.057652]  gdsc_toggle_logic+0x14c/0x170 (P)
+[    1.057701]  gdsc_enable+0x158/0x234
+[    1.057744]  genpd_power_on+0x18c/0x364
+[    1.057788]  __genpd_dev_pm_attach+0x29c/0x384
+[    1.057846]  genpd_dev_pm_attach+0x50/0x68
+[    1.057899]  dev_pm_domain_attach+0x3c/0x64
+[    1.057957]  platform_probe+0x48/0x9c
+[    1.058005]  really_probe+0x144/0x2e8
+[    1.058048]  __driver_probe_device+0xb0/0x130
+[    1.058093]  driver_probe_device+0x3c/0x1ec
+[    1.058137]  __device_attach_driver+0x124/0x170
+[    1.058183]  bus_for_each_drv+0xf4/0x14c
+[    1.058237]  __device_attach+0xfc/0x188
+[    1.058279]  device_initial_probe+0x38/0x54
+[    1.058322]  bus_probe_device+0x8c/0xf8
+[    1.058374]  deferred_probe_work_func+0x88/0xc4
+[    1.058419]  process_scheduled_works+0x1d8/0x308
+[    1.058473]  worker_thread+0x2b0/0x3dc
+[    1.058524]  kthread+0x10c/0x12c
+[    1.058571]  ret_from_fork+0x10/0x20
+[    1.058616] ---[ end trace 0000000000000000 ]---
+[    1.068430] ------------[ cut here ]------------
+[    1.068482] gpu_gx status stuck at 'off'
+[    1.068625] WARNING: drivers/clk/qcom/gdsc.c:192 at gdsc_toggle_logic+0x14c/0x170, CPU#4: kworker/u34:1/71
+[    1.068729] Modules linked in:
+[    1.068773] CPU: 4 UID: 0 PID: 71 Comm: kworker/u34:1 Tainted: G        W           7.3.0-dirty #1 PREEMPT 
+[    1.068841] Tainted: [W]=WARN
+[    1.068871] Hardware name: Google Pixel 2 (DT)
+[    1.068906] Workqueue: events_unbound deferred_probe_work_func
+[    1.068964] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    1.069012] pc : gdsc_toggle_logic+0x14c/0x170
+[    1.069055] lr : gdsc_toggle_logic+0x148/0x170
+[    1.069096] sp : ffff8000808bb990
+[    1.069127] x29: ffff8000808bb990 x28: 000000007fffffff x27: ffffc0ca16ef6000
+[    1.069194] x26: ffff000080a94048 x25: 0000000000000000 x24: ffffc0ca171a8228
+[    1.069256] x23: ffffc0ca171a8228 x22: 0000000000000000 x21: 00000000ffffff92
+[    1.069316] x20: 0000000000000001 x19: ffffc0ca171a7e00 x18: 000000000002c4e4
+[    1.069376] x17: 00000000000000bb x16: 0000000000003b19 x15: 0000000000000003
+[    1.069436] x14: ffffc0ca16f2c698 x13: 0000000000000fff x12: 0000000000000003
+[    1.069496] x11: 0000000000000003 x10: 0000000000000002 x9 : 492e01b5bf129a00
+[    1.069556] x8 : 492e01b5bf129a00 x7 : 7461206b63757473 x6 : 0000000000000027
+[    1.069615] x5 : ffffc0ca174a193c x4 : ffffc0ca16975d8f x3 : 0000000000000000
+[    1.069675] x2 : 0000000000000000 x1 : ffff8000808bb760 x0 : 00000000ffffff92
+[    1.069735] Call trace:
+[    1.069764]  gdsc_toggle_logic+0x14c/0x170 (P)
+[    1.069812]  gdsc_enable+0x158/0x234
+[    1.069855]  genpd_power_on+0x18c/0x364
+[    1.069898]  __genpd_dev_pm_attach+0x29c/0x384
+[    1.069955]  genpd_dev_pm_attach+0x50/0x68
+[    1.070009]  dev_pm_domain_attach+0x3c/0x64
+[    1.070065]  platform_probe+0x48/0x9c
+[    1.070115]  really_probe+0x144/0x2e8
+[    1.070158]  __driver_probe_device+0xb0/0x130
+[    1.070203]  driver_probe_device+0x3c/0x1ec
+[    1.070246]  __device_attach_driver+0x124/0x170
+[    1.070291]  bus_for_each_drv+0xf4/0x14c
+[    1.070345]  __device_attach+0xfc/0x188
+[    1.070388]  device_initial_probe+0x38/0x54
+[    1.070431]  bus_probe_device+0x8c/0xf8
+[    1.070483]  deferred_probe_work_func+0x88/0xc4
+[    1.070528]  process_scheduled_works+0x1d8/0x308
+[    1.070583]  worker_thread+0x2b0/0x3dc
+[    1.070633]  kthread+0x10c/0x12c
+[    1.070679]  ret_from_fork+0x10/0x20
+[    1.070724] ---[ end trace 0000000000000000 ]---
+[    1.076064] input: soc@0:gpio_keys as /devices/platform/soc@0/soc@0:gpio_keys/input/input0
+[    1.079788] clk: Not disabling unused clocks
+[    1.079855] PM: genpd: Disabling unused power domains
+[    1.086244] Freeing unused kernel memory: 3072K
+[    1.086359] ------------[ cut here ]------------
+[    1.086451] gpu_gx status stuck at 'off'
+[    1.086648] WARNING: drivers/clk/qcom/gdsc.c:192 at gdsc_toggle_logic+0x14c/0x170, CPU#7: kworker/u34:1/71
+[    1.086896] Modules linked in:
+[    1.086950] CPU: 7 UID: 0 PID: 71 Comm: kworker/u34:1 Tainted: G        W           7.3.0-dirty #1 PREEMPT 
+[    1.087044] Tainted: [W]=WARN
+[    1.087081] Hardware name: Google Pixel 2 (DT)
+[    1.087127] Workqueue: events_unbound deferred_probe_work_func
+[    1.087192] Run /init as init process
+[    1.087194] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    1.087242]   with arguments:
+[    1.087262] pc : gdsc_toggle_logic+0x14c/0x170
+[    1.087303]     /init
+[    1.087319] lr : gdsc_toggle_logic+0x148/0x170
+[    1.087342]   with environment:
+[    1.087357] sp : ffff8000808bb990
+[    1.087372]     HOME=/
+[    1.087387] x29: ffff8000808bb990
+[    1.087400]     TERM=linux
+[    1.087410]  x28: 000000007fffffff x27: ffffc0ca16ef6000
+[    1.087561] x26: ffff000080a94048 x25: 0000000000000000 x24: ffffc0ca171a8228
+[    1.087625] x23: ffffc0ca171a8228 x22: 0000000000000000 x21: 00000000ffffff92
+[    1.087686] x20: 0000000000000001 x19: ffffc0ca171a7e00 x18: 0000000000000000
+[    1.087745] x17: ffff0000800e9dd0 x16: 0000000001631031 x15: 0000000000000003
+[    1.087805] x14: ffffc0ca16f2c698 x13: 0000000000000fff x12: 0000000000000003
+[    1.087864] x11: 0000000000000003 x10: 0000000000000002 x9 : 492e01b5bf129a00
+[    1.087925] x8 : 492e01b5bf129a00 x7 : 7461206b63757473 x6 : 0000000000000027
+[    1.087984] x5 : ffffc0ca174a23b4 x4 : ffffc0ca16975d8f x3 : 0000000000000000
+[    1.088043] x2 : 0000000000000000 x1 : ffff8000808bb760 x0 : 00000000ffffff92
+[    1.088108] Call trace:
+[    1.088142]  gdsc_toggle_logic+0x14c/0x170 (P)
+[    1.088190]  gdsc_enable+0x158/0x234
+[    1.088232]  genpd_power_on+0x18c/0x364
+[    1.088276]  __genpd_dev_pm_attach+0x29c/0x384
+[    1.088332]  genpd_dev_pm_attach+0x50/0x68
+[    1.088391]  dev_pm_domain_attach+0x3c/0x64
+[    1.088451]  platform_probe+0x48/0x9c
+[    1.088502]  really_probe+0x144/0x2e8
+[    1.088544]  __driver_probe_device+0xb0/0x130
+[    1.088588]  driver_probe_device+0x3c/0x1ec
+[    1.088632]  __device_attach_driver+0x124/0x170
+[    1.088676]  bus_for_each_drv+0xf4/0x14c
+[    1.088733]  __device_attach+0xfc/0x188
+[    1.088779]  device_initial_probe+0x38/0x54
+[    1.088822]  bus_probe_device+0x8c/0xf8
+[    1.088874]  deferred_probe_work_func+0x88/0xc4
+[    1.088920]  process_scheduled_works+0x1d8/0x308
+[    1.088976]  worker_thread+0x2b0/0x3dc
+[    1.089026]  kthread+0x10c/0x12c
+[    1.089072]  ret_from_fork+0x10/0x20
+[    1.089116] ---[ end trace 0000000000000000 ]---
+[    1.124721] walleye-banner: step 1: z6 init start, kernel 7.3.0-dirty
+[    1.129040] walleye-banner: step 2: about to start the watchdog petter
+[    1.129650] walleye-banner: step 3: about to create the gadget g1 (1d6b:0104)
+[    1.136511] walleye-banner: step 4: about to mkdir functions/acm.GS0
+[    1.141646] walleye-banner: step 5: banner writer started
+[    1.145466] walleye-banner: step 6: about to symlink acm.GS0 into configs/c.1
+[    1.169015] walleye-banner: step 7: about to bind a800000.usb (waited 0s)
+[    1.174884] walleye-banner: step 8: gadget bound to a800000.usb
+[    1.178563] ------------[ cut here ]------------
+[    1.178606] gpu_gx status stuck at 'off'
+[    1.178662] WARNING: drivers/clk/qcom/gdsc.c:192 at gdsc_toggle_logic+0x14c/0x170, CPU#2: kworker/u33:0/55
+[    1.178713] Modules linked in:
+[    1.178730] CPU: 2 UID: 0 PID: 55 Comm: kworker/u33:0 Tainted: G        W           7.3.0-dirty #1 PREEMPT 
+[    1.178755] Tainted: [W]=WARN
+[    1.178766] Hardware name: Google Pixel 2 (DT)
+[    1.178782] Workqueue: events_unbound deferred_probe_work_func
+[    1.178808] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    1.178823] pc : gdsc_toggle_logic+0x14c/0x170
+[    1.178839] lr : gdsc_toggle_logic+0x148/0x170
+[    1.178852] sp : ffff800080353990
+[    1.178862] x29: ffff800080353990 x28: 000000007fffffff x27: ffffc0ca16ef6000
+[    1.178883] x26: ffff0000800f1648 x25: 0000000000000000 x24: ffffc0ca171a8228
+[    1.178903] x23: ffffc0ca171a8228 x22: 0000000000000000 x21: 00000000ffffff92
+[    1.178923] x20: 0000000000000001 x19: ffffc0ca171a7e00 x18: 000000000051a251
+[    1.178944] x17: 000000000000023e x16: 0000000000821a40 x15: 0000000000000003
+[    1.178964] x14: ffffc0ca16f2c698 x13: 0000000000000fff x12: 0000000000000003
+[    1.178984] x11: 0000000000000003 x10: 0000000000000002 x9 : 142bbb0baea20600
+[    1.179004] x8 : 142bbb0baea20600 x7 : 7461206b63757473 x6 : 0000000000000027
+[    1.179024] x5 : ffffc0ca174a302c x4 : ffffc0ca16975d8f x3 : 0000000000000000
+[    1.179043] x2 : 0000000000000000 x1 : ffff800080353760 x0 : 00000000ffffff92
+[    1.179063] Call trace:
+[    1.179073]  gdsc_toggle_logic+0x14c/0x170 (P)
+[    1.179089]  gdsc_enable+0x158/0x234
+[    1.179103]  genpd_power_on+0x18c/0x364
+[    1.179117]  __genpd_dev_pm_attach+0x29c/0x384
+[    1.179135]  genpd_dev_pm_attach+0x50/0x68
+[    1.179151]  dev_pm_domain_attach+0x3c/0x64
+[    1.179169]  platform_probe+0x48/0x9c
+[    1.179184]  really_probe+0x144/0x2e8
+[    1.179199]  __driver_probe_device+0xb0/0x130
+[    1.179214]  driver_probe_device+0x3c/0x1ec
+[    1.179228]  __device_attach_driver+0x124/0x170
+[    1.179244]  bus_for_each_drv+0xf4/0x14c
+[    1.179261]  __device_attach+0xfc/0x188
+[    1.179275]  device_initial_probe+0x38/0x54
+[    1.179290]  bus_probe_device+0x8c/0xf8
+[    1.179306]  deferred_probe_work_func+0x88/0xc4
+[    1.179321]  process_scheduled_works+0x1d8/0x308
+[    1.179339]  worker_thread+0x2b0/0x3dc
+[    1.179356]  kthread+0x10c/0x12c
+[    1.179372]  ret_from_fork+0x10/0x20
+[    1.179388] ---[ end trace 0000000000000000 ]---
+[    1.596980] walleye-init: command loop on /dev/ttyGS0, open 1
+[   11.240848] ------------[ cut here ]------------
+[   11.240881] gpu_gx status stuck at 'off'
+[   11.240936] WARNING: drivers/clk/qcom/gdsc.c:192 at gdsc_toggle_logic+0x14c/0x170, CPU#2: kworker/u33:0/55
+[   11.240973] Modules linked in:
+[   11.240991] CPU: 2 UID: 0 PID: 55 Comm: kworker/u33:0 Tainted: G        W           7.3.0-dirty #1 PREEMPT 
+[   11.241011] Tainted: [W]=WARN
+[   11.241021] Hardware name: Google Pixel 2 (DT)
+[   11.241033] Workqueue: events_unbound deferred_probe_work_func
+[   11.241053] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[   11.241068] pc : gdsc_toggle_logic+0x14c/0x170
+[   11.241082] lr : gdsc_toggle_logic+0x148/0x170
+[   11.241096] sp : ffff800080353990
+[   11.241105] x29: ffff800080353990 x28: 000000007fffffff x27: ffffc0ca16ef6000
+[   11.241127] x26: ffff0000800f1648 x25: 0000000000000000 x24: ffffc0ca171a8228
+[   11.241147] x23: ffffc0ca171a8228 x22: 0000000000000000 x21: 00000000ffffff92
+[   11.241167] x20: 0000000000000001 x19: ffffc0ca171a7e00 x18: 0000000000000000
+[   11.241187] x17: ffff0000800e9dd0 x16: 000000000380ff00 x15: 0000000000000003
+[   11.241207] x14: ffffc0ca16f2c698 x13: 0000000000000fff x12: 0000000000000003
+[   11.241226] x11: 0000000000000003 x10: 0000000000000002 x9 : 142bbb0baea20600
+[   11.241246] x8 : 142bbb0baea20600 x7 : 7461206b63757473 x6 : 0000000000000027
+[   11.241266] x5 : ffffc0ca174a39ec x4 : ffffc0ca16975d8f x3 : 0000000000000000
+[   11.241286] x2 : 0000000000000000 x1 : ffff800080353760 x0 : 00000000ffffff92
+[   11.241306] Call trace:
+[   11.241315]  gdsc_toggle_logic+0x14c/0x170 (P)
+[   11.241331]  gdsc_enable+0x158/0x234
+[   11.241346]  genpd_power_on+0x18c/0x364
+[   11.241360]  __genpd_dev_pm_attach+0x29c/0x384
+[   11.241377]  genpd_dev_pm_attach+0x50/0x68
+[   11.241394]  dev_pm_domain_attach+0x3c/0x64
+[   11.241412]  platform_probe+0x48/0x9c
+[   11.241427]  really_probe+0x144/0x2e8
+[   11.241441]  __driver_probe_device+0xb0/0x130
+[   11.241456]  driver_probe_device+0x3c/0x1ec
+[   11.241471]  __device_attach_driver+0x124/0x170
+[   11.241486]  bus_for_each_drv+0xf4/0x14c
+[   11.241503]  __device_attach+0xfc/0x188
+[   11.241517]  device_initial_probe+0x38/0x54
+[   11.241533]  bus_probe_device+0x8c/0xf8
+[   11.241549]  deferred_probe_work_func+0x88/0xc4
+[   11.241564]  process_scheduled_works+0x1d8/0x308
+[   11.241583]  worker_thread+0x2b0/0x3dc
+[   11.241599]  kthread+0x10c/0x12c
+[   11.241615]  ret_from_fork+0x10/0x20
+[   11.241632] ---[ end trace 0000000000000000 ]---
+[   11.243395] platform 5040000.iommu: deferred probe pending: (reason unknown)
+[   11.243422] gcc-msm8998 100000.clock-controller: sync_state() pending due to 5040000.iommu
+[   11.243440] gpucc-msm8998 5065000.clock-controller: sync_state() pending due to 5040000.iommu
+[   11.243460] gcc-msm8998 100000.clock-controller: sync_state() pending due to c179000.i2c
+[   11.243479] gcc-msm8998 100000.clock-controller: sync_state() pending due to soc@0:bt_wcn3990
+[   11.243504] gcc-msm8998 100000.clock-controller: sync_state() pending due to c16f000.serial
+[   11.243521] gcc-msm8998 100000.clock-controller: sync_state() pending due to soc@0:mnh-sm

@@ -77,7 +77,10 @@ source = "research:walleye-display-late-probe-l4-tried-dsi-binds-panel-defers-on
 source = "research:walleye-z6-dmesg-mapped"
 
 [scripts."dmesg-clean-selftest.sh"]
-unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+source = "file:research/walleye-first-fastboot-boot/2026-11-19-z7-try1/read/dmesg.txt"
+
+[scripts."dmesg-clean-typed-selftest.sh"]
+unsourced = "the -110 and phandle lines, known overlay nodes and a supplier naming one were never printed by our phone: typed text, not known yet from a phone"
 
 [scripts."drv2624-builds.sh"]
 source = "research:walleye-drv2624-image-built"

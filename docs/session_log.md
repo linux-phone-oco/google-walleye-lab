@@ -7825,3 +7825,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-walleye-dmesg-clean-selftest-on-captured-phone"></a>
+### walleye: dmesg-clean selftest on captured phone text
+
+Entry date
+: 2026-11-24
+
+Done
+: dmesg-clean-selftest.sh now copies the z7 (clean), z6 (smmu deferred, gpu_gx) and c2 (charger deferred) reads from research into tests/fixtures/phone-text, 7 cases pass; the typed cases split into dmesg-clean-typed-selftest.sh, listed not yet sourced; CI runs the captured selftest.
+
+Considered
+: cut the -110 and phandle cases or keep typed
+
+Rejected
+: keeping typed lines inside the sourced selftest: it would claim a phone printed them
+
+About
+: walleye-checks-name-their-sources

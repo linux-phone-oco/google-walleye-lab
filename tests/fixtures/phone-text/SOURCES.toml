@@ -11,3 +11,21 @@ source = "file:research/walleye-first-fastboot-boot/2026-11-19-z6-try1/banner.ca
 
 [scripts."banner-shell-z5b-try2.cap"]
 source = "file:research/walleye-first-fastboot-boot/2026-11-18-z5b-try2/banner.cap"
+
+[scripts."dmesg-clean-z7-try1-dmesg.cap"]
+source = "file:research/walleye-first-fastboot-boot/2026-11-19-z7-try1/read/dmesg.txt"
+
+[scripts."dmesg-clean-z7-try1-devices-deferred.cap"]
+source = "file:research/walleye-first-fastboot-boot/2026-11-19-z7-try1/read/devices-deferred.txt"
+
+[scripts."dmesg-clean-z6-try1-dmesg.cap"]
+source = "file:research/walleye-first-fastboot-boot/2026-11-19-z6-try1/read/dmesg.txt"
+
+[scripts."dmesg-clean-z6-try1-devices-deferred.cap"]
+source = "file:research/walleye-first-fastboot-boot/2026-11-19-z6-try1/read/devices-deferred.txt"
+
+[scripts."dmesg-clean-c2-try1-dmesg.cap"]
+source = "file:research/walleye-first-fastboot-boot/2026-11-19-c2-try1/read/dmesg.txt"
+
+[scripts."dmesg-clean-c2-try1-devices-deferred.cap"]
+source = "file:research/walleye-first-fastboot-boot/2026-11-19-c2-try1/read/devices-deferred.txt"
