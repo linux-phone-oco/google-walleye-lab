@@ -12031,6 +12031,7 @@ Status
 
 Note
 : run 2 proven by the write, read-back, kernel log and equal tables; fsck on mounted root and the first fastboot reboot are not known yet, see research walleye-rw-write-run-2-write-proven-way-back-slow
+go until 2026-11-24T15:26:46+01:00, outcomes: Closed by the walleye coordinator: used by run 2 (research walleye-rw-write-run-2-write-proven-way-back-slow, PR 1019). Outcome that held: the 16 MiB write and read-back equal, kernel log clean, tables and boot chain equal, root changed: our kernel writes the phone's UFS. Not known yet: fsck on a mounted root (walleye-rw-fsck-unmounted-from-android), the way back's step 24 (walleye-rw-write-way-back-after-bootloader).
 
 Blocked by
 : walleye-rw-image-without-booted-slot,walleye-rw-write-reads-pstore-on-a-stop
@@ -12054,7 +12055,7 @@ Witness
 : person
 
 Go until
-: 2026-11-24T19:30:00+01:00
+: 2026-11-24T15:26:46+01:00
 
 
 <a id="walleye-rw-run-1-why-no-gadget"></a>
@@ -12130,3 +12131,78 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-rw-fsck-unmounted-from-android"></a>
+### From Android slot b, read only: e2fsck -fn on the unmounted system_a (by-name), to judge run 2's mounted-root fsck counts
+
+Status
+: open
+
+Note
+: Run 2 (PR 1019) fsck.ext4 -n on the MOUNTED root gave rc 0 but 'free blocks count wrong (252516 vs 252497)' and 'free inodes count wrong (64600 vs 64587)', Fix? no. e2fsck's own manual warns a check of a mounted filesystem gives such false errors, and ext4 keeps these summary counts loosely while mounted, so this is expected but not proven. Android slot b does not mount system_a: e2fsck -fn there (no -y, no -p, -n opens read only) is the clean proof. Combine in one read-only Android visit with walleye-gpt-hash-from-android-read and walleye-vendor-firmware-pull. Never write, never fsck without -n.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: phone
+
+Proof
+: e2fsck -fn exit 0 with no 'wrong' line, kept as text in research
+
+Rank
+: 2
+
+
+<a id="walleye-rw-write-way-back-after-bootloader"></a>
+### rw-write procedure: after step 24 (to the bootloader, fastboot reboot) Android was not back within 240 s at check 26; the way back's leg 1 fastboot reboot brought it
+
+Status
+: open
+
+Note
+: Run 2 (PR 1019, folder ~/lab-material/walleye/rw-write-20261124-150514). Read the run log: did the phone sit in the bootloader (a second fastboot reboot needed, like the reboot-reason item walleye-fastboot-reboot-twice-timed-try) or boot slowly? Fix the step from what the log shows, tested on its text; then the procedure's proof (all 30 steps) can pass.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: a unit test on run 2's captured step 24-26 text
+
+Rank
+: 3
+
+
+<a id="walleye-run-uses-ensured-image-not-build-file"></a>
+### A run takes its image from lpoco bringup image ensure by sha256, never a file in walleye-build that may be stale
+
+Status
+: open
+
+Note
+: Run 2: the declared image's file in ~/Projects/walleye-build still held the old cb79c975 build after PR 1016; the keeper replaced it by hand with the Nix-store copy whose sha256 equals 1bfb3667. The run's step that makes the image should call image ensure (or refuse on a sha256 mismatch before the go check). Also: the keeper's pkill of its own wait loops ended other sessions' loops; waits should end by their own pid.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: a test where a stale build file makes the run refuse before any phone step
+
+Rank
+: 3
