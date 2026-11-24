@@ -11799,7 +11799,7 @@ Status
 : in-progress
 
 Note
-: PART 1 (2026-11-24): recipes for l7, b1, b2 rebuild equal (research walleye-image-recipes-l7-b1-b2-rebuilt-equal). PART 2 (walleye-builder, 2026-11-24): b-d5, b-d15, b-d25, b-d35, b-d50 (control b2, a ramdisk each) rebuild equal (research walleye-image-recipes-b-dn-rebuilt-equal); image-recipe.sh passes for each. LEFT: wdt1-a/b (own kernel, dtb, cmdline: need those parts as images or files of the manifest), then the other [images.*] whose parts are images of the manifest; the ones needing a kernel from an int/ tag wait on walleye-next-image-from-an-int-tag.
+: PART 1 (2026-11-24): l7, b1, b2 rebuild equal. PART 2: b-d5..b-d50 equal. PART 3 (walleye-builder, 2026-11-24): b-s5, b-r5 (dtb) and b-q5 (ramdisk), control b-d5, rebuild equal (research walleye-image-recipes-b-sqr-rebuilt-equal); a recipe takes the dtb alone, the unpacked kernel file holds its dtb. LEFT: wdt1-a/b (own kernel, dtb, cmdline), b-a5 and the alpine-rootfs/ufs images (their parts as images or files of the manifest); the ones needing a kernel from an int/ tag wait on walleye-next-image-from-an-int-tag.
 
 About
 : walleye-bootimage

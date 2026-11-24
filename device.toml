@@ -272,10 +272,18 @@ ramdisk = "22e73e5fdab27b49434da7c7ecfca36de7d18425737db2388bba1cd01d3ce18f"   #
 path = "images-display-splash/boot-b-s5.img"
 sha256 = "b7c827e9a3f55a7ee6e68752430a19bdad2de3262bc22a5cc0379cd3df80df58"
 
+[images.b-s5.recipe]
+control = "b-d5"
+dtb = "13c63135fccb2ac527f5202fccfbc7615259f67c71e815080b2480b1727f6ab2"      # the splash dtb (memory@9d400000 no-map, simple-framebuffer); kernel, ramdisk, header and cmdline are b-d5s
+
 # The reset image B-r5 (item walleye-display-reset-image): B-d5 plus resets = <&mmcc MDSS_BCR> on mdss (build/build-display-reset-image.sh). Run with delays = "5" and image_prefix = "b-r".
 [images.b-r5]
 path = "images-display-reset/boot-b-r5.img"
 sha256 = "6dc0239e93b4f4b3a01aa1fd3c308aa5208d16f9545b900bfcc38f1ea70904d8"
+
+[images.b-r5.recipe]
+control = "b-d5"
+dtb = "95f3a8a05e7ced21e9cf86758143a83bb8e4b7c5f0fa6bb6c2385ce8adf30778"      # the dtb with resets = <&mmcc MDSS_BCR> on mdss; kernel, ramdisk, header and cmdline are b-d5s
 
 # The registers image B-q5 (item walleye-display-scanout-registers): B-d5 whose init also reads the DPU, interface, pingpong and DSI registers with devmem (read only) at 4, 10 and 30 s and says them to the kernel log
 # (build/build-display-regs-image.sh; kernel, dtb, command line, header words, size and the 5 s delay are B-d5's). Run: delays = "5" and image_prefix = "b-q" (set both, run, put them back); the run waits for
@@ -283,6 +291,10 @@ sha256 = "6dc0239e93b4f4b3a01aa1fd3c308aa5208d16f9545b900bfcc38f1ea70904d8"
 [images.b-q5]
 path = "images-display-regs/boot-b-q5.img"
 sha256 = "86d0813a1ae47ab0d33803d4c4d5a1e24df0988aae760d83e0605b584e80596d"
+
+[images.b-q5.recipe]
+control = "b-d5"
+ramdisk = "2e3cf0cf5767c2ae912708e2bb0c18b0f70198dff45b68d5998777d84d6e2541"   # b-d5s init plus the devmem register reads; kernel, dtb, header and cmdline are b-d5s
 
 # The Alpine-in-RAM image B-a5 (item walleye-display-alpine-ramroot-image; rebuilt by item walleye-display-alpine-getty-on-the-glass with the getty on tty1, then the prompt last and the console quiet: [images.alpine-rootfs-v5]): B-r5's kernel, dtb (mdss reset), command line, header words, size and 13 display modules as they are; its ramdisk adds the userland of
 # [images.alpine-rootfs-v3] (v2 with the glass getty on tty1 instead of tty0, read out of it by tools/walleye-ramroot) as /userland.tar, which build/initramfs-ramroot/init unpacks into a tmpfs after the modules load at 5 s, then switch_root to

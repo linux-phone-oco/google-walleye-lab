@@ -7893,3 +7893,25 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-24/
+
+
+<a id="walleye-image-recipes-b-sqr-rebuilt-equal"></a>
+### walleye-image-recipes-b-sqr-rebuilt-equal
+
+Date
+: 2026-11-24
+
+Brief
+: Recipes for b-s5, b-r5 (control b-d5 plus a dtb) and b-q5 (control b-d5 plus a ramdisk) rebuild their declared sha256
+
+Question
+: Do recipes for the splash, reset and registers images rebuild their declared sha256?
+
+Found
+: Measured 2026-11-24 with lpoco-bringup 0.51.0, image ensure NAME --rebuild: all three equal (ensure-bsrq.txt); image-recipe.sh passes for each. b-s5 and b-r5 differ from b-d5 only in the appended dtb, b-q5 only in the ramdisk. A recipe giving kernel and dtb both did NOT rebuild equal (b3957dc0, 85cf14c5): the unpacked kernel file already holds its appended dtb, so the dtb part alone is the recipe.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-24/
