@@ -8167,3 +8167,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-24-the-rw-image-is-its-recipe-s-07df9842-header"></a>
+### The rw image is its recipe's: 07df9842, header without walleye.booted-slot
+
+Entry date
+: 2026-11-24
+
+Done
+: Run 4 stopped because 2477...b54f carried walleye.booted-slot in its header, which the recipe lacks. The build script now takes the recipe's cmdline; image ensure built 07df9842b0bdd4fe22b1277fff99ca340742ca7ada3d76c260ea6a5a8cc9dd8a from the recipe, equal twice; the host check of the file's header and check 2 refuse a header unequal to the recipe's, each seen failing on 2477 first. Nothing on the phone.
+
+Considered
+: compare only the sha256 (what check 2 did); build the image by the script and declare its output (what let 2477 through)
+
+Rejected
+: declaring the build script's output: the recipe must be what makes the image, so ensure builds it and Nix refuses any other bytes
+
+About
+: walleye-bootimage

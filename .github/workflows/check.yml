@@ -56,6 +56,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: the check passes a declared recipe the program finds or would build, fails a missing recipe table, a refusal or an unknown line, and skips without the program (stand-ins, no store, no phone)
         run: sh tests/host/image-recipe-selftest.sh
+      - name: the header check passes a header equal to the recipe and fails a word more or less, also in the additional field (stand-ins, no store)
+        run: sh tests/host/image-header-equals-recipe-selftest.sh
   checks-have-sources:
     name: every host script names its source
     runs-on: ubuntu-latest

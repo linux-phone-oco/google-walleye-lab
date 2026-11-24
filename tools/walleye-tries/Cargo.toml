@@ -10,9 +10,6 @@ publish = false
 [lib]
 name = "walleye_tries"
 
-[dev-dependencies]
-toml = "0.8"
-
 [dependencies]
 # Ctrl-C and a hang-up reach the watching parent, which then runs the way back
 ctrlc = { version = "3", features = ["termination"] }
@@ -20,3 +17,5 @@ ctrlc = { version = "3", features = ["termination"] }
 lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.45.4" }
 # the procedure's own choice (the pin) is declared once, as the runner's options are
 argenv-resolve = "0.4"
+# the recipe of an image is read from the manifest
+toml = "0.8"

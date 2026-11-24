@@ -360,11 +360,11 @@ sha256 = "b74af863e4b49e2b3ff6e656c2f9ba3b92033b1e0f74063c3c2d47b81c83d570"
 # only with the word walleye.rw, which this image's command line carries: then, after every guard of the production init, the root is mounted ext4 rw,nodiscard straight onto /newroot (no overlay, no mkfs, no fsck, no discard, no remount;
 # the empty directory /.walleye on the card is its mount point, /run and /.walleye are tmpfs). Kernel Image.gz, dtb, header and AVB footer are the production image's byte for byte (the kernel_tag is the same). Built twice with this one sha256 by
 # build/build-ufs-root-rw-write.sh (checks: tests/host/ufs-root-rw-init.sh, QEMU) and rebuilt from the recipe below by `lpoco bringup image ensure` (tests/host/image-recipe.sh). The recipe: the ramdisk is the file build-ufs-root-rw-write.sh makes
-# (sha256 below), the cmdline the production image's plus walleye.rw. The hold script of this image syncs before it resets the phone (a rw root must not lose its writes to the hold's hard reset). NOT to boot or flash except by the rw-write procedure (item walleye-rw-write-plumbing) under the coordinator's go that names THIS sha256; tests/host/ufs-off-image.sh refuses it by design. Never booted.
+# (sha256 below), the cmdline the recipe's own (the production image's WITHOUT walleye.booted-slot, plus walleye.rw: the init refuses the word with a root that is not the booted slot's); the header of the file is checked equal to it by tests/host/image-header-equals-recipe.sh and by check 2. The hold script of this image syncs before it resets the phone (a rw root must not lose its writes to the hold's hard reset). NOT to boot or flash except by the rw-write procedure (item walleye-rw-write-plumbing) under the coordinator's go that names THIS sha256; tests/host/ufs-off-image.sh refuses it by design. Never booted.
 [images.ufs-root-booted-slot-production-rw]
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-production-rw/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-rw.img"
 kernel_tag = "int/walleye/ufs-on/v7.3/1"
-sha256 = "2477276882987c8e1330f56b91cb07bac2afdcbe97e7b03e72b127f2bb69b54f"
+sha256 = "07df9842b0bdd4fe22b1277fff99ca340742ca7ada3d76c260ea6a5a8cc9dd8a"
 
 [images.ufs-root-booted-slot-production-rw.recipe]
 control = "ufs-root-booted-slot-production"

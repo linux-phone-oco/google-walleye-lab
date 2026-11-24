@@ -54,6 +54,37 @@ pub fn expect(mib: u64, luns: u64) -> String {
     format!("One command, about 10 minutes: the phone boots our UFS-on image once, from memory, with its root, the Alpine system partition of the slot Android is NOT on, mounted READ-WRITE (no overlay). The lab logs in over usb-network by ssh, writes ONE file of {mib} MiB of zeros into that root ({TEST_FILE}), syncs, reads it back, checks the filesystem without repairing it and reads the kernel log. The partition tables of the card's {luns} disks and the boot chain are hashed before and after and must be equal; the root partition must have changed. The glass stays dark. The phone returns to Android by itself; if it is not on Android after 4 minutes, hold the power button about 15 seconds.")
 }
 
+/// The command line the manifest's recipe gives the image `image` (`[images.NAME.recipe].cmdline`).
+pub fn recipe_cmdline(manifest: &str, image: &str) -> Result<String, String> {
+    let m: toml::Value = toml::from_str(manifest).map_err(|e| format!("device.toml: {e}"))?;
+    let img = m
+        .get("images")
+        .and_then(|i| i.get(image))
+        .ok_or_else(|| format!("device.toml has no image {image}"))?;
+    img.get("recipe")
+        .and_then(|r| r.get("cmdline"))
+        .and_then(|c| c.as_str())
+        .map(str::to_string)
+        .ok_or_else(|| format!("[images.{image}] has no recipe with a cmdline"))
+}
+
+/// The image is built from its recipe and nothing else: the command line in the header of the file to boot is the recipe's, word for word.
+pub fn header_equals_recipe(header: &str, recipe: &str) -> Result<(), String> {
+    let (h, r): (Vec<&str>, Vec<&str>) = (
+        header.split_whitespace().collect(),
+        recipe.split_whitespace().collect(),
+    );
+    if h == r {
+        return Ok(());
+    }
+    let extra: Vec<&&str> = h.iter().filter(|w| !r.contains(w)).collect();
+    let missing: Vec<&&str> = r.iter().filter(|w| !h.contains(w)).collect();
+    Err(format!(
+        "the image's header command line is not its recipe's: words the recipe lacks {extra:?}, words the header lacks {missing:?}{}",
+        if extra.is_empty() && missing.is_empty() { " (same words, other order or count)" } else { "" }
+    ))
+}
+
 /// The gate on the image: its command line (the `cmdline` of `lpoco-bringup image info`, or the header) carries the word exactly once and
 /// names exactly one root, `system_a` or `system_b`. Returns the root. An image without the word is the read-only image: refused here.
 pub fn cmdline_carries_the_word(cmdline: &str) -> Result<String, String> {
@@ -537,6 +568,59 @@ impl RootfsBoot {
 
 #[cfg(test)]
 mod tests {
+    /// The text `unpack_bootimg` printed for the image of the run 4 stop, 2477276882987c8e...b54f (kept in fixtures/, 2026-11-24).
+    const IMAGE_2477_INFO: &str = include_str!("../fixtures/rw-image-2477-unpack-info.txt");
+    fn info_cmdline(info: &str) -> &str {
+        info.lines()
+            .find_map(|l| l.strip_prefix("command line args: "))
+            .unwrap()
+    }
+    fn manifest() -> String {
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../device.toml")).unwrap()
+    }
+    /// Item walleye-rw-image-header-equals-recipe: run 4 booted 2477...b54f, whose header kept walleye.booted-slot, which its recipe lacks;
+    /// check 2 read the sha256 but not the header. Fails on 2477...b54f.
+    #[test]
+    fn the_header_of_2477_is_not_its_recipes_command_line() {
+        let recipe = recipe_cmdline(&manifest(), "ufs-root-booted-slot-production-rw").unwrap();
+        assert!(!recipe.is_empty());
+        let e = header_equals_recipe(info_cmdline(IMAGE_2477_INFO), &recipe).unwrap_err();
+        assert!(e.contains("walleye.booted-slot"), "{e}");
+    }
+    /// The manifest no longer declares 2477 (the proof on the declared image's own header is tests/host/image-header-equals-recipe.sh).
+    #[test]
+    fn the_manifest_does_not_declare_the_image_whose_header_kept_the_word() {
+        let v: toml::Value = toml::from_str(&manifest()).unwrap();
+        let sha = v["images"]["ufs-root-booted-slot-production-rw"]["sha256"]
+            .as_str()
+            .unwrap();
+        assert!(!sha.starts_with("2477276882987c8e"), "{sha}");
+    }
+    #[test]
+    fn a_header_that_differs_from_the_recipe_by_a_word_is_refused() {
+        let r = "a b walleye.rw";
+        assert!(header_equals_recipe("a b walleye.rw", r).is_ok());
+        assert!(header_equals_recipe("a b walleye.rw  ", r).is_ok());
+        let more = header_equals_recipe("a b x walleye.rw", r).unwrap_err();
+        assert!(
+            more.contains("the recipe lacks [\"x\"], words the header lacks []"),
+            "{more}"
+        );
+        let less = header_equals_recipe("a walleye.rw", r).unwrap_err();
+        assert!(
+            less.contains("the recipe lacks [], words the header lacks [\"b\"]"),
+            "{less}"
+        );
+        assert!(header_equals_recipe("b a walleye.rw", r).is_err());
+        assert!(header_equals_recipe("", r).is_err());
+    }
+    #[test]
+    fn the_recipe_command_line_is_read_from_the_manifest() {
+        let m = "[images.x.recipe]\ncmdline = \"a b\"\n[images.y]\npath = \"p\"\n";
+        assert_eq!(recipe_cmdline(m, "x").unwrap(), "a b");
+        assert!(recipe_cmdline(m, "y").unwrap_err().contains("no recipe"));
+        assert!(recipe_cmdline(m, "z").unwrap_err().contains("no image z"));
+    }
     use super::*;
     use crate::rootfs_boot::sections;
 
