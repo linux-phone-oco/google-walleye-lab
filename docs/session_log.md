@@ -7945,3 +7945,24 @@ Rejected
 
 About
 : walleye-checks-name-their-sources
+
+---
+
+
+<a id="2026-11-24-walleye-the-rw-write-leaves-the-bootloader"></a>
+### walleye: the rw write leaves the bootloader itself and ends its root clean
+
+Entry date
+: 2026-11-24
+
+Done
+: Cause read from the code and run 2's kept text (bootloader-way-back.txt: bootloader reached, fastboot reboot follows): the watched child's way back step returns at once (the parent runs it after the child ends), so after step 24 nothing sent fastboot reboot and check 26 waited its 240 s in the bootloader; the parent's leg 1 then brought Android. the_phone_is_sent_back now sends fastboot reboot (Lab::fastboot_reboot, shared with the way back's leg 1) when the bootloader is reached; test seen failing first. The clean end of research walleye-rw-fsck-counts-stale-superblock: settle_rw runs SETTLE_COMMAND (lists the files the boot wrote, sync, remount ro, reads the root's mount line back), keeps settled.txt and says the remount rc and ro or not; a part that did not print is not known yet.
+
+Considered
+: a second sent step in the procedure (renumbers the 30 steps); making the child's way back step do the leg
+
+Rejected
+: changing the procedure's step list: the fix is where the bootloader is reached, one place for every procedure using the_phone_is_sent_back
+
+About
+: walleye-bootimage

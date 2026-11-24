@@ -12187,10 +12187,10 @@ Rank
 ### rw-write procedure: after step 24 (to the bootloader, fastboot reboot) Android was not back within 240 s at check 26; the way back's leg 1 fastboot reboot brought it
 
 Status
-: open
+: in-progress
 
 Note
-: Run 2 (PR 1019, folder ~/lab-material/walleye/rw-write-20261124-150514). Read the run log: did the phone sit in the bootloader (a second fastboot reboot needed, like the reboot-reason item walleye-fastboot-reboot-twice-timed-try) or boot slowly? Fix the step from what the log shows, tested on its text; then the procedure's proof (all 30 steps) can pass. Also (research walleye-rw-fsck-counts-stale-superblock): the rw boot must end with the root unmounted or remounted read-only before the reboot, and a step reads which files the boot itself wrote.
+: Run 2 (PR 1019, ~/lab-material/walleye/rw-write-20261124-150514). CAUSE: the watched child's way back step returns at once, so after step 24 reached the bootloader nothing sent fastboot reboot and check 26 waited 240 s. FIXED (walleye-builder, 2026-11-24): the_phone_is_sent_back sends fastboot reboot once the bootloader is reached; unit test seen failing first. CLEAN END (research walleye-rw-fsck-counts-stale-superblock): settle_rw lists the files the boot wrote, syncs, remounts ro and reads the root's mount line back, kept in settled.txt. NOT KNOWN YET: that busybox find takes -newer /proc/1, that the remount succeeds with the boot's open files. NEXT: run 3 of the rw write, then e2fsck -fn from Android must print no 'wrong' line; read settled.txt for which files the boot wrote.
 
 About
 : walleye-bootimage
@@ -12199,10 +12199,10 @@ Opened
 : 2026-11-24
 
 Needs
-: build
+: phone
 
 Proof
-: a unit test on run 2's captured step 24-26 text; after the next rw boot e2fsck -fn from Android prints no 'wrong' line
+: rw write run 3: all 30 steps pass and e2fsck -fn from Android prints no 'wrong' line
 
 Rank
 : 2

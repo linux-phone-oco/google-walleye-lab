@@ -551,6 +551,10 @@ impl<'a> AfterStop<'a> {
 
 /// The two ways the lab sends the phone away from this image: busybox's forced reboot, then the sysrq trigger.
 pub const REBOOT_COMMANDS: [&str; 2] = ["reboot -f", "echo b > /proc/sysrq-trigger"];
+/// The rw write's clean end over ssh (research walleye-rw-fsck-counts-stale-superblock: the root has no journal, so its free-count totals reach the
+/// superblock only when it is unmounted or remounted read-only): the files the boot itself wrote are listed first (newer than pid 1's
+/// proc entry; NOT KNOWN YET that busybox's find takes it), then `sync`, `remount,ro`, and the root's mount line read back so the end is said, not assumed.
+pub const SETTLE_COMMAND: &str = "echo ---written; find / -xdev -type f -newer /proc/1 2>&1 | head -n 200; echo ---remount; sync; mount -o remount,ro / 2>&1; echo rc=$?; echo ---mount; grep ' / ' /proc/mounts";
 
 fn section<'a>(parts: &'a [(String, String)], name: &str) -> Result<&'a str, String> {
     parts
@@ -1126,11 +1130,14 @@ impl RootfsBoot {
         if !self.rw || self.rehearsal {
             return;
         }
-        match self.ssh("sync; mount -o remount,ro / 2>&1; echo rc=$?", 60) {
-            Ok(said) => println!(
-                "  the root is settled before the phone is sent away: {}",
-                said.trim().replace('\n', " | ")
-            ),
+        match self.ssh(SETTLE_COMMAND, 60) {
+            Ok(said) => {
+                let _ = self.lab.save("settled.txt", &said);
+                println!(
+                    "  the root is settled before the phone is sent away: {}",
+                    settled_said(&said)
+                );
+            }
             Err(e) => {
                 println!("NOT KNOWN YET: the root could not be settled (sync, remount ro): {e}")
             }
@@ -1143,7 +1150,11 @@ impl RootfsBoot {
         let u = self.clone();
         move || {
             u.settle_rw();
-            if !u.the_bootloader_is_tried() {
+            if u.the_bootloader_is_tried() {
+                // the watched child's own way back step sends nothing (the parent runs it after the child ends), so the
+                // bootloader is left here: run 2 waited its whole Android wait in fastboot at the check after it
+                u.lab.fastboot_reboot();
+            } else {
                 // the phone hangs up as it goes down: the end of the answer is not read
                 let _ = u.ssh(REBOOT_COMMANDS[0], 10);
             }
@@ -1386,6 +1397,38 @@ impl RootfsBoot {
             u.the_post_run_is_measured() // a stop before the run's own measures leaves the state known, not unknown
         }
     }
+}
+
+/// What [`SETTLE_COMMAND`] answered, in a line: how many files the boot wrote, the remount's rc and whether the root's mount line says `ro`.
+/// A part that did not print is said as not known yet.
+pub fn settled_said(text: &str) -> String {
+    let part = |from: &str, to: &str| -> Option<&str> {
+        let a = text.find(from)? + from.len();
+        let rest = &text[a..];
+        Some(rest.find(to).map_or(rest, |b| &rest[..b]))
+    };
+    let written =
+        part("---written", "---remount").map_or("files written: not known yet".to_string(), |w| {
+            format!(
+                "files written by the boot: {}",
+                w.lines().filter(|l| l.starts_with('/')).count()
+            )
+        });
+    let rc = part("---remount", "---mount")
+        .and_then(|r| r.lines().rev().find_map(|l| l.trim().strip_prefix("rc=")))
+        .map_or("remount rc: not known yet".to_string(), |c| {
+            format!("remount rc={c}")
+        });
+    let ro =
+        part("---mount", "\u{0}").map_or("the root's mount line: not known yet".to_string(), |m| {
+            let opts = m.split_whitespace().nth(3).unwrap_or("");
+            if opts.split(',').any(|o| o == "ro") {
+                "the root is mounted ro".into()
+            } else {
+                format!("the root is NOT ro ({opts:?})")
+            }
+        });
+    format!("{written}; {rc}; {ro}")
 }
 
 #[cfg(test)]
@@ -2676,6 +2719,17 @@ mod bootloader_way_back {
         for word in ["set_active", "flash", "erase", "oem"] {
             assert!(!fb.contains(word), "{word}: {fb}");
         }
+        // run 2 (2026-11-24, ~/lab-material/walleye/rw-write-20261124-150514/bootloader-way-back.txt): the bootloader was reached and the watched child sent nothing more, so Android was not back at the next check; the child now leaves the bootloader itself
+        assert!(
+            fb.lines().any(|l| l.ends_with(" reboot")),
+            "no fastboot reboot after the bootloader was reached: {fb}"
+        );
+    }
+
+    #[test]
+    fn a_settle_that_printed_nothing_is_said_as_not_known_yet() {
+        let said = settled_said("");
+        assert_eq!(said.matches("not known yet").count(), 3, "{said}");
     }
 
     #[test]
