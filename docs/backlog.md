@@ -12087,10 +12087,10 @@ Rank
 ### The rw-write image again without walleye.booted-slot (it boots from memory with the other slot's root), and check 2 refusing any rw image that carries the word
 
 Status
-: open
+: done
 
 Note
-: From research walleye-rw-run-1-refused-by-booted-slot. Recipe cmdline: the production line minus walleye.booted-slot, plus walleye.rw (the stage 1 guard, root not the running slot, then applies). New sha256 in [images.ufs-root-booted-slot-production-rw] (rename if the name now misleads); cmdline_carries_the_word (check 2) refuses walleye.booted-slot. Nothing on the phone.
+: DONE (walleye-builder, 2026-11-24): recipe cmdline without walleye.booted-slot; new image sha256 1bfb3667305df216049d7913777503fcc363ac2affba5f1708fa7953ec1b7bcf (was cb79c975), rebuilt by lpoco-bringup image ensure (store h6d3g53lpqbiqw1nfkwh6s2q8mv4ky0b), image info shows the line; the Rust test the_rw_image_command_line_passes_the_inits_slot_guard_when_booted_from_memory un-ignored and passing; ufs-root-rw-init.sh gained R1 on the declared line (fails with walleye.booted-slot put back, passes without). Image name kept (renaming touches every procedure). The go item walleye-rw-write-run must name the new sha256.
 
 About
 : walleye-bootimage

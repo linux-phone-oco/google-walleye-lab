@@ -7846,3 +7846,24 @@ Rejected
 
 About
 : walleye-checks-name-their-sources
+
+---
+
+
+<a id="2026-11-24-walleye-rw-image-without-walleye-booted-slot"></a>
+### walleye: rw image without walleye.booted-slot
+
+Entry date
+: 2026-11-24
+
+Done
+: Removed walleye.booted-slot from the rw image recipe, rebuilt it (sha256 1bfb3667...7bcf), un-ignored the guard test, added the declared-line case R1 to ufs-root-rw-init.sh seen failing on the old line.
+
+Considered
+: renaming the image (ufs-root-booted-slot-production-rw misleads now)
+
+Rejected
+: rename: every procedure, go item and record names it; the sha256 is what the go names
+
+About
+: walleye-rw-image-without-booted-slot
