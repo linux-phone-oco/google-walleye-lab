@@ -9988,6 +9988,13 @@ if the boot passes but step 20 writes no fixture or one without provenance then 
 if no gadget comes up then how far the init got is not known (pstore not a proven console): stop, no second try
 if after the way back any partition table, the boot chain or the root partition differs then something wrote: stop the lane and tell the author
 if Android does not come back on slot b then the way back failed: stop, the author's hands
+go until 2026-11-25T07:00:00+01:00, outcomes: Capture run (corrected 2026-11-25 by the walleye coordinator: the earlier go named b74af863, which is not this procedure's image; the gate refused it, nothing booted, PR 1075). Image: [images.ufs-root] sha256 c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9 (full; the stage 2 read-only image, root read only under a tmpfs overlay). The run of procedures/rootfs-boots-on-the-pixel-2.rs through bin/attended after its rehearsal passes, for item walleye-kernel-text-capture-run; this go ends with that one run, closed in the same landing as the record. Booted from memory, nothing flashed or written; standing per-stage go of the author (stage 2).
+if the rehearsal or the image step stops then nothing was booted: a host, procedure or image fault, read before any retry
+if all steps pass and step 20 writes each fixture with its provenance line then it proves the capture: the selftests can run on our kernel's printed text
+if the boot passes but step 20 writes no fixture or one without provenance then the capture step failed on the phone: research, no second boot
+if no gadget comes up then how far the init got is not known (pstore not a proven console): stop, no second try
+if after the way back any partition table, the boot chain or the root partition differs then something wrote: stop the lane and tell the author
+if Android does not come back on slot b then the way back failed: stop, the author's hands
 
 About
 : walleye-display-s6e3fa5
