@@ -8280,3 +8280,28 @@ About
 
 Material
 : research/walleye-slpi-image-kernel-pas/2026-11-25/
+
+
+<a id="walleye-slpi-qrtr-lookup-in-ramdisk"></a>
+### walleye-slpi-qrtr-lookup-in-ramdisk
+
+Date
+: 2026-11-25
+
+Brief
+: qrtr-lookup is in the SLPI ramdisk: static aarch64 from the pinned qrtr source, built twice equal; ramdisk 59d0cb60, image slpi b9819427 rebuilt equal
+
+Question
+: Can the SLPI image carry qrtr-lookup, so a service list can be read, without a new download, a new tag or a system Rust target?
+
+Found
+: Yes. rootfs/pins pins qrtr 29e36ae1 (archive sha256 66f846c4, already in the rootfs build's download cache); the host's aarch64-linux-gnu-gcc builds src/lookup.c + lib/{logging,qmi,qrtr}.c static, stripped, with -ffile-prefix-map: twice 409c81c5...ea15 (ELF aarch64, statically linked); tests/host/qrtr-lookup.sh rebuilds it from the pinned archive and fails on a wrong declared sha256 (seen failing before build/initramfs-slpi/qrtr-lookup.sha256 existed). The spec's control (no qrtr line) still gives the old ramdisk 348dbd45; with the line the ramdisk is 59d0cb60 (twice equal) and cpio lists bin/qrtr-lookup. [images.slpi] recipe ramdisk and sha256 moved: image b98194279d75...74365b2, ensure --rebuild twice equal, ufs-off-image pass, image check 12 ok, image-recipe pass; the old image 7c7dff61 is replaced in ~/Projects/walleye-build/images-slpi (SHA256SUMS-slpi). The kernel has QRTR and QRTR_SMD =y, so no module is needed. NOT KNOWN YET: that qrtr-lookup lists services on the phone: that is the procedure's read, not run. The procedure itself (and its rehearse pair) is NOT built in this part.
+
+Sources
+: file:rootfs/pins
+
+About
+: sensors
+
+Material
+: research/walleye-slpi-qrtr-lookup/2026-11-25/

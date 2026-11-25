@@ -176,16 +176,17 @@ dtb = "f9f2ca5d511f3a5cacc40fb7385bc1e84d96c396f634c065da9847c4ce708260"
 # (PAS driver, sysmon, glink-smem =y), the dtb built from dt/ on that tag's tree plus the fuel gauge RFC commits' dtsi (build-kernel.sh's way; slpi_mem 15 MiB at the running base, remoteproc_slpi okay;
 # tests/host/dtb-slpi-carveout.sh passes) and the ramdisk of build/initramfs-slpi (z21's init and busybox, the SLPI firmware slpi_v2.mdt and .b00-.b14 under /lib/firmware/qcom/msm8998/google/walleye).
 # The firmware is the phone's own, read from vendor_a (research walleye-slpi-carveout-read) and kept outside git; the ramdisk part enters the store from the seed. Header, size and AVB footer are z21's.
+# Since item walleye-slpi-boot-procedure the ramdisk also holds /bin/qrtr-lookup (static aarch64, tests/host/qrtr-lookup.sh), so a service list can be read.
 [images.slpi]
 path = "images-slpi/boot-slpi.img"
 kernel_tag = "int/walleye/ufs-off/v7.3/1"
-sha256 = "7c7dff6158fe86155f7179f2435ec0b070ef98eb280e338d29fb8cfee887c6bd"
+sha256 = "b98194279d75f0fd98aeb419d307838693843f8a0abfcf8479930316c74365b2"
 
 [images.slpi.recipe]
 control = "z21"
 kernel = "cc051a6e30369c0867245af7a1811e0059ebf6832ee2a2c1cba0bb8f823c16b7"
 dtb = "782de8ee84dd18bfb45b51054c3aa6f277ee29df9d78fe7761628e6d5adb851f"
-ramdisk = "348dbd45eb2cdfe924f3979bdcacca4b7d7144de45e2696597cb88c338276f3b"
+ramdisk = "59d0cb601bab4ffa4b97ffb038e4e10408085dcdb1e4fce920253ae964ecc32c"
 cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3"
 
 # z20: z21's control (UFS ON, NOT TO BOOT: tests/host/ufs-off-image.sh refuses it by design); no [kernels] list and no procedure names it.

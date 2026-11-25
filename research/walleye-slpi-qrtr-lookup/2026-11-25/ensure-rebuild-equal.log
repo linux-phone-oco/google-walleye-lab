@@ -1,0 +1,15 @@
+$ lpoco-bringup image ensure slpi --seed SEED --rebuild   (run twice, both equal to the declared sha256; the store path of the first run was not kept; last run shown)
+z20: not proved, it has no recipe (a seed)
+z21 dtb: not proved, it has no recipe (a seed)
+z21 dtb: in the store
+z20: in the store
+z21: rebuilt from its recipe, equal to its declared sha256
+slpi kernel: not proved, it is made by [kernel_builds.walleye-ufs-off-slpi], which --rebuild does not run
+slpi dtb: not proved, it has no recipe (a seed)
+slpi ramdisk: not proved, it has no recipe (a seed)
+slpi kernel: in the store
+slpi dtb: in the store
+slpi ramdisk: in the store
+z21: in the store
+slpi: rebuilt from its recipe, equal to its declared sha256
+/nix/store/schjhdm8hknwd542irmp868pyrc52a8y-boot-slpi.img

@@ -9001,3 +9001,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-walleye-builder-slpi-qrtr-lookup"></a>
+### SLPI ramdisk: qrtr-lookup, image rebuilt
+
+Entry date
+: 2026-11-25
+
+Done
+: build/initramfs-slpi/spec lists /bin/qrtr-lookup (static aarch64 from the pinned qrtr, qrtr-lookup.sha256, tests/host/qrtr-lookup.sh seen failing first); ramdisk 59d0cb60 and image slpi b9819427 rebuilt equal, gates pass; procedure not built (item stays open); no phone
+
+Considered
+: dynamic musl qrtr-lookup from the Alpine build tree (needs libc in the ramdisk); a Rust qrtr client (no musl target, a new program for a ten-line tool); the whole procedure in one run
+
+Rejected
+: the Alpine one: dynamic; a Rust rewrite: a second implementation of the pinned tool; the whole procedure now: its plumbing (settings, module, rehearsal) is a landing of its own, so it is left as the named remainder
+
+About
+: sensors

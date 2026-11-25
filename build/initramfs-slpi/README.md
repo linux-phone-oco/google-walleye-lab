@@ -12,5 +12,7 @@ Build (a folder of your own, `$AGENT_BUILD/slpi-rd`, holds `init`, `udhcpd.conf`
 lpoco-bringup initramfs build --spec spec --root $AGENT_BUILD/slpi-rd --codec xz --out slpi-ramdisk.cpio.xz
 ```
 
-Twice, the same sha256 (348dbd45...f3b). The image is `[images.slpi]` in `device.toml`; `lpoco-bringup image ensure slpi --seed DIR` takes the ramdisk and the dtb from DIR (a folder of those two files).
-Not here yet: the qrtr tools (`qrtr-lookup`): the first try reads `/sys/class/remoteproc/*/state` and the kernel log from the shell.
+Before qrtr-lookup: twice, the same sha256 (348dbd45...f3b). The image is `[images.slpi]` in `device.toml`; `lpoco-bringup image ensure slpi --seed DIR` takes the ramdisk and the dtb from DIR (a folder of those two files).
+Ramdisk with `/bin/qrtr-lookup` (item walleye-slpi-boot-procedure, part 1): the spec's `file /bin/qrtr-lookup qrtr-lookup` is the static aarch64 build of the qrtr tool pinned in `rootfs/pins` (commit 29e36ae1, archive sha256 checked), compiled by the host's `aarch64-linux-gnu-gcc` from `src/lookup.c` and `lib/{logging,qmi,qrtr}.c` (the files `src/meson.build` and `lib/meson.build` name) with `-O2 -static -s -ffile-prefix-map=SRC=.`; built twice equal, sha256 in `qrtr-lookup.sha256`, proof `tests/host/qrtr-lookup.sh` (it rebuilds from the pinned archive). Put it in the build folder as `qrtr-lookup` beside `busybox`: the ramdisk is then 59d0cb60...c32c (twice equal; the spec without the qrtr line gives the old 348dbd45...f3b again), the image `slpi` b9819427...65b2.
+The kernel has QRTR and QRTR_SMD =y (build/walleye.config), so `qrtr-lookup` needs no module. NOT KNOWN YET: that it lists services on the phone (that is the procedure's read).
+Same on this host only: the compiler and static glibc are the host's, not pinned (as rootfs/pins says); `RAMDISK=FILE sh tests/host/qrtr-lookup.sh` also compares the binary inside a ramdisk to the declared sha256.
