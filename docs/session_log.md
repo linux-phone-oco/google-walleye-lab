@@ -8563,3 +8563,21 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-25-0700-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-25
+
+Done
+: Phone on Android slot b, stock kept, adb lists it, nothing flashed or set this run. Took walleye-cmdline-cut-check-slot-a (first ready row) and read it: C1 needs the slot flag set to a, a fastboot boot and a read, with no prepared one-command procedure (rootfs-boots-on-the-pixel-2 does not carry it); typing it by hand is refused by the keeper rule. The next ready item, walleye-phone-text-captures-rest, needs our kernel's qcom-battery text from an fg1 image boot and a root /proc/partitions: no prepared procedure either, Android's /proc/partitions is permission denied.
+
+Considered
+: next: a builder adds a procedure step (or rehearsal+run pair) for C1 and a fg1-image variant of the rootfs-boots capture, then the keeper runs each as one command. Until then the ready queue has no item that is one prepared command.
+
+About
+: walleye-bootimage
