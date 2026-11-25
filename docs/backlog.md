@@ -12668,5 +12668,36 @@ About
 Opened
 : 2026-11-25
 
+Needs
+: build
+
+Proof
+: a host test of send_to_the_bootloader with a shell that stops a tty-reading background job (nc </dev/null, no prompt wait after a '&' line) passes; the next debug-image run passes its way back step 16 without a hand
+
+Rank
+: 2
+
+
+<a id="walleye-cmdline-cut-after-c1"></a>
+### What C1's cut (slot a, RAM boot, 1141 chars, ends at androidboot.pk) leaves to check: C3 (our image with stock header fields, flashed to boot_a) or nothing while root=PARTUUID holds
+
+Status
+: open
+
+Note
+: C1 (research walleye-cmdline-cut-c1-slot-a-cuts, PR 1096) cut even a RAM-booted image on slot a, so the flashed-normal-boot candidate is out and C2 is skipped by the plan. C3 flashes boot_a: not urgent (step 21 passes on root=PARTUUID); the coordinator ranks it after the research.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: research
+
+Proof
+: a research row superseding walleye-cmdline-tail-cut-candidates' plan: the next check named with its outcomes, or the cut recorded as harmless with its reason
+
 Rank
 : 6
