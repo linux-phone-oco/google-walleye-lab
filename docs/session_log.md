@@ -8920,3 +8920,24 @@ Rejected
 
 About
 : sensors
+
+---
+
+
+<a id="2026-11-25-ufs-on-kernel-build-declared"></a>
+### ufs-on kernel build declared
+
+Entry date
+: 2026-11-25
+
+Done
+: device.toml [kernel_builds.walleye-ufs-on], two builds equal, test passes, no phone
+
+Considered
+: reusing the ufs-off config hash
+
+Rejected
+: ufs-off row's 5424de9b: stale against today's walleye.config
+
+About
+: walleye-bootimage

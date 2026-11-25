@@ -8236,3 +8236,25 @@ About
 
 Material
 : research/walleye-slpi-image-kernel-pas/2026-11-25/
+
+
+<a id="walleye-ufs-on-kernel-build-declared"></a>
+### walleye-ufs-on-kernel-build-declared
+
+Date
+: 2026-11-25
+
+Brief
+: device.toml declares [kernel_builds.walleye-ufs-on]; two Nix builds from int/walleye/ufs-on/v7.3/1 equal, f132e0f2...0baa
+
+Question
+: Can lpoco bringup image ensure build the UFS-on kernel (pmic-wdt, fuel-gauge RFC, ufs-match-android) from its tag, twice equal?
+
+Found
+: Declared: tag int/walleye/ufs-on/v7.3/1, rev 5caddde2, epoch 1795421025 (the tag's time), configs walleye.config afcb3fe2, walleye-diag.config 10a6010a, walleye-ufs-root.config dd75a730 (the fragments the retired build-ufs-root-production.sh merged), target Image.gz. Build 1 ended in Nix's hash mismatch giving f132e0f2a857f200e1edd70a70bb123caa79c3275c5a5fa634a33e8d4e530baa; build 2 with it was accepted: equal (logs in material). tests/host/kernel-build.sh walleye-ufs-on passes. NOT the shipped production kernel (that one was built by hand: its bytes are not claimed equal). The ufs-off row in research 2026-11-24 names walleye.config 5424de9b, today's file is afcb3fe2: that row's configs need renewing when it is declared. Next image from this kernel: walleye-next-image-from-an-int-tag.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-25/

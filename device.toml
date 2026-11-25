@@ -126,6 +126,18 @@ rndis = false
 adb = "adb"
 fastboot = "fastboot"
 
+# The kernel of the UFS-on list, built from its int/ tag (item walleye-declares-ufs-on-kernel-build): the tag the production image was built from, rebuilt in Nix's sandbox; NOT byte-equal to the shipped image (built by hand; its config predates 3e5694a, QCOM_PD_MAPPER=y).
+# The fragments are the ones build/build-ufs-root-production.sh merged after walleye.config (retired by walleye-retire-build-scripts): walleye, diag, ufs-root, by sha256.
+# The tag holds the pmic-wdt topic, the fuel-gauge RFC and ufs-match-android (kernel/topics.toml, list ufs-on). The dtbs are recipe parts by sha256 (Image.gz holds none).
+[kernel_builds.walleye-ufs-on]
+tag = "int/walleye/ufs-on/v7.3/1"
+rev = "5caddde2d6f98e13a97b5cf087dbd2a1e3b879b0"          # the commit the tag points at (git ls-remote ...^{})
+epoch = 1795421025                                          # the tagged commit's committer time (git log -1 --format=%ct TAG)
+configs = ["afcb3fe254d2f590076d0aa640e926aa51eef4ec380a6592914321079f7e6611", "10a6010a1373146e7de7c1deb69af75aa8d58a1d8e75feeaf068edb975b575e8", "dd75a73094ebe361c9b9a9ee8705137f1679d7c3be2680e8fd6eec59753a33b7"]   # build/walleye.config, walleye-diag.config, walleye-ufs-root.config
+patches = []
+targets = ["Image.gz"]
+sha256 = "f132e0f2a857f200e1edd70a70bb123caa79c3275c5a5fa634a33e8d4e530baa"
+
 # The kernels the attended procedures' boot_once and back_to_known_good name. Walleye boots only by fastboot boot and nothing is written to it: "kept" names the image the way back returns to, not a kernel stored on the phone.
 [kernels]
 test = ["z21", "wdt1-a", "wdt1-b"]

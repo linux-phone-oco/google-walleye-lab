@@ -11782,10 +11782,10 @@ Rank
 ### Declare the ufs-on kernel build ([kernel_builds] for int/walleye/ufs-on/v7.3/1 with the fuel-gauge and ufs-match topics) and the next image's recipe from a declared kernel
 
 Status
-: open
+: done
 
 Note
-: From walleye-declares-its-kernel-build: the ufs-off kernel reproduces itself; the ufs-on list adds branches (topic/walleye-fuel-gauge-rfc, topic/ufs-match-android) that need a tag pushed to the fork and its rev. The dtbs stay recipe parts by sha256 (Image.gz holds none). Next image from a declared kernel: item walleye-next-image-from-an-int-tag.
+: DONE 2026-11-25: [kernel_builds.walleye-ufs-on] in device.toml, sha256 f132e0f2...0baa, two builds equal, tests/host/kernel-build.sh walleye-ufs-on passes (research walleye-ufs-on-kernel-build-declared).
 
 About
 : walleye-bootimage
