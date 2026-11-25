@@ -12311,7 +12311,7 @@ Status
 : open
 
 Note
-: From the walleye builder 2026-11-24 (walleye-checks-name-their-sources): 21 host scripts still test typed fixtures; the only real captures are the c2, z6, z7 power-supply-facts (no qcom-battery supply), and the fg1 try (capacity 99, 4374 mV) kept no file. Read only, from Android b and, where the text is our kernel's, from the stage 2 read-only image booted from memory (the existing procedure, no flash). Each file names the image sha256, the command and the date. Never write to the phone.
+: 2026-11-25 coordinator: both captures are in (Android b, PR 1071; our kernel's stage 2 text, PR 1078: power-supply-facts-ufs-root and dmesg-ufs-root .cap with SOURCES rows), so what is left is host work: bring those fixtures into the selftests that still run on typed text (needs build). Any fixture still missing is named here for a later keeper capture.
 
 Blocked by
 : walleye-kernel-text-capture-procedure
@@ -12323,7 +12323,7 @@ Opened
 : 2026-11-24
 
 Needs
-: phone
+: build
 
 Proof
 : each listed fixture file present with its provenance line, and the selftests that use them pass on them
