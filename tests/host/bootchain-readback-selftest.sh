@@ -14,19 +14,20 @@ must_pass() { w=$1; shift; out=$("$@" 2>&1); [ $? -eq 0 ] || fail "$w: did not p
   case $out in *"pass walleye-bootchain"*) ;; *) fail "$w: no pass line: $out";; esac; }
 
 # the fake phone's tables: the by-name listing is text the phone printed (tests/fixtures/phone-text/partition-table-android-b-2026-11-25.cap, Android b).
-# /proc/partitions was "Permission denied" there, so its rows are typed: each name's device of 8 KiB (8 blocks), xbl_a and xbl_b 12 KiB - not known yet from a phone (a root read is for the keeper)
+# and so is /proc/partitions: Android b's root read, tests/fixtures/phone-text/proc-partitions-android-b-2026-11-23.cap (bootchain-2026-11-23-gpt-equal-run3);
+# each name's row is the line the phone printed for its device, and its 1 KiB blocks give the image's size - no row is typed.
 FIX=$HERE/../fixtures/phone-text
 mkphone() { # DIR (a directory the fake adb reads)
-  P=$1; mkdir -p "$P"; : > "$P/names"; : > "$P/procparts"; i=1
+  P=$1; mkdir -p "$P"; : > "$P/names"; : > "$P/procparts"; : > "$P/sizes"
   cp "$FIX/partition-table-android-b-2026-11-25.cap" "$P/byname-l"
   for n in $(cat "$LIST"); do
-    b=8; case $n in xbl_a|xbl_b) b=12;; esac
-    echo "$n" >> "$P/names"
     dev=$(sed -n "s#^.* $n -> /dev/block/##p" "$P/byname-l")
     [ -n "$dev" ] || fail "$n is not in the captured by-name listing"
-    echo "   8   $i   $b $dev" >> "$P/procparts"
-    echo "$n $((b * 1024))" >> "$P/sizes"
-    i=$((i + 1))
+    row=$(awk -v d="$dev" '$4 == d' "$FIX/proc-partitions-android-b-2026-11-23.cap")
+    [ -n "$row" ] || fail "$dev is not in the captured /proc/partitions"
+    echo "$n" >> "$P/names"
+    echo "$row" >> "$P/procparts"
+    echo "$n $(( $(echo "$row" | awk '{print $3}') * 1024 ))" >> "$P/sizes"
   done; }
 # a fake complete DIR, made without the reader
 mkdirfake() { # DIR PHONEDIR
@@ -51,8 +52,8 @@ mkdirfake "$T/d1" "$T/phone"; grep -v ' rpm_a.img' "$T/d1/sha256sums" > "$T/s"; 
 mkdirfake "$T/d1" "$T/phone"; chmod 644 "$T/d1/sec.img"; must_fail "file mode 644" sh "$CHECK" "$T/d1"
 mkdirfake "$T/d1" "$T/phone"; chmod 755 "$T/d1"; must_fail "dir mode 755" sh "$CHECK" "$T/d1"
 mkdirfake "$T/d1" "$T/phone"; echo cdt > "$T/d1/missing"; must_fail "a missing file from the reader" sh "$CHECK" "$T/d1"
-mkdirfake "$T/d1" "$T/phone"; must_pass "xbl 12 KiB = 24 sectors of 512" env XBL_SECTORS=24 sh "$CHECK" "$T/d1"
-must_fail "xbl not 8104 sectors" env XBL_SECTORS=8104 sh "$CHECK" "$T/d1"
+mkdirfake "$T/d1" "$T/phone"; must_pass "xbl 4052 KiB = 8104 sectors of 512 (the phone's own /proc/partitions)" env XBL_SECTORS=8104 sh "$CHECK" "$T/d1"
+must_fail "xbl not 24 sectors" env XBL_SECTORS=24 sh "$CHECK" "$T/d1"
 mkdirfake "$T/d2" "$T/phone"; must_pass "second read of the same bytes" sh "$CHECK" "$T/d1" "$T/d2"
 printf 'b' | dd of="$T/d2/cdt.img" bs=1 conv=notrunc 2>/dev/null; (cd "$T/d2" && grep -v ' cdt.img' sha256sums > s && sha256sum cdt.img >> s && cat s > sha256sums && rm s)
 must_fail "second read of other bytes" sh "$CHECK" "$T/d1" "$T/d2"

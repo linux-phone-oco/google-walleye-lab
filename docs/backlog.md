@@ -12704,10 +12704,10 @@ Rank
 ### bootchain-readback-selftest reads its partition sizes from the real Android /proc/partitions fixture, not typed rows
 
 Status
-: open
+: done
 
 Note
-: Split from walleye-phone-text-captures-rest 2026-11-25 by the walleye coordinator; host only, no phone.
+: proven by tests/host/bootchain-readback-selftest.sh passing (9.8 s) with each name's /proc/partitions row and size taken from tests/fixtures/phone-text/proc-partitions-android-b-2026-11-23.cap (SOURCES row of the selftest names the by-name capture; the proc-partitions capture is named in the script); no typed partition row left. The real xbl is 4052 KiB = 8104 sectors, so the XBL_SECTORS cases now pass at 8104 and refuse 24 (the typed 12 KiB stand-in is gone). Built by walleye-builder 2026-11-25.
 
 About
 : walleye-bootimage
