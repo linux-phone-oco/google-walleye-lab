@@ -12233,10 +12233,10 @@ Rank
 ### Walleye's images are proved by image ensure NAME --rebuild on the lab when a change touching their sha256 or recipe lands
 
 Status
-: open
+: done
 
 Note
-: 2026-11-25 coordinator: unblocked. image-rebuild-changed-since is released in lpoco-bringup 0.51.1 (the Top, relaying lab-tools): add the rebuild of every image a change touches to walleye's make land-check, pinned 0.51.1 by release, never the host binary.
+: 2026-11-25 builder: make land-check rebuilds every touched image with the pinned lpoco-bringup 0.51.1 (bin/install-bringup.sh); proof tests/host/land-check-rebuild.sh passes.
 
 About
 : walleye-bootimage
