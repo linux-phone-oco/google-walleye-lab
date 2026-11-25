@@ -12902,3 +12902,28 @@ Proof
 
 Rank
 : 7
+
+
+<a id="walleye-install-steps-from-library"></a>
+### tools/walleye-tries takes read_slot, mount_is_readonly and adb_write_partition from lpoco-attended 0.45.8; its own copies retire
+
+Status
+: open
+
+Note
+: From orchestration 2026-11-25: lab-tools #446, released by #447 as lpoco-attended-v0.45.8. adb_write_partition writes only an allow-listed partition on the other slot and fails on a read-back sha256 mismatch. Host only; no phone run is spent on it - the next install or rw-write keeper run proves it on the phone. Never a bootloader partition, the GPT, erase or purge.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: build
+
+Proof
+: tools/walleye-tries on lpoco-attended-v0.45.8 or later (rhizoid's pin bump, as PR 1118); install.rs and rw_write.rs call the library's read_slot, mount_is_readonly and adb_write_partition and their own copies are gone; the crate tests and lpoco-attended check --host for the install and rw-write procedures pass; the allow-list names only the partitions walleye's recorded decisions write (other slot)
+
+Rank
+: 5
