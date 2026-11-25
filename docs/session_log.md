@@ -8983,3 +8983,21 @@ Rejected
 
 About
 : sensors
+
+---
+
+
+<a id="2026-11-25-1500-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-25
+
+Done
+: Phone on Android slot b, stock, nothing flashed or set; adb up. Took walleye-slpi-boot-qrtr (rank 4, ready): its image is built (sha 7c7dff61...) but NO procedure exists for it (procedures/ has none; tests/health/base/slpi-sensor-service.sh needs qrtr-lookup the ramdisk lacks), so no prepared one-command run to make; I typed no steps by hand. The other ready items (reboot-send-nc, display-late-answers) ride on the next debug/late-probe run; transport-real-phone-run is rank 15, read-mostly, not started.
+
+Considered
+: next: a builder writes procedures/slpi-boot-on-the-pixel-2.rs (gate, fastboot boot of [images.slpi] from memory, read remoteproc state + kernel log, way back to Android b) and a qrtr-lookup in the ramdisk; then the keeper runs it. Meanwhile walleye-transport-real-phone-run is the next runnable item.
+
+About
+: walleye-bootimage
