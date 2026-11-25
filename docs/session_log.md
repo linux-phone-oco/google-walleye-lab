@@ -8962,3 +8962,24 @@ Rejected
 
 About
 : sensors
+
+---
+
+
+<a id="2026-11-25-walleye-builder-slpi-image"></a>
+### SLPI image built
+
+Entry date
+: 2026-11-25
+
+Done
+: device.toml [kernel_builds.walleye-ufs-off-slpi] and [images.slpi] with their recipes, build/initramfs-slpi spec; kernel built twice equal, image rebuilt equal, host proofs 1-5 pass; no phone
+
+Considered
+: a new int tag (assemble refuses: untagged topic commits); modules in the ramdisk (a build of the tag's module tree)
+
+Rejected
+: a new tag: the tag already holds the list and only the config changes; modules: the options =y need none
+
+About
+: sensors

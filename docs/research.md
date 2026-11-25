@@ -8258,3 +8258,25 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-25/
+
+
+<a id="walleye-slpi-image-built"></a>
+### walleye-slpi-image-built
+
+Date
+: 2026-11-25
+
+Brief
+: The SLPI image slpi: kernel with PAS built in (built twice equal), dtb with the running layout, ramdisk with slpi_v2.mdt and b00-b14; five proofs pass on the host
+
+Question
+: Can a UFS-off image carrying the SLPI start be built reproducibly without a new tag and without firmware in git?
+
+Found
+: Yes. The existing tag int/walleye/ufs-off/v7.3/1 already holds the list's one topic at its tip (8b2283da), so no new tag is needed: only walleye.config changed. [kernel_builds.walleye-ufs-off-slpi] (tag 41f3b5fd, configs walleye.config 695954ce) built in Nix twice with cc051a6e30369c0867245af7a1811e0059ebf6832ee2a2c1cba0bb8f823c16b7; the kernel's own IKCFG shows QCOM_Q6V5_PAS, QCOM_SYSMON, RPMSG_QCOM_GLINK_SMEM, QCOM_MDT_LOADER, QRTR, QRTR_SMD, QCOM_PD_MAPPER =y (capture kernel-ikconfig-slpi-options.txt). lpoco bringup kernel assemble ufs-off REFUSES today: six commits of topic/pmic-wdt-wake-in-suspend carry no upstream-item tag, so the live list cannot assemble a NEW tag until the topic's owner tags them (not changed by this builder). dtb 782de8ee... built on a worktree of the tag with dt/ and the fuel gauge RFC commits as build-kernel.sh does: tests/host/dtb-slpi-carveout.sh passes. Ramdisk 348dbd45... (build/initramfs-slpi/README.md), 16 slpi_v2 files, built twice equal. Image slpi 7c7dff61...c6bd: ensure and ensure --rebuild equal, ufs-off-image.sh pass, image check 12 ok, header, size and AVB footer z21's. The ramdisk part enters the Nix store by seed (world-readable on this single-user machine): the phone's firmware is vendor code, not personal data (unlike modem data). Not done: qrtr tools; the dtb itself is a seeded part (its recipe is the commands in this row's material), not a Nix build.
+
+About
+: sensors
+
+Material
+: research/walleye-slpi-image-kernel-pas/2026-11-25/

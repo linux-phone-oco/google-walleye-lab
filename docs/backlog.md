@@ -6525,10 +6525,10 @@ Status
 : open
 
 Note
-: Research done (walleye-slpi-carveout-answer, decision 2026-11-23-walleye-slpi-carveout-running-layout): dts steps are in the decision (a build step), then the keeper's try: enable remoteproc_slpi with the firmware files and read /sys/class/remoteproc and qrtr-lookup.
+: IMAGE READY 2026-11-25 (walleye-builder): [images.slpi] sha256 7c7dff6158fe86155f7179f2435ec0b070ef98eb280e338d29fb8cfee887c6bd at ~/Projects/walleye-build/images-slpi/boot-slpi.img (UFS off, gates pass). One RAM boot by fastboot boot through the procedure; read /sys/class/remoteproc/*/state, the kernel log for remoteproc_slpi and qrtr; the SLPI carve-out reg 0x5800000 is NOT KNOWN YET (smallest try in the dts). The ramdisk has no qrtr-lookup yet: a service list needs it (left).
 
 Blocked by
-: walleye-slpi-carveout-dts,walleye-ufs-readonly
+: walleye-ufs-readonly
 
 About
 : sensors
@@ -9927,10 +9927,10 @@ Proof
 ### The SLPI carve-out in our dts and an image that boots remoteproc_slpi with the phone's own firmware, UFS off: the layout of decision 2026-11-23-walleye-slpi-carveout-running-layout, tested offline, then the keeper's try
 
 Status
-: in-progress
+: done
 
 Note
-: Landed: the dts (running layout; ipa/gpu/wlan nodes dropped, 0x95b00000 ipa_gpu_mem added, remoteproc_slpi okay with slpi_v2.mdt; reg 0x5800000 kept, NOT KNOWN YET, smallest try written in the dts) and tests/host/dtb-slpi-carveout.sh with its selftest, against the phone's own fdt text. The UFS-off image (proof 4) is split to walleye-slpi-image-kernel-pas: the shipped kernels have the PAS driver as a module.
+: DONE 2026-11-25: the dts (stage 1) and the UFS-off image slpi (stage 2, item walleye-slpi-image-kernel-pas) are built and pass their host tests; the keeper's try is walleye-slpi-boot-qrtr.
 
 Blocked by
 : walleye-slpi-image-kernel-pas
@@ -12810,10 +12810,10 @@ Rank
 ### A UFS-off image that starts remoteproc_slpi: the kernel with the PAS driver built in, the phone's own SLPI firmware in its ramdisk
 
 Status
-: in-progress
+: done
 
 Note
-: Stage 2 of walleye-slpi-carveout-dts. DONE 2026-11-25 (proof 1, host part): build/walleye.config sets QCOM_Q6V5_PAS, QCOM_SYSMON, RPMSG_QCOM_GLINK_SMEM =y; tests/host/kernel-slpi-pas.sh fails before and passes after on defconfig+fragment of linux-v7.3 (reads back QCOM_MDT_LOADER =y too; selftest 5 edits fail). Source tests/fixtures/kernel-text/slpi-pas-Kconfig.txt (v7.3: the PAS driver caps SYSMON and GLINK_SMEM, so they are =y with it). CORRECTION to the research: QCOM_PDR_HELPERS is selected only by QCOM_PMIC_GLINK and QCOM_APR and used by nothing under drivers/remoteproc, so the SLPI start does not need it. LEFT: a new int tag (lpoco bringup kernel assemble ufs-off, a config of the tag's .config showing the options =y), the dtb from dt/ on that tree, the image (ramdisk with slpi_v2.mdt and .b00-.b14 from ~/lab-material/walleye vendor_a at build, mode 600/700, never git, plus qrtr tools; [images.*.recipe] in device.toml; built twice equal; ufs-off-image.sh pass). Then the keeper's try walleye-slpi-boot-qrtr.
+: DONE 2026-11-25 (walleye-builder): all five proofs pass on the host. (1) kernel built twice equal from int/walleye/ufs-off/v7.3/1 ([kernel_builds.walleye-ufs-off-slpi], cc051a6e...), its IKCFG shows the options =y; no new tag needed (the tag holds the list; lpoco bringup kernel assemble would refuse today: six untagged commits of topic/pmic-wdt-wake-in-suspend). (2) dtb-slpi-carveout.sh passes on the dtb 782de8ee. (3) ufs-off-image.sh passes on [images.slpi] 7c7dff61...c6bd. (4) ensure and ensure --rebuild equal. (5) the ramdisk lists slpi_v2.mdt and b00-b14, firmware outside git (build/initramfs-slpi). Image: ~/Projects/walleye-build/images-slpi/boot-slpi.img. NOT done: qrtr tools in the ramdisk (the first try reads /sys/class/remoteproc state and dmesg). Research walleye-slpi-image-built.
 
 About
 : sensors
@@ -12829,3 +12829,6 @@ Proof
 
 Rank
 : 3
+
+Image sha256
+: 7c7dff6158fe86155f7179f2435ec0b070ef98eb280e338d29fb8cfee887c6bd
