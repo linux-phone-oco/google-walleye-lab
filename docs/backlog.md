@@ -11449,7 +11449,7 @@ Note
 go until 2026-11-25T11:06:34+01:00, outcomes: if /proc/cmdline read over telnet carries androidboot.slot_suffix=_a with the whole tail then the bootloader passes the slot on slot a with our 149-char header and the cut seen in run 8 was length alone (C2 next); if the line ends at androidboot.pk=g-pxl-p then the bootloader cuts the tail on slot a whatever our header length (C3 next); if no telnet answers then the debug image did not reach its init on slot a and nothing about the cut is shown (the way back runs, the stop is read first). Instrument: the same image's telnet /proc/cmdline read, proven in stage 2 run 11 (a0a55cd0).
 
 Blocked by
-: walleye-debug-image-recipe
+: walleye-card-read-slow
 
 About
 : walleye-bootimage
@@ -12627,6 +12627,31 @@ Needs
 
 Proof
 : tests/host/image-recipe.sh ufs-root-booted-slot-debug passes and lpoco bringup image ensure ufs-root-booted-slot-debug serves a0a55cd0 (or a new sha256 the row then declares, with the reason); the ramdisk's busybox carries nc and sha256sum (the C1 way back sends the reboot tool over nc)
+
+Rank
+: 2
+
+
+<a id="walleye-card-read-slow"></a>
+### The card read before a try (root.the_card_is_read_before) read system_a over adb at ~120 KB/s and could not finish in its 760 s bound: read why, then make the root hash finish within its bound
+
+Status
+: open
+
+Note
+: Keeper 2026-11-25-0830 (PR 1092): checks 1-6 ok, check 7 read 92545020 of 2684354560 bytes in 760 s, retried, the keeper's own 900 s timeout ended it. Coordinator read the host side: the phone is on usb 3-2 at 480 Mb/s (high speed, no downgrade), last re-enumerated 08:10:56, so the link is not the cause. A stop is read before the fix: compare with the earlier runs' timings first; hashing on the phone (sha256sum under adb root, as stage 1's read-back did) is the candidate, not the conclusion. The keeper's rerun takes no outer timeout shorter than the procedure's bounds.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: build
+
+Proof
+: the cause written as a research row from what was measured (the run folders of rootfs-boots run 5 and rw write run 5 say how long the same read took then); the rehearsal of procedures/cmdline-cut-c1-on-the-pixel-2.rs passes check 7 within its own bound
 
 Rank
 : 2
