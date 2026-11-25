@@ -8482,3 +8482,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-0500-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-25
+
+Done
+: Ran rootfs-boots-on-the-pixel-2 under its go: kernel text fixtures captured (ufs-root power-supply and dmesg). Phone on Android slot b, stock kept, healthy, adb lists it; nothing flashed. Used by run 1. Mistake: my timeout 580 cut the wrapper at check 25 (exit 143); post-stop measurement showed everything as before.
+
+Considered
+: next: walleye-phone-text-captures can take the new fixtures into the selftests (charger/fuel-gauge/part-compare text); then walleye-cmdline-cut-check-slot-a. Run attended commands without a short timeout (about 11 min).
+
+About
+: walleye-bootimage
