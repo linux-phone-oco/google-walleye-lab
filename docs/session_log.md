@@ -9043,3 +9043,21 @@ Rejected
 
 About
 : sensors
+
+---
+
+
+<a id="2026-11-25-1800-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-25
+
+Done
+: Phone on Android slot b, stock, nothing flashed or set; adb up. Ran walleye-slpi-boot-qrtr: rehearsal 13/13, then the real run 18/18: SLPI up from the phone's own firmware, 23 qrtr services; text kept in research/walleye-slpi-boot-qrtr/. No bring-up step claimed: remoteprocs-running needs adsp, cdsp, modem (slpi is not among them). No go was open on the item.
+
+Considered
+: next: move the SLPI judge tests onto the captured text and run slpi-sensor-service.sh; identify the sensor services (ids 349-362) by a builder; then walleye-transport-real-phone-run (rank 15) or the next debug-image run for reboot-send-nc and display-late-answers.
+
+About
+: walleye-bootimage
