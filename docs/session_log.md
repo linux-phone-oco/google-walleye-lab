@@ -9082,3 +9082,21 @@ Rejected
 
 About
 : sensors
+
+---
+
+
+<a id="2026-11-25-recipe-b-a5"></a>
+### Recipe for b-a5
+
+Entry date
+: 2026-11-25
+
+Done
+: [images.b-a5.recipe]: control b-r5, ramdisk 55c1145e; ensure --rebuild equal, image-recipe.sh passes; wdt1-a/b and the alpine-rootfs/ufs images left
+
+Considered
+: wdt1-a/b: own kernel, not touched this run
+
+About
+: walleye-bootimage

@@ -8368,3 +8368,25 @@ Sources
 
 About
 : sensors
+
+
+<a id="walleye-image-recipes-b-a5-rebuilt-equal"></a>
+### walleye-image-recipes-b-a5-rebuilt-equal
+
+Date
+: 2026-11-25
+
+Brief
+: A recipe for b-a5 (control b-r5 plus the Alpine-in-RAM ramdisk) rebuilds its declared sha256
+
+Question
+: Does b-a5 rebuild equal from b-r5 and its ramdisk part?
+
+Found
+: Measured 2026-11-25: image ensure b-a5 --rebuild equal (ensure-ba5.txt); image-recipe.sh b-a5 passes. Kernel and dtb are b-r5s, only the ramdisk differs; the ramdisk enters from the seed like the other ramdisk parts (not proved by a recipe of its own: its build is walleye-ramroot --build now).
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-25-b-a5/

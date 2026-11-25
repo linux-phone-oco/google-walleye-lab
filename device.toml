@@ -344,6 +344,10 @@ ramdisk = "2e3cf0cf5767c2ae912708e2bb0c18b0f70198dff45b68d5998777d84d6e2541"   #
 path = "images-display-ramroot/boot-b-a5.img"
 sha256 = "83b9c4c644ffb8de03f5b5f1d6eaf8c6fa72ea7121699d0cab1cf2a53034f981"   # rebuilt 2026-11-23 on rootfs v5 (dmesg -n 3 before the respawn); was ad91dcd7 on v4
 
+[images.b-a5.recipe]
+control = "b-r5"
+ramdisk = "55c1145efc535fbee6a42e877bc403fb445a7818f48a36a144aeafee8b7bcb08"   # the Alpine-in-RAM ramdisk (init-ramroot, the display modules, /userland.tar of alpine-rootfs-v5); kernel, dtb, header and cmdline are b-r5s (unpacked: kernel 3a53bdda and appended.dtb 95f3a8a0 equal in b-r5 and b-a5)
+
 [procedures.display-delay-bisect-on-the-pixel-2]
 delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of uptime at which each image's init loads the display modules; an image b-dN must exist for each
 image_prefix = "b-d"                # the images are named PREFIX+delay in [images.*]: b-d5, b-d15 ...; the splash image B-s5 is run with delays = "5" and image_prefix = "b-s" (set both, run, put them back)

@@ -12298,7 +12298,7 @@ Status
 : open
 
 Note
-: PART 1 (2026-11-24): l7, b1, b2 rebuild equal. PART 2: b-d5..b-d50 equal. PART 3 (walleye-builder, 2026-11-24): b-s5, b-r5 (dtb) and b-q5 (ramdisk), control b-d5, rebuild equal (research walleye-image-recipes-b-sqr-rebuilt-equal); a recipe takes the dtb alone, the unpacked kernel file holds its dtb. LEFT: wdt1-a/b (own kernel, dtb, cmdline), b-a5 and the alpine-rootfs/ufs images (their parts as images or files of the manifest); the ones needing a kernel from an int/ tag wait on walleye-next-image-from-an-int-tag. | 2026-11-24 coordinator: set back to open, rank 4, so walleye-wdt0-read-image (rank 2) goes first; done so far: l7, b1, b2 (PR 1056), b-dN (1059), b-s5, b-r5, b-q5 (1060); left: wdt1-a/b, b-a5, the alpine-rootfs and ufs images.
+: PART 1 (2026-11-24): l7, b1, b2 rebuild equal. PART 2: b-d5..b-d50 equal. PART 3 (walleye-builder, 2026-11-24): b-s5, b-r5 (dtb) and b-q5 (ramdisk), control b-d5, rebuild equal (research walleye-image-recipes-b-sqr-rebuilt-equal); a recipe takes the dtb alone, the unpacked kernel file holds its dtb. PART 4 (2026-11-25): b-a5 rebuilds equal from b-r5 and its ramdisk (research walleye-image-recipes-b-a5-rebuilt-equal). LEFT: wdt1-a/b (own kernel, dtb, cmdline) and the alpine-rootfs/ufs images (their parts as images or files of the manifest); the ones needing a kernel from an int/ tag wait on walleye-next-image-from-an-int-tag. | 2026-11-24 coordinator: set back to open, rank 4, so walleye-wdt0-read-image (rank 2) goes first; done so far: l7, b1, b2 (PR 1056), b-dN (1059), b-s5, b-r5, b-q5 (1060); left: wdt1-a/b, b-a5, the alpine-rootfs and ufs images.
 
 About
 : walleye-bootimage
