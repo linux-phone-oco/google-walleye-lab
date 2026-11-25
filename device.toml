@@ -686,7 +686,7 @@ sha256 = "c05ae4ec273b8c1245eb5c98197832a8c2fe9b6282e486ac706a4b5ca8ac779b"
 [images.b-r2.recipe]
 control = "b-r5"
 dtb = "1c3b57f01c9fac97c75ce9373cd8be8f9fd7b3780e15aa6b78bfb98e0b1f346a"       # the any-order dtb (research walleye-image-recipes-any-order-rebuilt-equal; SHA256SUMS-display-any-order)
-ramdisk = "b6ff834eacda259dbd303b60e5acfd0d7418bc3ed85686faa59f1149d55d933b"   # B-r5's init and module list with the 2 s delay; kernel, header and cmdline are b-r5s
+ramdisk = "b6ff834eacda259dbd303b60e5acfd0d7418bc3ed85686faa59f1149d55d933b"   # the 2 s delay ramdisk (build-display-any-order-images.sh); the rest is b-r5s
 
 [images.b-rp2]
 path = "images-display-any-order/boot-b-rp2.img"
@@ -694,7 +694,7 @@ sha256 = "29fce8b7a9720302583d42d52f5756756ff38a2d66280f4546280b9541301ce6"
 
 [images.b-rp2.recipe]
 control = "b-r2"
-ramdisk = "fcff3297d7868f6a434ac3baba07626b35c99d09f14a761cb6dfdcf9cc47f96e"   # b-r2 with the module list in the other order (panel before msm); the rest is b-r2s
+ramdisk = "fcff3297d7868f6a434ac3baba07626b35c99d09f14a761cb6dfdcf9cc47f96e"   # the ramdisk with the module list in the other order (panel before msm, b-rp2.diff); the rest is b-r2s
 
 # Install stage 2 as ONE command (item walleye-install-flash-boot-procedure; decision 2026-11-22-walleye-author-research-then-proceed): our boot image flashed to boot_<the slot Android is NOT on>, read back, made
 # active by the bootloader's own set_active, the new slot observed, the way back set_active <Android's slot>. The image is named by its [images.NAME] row (never a typed sha256: the ufs-root image is rebuilt by other items), the
