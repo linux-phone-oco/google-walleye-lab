@@ -8758,3 +8758,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-phone-text-from-material"></a>
+### Phone text captures: found already printed, fixtures made
+
+Entry date
+: 2026-11-25
+
+Done
+: Read the item, the rootfs-boots capture step and the lab material; found fg1's qcom-battery text and Android's root /proc/partitions already captured; made three fixtures with SOURCES rows, moved fuel-gauge-selftest onto fg1, closed the procedure item as superseded, left the rest item with what is truly open.
+
+Considered
+: A fg1 capture variant of rootfs-boots (fg1 is a tty shell image, not the ssh root image); a /proc/partitions section in the root boot's capture.
+
+Rejected
+: A new boot procedure for text that exists: it would cost a go and a phone run to print what the lab already holds.
+
+About
+: walleye-bootimage

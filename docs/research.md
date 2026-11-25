@@ -8151,3 +8151,25 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-phone-text-already-printed-fg1-android-partitions"></a>
+### walleye-phone-text-already-printed-fg1-android-partitions
+
+Date
+: 2026-11-25
+
+Brief
+: Three 'missing' captures already exist as text a phone printed: our kernel's qcom-battery read (fg1, 2026-11-19) and Android's root /proc/partitions (run 2026-11-23); now fixtures with sources
+
+Question
+: Does the remaining phone text for the host selftests need a new boot procedure, or is it already in the lab's material?
+
+Found
+: ~/lab-material/walleye/fg1-try1 holds power-supply-facts.txt and dmesg.txt of fg1 (our kernel, pmi8998-fg probed: qcom-battery capacity 99, voltage_now 4374500 uV = fastboot 4374 mV); bootchain-2026-11-23-gpt-equal-run3 holds Android's /proc/partitions read as root (159 lines) beside its by-name listing. The 'Permission denied' of 2026-11-25 was one unrooted visit; the reader runs as root. Copied under research/ and cut into fixtures power-supply-facts-fg1-2026-11-19, dmesg-fg1-2026-11-19, proc-partitions-android-b-2026-11-23 with SOURCES rows (sources gate: 18 sourced, 0 refused). fuel-gauge-selftest now passes the fg1 read against fastboot 4374 and fails it against 4574. Not in the material: display-late reader answers as printed, and the part-compare pair's Android half; those need one read each.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-phone-text-from-material/2026-11-25/

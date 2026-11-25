@@ -1,0 +1,22 @@
+== pmi8998-charger
+type=USB
+online=1
+status=Full
+health=Good
+usb_type=Unknown [SDP] DCP CDP
+voltage_now=0
+current_now=0
+capacity=cat: can't open '/sys/class/power_supply/pmi8998-charger/capacity': No such file or directory
+present=cat: can't open '/sys/class/power_supply/pmi8998-charger/present': No such file or directory
+temp=cat: can't open '/sys/class/power_supply/pmi8998-charger/temp': No such file or directory
+== qcom-battery
+type=Battery
+online=cat: can't open '/sys/class/power_supply/qcom-battery/online': No such file or directory
+status=Full
+health=cat: can't open '/sys/class/power_supply/qcom-battery/health': No such file or directory
+usb_type=cat: can't open '/sys/class/power_supply/qcom-battery/usb_type': No such file or directory
+voltage_now=4374500
+current_now=9765
+capacity=99
+present=1
+temp=298
