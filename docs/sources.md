@@ -1956,3 +1956,45 @@ By
 
 Takes
 : the_link_is_read polls until HS-G3 or device_wait (170 s); hold_command touches /tmp/hold
+
+
+<a id="src-lwn-qrtr-sensor-manager-2025"></a>
+### QRTR bus and Qualcomm Sensor Manager IIO drivers (PATCH 0/3)
+
+Url
+: https://lwn.net/Articles/1016590/
+
+Author
+: Yassine Oudjana
+
+Year
+: 2025
+
+Takes
+: On MSM8996/MSM8998 the SSC (SLPI) exposes several services incl. Sensor Manager once the AP provides a Sensor Registry; no service ids are given in the cover letter
+
+
+<a id="src-pmos-wiki-ssc"></a>
+### Qualcomm Snapdragon Sensor Core - postmarketOS wiki
+
+Url
+: https://wiki.postmarketos.org/wiki/Qualcomm_Snapdragon_Sensor_Core
+
+Takes
+: MSM8998 SSC is a QMI-only Sensor Manager; the SLPI shows as QMI services listed with qrtr-lookup; its example lists only service 66
+
+
+<a id="src-emainline-ssc-p2"></a>
+### Unlocking the Qualcomm Snapdragon Sensor Core - Part 2
+
+Url
+: https://emainline.gitlab.io/2022/04/08/Unlocking_SSC_P2.html
+
+Author
+: Yassine Oudjana
+
+Year
+: 2022
+
+Takes
+: Read for service ids: it names none (no 349-362, no Sensor Manager id)

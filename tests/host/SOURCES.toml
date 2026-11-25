@@ -352,3 +352,6 @@ source = "file:tests/fixtures/kernel-text/slpi-pas-Kconfig.txt"
 
 [scripts."qrtr-lookup.sh"]
 source = "file:rootfs/pins"
+
+[scripts."slpi-sensor-service-selftest.sh"]
+source = "file:tests/fixtures/phone-text/slpi-boot-qrtr-read.cap"
