@@ -41,3 +41,9 @@ source = "file:research/walleye-android-text-captures/2026-11-25/power-supply-fa
 
 [scripts."partition-table-android-b-2026-11-25.cap"]
 source = "file:research/walleye-android-text-captures/2026-11-25/partition-table.txt"
+
+[scripts."power-supply-facts-ufs-root-20261125-043720.cap"]
+source = "file:research/walleye-kernel-text-capture-run/2026-11-25/kernel-text.txt"
+
+[scripts."dmesg-ufs-root-20261125-043720.cap"]
+source = "file:research/walleye-kernel-text-capture-run/2026-11-25/kernel-text.txt"

@@ -1,0 +1,15 @@
+# captured read-only over ssh from the booted image ufs-root
+# image sha256: d594dcbe3efc9c13859bcf3c3c7845967ab95719c79b6cc88fcd75b82e84348f (run image; declared c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9, equal but for the command line)
+# command: echo ---power-supply; for d in /sys/class/power_supply/*; do [ -e "$d" ] || continue; echo "== ${d##*/}"; for k in type online status health usb_type voltage_now current_now capacity present temp; do echo "$k=$(cat $d/$k 2>&1)"; done; done; echo ---end
+# date: 20261125-043720
+== pmi8998-charger
+type=USB
+online=1
+status=Full
+health=Good
+usb_type=Unknown [SDP] DCP CDP
+voltage_now=0
+current_now=0
+capacity=cat: can't open '/sys/class/power_supply/pmi8998-charger/capacity': No such file or directory
+present=cat: can't open '/sys/class/power_supply/pmi8998-charger/present': No such file or directory
+temp=cat: can't open '/sys/class/power_supply/pmi8998-charger/temp': No such file or directory

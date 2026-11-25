@@ -7981,3 +7981,25 @@ About
 
 Material
 : research/walleye-android-text-captures/2026-11-25/
+
+
+<a id="walleye-ufs-root-kernel-text-2026-11-25"></a>
+### walleye-ufs-root-kernel-text-2026-11-25
+
+Date
+: 2026-11-25
+
+Brief
+: Stage 2 read-only boot (run 20261125-043720): our kernel's power-supply facts and dmesg captured as fixtures; card, boot chain and flags equal after
+
+Question
+: What text does our kernel print on the Pixel 2 UFS-root image that the host selftests need?
+
+Found
+: Run of rootfs-boots-on-the-pixel-2 under the go (image c3373d71..., run image d594dcbe...): checks 1-24 passed, kernel 7.3.0-00013-g3644090c7f6d-dirty, system_a mounted ro under overlay with slot suffix _b, nothing flashed. Fixtures power-supply-facts-ufs-root and dmesg-ufs-root written (697 lines dmesg; only pmi8998-charger in power_supply, no qcom-battery). The run was cut at check 25 by exit 143: the keeper's own timeout 580 on the wrapper, not the phone; the stop-handler's own measurement after it found partition tables, system_a, boot chain and slot flags as before, and the phone back on Android b (fastboot reboot, 31 s). Check 25 itself did not finish in the run.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-kernel-text-capture-run/2026-11-25/
