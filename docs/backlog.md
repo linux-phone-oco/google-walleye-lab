@@ -12390,18 +12390,10 @@ Rank
 ### Read WDT0 (0x17817000: EN, STS, BARK, BITE) at our kernel's first instant: what does the bootloader arm?
 
 Status
-: open
+: in-progress
 
 Note
-: From research walleye-android-watchdog-read-fix (6): the one unknown the source cannot settle. Read-only; the keeper's try. Built (item walleye-wdt0-try-procedure): FIRST bin/attended run rehearse-wdt0-state-on-the-pixel-2 (no boot, no go; its real run is not yet made), THEN bin/attended run wdt0-state-on-the-pixel-2 under a go that names image sha256 17a9c21d (ufs-root-booted-slot-production-wdt0), battery rule as AGENTS.md; keep the run folder's wdt0.txt (EN, STS, BARK_TIME, BITE_TIME) in a research row, end on Android. | 2026-11-25 coordinator: image and procedure built (PRs 1063, 1064); rank 2; the go names image 17a9c21d in full.
-go until 2026-11-25T04:00:00+01:00, outcomes: Image: [images.ufs-root-booted-slot-production-wdt0] sha256 17a9c21d75ebb046e90abafac322e865d3bcbb7f90a262543e5c6b72a061f642 (full; PR 1063; read only behind walleye.wdt0, never booted before). The run of procedures/wdt0-state-on-the-pixel-2.rs through bin/attended after its rehearsal passes; this go ends with that one run, closed in the same landing as the record. Booted from memory, nothing flashed or written; standing per-stage go of the author (stage 2 class, read only), opened by the walleye coordinator.
-if the rehearsal or the image step stops then nothing was booted: a host, procedure or image fault, read before any retry
-if wdt0.txt holds four readings with EN=0 then it proves the bootloader leaves WDT0 disarmed at our kernel's first instant
-if wdt0.txt holds four readings with EN=1 then it proves the bootloader arms WDT0 before handing over, and BARK and BITE give its timeout (research names what our kernel must pet first)
-if wdt0.txt is missing or a reading does not parse then the init's read did not run as tested in QEMU: not known yet, research before a retry, no second boot
-if no gadget comes up then how far the init got is not known (pstore is not a proven console here): stop, no second try
-if after the way back any partition table, the boot chain or the root partition differs then something wrote: stop the lane and tell the author
-if Android does not come back on slot b then the way back failed: stop, the author's hands
+: 2026-11-25 run: EN=0 STS=0 BARK=0x7FFFF BITE=0xFFFFF read from the kernel log (research walleye-wdt0-first-instant-readings); procedure check 17 failed because the init's /run file does not survive the hand-over - the proof test walleye-wdt0-state-at-boot is not passed as written. Next (builder): make the init copy the file where the root keeps it or make check 17 read the kernel log; rehearse; a new go only if a second boot is wanted at all (the values are already in).
 
 About
 : walleye-bootimage
@@ -12422,4 +12414,4 @@ Witness
 : person
 
 Go until
-: 2026-11-25T04:00:00+01:00
+: 2026-11-25T01:05:00+01:00
