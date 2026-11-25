@@ -12857,3 +12857,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-slpi-captured-text-judges"></a>
+### SLPI: the judge tests and slpi-sensor-service.sh on the captured text, and qrtr service ids 349-362 named from sources
+
+Status
+: open
+
+Note
+: From the keeper's run 2026-11-25 (PR 1124): SLPI running, up at 2.18 s, 23 qrtr services, ids 349-362 inst 50 unknown to qrtr-lookup. The proof test was not run on the phone; host-only work, no phone. No decompiled code; clean-room rules.
+
+About
+: sensors
+
+Opened
+: 2026-11-25
+
+Needs
+: build
+
+Proof
+: the SLPI boot judge selftests and tests/health/base/slpi-sensor-service.sh pass on research/walleye-slpi-boot-qrtr/ read.txt and dmesg.txt kept as fixtures (tests/fixtures/phone-text/ with SOURCES rows); a research row names services 349-362 instance 50 from open sources (qrtr, the vendor kernel, Android's own logs), or says not known yet
+
+Rank
+: 3
