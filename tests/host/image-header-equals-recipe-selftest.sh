@@ -6,12 +6,12 @@ set -eu
 HERE=$(cd "$(dirname "$0")" && pwd)
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 total=0
-want() { # NAME EXPECTED_WORD CMDLINE_IN_HEADER [ADDITIONAL]
+want() { # NAME EXPECTED_WORD CMDLINE_IN_HEADER [ADDITIONAL [RECIPE_LINE]]
   printf '#!/bin/sh\necho "x: in the store (%s/img)"\n' "$T" > "$T/bringup"
   { echo "command line args: $3"; echo "additional command line args: ${4:-}"; } > "$T/info"
   printf '#!/bin/sh\ncat %s\n' "$T/info" > "$T/unpack_bootimg"
   chmod +x "$T/bringup" "$T/unpack_bootimg"; : > "$T/img"
-  printf '[images.x.recipe]\ncmdline = "a b walleye.rw"\n' > "$T/device.toml"
+  printf '[images.x.recipe]\n%s\n' "${5:-cmdline = \"a b walleye.rw\"}" > "$T/device.toml"
   got=$(PATH="$T:$PATH" LPOCO_BRINGUP="$T/bringup" sh "$HERE/image-header-equals-recipe.sh" x "$T/device.toml" | cut -d' ' -f1 || true)
   if [ "$got" = "$2" ]; then echo "ok   $1"; else echo "FAIL $1: got $got, want $2"; total=$((total+1)); fi
 }
@@ -19,5 +19,6 @@ want "a header equal to the recipe passes" pass "a b walleye.rw"
 want "a header with a word more fails (2477's walleye.booted-slot)" fail "a b walleye.booted-slot walleye.rw"
 want "a header with a word less fails" fail "a walleye.rw"
 want "a word in the additional field fails" fail "a b walleye.rw" "walleye.booted-slot"
+want "a single-quoted recipe line holding double quotes passes" pass 'a b dyndbg="x; y" walleye.rw' "" "cmdline = 'a b dyndbg=\"x; y\" walleye.rw'"
 [ $total -eq 0 ] || { echo "image-header-equals-recipe-selftest: $total failed" >&2; exit 1; }
 echo "pass image-header-equals-recipe-selftest"

@@ -10614,7 +10614,7 @@ Status
 : open
 
 Note
-: Part 1 landed (PR 1084: nine scripts retired, 14 recipe images rebuild equal); about 90 build-*.sh left. Set back to open 2026-11-25 by the walleye coordinator so the keeper's missing procedures (rank 3) go first; resumes after them.
+: Part 2 landed: ufs-root, ufs-root-booted-slot, production recipes equal; build-ufs-root-image.sh and -production.sh removed (about 88 build-*.sh left). Still open: ufs-match (control of the chain), ufs-root-display, z-series and display experiments to judge one by one. Set back to open 2026-11-25 by the walleye coordinator so the keeper's missing procedures (rank 3) go first.
 
 Blocked by
 : walleye-next-image-from-an-int-tag
