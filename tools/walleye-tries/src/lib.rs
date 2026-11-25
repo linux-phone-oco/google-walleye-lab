@@ -22,6 +22,7 @@ pub mod pmic;
 pub mod ramroot;
 pub mod reader;
 pub mod reboot_tool;
+pub mod reboot_twice;
 pub mod rootfs_boot;
 pub mod rw_write;
 pub mod settings;

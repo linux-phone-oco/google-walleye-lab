@@ -10692,7 +10692,7 @@ Status
 : open
 
 Note
-: From research walleye-fastboot-reboot-stays-in-fastboot-causes-ranked. Keep the lines of every fastboot call with its time; then a second excursion with fastboot continue; then PMIC PON_SOFT_RB_SPARE read (no write) in our kernel before RESTART2. Stage 2's own way back is the cheaper second text; do this only if it too stays in fastboot.
+: Procedures ready: procedures/rehearse-fastboot-reboot-twice-on-the-pixel-2.rs then fastboot-reboot-twice-on-the-pixel-2.rs (bin/attended run NAME); no go. Legs kept in legs.txt and verdict.txt for the research row.
 
 Blocked by
 : walleye-fastboot-reboot-twice-procedure
@@ -12582,10 +12582,10 @@ Rank
 ### Procedure and rehearsal for the timed fastboot-reboot-twice excursion (stage 1, bootloader only) with its way back
 
 Status
-: open
+: done
 
 Note
-: Like the two procedures above it, walleye-fastboot-reboot-twice-timed-try has no one-command procedure (keeper rule: never typed by hand). Nothing is flashed or set beyond reboots; the way back is the rootfs-boots one.
+: DONE (walleye-builder 2026-11-25): procedures/fastboot-reboot-twice-on-the-pixel-2.rs and rehearse- pair; check and --dry-run pass. Keeper: rehearse first, then the run (one command each); no go needed.
 
 About
 : walleye-bootimage
