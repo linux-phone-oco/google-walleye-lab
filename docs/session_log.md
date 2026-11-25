@@ -9196,3 +9196,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-walleye-image-recipes-seeds"></a>
+### Image recipes: the rest are seeds
+
+Entry date
+: 2026-11-25
+
+Done
+: Looked at the images without a recipe (z20, l6, ufs-match, alpine-rootfs*, walleye-reboot); recorded why none gets one; item closed.
+
+Considered
+: A recipe for z20 from its parts with z19 as control (z19 is not in the manifest)
+
+Rejected
+: Declaring z19 or other history images only to give z20 a control: unproved bytes for no use, and the kernel stays unmatched
+
+About
+: walleye-bootimage
