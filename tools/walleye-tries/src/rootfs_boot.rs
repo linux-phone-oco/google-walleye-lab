@@ -1011,7 +1011,7 @@ impl RootfsBoot {
     }
 
     /// The author's go covers this image now: the item's row (`tad q row`) names the image's sha256 and has `go_until` in the future.
-    fn go_is_open_now(&self, spend: bool) -> Done {
+    pub(crate) fn go_is_open_now(&self, spend: bool) -> Done {
         let mut c = Command::new("tad");
         c.args(["q", "row", "--id", &self.s.go_item, "--format", "csv"])
             .current_dir(&self.s.lab);
