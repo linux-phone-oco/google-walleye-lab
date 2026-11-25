@@ -12236,10 +12236,7 @@ Status
 : open
 
 Note
-: Re-scoped 2026-11-24 by the walleye coordinator. The builder found (PR 1049) that hosted CI (ubuntu-latest) has no nix store or seed, so --rebuild would fail on inputs, not on the recipe. Orchestration decided the proof runs on the lab when a change lands; lab-tools item image-rebuild-changed-since carries it. Once released, walleye's part is to wire it to its images (pinned by release, never the host binary). Origin: run 4's image 2477...b54f (PR 1039); docs decision 2026-11-24-a-recipe-sha-is-proved-by-a-rebuild.
-
-Waits
-: lab-tools item image-rebuild-changed-since (rank 1): the rebuild proof runs on the lab at landing, not on hosted CI (orchestration via the Top, 2026-11-24)
+: 2026-11-25 coordinator: unblocked. image-rebuild-changed-since is released in lpoco-bringup 0.51.1 (the Top, relaying lab-tools): add the rebuild of every image a change touches to walleye's make land-check, pinned 0.51.1 by release, never the host binary.
 
 About
 : walleye-bootimage
@@ -12254,7 +12251,7 @@ Proof
 : a landing that sets a declared sha256 its recipe does not build is refused on the lab
 
 Rank
-: 3
+: 2
 
 
 <a id="walleye-wdt0-read-image"></a>
