@@ -1,0 +1,33 @@
+---remoteproc
+slpi running
+---dmesg
+[    1.221730] remoteproc remoteproc0: slpi is available
+[    1.974419] remoteproc remoteproc0: powering up slpi
+[    1.974602] remoteproc remoteproc0: Booting fw image qcom/msm8998/google/walleye/slpi_v2.mdt, size 7452
+[    2.175480] remoteproc remoteproc0: remote processor slpi is now up
+---qrtr
+  Service Version Instance Node  Port
+       64       1        1    1 16385 Service registry locator service
+       15       1        8    9     2 Test service
+       66       1       90    9     4 Service registry notification service
+       43       2       22    9     6 Subsystem control service
+       15       1        9    9    10 Test service
+      352       1       50    9    16 <unknown>
+      350       1       50    9    17 <unknown>
+      362       1       50    9    18 <unknown>
+      349       1       50    9    19 <unknown>
+      356       1       50    9    20 <unknown>
+      357       1       50    9    21 <unknown>
+      353       1       50    9    22 <unknown>
+      354       1       50    9    23 <unknown>
+      361       1       50    9    24 <unknown>
+      355       1       50    9    25 <unknown>
+      359       1       50    9    26 <unknown>
+      358       1       50    9    27 <unknown>
+      351       1       50    9    28 <unknown>
+      280       2       10    9    32 <unknown>
+      263       1        0    9    33 <unknown>
+      306       1        0    9    34 <unknown>
+      264       1        0    9    35 <unknown>
+      347       1        0    9    36 <unknown>
+---end

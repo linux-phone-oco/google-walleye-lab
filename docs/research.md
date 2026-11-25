@@ -8327,3 +8327,22 @@ About
 
 Material
 : research/walleye-slpi-boot-judged-words/2026-11-25/
+
+
+<a id="walleye-slpi-boot-first-text"></a>
+### walleye-slpi-boot-first-text
+
+Date
+: 2026-11-25
+
+Brief
+: The SLPI boots from the phone's own firmware on our kernel: remoteproc slpi running, 'is now up' at 2.18 s, no failure line, qrtr-lookup lists 23 services
+
+Question
+: Does remoteproc_slpi come up with slpi_v2.mdt on the SLPI image, and what does qrtr list?
+
+Found
+: Run 2026-11-25 (procedures/slpi-boot-on-the-pixel-2.rs, 18 steps passed, phone back on Android slot b, card/boot chain/slot flags as before). remoteproc0 slpi running; dmesg: powering up slpi 1.97 s, now up 2.18 s. qrtr on node 9: service registry locator/notification, subsystem control, test services, 13 services of id 349-362 instance 50 and 5 more (280,263,306,264,347), all unknown to qrtr-lookup. First captured text of the SLPI: research/walleye-slpi-boot-qrtr/ (read.txt, dmesg.txt, verdict.txt). The judge tests can move onto it. Carve-out 0x5800000 not touched; the 15 MiB layout worked.
+
+About
+: sensors

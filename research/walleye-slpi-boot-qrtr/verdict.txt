@@ -1,0 +1,1 @@
+remoteproc slpi is running; the kernel says `remote processor slpi is now up`; no failure line; qrtr-lookup lists 23 service(s)

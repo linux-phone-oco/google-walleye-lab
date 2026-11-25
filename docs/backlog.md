@@ -6522,10 +6522,10 @@ Rank
 ### Sensors: enable remoteproc_slpi with the phone's own firmware and read qrtr services
 
 Status
-: open
+: done
 
 Note
-: IMAGE READY 2026-11-25 (walleye-builder): [images.slpi] sha256 b98194279d75f0fd98aeb419d307838693843f8a0abfcf8479930316c74365b2 at ~/Projects/walleye-build/images-slpi/boot-slpi.img (UFS off, gates pass). PROCEDURE READY 2026-11-25: procedures/rehearse-slpi-boot-on-the-pixel-2.rs first (every step but the boot), then procedures/slpi-boot-on-the-pixel-2.rs (rust-script, or lpoco-attended run slpi-boot-on-the-pixel-2); it needs no go and no ssh, boots from RAM only and ends on Android slot b by the shared way back. Keep the run's folder ~/lab-material/walleye/slpi-boot-DATE (read.txt, dmesg.txt, verdict.txt) and move read.txt and dmesg.txt into research/walleye-slpi-boot-qrtr/ as the first captured text of the SLPI (then the judge tests move onto it); the verdict line says up, offline, crashed or no service, any is an answer. The SLPI carve-out reg 0x5800000 stays the dts's smallest try (not known yet). The image restarts the phone itself after about 3 minutes (z21's init): the read is done within the first minute.
+: proven by procedures/slpi-boot-on-the-pixel-2.rs run 2026-11-25: slpi running, now up, 23 qrtr services (research walleye-slpi-boot-first-text). The proof test tests/health/base/slpi-sensor-service.sh itself is not run on the phone; judge tests to move onto the captured text next.
 
 Blocked by
 : walleye-slpi-boot-procedure
