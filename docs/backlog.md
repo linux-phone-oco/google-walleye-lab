@@ -12863,10 +12863,10 @@ Rank
 ### A recipe row for each other image an [images.*] row names, each proven by image ensure
 
 Status
-: open
+: in-progress
 
 Note
-: Parts landed through PR 1130 (wdt1 pair: research walleye-wdt1-shorter-dyndbg-rebuilt-equal, 151-byte line, 7630009d and 4a4ae255 declared, equal twice). NEXT: first put the ensured wdt1 pair at the declared path images-wdt1-sysfsless/ (it still holds the old 168-byte pair, which no longer matches device.toml; keep the old pair beside it renamed), checked by sha256 against device.toml; then the alpine-rootfs and ufs images.
+: Parts landed through PR 1130 (wdt1 pair: research walleye-wdt1-shorter-dyndbg-rebuilt-equal, 151-byte line, 7630009d and 4a4ae255 declared, equal twice). 2026-11-25 (walleye-builder): the ensured wdt1 pair is now at the declared path ~/Projects/walleye-build/images-wdt1-sysfsless/ (image ensure wdt1-a and wdt1-b: 'in the store' / 'built from its recipe, equal to its declared sha256'; sha256sum of the two copies = device.toml; SHA256SUMS-wdt1 rewritten); the old 168-byte pair is kept beside it in old-168-byte-cmdline/. NEXT: the images with no [images.*.recipe] yet (z20, l6, ufs-match, alpine-rootfs*, b-r2, b-rp2, walleye-reboot): look around for each one's parts, then a recipe row proven by image ensure.
 
 About
 : walleye-bootimage
