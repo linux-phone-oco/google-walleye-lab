@@ -9932,6 +9932,9 @@ Status
 Note
 : Landed: the dts (running layout; ipa/gpu/wlan nodes dropped, 0x95b00000 ipa_gpu_mem added, remoteproc_slpi okay with slpi_v2.mdt; reg 0x5800000 kept, NOT KNOWN YET, smallest try written in the dts) and tests/host/dtb-slpi-carveout.sh with its selftest, against the phone's own fdt text. The UFS-off image (proof 4) is split to walleye-slpi-image-kernel-pas: the shipped kernels have the PAS driver as a module.
 
+Blocked by
+: walleye-slpi-image-kernel-pas
+
 About
 : sensors
 
