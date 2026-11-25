@@ -12657,10 +12657,10 @@ Rank
 ### C1 way back: the backgrounded nc listener is stopped by busybox job control (tty input)
 
 Status
-: in-progress
+: open
 
 Note
-: Host side landed: send_to_the_bootloader sends the nc listener via Shell::background (own line, </dev/null, no markers); host tests pass. Left for the keeper: the next debug-image run passes step 16 without a hand (record busybox nc behaviour on stdin EOF and any '[1]+ Done' line before the sha256 read).
+: Fix landed (PR 1098, 447 host tests). Its phone proof rides on the next debug-image run (step 16 passes with no hand; record busybox nc on stdin EOF and any '[1]+ Done' line before the sha256 read); no run of its own is spent on it. Set open, rank 6, by the walleye coordinator 2026-11-25 so the timed reboot-twice try goes first.
 
 About
 : walleye-bootimage
@@ -12675,7 +12675,7 @@ Proof
 : a host test of send_to_the_bootloader with a shell that stops a tty-reading background job (nc </dev/null, no prompt wait after a '&' line) passes; the next debug-image run passes its way back step 16 without a hand
 
 Rank
-: 2
+: 6
 
 
 <a id="walleye-cmdline-cut-after-c1"></a>
