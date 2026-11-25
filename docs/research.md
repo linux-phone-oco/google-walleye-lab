@@ -8195,3 +8195,22 @@ About
 
 Material
 : research/walleye-android-touch-capture/2026-11-25/
+
+
+<a id="walleye-ufs-root-recipes-rebuild-equal"></a>
+### walleye-ufs-root-recipes-rebuild-equal
+
+Date
+: 2026-11-25
+
+Brief
+: ufs-root, ufs-root-booted-slot and production rebuild equal from recipes; their two scripts retired
+
+Question
+: Do the images of build-ufs-root-image.sh and build-ufs-root-production.sh rebuild byte for byte without them?
+
+Found
+: Yes: image ensure --rebuild from recipes (ufs-root: control ufs-match + Image.gz + ramdisk + cmdline; slot: control ufs-root + ramdisk + cmdline; production: control slot + Image.gz + ramdisk + cmdline) equals c3373d71, e337de53, b74af863. Parts are unpacked from the declared images (the kernel part is the unpacked kernel less the 90361-byte appended dtb: with it, swap appends the dtb twice, first try c48381bf). The production image's kernel is still the int/walleye/ufs-on/v7.3/1 tag's by its unpacked Image.gz; ufs-match keeps its script (no recipe: it is the root control).
+
+About
+: walleye-kernel-dts

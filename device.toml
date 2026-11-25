@@ -360,6 +360,14 @@ path = "NOT-TO-BOOT-ufs-on-images-ufs-root/NOT-TO-BOOT-ufs-on-ufs-root.img"
 kernel_tag = "int/walleye/ufs-on-3644090c7/v7.3/1"
 sha256 = "c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9"   # rebuilt 2026-11-22: the init fails CLOSED without androidboot.slot_suffix (item walleye-install-boot-slot-on-cmdline); was 35b60fda... (run 1: the init saw no suffix)
 
+# Rebuilt from its recipe (item walleye-retire-build-scripts, 2026-11-25): `lpoco bringup image ensure ufs-root` equals the sha256 above. The control is the matched image [images.ufs-match] (dtb, header words and AVB footer are its byte for byte);
+# the kernel (its Image.gz, the image's kernel part less the appended dtb) and the ramdisk are the ones unpacked from this image (`lpoco bringup image unpack`), the cmdline its header line (the matched image's plus walleye.root=system_a).
+[images.ufs-root.recipe]
+control = "ufs-match"
+kernel = "2ed2283095342fabe3fd097005c4f6d46d4da12ccce9e28b8214777cbe37f847"
+ramdisk = "72253c5c101069ba4eecebcaf344e76c5cbc459b7b61fc59c4e9a6c2519e04b9"
+cmdline = 'clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3 dyndbg="file drivers/gpio/gpiolib.c +p; file drivers/gpio/gpiolib-of.c +p; file drivers/pinctrl/core.c +p; file drivers/pinctrl/devicetree.c +p; file drivers/pinctrl/qcom/pinctrl-spmi-gpio.c +p" walleye.root=system_a'
+
 # The UFS-root image WITH THE DISPLAY, U-d5 (item walleye-install-ufs-root-display-image, 2026-11-23): UFS ON and the display in one image. Kernel: branch wip/walleye/ufs-root-display of linux-v7.3 (ac7eefecb) = topic/ufs-match-android
 # (3644090c7) + the MDSS reset (kernel/display-mdss-reset) + the panel driver; the display path as 13 modules built for it (loaded at 5 s by build/initramfs-root-display/init), fbcon built in; dtb = the display board dtb with the lab levers
 # and the matched image's UFS overlay merged in; header, command line (+ walleye.root=system_a) and AVB footer the matched image's. Built twice with this one sha256 by build/build-ufs-root-display-image.sh, 42 checks ok. NOT to boot except by
@@ -368,7 +376,7 @@ sha256 = "c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9"   # 
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root-display/NOT-TO-BOOT-ufs-on-ufs-root-display.img"
 sha256 = "a45588272b11fed90d7d13e9ed0c3a00d1c2208b9758d01ed968587978582747"
 
-# The STAGE 2 boot image (item walleye-install-stage2-boot-image, 2026-11-23): the ufs-root image above rebuilt by build/build-ufs-root-image.sh with BOOTED_SLOT=yes and ROOT_PART=system_a (Android is on slot b, so
+# The STAGE 2 boot image (item walleye-install-stage2-boot-image, 2026-11-23): the ufs-root image above rebuilt (its script retired; now its recipe below) with BOOTED_SLOT=yes and ROOT_PART=system_a (Android is on slot b, so
 # the flashed slot is a), built twice with this one sha256, 28 checks ok. It differs from c3373d71 (which stays as stage 1 history and as the RAM boot of [images.ufs-root]) in two things only: the ramdisk (the init of
 # PR 765: it takes the word walleye.booted-slot, says `walleye-init: mounts-the-booted-slot` and mounts exactly the system of the slot it is booted from) and the command line (+ walleye.booted-slot). Kernel Image.gz, dtb,
 # header and AVB footer as c3373d71. NOT to boot or flash except by procedures/install-boot-on-the-pixel-2.rs under the coordinator's go on walleye-install-flash-boot-run naming THIS sha256; tests/host/ufs-off-image.sh
@@ -378,11 +386,18 @@ path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot/NOT-TO-BOOT-ufs-on-ufs-ro
 kernel_tag = "int/walleye/ufs-on-3644090c7/v7.3/1"
 sha256 = "e337de53446aa98e4795e214648427e22b467b3ab39f2d208e201951ff4098f1"
 
+# Rebuilt from its recipe (item walleye-retire-build-scripts, 2026-11-25): `lpoco bringup image ensure ufs-root-booted-slot` equals the sha256 above. The control is [images.ufs-root] (kernel, dtb, header words and AVB footer are its byte for byte);
+# the ramdisk (the init that takes walleye.booted-slot) is unpacked from this image, the cmdline is its header line.
+[images.ufs-root-booted-slot.recipe]
+control = "ufs-root"
+ramdisk = "ff1a1a5a0fc0ddc785f026a5724ef44f63feb8bc5968f24461cf2267849f40a4"
+cmdline = 'clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3 dyndbg="file drivers/gpio/gpiolib.c +p; file drivers/gpio/gpiolib-of.c +p; file drivers/pinctrl/core.c +p; file drivers/pinctrl/devicetree.c +p; file drivers/pinctrl/qcom/pinctrl-spmi-gpio.c +p" walleye.root=system_a walleye.booted-slot'
+
 # The stage 2 DEBUG image (item walleye-stage2-debug-image, 2026-11-23, run 7's answer to "we do not know whether the kernel ran"): [images.ufs-root-booted-slot] (e337de53) with ONE change, the initramfs' init: build/initramfs-root-debug/init
 # (the root init plus two blocks that act only with the word walleye.debug, which this image's command line adds). With the word: every watchdog device is petted from the init's first instants (busybox watchdog at the longest timeout
 # its driver lists, one petter each, looked for again every second), a USB gadget (ECM + ACM, the lab's 172.16.43.1, telnet root shell, no password: a try held on a cable) is up BEFORE the card is touched, every init line goes to
 # /tmp/walleye-debug.log, and a refusal HOLDS (up to walleye.hold seconds) instead of restarting; after the root is mounted the gadget stays 20 s (walleye.debugwait) for a login, is released, and the init hands over as before.
-# Kernel Image.gz, dtb, header and AVB footer are e337de53's byte for byte; built twice with this one sha256 by build/build-ufs-root-image.sh (DEBUG_INIT=yes BOOTED_SLOT=yes ROOT_PART=system_a), 30 checks ok, among them
+# Kernel Image.gz, dtb, header and AVB footer are e337de53's byte for byte; built twice with this one sha256 by its script (now retired) (DEBUG_INIT=yes BOOTED_SLOT=yes ROOT_PART=system_a), 30 checks ok, among them
 # tests/host/ufs-root-debug-init.sh (QEMU: gadget + telnet + log before the card, the hold, the release) and the root init's whole proof with this init in its place. NOT to boot or flash except by procedures/install-boot-on-the-pixel-2.rs
 # under the coordinator's go on walleye-install-flash-boot-run naming THIS sha256; tests/host/ufs-off-image.sh refuses it by design. Never booted.
 # REBUILT 2026-11-23 (item walleye-stage2-cmdline-too-long): run 8 showed the bootloader cut our command line at 1363 characters and the slot suffix with it, so this image's header command line is now 149 characters (the dyndbg string is written by the debug init at run time; androidboot.console is left out; margin 126 under the cut, checked from run 8's and Android b's captured lines) and the init reads the slot from androidboot.slot_suffix, the device tree, bootconfig, then root=PARTUUID, fails closed on none or a disagreement. The sha256 below is the new image (a0a55cd0, built twice identical, 35 checks; the other image rows below were built with the old long header and are NOT rebuilt: the non-debug ufs-root-booted-slot would be cut the same way); the run-8 image was ec741a98 (its row is in git history). Kernel, dtb, AVB footer unchanged.
@@ -401,12 +416,20 @@ cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walley
 
 # The stage 2 PRODUCTION image (item walleye-stage2-production-image, 2026-11-23): the image that STAYS on the phone. Init build/initramfs-root-production/init: the petters on every watchdog device first, kept through the hand-over, no gadget, no telnet, no debug word;
 # the slot from the bootloader's sources, the header command line under the budget (as [images.ufs-root-booted-slot-debug] a0a55cd0, without walleye.debug). The kernel is taken from the live list's tag int/walleye/ufs-on/v7.3/1 (commit 5caddde2d: v7.3 + topic/pmic-wdt-wake-in-suspend 8b2283da3
-# with its two fixes + topic/walleye-fuel-gauge-rfc + topic/ufs-match-android 0f3429f65) by build/build-ufs-root-production.sh, never from a tree by hand; dtb, header and AVB footer the matched image's. Built twice with this one sha256 (the checks are the build script's).
+# with its two fixes + topic/walleye-fuel-gauge-rfc + topic/ufs-match-android 0f3429f65) by its script (now retired; the recipe below rebuilds it), never from a tree by hand; dtb, header and AVB footer the matched image's. Built twice with this one sha256 (its checks are tests/host/image-recipe.sh and image-header-equals-recipe.sh).
 # NOT to boot or flash except by procedures/install-boot-on-the-pixel-2.rs under the coordinator's go on walleye-install-flash-boot-run naming THIS sha256; tests/host/ufs-off-image.sh refuses it by design. Never booted.
 [images.ufs-root-booted-slot-production]
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-production/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production.img"
 kernel_tag = "int/walleye/ufs-on/v7.3/1"
 sha256 = "b74af863e4b49e2b3ff6e656c2f9ba3b92033b1e0f74063c3c2d47b81c83d570"
+
+# Rebuilt from its recipe (item walleye-retire-build-scripts, 2026-11-25): `lpoco bringup image ensure ufs-root-booted-slot-production` equals the sha256 above. The control is [images.ufs-root-booted-slot] (dtb, header words and AVB footer are its byte for byte);
+# the kernel (the tag's, int/walleye/ufs-on/v7.3/1) and the production ramdisk are unpacked from this image, the cmdline is its header line (149 characters, under the bootloader's cut).
+[images.ufs-root-booted-slot-production.recipe]
+control = "ufs-root-booted-slot"
+kernel = "00567456ccd9266a32207011ad369891957680b8704555e87d1169117c447c78"
+ramdisk = "f23db3d90b89c322b33e4ff1605d3cc90ec77d9d869329f42c20f416b092a3c5"
+cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.dtbo_idx=3 walleye.root=system_a walleye.booted-slot"
 
 # The RW-WRITE image (item walleye-rw-write-image, 2026-11-24): the production image above with ONE change in its ramdisk and ONE word on its command line. Init build/initramfs-root-rw-write/init: the production init plus RW-WRITE blocks that act
 # only with the word walleye.rw, which this image's command line carries: then, after every guard of the production init, the root is mounted ext4 rw,nodiscard straight onto /newroot (no overlay, no mkfs, no fsck, no discard, no remount;

@@ -14,7 +14,7 @@ say() { echo "$1 walleye-image-header-equals-recipe $2"; [ "$1" = pass ]; exit $
 command -v "$B" >/dev/null || say skip "$B not installed: not known yet"
 command -v unpack_bootimg >/dev/null || say skip "unpack_bootimg not installed: not known yet"
 [ -r "$DEV" ] || say fail "no manifest at $DEV"
-recipe=$(awk -v t="[images.$NAME.recipe]" '$0==t{on=1;next} /^\[/{on=0} on && /^cmdline *=/{sub(/^cmdline *= *"/,"");sub(/".*$/,"");print;exit}' "$DEV")
+recipe=$(awk -v t="[images.$NAME.recipe]" '$0==t{on=1;next} /^\[/{on=0} on && /^cmdline *= *\047/{sub(/^cmdline *= *\047/,"");sub(/\047.*$/,"");print;exit} on && /^cmdline *=/{sub(/^cmdline *= *"/,"");sub(/".*$/,"");print;exit}' "$DEV")
 [ -n "$recipe" ] || say fail "$DEV has no cmdline in [images.$NAME.recipe]"
 out=$("$B" image ensure "$NAME" --device "$DEV" --dry-run 2>&1) || say fail "ensure $NAME: $(echo "$out" | head -1)"
 img=$(echo "$out" | sed -n 's/.*(\(\/[^)]*\))$/\1/p' | tail -n 1)

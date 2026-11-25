@@ -8815,3 +8815,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-retire-ufs-root-scripts"></a>
+### Two UFS-root build scripts retired
+
+Entry date
+: 2026-11-25
+
+Done
+: Recipes for ufs-root, ufs-root-booted-slot and production; ensure --rebuild equal for each; removed build-ufs-root-image.sh and build-ufs-root-production.sh; recipe selftests and the UFS gate selftest pass
+
+Considered
+: building the kernel from the tag in the sandbox (kernel_builds) for the production Image.gz
+
+Rejected
+: retiring build-ufs-match.sh: its image is the recipes' control and has no equal rebuild yet
+
+About
+: walleye-kernel-dts
