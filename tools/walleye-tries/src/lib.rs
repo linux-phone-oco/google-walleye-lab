@@ -26,6 +26,7 @@ pub mod reboot_twice;
 pub mod rootfs_boot;
 pub mod rw_write;
 pub mod settings;
+pub mod slpi_boot;
 pub mod touch;
 pub mod ufs;
 pub mod watch;

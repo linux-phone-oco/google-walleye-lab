@@ -1,0 +1,29 @@
+# Source lines of the words slpi_boot.rs judges (Linux 7.2.2 tree of ~/Projects/walleye-build/porthole; the lab kernel is v7.3: a word moved there is NOT KNOWN YET)
+
+## remoteproc_sysfs.c rproc_state_string
+166:static const char * const rproc_state_string[] = {
+167-	[RPROC_OFFLINE]		= "offline",
+168-	[RPROC_SUSPENDED]	= "suspended",
+169-	[RPROC_RUNNING]		= "running",
+170-	[RPROC_CRASHED]		= "crashed",
+171-	[RPROC_DELETED]		= "deleted",
+172-	[RPROC_ATTACHED]	= "attached",
+173-	[RPROC_DETACHED]	= "detached",
+174-	[RPROC_LAST]		= "invalid",
+--
+185:	return sprintf(buf, "%s\n", rproc_state_string[state]);
+186-}
+
+## remoteproc_core.c
+1308:	dev_info(dev, "remote processor %s is now up\n", rproc->name);
+1935:		dev_info(dev, "powering up %s\n", rproc->name);
+
+## qcom_q6v5_pas.c the msm8998 SLPI descriptor and the allocation (name = sysmon_name)
+1292:	.sysmon_name = "slpi",
+1308:	.sysmon_name = "slpi",
+766:	rproc = devm_rproc_alloc(&pdev->dev, desc->sysmon_name, ops, fw_name, sizeof(*pas));
+
+## qrtr lookup.c (pinned commit of rootfs/pins)
+203:	printf("  Service Version Instance Node  Port\n");
+240:			printf("%9u %s %8u %4u %5u %s (%s)\n",
+243:			printf("%9u %7u %8u %4u %5u %s\n",

@@ -8305,3 +8305,25 @@ About
 
 Material
 : research/walleye-slpi-qrtr-lookup/2026-11-25/
+
+
+<a id="walleye-slpi-boot-judged-words"></a>
+### walleye-slpi-boot-judged-words
+
+Date
+: 2026-11-25
+
+Brief
+: The words the SLPI boot judges (remoteproc states, name slpi, 'is now up', qrtr-lookup's table) come from kernel and qrtr source lines; no phone text of the SLPI running exists yet
+
+Question
+: Which words may the SLPI boot's judging functions rely on before any phone has printed them, and where does each come from?
+
+Found
+: Four, each with its source line in source-lines.txt (Linux 7.2.2 tree of the porthole; the lab kernel is v7.3, so a moved word is NOT KNOWN YET): the state files print offline, suspended, running, crashed, deleted, attached, detached, invalid (remoteproc_sysfs.c 166-174); the remoteproc's name is slpi (qcom_q6v5_pas.c 1292, msm8998-slpi-pas takes msm8996_slpi_resource_init, name = sysmon_name at 766); the kernel says 'powering up slpi' and 'remote processor slpi is now up' (remoteproc_core.c 1935, 1308); qrtr-lookup prints a header '  Service Version Instance Node  Port' and one row of five numbers per service (lookup.c 203, 243). The negative case is tested on a captured kernel log of our image (dmesg-ufs-root-20261125-043720.cap: a remoteproc device line, no slpi line). The first real run's read.txt and dmesg.txt are the first captured text; the tests then move onto it. Also seen: the descriptor's firmware_name is slpi.mdt while the image carries slpi_v2.mdt, so the dts firmware-name must say it (not checked here).
+
+About
+: sensors
+
+Material
+: research/walleye-slpi-boot-judged-words/2026-11-25/
