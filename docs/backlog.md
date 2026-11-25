@@ -11447,6 +11447,9 @@ Status
 Note
 : The one-command procedure exists (procedures/cmdline-cut-c1-on-the-pixel-2.rs, rehearsal rehearse-cmdline-cut-c1-on-the-pixel-2.rs): keeper runs the rehearsal first (no go), then the run under a go on THIS item naming the debug image sha256 a0a55cd0... (device.toml [images.ufs-root-booted-slot-debug]). Answer: cmdline.txt and verdict.txt in the run's folder, recorded as a research row.
 
+Blocked by
+: walleye-debug-image-recipe
+
 About
 : walleye-bootimage
 
@@ -12592,3 +12595,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-debug-image-recipe"></a>
+### A recipe row for [images.ufs-root-booted-slot-debug] so image ensure can make it: the C1 run's image is on no disk of this machine
+
+Status
+: open
+
+Note
+: Coordinator 2026-11-25 before C1's go: image ensure says a0a55cd0 is not in the store, the cache or the seed and has no recipe; no build script names it; the only debug image on disk is the run-8 one ec741a98 (agent-build/bf0d71), whose busybox has nc and sha256sum applets. The parts: build/initramfs-root-debug, kernel_tag int/walleye/ufs-on-3644090c7/v7.3/1, the 149-character header command line (device.toml comment at the row).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: build
+
+Proof
+: tests/host/image-recipe.sh ufs-root-booted-slot-debug passes and lpoco bringup image ensure ufs-root-booted-slot-debug serves a0a55cd0 (or a new sha256 the row then declares, with the reason); the ramdisk's busybox carries nc and sha256sum (the C1 way back sends the reboot tool over nc)
+
+Rank
+: 2
