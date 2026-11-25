@@ -8,3 +8,6 @@ why = "the old long header (dyndbg and androidboot.console), kept equal to the d
 
 [over.ufs-root-booted-slot]
 why = "the old long header, rebuilt equal from its recipe (item walleye-retire-build-scripts) and NOT-TO-BOOT: the non-debug stage 2 image that run 8 showed cut, replaced by the debug and production images"
+
+[over.ufs-root-display]
+why = "the old long header (dyndbg and androidboot.console), rebuilt equal from its recipe (item walleye-retire-build-scripts) and NOT-TO-BOOT: the UFS root with the display, never booted; the stage 2 images carry the short header (item walleye-stage2-cmdline-too-long)"
