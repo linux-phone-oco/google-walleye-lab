@@ -1,0 +1,9 @@
+# lpoco-bringup 0.51.1 (release asset lpoco-bringup-x86_64-unknown-linux-gnu, sha256 e4085f46...5031), run on the lab 2026-11-25
+# in this base's worktree: `lpoco-bringup image ensure --rebuild --changed-since HEAD~1`, after a commit that changed
+# one digit of [images.z21] sha256 (bdc0a891... to bdc0a892...). Exit 1. Captured text, 38 s:
+z21: changed since HEAD~1 (its sha256), rebuilding
+z21 dtb: in the store
+z20: in the store
+lpoco-bringup: z21: its recipe makes sha256 bdc0a89179d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff, not the declared bdc0a89279d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff
+# and with nothing changed (`--changed-since HEAD`), exit 0:
+no image changed since HEAD: nothing to rebuild

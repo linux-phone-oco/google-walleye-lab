@@ -3,7 +3,11 @@ SHELL := /bin/bash
 TAD ?= tad
 export DOCS_FORMAT ?= md
 
-.PHONY: setup check canon render verify land-regen
+LAND_BASE ?= origin/main
+
+.PHONY: setup check canon render verify land-regen land-check
+land-check:       ## what land runs before it pushes: each image the change touches is rebuilt from its recipe on the lab (nix sandbox) with the pinned lpoco-bringup and must equal its declared sha256
+	@B=$$(sh bin/install-bringup.sh) && "$$B" image ensure --rebuild --changed-since $(LAND_BASE)
 setup:            ## install tad and ikb from their pinned releases (checksums checked)
 	./bin/install-tad.sh
 	$(TAD) engine
