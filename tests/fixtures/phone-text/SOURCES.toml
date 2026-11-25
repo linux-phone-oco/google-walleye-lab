@@ -47,3 +47,12 @@ source = "file:research/walleye-kernel-text-capture-run/2026-11-25/kernel-text.t
 
 [scripts."dmesg-ufs-root-20261125-043720.cap"]
 source = "file:research/walleye-kernel-text-capture-run/2026-11-25/kernel-text.txt"
+
+[scripts."power-supply-facts-fg1-2026-11-19.cap"]
+source = "file:research/walleye-phone-text-from-material/2026-11-25/fg1-power-supply-facts.txt"
+
+[scripts."dmesg-fg1-2026-11-19.cap"]
+source = "file:research/walleye-phone-text-from-material/2026-11-25/fg1-dmesg.txt"
+
+[scripts."proc-partitions-android-b-2026-11-23.cap"]
+source = "file:research/walleye-phone-text-from-material/2026-11-25/android-proc-partitions-run3.txt"

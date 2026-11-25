@@ -12507,10 +12507,7 @@ Status
 : open
 
 Note
-: Left by walleye-phone-text-captures (2026-11-25): typed text remains in fuel-gauge-typed-selftest.sh (no capture of qcom-battery), bootchain-readback-selftest.sh (proc-partitions rows), part-compare-selftest.sh, display-late-probe-selftest.sh. Read-only captures; none needs a flash.
-
-Blocked by
-: walleye-phone-text-captures-procedure
+: Fixtures now present: power-supply-facts-fg1, dmesg-fg1, proc-partitions-android-b-2026-11-23; fuel-gauge-selftest already moved onto fg1. Left: bootchain-readback-selftest onto the real /proc/partitions (sizes from it, not typed), then the two reads not in the material: display-late reader answers as printed (telnet up-/hold-/count- answers) and the part-compare Android half over adb (read only).
 
 About
 : walleye-bootimage
@@ -12557,10 +12554,10 @@ Rank
 ### Procedure and rehearsal for the remaining phone-text captures: fg1-image boot reading qcom-battery supply text, root /proc/partitions under our kernel, display-late reader answers
 
 Status
-: open
+: done
 
 Note
-: Keeper run 2026-11-25-0700: walleye-phone-text-captures-rest has no prepared command; Android denies /proc/partitions, so the root read needs our kernel. RAM boot only, no flash; the part-compare pair's Android half comes over adb.
+: Superseded 2026-11-25 by research walleye-phone-text-already-printed-fg1-android-partitions: the fg1 qcom-battery text and Android's root /proc/partitions were already printed by earlier runs and are now fixtures with sources; no new boot procedure was built. Our kernel's own /proc/partitions needs no run: the readers read Android's. What still needs the phone is in walleye-phone-text-captures-rest.
 
 About
 : walleye-bootimage
