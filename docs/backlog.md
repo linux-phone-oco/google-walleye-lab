@@ -10614,7 +10614,7 @@ Status
 : open
 
 Note
-: Part 3 landed: ufs-root-display recipe (control ufs-match, merged display+UFS dtb) rebuilds equal a4558827; build-ufs-root-display-image.sh and its only lib, lib-display-levers.sh, removed (79 build-*.sh left). Next: build-initramfs.sh DISPLAY_FILES/lib branch has no caller now (judge). Still open: ufs-match (the control itself, a kernel build from int/walleye/ufs-on-3644090c7), z-series and display experiments to judge one by one. Set back to open 2026-11-25 by the walleye coordinator so the keeper's missing procedures (rank 3) go first.
+: Part 3 landed: ufs-root-display recipe (control ufs-match, merged display+UFS dtb) rebuilds equal a4558827; build-ufs-root-display-image.sh and its only lib, lib-display-levers.sh, removed (79 build-*.sh left). Part 4 (2026-11-25): build-initramfs.sh's DISPLAY_FILES lib/ branch (ufs-root mode) had no caller since that script went and is removed; the list and delay part stays, the host tests ufs-root-init.sh and ufs-root-display-init.sh use it (the latter passes after the cut, 2026-11-25). Still open: ufs-match (the control itself, a kernel build from int/walleye/ufs-on-3644090c7), z-series and display experiments to judge one by one. Set back to open 2026-11-25 by the walleye coordinator so the keeper's missing procedures (rank 3) go first.
 
 Blocked by
 : walleye-next-image-from-an-int-tag

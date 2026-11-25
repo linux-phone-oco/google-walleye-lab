@@ -38,17 +38,13 @@ SPEC=$W/initramfs-$MODE$SUF.spec
   echo "file /init $SRC/init 755 0 0"
   [ "${MODE#ufs-root}" != "$MODE" ] || echo "file /etc/udhcpd.conf $SRC/udhcpd.conf 644 0 0"
 } > "$SPEC"
-# DISPLAY_FILES (ufs-root and ufs-root-selftest only): a directory holding display-modules.list, display-delay and lib/ (the display modules, depmod run); packed as the display init (INIT_DIR) reads them
+# DISPLAY_FILES (ufs-root and ufs-root-selftest only): a directory holding display-modules.list and display-delay, packed as the display init (INIT_DIR) reads them (the display modules themselves are no longer packed here: the image that carried them, ufs-root-display, rebuilds from its recipe)
 if [ -n "${DISPLAY_FILES:-}" ]; then
   case $MODE in ufs-root|ufs-root-selftest) ;; *) echo "build-initramfs: DISPLAY_FILES is for ufs-root and ufs-root-selftest" >&2; exit 2 ;; esac
   for f in display-modules.list display-delay; do [ -s "$DISPLAY_FILES/$f" ] || { echo "build-initramfs: no $DISPLAY_FILES/$f" >&2; exit 1; }; done
   {
     echo "file /display-modules.list $DISPLAY_FILES/display-modules.list 644 0 0"
     echo "file /display-delay $DISPLAY_FILES/display-delay 644 0 0"
-    if [ -d "$DISPLAY_FILES/lib" ] && [ "$MODE" = ufs-root ]; then
-      (cd "$DISPLAY_FILES" && find lib -type d | LC_ALL=C sort | awk '{ print "dir /" $0 " 755 0 0" }')
-      (cd "$DISPLAY_FILES" && find lib -type f | LC_ALL=C sort | awk -v r="$DISPLAY_FILES" '{ print "file /" $0 " " r "/" $0 " 644 0 0" }')
-    fi
   } >> "$SPEC"
 fi
 if [ $MODE = selftest ]; then

@@ -8878,3 +8878,24 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-25-retire-the-display-lib-branch-of-build-initramfs"></a>
+### Retire the display lib branch of build-initramfs.sh
+
+Entry date
+: 2026-11-25
+
+Done
+: Judged the DISPLAY_FILES lib/ branch of build/build-initramfs.sh (ufs-root mode): its only caller, build-ufs-root-display-image.sh, was retired, the tests pass only a list and a delay; removed it, kept the rest. tests/host/ufs-root-display-init.sh passes after the cut.
+
+Considered
+: Removing the whole DISPLAY_FILES block: the host tests of the display init still pack the list and delay through it.
+
+Rejected
+: Removing the whole block: ufs-root-init.sh and ufs-root-display-init.sh use it.
+
+About
+: walleye-kernel-dts
