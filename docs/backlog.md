@@ -9165,10 +9165,10 @@ Rank
 ### Stage 3: one rw mount (nodiscard, no fstrim, purge guard) of the rootfs partition under our kernel, a write run, and proof the bootloader files are unchanged
 
 Status
-: open
+: done
 
 Note
-: ~4 keeper-h. The only stage with the Sony-class hazard; no erase, purge or unmap is ever sent. 2026-11-22 (the author's standing rule, decision 2026-11-22-walleye-author-research-then-proceed): no word of his is waited for once the research verdict (item walleye-install-stage3-android-ufs-comparison) says our kernel does nothing Android's UFS path does not, on this phone; the step is then ONE tested command (one partition, no erase, no purge, the purge guard kept, the bootchain read-back identical after), rehearsed, with a way back; the coordinator opens the go; the result and the verdict go to the Top Coordinator. NEVER: bootloader partitions, the GPT, erase, purge. 2026-11-22 (research walleye-install-stage3-android-ufs-comparison-verdict, PR 708): the verdict is in: our kernel sends no command class Android's did not for this step; the one command is item walleye-install-rw-write-procedure; no word of the author's is waited for (decision 2026-11-22-walleye-author-research-then-proceed).
+: proven by research walleye-rw-write-run-5-30-steps-clean-end-fsck-clean (rw write run 5, image 07df9842, 30/30, bootchain read-back equal, e2fsck clean; PR 1046); closed by the walleye coordinator 2026-11-25
 
 Blocked by
 : walleye-install-rootfs-boots-try,walleye-ufs-try-2,walleye-install-rw-write-procedure,walleye-try-ufs-match
@@ -10611,10 +10611,10 @@ Rank
 ### Each build-*.sh is retired once its image rebuilds from an int/ tag, byte for byte, and the [images.*] row says so
 
 Status
-: in-progress
+: open
 
 Note
-: PART 1 (2026-11-25): nine scripts retired, their images rebuild equal (research walleye-build-scripts-retired-nine-rebuild-equal). Next: image recipes for the rest (walleye-image-recipes-other-images), then judge each remaining build-*.sh (kernel, dtb, bisect, c1-c5, ml, pk, display-late, any-order...) and retire or keep with a reason. Author's word 2026-11-23: walleye goes fully onto the new structure.
+: Part 1 landed (PR 1084: nine scripts retired, 14 recipe images rebuild equal); about 90 build-*.sh left. Set back to open 2026-11-25 by the walleye coordinator so the keeper's missing procedures (rank 3) go first; resumes after them.
 
 Blocked by
 : walleye-next-image-from-an-int-tag
@@ -10695,7 +10695,7 @@ Note
 : From research walleye-fastboot-reboot-stays-in-fastboot-causes-ranked. Keep the lines of every fastboot call with its time; then a second excursion with fastboot continue; then PMIC PON_SOFT_RB_SPARE read (no write) in our kernel before RESTART2. Stage 2's own way back is the cheaper second text; do this only if it too stays in fastboot.
 
 Blocked by
-: walleye-install-flash-boot-run
+: walleye-fastboot-reboot-twice-procedure
 
 About
 : walleye-bootimage
@@ -11446,6 +11446,9 @@ Status
 
 Note
 : From research walleye-cmdline-tail-cut-candidates. RAM boot plus the slot flag the stage 2 procedure already sets and undoes; no flash. C2 and C3 follow by C1's answer; not urgent: step 21 passes on root=PARTUUID.
+
+Blocked by
+: walleye-cmdline-cut-check-slot-a-procedure
 
 About
 : walleye-bootimage
@@ -12501,7 +12504,7 @@ Note
 : Left by walleye-phone-text-captures (2026-11-25): typed text remains in fuel-gauge-typed-selftest.sh (no capture of qcom-battery), bootchain-readback-selftest.sh (proc-partitions rows), part-compare-selftest.sh, display-late-probe-selftest.sh. Read-only captures; none needs a flash.
 
 Blocked by
-: walleye-phone-text-captures
+: walleye-phone-text-captures-procedure
 
 About
 : walleye-bootimage
@@ -12517,3 +12520,78 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-cmdline-cut-check-slot-a-procedure"></a>
+### Procedure and rehearsal for check C1: slot a flag set, fastboot boot of the production image, /proc/cmdline read over telnet, slot flag undone
+
+Status
+: open
+
+Note
+: Keeper run 2026-11-25-0700 found no one-command procedure for walleye-cmdline-cut-check-slot-a. Build it from rootfs-boots-on-the-pixel-2 (it already sets and undoes the slot flag): RAM boot only, no flash; the way back leaves slot b active and Android up. Its output is the cmdline line the C1 research row records.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: build
+
+Proof
+: procedures/cmdline-cut-c1-on-the-pixel-2.rs and its rehearse- pair: lpoco-attended check and --dry-run pass; the rehearsal runs every safe part; the keeper's run is one command
+
+Rank
+: 3
+
+
+<a id="walleye-phone-text-captures-procedure"></a>
+### Procedure and rehearsal for the remaining phone-text captures: fg1-image boot reading qcom-battery supply text, root /proc/partitions under our kernel, display-late reader answers
+
+Status
+: open
+
+Note
+: Keeper run 2026-11-25-0700: walleye-phone-text-captures-rest has no prepared command; Android denies /proc/partitions, so the root read needs our kernel. RAM boot only, no flash; the part-compare pair's Android half comes over adb.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: build
+
+Proof
+: a procedure (a capture variant of rootfs-boots) with its rehearse- pair: check and --dry-run pass; the run writes each capture into tests/fixtures/phone-text/ with its SOURCES row; the keeper's run is one command
+
+Rank
+: 3
+
+
+<a id="walleye-fastboot-reboot-twice-procedure"></a>
+### Procedure and rehearsal for the timed fastboot-reboot-twice excursion (stage 1, bootloader only) with its way back
+
+Status
+: open
+
+Note
+: Like the two procedures above it, walleye-fastboot-reboot-twice-timed-try has no one-command procedure (keeper rule: never typed by hand). Nothing is flashed or set beyond reboots; the way back is the rootfs-boots one.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: build
+
+Proof
+: a procedure with its rehearse- pair: check and --dry-run pass; each fastboot call's line kept with its time; the keeper's run is one command
+
+Rank
+: 3
