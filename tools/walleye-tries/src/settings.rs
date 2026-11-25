@@ -45,6 +45,8 @@ pub const CMDLINE_CUT_PROCEDURE: &str = "cmdline cut c1 on the Pixel 2";
 pub const REHEARSE_CMDLINE_CUT_PROCEDURE: &str = "rehearse cmdline cut c1 on the Pixel 2";
 pub const REBOOT_TWICE_PROCEDURE: &str = "fastboot reboot twice on the Pixel 2";
 pub const REHEARSE_REBOOT_TWICE_PROCEDURE: &str = "rehearse fastboot reboot twice on the Pixel 2";
+pub const SLPI_BOOT_PROCEDURE: &str = "slpi boot on the Pixel 2";
+pub const REHEARSE_SLPI_BOOT_PROCEDURE: &str = "rehearse slpi boot on the Pixel 2";
 pub const RAMROOT_PROCEDURE: &str = "alpine login on the glass on the Pixel 2";
 pub const FLASH_BOOT_PROCEDURE: &str = "install boot on the Pixel 2";
 pub const REHEARSE_FLASH_BOOT_PROCEDURE: &str = "rehearse install boot on the Pixel 2";
@@ -69,6 +71,7 @@ pub enum Try {
     Wdt0,
     CmdlineCut,
     RebootTwice,
+    SlpiBoot,
     Ramroot,
     FlashBoot,
 }
@@ -255,6 +258,20 @@ impl Settings {
     pub fn for_rehearse_reboot_twice() -> Settings {
         let mut s = Settings::for_reboot_twice();
         s.out = s.out_dir("fastboot-reboot-twice-rehearsal");
+        s
+    }
+
+    /// The SLPI boot's settings (item walleye-slpi-boot-procedure), read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_slpi_boot() -> Settings {
+        Settings::read_linked(Try::SlpiBoot, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
+    /// The SLPI boot's rehearsal reads the boot's own keys, from its own table, and keeps its own folder (the real run's refuses a folder with files).
+    pub fn for_rehearse_slpi_boot() -> Settings {
+        let mut s = Settings::for_slpi_boot();
+        s.out = s.out_dir("slpi-boot-rehearsal");
         s
     }
 
@@ -559,6 +576,21 @@ impl Settings {
                 );
                 s.out = s.out_dir("fastboot-reboot-twice");
             }
+            Try::SlpiBoot => {
+                // the SLPI boot: the image named by its [images.NAME] row, booted from RAM; no ssh, no go (nothing is flashed, the image is UFS-off by the gate)
+                let name = proc("image");
+                s.image = image(&name);
+                s.image_name = name.clone();
+                s.image_sha256 = dev(&format!("images.{name}.sha256"));
+                s.bootchain = home_path(&proc("bootchain"));
+                s.by_name = proc("by_name");
+                s.luns = number("luns", proc("luns"));
+                assert!(
+                    s.by_name.starts_with('/') && (1..=26).contains(&s.luns),
+                    "by_name in device.toml is an absolute path on the phone, luns is 1 to 26"
+                );
+                s.out = s.out_dir("slpi-boot");
+            }
             Try::Ramroot => {
                 let name = proc("image");
                 s.image = image(&name);
@@ -837,6 +869,8 @@ mod tests {
             (Try::CmdlineCut, REHEARSE_CMDLINE_CUT_PROCEDURE),
             (Try::RebootTwice, REBOOT_TWICE_PROCEDURE),
             (Try::RebootTwice, REHEARSE_REBOOT_TWICE_PROCEDURE),
+            (Try::SlpiBoot, SLPI_BOOT_PROCEDURE),
+            (Try::SlpiBoot, REHEARSE_SLPI_BOOT_PROCEDURE),
             (Try::Ramroot, RAMROOT_PROCEDURE),
             (Try::FlashBoot, FLASH_BOOT_PROCEDURE),
             (Try::FlashBoot, REHEARSE_FLASH_BOOT_PROCEDURE),

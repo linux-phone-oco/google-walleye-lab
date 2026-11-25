@@ -6525,7 +6525,7 @@ Status
 : open
 
 Note
-: IMAGE READY 2026-11-25 (walleye-builder): [images.slpi] sha256 b98194279d75f0fd98aeb419d307838693843f8a0abfcf8479930316c74365b2 at ~/Projects/walleye-build/images-slpi/boot-slpi.img (UFS off, gates pass). One RAM boot by fastboot boot through the procedure; read /sys/class/remoteproc/*/state, the kernel log for remoteproc_slpi and qrtr; the SLPI carve-out reg 0x5800000 is NOT KNOWN YET (smallest try in the dts). The ramdisk has qrtr-lookup since 2026-11-25 (part 1 of walleye-slpi-boot-procedure); the image is the one named here.
+: IMAGE READY 2026-11-25 (walleye-builder): [images.slpi] sha256 b98194279d75f0fd98aeb419d307838693843f8a0abfcf8479930316c74365b2 at ~/Projects/walleye-build/images-slpi/boot-slpi.img (UFS off, gates pass). PROCEDURE READY 2026-11-25: procedures/rehearse-slpi-boot-on-the-pixel-2.rs first (every step but the boot), then procedures/slpi-boot-on-the-pixel-2.rs (rust-script, or lpoco-attended run slpi-boot-on-the-pixel-2); it needs no go and no ssh, boots from RAM only and ends on Android slot b by the shared way back. Keep the run's folder ~/lab-material/walleye/slpi-boot-DATE (read.txt, dmesg.txt, verdict.txt) and move read.txt and dmesg.txt into research/walleye-slpi-boot-qrtr/ as the first captured text of the SLPI (then the judge tests move onto it); the verdict line says up, offline, crashed or no service, any is an answer. The SLPI carve-out reg 0x5800000 stays the dts's smallest try (not known yet). The image restarts the phone itself after about 3 minutes (z21's init): the read is done within the first minute.
 
 Blocked by
 : walleye-slpi-boot-procedure
@@ -12838,10 +12838,10 @@ Image sha256
 ### SLPI boot: a procedure that RAM-boots [images.slpi] and reads remoteproc and qrtr, and qrtr-lookup in its ramdisk
 
 Status
-: open
+: done
 
 Note
-: From the walleye keeper's stop 2026-11-25 (PR 1120): walleye-slpi-boot-qrtr is ready but has no procedure to run and the ramdisk has no qrtr-lookup. Pattern: procedures/fastboot-reboot-twice-on-the-pixel-2.rs and cmdline-cut-c1. Nothing flashed; the image boots from RAM only; the carve-out reg stays the dts's smallest try (not known yet). PART 1 (walleye-builder, 2026-11-25): qrtr-lookup is in the ramdisk and the image is rebuilt twice equal, new sha256 b98194279d75f0fd98aeb419d307838693843f8a0abfcf8479930316c74365b2 (research walleye-slpi-qrtr-lookup-in-ramdisk, tests/host/qrtr-lookup.sh). LEFT: procedures/slpi-boot-on-the-pixel-2.rs and rehearse-slpi-boot-on-the-pixel-2.rs over a tools/walleye-tries module (pattern cmdline-cut-c1: the gate, fastboot boot of [images.slpi] from memory, read /sys/class/remoteproc/*/state, the kernel log for remoteproc_slpi and qrtr and qrtr-lookup over the image's telnet on 172.16.43.1, the way back to Android slot b); its judging functions tested on text a phone printed (none captured yet for remoteproc_slpi: the first real read is the capture, so the rehearsal's checks name their source as the kernel's own source lines until then).
+: DONE 2026-11-25 (walleye-builder), parts 1 and 2: qrtr-lookup in the ramdisk, image slpi b9819427 rebuilt equal (PR 1122); procedures/slpi-boot-on-the-pixel-2.rs and rehearse-slpi-boot-on-the-pixel-2.rs over tools/walleye-tries/src/slpi_boot.rs (settings Try::SlpiBoot, device.toml [procedures.slpi-boot-on-the-pixel-2] and its rehearse- twin): gate (battery, sha256, UFS off), stored chain, card read, fastboot, flags, fastboot boot of [images.slpi] from memory, gadget-up, one telnet read (remoteproc states, kernel lines, qrtr-lookup), the answer kept in read.txt, dmesg.txt, verdict.txt, the shared way back to Android slot b, card/chain/flags read again. No go, no ssh, no slot change. lpoco-attended check --host passes on both, the 10 judge tests and the 466 of the crate pass. The judging is tested on a captured log for the negative case and on the kernel's source words for the positive (research walleye-slpi-boot-judged-words); the first real run is the first capture. NOT run on a phone: that is walleye-slpi-boot-qrtr, for the keeper.
 
 About
 : sensors

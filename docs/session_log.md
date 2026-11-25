@@ -9022,3 +9022,24 @@ Rejected
 
 About
 : sensors
+
+---
+
+
+<a id="2026-11-25-walleye-builder-slpi-boot-procedure"></a>
+### SLPI boot procedure and its rehearsal
+
+Entry date
+: 2026-11-25
+
+Done
+: slpi_boot.rs (SlpiBoot: the shared root-boot steps plus the image gate, the boot from memory, gadget-up, one telnet read judged into up/offline/crashed/absent and a qrtr service count, the answer kept), Try::SlpiBoot settings, the two device.toml tables, the two entry files; the judge tested on a captured kernel log (negative) and on the kernel's source words (positive, named in research walleye-slpi-boot-judged-words); lpoco-attended check --host and the whole crate's tests pass; no phone touched
+
+Considered
+: a go on the item (the touch procedure on z21 reads none: UFS off by the gate and RAM-only are the guard); reading the remoteproc over ssh (the image has no sshd, telnet is its shell); failing the run when the SLPI is not up (the answer is what the try is for)
+
+Rejected
+: a typed stand-in for a phone's SLPI text as a fixture: the positive case names the kernel's source format instead and says it is not captured; a slot switch like C1: nothing here needs the other slot, Android's slot stays current so a plain reboot returns to Android
+
+About
+: sensors

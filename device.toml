@@ -590,6 +590,22 @@ bootchain = "~/lab-material/walleye/bootchain-2026-11-19"
 by_name = "/dev/block/by-name"
 luns = 6
 
+# The SLPI boot (procedures/slpi-boot-on-the-pixel-2.rs; item walleye-slpi-boot-procedure, for the try walleye-slpi-boot-qrtr; research walleye-slpi-image-kernel-pas, walleye-slpi-qrtr-lookup): the SLPI image
+# `image` names ([images.slpi]) is booted once from memory (UFS off by the gate, nothing flashed, no slot changed); over its telnet the remoteproc states, the kernel's slpi lines and qrtr-lookup's list are read.
+# No go and no ssh key: the image is UFS-off and boots from RAM only. The card's tables, the boot chain and the slots' flags are read before and after and must be equal.
+[procedures.slpi-boot-on-the-pixel-2]
+image = "slpi"
+bootchain = "~/lab-material/walleye/bootchain-2026-11-19"   # the stored boot chain read-back: read again at the end it must equal it
+by_name = "/dev/block/by-name"                              # the phone's partition names on Android
+luns = 6                                                    # the card's disks (sda to sdf): the partition table of each is hashed before and after
+
+# The rehearsal of the SLPI boot (procedures/rehearse-slpi-boot-on-the-pixel-2.rs): every step but the boot and the read; nothing booted. The keys are the boot's, so a key renamed there fails in both.
+[procedures.rehearse-slpi-boot-on-the-pixel-2]
+image = "slpi"
+bootchain = "~/lab-material/walleye/bootchain-2026-11-19"
+by_name = "/dev/block/by-name"
+luns = 6
+
 # The rw write on the Pixel 2 (item walleye-rw-write-plumbing; plumbing in tools/walleye-tries/src/rw_write.rs): the rw-write image booted once from memory with its root, the system partition of the slot Android is NOT on, mounted READ-WRITE;
 # ONE bounded file of zeros is written into it, synced, read back, the filesystem checked read-only (fsck.ext4 -n), the kernel log read; the card's partition tables and the boot chain must be equal, the root partition changed. The keys are the root boot's
 # (same image kind, same ssh and card reads) plus `write_mib`, the size of the one write (1 to 64). The procedure that composes the steps is its own item; NOT to boot except under the coordinator's go that names the image's sha256.
