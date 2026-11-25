@@ -8464,3 +8464,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-0405-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-25
+
+Done
+: Android slot b, stock kept; nothing flashed or booted. Rehearsal of rootfs-boots passed (all steps, card/chain/flags equal). The real run via bin/attended run stopped at 'the author's go is recorded on the item': item walleye-install-rootfs-boots-try has go_until 2026-11-25T07:00 but image_sha256 NULL; the run image is c3373d7199d26a403a7ac9b10c8c95f4dd17f41d358eb59de095efd6bb6c7ba9. Procedures run by bin/attended run NAME (real ones are not executable; rehearse-* are). Stop read, nothing narrowed.
+
+Considered
+: next: coordinator records the go naming that sha256 (ikb backlog-go --image-sha256 ...) on walleye-install-rootfs-boots-try, then walleye-kernel-text-capture-run runs with one command: bin/attended run rootfs-boots-on-the-pixel-2
+
+About
+: walleye-bootimage
