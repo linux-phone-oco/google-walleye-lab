@@ -9927,10 +9927,10 @@ Proof
 ### The SLPI carve-out in our dts and an image that boots remoteproc_slpi with the phone's own firmware, UFS off: the layout of decision 2026-11-23-walleye-slpi-carveout-running-layout, tested offline, then the keeper's try
 
 Status
-: open
+: in-progress
 
 Note
-: From research walleye-slpi-carveout-read (PR 806, the Top's order to keep the slpi item moving): the SLPI firmware slpi_v2.mdt is relocatable and needs one 15 MiB block; our 7 MiB node at 0x94b00000 is too small; the phone's own dtbo and running fdt put it at 0x94c00000 / 0xf00000. NOT KNOWN YET: whether TZ accepts the image at 0x94c00000 on our boot, and the remoteproc reg. Behind the phone path (RESTART2 tool, silent-shell fix).
+: Landed: the dts (running layout; ipa/gpu/wlan nodes dropped, 0x95b00000 ipa_gpu_mem added, remoteproc_slpi okay with slpi_v2.mdt; reg 0x5800000 kept, NOT KNOWN YET, smallest try written in the dts) and tests/host/dtb-slpi-carveout.sh with its selftest, against the phone's own fdt text. The UFS-off image (proof 4) is split to walleye-slpi-image-kernel-pas: the shipped kernels have the PAS driver as a module.
 
 About
 : sensors
@@ -12801,3 +12801,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-slpi-image-kernel-pas"></a>
+### A UFS-off image that starts remoteproc_slpi: the kernel with the PAS driver built in, the phone's own SLPI firmware in its ramdisk
+
+Status
+: open
+
+Note
+: Stage 2 of walleye-slpi-carveout-dts (its dts and host test landed). Research walleye-slpi-image-kernel-pas: the shipped kernels have QCOM_Q6V5_PAS, MDT_LOADER, SYSMON, GLINK_SMEM, PDR_HELPERS as =m and the ramdisk has no modules. Next: record those options =y for the ufs-off list (kernel config of the lab, then a new int tag by lpoco bringup kernel assemble), build the dtb from dt/ on the matching tree, then the image: ramdisk with slpi_v2.mdt and .b00-.b14 copied from ~/lab-material/walleye (vendor_a) at build, mode 600/700, never git, plus qrtr tools; built twice identical, declared in device.toml, UFS-off gate. The keeper's try is then walleye-slpi-boot-qrtr.
+
+About
+: sensors
+
+Opened
+: 2026-11-25
+
+Needs
+: build
+
+Proof
+: (1) the kernel config names the options =y and the tag's .config shows them; (2) tests/host/dtb-slpi-carveout.sh passes on the image's dtb; (3) tests/host/ufs-off-image.sh passes on the image; (4) two builds equal; (5) the ramdisk lists slpi_v2.mdt and .b00-.b14 and no firmware is in git
+
+Rank
+: 4

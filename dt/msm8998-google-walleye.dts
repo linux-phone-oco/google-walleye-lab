@@ -4,7 +4,7 @@
  *
  * It brings up the SoC, its reserved memory, the RPM regulators the USB 2.0 PHY stands on, the USB
  * controller as a high-speed peripheral (the gadget is the first sign of life), pstore/ramoops and the
- * debug UART. Storage (UFS), display, GPU, Wi-Fi and remote processors stay off
+ * debug UART. Storage (UFS), display, GPU, Wi-Fi and the remote processors but the sensor hub (SLPI) stay off
  * until a part is brought up on purpose. The PMICs' SPMI nodes (mainline's pm8998.dtsi and pmi8998.dtsi) are in: their children bind or defer on their own.
  *
  * No /chosen/bootargs and no stdout-path: the bootloader appends the boot image's command line to the
@@ -15,7 +15,7 @@
  * and, for the regulator and USB nodes, from mainline's OnePlus 5(T) common file
  *   Copyright (c) 2021, Jami Kettunen <jamipkettunen@gmail.com>
  *   Copyright (c) 2016, The Linux Foundation. All rights reserved.
- * The reserved-memory carve-outs and the regulator limits are the values of that GPL wahoo file
+ * The regulator limits and the modem carve-out are the values of that GPL wahoo file; the mba, video, sensor-hub and ipa/gpu carve-outs are the phone's running ones (below)
  * (the downstream sources are kerneltoast/android_kernel_google_wahoo, arch/arm64/boot/dts/htc).
  * Nothing here comes from a proprietary source (decision walleye-input-wall).
  */
@@ -40,6 +40,20 @@
 /delete-node/ &mba_mem;
 /delete-node/ &slpi_mem;
 
+/*
+ * The running layout of the phone (decision 2026-11-23-walleye-slpi-carveout-running-layout, research walleye-slpi-carveout-read): the SLPI image needs one
+ * 15 MiB block, which the phone's own dtbo and running fdt put at 0x94c00000; that range swallows mainline's four ipa/gpu/wlan nodes, which go (the wifi node,
+ * disabled here, names wlan_msa_mem, so it drops that property: dtc refuses a reference to a deleted node), and the phone's 0x95b00000/1 MiB ipa/gpu block takes their place.
+ */
+&wifi {
+	/delete-property/ memory-region;
+};
+
+/delete-node/ &ipa_fw_mem;
+/delete-node/ &ipa_gsi_mem;
+/delete-node/ &gpu_mem;
+/delete-node/ &wlan_msa_mem;
+
 / {
 	model = "Google Pixel 2";
 	compatible = "google,walleye", "google,wahoo", "qcom,msm8998";
@@ -48,24 +62,30 @@
 	qcom,msm-id = <0x124 0x20001>;
 
 	reserved-memory {
-		/* Where Google's kernel puts the modem, video, MBA and sensor-hub regions (all unused here) */
+		/* The phone's running layout of the modem, video, MBA and sensor-hub regions (only the sensor hub is used here) */
 		mpss_mem: memory@8cc00000 {
 			reg = <0x0 0x8cc00000 0x0 0x7800000>;
 			no-map;
 		};
 
-		venus_mem: memory@94400000 {
-			reg = <0x0 0x94400000 0x0 0x500000>;
+		venus_mem: memory@94700000 {
+			reg = <0x0 0x94700000 0x0 0x500000>;
 			no-map;
 		};
 
-		mba_mem: memory@94900000 {
-			reg = <0x0 0x94900000 0x0 0x200000>;
+		mba_mem: memory@94500000 {
+			reg = <0x0 0x94500000 0x0 0x200000>;
 			no-map;
 		};
 
-		slpi_mem: memory@94b00000 {
-			reg = <0x0 0x94b00000 0x0 0x700000>;
+		slpi_mem: memory@94c00000 {
+			reg = <0x0 0x94c00000 0x0 0xf00000>;
+			no-map;
+		};
+
+		/* The phone's running layout's ipa/gpu block (0x95b00000, 1 MiB: the running fdt and the dtbo's pil_ipa_gpu_mem); the dtbo overlay writes its own pil_ipa_gpu_mem stub, not this node */
+		ipa_gpu_mem: memory@95b00000 {
+			reg = <0x0 0x95b00000 0x0 0x100000>;
 			no-map;
 		};
 
@@ -474,5 +494,17 @@
 &pmi8998_fg {
 	monitored-battery = <&battery>;
 	power-supplies = <&pmi8998_charger>;
+	status = "okay";
+};
+
+/*
+ * The sensor hub (SLPI) with the phone's own firmware, loaded from the rootfs or ramdisk (item walleye-slpi-carveout-dts; decision 2026-11-23-walleye-slpi-carveout-running-layout).
+ * The rest of the node is mainline's (pas id 12, smp2p-slpi, glink edge "dsps", px = lvs2, cx = SSCCX). NOT KNOWN YET: reg is mainline's 0x5800000, the phone's own node says
+ * 0x5c00000 (research walleye-slpi-carveout-read); the pas driver does not touch the registers it maps (TZ owns the reset), so it is left as mainline has it. The smallest
+ * try that answers it is the boot of this image with remoteproc_slpi to "running" (item walleye-slpi-boot-qrtr): if it starts, the reg did not matter; if the start fails, set reg
+ * to <0x05c00000 0x4040> and try once more.
+ */
+&remoteproc_slpi {
+	firmware-name = "qcom/msm8998/google/walleye/slpi_v2.mdt";
 	status = "okay";
 };

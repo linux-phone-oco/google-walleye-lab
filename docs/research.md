@@ -8214,3 +8214,25 @@ Found
 
 About
 : walleye-kernel-dts
+
+
+<a id="walleye-slpi-image-kernel-pas"></a>
+### walleye-slpi-image-kernel-pas
+
+Date
+: 2026-11-25
+
+Brief
+: The shipped UFS-off kernel has QCOM_Q6V5_PAS and the MDT loader as modules and the ramdisk has none: the SLPI image needs a kernel config change
+
+Question
+: Can the shipped UFS-off kernel start remoteproc_slpi from a ramdisk that carries the firmware?
+
+Found
+: No: in every kernel build read (out-z, out-display-late, out-ufsm) QCOM_Q6V5_PAS, QCOM_MDT_LOADER, QCOM_SYSMON, GLINK_SMEM, PDR_HELPERS are =m; walleye.config makes only QRTR, QRTR_SMD, PD_MAPPER =y. The image needs those =y in a new int tag, or modules matching the kernel.
+
+About
+: sensors
+
+Material
+: research/walleye-slpi-image-kernel-pas/2026-11-25/

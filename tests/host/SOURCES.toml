@@ -97,6 +97,12 @@ source = "research:walleye-display-reset-image-b-r5-tried-signs-vanish"
 [scripts."dtb-display-splash.sh"]
 source = "research:walleye-display-flip-15-25-read-from-logs"
 
+[scripts."dtb-slpi-carveout.sh"]
+source = "research:walleye-slpi-carveout-answer"
+
+[scripts."dtb-slpi-carveout-selftest.sh"]
+source = "file:tests/fixtures/phone-text/walleye-running-fdt-memory.cap"
+
 [scripts."dtbo-overlay-merges.sh"]
 source = "research:walleye-dtbo-overlay-merge-why-how-it-stands"
 
