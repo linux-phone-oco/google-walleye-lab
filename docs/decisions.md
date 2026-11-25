@@ -3590,3 +3590,34 @@ Research
 
 Tracked by
 : walleye-recipe-cmdline-budget-check
+
+
+<a id="2026-11-25-wdt1-pair-shorter-dyndbg"></a>
+### 2026-11-25-wdt1-pair-shorter-dyndbg
+
+Date
+: 2026-11-25
+
+Brief
+: The wdt1 pair is rebuilt with a dyndbg short enough for the 160-byte header budget, new sha256s declared; not retired
+
+Decision
+: wdt1-a's header command line is cut to 160 bytes or fewer by shortening its dyndbg (same kernel, same ramdisk init otherwise); the pair is rebuilt twice equal from recipes and declared with the new sha256s in [images.wdt1-a]/[images.wdt1-b]; [kernels] test keeps them. The old 168-byte image is not declared bootable. The new image's first phone boot rides on the next pmic-watchdog-v1 run.
+
+Why
+: procedures/pmic-watchdog-v1-on-the-pixel-2.rs and walleye-tries Try::Pmic still boot the pair (settings.rs), and the PMIC watchdog items stay open; the cmdline budget (land-check, research walleye-image-recipes-wdt1-rebuilt-equal, C1's cut at 1141 chars) excuses only not-to-boot images.
+
+Rejected
+: Retire the pair from [kernels] test: would leave the open PMIC watchdog try with no image and need a walleye-tries change; excuse wdt1-a in cmdline-over-budget.toml: only not-to-boot images may be excused.
+
+About
+: walleye-bootimage
+
+Research
+: walleye-image-recipes-wdt1-rebuilt-equal
+
+Scope
+: google-walleye-lab: walleye-builder
+
+Tracked by
+: walleye-image-recipes-other-images
