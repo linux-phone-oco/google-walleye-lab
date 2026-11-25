@@ -8390,3 +8390,25 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-25-b-a5/
+
+
+<a id="walleye-image-recipes-wdt1-rebuilt-equal"></a>
+### walleye-image-recipes-wdt1-rebuilt-equal
+
+Date
+: 2026-11-25
+
+Brief
+: wdt1-a and wdt1-b rebuild equal from recipes, but wdt1-a's 168-byte command line is over the 160 budget, so the rows are not declared
+
+Question
+: Do the two own-kernel wdt1 images rebuild equal from recipes, and can the recipes land?
+
+Found
+: Measured 2026-11-25: image ensure wdt1-b --rebuild builds wdt1-a (control z20, kernel/dtb/ramdisk/cmdline parts) then wdt1-b (control wdt1-a, kernel part), both equal (ensure-wdt1.txt). make land-check refused the rows: header cmdline 168 bytes over 160, and wdt1-a/b are bootable ([kernels] test), so no excuse. The rows and the seed way are in the README. Next: shorter dyndbg (new sha256) or retire the pair.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-25-wdt1/
