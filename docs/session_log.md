@@ -8662,3 +8662,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-0850-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-25
+
+Done
+: Phone on Android slot b, stock, nothing flashed or set. Took walleye-card-read-slow: rehearsal of C1 ran with the root hash made on the phone, 14/14 passed, check 7 in 12 s (was 760 s+ over adb); item done. Way back leg 1 31 s. The go on walleye-cmdline-cut-check-slot-a (until 11:06) is still open and unused; the real C1 run was not started - one piece per keeper.
+
+Considered
+: next: walleye-cmdline-cut-check-slot-a real run under its open go (rehearsal now passes); then walleye-transport-real-phone-run (rank 15). Open: why the adb stream stalls (adbd or host server), only if the old path is used again.
+
+About
+: walleye-bootimage
