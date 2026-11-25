@@ -12316,6 +12316,9 @@ Status
 Note
 : From the walleye builder 2026-11-24 (walleye-checks-name-their-sources): 21 host scripts still test typed fixtures; the only real captures are the c2, z6, z7 power-supply-facts (no qcom-battery supply), and the fg1 try (capacity 99, 4374 mV) kept no file. Read only, from Android b and, where the text is our kernel's, from the stage 2 read-only image booted from memory (the existing procedure, no flash). Each file names the image sha256, the command and the date. Never write to the phone.
 
+Blocked by
+: walleye-kernel-text-capture-procedure
+
 About
 : walleye-bootimage
 
@@ -12433,6 +12436,31 @@ Needs
 
 Proof
 : a unit test on run 1's dmesg lines that check 17 passes and wdt0.txt holds the four values
+
+Rank
+: 3
+
+
+<a id="walleye-kernel-text-capture-procedure"></a>
+### The stage 2 read-only boot keeps our kernel's text the selftests need (charger, fuel-gauge power_supply, part-compare, display-late-probe, dmesg) as fixture files with provenance lines
+
+Status
+: open
+
+Note
+: From the walleye keeper 2026-11-25 (PR 1071): Android's text is captured, but Android names its gauge 'battery', so the charger, fuel-gauge, part-compare and late-probe fixtures need OUR kernel's text. Add a read-only capture step to the rootfs-boots procedure (or a variant): over ssh, read the files under /sys/class/power_supply and the dmesg the selftests use, and write them under tests/fixtures/phone-text/ with image sha256, command and date. Reads only; the existing stage 2 image; nothing flashed.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: build
+
+Proof
+: the procedure's dry run lists the capture step; a unit test on a stand-in ssh shows each fixture written with its provenance line
 
 Rank
 : 3
