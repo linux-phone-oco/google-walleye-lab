@@ -9139,3 +9139,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-wdt1-pair-at-declared-path"></a>
+### wdt1 pair put at its declared path
+
+Entry date
+: 2026-11-25
+
+Done
+: Ran lpoco-bringup image ensure wdt1-a and wdt1-b (both equal to the declared sha256 7630009d / 4a4ae255); moved the old 168-byte pair into images-wdt1-sysfsless/old-168-byte-cmdline/, copied the ensured pair to the declared path, wrote SHA256SUMS-wdt1 from sha256sum, checked against device.toml. Nothing flashed, no phone touched.
+
+Considered
+: next recipes: z20, l6, ufs-match, alpine-rootfs*, b-r2, b-rp2, walleye-reboot (no recipe row yet)
+
+About
+: walleye-bootimage
