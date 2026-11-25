@@ -10689,10 +10689,10 @@ Rank
 ### One stage 1 excursion at the bootloader: fastboot reboot twice, each timed, then the way back (tells the reboot-reason persistence from a bootloader rule)
 
 Status
-: open
+: done
 
 Note
-: Procedures ready: procedures/rehearse-fastboot-reboot-twice-on-the-pixel-2.rs then fastboot-reboot-twice-on-the-pixel-2.rs (bin/attended run NAME); no go. Legs kept in legs.txt and verdict.txt for the research row.
+: proven by run 2026-11-25 (research walleye-fastboot-reboot-twice-android-returns-30s): 15 of 15 steps, legs 32 s and 29 s
 
 Blocked by
 : walleye-fastboot-reboot-twice-procedure
