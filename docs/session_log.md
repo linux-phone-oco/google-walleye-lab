@@ -8641,3 +8641,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-card-read-hashed-on-the-phone"></a>
+### Card read hashed on the phone
+
+Entry date
+: 2026-11-25
+
+Done
+: walleye-tries android.rs sha256 now runs dd | sha256sum on the phone and reads one digest line; tests (443) pass; item walleye-card-read-slow queued for the keeper (needs phone) with its rehearsal as proof; cause of the slow stream not measured
+
+Considered
+: reading the media speed first with a phone-side dd to /dev/null: needs the phone, a builder never touches it; left to the keeper's rehearsal
+
+Rejected
+: raising the 760 s bound: hides a stream that varies 70x; a bigger bound would only make the keeper wait longer
+
+About
+: walleye-bootimage
