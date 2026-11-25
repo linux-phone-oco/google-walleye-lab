@@ -12810,10 +12810,10 @@ Rank
 ### A UFS-off image that starts remoteproc_slpi: the kernel with the PAS driver built in, the phone's own SLPI firmware in its ramdisk
 
 Status
-: open
+: in-progress
 
 Note
-: Stage 2 of walleye-slpi-carveout-dts (its dts and host test landed). Research walleye-slpi-image-kernel-pas: the shipped kernels have QCOM_Q6V5_PAS, MDT_LOADER, SYSMON, GLINK_SMEM, PDR_HELPERS as =m and the ramdisk has no modules. Next: record those options =y for the ufs-off list (kernel config of the lab, then a new int tag by lpoco bringup kernel assemble), build the dtb from dt/ on the matching tree, then the image: ramdisk with slpi_v2.mdt and .b00-.b14 copied from ~/lab-material/walleye (vendor_a) at build, mode 600/700, never git, plus qrtr tools; built twice identical, declared in device.toml, UFS-off gate. The keeper's try is then walleye-slpi-boot-qrtr.
+: Stage 2 of walleye-slpi-carveout-dts. DONE 2026-11-25 (proof 1, host part): build/walleye.config sets QCOM_Q6V5_PAS, QCOM_SYSMON, RPMSG_QCOM_GLINK_SMEM =y; tests/host/kernel-slpi-pas.sh fails before and passes after on defconfig+fragment of linux-v7.3 (reads back QCOM_MDT_LOADER =y too; selftest 5 edits fail). Source tests/fixtures/kernel-text/slpi-pas-Kconfig.txt (v7.3: the PAS driver caps SYSMON and GLINK_SMEM, so they are =y with it). CORRECTION to the research: QCOM_PDR_HELPERS is selected only by QCOM_PMIC_GLINK and QCOM_APR and used by nothing under drivers/remoteproc, so the SLPI start does not need it. LEFT: a new int tag (lpoco bringup kernel assemble ufs-off, a config of the tag's .config showing the options =y), the dtb from dt/ on that tree, the image (ramdisk with slpi_v2.mdt and .b00-.b14 from ~/lab-material/walleye vendor_a at build, mode 600/700, never git, plus qrtr tools; [images.*.recipe] in device.toml; built twice equal; ufs-off-image.sh pass). Then the keeper's try walleye-slpi-boot-qrtr.
 
 About
 : sensors

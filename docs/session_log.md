@@ -8941,3 +8941,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-walleye-builder-slpi-pas-config"></a>
+### SLPI image: the PAS options =y, proved on the host
+
+Entry date
+: 2026-11-25
+
+Done
+: Wrote tests/host/kernel-slpi-pas.sh (seen failing), then set QCOM_Q6V5_PAS, QCOM_SYSMON, RPMSG_QCOM_GLINK_SMEM =y in build/walleye.config; the merged defconfig reads them and QCOM_MDT_LOADER back =y. Item stays in-progress: the int tag, kernel build, dtb and image remain.
+
+Considered
+: Modules in the ramdisk instead of =y (needs the tag's own module tree; the research left it not known).
+
+Rejected
+: QCOM_PDR_HELPERS =y: selected only by PMIC_GLINK and APR, no user under drivers/remoteproc in v7.3, so the research's list was wider than the SLPI start needs.
+
+About
+: sensors
