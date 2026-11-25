@@ -1,0 +1,9 @@
+[    1.602428] walleye-wdt0: first read at uptime 1 s, read only (devmem is never given a value)
+[    1.607536] walleye-wdt0: read EN 0x17817008
+[    1.615917] walleye-wdt0: EN 0x17817008 0x00000000
+[    1.616032] walleye-wdt0: read STS 0x1781700c
+[    1.623012] walleye-wdt0: STS 0x1781700c 0x00000000
+[    1.623122] walleye-wdt0: read BARK_TIME 0x17817010
+[    1.627879] walleye-wdt0: BARK_TIME 0x17817010 0x0007FFFF
+[    1.628037] walleye-wdt0: read BITE_TIME 0x17817014
+[    1.636484] walleye-wdt0: BITE_TIME 0x17817014 0x000FFFFF

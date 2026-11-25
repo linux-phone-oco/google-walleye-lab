@@ -8404,3 +8404,24 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-25-wdt0-check17-from-kernel-log"></a>
+### WDT0 check 17 judges the kernel log when the file is empty
+
+Entry date
+: 2026-11-25
+
+Done
+: wdt0::judge falls back to the kernel log's readings when /run/walleye/wdt0 is empty; the four values are kept in wdt0.txt. Test on run 1's nine printed lines (fixtures/wdt0-run1-dmesg.txt), seen failing first; all 433 walleye-tries tests, clippy, fmt pass.
+
+Considered
+: Making the init keep the readings where the root's /run does not hide them: needs a new image and a phone run.
+
+Rejected
+: Changing the init: a rebuild plus a second boot for a file the kernel log already carries; the log is the phone's own printed text. A file that holds readings must still equal the log.
+
+About
+: walleye-bootimage

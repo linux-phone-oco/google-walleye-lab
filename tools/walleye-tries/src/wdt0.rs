@@ -128,13 +128,18 @@ pub fn readings(text: &str) -> Result<Vec<Reading>, String> {
     Ok(out)
 }
 
-/// The judgement: the file the init kept and the kernel log say the same four readings, each a value. Fails naming what is not known:
-/// nothing read (the word did not reach the init, or the hand-over lost the file), a register that failed (devmem's words), a missing one,
-/// or the file and the kernel log disagreeing. Returns the readings as the init kept them.
+/// The judgement: the file the init kept and the kernel log say the same four readings, each a value. When the file is empty but the kernel
+/// log holds readings, the log alone is judged: run 1 (research walleye-wdt0-first-instant-readings) showed the root mounts a fresh tmpfs on
+/// /run, hiding what the initramfs kept there, while the init also said every reading to the kernel log. Fails naming what is not known:
+/// nothing read (the word did not reach the init), a register that failed (devmem's words), a missing one, or the file and the kernel
+/// log disagreeing. Returns the readings.
 pub fn judge(file: &str, dmesg: &str) -> Result<Vec<Reading>, String> {
-    let kept = readings(file)?;
+    let mut kept = readings(file)?;
     if kept.is_empty() {
-        return Err(format!("{FILE} holds no reading: the init did not read (the word {WORD} did not reach it, or the hand-over lost the file)"));
+        kept = readings(dmesg)?;
+    }
+    if kept.is_empty() {
+        return Err(format!("{FILE} holds no reading and the kernel log none either: the init did not read (the word {WORD} did not reach it)"));
     }
     for (name, _) in REGISTERS {
         match kept.iter().find(|r| r.name == name) {
@@ -204,6 +209,29 @@ mod tests {
         );
         assert_eq!(r[0].value, Ok(3));
         assert!(said(&r).starts_with("EN 0x17817008 = 0x00000003\n"));
+    }
+
+    // Source: run 1's kernel log (research walleye-wdt0-first-instant-readings), the nine walleye-wdt0 lines the phone printed, verbatim from
+    // its read.txt; its /run/walleye/wdt0 section was empty (the root's fresh tmpfs on /run hid the initramfs file).
+    const RUN1_DMESG: &str = include_str!("../fixtures/wdt0-run1-dmesg.txt");
+
+    #[test]
+    fn run_1s_empty_file_is_judged_from_its_kernel_log_and_the_four_values_are_kept() {
+        let r = judge("", RUN1_DMESG).unwrap();
+        assert_eq!(
+            said(&r),
+            "EN 0x17817008 = 0x00000000\nSTS 0x1781700c = 0x00000000\nBARK_TIME 0x17817010 = 0x0007ffff\nBITE_TIME 0x17817014 = 0x000fffff\n"
+        );
+    }
+
+    #[test]
+    fn a_kernel_log_missing_a_register_still_fails_with_an_empty_file() {
+        let cut: String = RUN1_DMESG
+            .lines()
+            .filter(|l| !l.contains("BITE_TIME"))
+            .map(|l| format!("{l}\n"))
+            .collect();
+        assert!(judge("", &cut).unwrap_err().contains("BITE_TIME is not in"));
     }
 
     #[test]
