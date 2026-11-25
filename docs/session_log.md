@@ -8740,3 +8740,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-1100-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-25
+
+Done
+: Ran the timed fastboot excursion (rehearsal 12/12, run 15/15): fastboot reboot and fastboot continue each returned Android in 29-32 s; phone on Android slot b, stock, nothing flashed or set; card, boot chain, flags equal. Item walleye-fastboot-reboot-twice-timed-try done. Not run: no go was involved.
+
+Considered
+: next: walleye-reboot-send-nc-job-control phone proof rides on the next debug-image run; C3 for the coordinator to rank; walleye-transport-real-phone-run (rank 15)
+
+About
+: walleye-bootimage

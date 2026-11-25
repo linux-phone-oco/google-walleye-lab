@@ -8132,3 +8132,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-25-c1-run/
+
+
+<a id="walleye-fastboot-reboot-twice-android-returns-30s"></a>
+### walleye-fastboot-reboot-twice-android-returns-30s
+
+Date
+: 2026-11-25
+
+Brief
+: Timed fastboot excursion from Android b: fastboot reboot and fastboot continue each brought Android back in 29-32 s; no second reboot needed, nothing stays in fastboot
+
+Question
+: Does fastboot reboot from the bootloader, reached by adb reboot bootloader on Android, return to Android (and how fast), or does reboot-reason persistence keep the phone in fastboot?
+
+Found
+: Run 2026-11-25 (rehearsal 12/12 first, then the real 15/15): leg 1 fastboot reboot accepted, fastboot 0.050 s, Android answered 32 s later; leg 2 fastboot continue on a second excursion, 0.178 s, Android answered 29 s later. No second reboot was sent: the phone did not list in fastboot after leg 1. Card tables, root partition, boot chain and both slots' flags equal before and after; phone ends on Android slot b. So from Android the bootloader honours reboot and continue; the stays-in-fastboot seen after our kernel's excursions comes from how our kernel sent the reboot (reason persistence), not from the bootloader.
+
+About
+: walleye-bootimage
