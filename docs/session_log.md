@@ -9118,3 +9118,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-wdt1-pair-shorter-dyndbg"></a>
+### wdt1 pair rebuilt with the short dyndbg
+
+Entry date
+: 2026-11-25
+
+Done
+: wdt1-a/b recipe rows in device.toml (control z20 and wdt1-a, the shipped parts by sha256, cmdline with dyndbg file pm8916_wdt.c, 151 bytes), sha256s 7630009d and 4a4ae255 from image ensure, equal twice; image-recipe.sh and the cmdline budget pass. Not booted.
+
+Considered
+: dyndbg matches by basename (kbasename in lib/dynamic_debug.c), on-phone print not known yet
+
+Rejected
+: Excusing wdt1-a in the over-budget table, retiring the pair (decision 2026-11-25-wdt1-pair-shorter-dyndbg)
+
+About
+: walleye-bootimage

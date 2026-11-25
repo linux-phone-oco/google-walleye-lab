@@ -224,11 +224,26 @@ ramdisk = "c2848c1eac82a61451eb9ba32fc1ec137ba0d93f30579f27d1316bbfee3fd63a"   #
 
 [images.wdt1-a]
 path = "images-wdt1-sysfsless/boot-wdt1-a.img"
-sha256 = "9dfea09637a813fa677449780ac475a3b859e81135a056fadd8811dadc2f40b4"
+sha256 = "7630009d5317bab1dda928d5597b0633850df7b774bdc281b997bfb82c310820"
+
+# wdt1-a rebuilt from z20 with the parts of the shipped pair (images-wdt1-sysfsless) and a command line cut to the header budget (decision 2026-11-25-wdt1-pair-shorter-dyndbg):
+# dyndbg names the file by its basename (lib/dynamic_debug.c matches a "file" query against kbasename), 17 bytes shorter than the first pair's line. Kernel and dtb are
+# the shipped parts (research walleye-image-recipes-wdt1-rebuilt-equal); the ramdisk is the sysfs-less reader fix's init.
+[images.wdt1-a.recipe]
+control = "z20"
+kernel = "31cecab2abea68a47c0ff25eec59c99d6eac95c3062a6a90f25f2fbaddf16037"
+dtb = "1e167515adb299579871bb4b0f0f8404924e5ff2f8dc7f7920ae19f592472a1a"
+ramdisk = "a491e1a2c263d78301346862bd1c83d9736e0bc4a13352fd696e2d58ea0ce636"
+cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3 dyndbg=\"file pm8916_wdt.c +p\""
 
 [images.wdt1-b]
 path = "images-wdt1-sysfsless/boot-wdt1-b.img"
-sha256 = "15f5e97d1ac4185fd4a3a5dae3b874cd5ee0267e694a4b454f9889d7efefe933"
+sha256 = "4a4ae255e5feee859310e9c4b4c4afb2ae139756787be90e90ad851458193c1a"
+
+# wdt1-b is wdt1-a with the second kernel (the S2 reset type changed); everything else is wdt1-a's.
+[images.wdt1-b.recipe]
+control = "wdt1-a"
+kernel = "5fd9772018032bff545a696d6c4926aa940e0c3187c557030aaa7897b734bce3"
 
 # The values only one procedure uses (the procedure's name in lowercase words joined by -).
 [procedures.touch-events-on-z21]

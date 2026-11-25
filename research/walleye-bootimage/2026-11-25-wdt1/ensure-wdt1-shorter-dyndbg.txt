@@ -1,0 +1,7 @@
+# Captured 2026-11-25 on the lab host, lpoco-bringup (installed), walleye-builder: image ensure wdt1-b --device device.toml --seed SEED --cache CACHE --rebuild, run twice, after the first run named the recipe's sha256s: wdt1-a 7630009d5317bab1dda928d5597b0633850df7b774bdc281b997bfb82c310820, wdt1-b 4a4ae255e5feee859310e9c4b4c4afb2ae139756787be90e90ad851458193c1a (declared in device.toml). SEED parts as in README.md; a run must use the /nix/store path below, the file at images-wdt1-sysfsless still holds the old 168-byte pair.
+wdt1-a: in the store
+wdt1-b: rebuilt from its recipe, equal to its declared sha256
+/nix/store/d7bb3g3dyfaqlm1fb9lphrd515dadj16-boot-wdt1-b.img
+wdt1-a: in the store
+wdt1-b: rebuilt from its recipe, equal to its declared sha256
+/nix/store/d7bb3g3dyfaqlm1fb9lphrd515dadj16-boot-wdt1-b.img
