@@ -8623,3 +8623,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-0830-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-25
+
+Done
+: Phone on Android slot b, stock, nothing flashed or set. Took walleye-cmdline-cut-check-slot-a (go open until 11:06). Ran its rehearsal (procedures/rehearse-cmdline-cut-c1-on-the-pixel-2.rs): checks 1-6 ok; check 7 (card read from Android) stalled: adb read of /dev/block/by-name/system_a got 92545020 of 2684354560 bytes in the 760 s bound (~120 KB/s), adb killed, retried; my own timeout 900 then ended the run (exit 143). Way back: phone already on Android. The real run was NOT started: the rehearsal did not pass. The go on the item is NOT used (no run N), left open.
+
+Considered
+: next: read why the adb pull of system_a is ~120 KB/s (usb link, adb on the host, adbd root dd vs pull) before any change; a builder may bound the root-partition hash by reading on the phone (sha256sum there) instead of through adb; rerun the rehearsal without an outer timeout shorter than its own bounds (it needs more than 900 s when it retries).
+
+About
+: walleye-bootimage
