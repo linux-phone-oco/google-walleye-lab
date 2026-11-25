@@ -8425,3 +8425,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-0200-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-25
+
+Done
+: Android slot b, stock kept; nothing flashed or booted. Read-only Android captures for walleye-phone-text-captures landed as fixtures (13 sourced). Item stays open: our kernel's charger/fuel-gauge text needs a stage 2 boot.
+
+Considered
+: next: walleye-phone-text-captures kernel half via a rehearsed stage 2 read run; check 17 fix still with builder; ready: cmdline-cut-check-slot-a, fastboot-reboot-twice-timed-try
+
+About
+: walleye-bootimage
