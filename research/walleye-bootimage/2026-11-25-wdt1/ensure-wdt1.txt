@@ -1,0 +1,14 @@
+z20: not proved, it has no recipe (a seed)
+wdt1-a kernel: not proved, it has no recipe (a seed)
+wdt1-a dtb: not proved, it has no recipe (a seed)
+wdt1-a ramdisk: not proved, it has no recipe (a seed)
+wdt1-a kernel: in the store
+wdt1-a dtb: in the store
+wdt1-a ramdisk: in the store
+z20: in the store
+wdt1-a: rebuilt from its recipe, equal to its declared sha256
+wdt1-b kernel: not proved, it has no recipe (a seed)
+wdt1-b kernel: in the store
+wdt1-a: in the store
+wdt1-b: rebuilt from its recipe, equal to its declared sha256
+/nix/store/a9q3vhrkm3rbvvmlrq0hjcigdy14zygp-boot-wdt1-b.img

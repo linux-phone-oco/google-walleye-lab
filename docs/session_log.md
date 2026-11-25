@@ -9100,3 +9100,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-image-recipes-wdt1"></a>
+### wdt1 recipes rebuild equal, blocked by the cmdline budget
+
+Entry date
+: 2026-11-25
+
+Done
+: Rebuilt wdt1-a and wdt1-b equal from recipes (research row, rows kept in its README); land-check refused them: 168-byte command line over 160; device.toml unchanged.
+
+Considered
+: Excusing wdt1-a in the over-budget table: refused, only a NOT-TO-BOOT image may be excused.
+
+About
+: walleye-bootimage
