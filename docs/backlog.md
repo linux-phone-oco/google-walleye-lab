@@ -11446,6 +11446,7 @@ Status
 
 Note
 : The one-command procedure exists (procedures/cmdline-cut-c1-on-the-pixel-2.rs, rehearsal rehearse-cmdline-cut-c1-on-the-pixel-2.rs): keeper runs the rehearsal first (no go), then the run under a go on THIS item naming the debug image sha256 a0a55cd0... (device.toml [images.ufs-root-booted-slot-debug]). Answer: cmdline.txt and verdict.txt in the run's folder, recorded as a research row.
+go until 2026-11-25T11:06:34+01:00, outcomes: if /proc/cmdline read over telnet carries androidboot.slot_suffix=_a with the whole tail then the bootloader passes the slot on slot a with our 149-char header and the cut seen in run 8 was length alone (C2 next); if the line ends at androidboot.pk=g-pxl-p then the bootloader cuts the tail on slot a whatever our header length (C3 next); if no telnet answers then the debug image did not reach its init on slot a and nothing about the cut is shown (the way back runs, the stop is read first). Instrument: the same image's telnet /proc/cmdline read, proven in stage 2 run 11 (a0a55cd0).
 
 Blocked by
 : walleye-debug-image-recipe
@@ -11464,6 +11465,15 @@ Proof
 
 Rank
 : 5
+
+Witness
+: person
+
+Go until
+: 2026-11-25T11:06:34+01:00
+
+Image sha256
+: a0a55cd060343d7acc1af07247c48b930789e2318afb77cfe31ea83acba25751
 
 
 <a id="walleye-cmdline-tail-ram-try"></a>
