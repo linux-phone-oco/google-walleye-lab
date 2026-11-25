@@ -12291,31 +12291,6 @@ Rank
 : 2
 
 
-<a id="walleye-image-recipes-other-images"></a>
-### A recipe row for each other image an [images.*] row names, each proven by image ensure
-
-Status
-: open
-
-Note
-: Parts landed through PR 1128. NEXT (coordinator decision 2026-11-25-wdt1-pair-shorter-dyndbg): rebuild wdt1-a/b with a shorter dyndbg so wdt1-a's header command line is 160 bytes or fewer, twice equal, declare the rows with the new sha256s; then the alpine-rootfs and ufs images.
-
-About
-: walleye-bootimage
-
-Opened
-: 2026-11-24
-
-Needs
-: build
-
-Proof
-: tests/host/image-recipe.sh NAME passes for each, and image ensure NAME equals its declared sha256 (the rebuild-identical proofs that let a build-*.sh retire: walleye-retire-build-scripts)
-
-Rank
-: 4
-
-
 <a id="walleye-phone-text-captures"></a>
 ### Capture the phone text the host selftests need: charger, fuel-gauge, part-compare, display-late-probe and boot-chain read-back text, kept under tests/fixtures/phone-text/ with provenance lines
 
@@ -12882,3 +12857,28 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-image-recipes-other-images"></a>
+### A recipe row for each other image an [images.*] row names, each proven by image ensure
+
+Status
+: open
+
+Note
+: Parts landed through PR 1128 and the wdt1 pair (research walleye-wdt1-shorter-dyndbg-rebuilt-equal: 151-byte line, 7630009d and 4a4ae255 declared, equal twice). NEXT: the alpine-rootfs and ufs images.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-24
+
+Needs
+: build
+
+Proof
+: tests/host/image-recipe.sh NAME passes for each, and image ensure NAME equals its declared sha256 (the rebuild-identical proofs that let a build-*.sh retire: walleye-retire-build-scripts)
+
+Rank
+: 4

@@ -8412,3 +8412,28 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-25-wdt1/
+
+
+<a id="walleye-wdt1-shorter-dyndbg-rebuilt-equal"></a>
+### walleye-wdt1-shorter-dyndbg-rebuilt-equal
+
+Date
+: 2026-11-25
+
+Brief
+: wdt1-a with dyndbg by basename (151-byte command line) and wdt1-b rebuild equal twice from recipes; new sha256s 7630009d and 4a4ae255 declared
+
+Question
+: Does the wdt1 pair rebuild equal with a command line inside the 160-byte header budget?
+
+Found
+: Measured 2026-11-25: wdt1-a's line with dyndbg="file pm8916_wdt.c +p" is 151 bytes (walleye-cmdline-budget pass); image ensure wdt1-b --rebuild, run twice, says built from its recipe equal to the declared sha256 for wdt1-a (7630009d5317...0820) and wdt1-b (4a4ae255e5fe...3c1a); kernel, dtb and ramdisk parts are the shipped pair's (sha256s as before); only the header line and so both images' sha256 changed. dyndbg's file query matches a basename (kbasename in lib/dynamic_debug.c): whether the driver's two dev_dbg lines still print on the phone is not known yet, the pair's first boot rides on the next pmic-watchdog-v1 run.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-25-wdt1/
+
+Supersedes
+: walleye-image-recipes-wdt1-rebuilt-equal
