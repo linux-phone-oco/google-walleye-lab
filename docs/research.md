@@ -8346,3 +8346,25 @@ Found
 
 About
 : sensors
+
+
+<a id="walleye-slpi-qrtr-ids-349-362-not-known"></a>
+### walleye-slpi-qrtr-ids-349-362-not-known
+
+Date
+: 2026-11-25
+
+Brief
+: qrtr ids 349-362 instance 50 on the Pixel 2 SLPI: no open source read names them; not known yet
+
+Question
+: Which services are qrtr ids 349-362 (instance 50) that the Pixel 2 SLPI lists as <unknown>, and which is the sensor service?
+
+Found
+: Read: the LWN cover letter of the QRTR bus / Sensor Manager series, the postmarketOS SSC wiki page, and the author's blog part 2. They say the MSM8998 SLPI serves a QMI Sensor Manager after the AP provides a Sensor Registry, and that qrtr-lookup lists it, but none gives ids 349-362, instance 50, or the Sensor Manager's id. Capture: research/walleye-slpi-boot-qrtr/read.txt (kept as tests/fixtures/phone-text/slpi-boot-qrtr-read.cap). Not read: the series' sns_smgr.h, the vendor kernel source, Android's own logs. So the names stay not known yet. Effect: slpi-sensor-service.sh skips a table of unnamed services with 'not known yet'. Next: read sns_smgr.h of the series against the ids.
+
+Sources
+: src-lwn-qrtr-sensor-manager-2025,src-pmos-wiki-ssc,src-emainline-ssc-p2
+
+About
+: sensors

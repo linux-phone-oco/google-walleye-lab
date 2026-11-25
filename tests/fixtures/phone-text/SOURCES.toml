@@ -68,3 +68,9 @@ source = "file:research/walleye-android-touch-capture/2026-11-25/dt-i2c.txt"
 
 [scripts."walleye-running-fdt-memory.cap"]
 source = "research:walleye-slpi-carveout-answer"
+
+[scripts."slpi-boot-qrtr-read.cap"]
+source = "file:research/walleye-slpi-boot-qrtr/read.txt"
+
+[scripts."slpi-boot-qrtr-dmesg.cap"]
+source = "file:research/walleye-slpi-boot-qrtr/dmesg.txt"

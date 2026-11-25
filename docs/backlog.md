@@ -12863,10 +12863,10 @@ Rank
 ### SLPI: the judge tests and slpi-sensor-service.sh on the captured text, and qrtr service ids 349-362 named from sources
 
 Status
-: open
+: done
 
 Note
-: From the keeper's run 2026-11-25 (PR 1124): SLPI running, up at 2.18 s, 23 qrtr services, ids 349-362 inst 50 unknown to qrtr-lookup. The proof test was not run on the phone; host-only work, no phone. No decompiled code; clean-room rules.
+: 2026-11-25 builder: judge tests on the captured read and log (Rust), slpi-sensor-service-selftest.sh on the capture; ids 349-362 not known yet (research walleye-slpi-qrtr-ids-349-362-not-known); next: read sns_smgr.h of the Sensor Manager series against the ids.
 
 About
 : sensors

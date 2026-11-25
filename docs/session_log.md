@@ -9061,3 +9061,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-slpi-judges-on-captured-text"></a>
+### SLPI judges on the phone's captured text
+
+Entry date
+: 2026-11-25
+
+Done
+: Kept the SLPI boot read and dmesg as fixtures (slpi-boot-qrtr-*.cap, SOURCES rows); two Rust tests judge the read (running, 23 services, verdict equal to the run's verdict.txt) and the whole log (slpi started and up, no failure); slpi-sensor-service.sh takes HEALTH_LIB and REMOTEPROC_ROOT, checks the remoteproc named slpi, and skips services it cannot name; new tests/host/slpi-sensor-service-selftest.sh built from the capture, seen failing first.
+
+Considered
+: naming ids 349-362 as the sensor service by guess
+
+Rejected
+: Treating any instance-50 service as the sensor service: no source names them. A stand-in qrtr table typed by hand: the capture is used.
+
+About
+: sensors

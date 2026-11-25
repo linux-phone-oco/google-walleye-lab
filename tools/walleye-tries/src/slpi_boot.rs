@@ -416,6 +416,31 @@ mod tests {
         assert_eq!(state_of("suspended"), State::Other("suspended".into()));
     }
 
+    /// Text the phone printed on the SLPI boot run of 2026-11-25 (keeper's run, PR 1124): the read the judge gets, and the kernel log of that boot whole.
+    const CAPTURED_READ: &str =
+        include_str!("../../../tests/fixtures/phone-text/slpi-boot-qrtr-read.cap");
+    const CAPTURED_BOOT_LOG: &str =
+        include_str!("../../../tests/fixtures/phone-text/slpi-boot-qrtr-dmesg.cap");
+    /// What the run's own judge said of that read (research/walleye-slpi-boot-qrtr/verdict.txt).
+    const CAPTURED_VERDICT: &str = "remoteproc slpi is running; the kernel says `remote processor slpi is now up`; no failure line; qrtr-lookup lists 23 service(s)";
+
+    #[test]
+    fn the_phones_own_read_of_the_slpi_boot_is_judged_up_with_23_services() {
+        let a = judge(CAPTURED_READ).unwrap();
+        assert_eq!(a.slpi, Some(State::Running));
+        assert_eq!(a.services, Ok(23));
+        assert!(a.log.started && a.log.up && a.log.failures.is_empty());
+        assert_eq!(a.said(), CAPTURED_VERDICT);
+    }
+
+    #[test]
+    fn the_whole_kernel_log_of_that_boot_has_the_slpi_lines_and_no_failure_about_it() {
+        // the log's other failure lines (msm_serial probe, the watchdog petter step) are not about the slpi, remoteproc, glink, qrtr or sysmon
+        let log = log_says(CAPTURED_BOOT_LOG);
+        assert!(log.started && log.up);
+        assert!(log.failures.is_empty(), "{:?}", log.failures);
+    }
+
     #[test]
     fn a_running_slpi_with_services_is_said_up_in_every_part() {
         let a = judge(&read(SOURCE_STATE_RUNNING, SOURCE_UP, SOURCE_TABLE)).unwrap();
