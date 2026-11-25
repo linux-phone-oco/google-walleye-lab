@@ -1,0 +1,31 @@
+== battery
+type=Battery
+status=Full
+present=1
+health=Good
+capacity=100
+voltage_now=4375232
+current_now=9765
+temp=300
+charge_type=N/A
+== bms
+type=BMS
+capacity=100
+voltage_now=4375232
+current_now=-9765
+temp=300
+== dc
+type=Wipower
+present=0
+online=0
+== main
+type=Main
+== pc_port
+type=USB
+online=0
+== usb
+type=USB
+present=1
+online=1
+voltage_now=5039062
+temp=232

@@ -7959,3 +7959,25 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-android-b-text-captures-2026-11-25"></a>
+### walleye-android-b-text-captures-2026-11-25
+
+Date
+: 2026-11-25
+
+Brief
+: Android b power-supply facts and partition table captured read-only as fixtures with provenance; our kernel's qcom-battery text still needs a stage 2 boot
+
+Question
+: Which phone text can be captured read-only now for the host selftests (charger, fuel gauge, boot chain)?
+
+Found
+: Android b (adb, no root, nothing written): supplies battery(Full,100,4375232 uV), bms, usb online=1, dc, main, pc_port; /dev/block/by-name 82 links. Android names its gauge battery, not qcom-battery, so fuel-gauge-selftest and charger-selftest still need our kernel's text from a stage 2 read-only image booted from memory (a procedure run under a go, not done here). part-compare and display-late-probe text likewise.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-android-text-captures/2026-11-25/

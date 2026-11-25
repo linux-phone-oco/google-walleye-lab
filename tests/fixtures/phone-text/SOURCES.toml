@@ -35,3 +35,9 @@ source = "file:research/walleye-first-fastboot-boot/2026-11-19-z7-try1/read/dmes
 
 [scripts."pmic-dmesg-z7-try1-spmi-devices.cap"]
 source = "file:research/walleye-first-fastboot-boot/2026-11-19-z7-try1/read/spmi-devices.txt"
+
+[scripts."power-supply-facts-android-b-2026-11-25.cap"]
+source = "file:research/walleye-android-text-captures/2026-11-25/power-supply-facts.txt"
+
+[scripts."partition-table-android-b-2026-11-25.cap"]
+source = "file:research/walleye-android-text-captures/2026-11-25/partition-table.txt"
