@@ -8025,3 +8025,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-25/
+
+
+<a id="walleye-build-scripts-retired-nine-rebuild-equal"></a>
+### walleye-build-scripts-retired-nine-rebuild-equal
+
+Date
+: 2026-11-25
+
+Brief
+: Nine build scripts retired: their images (b1 b2 l7 b-d5..50 b-s5 b-r5 b-q5, rw, wdt0) all rebuild equal by image ensure
+
+Question
+: Which build-*.sh may retire, per the rule that an image must rebuild byte for byte first?
+
+Found
+: 2026-11-25: lpoco bringup image ensure NAME said equal to the declared sha256 (or in the store from an equal build) for z21 l7 b1 b2 b-d5 b-d15 b-d25 b-d35 b-d50 b-s5 b-r5 b-q5 ufs-root-booted-slot-production-rw and -wdt0. Removed: display-at-boot-image, display-l7-image, display-look-image, display-delay-images, display-splash-image, display-reset-image, display-regs-image, ufs-root-rw-write, ufs-root-wdt0. Nothing ran them but comments (device.toml, build/README.md, a procedure doc line, now reworded). Kept: the 90 others (kernel, dtb, bisect, c1-c5, ml, pk, display-late, any-order and others), no [images.*] rebuild proof yet; each is still to be judged.
+
+About
+: walleye-kernel-dts

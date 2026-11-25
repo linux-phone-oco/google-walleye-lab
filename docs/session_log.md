@@ -8542,3 +8542,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-retire-nine-build-scripts"></a>
+### Nine build scripts retired
+
+Entry date
+: 2026-11-25
+
+Done
+: Ran image ensure for every recipe image (all equal); removed the nine scripts those images name; reworded comments; item stays in-progress
+
+Considered
+: judging all 99 scripts in one change
+
+Rejected
+: removing a script whose image has no equal rebuild
+
+About
+: walleye-kernel-dts

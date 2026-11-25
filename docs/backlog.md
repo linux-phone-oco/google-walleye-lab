@@ -10611,10 +10611,10 @@ Rank
 ### Each build-*.sh is retired once its image rebuilds from an int/ tag, byte for byte, and the [images.*] row says so
 
 Status
-: open
+: in-progress
 
 Note
-: THE AUTHOR'S WORD, 2026-11-23 (relayed by the Top Coordinator): 'i think they arent as productive as they can be because they still use old ways': walleye goes fully onto the new structure, at the FRONT of the builder queue right after the stage 2 watchdog/USB fix that stage 2 run 6 decides; none of it needs the phone, so a builder runs on it alongside the phone work. Item 5 of the Top Coordinator's list (the decision of the steward's review: a build script an [images.*] row names retires only when the image rebuilds byte for byte from an int/ tag).
+: PART 1 (2026-11-25): nine scripts retired, their images rebuild equal (research walleye-build-scripts-retired-nine-rebuild-equal). Next: image recipes for the rest (walleye-image-recipes-other-images), then judge each remaining build-*.sh (kernel, dtb, bisect, c1-c5, ml, pk, display-late, any-order...) and retire or keep with a reason. Author's word 2026-11-23: walleye goes fully onto the new structure.
 
 Blocked by
 : walleye-next-image-from-an-int-tag

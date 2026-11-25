@@ -2,7 +2,7 @@
 //! The display delay bisect as one command (item walleye-display-delay-bisect-build; research walleye-display-b2-dsi-clock-warning,
 //! decision 2026-11-19-walleye-display-early-load-splash-handover). B2's kernel, dtb and modules fail when msm loads at about 2 s of uptime and
 //! are clean at 66 s: where between them do the signs stop? Five images B-d5, B-d15, B-d25, B-d35, B-d50 are B2 whose init waits the
-//! number of seconds in its own /display-delay before it loads the display modules (build/build-display-delay-images.sh), so the load time
+//! number of seconds in its own /display-delay before it loads the display modules (rebuilt by `lpoco bringup image ensure`; its script is retired), so the load time
 //! does not depend on the shell. For each, in a row: the phone to fastboot, the image from memory (nothing flashed), the shell answering with
 //! the image's own delay, the kernel log read once the init says it is through the list and the three signs counted (SMMU context faults,
 //! `rcg didn't update its configuration`, DSI -110), the way back to Android. At the end the result table (delay, faults, warnings, -110) is
