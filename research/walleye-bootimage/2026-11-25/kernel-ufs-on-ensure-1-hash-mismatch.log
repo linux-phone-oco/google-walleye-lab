@@ -1,0 +1,15 @@
+walleye-ufs-on config: taken from the seed build/walleye.config
+walleye-ufs-on config: taken from the seed build/walleye-diag.config
+walleye-ufs-on config: taken from the seed build/walleye-ufs-root.config
+lpoco-bringup: nix-build /tmp/lpoco-bringup-ensure-2171827-1795610512525666013-walleye-ufs-on/kernel.nix failed:   NM      System.map
+  SORTTAB vmlinux.unstripped
+  OBJCOPY vmlinux
+  GEN     modules.builtin.modinfo
+  GEN     modules.builtin
+  OBJCOPY arch/arm64/boot/Image
+  GZIP    arch/arm64/boot/Image.gz
+make[1]: Leaving directory '/build/b'
+make: Leaving directory '/build/tree'
+error: hash mismatch in fixed-output derivation '/nix/store/bx5hnwvnzklfvip7ghlvprmqw6c98kp9-kernel-000000000000.drv':
+         specified: sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+            got:    sha256-8TLg8qhX8gDh7dcKcLsSPKp5wydcWl+mNKM+jU5TC6o=
