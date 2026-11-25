@@ -391,6 +391,14 @@ path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-debug-2/NOT-TO-BOOT-ufs-o
 kernel_tag = "int/walleye/ufs-on-3644090c7/v7.3/1"
 sha256 = "a0a55cd060343d7acc1af07247c48b930789e2318afb77cfe31ea83acba25751"
 
+# Rebuilt from its recipe (item walleye-debug-image-recipe, 2026-11-25): `lpoco bringup image ensure ufs-root-booted-slot-debug` equals the sha256 above. The control is the matched image
+# [images.ufs-root-booted-slot] (kernel, dtb, header words and AVB footer are its byte for byte); the ramdisk is the one unpacked from the image built on 2026-11-23 (walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-debug-2,
+# `lpoco bringup image unpack`), and the cmdline is that image's header line, 149 characters, read from the same unpack.
+[images.ufs-root-booted-slot-debug.recipe]
+control = "ufs-root-booted-slot"
+ramdisk = "1fe3f95d30c1574ae34ac2976fe73087d84cb4d92896d6e7802a46f154925381"
+cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.dtbo_idx=3 walleye.root=system_a walleye.booted-slot walleye.debug"
+
 # The stage 2 PRODUCTION image (item walleye-stage2-production-image, 2026-11-23): the image that STAYS on the phone. Init build/initramfs-root-production/init: the petters on every watchdog device first, kept through the hand-over, no gadget, no telnet, no debug word;
 # the slot from the bootloader's sources, the header command line under the budget (as [images.ufs-root-booted-slot-debug] a0a55cd0, without walleye.debug). The kernel is taken from the live list's tag int/walleye/ufs-on/v7.3/1 (commit 5caddde2d: v7.3 + topic/pmic-wdt-wake-in-suspend 8b2283da3
 # with its two fixes + topic/walleye-fuel-gauge-rfc + topic/ufs-match-android 0f3429f65) by build/build-ufs-root-production.sh, never from a tree by hand; dtb, header and AVB footer the matched image's. Built twice with this one sha256 (the checks are the build script's).

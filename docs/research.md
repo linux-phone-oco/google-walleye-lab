@@ -8044,3 +8044,25 @@ Found
 
 About
 : walleye-kernel-dts
+
+
+<a id="walleye-debug-image-recipe-rebuilt-equal"></a>
+### walleye-debug-image-recipe-rebuilt-equal
+
+Date
+: 2026-11-25
+
+Brief
+: The debug image a0a55cd0 rebuilds from a recipe (control ufs-root-booted-slot, its ramdisk, its 149-character cmdline), equal; its busybox carries nc and sha256sum
+
+Question
+: Can lpoco bringup image ensure make the C1 run's debug image a0a55cd0 on this machine?
+
+Found
+: The image was on disk (walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-debug-2, sha256 a0a55cd0), only in no store, cache or seed. image unpack gave its ramdisk (1fe3f95d) and header cmdline; the recipe is control [images.ufs-root-booted-slot] (e337de53, kernel/dtb/AVB footer its own) + that ramdisk + that cmdline. With the control and the ramdisk as one seed, lpoco-bringup 0.52.0 says 'built from its recipe, equal to its declared sha256'; the store then serves a0a55cd0 with no seed and tests/host/image-recipe.sh passes. The ramdisk's busybox applet table lists nc and sha256sum. The control and the ramdisk enter by seed once, as any hand-built part (ensure-debug.txt).
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-25/

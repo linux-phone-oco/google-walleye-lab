@@ -12601,10 +12601,10 @@ Rank
 ### A recipe row for [images.ufs-root-booted-slot-debug] so image ensure can make it: the C1 run's image is on no disk of this machine
 
 Status
-: open
+: done
 
 Note
-: Coordinator 2026-11-25 before C1's go: image ensure says a0a55cd0 is not in the store, the cache or the seed and has no recipe; no build script names it; the only debug image on disk is the run-8 one ec741a98 (agent-build/bf0d71), whose busybox has nc and sha256sum applets. The parts: build/initramfs-root-debug, kernel_tag int/walleye/ufs-on-3644090c7/v7.3/1, the 149-character header command line (device.toml comment at the row).
+: Recipe landed; ensure rebuilt a0a55cd0 equal (research walleye-debug-image-recipe-rebuilt-equal); the store now serves it.
 
 About
 : walleye-bootimage

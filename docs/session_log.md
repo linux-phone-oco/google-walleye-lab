@@ -8602,3 +8602,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-walleye-debug-image-recipe"></a>
+### Recipe for the stage 2 debug image
+
+Entry date
+: 2026-11-25
+
+Done
+: [images.ufs-root-booted-slot-debug.recipe] (control ufs-root-booted-slot, ramdisk 1fe3f95d, the 149-character cmdline); ensure rebuilds a0a55cd0 equal; image-recipe.sh passes; nc and sha256sum are in the ramdisk's busybox.
+
+Considered
+: Rebuilding the ramdisk with build/build-ufs-root-image.sh DEBUG_INIT=yes: not needed, the 2026-11-23 image's own ramdisk is on disk and unpacks exactly
+
+Rejected
+: Copying the image into the store by hand: ensure with a seed does it and checks the sha256
+
+About
+: walleye-bootimage
