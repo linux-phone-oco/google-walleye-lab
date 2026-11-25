@@ -3562,3 +3562,31 @@ Research
 
 Tracked by
 : walleye-fastboot-reboot-twice-procedure
+
+
+<a id="2026-11-25-recipe-cmdline-budget-is-a-rust-check-with-a-bootable-gate"></a>
+### 2026-11-25-recipe-cmdline-budget-is-a-rust-check-with-a-bootable-gate
+
+Date
+: 2026-11-25
+
+Brief
+: A recipe's command line over 160 characters fails make land-check; only a NOT-TO-BOOT image may be excused, in a table that cannot outlive it
+
+Decision
+: tools/walleye-cmdline-budget (Rust, argenv) measures every [images.NAME.recipe].cmdline of device.toml against 160 characters and is run by make land-check and CI. Images over it stand in tests/host/cmdline-over-budget.toml with a why, only while their path starts with NOT-TO-BOOT; a row for an image that is gone, no longer over, or bootable, or without a why, is refused.
+
+Why
+: The retired build-ufs-root scripts were the only check of the length; run 8's captured line was cut at 1363 characters so the header must stay under about 270 (research walleye-stage2-cmdline-budget-and-slot-sources), 160 keeps a margin of 110. ufs-root (338) and ufs-root-booted-slot (358) still carry the old long header and are NOT-TO-BOOT, so today passes only with them excused.
+
+Rejected
+: A shell awk check in tests/host (parsing TOML in shell, and the brief asks Rust with argenv); a limit written into device.toml per image (an unknown key may be refused by lpoco-lab's reader); rebuilding the two old images with a short header (their sha256 is declared and nothing boots them); excusing by a list with no bootable gate (a bootable image could then be cut silently).
+
+About
+: walleye-bootimage
+
+Research
+: walleye-stage2-cmdline-budget-and-slot-sources
+
+Tracked by
+: walleye-recipe-cmdline-budget-check

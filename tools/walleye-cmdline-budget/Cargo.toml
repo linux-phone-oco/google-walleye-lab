@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+[package]
+name = "walleye-cmdline-budget"
+version = "0.1.0"
+edition = "2021"
+description = "The check that every image recipe's command line stays within the header budget, so the bootloader never cuts the slot suffix off the end of the line it assembles"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[lib]
+name = "walleye_cmdline_budget"
+
+[[bin]]
+name = "walleye-cmdline-budget"
+path = "src/main.rs"
+
+[dependencies]
+# the command line is declared once (argenv), not parsed by hand
+argenv-resolve = "0.4"
+toml = "0.8"

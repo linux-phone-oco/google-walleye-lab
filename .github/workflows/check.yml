@@ -58,6 +58,18 @@ jobs:
         run: sh tests/host/image-recipe-selftest.sh
       - name: the header check passes a header equal to the recipe and fails a word more or less, also in the additional field (stand-ins, no store)
         run: sh tests/host/image-header-equals-recipe-selftest.sh
+  cmdline-budget:
+    name: every recipe's command line stays within the header budget
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: the check proves itself (an over-long recipe, a bootable or stale or reasonless exception fail), clippy clean, then reads device.toml
+        run: |
+          cd tools/walleye-cmdline-budget
+          cargo test --locked
+          cargo fmt --check
+          cargo clippy --locked --all-targets -- -D warnings
+          cargo run --locked -q -- --device ../../device.toml --exceptions ../../tests/host/cmdline-over-budget.toml
   kernel-config:
     name: every kernel fragment keeps the protection domain mapper built in
     runs-on: ubuntu-latest

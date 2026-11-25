@@ -8836,3 +8836,24 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-25-walleye-builder-cmdline-budget-check"></a>
+### walleye builder: the recipe cmdline budget check
+
+Entry date
+: 2026-11-25
+
+Done
+: Built tools/walleye-cmdline-budget in Rust with argenv: it reads device.toml, measures each [images.*.recipe].cmdline against 160 and fails one over; 9 tests (seen failing against a stub first; the programmer review added the bootable, non-string and --max cases) run it on the real device.toml and on copies lengthened or given bad exceptions. It passes device.toml today (six recipes, the two old long ones excused as NOT-TO-BOOT). Run by make land-check and a CI job; programmer review before landing.
+
+Considered
+: A per-image limit in device.toml; a shell check
+
+Rejected
+: See decision 2026-11-25-recipe-cmdline-budget-is-a-rust-check-with-a-bootable-gate
+
+About
+: walleye-bootimage
