@@ -77,6 +77,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: the check passes this repository's fragments and fails each way they can lose CONFIG_QCOM_PD_MAPPER=y, QRTR included (no kernel tree, no phone)
         run: sh tests/host/kernel-pd-mapper-selftest.sh
+      - name: the check for the sensor hub's PAS driver passes this repository's fragments and fails each way they can lose it (no kernel tree, no phone)
+        run: sh tests/host/kernel-slpi-pas-selftest.sh
       - name: the fragments set it (the merged .config is read back on the lab host, tests/host/kernel-pd-mapper.sh KERNEL_TREE)
         run: |
           out=$(sh tests/host/kernel-pd-mapper.sh || true); echo "$out"

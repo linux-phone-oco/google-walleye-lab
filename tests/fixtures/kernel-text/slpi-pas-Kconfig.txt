@@ -1,0 +1,78 @@
+# Kconfig text of Linux v7.3 (git show v7.3:PATH), the entries the SLPI image's kernel config rests on; read 2026-11-25 for item walleye-slpi-image-kernel-pas
+=== drivers/remoteproc/Kconfig
+config QCOM_Q6V5_PAS
+	tristate "Qualcomm Peripheral Authentication Service support"
+	depends on OF && ARCH_QCOM
+	depends on QCOM_SMEM
+	depends on RPMSG_QCOM_SMD || RPMSG_QCOM_SMD=n
+	depends on RPMSG_QCOM_GLINK_SMEM || RPMSG_QCOM_GLINK_SMEM=n
+	depends on QCOM_SYSMON || QCOM_SYSMON=n
+	depends on RPMSG_QCOM_GLINK || RPMSG_QCOM_GLINK=n
+	depends on QCOM_AOSS_QMP || QCOM_AOSS_QMP=n
+	select MFD_SYSCON
+	select QCOM_PIL_INFO
+	select QCOM_MDT_LOADER
+	select QCOM_Q6V5_COMMON
+	select QCOM_RPROC_COMMON
+	select QCOM_SCM
+	select QCOM_PAS
+	help
+	  Say y here to support the TrustZone based Peripheral Image Loader for
+	  the Qualcomm remote processors. This is commonly used to control
+	  subsystems such as ADSP (Audio DSP), CDSP (Compute DSP), MPSS (Modem
+	  Peripheral SubSystem), and SLPI (Sensor Low Power Island).
+
+config QCOM_SYSMON
+	tristate "Qualcomm sysmon driver"
+	depends on RPMSG
+	depends on ARCH_QCOM
+	depends on NET
+	select QCOM_QMI_HELPERS
+	help
+	  The sysmon driver implements a sysmon QMI client and a handler for
+	  the sys_mon SMD and GLINK channel, which are used for graceful
+	  shutdown, retrieving failure information and propagating information
+	  about other subsystems being shut down.
+
+	  Say y here if your system runs firmware on any other subsystems, e.g.
+	  modem or DSP.
+
+=== drivers/soc/qcom/Kconfig
+config QCOM_PD_MAPPER
+	tristate "Qualcomm Protection Domain Mapper"
+	select QCOM_QMI_HELPERS
+	select QCOM_PDR_MSG
+	select AUXILIARY_BUS
+	depends on NET && QRTR
+	default QCOM_RPROC_COMMON
+	help
+	  The Protection Domain Mapper maps registered services to the domains
+	  and instances handled by the remote DSPs. This is a kernel-space
+	  implementation of the service. It is a simpler alternative to the
+	  userspace daemon.
+
+config QCOM_MDT_LOADER
+	tristate
+	select QCOM_SCM
+
+config QCOM_PDR_HELPERS
+	tristate
+	select QCOM_QMI_HELPERS
+	select QCOM_PDR_MSG
+	depends on NET
+
+=== drivers/rpmsg/Kconfig
+config RPMSG_QCOM_GLINK
+	tristate
+	select RPMSG
+
+config RPMSG_QCOM_GLINK_SMEM
+	tristate "Qualcomm SMEM Glink driver"
+	select RPMSG_QCOM_GLINK
+	depends on MAILBOX
+	depends on QCOM_SMEM
+	help
+	  Say y here to enable support for the GLINK SMEM communication driver,
+	  which provides support for using the GLINK communication protocol
+	  over SMEM.
+
