@@ -1,0 +1,28 @@
+l6: not proved, it has no recipe (a seed)
+b1 ramdisk: not proved, it has no recipe (a seed)
+b1 ramdisk: in the store
+l6: in the store
+b1: rebuilt from its recipe, equal to its declared sha256
+b2 ramdisk: not proved, it has no recipe (a seed)
+b2 ramdisk: in the store
+b1: in the store
+b2: rebuilt from its recipe, equal to its declared sha256
+b-d5 ramdisk: not proved, it has no recipe (a seed)
+b-d5 ramdisk: in the store
+b2: in the store
+b-d5: rebuilt from its recipe, equal to its declared sha256
+b-r5 dtb: not proved, it has no recipe (a seed)
+b-r5 dtb: in the store
+b-d5: in the store
+b-r5: rebuilt from its recipe, equal to its declared sha256
+b-r2 dtb: not proved, it has no recipe (a seed)
+b-r2 ramdisk: not proved, it has no recipe (a seed)
+b-r2 dtb: in the store
+b-r2 ramdisk: in the store
+b-r5: in the store
+b-r2: rebuilt from its recipe, equal to its declared sha256
+b-rp2 ramdisk: not proved, it has no recipe (a seed)
+b-rp2 ramdisk: in the store
+b-r2: in the store
+b-rp2: rebuilt from its recipe, equal to its declared sha256
+/nix/store/yjfzsmhnspw4nf07hckzss79saq8a3f5-boot-b-rp2.img
