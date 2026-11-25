@@ -12866,7 +12866,7 @@ Status
 : open
 
 Note
-: Parts landed through PR 1128 and the wdt1 pair (research walleye-wdt1-shorter-dyndbg-rebuilt-equal: 151-byte line, 7630009d and 4a4ae255 declared, equal twice). NEXT: the alpine-rootfs and ufs images.
+: Parts landed through PR 1130 (wdt1 pair: research walleye-wdt1-shorter-dyndbg-rebuilt-equal, 151-byte line, 7630009d and 4a4ae255 declared, equal twice). NEXT: first put the ensured wdt1 pair at the declared path images-wdt1-sysfsless/ (it still holds the old 168-byte pair, which no longer matches device.toml; keep the old pair beside it renamed), checked by sha256 against device.toml; then the alpine-rootfs and ufs images.
 
 About
 : walleye-bootimage
