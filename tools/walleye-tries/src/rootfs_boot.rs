@@ -2646,6 +2646,18 @@ mod tests {
     }
 
     #[test]
+    fn the_wdt0_step_keeps_run_1s_readings_from_the_kernel_log_when_the_file_is_empty() {
+        // Source: run 1's nine printed kernel-log lines (research walleye-wdt0-first-instant-readings); its wdt0 section was empty.
+        let kmsg = include_str!("../fixtures/wdt0-run1-dmesg.txt");
+        let r = wdt0_rig("run1", "", kmsg);
+        (r.the_wdt0_registers_are_read())().unwrap();
+        assert!(r
+            .saved("wdt0.txt")
+            .unwrap()
+            .contains("BARK_TIME 0x17817010 = 0x0007ffff"));
+    }
+
+    #[test]
     fn the_wdt0_try_reads_the_file_after_the_login_and_the_other_tries_do_not() {
         let r = wdt0_rig("cmd", "", "");
         assert!(r
