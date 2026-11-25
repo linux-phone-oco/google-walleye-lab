@@ -8383,3 +8383,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-kernel-topics-read-back"></a>
+### Kernel topics item: what the fork shows today
+
+Entry date
+: 2026-11-25
+
+Done
+: Read the fork linux-phone-oco/linux with git ls-remote on 2026-11-25: tag archive/ufs-hynix-quirks at d49d54405 is there, no branch topic/ufs-hynix-quirks or archive/ufs-hynix-quirks remains (the archive/ufs-hynix-quirks-d49d54405 branch is the one left); live tags int/walleye/ufs-off/v7.3/1 and int/walleye/ufs-on/v7.3/1 and both frozen tags are pushed; device.toml carries kernel_tag on the ufs-off, ufs-on and rw-write rows. So the hynix archive job, the live lists' tags and the kernel_tag lines are done. Left of walleye-kernel-series-to-topics: step 5 (lab-only dts applied after assembly, an image rebuilt byte for byte from its tag) and the retirement of build-*.sh, which are the items walleye-declares-ufs-on-kernel-build, walleye-image-recipes-other-images and walleye-retire-build-scripts; the item stays open for them. No kernel built in this run.
+
+Considered
+: Starting a kernel build for step 5 now: it is the same work as walleye-declares-ufs-on-kernel-build (the [kernel_builds] row and two equal builds), so one builder does it once, from that item.
+
+Rejected
+: Marking the item done: step 5 and its proof (an image equal from its tag) are not shown yet.
+
+About
+: walleye-kernel-dts
