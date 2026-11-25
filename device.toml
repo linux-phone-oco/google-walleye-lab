@@ -126,6 +126,17 @@ rndis = false
 adb = "adb"
 fastboot = "fastboot"
 
+# The kernel of the UFS-off list with the SLPI start built in (item walleye-slpi-image-kernel-pas): the tag int/walleye/ufs-off/v7.3/1 (the pmic-wdt topic at its tip 8b2283da, as the list holds it today)
+# built with build/walleye.config as it is now (QCOM_Q6V5_PAS, QCOM_SYSMON, RPMSG_QCOM_GLINK_SMEM =y beside QRTR and PD_MAPPER); the config is the only change from the shipped list, so no new tag. Image.gz holds no dtb.
+[kernel_builds.walleye-ufs-off-slpi]
+tag = "int/walleye/ufs-off/v7.3/1"
+rev = "41f3b5fd66bbbdeeb98f75ea1180652834b4147c"          # the commit the tag points at (git rev-parse TAG^{commit})
+epoch = 1795421017                                          # the tagged commit's committer time (git log -1 --format=%ct TAG)
+configs = ["695954ce34021b736e8b3b6231fb35953e7d6c5badf191313fa45faed1a164f3"]   # build/walleye.config
+patches = []
+targets = ["Image.gz"]
+sha256 = "cc051a6e30369c0867245af7a1811e0059ebf6832ee2a2c1cba0bb8f823c16b7"
+
 # The kernel of the UFS-on list, built from its int/ tag (item walleye-declares-ufs-on-kernel-build): the tag the production image was built from, rebuilt in Nix's sandbox; NOT byte-equal to the shipped image (built by hand; its config predates 3e5694a, QCOM_PD_MAPPER=y).
 # The fragments are the ones build/build-ufs-root-production.sh merged after walleye.config (retired by walleye-retire-build-scripts): walleye, diag, ufs-root, by sha256.
 # The tag holds the pmic-wdt topic, the fuel-gauge RFC and ufs-match-android (kernel/topics.toml, list ufs-on). The dtbs are recipe parts by sha256 (Image.gz holds none).
@@ -160,6 +171,22 @@ sha256 = "bdc0a89179d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff"
 [images.z21.recipe]
 control = "z20"
 dtb = "f9f2ca5d511f3a5cacc40fb7385bc1e84d96c396f634c065da9847c4ce708260"
+
+# The SLPI image (item walleye-slpi-image-kernel-pas): UFS OFF, starts remoteproc_slpi from the phone's own firmware. z21 with three parts swapped: the kernel of [kernel_builds.walleye-ufs-off-slpi]
+# (PAS driver, sysmon, glink-smem =y), the dtb built from dt/ on that tag's tree plus the fuel gauge RFC commits' dtsi (build-kernel.sh's way; slpi_mem 15 MiB at the running base, remoteproc_slpi okay;
+# tests/host/dtb-slpi-carveout.sh passes) and the ramdisk of build/initramfs-slpi (z21's init and busybox, the SLPI firmware slpi_v2.mdt and .b00-.b14 under /lib/firmware/qcom/msm8998/google/walleye).
+# The firmware is the phone's own, read from vendor_a (research walleye-slpi-carveout-read) and kept outside git; the ramdisk part enters the store from the seed. Header, size and AVB footer are z21's.
+[images.slpi]
+path = "images-slpi/boot-slpi.img"
+kernel_tag = "int/walleye/ufs-off/v7.3/1"
+sha256 = "7c7dff6158fe86155f7179f2435ec0b070ef98eb280e338d29fb8cfee887c6bd"
+
+[images.slpi.recipe]
+control = "z21"
+kernel = "cc051a6e30369c0867245af7a1811e0059ebf6832ee2a2c1cba0bb8f823c16b7"
+dtb = "782de8ee84dd18bfb45b51054c3aa6f277ee29df9d78fe7761628e6d5adb851f"
+ramdisk = "348dbd45eb2cdfe924f3979bdcacca4b7d7144de45e2696597cb88c338276f3b"
+cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3"
 
 # z20: z21's control (UFS ON, NOT TO BOOT: tests/host/ufs-off-image.sh refuses it by design); no [kernels] list and no procedure names it.
 [images.z20]
