@@ -12504,10 +12504,10 @@ Rank
 ### Capture the phone text still missing for the host selftests: qcom-battery supply (fg1 image), root /proc/partitions, a part-compare pair (Android and ours), display-late reader answers
 
 Status
-: open
+: done
 
 Note
-: Left after PR 1102 (fg1 and Android /proc/partitions fixtures kept): ONE read, the part-compare Android half: tests/host/part-compare.sh capture PART android for the part part-compare-selftest uses (read only over adb; adb root restarts adbd only), kept as a fixture with its SOURCES row, part-compare-selftest moved onto it. The bootchain selftest move is walleye-bootchain-selftest-real-partitions (builder); the display-late answers are walleye-display-late-answers-capture (next late-probe run).
+: proven by part-compare-selftest passing on the Android b touch capture fixtures (research walleye-android-touch-capture-2026-11-25); no go involved
 
 About
 : walleye-bootimage

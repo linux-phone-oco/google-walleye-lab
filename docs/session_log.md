@@ -8779,3 +8779,18 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-1230-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-25
+
+Done
+: Android b part-compare touch capture read over adb (read only) and kept as fixtures; part-compare-selftest moved onto it; item walleye-phone-text-captures-rest done. Phone on Android slot b, stock, nothing flashed or set. No go was involved.
+
+Considered
+: next: walleye-reboot-send-nc-job-control phone proof rides on the next debug-image run; walleye-display-late-answers-capture rides on the next late-probe run; walleye-transport-real-phone-run (rank 15)

@@ -83,5 +83,13 @@ has "msm gpio dbg_show format, 4.4 header: same pin, different level" "$R" "3400
 hasno "unclaimed pins are not listed" "$R" "gpio1"
 has "pinmux: claimed pin is Android's" "$R" "gpio2"
 has "relative dirs: a file only in the second dir is named" "$R" "== zz"
+# the real Android b capture of touch (research walleye-android-touch-capture): the normalisers read what the phone printed
+FX=$H/../fixtures/phone-text; mkdir -p "$T/ra" "$T/ro"
+cp "$FX/part-compare-touch-android-b-gpio-2026-11-25.cap" "$T/ra/gpio.txt"; cp "$FX/part-compare-touch-android-b-regulator-2026-11-25.cap" "$T/ra/regulator.txt"; cp "$FX/part-compare-touch-android-b-dt-i2c-2026-11-25.cap" "$T/ra/dt-i2c.txt"
+printf 'gpiochip0: GPIOs 0-149, parent: platform/3400000.pinctrl, 3400000.pinctrl:\n gpio3   : in  0 6mA no pull\n' > "$T/ro/gpio.txt"; printf 'pm8998_s4:disabled:1800000\n' > "$T/ro/regulator.txt"; : > "$T/ro/dt-i2c.txt"
+RR=$(cd "$T" && sh "$H/part-compare.sh" diff ra ro)
+has "real Android gpio text: same pin, different level" "$RR" "3400000.pinctrl/gpio3  android=[in 1 6mA no pull] ours=[in 0 6mA no pull]"
+has "real Android regulator text: state differs" "$RR" "pm8998_s4  android=[enabled:1800000]"
+has "real Android dt-i2c text: a node only Android has" "$RR" "./reg"
 unset LISTDIR
 [ $total -eq 0 ] && echo "part-compare-selftest: all ok" || { echo "part-compare-selftest: $total failed"; exit 1; }

@@ -8173,3 +8173,25 @@ About
 
 Material
 : research/walleye-phone-text-from-material/2026-11-25/
+
+
+<a id="walleye-android-touch-capture-2026-11-25"></a>
+### walleye-android-touch-capture-2026-11-25
+
+Date
+: 2026-11-25
+
+Brief
+: Android b part-compare capture of touch (10 answers, read only): gpio, regulator, dt-i2c kept as fixtures; the selftest reads them
+
+Question
+: What does the stock Android b print for the part-compare touch list, as fixture text for part-compare-selftest?
+
+Found
+: tests/host/part-compare.sh capture touch android: 10 answers captured, adb root restarted adbd only, nothing written to the phone. Android 4.4.302 names the touch driver synaptics_dsxv26 on i2c 0-0020. gpio, regulator and dt-i2c kept under tests/fixtures/phone-text with SOURCES rows; part-compare-selftest now diffs them against a fake ours and passes.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-android-touch-capture/2026-11-25/

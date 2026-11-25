@@ -56,3 +56,12 @@ source = "file:research/walleye-phone-text-from-material/2026-11-25/fg1-dmesg.tx
 
 [scripts."proc-partitions-android-b-2026-11-23.cap"]
 source = "file:research/walleye-phone-text-from-material/2026-11-25/android-proc-partitions-run3.txt"
+
+[scripts."part-compare-touch-android-b-gpio-2026-11-25.cap"]
+source = "file:research/walleye-android-touch-capture/2026-11-25/gpio.txt"
+
+[scripts."part-compare-touch-android-b-regulator-2026-11-25.cap"]
+source = "file:research/walleye-android-touch-capture/2026-11-25/regulator.txt"
+
+[scripts."part-compare-touch-android-b-dt-i2c-2026-11-25.cap"]
+source = "file:research/walleye-android-touch-capture/2026-11-25/dt-i2c.txt"

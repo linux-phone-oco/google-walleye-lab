@@ -1,0 +1,5 @@
+input-name="synaptics_dsxv26"
+input-name="STM VL53L0 proximity sensor"
+input-name="gpio-keys"
+input-name="uinput-folio"
+input-name="uinput-fpc"

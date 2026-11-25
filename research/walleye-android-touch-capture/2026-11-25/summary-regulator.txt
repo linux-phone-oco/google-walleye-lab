@@ -1,0 +1,5 @@
+       800f000.qcom,spmi:qcom,pmi8998@2:qcom,usb-pdphy@1700                                  3088mV  3088mV
+    800f000.qcom,spmi:qcom,pmi8998@2:qcom,qpnp-smb2                                     0mV     0mV
+    800f000.qcom,spmi:qcom,pmi8998@2:qcom,qpnp-smb2                                     0mV     0mV
+    800f000.qcom,spmi:qcom,pmi8998@2:qcom,usb-pdphy@1700                                     0mV     0mV
+    800f000.qcom,spmi:qcom,pmi8998@2:qcom,usb-pdphy@1700                                     0mV     0mV

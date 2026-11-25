@@ -1,0 +1,4 @@
+side=android
+part=touch
+date=2026-11-25T12:16:17
+uname=Linux localhost 4.4.302-g113bd1cfa6f5 #1 SMP PREEMPT Fri Nov 28 18:19:37 UTC 2025 aarch64 Toybox
