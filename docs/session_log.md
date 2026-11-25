@@ -9178,3 +9178,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-walleye-image-recipes-any-order"></a>
+### Recipes for b-r2 and b-rp2
+
+Entry date
+: 2026-11-25
+
+Done
+: Two recipe rows in device.toml, both proven by image ensure --rebuild equal and image-recipe.sh; captured text in research/walleye-bootimage/2026-11-25-b-r2-rp2/.
+
+Considered
+: Retiring build-display-any-order-images.sh: it also makes the dtb and ramdisks, which enter from the seed, so it stays.
+
+About
+: walleye-bootimage

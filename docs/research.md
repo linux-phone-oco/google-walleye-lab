@@ -8437,3 +8437,25 @@ Material
 
 Supersedes
 : walleye-image-recipes-wdt1-rebuilt-equal
+
+
+<a id="walleye-image-recipes-any-order-rebuilt-equal"></a>
+### walleye-image-recipes-any-order-rebuilt-equal
+
+Date
+: 2026-11-25
+
+Brief
+: b-r2 and b-rp2 rebuild equal from recipes (b-r2: control b-r5 + the any-order dtb + its ramdisk; b-rp2: control b-r2 + its ramdisk)
+
+Question
+: Do the any-order images rebuild equal from b-r5 and their own parts?
+
+Found
+: Measured 2026-11-25: image ensure b-r2 and b-rp2 with --seed and --rebuild gave 'rebuilt from its recipe, equal to its declared sha256' (ensure-*.txt; the flags are not in the capture); image-recipe.sh passes for both (recipe-*.txt, a dry run, so its store paths differ). Parts as unpacked (unpacked-part-hashes.txt): dtb 1c3b57f0 (any-order.dtb of SHA256SUMS-display-any-order, b-r5's is 95f3a8a0), ramdisks b6ff834e (delay 2) and fcff3297 (panel before msm, b-rp2.diff); both enter from the seed. Not captured: that header and cmdline equal b-r5's - the equal rebuild is the proof. The dtb and ramdisk builds stay build-display-any-order-images.sh's.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-25-b-r2-rp2/

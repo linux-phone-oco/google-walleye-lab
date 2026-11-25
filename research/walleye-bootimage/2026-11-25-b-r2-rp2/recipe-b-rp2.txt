@@ -1,0 +1,1 @@
+pass walleye-image-recipe b-rp2: would be built from its recipe (/nix/store/0r751b8ipsap1sq84ahngazaabldzpw5-boot-b-rp2.img)
