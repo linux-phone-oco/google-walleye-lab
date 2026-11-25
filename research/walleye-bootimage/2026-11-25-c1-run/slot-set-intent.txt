@@ -1,0 +1,1 @@
+fastboot set_active a (Android runs from b); the way back: fastboot set_active b

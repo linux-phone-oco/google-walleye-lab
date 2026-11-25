@@ -8680,3 +8680,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-0935-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-25
+
+Done
+: Phone on Android slot b, stock, nothing flashed; card, boot chain and flags equal to before (rehearsal read after). Ran C1 under its go (used by run 1, go closed): CUT at androidboot.pk=g-pxl-p on slot a (research walleye-cmdline-cut-c1-slot-a-cuts), item done. The run's way back stopped at step 16 (nc job control, backlog walleye-reboot-send-nc-job-control); I finished the same steps by hand over telnet and lpoco lab fastboot set-active/reboot, no hands needed.
+
+Considered
+: next: C3 (the bootloader cuts the tail on slot a whatever our header) is for the coordinator to rank; then walleye-reboot-send-nc-job-control fix (lab builder) before any run that boots the debug image again; then walleye-transport-real-phone-run (rank 15).
+
+About
+: walleye-bootimage

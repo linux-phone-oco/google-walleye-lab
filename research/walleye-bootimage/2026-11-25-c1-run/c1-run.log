@@ -1,0 +1,34 @@
+1795593155 start : cmdline cut c1 on the Pixel 2 on google-walleye
+1795593155 start : cmdline cut c1 on the Pixel 2 on google-walleye
+1795593155 begin the battery is good enough: check
+1795593155 ok the battery is good enough: 
+1795593155 begin the image is the declared debug image: its telnet word once, no slot, names one root: check
+1795593155 ok the image is the declared debug image: its telnet word once, no slot, names one root: 
+1795593155 begin the stored boot chain is whole and the reboot tool is the declared one: check
+1795593156 ok the stored boot chain is whole and the reboot tool is the declared one: 
+1795593156 begin say what to expect: step
+1795593156 ok say what to expect: 
+1795593156 begin the phone is on Android, adbd as root: step
+1795593157 ok the phone is on Android, adbd as root: 
+1795593157 begin adb reads the slot Android runs from: check
+1795593157 ok adb reads the slot Android runs from: 
+1795593157 begin the card is read from Android: its partition tables and the root partition: check
+1795593169 ok the card is read from Android: its partition tables and the root partition: 
+1795593169 begin take the phone to fastboot: step
+1795593181 ok take the phone to fastboot: 
+1795593181 begin fastboot agrees on the slot and the image's root is the other one: check
+1795593181 ok fastboot agrees on the slot and the image's root is the other one: 
+1795593181 begin the slots' flags are read: check
+1795593181 ok the slots' flags are read: 
+1795593181 begin the author's go is recorded on the item: check
+1795593181 ok the author's go is recorded on the item: 
+1795593181 begin make the slot Android is not on current (the one change; intent written first): step
+1795593182 ok make the slot Android is not on current (the one change; intent written first): 
+1795593182 begin boot the debug image from memory with its own command line, nothing flashed: step
+1795593201 ok boot the debug image from memory with its own command line, nothing flashed: 
+1795593201 begin USB device 1d6b:0104 is on the bus: check
+1795593201 ok USB device 1d6b:0104 is on the bus: 
+1795593201 begin the command line is read over telnet: whole with the slot suffix, or cut at the pk word: check
+1795593201 ok the command line is read over telnet: whole with the slot suffix, or cut at the pk word: 
+1795593201 begin send the phone to its bootloader: the reboot tool over the image's nc, checked on the phone: step
+1795593206 FAIL send the phone to its bootloader: the reboot tool over the image's nc, checked on the phone: `(nc -l -p 4444 > /tmp/walleye-reboot) > /dev/null 2>&1 &` was not answered within 5 s

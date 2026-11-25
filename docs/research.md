@@ -8110,3 +8110,25 @@ About
 
 Supersedes
 : walleye-card-read-adb-stream-suspected
+
+
+<a id="walleye-cmdline-cut-c1-slot-a-cuts"></a>
+### walleye-cmdline-cut-c1-slot-a-cuts
+
+Date
+: 2026-11-25
+
+Brief
+: C1: with slot a current the bootloader cuts the tail at androidboot.pk=g-pxl-p (1141 chars, no slot_suffix) on the RAM-booted debug image: not our header's length (C3 next)
+
+Question
+: Does androidboot.slot_suffix=_a arrive on /proc/cmdline when the debug image (a0a55cd0, 149-char header) is fastboot-booted with slot a current?
+
+Found
+: Run 20261125-085235 under the go on walleye-cmdline-cut-check-slot-a: Android on b, slot a made current, debug image booted from memory, telnet read /proc/cmdline: 1141 characters, ends at androidboot.pk=g-pxl-p, no androidboot.slot_suffix=. Per the item's outcome the bootloader cuts the tail on slot a whatever our header length (C3 next). Way back: the step-16 send stopped (backgrounded nc stopped 'tty input' by busybox job control, no answer in 5 s); I repeated the same sequence by hand over telnet (tool sha256 fd73925b equal on the phone, chmod, --command bootloader), then lpoco lab fastboot set-active now b and reboot now; Android b back, the rehearsal then read card (6 disks + system_a), boot chain and flags equal to before.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-25-c1-run/
