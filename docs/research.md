@@ -8088,3 +8088,25 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-23/
+
+
+<a id="walleye-card-read-on-the-phone-12s"></a>
+### walleye-card-read-on-the-phone-12s
+
+Date
+: 2026-11-25
+
+Brief
+: With the root hash made on the phone (PR 1094) check 7 hashed 6 disks and system_a (2.68 GB) in 12 s; the 120 KB/s read was the adb exec-out stream, not the card
+
+Question
+: Why did the adb read of system_a take 760 s+ on 2026-11-25 while rootfs-boots run 7 read it in 306 s, and does the phone-side hash finish within its bound?
+
+Found
+: Rehearsal rehearse-cmdline-cut-c1-on-the-pixel-2 2026-11-25 08:47-08:48 (unit walleye-keeper-rehearse, no outer timeout): all 14 steps passed. Check 7 (6 disks' tables + system_a hashed on the phone, dd status read) ran 08:46:16 to 08:46:28 = 12 s for 2684354560 bytes (~220 MB/s), check 12 the same way, way back leg 1 brought Android back after 31 s, phone on Android slot b. Earlier: 8.8 MB/s (run 7), a 16 MiB stall (stage 2 run 6), 120 KB/s (keeper 0830), all through the adb stream; on the phone the same card reads in seconds, so the card and the USB link (480 Mb/s) were not the cause; the adb stream's variable rate was. Not measured: why the stream stalls (adbd/host adb server), and a repeat of the stall with the stream - the old path is no longer used by this check.
+
+About
+: walleye-bootimage
+
+Supersedes
+: walleye-card-read-adb-stream-suspected

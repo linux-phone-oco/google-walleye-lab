@@ -12636,10 +12636,10 @@ Rank
 ### The card read before a try (root.the_card_is_read_before) read system_a over adb at ~120 KB/s and could not finish in its 760 s bound: read why, then make the root hash finish within its bound
 
 Status
-: open
+: done
 
 Note
-: Keeper 2026-11-25-0830 (PR 1092): checks 1-6 ok, check 7 read 92545020 of 2684354560 bytes in 760 s, retried, the keeper's own 900 s timeout ended it. Coordinator read the host side: the phone is on usb 3-2 at 480 Mb/s (high speed, no downgrade), last re-enumerated 08:10:56, so the link is not the cause. A stop is read before the fix: compare with the earlier runs' timings first; hashing on the phone (sha256sum under adb root, as stage 1's read-back did) is the candidate, not the conclusion. The keeper's rerun takes no outer timeout shorter than the procedure's bounds.
+: proven by rehearsal 14/14 on 2026-11-25 with check 7 in 12 s (research walleye-card-read-on-the-phone-12s)
 
 About
 : walleye-bootimage
