@@ -12390,16 +12390,16 @@ Rank
 ### Read WDT0 (0x17817000: EN, STS, BARK, BITE) at our kernel's first instant: what does the bootloader arm?
 
 Status
-: in-progress
+: done
 
 Note
-: 2026-11-25 run: EN=0 STS=0 BARK=0x7FFFF BITE=0xFFFFF read from the kernel log (research walleye-wdt0-first-instant-readings); procedure check 17 failed because the init's /run file does not survive the hand-over - the proof test walleye-wdt0-state-at-boot is not passed as written. Next (builder): make the init copy the file where the root keeps it or make check 17 read the kernel log; rehearse; a new go only if a second boot is wanted at all (the values are already in).
+: 2026-11-25 run: EN=0 STS=0 BARK=0x7FFFF BITE=0xFFFFF read from the kernel log (research walleye-wdt0-first-instant-readings); procedure check 17 failed because the init's /run file does not survive the hand-over - the proof test walleye-wdt0-state-at-boot is not passed as written. Next (builder): make the init copy the file where the root keeps it or make check 17 read the kernel log; rehearse; a new go only if a second boot is wanted at all (the values are already in). | 2026-11-25 coordinator: DONE by the answer, not by the procedure: the phone's own kernel log (PR 1066, research walleye-wdt0-first-instant-readings) gives EN=0 STS=0 BARK=0x7FFFF BITE=0xFFFFF at uptime 1 s, so the bootloader leaves WDT0 disarmed (the go's EN=0 outcome). The procedure's check 17 failed on /run being remounted by the root; fixed by walleye-wdt0-check17-reads-kernel-log. Measured once.
 
 About
 : walleye-bootimage
 
 Opened
-: 2026-11-24
+: 2026-11-25
 
 Needs
 : phone
@@ -12413,5 +12413,27 @@ Rank
 Witness
 : person
 
-Go until
-: 2026-11-25T01:05:00+01:00
+
+<a id="walleye-wdt0-check17-reads-kernel-log"></a>
+### WDT0 procedure check 17 reads the four readings from the kernel log (or the init keeps them where the root's /run does not hide them), tested on run 1's printed lines
+
+Status
+: open
+
+Note
+: Run 1 (PR 1066): the init wrote /run/walleye/wdt0 in the initramfs /run, the root mounted a fresh tmpfs on /run, so check 17 found it empty and wdt0.txt was not kept; the readings were in dmesg (walleye-wdt0 lines). Use run 1's printed lines as the test fixture (text a phone printed).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: build
+
+Proof
+: a unit test on run 1's dmesg lines that check 17 passes and wdt0.txt holds the four values
+
+Rank
+: 3
