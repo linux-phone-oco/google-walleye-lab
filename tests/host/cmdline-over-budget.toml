@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# The images whose recipe command line is over the header budget (tools/walleye-cmdline-budget, 160 characters), each with why it is allowed.
+# Only an image whose path starts with NOT-TO-BOOT may stand here; a row for an image that is gone, or no longer over, is refused.
+# The budget: run 8's captured /proc/cmdline was cut at 1363 characters, so the header must stay under about 270 (research walleye-stage2-cmdline-budget-and-slot-sources).
+
+[over.ufs-root]
+why = "the old long header (dyndbg and androidboot.console), kept equal to the declared sha256 and never booted: the stage 2 images after it carry the short header (item walleye-stage2-cmdline-too-long); the control of ufs-root-booted-slot"
+
+[over.ufs-root-booted-slot]
+why = "the old long header, rebuilt equal from its recipe (item walleye-retire-build-scripts) and NOT-TO-BOOT: the non-debug stage 2 image that run 8 showed cut, replaced by the debug and production images"
