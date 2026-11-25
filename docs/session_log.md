@@ -8365,3 +8365,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-0105-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-25
+
+Done
+: Android slot b, stock kept; nothing flashed. Rehearsal of the WDT0 try passed 15/15, then the real run (go used by run 1): booted image 17a9c21d once from memory, kernel log shows EN 0, STS 0, BARK 0x7FFFF, BITE 0xFFFFF; run stopped at check 17 (/run/walleye/wdt0 lost at hand-over), way back by fastboot reboot, Android in 31 s; idle-android pass, battery 4375 mV. Go closed.
+
+Considered
+: next: builder fix of the file's survival (or check 17 reading dmesg) and its rehearsal; remaining ready: cmdline-cut-check-slot-a, fastboot-reboot-twice-timed-try. No step claim: the proof did not pass as written.
+
+About
+: walleye-bootimage

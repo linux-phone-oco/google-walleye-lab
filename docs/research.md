@@ -7940,3 +7940,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-24/
+
+
+<a id="walleye-wdt0-first-instant-readings"></a>
+### walleye-wdt0-first-instant-readings
+
+Date
+: 2026-11-25
+
+Brief
+: WDT0 at our kernel's first instant (kernel log of run 1): EN 0, STS 0, BARK 0x7FFFF, BITE 0xFFFFF - bootloader leaves it disarmed
+
+Question
+: What does the bootloader leave in the apps watchdog WDT0 (0x17817000) when our kernel's init first runs?
+
+Found
+: Image 17a9c21d (run image 9f0d485b, slot b on the command line), booted once from fastboot, read only. dmesg walleye-wdt0 lines at uptime 1 s: EN 0x17817008=0x00000000, STS 0x1781700c=0x00000000, BARK_TIME 0x17817010=0x0007FFFF, BITE_TIME 0x17817014=0x000FFFFF. All four read; EN=0 means disarmed at the first instant (BARK/BITE are reset defaults, not a timeout in force). The procedure itself stopped at check 17: /run/walleye/wdt0 was empty after the hand-over to the root's init (init wrote it into the initramfs /run; the root mounts a fresh tmpfs on /run), so wdt0.txt was not kept; the values come from the kernel log the stop printed. Measured once; not repeated (no second boot per the go). Phone back on Android slot b, idle-android pass, battery 4375 mV.
+
+About
+: walleye-bootimage
