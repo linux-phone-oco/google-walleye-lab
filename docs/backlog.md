@@ -11281,10 +11281,13 @@ Rank
 ### walleye declares its kernel build so lpoco bringup image ensure can build it from an int/ tag: the board dtbs, our dts patch, the fuel-gauge commits as the recipe's inputs
 
 Status
-: in-progress
+: done
 
 Note
-: MEASURED: the declared ufs-off kernel build reproduces itself (two Nix builds equal, 88afb4d7...97ac; research walleye-kernel-build-declared-reproduces-itself); the row is kept in research/walleye-bootimage/2026-11-24/kernel-build-row.toml and goes into device.toml with the first lpoco-attended release that carries manifest 0.47.0 (PR 996's CI: 'unknown field kernel_builds' from lpoco-manifest 0.46.0). Proof then: tests/host/kernel-build.sh walleye-ufs-off. The shipped kernels cannot be equalled (-dirty, mll@grig, clang 23.1.5). Ufs-on kernels: walleye-declares-ufs-on-kernel-build.
+: DONE 2026-11-25: [kernel_builds.walleye-ufs-off] is in device.toml (the row of research/walleye-bootimage/2026-11-24/kernel-build-row.toml; attended 0.45.7 carries manifest 0.49.1). Proof: tests/host/kernel-build.sh walleye-ufs-off passes; 'lpoco-bringup image ensure walleye-ufs-off' (0.53.2) says 'in the store' at /nix/store/k951219a0339r39c47g38fcparp8sdd0-kernel-88afb4d742ff, whose sha256sum is the declared 88afb4d7...97ac. The dtbs are recipe parts of an image by sha256 (Image.gz holds none). Ufs-on and slpi kernels have their own rows.
+
+Waits
+: none
 
 Blocked by
 : walleye-lpoco-attended-carries-manifest-0-47
