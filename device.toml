@@ -225,7 +225,7 @@ ramp_mb = "64,256,1024"    # the ramp: each step is one bounded read of this man
 devfreq = "1da4000.ufshc"  # the UFS host's devfreq node: its clock is pinned at 50 MHz (userspace governor) before the first step and read back; absent, or not 50 MHz: the run stops before any load
 
 # The delay bisect (item walleye-display-delay-bisect-build): B2 whose init waits the number of seconds of uptime in its own /display-delay before it loads the
-# display modules (build/build-display-delay-images.sh; kernel, dtb, modules, header and size are B2's). One RAM boot per image; the signs are read from the kernel log.
+# display modules (its script is retired, the images rebuild from their recipes: `lpoco bringup image ensure`; kernel, dtb, modules, header and size are B2's). One RAM boot per image; the signs are read from the kernel log.
 [images.b-d5]
 path = "images-display-delay/boot-b-d5.img"
 sha256 = "0c285abb05d5d001c58adc9f33d79654fd541e056bd68cbc2c5577f061099973"
@@ -267,7 +267,7 @@ control = "b2"
 ramdisk = "22e73e5fdab27b49434da7c7ecfca36de7d18425737db2388bba1cd01d3ce18f"   # B2 with the init that waits 50 s before the display modules; the rest is B2s
 
 # The splash image B-s5 (item walleye-display-splash-region-dts): B-d5 whose dtb reserves the bootloader splash (memory@9d400000, no-map) and holds it with a simple-framebuffer
-# (build/build-display-splash-image.sh; kernel, ramdisk with its 5 s delay, header and size are B-d5's). The proof: the delay bisect at 5 s, do the faults and warnings vanish?
+# (script retired, rebuilt from its recipe; kernel, ramdisk with its 5 s delay, header and size are B-d5's). The proof: the delay bisect at 5 s, do the faults and warnings vanish?
 [images.b-s5]
 path = "images-display-splash/boot-b-s5.img"
 sha256 = "b7c827e9a3f55a7ee6e68752430a19bdad2de3262bc22a5cc0379cd3df80df58"
@@ -276,7 +276,7 @@ sha256 = "b7c827e9a3f55a7ee6e68752430a19bdad2de3262bc22a5cc0379cd3df80df58"
 control = "b-d5"
 dtb = "13c63135fccb2ac527f5202fccfbc7615259f67c71e815080b2480b1727f6ab2"      # the splash dtb (memory@9d400000 no-map, simple-framebuffer); kernel, ramdisk, header and cmdline are b-d5s
 
-# The reset image B-r5 (item walleye-display-reset-image): B-d5 plus resets = <&mmcc MDSS_BCR> on mdss (build/build-display-reset-image.sh). Run with delays = "5" and image_prefix = "b-r".
+# The reset image B-r5 (item walleye-display-reset-image): B-d5 plus resets = <&mmcc MDSS_BCR> on mdss (script retired, rebuilt from its recipe). Run with delays = "5" and image_prefix = "b-r".
 [images.b-r5]
 path = "images-display-reset/boot-b-r5.img"
 sha256 = "6dc0239e93b4f4b3a01aa1fd3c308aa5208d16f9545b900bfcc38f1ea70904d8"
@@ -286,7 +286,7 @@ control = "b-d5"
 dtb = "95f3a8a05e7ced21e9cf86758143a83bb8e4b7c5f0fa6bb6c2385ce8adf30778"      # the dtb with resets = <&mmcc MDSS_BCR> on mdss; kernel, ramdisk, header and cmdline are b-d5s
 
 # The registers image B-q5 (item walleye-display-scanout-registers): B-d5 whose init also reads the DPU, interface, pingpong and DSI registers with devmem (read only) at 4, 10 and 30 s and says them to the kernel log
-# (build/build-display-regs-image.sh; kernel, dtb, command line, header words, size and the 5 s delay are B-d5's). Run: delays = "5" and image_prefix = "b-q" (set both, run, put them back); the run waits for
+# (script retired, rebuilt from its recipe; kernel, dtb, command line, header words, size and the 5 s delay are B-d5's). Run: delays = "5" and image_prefix = "b-q" (set both, run, put them back); the run waits for
 # the init's "registers: done" and keeps regs-d5.txt (the register table, which registers change between the samples) beside dmesg-d5.txt in the lab's material.
 [images.b-q5]
 path = "images-display-regs/boot-b-q5.img"
@@ -403,7 +403,7 @@ sha256 = "b74af863e4b49e2b3ff6e656c2f9ba3b92033b1e0f74063c3c2d47b81c83d570"
 # The RW-WRITE image (item walleye-rw-write-image, 2026-11-24): the production image above with ONE change in its ramdisk and ONE word on its command line. Init build/initramfs-root-rw-write/init: the production init plus RW-WRITE blocks that act
 # only with the word walleye.rw, which this image's command line carries: then, after every guard of the production init, the root is mounted ext4 rw,nodiscard straight onto /newroot (no overlay, no mkfs, no fsck, no discard, no remount;
 # the empty directory /.walleye on the card is its mount point, /run and /.walleye are tmpfs). Kernel Image.gz, dtb, header and AVB footer are the production image's byte for byte (the kernel_tag is the same). Built twice with this one sha256 by
-# build/build-ufs-root-rw-write.sh (checks: tests/host/ufs-root-rw-init.sh, QEMU) and rebuilt from the recipe below by `lpoco bringup image ensure` (tests/host/image-recipe.sh). The recipe: the ramdisk is the file build-ufs-root-rw-write.sh makes
+# its script (retired, rebuilt from the recipe; checks: tests/host/ufs-root-rw-init.sh, QEMU) and rebuilt from the recipe below by `lpoco bringup image ensure` (tests/host/image-recipe.sh). The recipe: the ramdisk is the file that script made
 # (sha256 below), the cmdline the recipe's own (the production image's WITHOUT walleye.booted-slot, plus walleye.rw: the init refuses the word with a root that is not the booted slot's); the header of the file is checked equal to it by tests/host/image-header-equals-recipe.sh and by check 2. The hold script of this image syncs before it resets the phone (a rw root must not lose its writes to the hold's hard reset). NOT to boot or flash except by the rw-write procedure (item walleye-rw-write-plumbing) under the coordinator's go that names THIS sha256; tests/host/ufs-off-image.sh refuses it by design. Never booted.
 [images.ufs-root-booted-slot-production-rw]
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-production-rw/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-rw.img"
@@ -418,7 +418,7 @@ cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walley
 # The WDT0-READ image (item walleye-wdt0-read-image, 2026-11-24): the production image above with ONE change in its ramdisk and ONE word on its command line. Init build/initramfs-root-wdt0/init: the production init plus WDT0 blocks that act only with
 # the word walleye.wdt0, which this image's command line carries: then the init's FIRST act reads the apps watchdog WDT0's EN, STS, BARK_TIME and BITE_TIME (0x17817008, 0c, 10, 14) with devmem, read only, says them to the kernel log and keeps them in
 # /.walleye/wdt0 and /run/walleye/wdt0 of the root (the read-only overlay: the card is not written). Kernel Image.gz, dtb, header and AVB footer are the production image's byte for byte. Built twice with this one sha256 by
-# build/build-ufs-root-wdt0.sh (checks: tests/host/wdt0-init.sh and the root init's QEMU proof) and rebuilt from the recipe below by `lpoco bringup image ensure`. The cmdline is the recipe's own: the production image's without walleye.booted-slot
+# its script (retired, rebuilt from the recipe; checks: tests/host/wdt0-init.sh and the root init's QEMU proof) and rebuilt from the recipe below by `lpoco bringup image ensure`. The cmdline is the recipe's own: the production image's without walleye.booted-slot
 # (the try boots from memory on the slot Android is not on), plus walleye.wdt0. Never booted; for the WDT0 try (item walleye-wdt0-first-instant-read) from memory only, under the coordinator's go that names THIS sha256; tests/host/ufs-off-image.sh refuses it by design.
 [images.ufs-root-booted-slot-production-wdt0]
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot-production-wdt0/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-production-wdt0.img"
