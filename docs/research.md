@@ -8003,3 +8003,25 @@ About
 
 Material
 : research/walleye-kernel-text-capture-run/2026-11-25/
+
+
+<a id="walleye-land-check-rebuilds-touched-images"></a>
+### walleye-land-check-rebuilds-touched-images
+
+Date
+: 2026-11-25
+
+Brief
+: make land-check rebuilds each image a change touches with pinned lpoco-bringup 0.51.1; a z21 sha256 its recipe does not build is refused, an untouched tree passes
+
+Question
+: Can walleye's landing refuse a declared sha256 its recipe does not build, with the released tool and not the host binary?
+
+Found
+: Yes: lpoco-bringup 0.51.1 image ensure --rebuild --changed-since BASE rebuilds only the images whose sha256 or recipe changed and exits 1 naming both digits (38 s for z21, text in ensure-changed-since-refused.txt); no change: exit 0 at once. bin/install-bringup.sh fetches the release asset checked against its .sha256 into ~/.local/share/walleye-lab/bin; tests/host/land-check-rebuild.sh seen failing without the target, passing with it.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-25/

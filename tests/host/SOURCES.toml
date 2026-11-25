@@ -133,6 +133,9 @@ source = "research:walleye-image-recipe-z21-rebuilt-equal"
 [scripts."image-recipe.sh"]
 source = "research:walleye-image-recipe-z21-rebuilt-equal"
 
+[scripts."land-check-rebuild.sh"]
+source = "research:walleye-land-check-rebuilds-touched-images"
+
 [scripts."kernel-build.sh"]
 source = "research:walleye-kernel-build-declared-reproduces-itself"
 

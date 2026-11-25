@@ -8500,3 +8500,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-walleye-land-check-rebuild"></a>
+### land-check rebuilds touched images
+
+Entry date
+: 2026-11-25
+
+Done
+: Added make land-check (LAND_BASE default origin/main), bin/install-bringup.sh (pinned 0.51.1, checksum-checked) and tests/host/land-check-rebuild.sh; the test failed before the target and passes after.
+
+Considered
+: Using lpoco-bringup from PATH: no pin, the host copy moves with the lab. Running the rebuild in CI: no nix there; land runs on the lab.
+
+Rejected
+: The host binary (unpinned); a stand-in sha256 mismatch text (the refusal line is captured from the real tool).
+
+About
+: walleye-bootimage
