@@ -11286,9 +11286,6 @@ Status
 Note
 : MEASURED: the declared ufs-off kernel build reproduces itself (two Nix builds equal, 88afb4d7...97ac; research walleye-kernel-build-declared-reproduces-itself); the row is kept in research/walleye-bootimage/2026-11-24/kernel-build-row.toml and goes into device.toml with the first lpoco-attended release that carries manifest 0.47.0 (PR 996's CI: 'unknown field kernel_builds' from lpoco-manifest 0.46.0). Proof then: tests/host/kernel-build.sh walleye-ufs-off. The shipped kernels cannot be equalled (-dirty, mll@grig, clang 23.1.5). Ufs-on kernels: walleye-declares-ufs-on-kernel-build.
 
-Waits
-: an lpoco-attended release whose lpoco-manifest is 0.47.0 or later (attended main has it, released 0.45.2 still has 0.46.0, which refuses [kernel_builds] in the CI dry run)
-
 Blocked by
 : walleye-lpoco-attended-carries-manifest-0-47
 
