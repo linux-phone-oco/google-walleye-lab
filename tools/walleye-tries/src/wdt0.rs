@@ -11,7 +11,7 @@ pub const WORD: &str = "walleye.wdt0";
 /// Every line of the init's reading starts with this tag.
 pub const TAG: &str = "walleye-wdt0:";
 
-/// The file the init keeps the reading in, in the booted root (a tmpfs: the card is not written).
+/// The file the init keeps the reading in, in the initramfs (a tmpfs: the card is not written); the root mounts a fresh tmpfs on /run, so the booted root shows it empty (run 1) and the kernel log is then the witness.
 pub const FILE: &str = "/run/walleye/wdt0";
 
 /// The four registers, in the order the init reads them: name and address (WDT0 base 0x17817000 + EN 0x08, STS 0x0c, BARK_TIME 0x10, BITE_TIME 0x14).
@@ -24,7 +24,7 @@ pub const REGISTERS: [(&str, u64); 4] = [
 
 /// What the lab told the author before the run.
 pub fn expect(luns: u64) -> String {
-    format!("The WDT0 try, about 6 minutes: the wdt0 image booted once from fastboot, from memory, on the slot Android is NOT on, root read-only as in the root boot (the card's {luns} disks and the boot chain read before and after and equal). Its init's first act reads the apps watchdog's four registers EN, STS, BARK_TIME and BITE_TIME with devmem, read only; the lab logs in by ssh, reads them from {FILE} and the kernel log, and judges that all four were read; the values are kept in the run's folder. Then the phone is sent back to Android. Nothing is written to the card or to any register.")
+    format!("The WDT0 try, about 6 minutes: the wdt0 image booted once from fastboot, from memory, on the slot Android is NOT on, root read-only as in the root boot (the card's {luns} disks and the boot chain read before and after and equal). Its init's first act reads the apps watchdog's four registers EN, STS, BARK_TIME and BITE_TIME with devmem, read only; the lab logs in by ssh, reads them from {FILE} (empty in the root, as in run 1) or the kernel log, and judges that all four were read; the values are kept in the run's folder. Then the phone is sent back to Android. Nothing is written to the card or to any register.")
 }
 
 /// What the author is told before the rehearsal.
@@ -128,19 +128,32 @@ pub fn readings(text: &str) -> Result<Vec<Reading>, String> {
     Ok(out)
 }
 
-/// The judgement: the file the init kept and the kernel log say the same four readings, each a value. Fails naming what is not known:
-/// nothing read (the word did not reach the init, or the hand-over lost the file), a register that failed (devmem's words), a missing one,
-/// or the file and the kernel log disagreeing. Returns the readings as the init kept them.
+/// The judgement: the file the init kept and the kernel log say the same four readings, each a value. When the file is empty but the kernel
+/// log holds readings, the log alone is judged: run 1 (research walleye-wdt0-first-instant-readings) showed the root mounts a fresh tmpfs on
+/// /run, hiding what the initramfs kept there, while the init also said every reading to the kernel log. Fails naming what is not known:
+/// nothing read (the word did not reach the init), a register that failed (devmem's words), a missing one, or the file and the kernel
+/// log disagreeing. Returns the readings.
 pub fn judge(file: &str, dmesg: &str) -> Result<Vec<Reading>, String> {
-    let kept = readings(file)?;
+    let mut kept = readings(file)?;
+    // Only a blank file falls back to the log: other text without readings (cat's own error) is a failed keep and stays an error.
+    let from_log = file.trim().is_empty();
+    if from_log {
+        kept = readings(dmesg)?;
+    } else if kept.is_empty() {
+        return Err(format!(
+            "{FILE} holds text but no reading: {:?}",
+            file.trim()
+        ));
+    }
+    let source = if from_log { "the kernel log" } else { FILE };
     if kept.is_empty() {
-        return Err(format!("{FILE} holds no reading: the init did not read (the word {WORD} did not reach it, or the hand-over lost the file)"));
+        return Err(format!("{FILE} holds no reading and the kernel log none either: the init did not read (the word {WORD} did not reach it)"));
     }
     for (name, _) in REGISTERS {
         match kept.iter().find(|r| r.name == name) {
             None => {
                 return Err(format!(
-                    "{name} is not in {FILE}: the init read {} of the four",
+                    "{name} is not in {source}: the init read {} of the four",
                     kept.len()
                 ))
             }
@@ -204,6 +217,39 @@ mod tests {
         );
         assert_eq!(r[0].value, Ok(3));
         assert!(said(&r).starts_with("EN 0x17817008 = 0x00000003\n"));
+    }
+
+    // Source: run 1's kernel log (research walleye-wdt0-first-instant-readings), the nine walleye-wdt0 lines the phone printed, verbatim from
+    // its read.txt; its /run/walleye/wdt0 section was empty (the root's fresh tmpfs on /run hid the initramfs file).
+    const RUN1_DMESG: &str = include_str!("../fixtures/wdt0-run1-dmesg.txt");
+
+    #[test]
+    fn run_1s_empty_file_is_judged_from_its_kernel_log_and_the_four_values_are_kept() {
+        let r = judge("", RUN1_DMESG).unwrap();
+        assert_eq!(
+            said(&r),
+            "EN 0x17817008 = 0x00000000\nSTS 0x1781700c = 0x00000000\nBARK_TIME 0x17817010 = 0x0007ffff\nBITE_TIME 0x17817014 = 0x000fffff\n"
+        );
+    }
+
+    #[test]
+    fn text_without_readings_in_the_file_is_not_an_empty_file() {
+        let e = judge(
+            "cat: /run/walleye/wdt0: No such file or directory\n",
+            RUN1_DMESG,
+        )
+        .unwrap_err();
+        assert!(e.contains("holds text but no reading"), "{e}");
+    }
+
+    #[test]
+    fn a_kernel_log_missing_a_register_still_fails_with_an_empty_file() {
+        let cut: String = RUN1_DMESG
+            .lines()
+            .filter(|l| !l.contains("BITE_TIME"))
+            .map(|l| format!("{l}\n"))
+            .collect();
+        assert!(judge("", &cut).unwrap_err().contains("BITE_TIME is not in"));
     }
 
     #[test]

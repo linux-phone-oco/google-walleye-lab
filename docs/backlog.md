@@ -12417,10 +12417,10 @@ Witness
 ### WDT0 procedure check 17 reads the four readings from the kernel log (or the init keeps them where the root's /run does not hide them), tested on run 1's printed lines
 
 Status
-: open
+: done
 
 Note
-: Run 1 (PR 1066): the init wrote /run/walleye/wdt0 in the initramfs /run, the root mounted a fresh tmpfs on /run, so check 17 found it empty and wdt0.txt was not kept; the readings were in dmesg (walleye-wdt0 lines). Use run 1's printed lines as the test fixture (text a phone printed).
+: 2026-11-25 (walleye-builder): wdt0::judge takes the kernel log's readings when the file is empty (run 1: the root's fresh tmpfs on /run hid the initramfs file); both then say the four values to wdt0.txt. Proof: unit test on run 1's nine printed walleye-wdt0 lines (fixtures/wdt0-run1-dmesg.txt, from lab-material/walleye/wdt0-state-20261125-005519/read.txt) - seen failing without the fix, 433 tests pass, clippy and fmt clean. The init is unchanged: no new image.
 
 About
 : walleye-bootimage
