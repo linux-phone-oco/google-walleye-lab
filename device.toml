@@ -370,11 +370,20 @@ cmdline = 'clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walley
 
 # The UFS-root image WITH THE DISPLAY, U-d5 (item walleye-install-ufs-root-display-image, 2026-11-23): UFS ON and the display in one image. Kernel: branch wip/walleye/ufs-root-display of linux-v7.3 (ac7eefecb) = topic/ufs-match-android
 # (3644090c7) + the MDSS reset (kernel/display-mdss-reset) + the panel driver; the display path as 13 modules built for it (loaded at 5 s by build/initramfs-root-display/init), fbcon built in; dtb = the display board dtb with the lab levers
-# and the matched image's UFS overlay merged in; header, command line (+ walleye.root=system_a) and AVB footer the matched image's. Built twice with this one sha256 by build/build-ufs-root-display-image.sh, 42 checks ok. NOT to boot except by
+# and the matched image's UFS overlay merged in; header, command line (+ walleye.root=system_a) and AVB footer the matched image's. Built twice with this one sha256 by build/build-ufs-root-display-image.sh (retired 2026-11-25: the recipe below rebuilds it, 42 checks ok when it was built). NOT to boot except by
 # procedures/rootfs-boots-on-the-pixel-2.rs under the author's go that names THIS sha256; tests/host/ufs-off-image.sh refuses it by design. Never booted.
 [images.ufs-root-display]
 path = "NOT-TO-BOOT-ufs-on-images-ufs-root-display/NOT-TO-BOOT-ufs-on-ufs-root-display.img"
 sha256 = "a45588272b11fed90d7d13e9ed0c3a00d1c2208b9758d01ed968587978582747"
+
+# Rebuilt from its recipe (item walleye-retire-build-scripts, 2026-11-25): `lpoco bringup image ensure ufs-root-display` equals the sha256 above. The control is the matched image [images.ufs-match] (header words and AVB footer are its byte for byte);
+# the kernel (Image.gz, the image's kernel part less the appended dtb), the merged display+UFS dtb and the ramdisk are the ones unpacked from this image (`lpoco bringup image unpack`), the cmdline its header line (the matched image's plus walleye.root=system_a).
+[images.ufs-root-display.recipe]
+control = "ufs-match"
+kernel = "4b29511ce9190117f30ab35ef2eda2946268437688a0a941aaf8426bfdf3a5ae"
+dtb = "8e9a161cc4dba00aafc3ca443ec6658c00228c860d307a82ec437a7c3476f998"
+ramdisk = "8c21287d240b06cc199f93d47761d8b0bba8a58e3803fc25be6c02f96f662596"
+cmdline = 'clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3 dyndbg="file drivers/gpio/gpiolib.c +p; file drivers/gpio/gpiolib-of.c +p; file drivers/pinctrl/core.c +p; file drivers/pinctrl/devicetree.c +p; file drivers/pinctrl/qcom/pinctrl-spmi-gpio.c +p" walleye.root=system_a'
 
 # The STAGE 2 boot image (item walleye-install-stage2-boot-image, 2026-11-23): the ufs-root image above rebuilt (its script retired; now its recipe below) with BOOTED_SLOT=yes and ROOT_PART=system_a (Android is on slot b, so
 # the flashed slot is a), built twice with this one sha256, 28 checks ok. It differs from c3373d71 (which stays as stage 1 history and as the RAM boot of [images.ufs-root]) in two things only: the ramdisk (the init of

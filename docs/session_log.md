@@ -8857,3 +8857,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-walleye-retire-ufs-root-display"></a>
+### ufs-root-display image rebuilds from its recipe; its script retired
+
+Entry date
+: 2026-11-25
+
+Done
+: Unpacked U-d5 (a4558827) with lpoco bringup image unpack, split its kernel part into Image.gz (4b29511c) and the appended display dtb (8e9a161c), took ufs-match as control (461077869 equals its declared sha), added [images.ufs-root-display.recipe]; lpoco bringup image ensure ufs-root-display --seed built it equal to the declared sha256. Removed build/build-ufs-root-display-image.sh and lib-display-levers.sh (its only user), fixed the comments in device.toml, kernel/README.md and ufs-off-image-selftest.sh (still passes).
+
+Considered
+: Rebuilding the kernel from its wip branch: the image's kernel part is a recipe input like ufs-root's, the tag-less wip kernel is not republished.
+
+Rejected
+: Keeping lib-display-levers.sh: nothing sources it any more; git history keeps it.
+
+About
+: walleye-kernel-dts

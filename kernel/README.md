@@ -25,4 +25,4 @@ lab's dts or the board file's change has a topic of its own. The series' `README
 
 The kernel of image U-d5 (item walleye-install-ufs-root-display-image) is the branch `wip/walleye/ufs-root-display` of the fork (pushed 2026-11-23, ac7eefecb;
 a worktree of the clone builds it): `topic/ufs-match-android` plus the commits of `topic/walleye-mdss-reset` and `topic/walleye-panel-s6e3fa5`. It is built by
-`build/build-display-late.sh` with `EXTRA_CONFIG="build/walleye-diag.config build/walleye-ufs-root.config"` and made into the image by `build/build-ufs-root-display-image.sh`.
+`build/build-display-late.sh` with `EXTRA_CONFIG="build/walleye-diag.config build/walleye-ufs-root.config"` and made into the image by `build/build-ufs-root-display-image.sh` (retired 2026-11-25: [images.ufs-root-display.recipe] in device.toml rebuilds it, `lpoco bringup image ensure ufs-root-display`).
