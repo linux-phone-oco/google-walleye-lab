@@ -9977,10 +9977,17 @@ Rank
 ### Boot the UFS-root image from RAM once and log in over usb-network: the docs step rootfs-boots
 
 Status
-: done
+: open
 
 Note
-: DONE 2026-11-23 (the coordinator): the stage 1 boot passed 26 of 26 on c3373d71 (runs 5, 6; PRs 759, 781) and rerun 7 (the RESTART2 try, PR 814) reached the bootloader: fastboot listed the phone with current-slot b = the start slot; fastboot reboot then left the phone in fastboot for 240 s (cause NOT KNOWN YET) and the after-stop way back brought Android home, GPT/boot chain/slot flags equal. The go is CLOSED: no further stage 1 run under this item without the coordinator. | RERUN 7 done 2026-11-23: checks 1-21 passed and the bootloader was reached by RESTART2 (fastboot listed the phone, slot b = start), but check 22 failed: Android not back in 240 s after fastboot reboot; the after-stop way back brought it home, card/boot chain/flags equal. Research walleye-rootfs-boots-run-7-bootloader-reached-android-late. Next: the coordinator decides (stage 2 go per the Top's rule, and why fastboot reboot stayed in fastboot); no second run without the coordinator
+: 2026-11-25 coordinator: reopened for ONE stage 2 read-only boot, the run of walleye-kernel-text-capture-run (capture step 20, PR 1073); done again when that run lands.
+go until 2026-11-25T07:00:00+01:00, outcomes: Capture run. Image: [images.ufs-root-booted-slot-production] sha256 b74af863e4b49e2b3ff6e656c2f9ba3b92033b1e0f74063c3c2d47b81c83d570 (full; the stage 2 read-only image that passed 29/29). The run of procedures/rootfs-boots-on-the-pixel-2.rs through bin/attended after its rehearsal passes, for item walleye-kernel-text-capture-run; this go ends with that one run, closed in the same landing as the record. Booted from memory, root mounted read only, nothing flashed or written; standing per-stage go of the author (stage 2), opened by the walleye coordinator.
+if the rehearsal or the image step stops then nothing was booted: a host, procedure or image fault, read before any retry
+if all steps pass and step 20 writes each fixture with its provenance line then it proves the capture: the selftests can run on our kernel's printed text
+if the boot passes but step 20 writes no fixture or one without provenance then the capture step failed on the phone: research, no second boot
+if no gadget comes up then how far the init got is not known (pstore not a proven console): stop, no second try
+if after the way back any partition table, the boot chain or the root partition differs then something wrote: stop the lane and tell the author
+if Android does not come back on slot b then the way back failed: stop, the author's hands
 
 About
 : walleye-display-s6e3fa5
@@ -9998,7 +10005,7 @@ Witness
 : person
 
 Go until
-: 2026-11-23T10:00:00+01:00
+: 2026-11-25T07:00:00+01:00
 
 
 <a id="walleye-install-stage2-way-back-restart2"></a>
