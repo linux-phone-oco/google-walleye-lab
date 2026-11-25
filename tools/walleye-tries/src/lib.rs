@@ -7,6 +7,7 @@
 pub use lpoco_attended;
 
 pub mod android;
+pub mod cmdline_cut;
 pub mod display;
 pub mod display_boot;
 pub mod display_delay;

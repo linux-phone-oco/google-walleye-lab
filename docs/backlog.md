@@ -11445,10 +11445,7 @@ Status
 : open
 
 Note
-: From research walleye-cmdline-tail-cut-candidates. RAM boot plus the slot flag the stage 2 procedure already sets and undoes; no flash. C2 and C3 follow by C1's answer; not urgent: step 21 passes on root=PARTUUID.
-
-Blocked by
-: walleye-cmdline-cut-check-slot-a-procedure
+: The one-command procedure exists (procedures/cmdline-cut-c1-on-the-pixel-2.rs, rehearsal rehearse-cmdline-cut-c1-on-the-pixel-2.rs): keeper runs the rehearsal first (no go), then the run under a go on THIS item naming the debug image sha256 a0a55cd0... (device.toml [images.ufs-root-booted-slot-debug]). Answer: cmdline.txt and verdict.txt in the run's folder, recorded as a research row.
 
 About
 : walleye-bootimage
@@ -11460,7 +11457,7 @@ Needs
 : phone
 
 Proof
-: the line read in cmdline-cut-checks.md C1: whole tail with slot_suffix=_a, or cut at pk=g-pxl-p; recorded as a research row
+: the line read in cmdline-cut-checks.md C1: whole tail with slot_suffix=_a, or cut at pk=g-pxl-p; kept by procedures/cmdline-cut-c1-on-the-pixel-2.rs (cmdline.txt, verdict.txt) and recorded as a research row
 
 Rank
 : 5
@@ -12526,10 +12523,10 @@ Rank
 ### Procedure and rehearsal for check C1: slot a flag set, fastboot boot of the production image, /proc/cmdline read over telnet, slot flag undone
 
 Status
-: open
+: done
 
 Note
-: Keeper run 2026-11-25-0700 found no one-command procedure for walleye-cmdline-cut-check-slot-a. Build it from rootfs-boots-on-the-pixel-2 (it already sets and undoes the slot flag): RAM boot only, no flash; the way back leaves slot b active and Android up. Its output is the cmdline line the C1 research row records.
+: Built: procedures/cmdline-cut-c1-on-the-pixel-2.rs and rehearse-cmdline-cut-c1-on-the-pixel-2.rs (tools/walleye-tries/src/cmdline_cut.rs; device.toml [procedures.cmdline-cut-c1-on-the-pixel-2]). Proof so far: lpoco-attended check and --dry-run pass, 442 tests pass; the rehearsal's real run on the phone is the keeper's first act, then the C1 run under the author's go. NOT KNOWN YET on the phone: the image's nc and sha256sum (the way back's push), the telnet window with /tmp/stay.
 
 About
 : walleye-bootimage

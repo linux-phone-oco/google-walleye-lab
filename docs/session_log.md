@@ -8581,3 +8581,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-walleye-builder-cmdline-cut-c1-procedure"></a>
+### walleye builder: the C1 procedure and its rehearsal
+
+Entry date
+: 2026-11-25
+
+Done
+: Built check C1 as one command (procedure and rehearsal) on the root boot's shared steps plus tools/walleye-tries/src/cmdline_cut.rs: judge/cmdline_in tested on captured text (Android b's whole line; the captured RAM-boot dmesg line with its lab-added suffix removed - no full slot-a cut line was ever captured), the debug-image header check, device.toml tables, check and dry-run pass.
+
+Considered
+: Composing RootfsBoot (shared steps) rather than a new mode flag in it: only go_is_open_now widened to pub(crate).
+
+Rejected
+: The production image (no telnet), a slot on the header, a plain reboot as the way back - see decision 2026-11-25-c1-reads-the-debug-image-and-goes-back-through-the-bootloader.
+
+About
+: walleye-bootimage

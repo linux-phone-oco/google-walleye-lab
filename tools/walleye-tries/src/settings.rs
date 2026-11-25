@@ -41,6 +41,8 @@ pub const RW_WRITE_PROCEDURE: &str = "rw write on the Pixel 2";
 pub const REHEARSE_RW_WRITE_PROCEDURE: &str = "rehearse rw write on the Pixel 2";
 pub const WDT0_PROCEDURE: &str = "wdt0 state on the Pixel 2";
 pub const REHEARSE_WDT0_PROCEDURE: &str = "rehearse wdt0 state on the Pixel 2";
+pub const CMDLINE_CUT_PROCEDURE: &str = "cmdline cut c1 on the Pixel 2";
+pub const REHEARSE_CMDLINE_CUT_PROCEDURE: &str = "rehearse cmdline cut c1 on the Pixel 2";
 pub const RAMROOT_PROCEDURE: &str = "alpine login on the glass on the Pixel 2";
 pub const FLASH_BOOT_PROCEDURE: &str = "install boot on the Pixel 2";
 pub const REHEARSE_FLASH_BOOT_PROCEDURE: &str = "rehearse install boot on the Pixel 2";
@@ -63,6 +65,7 @@ pub enum Try {
     RootfsBoot,
     RwWrite,
     Wdt0,
+    CmdlineCut,
     Ramroot,
     FlashBoot,
 }
@@ -221,6 +224,20 @@ impl Settings {
     pub fn for_rehearse_wdt0() -> Settings {
         let mut s = Settings::for_wdt0();
         s.out = s.out_dir("wdt0-state-rehearsal");
+        s
+    }
+
+    /// Check C1's settings (item walleye-cmdline-cut-check-slot-a-procedure), read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_cmdline_cut() -> Settings {
+        Settings::read_linked(Try::CmdlineCut, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
+    /// Check C1's rehearsal reads the check's own keys, from its own table, and keeps its own folder (the real run's refuses a folder with files).
+    pub fn for_rehearse_cmdline_cut() -> Settings {
+        let mut s = Settings::for_cmdline_cut();
+        s.out = s.out_dir("cmdline-cut-c1-rehearsal");
         s
     }
 
@@ -497,6 +514,23 @@ impl Settings {
                 );
                 s.out = s.out_dir("wdt0-state");
             }
+            Try::CmdlineCut => {
+                // check C1: the debug image named by its [images.NAME] row (the sha256 the go names); no ssh - the image's telnet is read - and the way back's reboot tool
+                let name = proc("image");
+                s.image = image(&name);
+                s.image_sha256 = dev(&format!("images.{name}.sha256"));
+                s.go_item = proc("go_item");
+                s.bootchain = home_path(&proc("bootchain"));
+                s.by_name = proc("by_name");
+                s.luns = number("luns", proc("luns"));
+                s.reboot_tool = image(REBOOT_TOOL);
+                s.reboot_tool_sha256 = dev(&format!("images.{REBOOT_TOOL}.sha256"));
+                assert!(
+                    s.by_name.starts_with('/') && (1..=26).contains(&s.luns),
+                    "by_name in device.toml is an absolute path on the phone, luns is 1 to 26"
+                );
+                s.out = s.out_dir("cmdline-cut-c1");
+            }
             Try::Ramroot => {
                 let name = proc("image");
                 s.image = image(&name);
@@ -771,6 +805,8 @@ mod tests {
             (Try::RwWrite, REHEARSE_RW_WRITE_PROCEDURE),
             (Try::Wdt0, WDT0_PROCEDURE),
             (Try::Wdt0, REHEARSE_WDT0_PROCEDURE),
+            (Try::CmdlineCut, CMDLINE_CUT_PROCEDURE),
+            (Try::CmdlineCut, REHEARSE_CMDLINE_CUT_PROCEDURE),
             (Try::Ramroot, RAMROOT_PROCEDURE),
             (Try::FlashBoot, FLASH_BOOT_PROCEDURE),
             (Try::FlashBoot, REHEARSE_FLASH_BOOT_PROCEDURE),

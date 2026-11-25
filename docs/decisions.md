@@ -3506,3 +3506,31 @@ About
 
 Tracked by
 : walleye-check22-one-sided-same-disk
+
+
+<a id="2026-11-25-c1-reads-the-debug-image-and-goes-back-through-the-bootloader"></a>
+### 2026-11-25-c1-reads-the-debug-image-and-goes-back-through-the-bootloader
+
+Date
+: 2026-11-25
+
+Brief
+: Check C1 boots the stage 2 DEBUG image as it is with slot a current and reads /proc/cmdline over telnet; the way back sets Android's slot before any reboot
+
+Decision
+: C1's procedure (procedures/cmdline-cut-c1-on-the-pixel-2.rs) switches the slot with fastboot set_active (intent written first), boots the declared debug image a0a55cd0 from memory with its own header (no slot added), reads /proc/cmdline over its telnet, and judges whole (androidboot.slot_suffix=_a) or cut (ends at androidboot.pk=g-pxl-p). The way back sends the checked walleye-reboot tool over the image's nc, goes through the bootloader, sets Android's slot current BEFORE any fastboot reboot, and reads the card, boot chain and flags again. Its real run needs the author's go on item walleye-cmdline-cut-check-slot-a naming the debug image's sha256.
+
+Why
+: The item note said production image and 'already sets the slot flag'; the production image has no telnet (research walleye-stage2 init) and rootfs-boots only reads the slots; the debug image is the one whose init holds and answers on telnet when the slot is missing (run 8, run8-telnet-debug-read.txt). With slot a current a plain reboot boots our flashed slot a, so the slot must be set back in the bootloader first.
+
+Rejected
+: The production image: nothing can read it. The run image with androidboot.slot_suffix put on its header (as rootfs-boots does): it would answer nothing about the bootloader. A plain reboot -f from the image as the way back: slot a is current, so it boots our flashed slot a and returns to Android only by the bootloader's fallback after minutes with slot a's flags changed. Reading over ssh: the debug image has no sshd before the root.
+
+About
+: walleye-bootimage
+
+Research
+: walleye-cmdline-tail-cut-candidates
+
+Tracked by
+: walleye-cmdline-cut-check-slot-a-procedure

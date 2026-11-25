@@ -479,6 +479,24 @@ bootchain = "~/lab-material/walleye/bootchain-2026-11-19"
 by_name = "/dev/block/by-name"
 luns = 6
 
+# Check C1 of the cut command line as ONE command (procedures/cmdline-cut-c1-on-the-pixel-2.rs; item walleye-cmdline-cut-check-slot-a-procedure, run by item walleye-cmdline-cut-check-slot-a; research
+# walleye-cmdline-tail-cut-candidates): with the slot Android is NOT on made current (fastboot set_active, undone by the way back), the stage 2 DEBUG image is booted once from memory with its own command line and /proc/cmdline is read over its telnet.
+# `image` is the name of its [images.NAME] row (the debug image: the production image has no telnet; the go names this sha256). The way back sends [images.walleye-reboot] over the image's nc and goes through the bootloader, Android's slot set current before any reboot. No ssh key: nothing is read over ssh.
+[procedures.cmdline-cut-c1-on-the-pixel-2]
+image = "ufs-root-booted-slot-debug"
+go_item = "walleye-cmdline-cut-check-slot-a"
+bootchain = "~/lab-material/walleye/bootchain-2026-11-19"   # the stored boot chain read-back: read again at the end it must equal it
+by_name = "/dev/block/by-name"                              # the phone's partition names on Android
+luns = 6                                                    # the card's disks (sda to sdf): the partition table of each is hashed before and after
+
+# The rehearsal of check C1 (procedures/rehearse-cmdline-cut-c1-on-the-pixel-2.rs): every step but the slot switch, the boot and what follows it; no go read. The keys are the check's, so a key renamed there fails in both.
+[procedures.rehearse-cmdline-cut-c1-on-the-pixel-2]
+image = "ufs-root-booted-slot-debug"
+go_item = "walleye-cmdline-cut-check-slot-a"
+bootchain = "~/lab-material/walleye/bootchain-2026-11-19"
+by_name = "/dev/block/by-name"
+luns = 6
+
 # The rw write on the Pixel 2 (item walleye-rw-write-plumbing; plumbing in tools/walleye-tries/src/rw_write.rs): the rw-write image booted once from memory with its root, the system partition of the slot Android is NOT on, mounted READ-WRITE;
 # ONE bounded file of zeros is written into it, synced, read back, the filesystem checked read-only (fsck.ext4 -n), the kernel log read; the card's partition tables and the boot chain must be equal, the root partition changed. The keys are the root boot's
 # (same image kind, same ssh and card reads) plus `write_mib`, the size of the one write (1 to 64). The procedure that composes the steps is its own item; NOT to boot except under the coordinator's go that names the image's sha256.
