@@ -52,6 +52,7 @@ fn main() {
     check_from("the init saw the slot adb saw and mounted the named partition", "research:walleye-rootfs-boots-run-5-passed", root.the_init_saw_the_slot_adb_saw());
     check_from("the card is mounted read-only under the overlay", "research:walleye-rootfs-boots-run-5-passed", root.the_root_is_mounted_read_only());
     check_from("the kernel log has no purge, oops or UFS failure", "research:walleye-rootfs-boots-run-5-passed", root.the_kernel_log_is_clean());
+    step("capture our kernel's text as fixtures with provenance, read only", root.our_kernels_text_is_captured());
     step("send the phone back: to its bootloader first, the forced reboot if that is not reached", root.the_phone_is_sent_back());
     step("the phone is on Android (the way back, if it is not)", root.way_back());
     check_from("the phone is back on Android", "research:walleye-rootfs-boots-run-5-passed", root.android_is_back());

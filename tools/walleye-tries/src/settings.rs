@@ -16,7 +16,7 @@
 //! | the display try's values | `[images.l7]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
 //! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item`, `lun`, `load_mb`, `load_limit`, `luns`, `ramp_mb`, `devfreq` |
 //! | the install write's values | `[images.alpine-rootfs]` (`path`, `sha256`), `[procedures.install-rootfs-on-the-pixel-2]` `backup`, `stage_dir`, `by_name` |
-//! | the root boot's values | `[images.ufs-root]` (`path`, `sha256`), `[procedures.rootfs-boots-on-the-pixel-2]` `go_item`, `identity`, `ssh_user`, `ssh_port`, `bootchain`, `by_name`, `luns` |
+//! | the root boot's values | `[images.ufs-root]` (`path`, `sha256`), `[procedures.rootfs-boots-on-the-pixel-2]` `go_item`, `identity`, `ssh_user`, `ssh_port`, `bootchain`, `by_name`, `luns`, `fixtures` |
 //! | the rw write's values | `[images.ufs-root-booted-slot-production-rw]` (`path`, `sha256`; named by `image`), `[procedures.rw-write-on-the-pixel-2]` `image`, `go_item`, `identity`, `ssh_user`, `ssh_port`, `bootchain`, `by_name`, `luns`, `write_mib` |
 //! | the display-at-boot try's values | `[images.b2]` (`path`, `sha256`), `[procedures.display-at-boot-on-the-pixel-2] modules, hold` |
 //! | the Alpine-in-RAM login try's values | `[procedures.alpine-login-on-the-glass-on-the-pixel-2]` `image` (the name of its `[images.NAME]`: `path`, `sha256`), `delay`, `modules`, `identity`, `ssh_user`, `ssh_port` |
@@ -144,6 +144,8 @@ pub struct Settings {
     pub ssh_user: String,
     pub ssh_port: u16,
     pub bootchain: PathBuf,
+    /// the root boot only: the folder the capture step writes our kernel's text into as fixtures with provenance (item walleye-kernel-text-capture-procedure)
+    pub fixtures: PathBuf,
     /// the way back's tool: the static walleye-reboot the lab pushes to the phone's tmpfs, and the sha256 it must have
     pub reboot_tool: PathBuf,
     pub reboot_tool_sha256: String,
@@ -347,6 +349,7 @@ impl Settings {
             ssh_user: String::new(),
             ssh_port: 0,
             bootchain: PathBuf::new(),
+            fixtures: PathBuf::new(),
             reboot_tool: PathBuf::new(),
             reboot_tool_sha256: String::new(),
             flash_allow: String::new(),
@@ -441,6 +444,7 @@ impl Settings {
                     s.by_name.starts_with('/') && (1..=26).contains(&s.luns),
                     "by_name in device.toml is an absolute path on the phone, luns is 1 to 26"
                 );
+                s.fixtures = lab.join(proc("fixtures"));
                 s.out = s.out_dir("rootfs-boots");
             }
             Try::RwWrite => {
@@ -660,6 +664,7 @@ impl Settings {
             ("ssh_user", "root"),
             ("ssh_port", "22"),
             ("bootchain", "~/bootchain"),
+            ("fixtures", "tests/fixtures/phone-text"),
             ("image", "b-a5"),
             ("delay", "5"),
             ("images.b-a5.path", "images-display-ramroot/boot-b-a5.img"),

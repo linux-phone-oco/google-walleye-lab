@@ -12445,10 +12445,10 @@ Rank
 ### The stage 2 read-only boot keeps our kernel's text the selftests need (charger, fuel-gauge power_supply, part-compare, display-late-probe, dmesg) as fixture files with provenance lines
 
 Status
-: open
+: done
 
 Note
-: From the walleye keeper 2026-11-25 (PR 1071): Android's text is captured, but Android names its gauge 'battery', so the charger, fuel-gauge, part-compare and late-probe fixtures need OUR kernel's text. Add a read-only capture step to the rootfs-boots procedure (or a variant): over ssh, read the files under /sys/class/power_supply and the dmesg the selftests use, and write them under tests/fixtures/phone-text/ with image sha256, command and date. Reads only; the existing stage 2 image; nothing flashed.
+: Built 2026-11-25: step 20 of procedures/rootfs-boots-on-the-pixel-2.rs (our_kernels_text_is_captured): one read-only ssh read of the power supplies' facts, the kernel log cut from the login read the clean check judged; each written to tests/fixtures/phone-text/NAME-ufs-root-DAY.cap with the run image sha256, command and date. Proof: cargo test the_kernels_text_is_captured_as_fixtures_with_provenance (436 pass, clippy and fmt clean); bin/attended run rootfs-boots-on-the-pixel-2 --dry-run lists step 20. The fixtures exist only after a real stage 2 boot (next item); the keeper adds their SOURCES.toml rows in the same change.
 
 About
 : walleye-bootimage
@@ -12464,3 +12464,31 @@ Proof
 
 Rank
 : 3
+
+
+<a id="walleye-kernel-text-capture-run"></a>
+### Run the stage 2 read-only boot to capture our kernel's text as fixtures
+
+Status
+: open
+
+Note
+: Run procedures/rootfs-boots-on-the-pixel-2.rs under its go; the new step 20 writes the fixtures. Move the run's folder (kernel-text.txt) under research/ and add a SOURCES.toml row per new .cap (file: of that folder, or research:ID) in the same change. Reads only; nothing flashed.
+
+Blocked by
+: walleye-kernel-text-capture-procedure
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: phone
+
+Proof
+: tests/fixtures/phone-text holds power-supply-facts-ufs-root-DAY.cap and dmesg-ufs-root-DAY.cap with provenance headers, each with a SOURCES.toml row; the card, boot chain and flags equal after
+
+Rank
+: 4

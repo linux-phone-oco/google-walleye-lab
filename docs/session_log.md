@@ -8443,3 +8443,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-kernel-text-capture-step"></a>
+### Kernel text capture step in the rootfs-boots procedure
+
+Entry date
+: 2026-11-25
+
+Done
+: Added our_kernels_text_is_captured (step 20) and a fixtures key; proof test seen failing first, then 436 pass. Reviewed by the programmer subagent; fixed: the empty-glob case, the run image's sha256 in provenance, one dmesg read (the judged one), dead device.toml keys.
+
+Considered
+: Writing SOURCES rows from the step; leaving that to the landing of a real run's folder.
+
+Rejected
+: A second dmesg read over ssh: unjudged text under a clean name. Typed stand-in fixtures: the practice forbids them.
+
+About
+: walleye-bootimage
