@@ -5115,36 +5115,6 @@ Rank
 : 90
 
 
-<a id="walleye-init-from-roof"></a>
-### Adopt lpoco-bringup's generic init: [boot.gadget], initramfs init/files, retire the init variants and the own ffs-acm
-
-Status
-: open
-
-Note
-: 2026-11-19 builder: [boot.gadget] declared in device.toml; generated init (console acm, --net 43) lacks the 180 s hold + watchdog petter, the raw command loop on ttyGS0, the WALLEYE-BANNER lines and an extension hook (research walleye-generated-init-gaps); our own init stays; waits on orchestration (lab-tools request: those four points in lpoco-bringup initramfs init), then steps 2-4
-
-COORDINATOR 2026-11-19: the four points are written for orchestration in the shared notes folder (walleye-to-orchestration-init-gaps.md) because messages are paused; the builder skips this item until orchestration answers.
-
-Waits
-: orchestration: lpoco-bringup initramfs init gaps (four points, note in the shared folder)
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: Adopt lpoco-bringup's generic init (lab-tools #195, the request of orchestration 2026-11-19): (1) device.toml declares [boot.gadget] (read the shape from docs/lab-tools: console and window keys); BEWARE: our own research found that a FunctionFS ACM console never bound the host's cdc_acm (research walleye-cdc-acm-needs-functional-descriptors: f_fs rejects the CDC functional descriptors; cdc_acm refuses an interface without them) and OUR working console is the mainline kernel's native configfs ACM (init-z14/z6 style: acm.GS0 + ecm, usb0 172.16.43.1, DHCP, telnetd). So console = "ffs" would not give the host a tty: before adopting, check what the generic init offers; if it has only ffs, tell the coordinator so orchestration adds console = "acm" (configfs ACM, with the NCM/ECM network function of z14) and keep our own init until it exists; if it offers acm/ecm, declare that; the init keeps: the serial walleye-first-boot (check-init-serials.sh), the 180 s hold and self-reboot, the command loop, the banner, the watchdog petting, /tmp/hold; (2) build/ calls `lpoco-bringup initramfs init` and `files` (udhcpd.conf, udhcpc.script, selftest.sh) instead of our ~20 init variants; (3) prove with build/selftest-initramfs.sh (QEMU, dummy_hcd) and then on the phone through the keeper, from the UFS-off gate onwards (decision 2026-11-19-walleye-ufs-off-by-a-gate: every image passes tests/host/ufs-off-image.sh first); (4) retire the ~20 init variants and build/ffs-acm-rs (together with walleye-use-lpoco-ffs-acm, which this item contains); old images, hashes and research stay as history; check-init-serials.sh adapts to the generated init; programmer review
-
-Rank
-: 60
-
-
 <a id="walleye-claim-test-layer-boots"></a>
 ### Claim the bring-up step test-layer-boots when the test layer reports booted=test on walleye
 
@@ -11807,10 +11777,10 @@ Rank
 ### A lpoco-attended release that reads manifests with lpoco-manifest 0.47.0 (the [kernel_builds] table), asked of orchestration
 
 Status
-: open
+: done
 
 Note
-: Lab-tools work, orchestration's half. Found by the builder 2026-11-24 (PR 996's CI said 'unknown field kernel_builds' from lpoco-manifest 0.46.0; PR 997 kept the row as a research file). Asked of orchestration by the walleye coordinator 2026-11-24. Item walleye-declares-its-kernel-build waits on this.
+: met (orchestration 2026-11-25): lpoco-attended-v0.45.7 carries lpoco-manifest 0.49.1 (tag lpoco-manifest-v0.49.1, its Cargo.toml); walleye-declares-its-kernel-build and the walleye-tries bump may go ahead
 
 About
 : walleye-bootimage
@@ -12882,3 +12852,53 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-manifest-schema"></a>
+### walleye's device.toml names the pinned schema and its CI checks it
+
+Status
+: open
+
+Note
+: Moved from docs' base 2026-11-25 (orchestration; docs closes its row as moved). As surya-manifest-schema; blockers done (manifest-one-schema). Example: device-template #44 - device.toml's first line pins lpoco-lab-v0.53.2's schema; bin/check-device-toml.sh plus tests/ci/check-device-toml.sh.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: google-walleye-lab CI fails a branch whose device.toml misspells a table, and passes main
+
+Rank
+: 5
+
+
+<a id="walleye-init-from-roof"></a>
+### walleye's boot images take the init lpoco bringup makes; its own init variants retire
+
+Status
+: open
+
+Note
+: Moved from docs' base 2026-11-25 (orchestration; blocker bringup-generic-init done). Its gadget serial, address and functions move to device.toml [boot]; build/initramfs*/ and build/ffs-acm* stay in history. Every booted image changes with it: new sha256s, each image's first boot rides on its next keeper run.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: build/selftest-initramfs.sh passes with the roof's init; the next keeper boot shows the gadget serial walleye-first-boot
+
+Rank
+: 7
