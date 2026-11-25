@@ -1,0 +1,11 @@
+# lpoco-bringup 0.52.0, 2026-11-25, item walleye-debug-image-recipe
+# seed: the control e337de53 (walleye-build/NOT-TO-BOOT-ufs-on-images-ufs-root-booted-slot) and the ramdisk unpacked from a0a55cd0 (walleye-build/...-debug-2) by image unpack
+$ lpoco-bringup image ensure ufs-root-booted-slot-debug --device device.toml --seed SEED
+ufs-root-booted-slot-debug ramdisk: in the store
+ufs-root-booted-slot: taken from the seed .../dbg-seed/NOT-TO-BOOT-ufs-on-ufs-root-booted-slot.img
+ufs-root-booted-slot-debug: built from its recipe, equal to its declared sha256
+$ sha256sum (the served path)
+a0a55cd060343d7acc1af07247c48b930789e2318afb77cfe31ea83acba25751  /nix/store/67jf5daxarhxczv3aa2k963cqv6g94rp-NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-debug.img
+$ sh tests/host/image-recipe.sh ufs-root-booted-slot-debug
+pass walleye-image-recipe ufs-root-booted-slot-debug: in the store (/nix/store/67jf5daxarhxczv3aa2k963cqv6g94rp-NOT-TO-BOOT-ufs-on-ufs-root-booted-slot-debug.img)
+# busybox applet table of the ramdisk (grep -a on bin/busybox, NUL-delimited names): nc (between nbd.. and netstat) and sha256sum present
