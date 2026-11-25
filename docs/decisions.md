@@ -3534,3 +3534,31 @@ Research
 
 Tracked by
 : walleye-cmdline-cut-check-slot-a-procedure
+
+
+<a id="2026-11-25-fastboot-reboot-twice-needs-no-go"></a>
+### 2026-11-25-fastboot-reboot-twice-needs-no-go
+
+Date
+: 2026-11-25
+
+Brief
+: The timed fastboot excursion boots no image and writes nothing, so its procedure reads no go
+
+Decision
+: procedures/fastboot-reboot-twice-on-the-pixel-2.rs sends fastboot reboot (and one more if still listed) and one fastboot continue from the bootloader, with the card, boot chain and slot flags read equal before and after; no go is read, as in a rehearsal. A refused call stops the run with its line kept.
+
+Why
+: The go gate names an image's sha256; this try has none, and the shared way back of every try already sends the same fastboot reboot. Review of the branch found no path that flashes, sets or writes.
+
+Rejected
+: A go naming an unrelated sha256 (a made-up key for a gate built around an image); a third reboot leg (the item says one more).
+
+About
+: walleye-bootimage
+
+Research
+: walleye-fastboot-reboot-stays-in-fastboot-causes-ranked
+
+Tracked by
+: walleye-fastboot-reboot-twice-procedure

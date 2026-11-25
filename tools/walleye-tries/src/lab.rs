@@ -157,7 +157,7 @@ impl Lab {
     }
 
     /// Android answers within `secs` (one look when 0), looked at again every `poll`.
-    fn android_within(&self, secs: u64, poll: Duration) -> Done {
+    pub fn android_within(&self, secs: u64, poll: Duration) -> Done {
         let until = Instant::now() + Duration::from_secs(secs);
         let toml = self.s.device_toml();
         loop {

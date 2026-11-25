@@ -43,6 +43,8 @@ pub const WDT0_PROCEDURE: &str = "wdt0 state on the Pixel 2";
 pub const REHEARSE_WDT0_PROCEDURE: &str = "rehearse wdt0 state on the Pixel 2";
 pub const CMDLINE_CUT_PROCEDURE: &str = "cmdline cut c1 on the Pixel 2";
 pub const REHEARSE_CMDLINE_CUT_PROCEDURE: &str = "rehearse cmdline cut c1 on the Pixel 2";
+pub const REBOOT_TWICE_PROCEDURE: &str = "fastboot reboot twice on the Pixel 2";
+pub const REHEARSE_REBOOT_TWICE_PROCEDURE: &str = "rehearse fastboot reboot twice on the Pixel 2";
 pub const RAMROOT_PROCEDURE: &str = "alpine login on the glass on the Pixel 2";
 pub const FLASH_BOOT_PROCEDURE: &str = "install boot on the Pixel 2";
 pub const REHEARSE_FLASH_BOOT_PROCEDURE: &str = "rehearse install boot on the Pixel 2";
@@ -66,6 +68,7 @@ pub enum Try {
     RwWrite,
     Wdt0,
     CmdlineCut,
+    RebootTwice,
     Ramroot,
     FlashBoot,
 }
@@ -238,6 +241,20 @@ impl Settings {
     pub fn for_rehearse_cmdline_cut() -> Settings {
         let mut s = Settings::for_cmdline_cut();
         s.out = s.out_dir("cmdline-cut-c1-rehearsal");
+        s
+    }
+
+    /// The timed fastboot excursion's settings (item walleye-fastboot-reboot-twice-procedure), read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_reboot_twice() -> Settings {
+        Settings::read_linked(Try::RebootTwice, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
+    /// The excursion's rehearsal reads the excursion's own keys, from its own table, and keeps its own folder (the real run's refuses a folder with files).
+    pub fn for_rehearse_reboot_twice() -> Settings {
+        let mut s = Settings::for_reboot_twice();
+        s.out = s.out_dir("fastboot-reboot-twice-rehearsal");
         s
     }
 
@@ -531,6 +548,17 @@ impl Settings {
                 );
                 s.out = s.out_dir("cmdline-cut-c1");
             }
+            Try::RebootTwice => {
+                // the timed fastboot excursion: no image, no go, no ssh - reboots out of the bootloader, the card and the boot chain read before and after
+                s.bootchain = home_path(&proc("bootchain"));
+                s.by_name = proc("by_name");
+                s.luns = number("luns", proc("luns"));
+                assert!(
+                    s.by_name.starts_with('/') && (1..=26).contains(&s.luns),
+                    "by_name in device.toml is an absolute path on the phone, luns is 1 to 26"
+                );
+                s.out = s.out_dir("fastboot-reboot-twice");
+            }
             Try::Ramroot => {
                 let name = proc("image");
                 s.image = image(&name);
@@ -807,6 +835,8 @@ mod tests {
             (Try::Wdt0, REHEARSE_WDT0_PROCEDURE),
             (Try::CmdlineCut, CMDLINE_CUT_PROCEDURE),
             (Try::CmdlineCut, REHEARSE_CMDLINE_CUT_PROCEDURE),
+            (Try::RebootTwice, REBOOT_TWICE_PROCEDURE),
+            (Try::RebootTwice, REHEARSE_REBOOT_TWICE_PROCEDURE),
             (Try::Ramroot, RAMROOT_PROCEDURE),
             (Try::FlashBoot, FLASH_BOOT_PROCEDURE),
             (Try::FlashBoot, REHEARSE_FLASH_BOOT_PROCEDURE),

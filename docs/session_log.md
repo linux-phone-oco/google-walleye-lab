@@ -8719,3 +8719,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-fastboot-reboot-twice-procedure"></a>
+### Procedure and rehearsal for the timed fastboot excursion
+
+Entry date
+: 2026-11-25
+
+Done
+: tools/walleye-tries reboot_twice.rs, procedures/fastboot-reboot-twice-on-the-pixel-2.rs and its rehearse- pair, device.toml tables; 456 tests, clippy, bin/attended check and --dry-run pass (12 and 15 steps); each leg's line and time go to legs.txt and verdict.txt. Review addressed: refused call stops the run, no-continue said in the verdict, in_fastboot checked before each send, a test reading both entry files. No phone touched.
+
+Considered
+: a fake adb test of the continue-from-Android branch (not done: the branch is the shared phone_is_in_fastboot, rehearsed on the phone first)
+
+Rejected
+: a go for a try that boots no image
+
+About
+: walleye-bootimage
