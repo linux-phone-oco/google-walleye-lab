@@ -41,7 +41,7 @@ unsourced = "fake fastboot and adb output, and the floor of battery-ok.sh is its
 source = "research:walleye-install-slot-readback-done-twice-same-bytes"
 
 [scripts."bootchain-readback-selftest.sh"]
-unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+source = "file:tests/fixtures/phone-text/partition-table-android-b-2026-11-25.cap"
 
 [scripts."bootchain-readback.sh"]
 source = "research:walleye-install-slot-readback-done-twice-same-bytes"
@@ -50,10 +50,13 @@ source = "research:walleye-install-slot-readback-done-twice-same-bytes"
 source = "research:walleye-c5-built"
 
 [scripts."charger-check.sh"]
-unsourced = "no research row records what the charger probe printed on the phone"
+source = "file:tests/fixtures/phone-text/power-supply-facts-ufs-root-20261125-043720.cap"
 
 [scripts."charger-selftest.sh"]
-unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+source = "file:tests/fixtures/phone-text/power-supply-facts-ufs-root-20261125-043720.cap"
+
+[scripts."charger-typed-selftest.sh"]
+unsourced = "a cable-out reading, a charger of another type and each probe fault were never printed by our phone: typed text, not known yet from a phone"
 
 [scripts."display-at-boot-init.sh"]
 source = "research:walleye-display-at-boot-b1-built"
@@ -62,7 +65,7 @@ source = "research:walleye-display-at-boot-b1-built"
 source = "research:walleye-display-delay-bisect-flips-at-25s"
 
 [scripts."display-late-probe-selftest.sh"]
-unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+unsourced = "its fake phone answers with typed module lists and probe lines: no capture of the display-late reader's phone side exists yet (not known yet; a keeper capture is asked in item walleye-phone-text-captures)"
 
 [scripts."display-late-probe.sh"]
 source = "research:walleye-display-late-probe-l-images-built"
@@ -113,7 +116,10 @@ source = "research:2026-11-18-walleye-first-mainline-shell-map"
 source = "research:walleye-fg1-tried-capacity-matches"
 
 [scripts."fuel-gauge-selftest.sh"]
-unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+source = "file:tests/fixtures/phone-text/power-supply-facts-ufs-root-20261125-043720.cap"
+
+[scripts."fuel-gauge-typed-selftest.sh"]
+unsourced = "no text of our kernel's qcom-battery supply was captured (fg1 was tried 2026-11-19, only its numbers were recorded): typed text, not known yet from a phone"
 
 [scripts."gadget-up.sh"]
 source = "research:walleye-try-s1-gadget-up"
@@ -173,7 +179,7 @@ unsourced = "made-up dtbs stand for the vendor overlay"
 source = "research:walleye-dtbo-overlay-merge-why-how-it-stands"
 
 [scripts."part-compare-selftest.sh"]
-unsourced = "its fixtures are made-up text, not text a phone printed (item part 2: replace with captured text)"
+unsourced = "its gpio, regulator, dt and dmesg captures are typed: no Android and our-kernel pair of part reads (tests/host/part-compare.d/touch.list) was printed yet (not known yet; a keeper capture is asked in item walleye-phone-text-captures)"
 
 [scripts."part-compare.sh"]
 source = "research:walleye-z21-touch-part-compare"

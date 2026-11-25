@@ -8521,3 +8521,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-host-selftests-onto-captured-phone-text"></a>
+### Host selftests onto captured phone text
+
+Entry date
+: 2026-11-25
+
+Done
+: charger-selftest and fuel-gauge-selftest now run on the ufs-root dmesg and power-supply captures and Android b's; typed cases split to charger-typed-selftest and fuel-gauge-typed-selftest (wired into check.yml); bootchain-readback-selftest takes its by-name table from the Android b capture; SOURCES rows updated, walleye-sources gate 0 refused.
+
+Considered
+: Moving part-compare and display-late-probe: no captured text of their reads exists.
+
+Rejected
+: Typing a qcom-battery block as a stand-in: the brief forbids a typed stand-in for a live-phone check; left typed and named missing instead.
+
+About
+: walleye-bootimage
