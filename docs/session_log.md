@@ -8794,3 +8794,24 @@ Done
 
 Considered
 : next: walleye-reboot-send-nc-job-control phone proof rides on the next debug-image run; walleye-display-late-answers-capture rides on the next late-probe run; walleye-transport-real-phone-run (rank 15)
+
+---
+
+
+<a id="2026-11-25-bootchain-selftest-on-the-real-proc-partitions"></a>
+### bootchain selftest on the real /proc/partitions
+
+Entry date
+: 2026-11-25
+
+Done
+: bootchain-readback-selftest.sh takes every partition row and size from the Android b /proc/partitions capture (proc-partitions-android-b-2026-11-23.cap) instead of typed 8 KiB rows; the xbl case flipped to the phone's own 8104 sectors, seen failing first (xbl_a was 12288 bytes) then passing. The first ready row (walleye-checks-name-their-sources, part 7+) waits only on text no phone has printed (input-devices, events, typed fault cases) so nothing of it was buildable on the host; this ranked item was taken instead.
+
+Considered
+: Sourcing touch-selftest from the Android b touch capture: its input.txt is the vendor 'input-name=' form, not /proc/bus/input/devices, and no events were read, so the script's reader formats are not what the phone printed - stays unsourced.
+
+Rejected
+: Keeping a typed xbl 12 KiB row next to the real ones: the check's own size rule would then disagree with the phone.
+
+About
+: walleye-bootimage
