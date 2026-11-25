@@ -8459,3 +8459,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-25-b-r2-rp2/
+
+
+<a id="walleye-image-recipes-remaining-are-seeds"></a>
+### walleye-image-recipes-remaining-are-seeds
+
+Date
+: 2026-11-25
+
+Brief
+: z20, l6 and ufs-match have no control image and no kernel build that matches theirs: they stay seeds; the alpine rootfs and walleye-reboot are not boot images
+
+Question
+: Which [images.*] rows still lack a recipe, and can each get one that image ensure proves?
+
+Found
+: Read from main 2d2026a. z20, l6, ufs-match: no [images.*] row is their control (z21, l7, b1, ufs-root and others take them as control), so a recipe would need every part (kernel, dtb, ramdisk, cmdline) plus header and AVB footer from nothing; their kernels were built by hand (z20 diagnostic config, dirty tree - research walleye-kernel-build-declared-reproduces-itself: a shipped kernel cannot be matched), so no [kernel_builds] row yields their kernel sha256. lab-tools README: an input with no recipe is a seed, said 'not proved, it has no recipe (a seed)' by ensure --rebuild, not failed. They stay seeds, the roots every recipe chain ends in. alpine-rootfs, -v3, -v4, -v5, -v1-no-key are ext4 files made by tools/walleye-rootfs (twice equal by their own record), and walleye-reboot is a static binary made by build/build-reboot-bin.sh: neither is a boot image, so image swap cannot be their recipe. Not measured: no ensure was run in this look; the finding is read from the manifest and recorded research.
+
+About
+: walleye-bootimage

@@ -12808,10 +12808,10 @@ Rank
 ### A recipe row for each other image an [images.*] row names, each proven by image ensure
 
 Status
-: in-progress
+: done
 
 Note
-: Parts landed through PR 1130 and the wdt1 pair at its declared path; b-r2 and b-rp2 now have recipes, rebuilt equal (research walleye-image-recipes-any-order-rebuilt-equal). NEXT: the images with no [images.*.recipe] yet (z20, l6, ufs-match, alpine-rootfs*, walleye-reboot): look around for each one's parts, then a recipe row proven by image ensure.
+: Every boot image that has a control now has a recipe (PRs through 1137). Left on purpose, no recipe: z20, l6, ufs-match are the seeds every chain ends in (no control in the manifest, hand-built kernels no [kernel_builds] row matches); alpine-rootfs* (tools/walleye-rootfs) and walleye-reboot (build-reboot-bin.sh) are not boot images. Research walleye-image-recipes-remaining-are-seeds. A seed's kernel could get a recipe only once a tag rebuilds its kernel equal: then walleye-retire-build-scripts judges build-z20.sh and build-ufs-match.sh.
 
 About
 : walleye-bootimage
