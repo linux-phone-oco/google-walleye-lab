@@ -29,7 +29,7 @@ pub const SLPI_NAME: &str = "slpi";
 pub const QRTR_HEADER: &str = "Service Version Instance Node  Port";
 
 /// The one read over telnet: every remoteproc's name and state, the kernel's lines on the SLPI and its transport, qrtr-lookup's list; marks between the parts.
-pub const READ_COMMAND: &str = "echo ---remoteproc; for d in /sys/class/remoteproc/*; do echo \"$(cat $d/name) $(cat $d/state)\"; done; echo ---dmesg; dmesg | grep -i -e remoteproc -e remote.processor -e slpi -e qrtr -e glink -e sysmon; echo ---qrtr; qrtr-lookup 2>&1; echo ---end";
+pub const READ_COMMAND: &str = "echo ---remoteproc; for d in /sys/class/remoteproc/*; do [ -e $d/name ] || continue; echo \"$(cat $d/name) $(cat $d/state)\"; done; echo ---dmesg; dmesg | grep -i -e remoteproc -e remote.processor -e slpi -e qrtr -e glink -e sysmon; echo ---qrtr; qrtr-lookup 2>&1; echo ---end";
 
 /// What a remoteproc's state file said.
 #[derive(Debug, PartialEq, Clone)]
@@ -97,9 +97,17 @@ pub fn log_says(text: &str) -> Log {
             || l.contains("qrtr")
             || l.contains("sysmon");
         if about
-            && ["fail", "error", "timed out", "crash"]
-                .iter()
-                .any(|w| l.contains(w))
+            && [
+                "fail",
+                "error",
+                "timed out",
+                "timeout",
+                "crash",
+                "unable",
+                "watchdog",
+            ]
+            .iter()
+            .any(|w| l.contains(w))
         {
             log.failures.push(line.trim().to_string());
         }
@@ -123,7 +131,9 @@ pub fn services_in(text: &str) -> Result<usize, String> {
         .iter()
         .filter(|l| {
             let w: Vec<&str> = l.split_whitespace().collect();
-            w.len() >= 5 && w[..5].iter().all(|x| x.parse::<u32>().is_ok())
+            w.len() >= 5
+                && [0, 2, 3, 4].iter().all(|&i| w[i].parse::<u32>().is_ok())
+                && (w[1].parse::<u32>().is_ok() || w[1] == "N/A")
         })
         .count())
 }
@@ -472,5 +482,41 @@ mod tests {
         }
         assert!(real.contains("Settings::for_slpi_boot()"));
         assert!(rehearsal.contains("Settings::for_rehearse_slpi_boot()"));
+    }
+}
+
+#[cfg(test)]
+mod review_tests {
+    use super::*;
+
+    fn read(rproc: &str, dmesg: &str, qrtr: &str) -> String {
+        format!("---remoteproc\n{rproc}\n---dmesg\n{dmesg}\n---qrtr\n{qrtr}\n---end")
+    }
+
+    #[test]
+    fn a_diag_row_with_na_version_is_counted() {
+        // shape from the pinned qrtr's lookup.c line 240: `%9u %s %8u %4u %5u %s (%s)`; the values are typed
+        let t = "  Service Version Instance Node  Port\n       15       1        0    9     2\n     4097 N/A        0    9     4 DIAG (x)";
+        assert_eq!(services_in(&read("", "", t)), Ok(2));
+    }
+
+    #[test]
+    fn the_driver_faults_of_the_source_are_failures() {
+        // format strings of qcom_q6v5_pas.c and qcom_q6v5.c, filled by hand (not captured)
+        for l in [
+            "qcom_q6v5_pas 5800000.remoteproc: unable to resolve memory-region",
+            "remoteproc remoteproc0: watchdog received: x",
+            "remoteproc remoteproc0: watchdog without message",
+        ] {
+            assert_eq!(log_says(l).failures.len(), 1, "{l}");
+        }
+    }
+
+    #[test]
+    fn a_read_command_guards_the_empty_glob() {
+        assert!(READ_COMMAND.contains("[ -e $d/name ] || continue"));
+        // busybox prints the empty part as nothing: no remoteproc at all is an answer
+        let a = judge(&read("", "", "x")).unwrap();
+        assert_eq!(a.slpi, None);
     }
 }
