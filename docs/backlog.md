@@ -12776,3 +12776,28 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-recipe-cmdline-budget-check"></a>
+### A host check that every recipe's cmdline stays within the header budget (160 characters), as the retired build-ufs-root scripts checked
+
+Status
+: open
+
+Note
+: From the builder 2026-11-25 (PR 1107): the removed build-ufs-root-image.sh and -production.sh checked the cmdline length; nothing does now. The budget comes from run 8's cut (item walleye-stage2-cmdline-too-long) and C1 (research walleye-cmdline-cut-c1-slot-a-cuts).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: build
+
+Proof
+: a tests/host check run by make land-check fails on a recipe cmdline over 160 characters (proved on a fake over-long row) and passes on device.toml today
+
+Rank
+: 3
