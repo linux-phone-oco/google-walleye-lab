@@ -55,7 +55,7 @@ pub fn root_for(current: &str) -> Result<String, String> {
 
 /// What the author is told before the boot: the numbers are the settings', never typed twice.
 pub fn expect(s: &Settings) -> String {
-    format!("One command, about 10 minutes: the phone boots our UFS-on image once, from memory; its root is the Alpine system partition of the slot Android is NOT on, mounted READ-ONLY with an overlay in memory. The lab logs in over usb-network by ssh and reads the mounts and the kernel log; NOTHING is written to the card (the partition tables of its {} disks, the root partition and the boot chain are hashed before and after and must be equal). The glass stays dark. The phone returns to Android by itself; if it is not on Android after 4 minutes, hold the power button about 15 seconds.", s.luns)
+    format!("One command, about 10 minutes: the phone boots our UFS-on image once, from memory; its root is the Alpine system partition of the slot Android is NOT on, mounted READ-ONLY with an overlay in memory. The lab logs in over usb-network by ssh and reads the mounts and the kernel log, then reads the power supplies and the kernel log once more as fixtures (tests/fixtures/phone-text, each with the image sha256, the command and the date; reads only); NOTHING is written to the card (the partition tables of its {} disks, the root partition and the boot chain are hashed before and after and must be equal). The glass stays dark. The phone returns to Android by itself; if it is not on Android after 4 minutes, hold the power button about 15 seconds.", s.luns)
 }
 
 /// What the author is told before the rehearsal.
@@ -476,6 +476,10 @@ pub fn sections(text: &str) -> Vec<(String, String)> {
 
 /// The one read: what is running, what is mounted, what the kernel said, what the root's init manages.
 pub const READ_COMMAND: &str = "echo ---id; id -u; echo ---kernel; uname -r; echo ---cmdline; cat /proc/cmdline; echo ---pid1; cat /proc/1/cmdline; echo; echo ---mounts; cat /proc/mounts; echo ---dmesg; dmesg; echo ---services; rc-status --crashed 2>&1 || true; echo ---net; ip -o addr show usb0 2>&1; echo ---end";
+
+/// The capture's one ssh command: the power supplies' facts as tests/host/mainline-shell-read.sh reads them (the format the charger and fuel-gauge
+/// checks parse), under `---power-supply`, then `---end`. Reads only. A glob that matches nothing is skipped, never read as a supply named `*`.
+const CAPTURE_COMMAND: &str = "echo ---power-supply; for d in /sys/class/power_supply/*; do [ -e \"$d\" ] || continue; echo \"== ${d##*/}\"; for k in type online status health usb_type voltage_now current_now capacity present temp; do echo \"$k=$(cat $d/$k 2>&1)\"; done; done; echo ---end";
 
 /// What the lab reads, read-only, when a check after the boot failed and the phone is still on the image (item
 /// walleye-rootfs-boots-run-2-diagnose): the kernel log's tail and the init's own lines, the command line, the mounts, the
@@ -1222,6 +1226,59 @@ impl RootfsBoot {
         }
     }
 
+    /// Our kernel's text, kept as fixtures (item walleye-kernel-text-capture-procedure): the power supplies' facts, read once more over ssh
+    /// (read only), and the kernel log the login read already saved and [`Self::the_kernel_log_is_clean`] judged (one read, not two). Each is written under
+    /// `fixtures` as `NAME-IMAGE-DAY.cap` (the day is a timestamp: a run adds files, none is overwritten), with the run image's sha256 (and the
+    /// declared one), the command and the date above the text the phone printed - the selftests are tested on text a phone printed, never typed.
+    /// The whole facts read is also kept in the run's folder (kernel-text.txt). A fixture needs a SOURCES.toml row (`file:` of the run's folder moved
+    /// under research/, or `research:ID`) in the same change that commits it: the keeper's landing adds it. A missing supply or an empty log is NOT KNOWN YET: no fixture.
+    pub fn our_kernels_text_is_captured(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let run_sha = u
+                .before
+                .borrow()
+                .run_image
+                .as_ref()
+                .map(|(_, sha)| sha.clone())
+                .ok_or("the run image is not made yet: no sha256 to name")?;
+            let read = redact(&u.ssh(CAPTURE_COMMAND, 40)?);
+            let parts = sections(&read);
+            section(&parts, "end").map_err(|_| "the capture read did not finish: no end mark")?;
+            let facts = section(&parts, "power-supply")?.to_string();
+            if !facts.lines().any(|l| l.starts_with("== ")) {
+                return Err(
+                    "no power supply on the phone: the kernel's facts are not known yet".into(),
+                );
+            }
+            let dmesg = u.read_section("dmesg")?;
+            if dmesg.trim().is_empty() {
+                return Err("the kernel log is empty: not known yet".into());
+            }
+            u.lab.save("kernel-text.txt", &read)?;
+            std::fs::create_dir_all(&u.s.fixtures)
+                .map_err(|e| format!("{}: {e}", u.s.fixtures.display()))?;
+            let capture = [
+                ("power-supply-facts", CAPTURE_COMMAND, facts),
+                ("dmesg", "dmesg (the login read, judged clean)", dmesg),
+            ];
+            for (file, command, text) in capture {
+                let name = format!("{file}-{}-{}.cap", u.s.image_name, u.s.day);
+                let header = format!(
+                    "# captured read-only over ssh from the booted image {}\n# image sha256: {run_sha} (run image; declared {}, equal but for the command line)\n# command: {command}\n# date: {}\n",
+                    u.s.image_name, u.s.image_sha256, u.s.day
+                );
+                let tmp = u.s.fixtures.join(format!("{name}.tmp"));
+                std::fs::write(&tmp, format!("{header}{text}"))
+                    .map_err(|e| format!("{name}: {e}"))?;
+                std::fs::rename(&tmp, u.s.fixtures.join(&name))
+                    .map_err(|e| format!("{name}: {e}"))?;
+                println!("  fixture {}/{name}", u.s.fixtures.display());
+            }
+            Ok(())
+        }
+    }
+
     /// The rw write only: before the phone is sent away the root is settled over ssh - `sync`, then `mount -o remount,ro /` (the way back's own step; the init never remounts) - so a stop does not
     /// cut off what was written. What it said is printed; a failure is NOT KNOWN YET, never a stop (the way back goes on).
     fn settle_rw(&self) {
@@ -1898,6 +1955,7 @@ mod tests {
         std::fs::set_permissions(&key, PermissionsExt::from_mode(0o600)).unwrap();
         let mut s = Settings::stand_in(Try::RootfsBoot);
         s.out = d.join("out");
+        s.fixtures = d.join("fixtures");
         s.identity = key;
         s.address = "172.16.43.1".into();
         s.device_wait = 1;
@@ -1917,6 +1975,87 @@ mod tests {
     }
 
     const NET: &str = "5: usb0    inet 172.16.43.1/24 brd 172.16.43.255 scope global usb0";
+
+    /// Item walleye-kernel-text-capture-procedure: after the login read and the clean check, the capture step writes the supplies' facts and the
+    /// judged kernel log under the fixtures folder, each with the run image's sha256, the command and the date above the text; nothing else is a fixture.
+    #[test]
+    fn the_kernels_text_is_captured_as_fixtures_with_provenance() {
+        let facts = include_str!(
+            "../../../tests/fixtures/phone-text/power-supply-facts-android-b-2026-11-25.cap"
+        );
+        let dmesg =
+            include_str!("../../../tests/fixtures/phone-text/dmesg-clean-z7-try1-dmesg.cap");
+        // the ssh stand-in answers every call with one text: the login read first, then the capture read, as the phone would
+        let login = read_of(dmesg, MOUNTS, "0", NET, "");
+        let capture = |facts: &str| format!("---power-supply\n{facts}---end\n");
+        let rigged = |name: &str, answer: &str, exit: i32| {
+            let r = rig(name, &login, exit);
+            (r.the_login_works_and_the_phone_is_read())().unwrap();
+            std::fs::write(r.s.out.parent().unwrap().join("read.out"), answer).unwrap(); // the phone answers the capture next
+            r.before.borrow_mut().run_image =
+                Some((std::path::PathBuf::from("run.img"), "feedc0de".into()));
+            r
+        };
+        let r = rigged("capture", &capture(facts), 0);
+        (r.our_kernels_text_is_captured())().unwrap();
+        let day = &r.s.day;
+        assert!(
+            !r.s.image_sha256.is_empty(),
+            "the stand-in names the declared sha256"
+        );
+        for (file, text) in [("power-supply-facts", facts), ("dmesg", dmesg)] {
+            let name = format!("{file}-{}-{day}.cap", r.s.image_name);
+            let got = std::fs::read_to_string(r.s.fixtures.join(&name))
+                .unwrap_or_else(|e| panic!("{name}: {e}"));
+            let head: Vec<&str> = got.lines().take_while(|l| l.starts_with("# ")).collect();
+            assert!(
+                head.iter()
+                    .any(|l| l.contains("feedc0de") && l.contains(&r.s.image_sha256)),
+                "{name}: {head:?}"
+            );
+            assert!(
+                head.iter().any(|l| l.contains("command:")),
+                "{name}: {head:?}"
+            );
+            assert!(
+                head.iter().any(|l| l.contains(day.as_str())),
+                "{name}: {head:?}"
+            );
+            assert!(
+                got.ends_with(text),
+                "{name}: the phone's text follows the header whole"
+            );
+        }
+        assert!(r.s.out.join("kernel-text.txt").exists());
+        let calls = std::fs::read_to_string(r.s.out.parent().unwrap().join("ssh.calls")).unwrap();
+        let sent = calls.lines().last().unwrap();
+        for write in ["tee ", "rm ", "mount", "sysrq", "dd ", " > "] {
+            assert!(!sent.contains(write), "{write}: {sent}");
+        }
+        // nothing is a fixture when the phone shows no supply, the read does not end, or the run image is unmade
+        for (name, answer, exit) in [
+            ("capture-noglob", capture("").as_str(), 0),
+            (
+                "capture-noend",
+                "---power-supply\n== battery\ntype=Battery\n",
+                0,
+            ),
+        ] {
+            let r = rigged(name, answer, exit);
+            assert!((r.our_kernels_text_is_captured())().is_err(), "{name}");
+            assert!(!r.s.fixtures.exists(), "{name}: no fixture");
+            assert!(
+                !r.s.out.join("kernel-text.txt").exists(),
+                "{name}: nothing kept"
+            );
+        }
+        let r = rig("capture-unmade", &login, 0);
+        (r.the_login_works_and_the_phone_is_read())().unwrap();
+        assert!((r.our_kernels_text_is_captured())()
+            .unwrap_err()
+            .contains("run image"));
+        assert!(CAPTURE_COMMAND.contains("|| continue"));
+    }
 
     #[test]
     fn a_good_read_passes_every_step_after_the_login() {

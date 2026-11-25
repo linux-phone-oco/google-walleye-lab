@@ -441,6 +441,7 @@ ssh_port = 22
 bootchain = "~/lab-material/walleye/bootchain-2026-11-19"   # the stored boot chain read-back: the boot chain read again after the boot must equal it (tests/host/bootchain-readback-check.sh STORED NEW)
 by_name = "/dev/block/by-name"                              # the phone's partition names on Android: the root partition is hashed by name before and after
 luns = 6                                                    # the card's disks (sda to sdf): the partition table of each is hashed before and after
+fixtures = "tests/fixtures/phone-text"                      # the folder (in this lab) the capture step writes our kernel's text into: fixtures with the image sha256, the command and the date above the text
 
 # The rehearsal of that boot (procedures/rehearse-rootfs-boots-on-the-pixel-2.rs; item walleye-rootfs-boots-rehearsal): every step but the boot, the card read from Android, the guard, the slots' flags, the boot chain read back.
 # It boots nothing and needs no go (go_item is read into the settings and never asked); the keys are the boot's, read from this table, so a key renamed there fails in both.
@@ -452,6 +453,7 @@ ssh_port = 22
 bootchain = "~/lab-material/walleye/bootchain-2026-11-19"
 by_name = "/dev/block/by-name"
 luns = 6
+fixtures = "tests/fixtures/phone-text"
 
 # The WDT0 try as ONE command (procedures/wdt0-state-on-the-pixel-2.rs; item walleye-wdt0-try-procedure): the wdt0 image booted once from memory, read-only like the root boot; its init reads the apps watchdog's four registers
 # (EN, STS, BARK_TIME, BITE_TIME) and the lab judges them over ssh. The keys are the root boot's plus `image`, the name of its [images.NAME] row (path, sha256: the go names this sha256). go_item is the item whose go_until holds the coordinator's go
