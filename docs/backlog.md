@@ -12507,7 +12507,7 @@ Status
 : open
 
 Note
-: Fixtures now present: power-supply-facts-fg1, dmesg-fg1, proc-partitions-android-b-2026-11-23; fuel-gauge-selftest already moved onto fg1. Left: bootchain-readback-selftest onto the real /proc/partitions (sizes from it, not typed), then the two reads not in the material: display-late reader answers as printed (telnet up-/hold-/count- answers) and the part-compare Android half over adb (read only).
+: Left after PR 1102 (fg1 and Android /proc/partitions fixtures kept): ONE read, the part-compare Android half: tests/host/part-compare.sh capture PART android for the part part-compare-selftest uses (read only over adb; adb root restarts adbd only), kept as a fixture with its SOURCES row, part-compare-selftest moved onto it. The bootchain selftest move is walleye-bootchain-selftest-real-partitions (builder); the display-late answers are walleye-display-late-answers-capture (next late-probe run).
 
 About
 : walleye-bootimage
@@ -12519,7 +12519,7 @@ Needs
 : phone
 
 Proof
-: each fixture file present under tests/fixtures/phone-text/ with its SOURCES row, and charger-typed, fuel-gauge-typed, part-compare and display-late-probe selftests moved onto them
+: the part-compare Android capture kept under tests/fixtures/phone-text/ with its SOURCES row, and part-compare-selftest passing on it
 
 Rank
 : 5
@@ -12698,3 +12698,53 @@ Proof
 
 Rank
 : 6
+
+
+<a id="walleye-bootchain-selftest-real-partitions"></a>
+### bootchain-readback-selftest reads its partition sizes from the real Android /proc/partitions fixture, not typed rows
+
+Status
+: open
+
+Note
+: Split from walleye-phone-text-captures-rest 2026-11-25 by the walleye coordinator; host only, no phone.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: build
+
+Proof
+: tests/host/bootchain-readback-selftest.sh passes with its rows taken from tests/fixtures/phone-text/proc-partitions-android-b-2026-11-23 (SOURCES row named); no typed partition row left
+
+Rank
+: 3
+
+
+<a id="walleye-display-late-answers-capture"></a>
+### Keep the display-late reader answers (telnet up-/hold-/count-) as printed, from the next display-late-probe run
+
+Status
+: open
+
+Note
+: Split from walleye-phone-text-captures-rest 2026-11-25: the answers need the late-probe image booted; no boot is spent on them alone, they ride on the next run of tests/host/display-late-probe.sh.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: phone
+
+Proof
+: the answers kept as a fixture under tests/fixtures/phone-text/ with its SOURCES row, and display-late-probe-selftest moved onto it
+
+Rank
+: 7
