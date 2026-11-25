@@ -9157,3 +9157,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-walleye-ufs-off-kernel-build-declared-in-device"></a>
+### walleye-ufs-off kernel build declared in device.toml
+
+Entry date
+: 2026-11-25
+
+Done
+: Moved the declared [kernel_builds.walleye-ufs-off] row from research into device.toml; kernel-build.sh passes; ensure resolves to the store kernel whose sha256 equals the declared one.
+
+Considered
+: A cold rebuild to re-prove: not needed, the store path is the Nix build of that recipe and its bytes were hashed.
+
+Rejected
+: Declaring the shipped (-dirty) kernels' hashes: a rebuild cannot equal them.
+
+About
+: walleye-bootimage

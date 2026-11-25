@@ -126,6 +126,20 @@ rndis = false
 adb = "adb"
 fastboot = "fastboot"
 
+# The kernel this lab builds from an int/ tag (lab-tools README "lpoco bringup image ensure"; item walleye-declares-its-kernel-build): the
+# ufs-off list as the shipped images carry it, built in Nix's sandbox with the user lpoco, the host lab, the counter 1 and the clock of the
+# tag, so two builds give the same bytes. The board dts files are not inputs of this kernel (Image.gz holds no dtb): an image takes its dtb
+# as a recipe part, by sha256. NOT the shipped kernels: those say "-dirty (mll@grig) ... Thu Nov 19" in their version line (research
+# walleye-kernel-build-declared-reproduces-itself), so no declared hash of a shipped image can be met by a rebuild.
+[kernel_builds.walleye-ufs-off]
+tag = "int/walleye/ufs-off-e123d3bff/v7.3/1"
+rev = "0e20c7a89ac5748fbd38f59a2b66324aad84cbbb"          # the commit the tag points at (git ls-remote ...^{})
+epoch = 1795421895                                          # the tag's own time (git log -1 --format=%ct)
+configs = ["5424de9b251f819ad862914593f980a799a87ac7402f1e838cf7a3167bbb7b6e"]   # build/walleye.config
+patches = []
+targets = ["Image.gz"]
+sha256 = "88afb4d742ff59a3ad0b8f1cffa8a7709c7e99a0a926dca732cf33c5f90d97ac"
+
 # The kernel of the UFS-off list with the SLPI start built in (item walleye-slpi-image-kernel-pas): the tag int/walleye/ufs-off/v7.3/1 (the pmic-wdt topic at its tip 8b2283da, as the list holds it today)
 # built with build/walleye.config as it is now (QCOM_Q6V5_PAS, QCOM_SYSMON, RPMSG_QCOM_GLINK_SMEM =y beside QRTR and PD_MAPPER); the config is the only change from the shipped list, so no new tag. Image.gz holds no dtb.
 [kernel_builds.walleye-ufs-off-slpi]
