@@ -12657,10 +12657,10 @@ Rank
 ### C1 way back: the backgrounded nc listener is stopped by busybox job control (tty input)
 
 Status
-: open
+: in-progress
 
 Note
-: Run 20261125-085235 stopped at step 16: sh.run of '(nc -l -p 4444 > /tmp/walleye-reboot) > /dev/null 2>&1 &' got no answer in 5 s and the phone was left on the image with slot a current (a hand finish was needed). By hand the same line worked; the shell then said 'Stopped (tty input)' for the nc yet the file arrived with the right sha256. Fix in tools/walleye-tries cmdline_cut.rs send_to_the_bootloader: send nc with </dev/null, and do not wait for a prompt after a '&' line; rehearsal should cover it (the rehearsal does not boot the image).
+: Host side landed: send_to_the_bootloader sends the nc listener via Shell::background (own line, </dev/null, no markers); host tests pass. Left for the keeper: the next debug-image run passes step 16 without a hand (record busybox nc behaviour on stdin EOF and any '[1]+ Done' line before the sha256 read).
 
 About
 : walleye-bootimage
@@ -12669,7 +12669,7 @@ Opened
 : 2026-11-25
 
 Needs
-: build
+: phone
 
 Proof
 : a host test of send_to_the_bootloader with a shell that stops a tty-reading background job (nc </dev/null, no prompt wait after a '&' line) passes; the next debug-image run passes its way back step 16 without a hand

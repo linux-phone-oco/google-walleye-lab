@@ -103,6 +103,14 @@ impl Shell {
         false
     }
 
+    /// Start a command as a background job: its own line, its input closed (a job that reads the terminal is stopped
+    /// by the shell's job control), no end marker and no wait - a line ending in `&` cannot carry one. The next `run`
+    /// reads on from its own begin marker, so whatever the shell printed about the job is passed over. `command` is one
+    /// simple command (no trailing `;`, no `#` comment): the suffix is appended as text.
+    pub fn background(&mut self, command: &str) -> Result<(), String> {
+        self.send(&format!("{command} </dev/null &"))
+    }
+
     /// Run a command and return what it printed, bounded by `wait`.
     pub fn run(&mut self, command: &str, wait: Duration) -> Result<String, String> {
         let (lines, ended) = self.run_partial(command, wait)?;
@@ -316,6 +324,41 @@ mod tests {
         assert!(
             e.contains("not answered") || e.contains("write to the phone"),
             "{e}"
+        );
+    }
+}
+
+#[cfg(test)]
+mod background_tests {
+    use super::*;
+    use std::io::{BufRead, BufReader};
+    use std::net::TcpListener;
+    use std::sync::mpsc;
+
+    /// source: the 20261125-085235 run's step 16 - `(nc ...) &` sent between markers got no answer in 5 s (`cmd &; echo END` is no line a shell takes whole).
+    #[test]
+    fn a_background_line_is_sent_alone_with_its_input_closed_and_waits_for_nothing() {
+        let l = TcpListener::bind("127.0.0.1:0").unwrap();
+        let port = l.local_addr().unwrap().port();
+        let (tx, rx) = mpsc::channel();
+        std::thread::spawn(move || {
+            let (c, _) = l.accept().unwrap();
+            for line in BufReader::new(c).lines() {
+                tx.send(line.unwrap()).unwrap();
+            }
+        });
+        let mut sh = Shell::open("127.0.0.1", port, Duration::from_secs(2)).unwrap();
+        let t = Instant::now();
+        sh.background("nc -l -p 4444 > /tmp/x 2>/dev/null").unwrap();
+        assert!(
+            t.elapsed() < Duration::from_secs(1),
+            "it waited for a prompt"
+        );
+        let sent = rx.recv_timeout(Duration::from_secs(2)).unwrap();
+        assert_eq!(sent, "nc -l -p 4444 > /tmp/x 2>/dev/null </dev/null &");
+        assert!(
+            !sent.contains("WT-"),
+            "no markers around a '&' line: {sent}"
         );
     }
 }

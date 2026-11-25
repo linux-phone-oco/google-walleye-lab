@@ -8698,3 +8698,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-25-nc-job-control"></a>
+### nc listener without job-control stop
+
+Entry date
+: 2026-11-25
+
+Done
+: Shell::background and listen_command in walleye-tries; proof tests seen failing then passing; programmer review read
+
+Considered
+: run between markers with </dev/null; a netstat wait instead of the 1 s sleep
+
+Rejected
+: marker-wrapped '&' line: invalid shell syntax
+
+About
+: walleye-bootimage

@@ -33,6 +33,11 @@ pub const DEBUG_WORD: &str = "walleye.debug";
 pub const NC_PORT: u16 = 4444;
 /// Where the tool lands on the phone (the image's tmpfs).
 pub const TOOL_ON_PHONE: &str = "/tmp/walleye-reboot";
+
+/// The phone's listener for the reboot tool, one command; `Shell::background` makes it a job with its input closed.
+fn listen_command() -> String {
+    format!("nc -l -p {NC_PORT} > {TOOL_ON_PHONE} 2>/dev/null")
+}
 /// Kept in the run's folder: what the lab meant to do to the slot flag, written BEFORE the switch, and the slot after it.
 pub const INTENT_FILE: &str = "slot-set-intent.txt";
 pub const SET_FILE: &str = "slot-set.txt";
@@ -376,8 +381,7 @@ impl CmdlineCut {
         host::image_has_sha256(&self.s.reboot_tool, &self.s.reboot_tool_sha256)
             .map_err(|e| format!("the reboot tool is not the declared one: {e}"))?;
         let mut sh = self.lab.shell_when_up()?;
-        let listen = format!("(nc -l -p {NC_PORT} > {TOOL_ON_PHONE}) > /dev/null 2>&1 &");
-        sh.run(&listen, Duration::from_secs(5))?;
+        sh.background(&listen_command())?;
         std::thread::sleep(Duration::from_secs(1));
         let bytes = std::fs::read(&self.s.reboot_tool)
             .map_err(|e| format!("{}: {e}", self.s.reboot_tool.display()))?;
@@ -618,5 +622,24 @@ mod tests {
         assert_eq!(slot_of("_b\n").unwrap(), "b");
         assert_eq!(slot_of("a").unwrap(), "a");
         assert!(slot_of("_c").is_err());
+    }
+}
+
+#[cfg(test)]
+mod listen_tests {
+    use super::*;
+
+    #[test]
+    fn the_listener_is_one_command_whose_background_mark_is_the_shells() {
+        // source: the 20261125-085235 run (backlog walleye-reboot-send-nc-job-control): busybox job control said 'Stopped (tty input)' for an nc that read the terminal
+        let l = listen_command();
+        assert_eq!(
+            l,
+            format!("nc -l -p {NC_PORT} > {TOOL_ON_PHONE} 2>/dev/null")
+        );
+        assert!(
+            !l.contains('&'),
+            "the background mark is Shell::background's"
+        );
     }
 }
