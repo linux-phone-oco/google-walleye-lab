@@ -349,3 +349,6 @@ source = "file:tests/fixtures/kernel-text/slpi-pas-Kconfig.txt"
 
 [scripts."kernel-slpi-pas-selftest.sh"]
 source = "file:tests/fixtures/kernel-text/slpi-pas-Kconfig.txt"
+
+[scripts."qrtr-lookup.sh"]
+source = "file:rootfs/pins"

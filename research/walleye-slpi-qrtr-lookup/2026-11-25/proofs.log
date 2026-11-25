@@ -1,0 +1,11 @@
+$ sh tests/host/ufs-off-image.sh
+pass walleye-ufs-off image: 1 dtb(s), no UFS node is on, alone or merged with dtbo entry 3; command line names no ufs;
+$ sh tests/host/image-recipe.sh
+pass walleye-image-recipe slpi: in the store (/nix/store/dgxs0blfb5k7xla0hm6pw71piq4abnmr-boot-slpi.img)
+$ sh tests/host/qrtr-lookup.sh
+pass walleye-qrtr-lookup qrtr 29e36ae164389580a0f8ea7a7fdb728140ae978d built twice equal: 409c81c5c3cf93ceec19eda140866517f1d57ccb10a4e822f6409bf8c194ea15, ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, BuildID[sha1]=c59550cdd0ec8770c1bc313a2035ddac7f6fcc77, for GNU/Linux 3.7.0, stripped
+$ xz -dc slpi-ramdisk | cpio -t | grep qrtr
+bin/qrtr-lookup
+59d0cb601bab4ffa4b97ffb038e4e10408085dcdb1e4fce920253ae964ecc32c  slpi-new1.cpio.xz
+59d0cb601bab4ffa4b97ffb038e4e10408085dcdb1e4fce920253ae964ecc32c  slpi-new2.cpio.xz
+348dbd45eb2cdfe924f3979bdcacca4b7d7144de45e2696597cb88c338276f3b  slpi-old.cpio.xz

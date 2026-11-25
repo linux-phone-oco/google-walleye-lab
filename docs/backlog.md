@@ -6525,7 +6525,7 @@ Status
 : open
 
 Note
-: IMAGE READY 2026-11-25 (walleye-builder): [images.slpi] sha256 7c7dff6158fe86155f7179f2435ec0b070ef98eb280e338d29fb8cfee887c6bd at ~/Projects/walleye-build/images-slpi/boot-slpi.img (UFS off, gates pass). One RAM boot by fastboot boot through the procedure; read /sys/class/remoteproc/*/state, the kernel log for remoteproc_slpi and qrtr; the SLPI carve-out reg 0x5800000 is NOT KNOWN YET (smallest try in the dts). The ramdisk has no qrtr-lookup yet: a service list needs it (left).
+: IMAGE READY 2026-11-25 (walleye-builder): [images.slpi] sha256 b98194279d75f0fd98aeb419d307838693843f8a0abfcf8479930316c74365b2 at ~/Projects/walleye-build/images-slpi/boot-slpi.img (UFS off, gates pass). One RAM boot by fastboot boot through the procedure; read /sys/class/remoteproc/*/state, the kernel log for remoteproc_slpi and qrtr; the SLPI carve-out reg 0x5800000 is NOT KNOWN YET (smallest try in the dts). The ramdisk has qrtr-lookup since 2026-11-25 (part 1 of walleye-slpi-boot-procedure); the image is the one named here.
 
 Blocked by
 : walleye-slpi-boot-procedure
@@ -12841,7 +12841,7 @@ Status
 : open
 
 Note
-: From the walleye keeper's stop 2026-11-25 (PR 1120): walleye-slpi-boot-qrtr is ready but has no procedure to run and the ramdisk has no qrtr-lookup. Pattern: procedures/fastboot-reboot-twice-on-the-pixel-2.rs and cmdline-cut-c1. Nothing flashed; the image boots from RAM only; the carve-out reg stays the dts's smallest try (not known yet).
+: From the walleye keeper's stop 2026-11-25 (PR 1120): walleye-slpi-boot-qrtr is ready but has no procedure to run and the ramdisk has no qrtr-lookup. Pattern: procedures/fastboot-reboot-twice-on-the-pixel-2.rs and cmdline-cut-c1. Nothing flashed; the image boots from RAM only; the carve-out reg stays the dts's smallest try (not known yet). PART 1 (walleye-builder, 2026-11-25): qrtr-lookup is in the ramdisk and the image is rebuilt twice equal, new sha256 b98194279d75f0fd98aeb419d307838693843f8a0abfcf8479930316c74365b2 (research walleye-slpi-qrtr-lookup-in-ramdisk, tests/host/qrtr-lookup.sh). LEFT: procedures/slpi-boot-on-the-pixel-2.rs and rehearse-slpi-boot-on-the-pixel-2.rs over a tools/walleye-tries module (pattern cmdline-cut-c1: the gate, fastboot boot of [images.slpi] from memory, read /sys/class/remoteproc/*/state, the kernel log for remoteproc_slpi and qrtr and qrtr-lookup over the image's telnet on 172.16.43.1, the way back to Android slot b); its judging functions tested on text a phone printed (none captured yet for remoteproc_slpi: the first real read is the capture, so the rehearsal's checks name their source as the kernel's own source lines until then).
 
 About
 : sensors
