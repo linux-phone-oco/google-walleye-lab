@@ -8899,3 +8899,24 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-25-walleye-slpi-carveout-dts-stage-1"></a>
+### SLPI carve-out dts and its host test
+
+Entry date
+: 2026-11-25
+
+Done
+: dt: slpi_mem 0x94c00000/15 MiB, mba 0x94500000, venus 0x94700000, mainline's ipa/gpu/wlan nodes deleted (wifi's memory-region dropped), ipa_gpu_mem 0x95b00000, remoteproc_slpi okay with slpi_v2.mdt. tests/host/dtb-slpi-carveout.sh (+selftest, 6 known bad cases) against the phone's own fdt text (fixture). Compiled with cpp+dtc against the ufs-on kernel tree. Found the shipped kernels have the PAS driver as a module: image split to walleye-slpi-image-kernel-pas.
+
+Considered
+: Checking DRAM from the board dts: its /memory has size 0 (the bootloader fills it), so the phone's own /memory is the bound.
+
+Rejected
+: Building the image on the shipped kernel: no PAS driver built in, no modules in the ramdisk.
+
+About
+: sensors

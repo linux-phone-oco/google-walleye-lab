@@ -65,3 +65,6 @@ source = "file:research/walleye-android-touch-capture/2026-11-25/regulator.txt"
 
 [scripts."part-compare-touch-android-b-dt-i2c-2026-11-25.cap"]
 source = "file:research/walleye-android-touch-capture/2026-11-25/dt-i2c.txt"
+
+[scripts."walleye-running-fdt-memory.cap"]
+source = "research:walleye-slpi-carveout-answer"
