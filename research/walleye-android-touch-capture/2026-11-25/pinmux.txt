@@ -1,0 +1,157 @@
+3400000.pinctrl: Pinmux settings per pin
+3400000.pinctrl: Format: pin (name): mux_owner gpio_owner hog?
+pin 0 (3400000.pinctrl:GPIO_0): c175000.spi (GPIO UNCLAIMED) function blsp_spi1 group gpio0
+pin 1 (3400000.pinctrl:GPIO_1): c175000.spi (GPIO UNCLAIMED) function blsp_spi1 group gpio1
+pin 2 (3400000.pinctrl:GPIO_2): c175000.spi (GPIO UNCLAIMED) function blsp_spi1 group gpio2
+pin 3 (3400000.pinctrl:GPIO_3): c175000.spi (GPIO UNCLAIMED) function blsp_spi1 group gpio3
+pin 4 (3400000.pinctrl:GPIO_4): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 5 (3400000.pinctrl:GPIO_5): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 6 (3400000.pinctrl:GPIO_6): c1b6000.i2c (GPIO UNCLAIMED) function blsp_i2c8 group gpio6
+pin 7 (3400000.pinctrl:GPIO_7): c1b6000.i2c (GPIO UNCLAIMED) function blsp_i2c8 group gpio7
+pin 8 (3400000.pinctrl:GPIO_8): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 9 (3400000.pinctrl:GPIO_9): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 10 (3400000.pinctrl:GPIO_10): c994000.qcom,mdss_dsi_ctrl0 (GPIO UNCLAIMED) function gpio group gpio10
+pin 11 (3400000.pinctrl:GPIO_11): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 12 (3400000.pinctrl:GPIO_12): (MUX UNCLAIMED) 3400000.pinctrl:12
+pin 13 (3400000.pinctrl:GPIO_13): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 14 (3400000.pinctrl:GPIO_14): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 15 (3400000.pinctrl:GPIO_15): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 16 (3400000.pinctrl:GPIO_16): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 17 (3400000.pinctrl:GPIO_17): ca0c000.qcom,cci (GPIO UNCLAIMED) function gpio group gpio17
+pin 18 (3400000.pinctrl:GPIO_18): ca0c000.qcom,cci (GPIO UNCLAIMED) function gpio group gpio18
+pin 19 (3400000.pinctrl:GPIO_19): ca0c000.qcom,cci (GPIO UNCLAIMED) function gpio group gpio19
+pin 20 (3400000.pinctrl:GPIO_20): ca0c000.qcom,cci (GPIO UNCLAIMED) function gpio group gpio20
+pin 21 (3400000.pinctrl:GPIO_21): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 22 (3400000.pinctrl:GPIO_22): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 23 (3400000.pinctrl:GPIO_23): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 24 (3400000.pinctrl:GPIO_24): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 25 (3400000.pinctrl:GPIO_25): 9-0008 3400000.pinctrl:25 function gpio group gpio25
+pin 26 (3400000.pinctrl:GPIO_26): 9-0008 3400000.pinctrl:26 function gpio group gpio26
+pin 27 (3400000.pinctrl:GPIO_27): soc:mnh-sm 3400000.pinctrl:27 function gpio group gpio27
+pin 28 (3400000.pinctrl:GPIO_28): soc:mnh-sm 3400000.pinctrl:28 function gpio group gpio28
+pin 29 (3400000.pinctrl:GPIO_29): (MUX UNCLAIMED) 3400000.pinctrl:29
+pin 30 (3400000.pinctrl:GPIO_30): (MUX UNCLAIMED) 3400000.pinctrl:30
+pin 31 (3400000.pinctrl:GPIO_31): c176000.spi (GPIO UNCLAIMED) function blsp_spi2 group gpio31
+pin 32 (3400000.pinctrl:GPIO_32): c176000.spi (GPIO UNCLAIMED) function blsp_spi2 group gpio32
+pin 33 (3400000.pinctrl:GPIO_33): c176000.spi (GPIO UNCLAIMED) function blsp_spi2 group gpio33
+pin 34 (3400000.pinctrl:GPIO_34): c176000.spi (GPIO UNCLAIMED) function blsp_spi2 group gpio34
+pin 35 (3400000.pinctrl:GPIO_35): 1c00000.qcom,pcie 3400000.pinctrl:35 function gpio group gpio35
+pin 36 (3400000.pinctrl:GPIO_36): 1c00000.qcom,pcie (GPIO UNCLAIMED) function pci_e0 group gpio36
+pin 37 (3400000.pinctrl:GPIO_37): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 38 (3400000.pinctrl:GPIO_38): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 39 (3400000.pinctrl:GPIO_39): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 40 (3400000.pinctrl:GPIO_40): soc:gpio_keys 3400000.pinctrl:40 function gpio group gpio40
+pin 41 (3400000.pinctrl:GPIO_41): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 42 (3400000.pinctrl:GPIO_42): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 43 (3400000.pinctrl:GPIO_43): c17a000.i2c (GPIO UNCLAIMED) function blsp_i2c6 group gpio43
+pin 44 (3400000.pinctrl:GPIO_44): c17a000.i2c (GPIO UNCLAIMED) function blsp_i2c6 group gpio44
+pin 45 (3400000.pinctrl:GPIO_45): c171000.uart (GPIO UNCLAIMED) function gpio group gpio45
+pin 46 (3400000.pinctrl:GPIO_46): c171000.uart (GPIO UNCLAIMED) function gpio group gpio46
+pin 47 (3400000.pinctrl:GPIO_47): c171000.uart (GPIO UNCLAIMED) function gpio group gpio47
+pin 48 (3400000.pinctrl:GPIO_48): c171000.uart (GPIO UNCLAIMED) function gpio group gpio48
+pin 49 (3400000.pinctrl:GPIO_49): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 50 (3400000.pinctrl:GPIO_50): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 51 (3400000.pinctrl:GPIO_51): c1b7000.i2c (GPIO UNCLAIMED) function blsp_i2c9 group gpio51
+pin 52 (3400000.pinctrl:GPIO_52): c1b7000.i2c (GPIO UNCLAIMED) function blsp_i2c9 group gpio52
+pin 53 (3400000.pinctrl:GPIO_53): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 54 (3400000.pinctrl:GPIO_54): soc:wcd9xxx-irq (GPIO UNCLAIMED) function gpio group gpio54
+pin 55 (3400000.pinctrl:GPIO_55): c1b5000.i2c (GPIO UNCLAIMED) function blsp_i2c7 group gpio55
+pin 56 (3400000.pinctrl:GPIO_56): c1b5000.i2c (GPIO UNCLAIMED) function blsp_i2c7 group gpio56
+pin 57 (3400000.pinctrl:GPIO_57): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 58 (3400000.pinctrl:GPIO_58): soc:qcom,msm-dai-mi2s:qcom,msm-dai-q6-mi2s-quat (GPIO UNCLAIMED) function gpio group gpio58
+pin 59 (3400000.pinctrl:GPIO_59): soc:qcom,msm-dai-mi2s:qcom,msm-dai-q6-mi2s-quat (GPIO UNCLAIMED) function gpio group gpio59
+pin 60 (3400000.pinctrl:GPIO_60): soc:qcom,msm-dai-mi2s:qcom,msm-dai-q6-mi2s-quat (GPIO UNCLAIMED) function gpio group gpio60
+pin 61 (3400000.pinctrl:GPIO_61): soc:qcom,msm-dai-mi2s:qcom,msm-dai-q6-mi2s-quat (GPIO UNCLAIMED) function gpio group gpio61
+pin 62 (3400000.pinctrl:GPIO_62): (MUX UNCLAIMED) 3400000.pinctrl:62
+pin 63 (3400000.pinctrl:GPIO_63): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 64 (3400000.pinctrl:GPIO_64): soc:msm_cdc_pinctrl@64 3400000.pinctrl:64 function gpio group gpio64
+pin 65 (3400000.pinctrl:GPIO_65): c1b8000.spi (GPIO UNCLAIMED) function blsp_spi10 group gpio65
+pin 66 (3400000.pinctrl:GPIO_66): c1b8000.spi (GPIO UNCLAIMED) function blsp_spi10 group gpio66
+pin 67 (3400000.pinctrl:GPIO_67): c1b8000.spi (GPIO UNCLAIMED) function blsp_spi10 group gpio67
+pin 68 (3400000.pinctrl:GPIO_68): c1b8000.spi (GPIO UNCLAIMED) function blsp_spi10 group gpio68
+pin 69 (3400000.pinctrl:GPIO_69): soc:audio_ext_clk (GPIO UNCLAIMED) function spkr_i2s group gpio69
+pin 70 (3400000.pinctrl:GPIO_70): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 71 (3400000.pinctrl:GPIO_71): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 72 (3400000.pinctrl:GPIO_72): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 73 (3400000.pinctrl:GPIO_73): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 74 (3400000.pinctrl:GPIO_74): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 75 (3400000.pinctrl:GPIO_75): soc:msm_cdc_pinctrl@75 3400000.pinctrl:75 function gpio group gpio75
+pin 76 (3400000.pinctrl:GPIO_76): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 77 (3400000.pinctrl:GPIO_77): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 78 (3400000.pinctrl:GPIO_78): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 79 (3400000.pinctrl:GPIO_79): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 80 (3400000.pinctrl:GPIO_80): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 81 (3400000.pinctrl:GPIO_81): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 82 (3400000.pinctrl:GPIO_82): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 83 (3400000.pinctrl:GPIO_83): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 84 (3400000.pinctrl:GPIO_84): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 85 (3400000.pinctrl:GPIO_85): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 86 (3400000.pinctrl:GPIO_86): (MUX UNCLAIMED) 3400000.pinctrl:86
+pin 87 (3400000.pinctrl:GPIO_87): c179000.i2c (GPIO UNCLAIMED) function blsp_i2c5 group gpio87
+pin 88 (3400000.pinctrl:GPIO_88): c179000.i2c (GPIO UNCLAIMED) function blsp_i2c5 group gpio88
+pin 89 (3400000.pinctrl:GPIO_89): 5-0020 3400000.pinctrl:89 function gpio group gpio89
+pin 90 (3400000.pinctrl:GPIO_90): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 91 (3400000.pinctrl:GPIO_91): 9-0008 3400000.pinctrl:91 function gpio group gpio91
+pin 92 (3400000.pinctrl:GPIO_92): (MUX UNCLAIMED) 3400000.pinctrl:92
+pin 93 (3400000.pinctrl:GPIO_93): (MUX UNCLAIMED) 3400000.pinctrl:93
+pin 94 (3400000.pinctrl:GPIO_94): c994000.qcom,mdss_dsi_ctrl0 (GPIO UNCLAIMED) function gpio group gpio94
+pin 95 (3400000.pinctrl:GPIO_95): (MUX UNCLAIMED) 3400000.pinctrl:95
+pin 96 (3400000.pinctrl:GPIO_96): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 97 (3400000.pinctrl:GPIO_97): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 98 (3400000.pinctrl:GPIO_98): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 99 (3400000.pinctrl:GPIO_99): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 100 (3400000.pinctrl:GPIO_100): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 101 (3400000.pinctrl:GPIO_101): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 102 (3400000.pinctrl:GPIO_102): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 103 (3400000.pinctrl:GPIO_103): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 104 (3400000.pinctrl:GPIO_104): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 105 (3400000.pinctrl:GPIO_105): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 106 (3400000.pinctrl:GPIO_106): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 107 (3400000.pinctrl:GPIO_107): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 108 (3400000.pinctrl:GPIO_108): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 109 (3400000.pinctrl:GPIO_109): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 110 (3400000.pinctrl:GPIO_110): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 111 (3400000.pinctrl:GPIO_111): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 112 (3400000.pinctrl:GPIO_112): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 113 (3400000.pinctrl:GPIO_113): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 114 (3400000.pinctrl:GPIO_114): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 115 (3400000.pinctrl:GPIO_115): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 116 (3400000.pinctrl:GPIO_116): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 117 (3400000.pinctrl:GPIO_117): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 118 (3400000.pinctrl:GPIO_118): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 119 (3400000.pinctrl:GPIO_119): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 120 (3400000.pinctrl:GPIO_120): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 121 (3400000.pinctrl:GPIO_121): soc:gpio_keys 3400000.pinctrl:121 function gpio group gpio121
+pin 122 (3400000.pinctrl:GPIO_122): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 123 (3400000.pinctrl:GPIO_123): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 124 (3400000.pinctrl:GPIO_124): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 125 (3400000.pinctrl:GPIO_125): 5-0020 3400000.pinctrl:125 function gpio group gpio125
+pin 126 (3400000.pinctrl:GPIO_126): soc:gpio_keys 3400000.pinctrl:126 function gpio group gpio126
+pin 127 (3400000.pinctrl:GPIO_127): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 128 (3400000.pinctrl:GPIO_128): soc:fp_fpc1020 3400000.pinctrl:128 function gpio group gpio128
+pin 129 (3400000.pinctrl:GPIO_129): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 130 (3400000.pinctrl:GPIO_130): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 131 (3400000.pinctrl:GPIO_131): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 132 (3400000.pinctrl:GPIO_132): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 133 (3400000.pinctrl:GPIO_133): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 134 (3400000.pinctrl:GPIO_134): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 135 (3400000.pinctrl:GPIO_135): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 136 (3400000.pinctrl:GPIO_136): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 137 (3400000.pinctrl:GPIO_137): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 138 (3400000.pinctrl:GPIO_138): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 139 (3400000.pinctrl:GPIO_139): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 140 (3400000.pinctrl:GPIO_140): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 141 (3400000.pinctrl:GPIO_141): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 142 (3400000.pinctrl:GPIO_142): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 143 (3400000.pinctrl:GPIO_143): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 144 (3400000.pinctrl:GPIO_144): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 145 (3400000.pinctrl:GPIO_145): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 146 (3400000.pinctrl:GPIO_146): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 147 (3400000.pinctrl:GPIO_147): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 148 (3400000.pinctrl:GPIO_148): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 149 (3400000.pinctrl:GPIO_149): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 150 (3400000.pinctrl:SDC2_CLK): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 151 (3400000.pinctrl:SDC2_CMD): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 152 (3400000.pinctrl:SDC2_DATA): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+pin 153 (3400000.pinctrl:UFS_RESET): (MUX UNCLAIMED) (GPIO UNCLAIMED)
+sed: /sys/kernel/debug/pinctrl/qcom-wcd-pinctrl//pinmux-pins: No such file or directory

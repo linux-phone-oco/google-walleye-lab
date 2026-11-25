@@ -1,0 +1,130 @@
+[    0.001574] SELinux:  Starting in permissive mode
+[    0.324339] i2c-msm-v2 c179000.i2c: probing driver i2c-msm-v2
+[    0.324501] i2c-msm-v2 c179000.i2c: error on clk_get(core_clk):-517
+[    0.324529] i2c-msm-v2 c179000.i2c: error probe() failed with err:-517
+[    0.366407] i2c-msm-v2 c179000.i2c: probing driver i2c-msm-v2
+[    0.366453] i2c-msm-v2 c179000.i2c: error on clk_get(core_clk):-517
+[    0.366462] i2c-msm-v2 c179000.i2c: error probe() failed with err:-517
+[    0.436560] i2c-msm-v2 c179000.i2c: probing driver i2c-msm-v2
+[    0.436836] i2c-msm-v2 c179000.i2c: msm_bus_scale_register_client(mstr-id:86):0 (not a problem)
+[    1.736316] I2C PMIC: i2c_pmic_determine_initial_status: Couldn't read irq data rc=-107
+[    1.736323] I2C PMIC: i2c_pmic_probe: Couldn't determine initial status rc=-107
+[    1.810236] i2c-msm-v2 c179000.i2c: msm_bus_scale_register_client(mstr-id:86):0x11 (ok)
+[    1.810921] [TP]:check_chip_exist: Synaptics chip exist
+[    1.819783] [TP]:synaptics_rmi4_f12_init: Function 12 max x = 1079 max y = 1919 Rx: 16 Tx: 28
+[    1.819790] [TP]:synaptics_rmi4_f12_init Load display resolution: 1080x1920
+[    1.820579] [TP]synaptics_rmi4_f12_init:Wakeup Gesture range (0,0) -> (1079,1919)
+[    1.824499] [TP]:synaptics_rmi4_configure_long_press_gesture_window: long press gesture window [0, 1079, 0, 1919]
+[    1.824508] [TP]:synaptics_rmi4_f12_init report data init done
+[    1.835123] [TP]:synaptics_rmi4_query_device: chip_id:3708, firmware_id:2520908
+[    1.836132] [TP]:synaptics_rmi4_query_device: config_version: 5332763100050000000000000000000000000000000000000000000000000000
+[    1.836666] input: synaptics_dsxv26 as /devices/soc/c179000.i2c/i2c-5/5-0020/input/input0
+[    1.836931] [TP]: [ERR]:synaptics_rmi4_irq_enable: Interrupt already enabled
+[    2.367465] i2c-msm-v2 c179000.i2c: NACK: slave not responding, ensure its powered: msgs(n:2 cur:0 tx) bc(rx:2 tx:1) mode:FIFO slv_addr:0x20 MSTR_STS:0x0c1300c8 OPER:0x00000010
+[    2.367492] [TP]: [ERR]:synaptics_rmi4_i2c_read: I2C retry 1
+[    2.421251] [TP]:TP FW: synaptics_0.img, id 0x0
+[    2.421262] [TP]:synaptics_rmi4_reset_device from synaptics_fw_updater+0x320/0xfdc, rebuild = 0
+[    2.424647] audit: type=1107 audit(18049992.753:4): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=u:r:init:s0 msg='avc:  denied  { set } for property=ro.charger.enable_suspend pid=1 uid=0 gid=0 scontext=u:r:vendor_init:s0 tcontext=u:object_r:charger_prop:s0 tclass=property_service permissive=0'
+[    2.424694] init: Do not have permissions to set 'ro.charger.enable_suspend' to 'true' in property file '/vendor/build.prop': SELinux permission check failed
+[    2.424964] audit: type=1107 audit(18049992.753:5): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=u:r:init:s0 msg='avc:  denied  { set } for property=ro.telephony.block_binder_thread_on_incoming_calls pid=1 uid=0 gid=0 scontext=u:r:vendor_init:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service permissive=0'
+[    2.424982] init: Do not have permissions to set 'ro.telephony.block_binder_thread_on_incoming_calls' to 'false' in property file '/vendor/build.prop': SELinux permission check failed
+[    2.425042] audit: type=1107 audit(18049992.753:6): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=u:r:init:s0 msg='avc:  denied  { set } for property=ro.opa.eligible_device pid=1 uid=0 gid=0 scontext=u:r:vendor_init:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service permissive=0'
+[    2.425057] init: Do not have permissions to set 'ro.opa.eligible_device' to 'true' in property file '/vendor/build.prop': SELinux permission check failed
+[    2.425091] audit: type=1107 audit(18049992.753:7): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=u:r:init:s0 msg='avc:  denied  { set } for property=ro.postinstall.fstab.prefix pid=1 uid=0 gid=0 scontext=u:r:vendor_init:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service permissive=0'
+[    2.425105] init: Do not have permissions to set 'ro.postinstall.fstab.prefix' to '/product' in property file '/vendor/build.prop': SELinux permission check failed
+[    2.450855] [TP]:synaptics_rmi4_f12_init: Function 12 max x = 1079 max y = 1919 Rx: 16 Tx: 28
+[    2.450860] [TP]:synaptics_rmi4_f12_init Load display resolution: 1080x1920
+[    2.451507] [TP]synaptics_rmi4_f12_init:Wakeup Gesture range (0,0) -> (1079,1919)
+[    2.454065] [TP]:synaptics_rmi4_configure_long_press_gesture_window: long press gesture window [0, 1079, 0, 1919]
+[    2.454077] [TP]:synaptics_rmi4_f12_init report data init done
+[    2.462074] [TP]:synaptics_rmi4_query_device: chip_id:3708, firmware_id:2520908
+[    2.463001] [TP]:synaptics_rmi4_query_device: config_version: 5332763100050000000000000000000000000000000000000000000000000000
+[    2.471956] [TP]:synaptics_rmi4_reset_device from synaptics_fw_updater+0xf54/0xfdc, rebuild = 0
+[    2.501046] [TP]:synaptics_rmi4_f12_init: Function 12 max x = 1079 max y = 1919 Rx: 16 Tx: 28
+[    2.501055] [TP]:synaptics_rmi4_f12_init Load display resolution: 1080x1920
+[    2.501667] [TP]synaptics_rmi4_f12_init:Wakeup Gesture range (0,0) -> (1079,1919)
+[    2.504080] [TP]:synaptics_rmi4_configure_long_press_gesture_window: long press gesture window [0, 1079, 0, 1919]
+[    2.504092] [TP]:synaptics_rmi4_f12_init report data init done
+[    2.511766] [TP]:synaptics_rmi4_query_device: chip_id:3708, firmware_id:2520908
+[    2.512703] [TP]:synaptics_rmi4_query_device: config_version: 5332763100050000000000000000000000000000000000000000000000000000
+[    2.565702] apexd-bootstrap: Found pre-installed APEX /system/apex/com.android.permission.capex
+[    3.096094] init: Command 'write /dev/cpuctl/nnapi-hal/cpu.uclamp.min 1' action=init (/system/etc/init/hw/init.rc:212) took 0ms and failed: Unable to write to file '/dev/cpuctl/nnapi-hal/cpu.uclamp.min': open() failed: Permission denied
+[    3.096634] init: Command 'write /dev/cpuctl/nnapi-hal/cpu.uclamp.latency_sensitive 1' action=init (/system/etc/init/hw/init.rc:213) took 0ms and failed: Unable to write to file '/dev/cpuctl/nnapi-hal/cpu.uclamp.latency_sensitive': open() failed: Permission denied
+[    3.101249] init: Command 'write /dev/blkio/background/blkio.bfq.weight 10' action=init (/system/etc/init/hw/init.rc:257) took 0ms and failed: Unable to write to file '/dev/blkio/background/blkio.bfq.weight': open() failed: Permission denied
+[    3.101562] init: Command 'write /dev/blkio/blkio.group_idle 0' action=init (/system/etc/init/hw/init.rc:258) took 0ms and failed: Unable to write to file '/dev/blkio/blkio.group_idle': open() failed: Permission denied
+[    3.101769] init: Command 'write /dev/blkio/background/blkio.group_idle 0' action=init (/system/etc/init/hw/init.rc:259) took 0ms and failed: Unable to write to file '/dev/blkio/background/blkio.group_idle': open() failed: Permission denied
+[    3.102037] init: Command 'write /dev/blkio/background/blkio.prio.class restrict-to-be' action=init (/system/etc/init/hw/init.rc:260) took 0ms and failed: Unable to write to file '/dev/blkio/background/blkio.prio.class': open() failed: Permission denied
+[    3.142468] init: Command 'write /sys/devices/soc/${ro.boot.bootdevice}/clkscale_enable 0' action=init (/vendor/etc/init/hw/init.walleye.rc:50) took 0ms and failed: Unable to write to file '/sys/devices/soc/1da4000.ufshc/clkscale_enable': open() failed: Permission denied
+[    3.244283] init: Command 'copy /system/etc/ftrace_synthetic_events.conf /sys/kernel/tracing/synthetic_events' action=late-init (/system/etc/init/atrace.rc:296) took 0ms and failed: Could not write to output file '/sys/kernel/tracing/synthetic_events': open() failed: Permission denied
+[    3.244428] init: Command 'copy /system/etc/ftrace_synthetic_events.conf /sys/kernel/debug/tracing/synthetic_events' action=late-init (/system/etc/init/atrace.rc:297) took 0ms and failed: Could not write to output file '/sys/kernel/debug/tracing/synthetic_events': open() failed: Permission denied
+[    3.279330] cutils-trace: Error opening trace file: Permission denied (13)
+[    3.441209] vdc: vdc terminated by exit(25)
+[    3.875939] SELinux: avc:  denied  { find } for pid=740 uid=1000 name=android.hardware.graphics.allocator.IAllocator/default scontext=u:r:hal_graphics_composer_default:s0 tcontext=u:object_r:hal_graphics_allocator_service:s0 tclass=service_manager permissive=0
+[    3.904293] [TP]:synaptics_rmi4_fb_notifier_cb, event = 16 blank = 0
+[    3.905943] [TP]: [ERR]:synaptics_rmi4_irq_enable: Interrupt already enabled
+[    3.963586] apexd: Found pre-installed APEX /system/apex/com.android.permission.capex
+[    4.036949] apexd: Processing compressed APEX /system/apex/com.android.permission.capex
+[    4.040556] apexd: Skipping decompression for /system/apex/com.android.permission.capex
+[    4.641372] apexd: Successfully mounted package /data/apex/decompressed/com.android.permission@352090000.decompressed.apex on /apex/com.android.permission@352090000 duration=554
+[    5.544831] NetBpfLoad: bpf_create_map[uid_permission_map] -> 14
+[    5.648350] BpfLoader: Failed to load object: /system/etc/bpf/uprobestats/GenericInstrumentation.o, ret: Operation not permitted
+[    5.650151] BpfLoader: Failed to load object: /system/etc/bpf/uprobestats/ProcessManagement.o, ret: Operation not permitted
+[    5.651542] BpfLoader: Failed to load object: /system/etc/bpf/uprobestats/BitmapAllocation.o, ret: Operation not permitted
+[    5.700726] init: Command 'mkdir /data/media 0770 media_rw media_rw' action=zygote-start (/vendor/etc/init/hw/init.walleye.rc:232) took 0ms and failed: lstat() failed on /data/media: Permission denied
+[    5.700815] init: Command 'chown media_rw media_rw /data/media' action=zygote-start (/vendor/etc/init/hw/init.walleye.rc:233) took 0ms and failed: lchown() failed: Permission denied
+[    5.700906] type=1400 audit(1795604392.088:8): avc:  denied  { getattr } for  comm="init" path="/data/media" dev="sda45" ino=392834 scontext=u:r:vendor_init:s0 tcontext=u:object_r:media_userdir_file:s0 tclass=dir permissive=0
+[    5.701023] type=1400 audit(1795604392.088:9): avc:  denied  { setattr } for  comm="init" name="media" dev="sda45" ino=392834 scontext=u:r:vendor_init:s0 tcontext=u:object_r:media_userdir_file:s0 tclass=dir permissive=0
+[    5.785304] init: Command 'write /dev/sys/block/by-name/rootdisk/queue/discard_max_bytes 134217728' action=boot (/system/etc/init/hw/init.rc:1199) took 0ms and failed: Unable to write to file '/dev/sys/block/by-name/rootdisk/queue/discard_max_bytes': open() failed: Permission denied
+[    5.785357] type=1400 audit(1795604392.172:10): avc:  denied  { write } for  comm="init" name="discard_max_bytes" dev="sysfs" ino=47825 scontext=u:r:init:s0 tcontext=u:object_r:sysfs_scsi_devices_0000:s0 tclass=file permissive=0
+[    5.991240] type=1400 audit(1795604392.378:11): avc:  denied  { write } for  comm="pm-service" name="property_service" dev="tmpfs" ino=21490 scontext=u:r:per_mgr:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file permissive=0
+[    5.993496] type=1400 audit(1795604392.378:12): avc:  denied  { write } for  comm="pm-service" name="property_service" dev="tmpfs" ino=21490 scontext=u:r:per_mgr:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file permissive=0
+[    6.247560] type=1400 audit(1795604392.635:13): avc:  denied  { read } for  comm="audioserver" name="u:object_r:vendor_default_prop:s0" dev="tmpfs" ino=21050 scontext=u:r:audioserver:s0 tcontext=u:object_r:vendor_default_prop:s0 tclass=file permissive=0
+[    6.761239] type=1400 audit(1795604393.145:14): avc:  denied  { read } for  comm="audioserver" name="u:object_r:vendor_default_prop:s0" dev="tmpfs" ino=21050 scontext=u:r:audioserver:s0 tcontext=u:object_r:vendor_default_prop:s0 tclass=file permissive=0
+[    6.780934] type=1400 audit(1795604393.168:15): avc:  denied  { read } for  comm="audioserver" name="u:object_r:vendor_default_prop:s0" dev="tmpfs" ino=21050 scontext=u:r:audioserver:s0 tcontext=u:object_r:vendor_default_prop:s0 tclass=file permissive=0
+[    7.696859] type=1400 audit(1795604394.085:16): avc:  denied  { write } for  comm="vndbinder:1188_" name="property_service" dev="tmpfs" ino=21490 scontext=u:r:per_mgr:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file permissive=0
+[    8.538237] IPC_RTR: msm_ipc_router_send_to: permission failure for cnss-daemon
+[   10.307479] SELinux: avc:  denied  { find } for pid=1244 uid=1000 name=virtualdevice_native scontext=u:r:folio_daemon:s0 tcontext=u:object_r:virtual_device_native_service:s0 tclass=service_manager permissive=0
+[   11.499529] type=1400 audit(1795604397.885:18): avc:  denied  { read } for  comm="system_server" name="u:object_r:vendor_default_prop:s0" dev="tmpfs" ino=21050 scontext=u:r:system_server:s0 tcontext=u:object_r:vendor_default_prop:s0 tclass=file permissive=0 bug=b/79617173
+[   11.501904] type=1400 audit(1795604397.888:19): avc:  denied  { read } for  comm="system_server" name="u:object_r:vendor_default_prop:s0" dev="tmpfs" ino=21050 scontext=u:r:system_server:s0 tcontext=u:object_r:vendor_default_prop:s0 tclass=file permissive=0 bug=b/79617173
+[   11.504148] type=1400 audit(1795604397.892:20): avc:  denied  { read } for  comm="system_server" name="u:object_r:vendor_default_prop:s0" dev="tmpfs" ino=21050 scontext=u:r:system_server:s0 tcontext=u:object_r:vendor_default_prop:s0 tclass=file permissive=0 bug=b/79617173
+[   11.505986] type=1400 audit(1795604397.892:21): avc:  denied  { read } for  comm="system_server" name="u:object_r:vendor_default_prop:s0" dev="tmpfs" ino=21050 scontext=u:r:system_server:s0 tcontext=u:object_r:vendor_default_prop:s0 tclass=file permissive=0 bug=b/79617173
+[   11.508015] type=1400 audit(1795604397.895:22): avc:  denied  { read } for  comm="system_server" name="u:object_r:vendor_default_prop:s0" dev="tmpfs" ino=21050 scontext=u:r:system_server:s0 tcontext=u:object_r:vendor_default_prop:s0 tclass=file permissive=0 bug=b/79617173
+[   11.508570] type=1400 audit(1795604397.895:23): avc:  denied  { read } for  comm="system_server" name="u:object_r:vendor_default_prop:s0" dev="tmpfs" ino=21050 scontext=u:r:system_server:s0 tcontext=u:object_r:vendor_default_prop:s0 tclass=file permissive=0 bug=b/79617173
+[   11.510185] type=1400 audit(1795604397.895:24): avc:  denied  { read } for  comm="system_server" name="u:object_r:vendor_default_prop:s0" dev="tmpfs" ino=21050 scontext=u:r:system_server:s0 tcontext=u:object_r:vendor_default_prop:s0 tclass=file permissive=0 bug=b/79617173
+[   11.864843] servicemanager: Caller(pid=1672,uid=1000,sid=u:r:system_server:s0) Could not find vendor.lineage.touch.IHighTouchPollingRate/default in the VINTF manifest. No alternative instances declared in VINTF.
+[   11.866356] servicemanager: Caller(pid=1672,uid=1000,sid=u:r:system_server:s0) Could not find vendor.lineage.touch.IGloveMode/default in the VINTF manifest. No alternative instances declared in VINTF.
+[   11.867068] servicemanager: Caller(pid=1672,uid=1000,sid=u:r:system_server:s0) Could not find vendor.lineage.touch.IStylusMode/default in the VINTF manifest. No alternative instances declared in VINTF.
+[   12.723528] type=1400 audit(1795604399.105:25): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.723784] type=1400 audit(1795604399.105:26): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.723852] type=1400 audit(1795604399.105:27): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.723913] type=1400 audit(1795604399.105:28): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.727156] type=1400 audit(1795604399.115:29): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.728924] type=1400 audit(1795604399.115:30): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.730406] type=1400 audit(1795604399.115:31): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.730499] type=1400 audit(1795604399.115:32): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.730565] type=1400 audit(1795604399.115:33): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.734144] type=1400 audit(1795604399.122:34): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.734254] type=1400 audit(1795604399.122:35): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.734317] type=1400 audit(1795604399.122:36): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.734398] type=1400 audit(1795604399.122:37): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.736198] type=1400 audit(1795604399.122:38): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.736301] type=1400 audit(1795604399.122:39): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   12.736833] type=1400 audit(1795604399.122:40): avc:  denied  { search } for  comm=".dataservices" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   17.632634] type=1400 audit(1795604404.018:47): avc:  denied  { search } for  comm="HeapTaskDaemon" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   17.632704] type=1400 audit(1795604404.018:48): avc:  denied  { search } for  comm="HeapTaskDaemon" name="0" dev="sda45" ino=2487940 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   17.811226] init: Command 'write /sys/devices/soc/${ro.boot.bootdevice}/clkscale_enable 1' action=sys.boot_completed=1 (/vendor/etc/init/hw/init.walleye.rc:499) took 0ms and failed: Unable to write to file '/sys/devices/soc/1da4000.ufshc/clkscale_enable': open() failed: Permission denied
+[   18.838646] servicemanager: Caller(pid=3152,uid=1000,sid=u:r:system_app:s0) Could not find vendor.lineage.touch.IKeyDisabler/default in the VINTF manifest. No alternative instances declared in VINTF.
+[   18.841519] servicemanager: Caller(pid=3152,uid=1000,sid=u:r:system_app:s0) Could not find vendor.lineage.touch.IKeySwapper/default in the VINTF manifest. No alternative instances declared in VINTF.
+[   18.843156] servicemanager: Caller(pid=3152,uid=1000,sid=u:r:system_app:s0) Could not find vendor.lineage.touch.ITouchscreenGesture/default in the VINTF manifest. No alternative instances declared in VINTF.
+[   19.394186] type=1400 audit(1795604405.782:49): avc:  denied  { search } for  comm=".dataservices" name="data" dev="sda45" ino=2226058 scontext=u:r:dataservice_app:s0 tcontext=u:object_r:system_data_file:s0:c512,c768 tclass=dir permissive=0
+[   22.041516] type=1400 audit(1795604408.422:50): avc:  denied  { read } for  comm="binder:3729_1" name="u:object_r:system_adbd_prop:s0" dev="tmpfs" ino=21005 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:system_adbd_prop:s0 tclass=file permissive=0 app=com.google.android.gms
+[   22.042821] type=1400 audit(1795604408.422:51): avc:  denied  { read } for  comm="binder:3729_1" name="u:object_r:adbd_prop:s0" dev="tmpfs" ino=20717 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:adbd_prop:s0 tclass=file permissive=0 app=com.google.android.gms
+[   22.212873] type=1400 audit(1795604408.598:52): avc:  denied  { read } for  comm="binder:3729_4" name="u:object_r:system_adbd_prop:s0" dev="tmpfs" ino=21005 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:system_adbd_prop:s0 tclass=file permissive=0 app=com.google.android.gms
+[   22.214230] type=1400 audit(1795604408.598:53): avc:  denied  { read } for  comm="binder:3729_4" name="u:object_r:adbd_prop:s0" dev="tmpfs" ino=20717 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:adbd_prop:s0 tclass=file permissive=0 app=com.google.android.gms
+[   23.403865] type=1400 audit(1795604409.792:54): avc:  denied  { read } for  comm="SentryDeviceInf" name="version" dev="proc" ino=4026532085 scontext=u:r:untrusted_app:s0:c226,c256,c512,c768 tcontext=u:object_r:proc_version:s0 tclass=file permissive=0 app=com.deepl.mobiletranslator
+[   24.675155] type=1400 audit(1795604411.062:55): avc:  denied  { bind } for  comm=4E65746C696E6B204D6F6E69746F72 scontext=u:r:untrusted_app:s0:c224,c256,c512,c768 tcontext=u:r:untrusted_app:s0:c224,c256,c512,c768 tclass=netlink_route_socket permissive=0 bug=b/155595000 app=org.mozilla.firefox
+[   43.379149] type=1400 audit(1795604429.765:60): avc:  denied  { read } for  comm="lowpool[0]" name="u:object_r:system_adbd_prop:s0" dev="tmpfs" ino=21005 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:system_adbd_prop:s0 tclass=file permissive=0 app=com.google.android.gms
+[   43.379265] type=1400 audit(1795604429.765:61): avc:  denied  { read } for  comm="lowpool[0]" name="u:object_r:adbd_prop:s0" dev="tmpfs" ino=20717 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:adbd_prop:s0 tclass=file permissive=0 app=com.google.android.gms
+[   43.475003] type=1400 audit(1795604429.862:62): avc:  denied  { read } for  comm="binder:3729_4" name="u:object_r:system_adbd_prop:s0" dev="tmpfs" ino=21005 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:system_adbd_prop:s0 tclass=file permissive=0 app=com.google.android.gms
+[   43.475124] type=1400 audit(1795604429.862:63): avc:  denied  { read } for  comm="binder:3729_4" name="u:object_r:adbd_prop:s0" dev="tmpfs" ino=20717 scontext=u:r:gmscore_app:s0:c512,c768 tcontext=u:object_r:adbd_prop:s0 tclass=file permissive=0 app=com.google.android.gms
+[  619.391298] [TP]:synaptics_rmi4_fb_notifier_cb, event = 16 blank = 4

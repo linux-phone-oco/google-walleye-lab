@@ -1,0 +1,209 @@
+GPIOs 0-152, platform/3400000.pinctrl, 3400000.pinctrl:
+ gpio0   : in  1 6mA no pull
+ gpio1   : in  1 6mA no pull
+ gpio2   : in  1 6mA no pull
+ gpio3   : in  1 6mA no pull
+ gpio4   : in  0 2mA no pull
+ gpio5   : in  0 2mA no pull
+ gpio6   : out 3 8mA pull up
+ gpio7   : in  3 8mA pull up
+ gpio8   : in  0 2mA pull down
+ gpio9   : in  0 2mA pull down
+ gpio10  : in  0 2mA pull down
+ gpio11  : in  0 2mA pull down
+ gpio12  : out 0 2mA pull down
+ gpio13  : out 0 8mA pull down
+ gpio14  : out 0 8mA pull down
+ gpio15  : in  0 2mA pull down
+ gpio16  : in  0 2mA pull down
+ gpio17  : out 0 2mA pull down
+ gpio18  : out 0 2mA pull down
+ gpio19  : out 0 2mA pull down
+ gpio20  : out 0 2mA pull down
+ gpio21  : in  0 2mA pull down
+ gpio22  : in  0 2mA pull down
+ gpio23  : out 0 2mA no pull
+ gpio24  : out 0 2mA no pull
+ gpio25  : out 0 2mA no pull
+ gpio26  : in  0 2mA pull up
+ gpio27  : in  0 2mA pull down
+ gpio28  : out 0 2mA no pull
+ gpio29  : out 0 2mA no pull
+ gpio30  : out 0 2mA pull down
+ gpio31  : in  2 6mA no pull
+ gpio32  : in  2 6mA no pull
+ gpio33  : in  2 6mA no pull
+ gpio34  : in  3 6mA no pull
+ gpio35  : out 0 2mA pull down
+ gpio36  : in  1 2mA pull up
+ gpio37  : in  0 2mA pull down
+ gpio38  : in  0 2mA pull down
+ gpio39  : out 0 2mA no pull
+ gpio40  : in  0 2mA no pull
+ gpio41  : out 0 2mA no pull
+ gpio42  : out 0 2mA no pull
+ gpio43  : in  3 2mA pull up
+ gpio44  : in  3 2mA pull up
+ gpio45  : in  0 2mA pull up
+ gpio46  : in  0 2mA no pull
+ gpio47  : in  0 2mA no pull
+ gpio48  : in  0 2mA no pull
+ gpio49  : out 0 2mA no pull
+ gpio50  : in  0 2mA pull down
+ gpio51  : in  3 8mA pull up
+ gpio52  : in  3 8mA pull up
+ gpio53  : in  0 2mA pull down
+ gpio54  : in  0 2mA pull down
+ gpio55  : out 3 8mA pull up
+ gpio56  : out 3 8mA pull up
+ gpio57  : in  0 2mA pull down
+ gpio58  : in  0 2mA pull down
+ gpio59  : in  0 2mA pull down
+ gpio60  : in  0 2mA pull down
+ gpio61  : in  0 2mA pull down
+ gpio62  : in  0 2mA no pull
+ gpio63  : in  0 2mA no pull
+ gpio64  : out 0 16mA pull down
+ gpio65  : in  2 6mA no pull
+ gpio66  : in  2 6mA no pull
+ gpio67  : in  2 6mA no pull
+ gpio68  : in  2 6mA no pull
+ gpio69  : in  1 2mA no pull
+ gpio70  : in  1 2mA keeper
+ gpio71  : in  1 4mA keeper
+ gpio72  : in  1 4mA keeper
+ gpio73  : in  1 4mA keeper
+ gpio74  : in  1 2mA keeper
+ gpio75  : out 0 2mA pull down
+ gpio76  : out 0 2mA no pull
+ gpio77  : out 0 2mA no pull
+ gpio78  : in  0 2mA pull up
+ gpio79  : in  0 2mA no pull
+ gpio80  : in  0 2mA no pull
+ gpio85  : in  0 2mA pull down
+ gpio86  : in  0 2mA pull down
+ gpio87  : in  3 8mA no pull
+ gpio88  : in  3 8mA no pull
+ gpio89  : out 0 2mA no pull
+ gpio90  : in  0 2mA pull down
+ gpio91  : in  0 2mA pull down
+ gpio92  : in  0 2mA pull down
+ gpio93  : out 0 2mA pull down
+ gpio94  : out 0 2mA pull down
+ gpio95  : out 0 2mA pull down
+ gpio96  : in  0 2mA pull down
+ gpio97  : in  1 4mA pull down
+ gpio98  : in  1 4mA pull down
+ gpio99  : out 2 2mA no pull
+ gpio100 : in  0 2mA pull down
+ gpio101 : in  0 2mA pull down
+ gpio102 : in  0 2mA pull down
+ gpio103 : in  0 2mA pull down
+ gpio104 : in  0 2mA pull down
+ gpio105 : out 0 8mA no pull
+ gpio106 : out 0 8mA no pull
+ gpio107 : out 0 8mA no pull
+ gpio108 : in  1 2mA pull down
+ gpio109 : out 0 8mA no pull
+ gpio110 : out 0 8mA no pull
+ gpio111 : out 0 8mA no pull
+ gpio112 : in  1 2mA no pull
+ gpio113 : in  0 2mA pull down
+ gpio114 : in  0 2mA pull down
+ gpio115 : out 1 2mA no pull
+ gpio116 : in  0 2mA pull down
+ gpio117 : in  0 2mA pull down
+ gpio118 : in  0 2mA pull down
+ gpio119 : in  0 2mA pull down
+ gpio120 : in  0 2mA no pull
+ gpio121 : in  0 2mA no pull
+ gpio122 : out 0 2mA no pull
+ gpio123 : in  0 2mA pull down
+ gpio124 : in  0 2mA no pull
+ gpio125 : in  0 2mA pull up
+ gpio126 : in  0 2mA no pull
+ gpio127 : in  0 2mA pull down
+ gpio128 : out 0 2mA no pull
+ gpio129 : in  0 2mA pull down
+ gpio130 : in  1 2mA pull down
+ gpio131 : in  1 2mA pull down
+ gpio132 : in  0 2mA pull down
+ gpio133 : in  0 2mA pull down
+ gpio134 : out 0 2mA pull down
+ gpio135 : in  0 2mA pull down
+ gpio136 : in  0 2mA pull down
+ gpio137 : in  1 6mA pull down
+ gpio138 : in  1 6mA pull down
+ gpio139 : in  1 4mA pull down
+ gpio140 : in  1 4mA pull down
+ gpio141 : in  1 4mA pull down
+ gpio142 : in  1 4mA pull down
+ gpio143 : in  0 2mA pull down
+ gpio144 : out 1 2mA pull up
+ gpio145 : in  1 2mA no pull
+ gpio146 : in  1 4mA pull down
+ gpio147 : in  1 4mA pull down
+ gpio148 : in  1 4mA pull down
+ gpio149 : in  1 4mA pull down
+ sdc2_clk: in  0 16mA no pull
+ sdc2_cmd: in  0 8mA pull down
+ sdc2_data: in  0 8mA pull down
+GPIOs 323-327, platform/qcom-wcd-pinctrl, qcom-wcd-pinctrl:
+
+GPIOs 328-329, platform/bcm15602-gpio, bcm15602-gpio, can sleep:
+ gpio-328 (                    |soc-pwr-good        ) out lo    
+ gpio-329 (                    |ddr-pad-iso-n       ) out lo    
+
+GPIOs 330-361, platform/soc:qcom,smp2pgpio-rdbg-1-out, rdbg:
+
+GPIOs 362-393, platform/soc:qcom,smp2pgpio-rdbg-1-in, rdbg:
+
+GPIOs 394-425, platform/soc:qcom,smp2pgpio-rdbg-2-out, rdbg:
+
+GPIOs 426-457, platform/soc:qcom,smp2pgpio-rdbg-2-in, rdbg:
+
+GPIOs 458-489, platform/soc:qcom,smp2pgpio-ipa-1-in, ipa:
+
+GPIOs 490-521, platform/soc:qcom,smp2pgpio-ipa-1-out, ipa:
+
+GPIOs 522-553, platform/soc:qcom,smp2pgpio-sleepstate-gpio-3-out, sleepstate:
+
+GPIOs 554-585, platform/soc:qcom,smp2pgpio-ssr-smp2p-3-out, master-kernel:
+
+GPIOs 586-617, platform/soc:qcom,smp2pgpio-ssr-smp2p-3-in, slave-kernel:
+
+GPIOs 618-649, platform/soc:qcom,smp2pgpio-ssr-smp2p-2-out, master-kernel:
+
+GPIOs 650-681, platform/soc:qcom,smp2pgpio-ssr-smp2p-2-in, slave-kernel:
+
+GPIOs 682-713, platform/soc:qcom,smp2pgpio-ssr-smp2p-1-out, master-kernel:
+
+GPIOs 714-745, platform/soc:qcom,smp2pgpio-ssr-smp2p-1-in, slave-kernel:
+
+GPIOs 746-777, platform/soc:qcom,smp2pgpio-smp2p-3-out, smp2p:
+
+GPIOs 778-809, platform/soc:qcom,smp2pgpio-smp2p-3-in, smp2p:
+
+GPIOs 810-841, platform/soc:qcom,smp2pgpio-smp2p-2-out, smp2p:
+
+GPIOs 842-873, platform/soc:qcom,smp2pgpio-smp2p-2-in, smp2p:
+
+GPIOs 874-905, platform/soc:qcom,smp2pgpio-smp2p-1-out, smp2p:
+
+GPIOs 906-937, platform/soc:qcom,smp2pgpio-smp2p-1-in, smp2p:
+
+GPIOs 938-969, platform/soc:qcom,smp2pgpio-smp2p-15-out, smp2p:
+
+GPIOs 970-1001, platform/soc:qcom,smp2pgpio-smp2p-15-in, smp2p:
+
+GPIOs 1002-1008, platform/800f000.qcom,spmi:qcom,pmi8998@2:gpios, 800f000.qcom,spmi:qcom,pmi8998@2:gpios:
+ gpio-1002 (                    |πε;>εÿÿÿπ»P9εÿÿÿ Δ) out hi    
+ gpio-1007 (                    |V_ELVDD_DIS_EN      ) out hi    
+
+GPIOs 1009-1023, platform/800f000.qcom,spmi:qcom,pm8998@0:gpios, 800f000.qcom,spmi:qcom,pm8998@0:gpios:
+ gpio-1010 (                    |enable              ) out lo    
+ gpio-1011 (                    |TAS2557-RESET-Left  ) out hi    
+ gpio-1012 (                    |TAS2557-LeftCHL-IRQ ) in  lo    
+ gpio-1013 (                    |TAS2557-RightCHL-IRQ) in  lo    
+ gpio-1017 (                    |EXT_CLK             ) in  lo    
+ gpio-1023 (                    |nfc_clkreq_gpio     ) in  lo    
