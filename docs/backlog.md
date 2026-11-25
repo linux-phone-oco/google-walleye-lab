@@ -12648,7 +12648,7 @@ Opened
 : 2026-11-25
 
 Needs
-: build
+: phone
 
 Proof
 : the cause written as a research row from what was measured (the run folders of rootfs-boots run 5 and rw write run 5 say how long the same read took then); the rehearsal of procedures/cmdline-cut-c1-on-the-pixel-2.rs passes check 7 within its own bound

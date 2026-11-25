@@ -8066,3 +8066,25 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-25/
+
+
+<a id="walleye-card-read-adb-stream-suspected"></a>
+### walleye-card-read-adb-stream-suspected
+
+Date
+: 2026-11-25
+
+Brief
+: Suspected: the adb stream's rate varies (8.8 MB/s, a stall on 16 MiB, 120 KB/s) on one card; the digest is now made on the phone
+
+Question
+: Why did the adb read of system_a take 760 s+ on 2026-11-25 when rootfs-boots run 7 read it in 306 s?
+
+Found
+: Run 7 (research/walleye-display-s6e3fa5/2026-11-23/rootfs-boots-run-7.log): check 7 306 s for 2684354560 bytes = 8.8 MB/s. Stage 2 run 6 (stage2-run6-stall.txt): a read of boot_a (16 MiB) stalled, dd in wait_woken (blocked writing the adb pipe). Keeper 2026-11-25-0830: 120 KB/s, usb 480 Mb/s. Three rates and a stall on one card point at the exec-out stream, but it is a HYPOTHESIS: a phone-side dd to /dev/null and sha256sum timing would split card from stream. Built: dd | sha256sum on the phone, with dd's own status echoed (dd=0 required; exec-out carries no exit status), time-only bound. To confirm on the phone by the keeper: that adb kill after a stall leaves no dd running (ps), and that sha256sum exists on this Android (the GPT read already uses it). The rehearsal's check 7 finishing fast = the stream was slow.
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-23/
