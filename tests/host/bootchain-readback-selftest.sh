@@ -13,14 +13,18 @@ must_fail() { # WHAT CMD...
 must_pass() { w=$1; shift; out=$("$@" 2>&1); [ $? -eq 0 ] || fail "$w: did not pass: $out"
   case $out in *"pass walleye-bootchain"*) ;; *) fail "$w: no pass line: $out";; esac; }
 
-# the fake phone's tables: every name on its own device sdeN of 8 KiB (8 blocks), xbl_a and xbl_b 12 KiB
+# the fake phone's tables: the by-name listing is text the phone printed (tests/fixtures/phone-text/partition-table-android-b-2026-11-25.cap, Android b).
+# /proc/partitions was "Permission denied" there, so its rows are typed: each name's device of 8 KiB (8 blocks), xbl_a and xbl_b 12 KiB - not known yet from a phone (a root read is for the keeper)
+FIX=$HERE/../fixtures/phone-text
 mkphone() { # DIR (a directory the fake adb reads)
-  P=$1; mkdir -p "$P"; : > "$P/names"; : > "$P/byname-l"; : > "$P/procparts"; i=1
+  P=$1; mkdir -p "$P"; : > "$P/names"; : > "$P/procparts"; i=1
+  cp "$FIX/partition-table-android-b-2026-11-25.cap" "$P/byname-l"
   for n in $(cat "$LIST"); do
     b=8; case $n in xbl_a|xbl_b) b=12;; esac
     echo "$n" >> "$P/names"
-    echo "lrwxrwxrwx 1 root root 15 1970-01-01 00:00 $n -> /dev/block/sde$i" >> "$P/byname-l"
-    echo "   8   $i   $b sde$i" >> "$P/procparts"
+    dev=$(sed -n "s#^.* $n -> /dev/block/##p" "$P/byname-l")
+    [ -n "$dev" ] || fail "$n is not in the captured by-name listing"
+    echo "   8   $i   $b $dev" >> "$P/procparts"
     echo "$n $((b * 1024))" >> "$P/sizes"
     i=$((i + 1))
   done; }

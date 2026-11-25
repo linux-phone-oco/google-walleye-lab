@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: the check passes a battery within tolerance of fastboot's reading and fails a probe fault, a wrong type, an unreadable value or a voltage off by more than 100 mV (no phone)
+      - name: the check fails a phone with no qcom-battery supply on the text two phones printed, and skips what cannot be read (no phone; the typed cases run in the host checks job)
         run: sh tests/host/fuel-gauge-selftest.sh
   image-recipe:
     name: the image recipe check proves itself
@@ -91,6 +91,9 @@ jobs:
           sh tests/host/dmesg-clean-selftest.sh
           sh tests/host/pmic-dmesg-selftest.sh
           sh tests/host/pmic-dmesg-typed-selftest.sh
+          sh tests/host/charger-selftest.sh
+          sh tests/host/charger-typed-selftest.sh
+          sh tests/host/fuel-gauge-typed-selftest.sh
           sh tests/host/phone-state-selftest.sh
   licence-coverage:
     name: every tracked file is covered by a licence

@@ -12308,10 +12308,10 @@ Rank
 ### Capture the phone text the host selftests need: charger, fuel-gauge, part-compare, display-late-probe and boot-chain read-back text, kept under tests/fixtures/phone-text/ with provenance lines
 
 Status
-: open
+: done
 
 Note
-: 2026-11-25 coordinator: both captures are in (Android b, PR 1071; our kernel's stage 2 text, PR 1078: power-supply-facts-ufs-root and dmesg-ufs-root .cap with SOURCES rows), so what is left is host work: bring those fixtures into the selftests that still run on typed text (needs build). Any fixture still missing is named here for a later keeper capture.
+: 2026-11-25 walleye-builder: the selftests that could run on captured text now do (charger-selftest, fuel-gauge-selftest on the ufs-root and Android b reads; bootchain-readback-selftest on the Android b by-name listing); what no phone has printed stays typed in charger-typed-selftest, fuel-gauge-typed-selftest, and the proc-partitions rows. Still missing, kept as walleye-phone-text-captures-rest for a keeper: our kernel's qcom-battery supply text (fg1 image), /proc/partitions read as root, the part reads of part-compare.d/touch.list on both sides, and the display-late reader's phone-side answers.
 
 Blocked by
 : walleye-kernel-text-capture-procedure
@@ -12489,3 +12489,31 @@ Proof
 
 Rank
 : 4
+
+
+<a id="walleye-phone-text-captures-rest"></a>
+### Capture the phone text still missing for the host selftests: qcom-battery supply (fg1 image), root /proc/partitions, a part-compare pair (Android and ours), display-late reader answers
+
+Status
+: open
+
+Note
+: Left by walleye-phone-text-captures (2026-11-25): typed text remains in fuel-gauge-typed-selftest.sh (no capture of qcom-battery), bootchain-readback-selftest.sh (proc-partitions rows), part-compare-selftest.sh, display-late-probe-selftest.sh. Read-only captures; none needs a flash.
+
+Blocked by
+: walleye-phone-text-captures
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Needs
+: phone
+
+Proof
+: each fixture file present under tests/fixtures/phone-text/ with its SOURCES row, and charger-typed, fuel-gauge-typed, part-compare and display-late-probe selftests moved onto them
+
+Rank
+: 5
