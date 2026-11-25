@@ -4370,31 +4370,6 @@ Rank
 : 1
 
 
-<a id="walleye-steps-claimed"></a>
-### Claim walleye's steps on the bring-up chain, each checked against the lab's own records
-
-Status
-: done
-
-Note
-: claims landed: 17 done, 3 partial, 1 failing, 92 open of 113; bringup-chain-walleye.sh passes against them, daily-phone.sh google-walleye fails as it should (66 of 82 not done); script build/claim-steps.sh
-
-About
-: walleye-first-fastboot-boot
-
-Opened
-: 2026-11-18
-
-Needs
-: build
-
-Proof
-: Walleye's first claims on the steps contract (the lab base has step_status since the 0.18.0 follow): read docs' research/bringup-steps/2026-11-18/claims-walleye.sh (the draft: 17 done, 2 partial, 1 failing, 6 open of the first 26 steps) and `tad q bringup-chain` (113 steps; goals linux-runs, daily-usable-phone, complete-phone); CHECK EVERY draft claim against this lab's own records (research rows, session log, test results, the keeper's material, the decisions): a claim is `ikb step --step ID --status done|partial|failing|open|not-needed|unknown --proof TEST --run RUN --proven-on IMAGE/KERNEL/DTB`; a done claim carries its proof (a test in tests/host or the lab's tests table) and its run (the keeper's research row or session-log id, with the image/kernel/dtb it ran on: e.g. z7/our v7.3/our dts for the dmesg-clean, y2 for the first light); where the records do not prove a draft claim, claim 'unknown' or 'partial' and say why; what is not measured stays 'unknown' (never 'failing'); then land the claims in one change, run the two tests (bringup-chain-walleye.sh and daily-phone.sh google-walleye, from docs) and report the count by status to the coordinator for orchestration; programmer review of the script that makes the claims; no data of the phone leaves the machine
-
-Rank
-: 2
-
-
 <a id="walleye-try-z15"></a>
 ### Try z15 once from slot b with a person touching the panel: does the RMI4 controller probe and make events?
 
@@ -12927,3 +12902,28 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-steps-claimed"></a>
+### walleye claims its bring-up steps in its own base, from its records
+
+Status
+: open
+
+Note
+: Moved from docs' base 2026-11-25 (orchestration closes its row as moved). Spec: the 26 claims in docs research/bringup-steps/2026-11-18/claims-walleye.sh (its tad r step-claim lines become ikb step here, without --device and --updated), then the ~80 more steps of the chain (phone stages, linux-runs) claimed, even as open or not-needed. Check first which steps keepers already claimed since 2026-11-18 (tad q bringup-chain --device google-walleye); every claim from the records, never beyond them (measured-not-claimed). Data only; no phone.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-18
+
+Needs
+: build
+
+Proof
+: docs' research/bringup-steps/2026-11-18/bringup-chain-walleye.sh passes after make feeds: every step of the chain claimed by google-walleye-lab (done with --proof and --run, or open, or not-needed with --notes)
+
+Rank
+: 6
