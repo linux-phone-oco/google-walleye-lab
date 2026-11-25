@@ -11442,11 +11442,10 @@ Rank
 ### Phone check C1: fastboot boot the production image with current slot a and read whether androidboot.slot_suffix=_a arrives
 
 Status
-: open
+: done
 
 Note
-: The one-command procedure exists (procedures/cmdline-cut-c1-on-the-pixel-2.rs, rehearsal rehearse-cmdline-cut-c1-on-the-pixel-2.rs): keeper runs the rehearsal first (no go), then the run under a go on THIS item naming the debug image sha256 a0a55cd0... (device.toml [images.ufs-root-booted-slot-debug]). Answer: cmdline.txt and verdict.txt in the run's folder, recorded as a research row.
-go until 2026-11-25T11:06:34+01:00, outcomes: if /proc/cmdline read over telnet carries androidboot.slot_suffix=_a with the whole tail then the bootloader passes the slot on slot a with our 149-char header and the cut seen in run 8 was length alone (C2 next); if the line ends at androidboot.pk=g-pxl-p then the bootloader cuts the tail on slot a whatever our header length (C3 next); if no telnet answers then the debug image did not reach its init on slot a and nothing about the cut is shown (the way back runs, the stop is read first). Instrument: the same image's telnet /proc/cmdline read, proven in stage 2 run 11 (a0a55cd0).
+: proven by procedures/cmdline-cut-c1-on-the-pixel-2.rs run 20261125-085235: CUT at androidboot.pk=g-pxl-p (research walleye-cmdline-cut-c1-slot-a-cuts); C3 next
 
 Blocked by
 : walleye-card-read-slow
@@ -11470,10 +11469,7 @@ Witness
 : person
 
 Go until
-: 2026-11-25T11:06:34+01:00
-
-Image sha256
-: a0a55cd060343d7acc1af07247c48b930789e2318afb77cfe31ea83acba25751
+: 2026-11-25T08:59:59+01:00
 
 
 <a id="walleye-cmdline-tail-ram-try"></a>
@@ -12655,3 +12651,22 @@ Proof
 
 Rank
 : 2
+
+
+<a id="walleye-reboot-send-nc-job-control"></a>
+### C1 way back: the backgrounded nc listener is stopped by busybox job control (tty input)
+
+Status
+: open
+
+Note
+: Run 20261125-085235 stopped at step 16: sh.run of '(nc -l -p 4444 > /tmp/walleye-reboot) > /dev/null 2>&1 &' got no answer in 5 s and the phone was left on the image with slot a current (a hand finish was needed). By hand the same line worked; the shell then said 'Stopped (tty input)' for the nc yet the file arrived with the right sha256. Fix in tools/walleye-tries cmdline_cut.rs send_to_the_bootloader: send nc with </dev/null, and do not wait for a prompt after a '&' line; rehearsal should cover it (the rehearsal does not boot the image).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-25
+
+Rank
+: 6

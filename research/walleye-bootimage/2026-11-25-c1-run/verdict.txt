@@ -1,0 +1,1 @@
+CUT: the line is 1141 characters and ends at androidboot.pk=g-pxl-p, no androidboot.slot_suffix=; with slot a current the slot-a path cuts whatever the image (RAM boot)

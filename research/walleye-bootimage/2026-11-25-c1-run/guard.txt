@@ -1,0 +1,3 @@
+adb suffix _b
+fastboot slot b
+root system_a
