@@ -12828,4 +12828,4 @@ Proof
 : (1) the kernel config names the options =y and the tag's .config shows them; (2) tests/host/dtb-slpi-carveout.sh passes on the image's dtb; (3) tests/host/ufs-off-image.sh passes on the image; (4) two builds equal; (5) the ramdisk lists slpi_v2.mdt and .b00-.b14 and no firmware is in git
 
 Rank
-: 4
+: 3
