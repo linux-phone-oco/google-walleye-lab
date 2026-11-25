@@ -10614,7 +10614,7 @@ Status
 : open
 
 Note
-: Part 3 landed: ufs-root-display recipe (control ufs-match, merged display+UFS dtb) rebuilds equal a4558827; build-ufs-root-display-image.sh and its only lib, lib-display-levers.sh, removed (79 build-*.sh left). Part 4 (2026-11-25): build-initramfs.sh's DISPLAY_FILES lib/ branch (ufs-root mode) had no caller since that script went and is removed; the list and delay part stays, the host tests ufs-root-init.sh and ufs-root-display-init.sh use it (the latter passes after the cut, 2026-11-25). Still open: ufs-match (the control itself, a kernel build from int/walleye/ufs-on-3644090c7), z-series and display experiments to judge one by one. Set back to open 2026-11-25 by the walleye coordinator so the keeper's missing procedures (rank 3) go first.
+: Parts landed: PRs 1084, 1107, 1110, 1111 (79 build-*.sh left; ufs-match the control, the z-series and the display experiments to judge). Rank 5 from 2026-11-25 (walleye coordinator): the pieces left are small, so the rank-4 feature items (slpi carve-out, ufs-on kernel build) go first.
 
 Blocked by
 : walleye-next-image-from-an-int-tag
@@ -10632,7 +10632,7 @@ Proof
 : for each build script that an [images.*] row names: rebuild that image from its kernel_tag with the new build and compare sha256 with the declared one: equal: the script is removed in the same change and the row says it is rebuilt from the tag; different: the difference is named (the script stays); the display, ramroot and bisect scripts of the dead experiments are listed and judged one by one (kept as history in research, or removed with a recorded reason); nothing retires a script whose image has not rebuilt equal
 
 Rank
-: 4
+: 5
 
 
 <a id="walleye-stage2-bounded-readback"></a>
