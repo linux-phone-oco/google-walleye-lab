@@ -9754,3 +9754,24 @@ Rejected
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-retire-build-scripts-batch-1"></a>
+### build scripts batch 1 retired
+
+Entry date
+: 2026-11-26
+
+Done
+: Retired 52 history scripts in one change (research walleye-build-scripts-batch-1-retired); README says so; gate selftest passes.
+
+Considered
+: Retiring the kept ones by recipe (a) and the seeds (c): they follow in later batches.
+
+Rejected
+: Moving the scripts to an archive folder: git history already keeps them and a folder would still be read as live.
+
+About
+: walleye-kernel-dts
