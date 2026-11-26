@@ -8598,3 +8598,22 @@ Found
 
 About
 : walleye-attend-program-display
+
+
+<a id="walleye-pmic-step-groups-run-result"></a>
+### walleye-pmic-step-groups-run-result
+
+Date
+: 2026-11-26
+
+Brief
+: PMIC procedure on step groups, real Pixel 2: wdt1-a boots, watchdog1 probed, S2 type 0x07, stop at ask 10 unanswered, way back to Android
+
+Question
+: Does pmic-watchdog-v1-on-the-pixel-2 run unattended on the step groups to its first ask?
+
+Found
+: Run 2026-11-26 (run walleye-keeper): checks 1-3 ok, wdt1-a booted once (fastboot left after 15 s, USB 1d6b:0104 after 18 s), phone and shell answered, dmesg saved, watchdog1 probed with S2 type 0x07 (firmware type 0x1), stopped at ask 10 with nobody answered in 60 s, way back passed, phone on Android (phone-state: adb device). Exit 1 is the expected stop. The reboot and bite tests still need the author at the phone.
+
+About
+: walleye-attend-program-display
