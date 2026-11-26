@@ -8784,3 +8784,22 @@ Found
 
 About
 : nfc
+
+
+<a id="walleye-nfc-clock-and-minus-121"></a>
+### walleye-nfc-clock-and-minus-121
+
+Date
+: 2026-11-26
+
+Brief
+: nxp-nci-i2c takes no clock in mainline, and its -121 before nfc0 is opened is the driver's own cold-mode message, not an I2C fault; the OnePlus 5 node (same SoC) is the form to copy
+
+Question
+: How do mainline Qualcomm boards give an NXP NCI chip its clock, and what does nxp-nci's -121 at 1.19 s mean on walleye?
+
+Found
+: The binding nxp,nci.yaml has no clocks property (additionalProperties false). drivers/nfc/nxp-nci/i2c.c gets only the enable gpio (GPIOD_OUT_LOW, l.299) and an optional firmware gpio (l.305). In COLD mode, before nfc0 is opened, the IRQ thread sets -EREMOTEIO itself and prints Read failed (l.224-226), and set_mode clears hard_fault (l.56). So the -121 says only that gpio92 was high while the chip was off. No mainline qcom board models the NFC clock (msm8998-oneplus-common.dtsi:207-218, sdm845-oneplus-common.dtsi:493, sdm845-google-common.dtsi:398, sm8150-sony-xperia-kumano.dtsi:496, sdm632-fairphone-fp3.dts:146); the clock runs on PMIC hardware clkreq. sm7325-nothing-spacewar holds a TLMM clkreq pin by pinctrl. RPM_SMD_LN_BB_CLK3_PIN exists for msm8998 (clk-smd-rpm.c:1015) and is used by no NFC node. The OnePlus 5 (msm8998, the same Android layout: irq 92, pinctrl 12 and 116 pulled up) reads tags with enable-gpios = tlmm 116, no firmware gpio, and pinctrl pull-ups on 12, 116 and 92 (Kettunen 2022, https://lkml.iu.edu/2202.3/02782.html). Tell the causes apart with nfc0 opened (nfctool -d nfc0 -1): no ACK at 0x28 means VEN; an ACK and no NCI reply means the clock; firmware framing means gpio93 polarity. Researcher subagent of the walleye coordinator, 2026-11-26, read against the local 7.3 source.
+
+About
+: nfc

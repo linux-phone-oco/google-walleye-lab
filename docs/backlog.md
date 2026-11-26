@@ -6501,7 +6501,7 @@ Note
 : run 1: nfc-present pass (nfc0), nxp-nci read -121, BBCLK3 count 0; tag poll not yet - see research walleye-nfc-boot-run-1
 
 Blocked by
-: walleye-nfc-boot-procedure
+: walleye-nfc-node-oneplus5-form
 
 About
 : nfc
@@ -13335,6 +13335,31 @@ Needs
 
 Proof
 : build-initramfs.sh phone builds at walleye's net from device.toml (decision 2026-11-26-walleye-ramdisk-on-net-43); [images.nfc] rebuilt, new sha256, rebuilds equal; procedures/nfc-boot-on-the-pixel-2.rs on the step groups: phone_ready(nfc) boots it, checks the gadget serial walleye-first-boot, runs tests/health/base/nfc-present.sh and reads dmesg for nxp-nci (and the clock if it did not probe), then leave_known_good; dry run, check --host and stand-in tests pass; short, since the roof init has no hold or petter
+
+Rank
+: 7
+
+
+<a id="walleye-nfc-node-oneplus5-form"></a>
+### The walleye NFC node takes the OnePlus 5 form (enable on gpio116, pull-ups on 12, 116 and 92), and the NFC boot opens nfc0 to tell VEN, clock and firmware apart
+
+Status
+: open
+
+Note
+: Queued by the walleye coordinator 2026-11-26 after keeper run walleye-nfc-boot-run-1 (PR 1211) and research walleye-nfc-clock-and-minus-121. The -121 of run 1 is not a fault. The keeper's second short boot follows.
+
+About
+: nfc
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: the board dts node nfc@28 follows msm8998-oneplus-common.dtsi's (research walleye-nfc-clock-and-minus-121): enable-gpios on tlmm 116, no firmware-gpios first, pinctrl pulling up 12, 116 and 92; [images.nfc] rebuilt with a new sha256, rebuilds equal, UFS-off gate passes; procedures/nfc-boot-on-the-pixel-2.rs also opens nfc0 (nfctool -d nfc0 -1, or the smallest tool the ramdisk can carry), reads /sys/kernel/debug/gpio for 12, 116, 92 and 93 before and after the open, runs i2cdetect on the bus with nfc0 open, and reads clk_summary for ln_bb_clk3; it prints which cause the answers point to (no ACK: VEN; ACK and no NCI reply: clock; firmware framing: gpio93); dry run and stand-in tests pass
 
 Rank
 : 7
