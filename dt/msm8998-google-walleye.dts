@@ -508,3 +508,45 @@
 	firmware-name = "qcom/msm8998/google/walleye/slpi_v2.mdt";
 	status = "okay";
 };
+
+/*
+ * The NFC controller (item walleye-nfc-dts-node-image): the Pixel 2's NXP PN553 (Android's node nq@28, compatible qcom,nq-nci, on its i2c@c1b6000, which is mainline's blsp2_i2c2:
+ * gpio6/7, function blsp_i2c8, the address c1b6000 read from msm8998.dtsi). Pins as Android's dtb has them (research walleye-nfc-android-dtb-read): interrupt gpio92 (level high),
+ * enable (nq-ven) gpio12, firmware download (nq-firm) gpio93. Android's nfc_active pulls gpio12, gpio92 and gpio116 up; gpio116's role was not read, so it is not set here.
+ * The mainline driver (nxp-nci, binding nxp,nci: nxp,pn553 then nxp,nxp-nci-i2c) takes no clock and no supply. NOT KNOWN YET: the controller's clock (Android: BBCLK3, clkreq on
+ * pm8998 gpio21; the image's command line has clk_ignore_unused, so a clock the bootloader left on stays on), the pins' drive strength (2 mA is the common value of this dtsi, not read),
+ * and the eSE's pins (nq-esepwr gpio30, nq-clear_n gpio29, the eSE on spi, gpio2): the secure element is out of reach and left out. If nxp-nci does not probe, the clock is the first thing to read.
+ */
+&tlmm {
+	nfc_irq_pins: nfc-irq-state {
+		pins = "gpio92";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
+	nfc_ctl_pins: nfc-ctl-state {
+		pins = "gpio12", "gpio93";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+};
+
+&blsp2_i2c2 {
+	status = "okay";
+
+	nfc@28 {
+		compatible = "nxp,pn553", "nxp,nxp-nci-i2c";
+		reg = <0x28>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <92 IRQ_TYPE_LEVEL_HIGH>;
+
+		enable-gpios = <&tlmm 12 GPIO_ACTIVE_HIGH>;
+		firmware-gpios = <&tlmm 93 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&nfc_irq_pins &nfc_ctl_pins>;
+	};
+};

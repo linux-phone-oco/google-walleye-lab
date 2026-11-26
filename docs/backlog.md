@@ -13216,10 +13216,10 @@ Rank
 ### walleye's board dts carries the NXP NCI node (nxp,nxp-nci-i2c at 0x28) on the QUP that is Android's i2c@c1b6000, and a test image is built for one try
 
 Status
-: open
+: done
 
 Note
-: ONE IMAGE FOR TWO PROOFS (coordinator 2026-11-26, after PR 1200): the NFC test image is UFS-off (on the walleye-ufs-off kernel line) and its ramdisk is build-initramfs.sh phone, with lpoco bringup's init. Then the keeper's NFC try also proves walleye-init-from-roof: the gadget serial walleye-first-boot. Every image with the phone init today has UFS on (NOT-TO-BOOT), so none could be booted. Rank 7, with init-from-roof. Queued by the walleye coordinator 2026-11-26 from the keeper's host reading (PR 1193). Clock (BBCLK3 / PM8998 gpio21 clkreq) and supplies are not known yet: the builder reads them from the msm8998 sources and names what stays unknown; the node goes without them first if nxp-nci probes without a clock.
+: Built: [images.nfc] 3ccc7200... (research walleye-nfc-image-built). The try is walleye-nfc-nxp-nci-node (needs phone, proof nfc-present.sh) and also shows walleye-init-from-roof (serial walleye-first-boot).
 
 About
 : nfc

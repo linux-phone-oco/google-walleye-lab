@@ -9877,3 +9877,24 @@ Rejected
 
 About
 : walleye-pmic-wdt-v1-image
+
+---
+
+
+<a id="2026-11-26-walleye-builder-the-nfc-node-and-its-test-image"></a>
+### walleye-builder: the NFC node and its test image
+
+Entry date
+: 2026-11-26
+
+Done
+: Added nfc@28 to dt/msm8998-google-walleye.dts, build/walleye-nfc.config, [images.nfc] (sha256 3ccc7200..., rebuilt equal by ensure from the seed); built the kernel four times (label clash with the overlay stubs, then NFC =m under RFKILL =m); gate, overlay merge and dtbs_check read.
+
+Considered
+: A wip/walleye/nfc kernel branch (the item's proof): nothing in the kernel changes, the node is the lab's dts and the drivers are config.
+
+Rejected
+: Raising NFC by editing build/walleye.config: it would change the hash of every kernel built from it; a fragment of its own does not.
+
+About
+: nfc
