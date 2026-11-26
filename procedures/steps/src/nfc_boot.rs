@@ -28,7 +28,7 @@ pub const HEALTH_CHECK: &str = "tests/health/base/nfc-present.sh";
 /// The health line this check says: its test and component.
 pub const HEALTH_TEST: &str = "nfc-present";
 /// The files of the run's folder; an earlier run of the day's are forgotten at the start (a stale answer is never this run's).
-pub const STALE: [&str; 3] = ["read.txt", "dmesg.txt", "verdict.txt"];
+pub const STALE: [&str; 4] = ["read.txt", "dmesg.txt", "open.txt", "verdict.txt"];
 
 /// `say` and `check` of the health suite's lib.sh (lab-tools health/suite/lib.sh), one line each: the check sources that file on a phone with the suite, and the image's shell has none.
 pub const LIB: &str = "say() { printf '%s %s %s %s\\n' \"$3\" \"$1\" \"$2\" \"$(printf '%s' \"$4\" | tr '\\n' ' ')\"; }; check() { if [ \"$3\" = true ]; then say \"$1\" \"$2\" pass \"$4\"; else say \"$1\" \"$2\" fail \"$4\"; fi; }";
@@ -226,6 +226,194 @@ impl Answer {
     }
 }
 
+/// The pins the node and Android's dtb name: gpio12 (Android's enable, nq-ven), gpio116 (the OnePlus 5's enable, and this node's), gpio92 (the interrupt), gpio93 (firmware download, nq-firm).
+pub const GPIOS: [u32; 4] = [12, 116, 92, 93];
+/// The tool that opens nfc0 (research walleye-nfc-clock-and-minus-121: `nfctool -d nfc0 -1`). The ramdisk's busybox has none and no other tool: when it is not there the open is said not made (not known yet), never guessed.
+pub const OPEN_TOOL: &str = "nfctool -d nfc0 -1";
+
+/// The open read over telnet, one line for the shell, marks between the parts: the four pins before the open; the open (its output and `rc=`, or `no-tool`); the four pins after; i2cdetect on the bus of c1b6000
+/// after the open (nfctool has exited by then: whether nfc0 stays powered is NOT KNOWN YET; `no-bus` when sysfs names none); the clock summary's ln_bb_clk3 lines.
+pub const OPEN_COMMAND: &str = "mount -t debugfs none /sys/kernel/debug 2>/dev/null; P='^ *gpio(12|116|92|93) +:'; echo ---gpio-before; grep -E \"$P\" /sys/kernel/debug/gpio; echo ---open; if command -v nfctool >/dev/null; then timeout 20 nfctool -d nfc0 -1 2>&1; echo rc=$?; else echo no-tool; fi; echo ---gpio-after; grep -E \"$P\" /sys/kernel/debug/gpio; echo ---i2c; B=$(ls /sys/bus/platform/devices/c1b6000.i2c 2>/dev/null | grep '^i2c-' | head -1 | cut -c5-); if [ -n \"$B\" ]; then i2cdetect -y $B 2>&1; else echo no-bus; fi; echo ---clock; grep -i ln_bb_clk3 /sys/kernel/debug/clk/clk_summary 2>/dev/null; echo ---end";
+
+/// The pins of [`GPIOS`] in a pin table (the msm pinctrl's `gpioN : in|out VALUE DRIVE PULL`), each as its number and its words in single spaces; a pin not listed is not in the answer.
+pub fn pin_lines(text: &str) -> Vec<(u32, String)> {
+    let mut found: Vec<(u32, String)> = text
+        .lines()
+        .filter_map(|l| {
+            let (name, rest) = l.trim().split_once(':')?;
+            let n: u32 = name.trim().strip_prefix("gpio")?.parse().ok()?;
+            GPIOS
+                .contains(&n)
+                .then(|| (n, rest.split_whitespace().collect::<Vec<_>>().join(" ")))
+        })
+        .collect();
+    found.sort_by_key(|(n, _)| GPIOS.iter().position(|g| g == n));
+    found
+}
+
+/// What the answers of the open point to (research walleye-nfc-clock-and-minus-121: no ACK at 0x28 means VEN; an ACK and no NCI reply means the clock; firmware framing means gpio93 polarity).
+#[derive(Debug, PartialEq, Clone)]
+pub enum Cause {
+    /// nfc0 was not opened: no tool in the ramdisk, or the read has none of it. Not known yet.
+    NotOpened,
+    /// no ACK at 0x28, or the open's own answer is a write to a chip that is not there
+    Ven,
+    /// the chip is on the bus (an ACK, or the driver holds the address) and no NCI reply came
+    Clock,
+    /// the open's answer speaks of firmware framing
+    Gpio93,
+    /// nfc0 opened and the chip answered: none of the three
+    Answers,
+    /// the open failed in a way none of the rules names; its first line is kept
+    Unnamed(String),
+}
+
+/// The answer of the open read: the pins before and after, the cell of i2cdetect at 0x28, the cause.
+#[derive(Debug, PartialEq)]
+pub struct OpenAnswer {
+    pub cause: Cause,
+    pub before: Vec<(u32, String)>,
+    pub after: Vec<(u32, String)>,
+    /// the pins whose line changed with the open
+    pub moved: Vec<u32>,
+    /// the cell of the row 20: at column 8 (0x28): `--` no ACK, `UU` the address is held by a driver, `28` an ACK; None: the bus was not found or the table is unreadable
+    pub cell: Option<String>,
+    pub clocks: Vec<String>,
+}
+
+/// The cell for 0x28 in busybox's i2cdetect table (its rows: `20: ` then one cell per address, `--`, `UU` or the address in hex).
+fn cell_28(part: &[&str]) -> Option<String> {
+    let row = part.iter().find(|l| l.trim_start().starts_with("20:"))?;
+    row.trim_start()
+        .strip_prefix("20:")?
+        .split_whitespace()
+        .nth(8)
+        .map(str::to_string)
+}
+
+fn the_cause(opened: &[&str], cell: &Option<String>) -> Cause {
+    let said = opened.join(" ").to_ascii_lowercase();
+    if said.trim() == "no-tool" || said.trim().is_empty() {
+        return Cause::NotOpened;
+    }
+    if said.contains("rc=0") {
+        return Cause::Answers;
+    }
+    // the bus first: no ACK at 0x28 is VEN whatever the open said
+    if cell.as_deref() == Some("--") {
+        return Cause::Ven;
+    }
+    let acked = matches!(cell.as_deref(), Some("28") | Some("UU"));
+    if said.contains("firmware") {
+        return Cause::Gpio93;
+    }
+    // `timeout 20` ends a hung nfctool with 124 (143 on some busybox): a chip that ACKs and never answers NCI
+    let hung = said.contains("rc=124") || said.contains("rc=143");
+    if hung || said.contains("timed out") || said.contains("timeout") || said.contains("-110") {
+        return Cause::Clock;
+    }
+    // without a table of the bus the open's own words are all there is
+    let ven_words = ["no such device", "remote i/o", "-121", "-6)"];
+    if !acked && ven_words.iter().any(|w| said.contains(w)) {
+        return Cause::Ven;
+    }
+    if acked {
+        return Cause::Clock;
+    }
+    Cause::Unnamed(
+        opened
+            .first()
+            .map(|l| l.trim().to_string())
+            .unwrap_or_default(),
+    )
+}
+
+/// The open read judged. Only a read that has not got its marks is an error; whatever it says is the answer.
+pub fn open_judge(read: &str) -> Result<OpenAnswer, String> {
+    let part = |name: &str| section(read, name).ok_or(format!("the open read has no {name} part"));
+    let (before, open, after, i2c, clock) = (
+        part("gpio-before")?,
+        part("open")?,
+        part("gpio-after")?,
+        part("i2c")?,
+        part("clock")?,
+    );
+    let before_pins = pin_lines(&before.join("\n"));
+    let after_pins = pin_lines(&after.join("\n"));
+    let moved = after_pins
+        .iter()
+        .filter(|(n, now)| before_pins.iter().any(|(b, was)| b == n && was != now))
+        .map(|(n, _)| *n)
+        .collect();
+    let cell = cell_28(&i2c);
+    Ok(OpenAnswer {
+        cause: the_cause(&open, &cell),
+        before: before_pins,
+        after: after_pins,
+        moved,
+        cell,
+        clocks: clock
+            .iter()
+            .map(|l| l.trim().to_string())
+            .filter(|l| !l.is_empty() && !l.contains("No such file") && !l.contains("can't"))
+            .collect(),
+    })
+}
+
+impl OpenAnswer {
+    /// The line the research row records: what was counted, then the cause the answers point to.
+    pub fn said(&self) -> String {
+        let pins = |p: &[(u32, String)]| {
+            if p.is_empty() {
+                "not known yet (no pin table)".to_string()
+            } else {
+                p.iter()
+                    .map(|(n, s)| format!("gpio{n} {s}"))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            }
+        };
+        let cell = match self.cell.as_deref() {
+            Some("--") => "no ACK at 0x28".to_string(),
+            Some("UU") => {
+                "0x28 is held by the driver (UU: i2cdetect cannot tell its ACK)".to_string()
+            }
+            Some(c) => format!("0x28 answers ({c})"),
+            None => "0x28 not known yet (no i2cdetect table)".to_string(),
+        };
+        let moved = if self.moved.is_empty() {
+            "no pin moved with the open".to_string()
+        } else {
+            format!(
+                "moved with the open: {}",
+                self.moved
+                    .iter()
+                    .map(|n| format!("gpio{n}"))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        };
+        let clock = if self.clocks.is_empty() {
+            "ln_bb_clk3 not known yet (not listed)".to_string()
+        } else {
+            format!("clock: {}", self.clocks.join(" | "))
+        };
+        let cause = match &self.cause {
+            Cause::NotOpened => "cause not known yet: nfc0 was not opened (no tool in the ramdisk)".to_string(),
+            Cause::Ven => "points to VEN (no ACK: the enable pin does not switch the chip on; the pins that moved with the open say which of gpio12 and gpio116 is it)".to_string(),
+            Cause::Clock => "points to the clock (the chip is there and gave no NCI reply)".to_string(),
+            Cause::Gpio93 => "points to gpio93 (firmware framing)".to_string(),
+            Cause::Answers => "nfc0 opened and the chip answered: neither VEN, clock nor gpio93".to_string(),
+            Cause::Unnamed(l) => format!("cause not known yet: the open said `{l}`"),
+        };
+        format!(
+            "before: {}; after: {}; {moved}; {cell}; {clock}; {cause}",
+            pins(&self.before),
+            pins(&self.after)
+        )
+    }
+}
+
 /// What the author is told before the run.
 pub fn expect() -> String {
     "The NFC boot, about 6 minutes: the NFC image is booted once from memory (UFS off by the gate, nothing flashed by this procedure), the gadget's serial walleye-first-boot is checked, and over its telnet at walleye's net 43 the lab runs nfc-present and reads the kernel's lines on nxp-nci (the deferred devices and the clock lines are read too, and said when it did not probe). Whatever the phone says is the answer. The roof's init has no hold: the way back is the shared one, straight after the read.".to_string()
@@ -324,6 +512,29 @@ impl NfcBoot {
             n.lab.save("dmesg.txt", &crate::touch::redact(&dmesg))?;
             let said = judge(&health, &read)?.said();
             n.lab.save("verdict.txt", &said)?;
+            println!("  {said}");
+            Ok(())
+        }
+    }
+
+    /// nfc0 is opened and the pins, the bus and the clock are read around it (the open read, [`OPEN_COMMAND`]); the answer is kept in open.txt and said. Whatever it says, the step passes:
+    /// no tool to open nfc0 is the answer "not known yet", never a failed try.
+    pub fn the_nfc0_is_opened_and_the_pins_read(&self) -> impl FnOnce() -> Done + 'static {
+        let n = self.clone();
+        move || {
+            let mut sh = n.lab.shell_when_up()?;
+            let read = sh.run(OPEN_COMMAND, Duration::from_secs(60))?;
+            n.lab.save("open.txt", &crate::touch::redact(&read))?;
+            // a read without its marks is a cut read: said not known yet, so the way back still runs
+            let said = match open_judge(&read) {
+                Ok(a) => a.said(),
+                Err(e) => format!("open read not known yet ({e}); the raw read is in open.txt"),
+            };
+            let path = n.s.out.join("verdict.txt");
+            let first =
+                std::fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+            n.lab
+                .save("verdict.txt", &format!("{}\n{said}", first.trim_end()))?;
             println!("  {said}");
             Ok(())
         }
@@ -475,7 +686,11 @@ mod tests {
     fn the_entry_boots_the_image_and_leaves_known_good_last() {
         let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../../procedures/");
         let real = std::fs::read_to_string(format!("{dir}nfc-boot-on-the-pixel-2.rs")).unwrap();
-        assert!(real.contains("steps::phone_ready(KERNEL)") && real.contains("the_nfc_is_read"));
+        assert!(
+            real.contains("steps::phone_ready(KERNEL)")
+                && real.contains("the_nfc_is_read")
+                && real.contains("the_nfc0_is_opened_and_the_pins_read")
+        );
         assert!(
             real.contains("the_image_is_the_declared_ufs_off_image")
                 && real.contains("Settings::for_nfc_boot()")
@@ -492,5 +707,202 @@ mod tests {
             })
             .unwrap();
         assert!(last.contains("steps::leave_known_good()"), "{last}");
+    }
+
+    /// The phone's own pin table (Android, slot b, 2026-11-25, tests/fixtures/phone-text/SOURCES.toml): the msm pinctrl's line format, the one /sys/kernel/debug/gpio prints on mainline too (drivers/pinctrl/qcom/pinctrl-msm.c, msm_gpio_dbg_show_one).
+    const GPIO_CAPTURE_BYTES: &[u8] = include_bytes!(
+        "../../../tests/fixtures/phone-text/part-compare-touch-android-b-gpio-2026-11-25.cap"
+    );
+
+    /// The open read, in the marks of [`OPEN_COMMAND`]. The i2cdetect rows follow busybox's own format (`%02x: ` then `-- `, `UU ` or the address): a stand-in, NOT captured from a phone.
+    fn open_read(before: &str, open: &str, after: &str, i2c28: &str) -> String {
+        format!("---gpio-before\n{before}\n---open\n{open}\n---gpio-after\n{after}\n---i2c\n     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n20: -- -- -- -- -- -- -- -- {i2c28} -- -- -- -- -- -- --\n---clock\n ln_bb_clk3 0 0 0 19200000 0 0 50000\n---end")
+    }
+
+    fn capture() -> String {
+        String::from_utf8_lossy(GPIO_CAPTURE_BYTES).to_string() // the capture holds a few bytes that are no utf-8 (a gpio-1002 name read as it was)
+    }
+
+    fn pins(text: &str) -> String {
+        text.lines()
+            .filter(|l| {
+                ["gpio12 ", "gpio116 ", "gpio92 ", "gpio93 "]
+                    .iter()
+                    .any(|p| l.trim_start().starts_with(p))
+            })
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
+    #[test]
+    fn the_pin_lines_are_read_in_the_phones_own_format() {
+        let p = pin_lines(&capture());
+        assert_eq!(p.len(), 4, "{p:?}");
+        assert_eq!(p[0].0, 12);
+        assert!(p[0].1.starts_with("out 0 2mA pull down"), "{p:?}");
+        assert_eq!(p.iter().map(|x| x.0).collect::<Vec<_>>(), GPIOS.to_vec());
+        // gpio1 is not gpio12, gpio11 not gpio116: a number is matched whole
+        assert!(pin_lines("gpio120 : in 0 2mA no pull\ngpio1  : in 0 2mA no pull").is_empty());
+    }
+
+    #[test]
+    fn the_open_command_reads_the_pins_before_and_after_and_names_the_bus_of_the_node() {
+        for part in ["gpio-before", "open", "gpio-after", "i2c", "clock", "end"] {
+            assert!(OPEN_COMMAND.contains(&format!("echo ---{part}")), "{part}");
+        }
+        assert!(
+            OPEN_COMMAND.find("---gpio-before").unwrap() < OPEN_COMMAND.find("---open").unwrap()
+        );
+        assert!(
+            OPEN_COMMAND.find("---open").unwrap() < OPEN_COMMAND.find("---gpio-after").unwrap()
+        );
+        assert!(
+            OPEN_COMMAND.contains("nfctool -d nfc0 -1") && OPEN_COMMAND.contains("c1b6000.i2c")
+        );
+        assert!(OPEN_COMMAND.contains("i2cdetect") && OPEN_COMMAND.contains("ln_bb_clk3"));
+        for n in GPIOS {
+            assert!(OPEN_COMMAND.contains(&n.to_string()), "{n}");
+        }
+        assert!(!OPEN_COMMAND.contains('\n'));
+    }
+
+    #[test]
+    fn no_tool_is_not_known_yet_and_never_a_cause() {
+        let before = pins(&capture());
+        let a = open_judge(&open_read(&before, "no-tool", &before, "UU")).unwrap();
+        assert_eq!(a.cause, Cause::NotOpened);
+        assert!(a.said().contains("not known yet"), "{}", a.said());
+    }
+
+    #[test]
+    fn no_ack_at_28_points_to_ven() {
+        let before = pins(&capture());
+        let a = open_judge(&open_read(
+            &before,
+            "nfctool: Power on failed: No such device or address\nrc=1",
+            &before,
+            "--",
+        ))
+        .unwrap();
+        assert_eq!(a.cause, Cause::Ven);
+    }
+
+    #[test]
+    fn an_ack_and_no_nci_reply_points_to_the_clock() {
+        let before = pins(&capture());
+        let a = open_judge(&open_read(
+            &before,
+            "nfctool: Power on failed: Connection timed out\nrc=1",
+            &before,
+            "28",
+        ))
+        .unwrap();
+        assert_eq!(a.cause, Cause::Clock);
+        // with the driver bound i2cdetect prints UU: the bus ACK is not its to tell, the open's own answer is
+        let b = open_judge(&open_read(
+            &before,
+            "nfctool: Power on failed: Connection timed out\nrc=1",
+            &before,
+            "UU",
+        ))
+        .unwrap();
+        assert_eq!(b.cause, Cause::Clock);
+        assert!(b.said().contains("UU"), "{}", b.said());
+    }
+
+    #[test]
+    fn a_firmware_answer_points_to_gpio93_and_an_open_that_works_to_none() {
+        let before = pins(&capture());
+        let a = open_judge(&open_read(
+            &before,
+            "nfctool: firmware download mode answered\nrc=1",
+            &before,
+            "UU",
+        ))
+        .unwrap();
+        assert_eq!(a.cause, Cause::Gpio93);
+        let ok = open_judge(&open_read(&before, "rc=0", &before, "UU")).unwrap();
+        assert_eq!(ok.cause, Cause::Answers);
+    }
+
+    #[test]
+    fn the_pins_that_moved_with_the_open_are_named() {
+        let before = pins(&capture());
+        let after = before.replace("gpio116 : in  0", "gpio116 : out 1");
+        assert_ne!(
+            before, after,
+            "the capture has a gpio116 line that reads in 0"
+        );
+        let a = open_judge(&open_read(&before, "rc=0", &after, "UU")).unwrap();
+        assert_eq!(a.moved, vec![116]);
+        assert!(
+            a.said().contains("moved with the open: gpio116"),
+            "{}",
+            a.said()
+        );
+    }
+
+    #[test]
+    fn a_read_without_its_marks_is_an_error() {
+        assert!(open_judge("nothing").is_err());
+    }
+
+    #[test]
+    fn the_open_command_is_a_shell_line_that_parses() {
+        let ok = std::process::Command::new("sh")
+            .arg("-n")
+            .arg("-c")
+            .arg(OPEN_COMMAND)
+            .status()
+            .unwrap();
+        assert!(ok.success());
+    }
+
+    #[test]
+    fn an_ack_outranks_ven_words_and_a_hung_tool_is_the_clock() {
+        let before = pins(&capture());
+        let a = open_judge(&open_read(
+            &before,
+            "nfctool: Remote I/O error\nrc=1",
+            &before,
+            "28",
+        ))
+        .unwrap();
+        assert_eq!(a.cause, Cause::Clock);
+        let h = open_judge(&open_read(&before, "rc=124", &before, "UU")).unwrap();
+        assert_eq!(h.cause, Cause::Clock);
+        let w = open_judge(&open_read(
+            &before,
+            "nfctool: Remote I/O error\nrc=1",
+            &before,
+            "--",
+        ))
+        .unwrap();
+        assert_eq!(w.cause, Cause::Ven);
+    }
+
+    #[test]
+    fn without_a_bus_table_the_open_words_speak_and_the_rest_is_unnamed() {
+        let before = pins(&capture());
+        let no_bus =
+            |r: String| r.replace(r.lines().find(|l| l.starts_with("20:")).unwrap(), "no-bus");
+        let v = open_judge(&no_bus(open_read(
+            &before,
+            "nfctool: No such device or address\nrc=1",
+            &before,
+            "--",
+        )))
+        .unwrap();
+        assert_eq!(v.cell, None);
+        assert_eq!(v.cause, Cause::Ven);
+        let u = open_judge(&no_bus(open_read(&before, "rc=127", &before, "--"))).unwrap();
+        assert_eq!(u.cause, Cause::Unnamed("rc=127".into()));
+        assert!(
+            u.said()
+                .contains("cause not known yet: the open said `rc=127`"),
+            "{}",
+            u.said()
+        );
+        assert!(u.said().contains("0x28 not known yet"), "{}", u.said());
     }
 }

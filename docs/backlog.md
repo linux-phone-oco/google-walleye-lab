@@ -13344,10 +13344,10 @@ Rank
 ### The walleye NFC node takes the OnePlus 5 form (enable on gpio116, pull-ups on 12, 116 and 92), and the NFC boot opens nfc0 to tell VEN, clock and firmware apart
 
 Status
-: open
+: done
 
 Note
-: Queued by the walleye coordinator 2026-11-26 after keeper run walleye-nfc-boot-run-1 (PR 1211) and research walleye-nfc-clock-and-minus-121. The -121 of run 1 is not a fault. The keeper's second short boot follows.
+: Done 2026-11-26 (walleye-builder): node in the OnePlus 5 form, [images.nfc] bb881ba1 rebuilt equal from its recipe, UFS-off gate passes, the procedure reads the pins, the bus and the clock around the open and names the cause; opening nfc0 itself waits for walleye-nfc-nfc0-opener-in-ramdisk (no tool in the ramdisk). Research walleye-nfc-oneplus5-image-built.
 
 About
 : nfc
@@ -13360,6 +13360,59 @@ Needs
 
 Proof
 : the board dts node nfc@28 follows msm8998-oneplus-common.dtsi's (research walleye-nfc-clock-and-minus-121): enable-gpios on tlmm 116, no firmware-gpios first, pinctrl pulling up 12, 116 and 92; [images.nfc] rebuilt with a new sha256, rebuilds equal, UFS-off gate passes; procedures/nfc-boot-on-the-pixel-2.rs also opens nfc0 (nfctool -d nfc0 -1, or the smallest tool the ramdisk can carry), reads /sys/kernel/debug/gpio for 12, 116, 92 and 93 before and after the open, runs i2cdetect on the bus with nfc0 open, and reads clk_summary for ln_bb_clk3; it prints which cause the answers point to (no ACK: VEN; ACK and no NCI reply: clock; firmware framing: gpio93); dry run and stand-in tests pass
+
+Rank
+: 7
+
+
+<a id="walleye-nfc-nfc0-opener-in-ramdisk"></a>
+### A tool that opens nfc0 in the ramdisk (netlink NFC_CMD_DEV_UP), so the NFC boot can tell VEN, clock and firmware apart
+
+Status
+: open
+
+Note
+: From walleye-nfc-node-oneplus5-form (research walleye-nfc-oneplus5-image-built): busybox has i2cdetect but nothing that opens nfc0; the procedure's open step says the cause is not known yet without nfctool. The smallest way: a Rust static aarch64 binary with the genl NFC family (no libnfc); it needs the rootless musl target of item walleye-install-rootfs-health-binary, or neard's nfctool built static.
+
+About
+: nfc
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: an aarch64 static tool in the nfc ramdisk (new ramdisk sha256, image rebuilds equal, UFS-off gate passes) whose run on the host against a fake netlink answer, and then on the phone, powers nfc0 on and prints the kernel's answer; the procedure's open step stops saying not known yet
+
+Rank
+: 7
+
+
+<a id="walleye-nfc-boot-run-2"></a>
+### Second short NFC boot: the OnePlus 5 form of the node, the pins and the bus read around the open
+
+Status
+: open
+
+Note
+: Queued by walleye-builder 2026-11-26. Without the opener (walleye-nfc-nfc0-opener-in-ramdisk) the open step says the cause is not known yet; the run still reads nxp-nci's lines with the new node, the pins before and after, i2cdetect on the bus and ln_bb_clk3.
+
+Blocked by
+: walleye-nfc-node-oneplus5-form
+
+About
+: nfc
+
+Opened
+: 2026-11-26
+
+Needs
+: phone
+
+Proof
+: procedures/nfc-boot-on-the-pixel-2.rs run by the keeper on image nfc bb881ba1: read.txt, dmesg.txt, open.txt and verdict.txt kept; the research row says what nxp-nci logged with enable on gpio116 and the pins and bus as read
 
 Rank
 : 7
