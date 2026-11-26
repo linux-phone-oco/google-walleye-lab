@@ -10558,7 +10558,7 @@ Proof
 : for each build script that an [images.*] row names: rebuild that image from its kernel_tag with the new build and compare sha256 with the declared one: equal: the script is removed in the same change and the row says it is rebuilt from the tag; different: the difference is named (the script stays); the display, ramroot and bisect scripts of the dead experiments are listed and judged one by one (kept as history in research, or removed with a recorded reason); nothing retires a script whose image has not rebuilt equal
 
 Rank
-: 6
+: 8
 
 
 <a id="walleye-stage2-bounded-readback"></a>
