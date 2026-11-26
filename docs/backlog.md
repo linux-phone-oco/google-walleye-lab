@@ -13400,7 +13400,7 @@ Note
 : Queued by walleye-builder 2026-11-26. Without the opener (walleye-nfc-nfc0-opener-in-ramdisk) the open step says the cause is not known yet; the run still reads nxp-nci's lines with the new node, the pins before and after, i2cdetect on the bus and ln_bb_clk3.
 
 Blocked by
-: walleye-nfc-node-oneplus5-form
+: walleye-nfc-nfc0-opener-in-ramdisk
 
 About
 : nfc
