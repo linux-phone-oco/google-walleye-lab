@@ -218,7 +218,7 @@ source = "research:walleye-pon-reasons-after-a-bite-how-to-read"
 source = "research:walleye-pmic-wdt-v1-images-built"
 
 [scripts."pon-block-selftest.sh"]
-source = "research:walleye-pon-read-after-bite-the-way"
+source = "research:walleye-pon-subtype-values"
 
 [scripts."pon-regs-selftest.sh"]
 source = "research:walleye-z10-built"

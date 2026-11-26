@@ -9039,3 +9039,25 @@ Sources
 
 About
 : walleye-pmic-wdt-v1-image
+
+
+<a id="walleye-pon-subtype-values"></a>
+### walleye-pon-subtype-values
+
+Date
+: 2026-11-26
+
+Brief
+: The PON peripheral's subtype register is 0x805 and reads 04 (gen2 primary) or 05 (gen2 secondary): the proof pon-block checks; no source names a value for 0x804
+
+Question
+: What does a PM8998-class PON regmap read at its TYPE (0x804) and SUBTYPE (0x805) registers, from driver source, so a reading proves it came from the PON?
+
+Found
+: Mainline drivers/input/misc/pm8941-pwrkey.c (linux-phone-oco/linux HEAD): PON_SUBTYPE 0x05, PON_SUBTYPE_PRIMARY 01, SECONDARY 02, 1REG 03, GEN2_PRIMARY 04, GEN2_SECONDARY 05, GEN3_PBS 08, GEN3_HLOS 09; the driver reads base+0x05 (PON_SUBTYPE) and base+0x01 (PON_REV2) and never base+0x04. The Android msm kernel's drivers/platform/msm/qpnp-power-on.c (android.googlesource.com/kernel/msm, android-7.1.0_r0.2): QPNP_PON_PERPH_SUBTYPE = base+0x05, PON_GEN2_PRIMARY 0x04, PON_GEN2_SECONDARY 0x05, reasons at 0xC0/0xC2/0xC5 only for the gen2 subtypes (is_pon_gen2). So on PM8998 (PON gen2: reasons at 0xC0..) the subtype at 0x805 reads 04 (primary) or 05 (secondary PMIC), and a regmap that reads anything else there is not the PON. The item's TYPE register 0x804: neither driver reads or names a value for it, so pon-block prints it raw (type=VV) and judges nothing by it. NOT KNOWN YET: what 0x804 reads on the phone, and that regmap debugfs shows the PON there at all (the control run).
+
+Sources
+: mainline-pm8941-pwrkey-c,android-msm-qpnp-power-on-c-7-1-0
+
+About
+: walleye-pmic-wdt-v1-image

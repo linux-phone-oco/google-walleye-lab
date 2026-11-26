@@ -1998,3 +1998,23 @@ Year
 
 Takes
 : Read for service ids: it names none (no 349-362, no Sensor Manager id)
+
+
+<a id="mainline-pm8941-pwrkey-c"></a>
+### drivers/input/misc/pm8941-pwrkey.c (mainline)
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/input/misc/pm8941-pwrkey.c
+
+Takes
+: PON_SUBTYPE 0x05; PON_SUBTYPE_GEN2_PRIMARY 0x04, GEN2_SECONDARY 0x05
+
+
+<a id="android-msm-qpnp-power-on-c-7-1-0"></a>
+### drivers/platform/msm/qpnp-power-on.c (android-7.1.0_r0.2)
+
+Url
+: https://android.googlesource.com/kernel/msm/+/android-7.1.0_r0.2/drivers/platform/msm/qpnp-power-on.c
+
+Takes
+: QPNP_PON_PERPH_SUBTYPE base+0x05; PON_GEN2_PRIMARY 0x04, PON_GEN2_SECONDARY 0x05; gen2 reasons at 0xC0..

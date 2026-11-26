@@ -3907,3 +3907,31 @@ About
 
 Research
 : walleye-pon-read-image-built
+
+
+<a id="2026-11-26-pon-block-judges-the-subtype-prints-the-type"></a>
+### 2026-11-26-pon-block-judges-the-subtype-prints-the-type
+
+Date
+: 2026-11-26
+
+Brief
+: pon-block proves its regmap by PON_PERPH_SUBTYPE 0x805 (04 or 05) and prints TYPE 0x804 raw, judged by no value
+
+Decision
+: /bin/pon-block prints a block only for a regmap whose 0x805 reads 04 or 05 (printed type=VV subtype=VV beside the block); any other or unread subtype prints 'pon-block refused subtype=VV want=04|05 src=[R]'. TYPE 0x804 is read and printed raw. The steps crate's is_a_reading also requires the subtype.
+
+Why
+: The only values named in driver source are SUBTYPE's (pm8941-pwrkey.c, qpnp-power-on.c: GEN2 primary 04, secondary 05); no source names a TYPE value, so a check on one would be a stand-in value typed by us (practice: each expected value names its source).
+
+Rejected
+: Judging 0x804 against 09 from memory of the SPMI peripheral type: no source read, so it would be a typed stand-in; refusing the block on an unexpected type would also cost the author's one hold for a value nobody can name. Accepting only 04: the secondary PMIC's PON (05) is a PON too.
+
+About
+: walleye-pmic-wdt-v1-image
+
+Research
+: walleye-pon-subtype-values
+
+Tracked by
+: walleye-pon-block-reads-type
