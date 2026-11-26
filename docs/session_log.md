@@ -9733,3 +9733,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-walleye-builder-procedures-on-v0-34"></a>
+### walleye-procedures-on-v0-34 closed
+
+Entry date
+: 2026-11-26
+
+Done
+: Read main f5702da: pin is lpoco-attended v0.46.4, bin/attended check --host passes all procedures, no short-poll rule in AGENTS.md; marked the item done.
+
+Considered
+: Rewriting the keeper orders in the new form: the named orders are done runs.
+
+Rejected
+: Pinning back to 0.34.x: the item says 'or the newest'; 0.46.4 is newer.
+
+About
+: walleye-attend-program-display

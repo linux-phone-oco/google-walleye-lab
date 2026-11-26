@@ -7746,10 +7746,10 @@ Rank
 ### Pin the walleye procedures to lpoco-attended 0.34 (prompt and answer files, run --from, skip-when-in-state) and give the attended keeper orders their new form
 
 Status
-: open
+: done
 
 Note
-: Pin moved 2026-11-19 (walleye-builder): procedures/*.rs, tests/attended/*.rs, tools/walleye-tries and the CI install are all on lpoco-attended v0.35.1 (the shared walleye-tries crate must match the entry files' pin, else the library's state is two copies and the first step panics 'call procedure() before the first step'); check --host passes. Still open: the keeper orders (walleye-try-pmic-wdt-v1, display held try, walleye-try-ufs-match) in their new form, the AGENTS.md short-poll rule dropped, skip-when-in-state where it fits. Rank 6 (2026-11-19): the display procedures are pinned to 0.35.1 inside walleye-display-look-l7 and -b2; the touch, PMIC and UFS pins remain, after the look.
+: Closed 2026-11-26 (walleye-builder), read back from main f5702da: every procedure and tools/walleye-tries are pinned to lpoco-attended v0.46.4 (newer than 0.34.x; bin/attended runs the locked CLI), 'bin/attended check --host' passes for all 27 procedures, tests/attended is gone (moved to procedures/). AGENTS.md has no short-poll rule. The keeper orders the item named (walleye-try-pmic-wdt-v1, walleye-try-ufs-match) are done runs, and the display held try is superseded by the display procedures, so no order needs the new form; the next order is written in it by the coordinator that queues it (device dir and 'prompt waiting'). Run --from restarts a stopped run (lpoco-attended's own help).
 
 About
 : walleye-attend-program-display
