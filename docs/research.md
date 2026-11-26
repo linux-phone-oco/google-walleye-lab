@@ -9083,3 +9083,25 @@ Sources
 
 About
 : walleye-ufs-match-android-z
+
+
+<a id="walleye-build-scripts-batch-3-retired"></a>
+### walleye-build-scripts-batch-3-retired
+
+Date
+: 2026-11-26
+
+Brief
+: 14 display dtb scripts retired (7 dtb makers, 7 checks); display-late, any-order, reboot-bin stay; walleye-reboot has no recipe form
+
+Question
+: Which of the remaining build scripts name no image row, procedure, test or open item, so they retire as history (batch 3)?
+
+Found
+: git grep over build, tests, tools, procedures, device.toml, kernel, dt and open items: the seven display dtb makers (display-bisect, display-dtb-bisect, display-f3-split, display-late-l, l3, l4, l5) are named only by their own check-*.sh, build/README, series comments and one comment of the any-order script; the seven check scripts only check their output. All 14 removed, series files and recorded dtbs stay as data; last commits in retired-scripts-batch-3.txt. Kept: build-display-late.sh (makes the LATE_DIR the any-order script reads). Measured: lpoco bringup image ensure walleye-reboot --dry-run says the sha256 is in no store and the image has no recipe: a built binary has no recipe form in lpoco 0.53.6, so build-reboot-bin.sh (and build-nfc-up-bin.sh) stay until lab-tools has one. 18 build-*.sh left.
+
+About
+: walleye-kernel-dts
+
+Material
+: research/walleye-retire-build-scripts/2026-11-26/

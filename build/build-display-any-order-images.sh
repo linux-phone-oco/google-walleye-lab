@@ -62,7 +62,7 @@ pack "$T/delay5" "$D/display-modules.list" > "$T/control.xz"
 ck "the ramdisk made with B-r5's delay 5 and list is B-r5's, byte for byte (control)" "$(same "$T/control.xz" "$T/r5/ramdisk")" same
 # the dtb: the built board dtb, clock_gcc at the real gcc
 # the levers every display image's dtb carries beside the kernel's own tree (each its own build script's, repeated here only as one fdtput each): clock_gcc at the real gcc (build-display-image.sh),
-# the dsi host's vdd-supply = l1a (build-display-late-l3-dtb.sh), the label mdss_dsi0 on an empty stub so the vendor overlay's qcom,platform-reset-gpio never reaches the real dsi (build-display-late-l5-dtb.sh)
+# the dsi host's vdd-supply = l1a (build-display-late-l3-dtb.sh, retired, in git history), the label mdss_dsi0 on an empty stub so the vendor overlay's qcom,platform-reset-gpio never reaches the real dsi (build-display-late-l5-dtb.sh, retired, in git history)
 STUBS=/vendor-overlay-stubs
 make_dtb() {
   cp "$BUILT" "$1"

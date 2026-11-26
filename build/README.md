@@ -1,12 +1,14 @@
 # build - scripts that build the Pixel 2's kernel, initramfs and boot images
 
 They run on the lab machine and write into `~/Projects/walleye-build/` (outside git); `device.toml [images.*]`
-says which image is which. One script per try grew here (about 175, 24 left); once test kernels come from `int/walleye`
+says which image is which. One script per try grew here (about 175, 18 left); once test kernels come from `int/walleye`
 tags (docs decision 2026-11-23-structure-kernel-topics-and-integration), one image build replaces them.
 
 **Retired 2026-11-26 (batch 1):** 52 scripts of finished experiments (c1-c5 and their jobs, vendor-gadget*, vendor-facts*, pk*, ml*, t1/t3, y, z, z2-z10, z14-z17, z19, the early display and stripes scripts, drv2624, nocon, mainline-light) are removed: no image row, procedure, test or open item names them. They stay in git; each one's last commit is in research/walleye-retire-build-scripts/2026-11-26/retired-scripts.txt. Sections below that describe them are history.
 
 **Retired 2026-11-26 (batch 2):** 5 scripts whose experiments are finished and whose kernel or dtbs are recorded elsewhere (fuel-gauge: its kernel is the `ufs-on` list; taimen-walleye, property-bisect, fdt-bisect, dtb-bisect: the series files stay as data). No image row, procedure, test or open item names them; each one's last commit is in research/walleye-retire-build-scripts/2026-11-26/retired-scripts-batch-2.txt. Kept: build-display-any-order-images.sh (its dtb and ramdisks enter from the seed; b-r2 and b-rp2 rebuild equal from their recipes, but the script is what makes the parts), the display series dtb scripts with their check-*.sh, build-reboot-bin.sh (the declared walleye-reboot is built by it), the seeds z20, l6, ufs-match.
+
+**Retired 2026-11-26 (batch 3):** 14 scripts of the finished display dtb experiments: the seven dtb makers (display-bisect, display-dtb-bisect, display-f3-split, display-late-l, -l3, -l4, -l5) and the seven check scripts that only checked their output. No image row, procedure, test or open item names them; the series files in `build/series/` and the recorded dtbs stay as data. Each one's last commit is in research/walleye-retire-build-scripts/2026-11-26/retired-scripts-batch-3.txt. Kept: build-display-late.sh (it makes the LATE_DIR the any-order script reads), build-display-any-order-images.sh, build-reboot-bin.sh (no recipe form for a binary yet), the seeds z20, l6, ufs-match. Sections below that describe the retired scripts are history.
 
 ## Building the first walleye image
 
