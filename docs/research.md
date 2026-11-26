@@ -8617,3 +8617,22 @@ Found
 
 About
 : walleye-attend-program-display
+
+
+<a id="walleye-adb-root-from-library-run-passed"></a>
+### walleye-adb-root-from-library-run-passed
+
+Date
+: 2026-11-26
+
+Brief
+: Transport run on the real Pixel 2 with adb root left to the library: 12/12, the library's root step the only one, the phone ends on Android b
+
+Question
+: Does procedures/transport-on-the-pixel-2.rs pass with no step of its own asking adb root?
+
+Found
+: Run by walleye-keeper 2026-11-26 through bin/attended (the pinned runner; the global lpoco-attended 0.45.4 refuses [connections.android] at device.toml line 23 - it is older than the pin 0.46.3). Dry run 12/12, real run 12/12. Only step 3 'the phone is on Android (the library asks adbd for root)' asks root; slot _b read, serial check ok, adb reboot bootloader then fastboot reboot ok, ended on Android slot b. No refusal text printed. Log: $AGENT_BUILD transport-run-1795694575.log (kept off git). transport.txt was not produced by this runner.
+
+About
+: walleye-bootimage
