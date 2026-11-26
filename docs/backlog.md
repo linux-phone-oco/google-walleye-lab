@@ -12833,10 +12833,10 @@ Rank
 ### walleye's device.toml names the pinned schema and its CI checks it
 
 Status
-: open
+: done
 
 Note
-: Moved from docs' base 2026-11-25 (orchestration; docs closes its row as moved). As surya-manifest-schema; blockers done (manifest-one-schema). Example: device-template #44 - device.toml's first line pins lpoco-lab-v0.53.2's schema; bin/check-device-toml.sh plus tests/ci/check-device-toml.sh.
+: DONE 2026-11-26 (walleye-builder): device.toml's first line pins lpoco-lab-v0.53.2's schema; bin/check-device-toml.sh and tests/ci/check-device-toml.sh copied from device-template main (PR 44), the script differing by one comment word (bin/attended, for tests/host/no-bare-lpoco-attended.sh). Seen: the 13-case test fails on the old script and passes on the new; the real check reads main's device.toml with v0.53.2 pinned and newest, and refuses a copy with [connection] misspelled [conection], naming the key.
 
 About
 : walleye-bootimage
