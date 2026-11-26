@@ -6161,10 +6161,10 @@ Rank
 ### z21's ramdisk with init-late's hold, so the touch window is 90 s or more
 
 Status
-: open
+: dropped
 
 Note
-: Not needed so far: the z21 touch try later passed (research walleye-z21-touch-events-pass, 3593 events) after the missed-window try, and the step-group touch run reached EVENTS-READY; build only if the window proves too short again (research walleye-z21-init-has-no-hold).
+: dropped 2026-11-26 by the walleye coordinator: the touch window sufficed (research walleye-z21-touch-events-pass, 3593 events; the step-group touch run reached EVENTS-READY). Reopen only if a run misses the window again (research walleye-z21-init-has-no-hold).
 
 About
 : walleye-attend-program-touch
