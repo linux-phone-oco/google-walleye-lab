@@ -8020,31 +8020,6 @@ Rank
 : 8
 
 
-<a id="walleye-procedures-on-step-groups"></a>
-### The walleye procedures use lpoco-attended's step groups: phone_ready and leave_known_good in place of the repeated gate, boot, shell and way-back lines
-
-Status
-: open
-
-Note
-: Unblocked 2026-11-26 (orchestration): lpoco-attended-v0.46.2 (lab-tools #454, #455, manifest v0.51.0) runs [kernels] way_back in the device folder, then waits for back_on. In ONE change: bump to 0.46.2 (rhizoid, or the branch's own bump), declare [kernels] way_back (walleye's own way back to Android, as the procedures use it today: the walleye-reboot RESTART2 tool then fastboot reboot from the bootloader) and back_on = "android"; check that land-check's lpoco-bringup pin reads manifest 0.51.0, else that is a stop to report. Then move the procedures onto the library's step groups. A keeper try follows.
-
-About
-: walleye-attend-program-display
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: the display (look and delay bisect and any-order), UFS, PMIC and touch procedures pinned to lpoco-attended v0.37.3 or newer; each one's repeated battery/gate/fastboot/boot/wait-for-gadget/shell lines are one group steps::phone_ready(kernel) and its ending is steps::leave_known_good LAST in the entry file (a finished group's way back is still owed until lab-tools attended-way-back-settled lands: do not put any step after leave_known_good); values from device.toml ([kernels], [images.*], [procedures.*]); the entry files get shorter, still read as a checklist on one screen; dry-run, lpoco-attended check --host, stand-in tests and one real run each of the display look (unattended, answer limit) pass; the way back on an unanswered ask still leaves the phone on Android by its own way
-
-Rank
-: 6
-
-
 <a id="walleye-try-pmic-wdt-v1"></a>
 ### Try the PMIC watchdog v1 once from slot b: the bite restarts the phone, and a clean reboot after arming leaves S2 off
 
@@ -12961,3 +12936,56 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-procedures-on-step-groups"></a>
+### The walleye procedures use lpoco-attended's step groups: phone_ready and leave_known_good in place of the repeated gate, boot, shell and way-back lines
+
+Status
+: in-progress
+
+Note
+: PART 1 LANDED 2026-11-26 (walleye-builder, decision 2026-11-26-walleye-way-back-is-a-procedure): lpoco-attended 0.46.2, schema line lpoco-lab-v0.53.4, [kernels] way_back = bin/attended run way-back-on-the-pixel-2 and back_on = android, procedures/way-back-on-the-pixel-2.rs; land-check's lpoco-bringup pin is 0.53.4 (manifest 0.51.0 or newer): no stop. PART 2 OPEN: move the display (look, delay bisect), UFS, PMIC and touch procedures onto steps::phone_ready(kernel) and steps::leave_known_good LAST in each entry file; values from device.toml; one real run of the display look (unattended, answer limit). Waits for the keeper run walleye-way-back-procedure-run to show the declared way back works on the phone before a procedure ends in it. Orchestration's text: lpoco-attended-v0.46.2 (lab-tools #454, #455) runs [kernels] way_back in the device folder, then waits for back_on.
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: the display (look and delay bisect and any-order), UFS, PMIC and touch procedures pinned to lpoco-attended v0.37.3 or newer; each one's repeated battery/gate/fastboot/boot/wait-for-gadget/shell lines are one group steps::phone_ready(kernel) and its ending is steps::leave_known_good LAST in the entry file (a finished group's way back is still owed until lab-tools attended-way-back-settled lands: do not put any step after leave_known_good); values from device.toml ([kernels], [images.*], [procedures.*]); the entry files get shorter, still read as a checklist on one screen; dry-run, lpoco-attended check --host, stand-in tests and one real run each of the display look (unattended, answer limit) pass; the way back on an unanswered ask still leaves the phone on Android by its own way
+
+Rank
+: 6
+
+
+<a id="walleye-way-back-procedure-run"></a>
+### One run of procedures/way-back-on-the-pixel-2.rs: the phone on Android, then from its bootloader
+
+Status
+: open
+
+Note
+: Read only on Android, one reboot out of the bootloader. Built 2026-11-26 (decision 2026-11-26-walleye-way-back-is-a-procedure); dry run, bin/attended check and the programmer review pass (no blockers); never run on the phone. Run bin/attended run way-back-on-the-pixel-2 --dry-run first (warms rust-script). Its limits, from the review: it cannot restore Android's slot after the install tries (they keep their own way back), has no ssh leg or pushed reboot tool, and a phone whose telnet is not up yet is only watched for Android for back_wait. The library shows its output only on failure, up to back_wait 240 s per leg. Part 2 must keep the install and rootfs procedures on their own way back until it handles the slot switch.
+
+Blocked by
+: walleye-procedures-on-step-groups
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-26
+
+Needs
+: phone
+
+Proof
+: bin/attended run way-back-on-the-pixel-2 exits 0 with the phone on Android (it says nothing was sent), and again with the phone in its bootloader by adb reboot bootloader (fastboot reboot, Android answers within back_wait); the slot Android runs from is the one it began on
+
+Rank
+: 6

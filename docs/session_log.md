@@ -9409,3 +9409,24 @@ Rejected
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-walleye-builder-way-back-declared"></a>
+### walleye's way back declared for the library's step groups
+
+Entry date
+: 2026-11-26
+
+Done
+: Bumped lpoco-attended to 0.46.2 (Cargo.lock: manifest 0.51.0), the device.toml schema line to lpoco-lab-v0.53.4, declared [kernels] way_back and back_on = android, added procedures/way-back-on-the-pixel-2.rs over Lab::way_back with its [procedures] table and a Try::WayBack setting. bin/attended check passes for all 25 procedures, 477 crate tests, clippy and fmt clean, check-device-toml reads it with 0.53.4 (pinned and newest). land-check's lpoco-bringup pin is 0.53.4, newer than manifest 0.51.0: no stop. Not done: moving the procedures onto phone_ready and leave_known_good; not run on the phone.
+
+Considered
+: Converting one procedure in the same change; a host binary for the way back
+
+Rejected
+: Converting procedures now: leave_known_good must be LAST in each entry file and the way back is unproven on the phone until a keeper runs way-back-on-the-pixel-2 once
+
+About
+: walleye-attend-program-display

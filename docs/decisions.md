@@ -3652,3 +3652,28 @@ Scope
 
 Tracked by
 : walleye-install-steps-from-library
+
+
+<a id="2026-11-26-walleye-way-back-is-a-procedure"></a>
+### 2026-11-26-walleye-way-back-is-a-procedure
+
+Date
+: 2026-11-26
+
+Brief
+: walleye's [kernels] way_back names its own procedure, bin/attended run way-back-on-the-pixel-2, so the library's step groups end a run the way walleye does
+
+Decision
+: device.toml [kernels] declares way_back = ["bin/attended run way-back-on-the-pixel-2"] and back_on = "android". The procedure runs the lab's existing Lab::way_back (Android already: nothing sent; bootloader: fastboot reboot, a second only if it still lists; a test image's shell: reboot -f, then the sysrq reboot) and checks Android answers. lpoco-attended is pinned to 0.46.2 (manifest 0.51.0) and the schema line to lpoco-lab 0.53.4, the first release that reads way_back. The procedures move onto phone_ready and leave_known_good after this, one keeper try each.
+
+Why
+: lpoco-attended 0.46.2 runs [kernels] way_back in the device folder, then waits for back_on; without it the library says systemctl reboot on a busybox shell with no systemd (the 2026-11-26 read of the step groups). One way back in one place, not a copy per procedure. The check lpoco-lab-v0.53.3 refused the key (unknown field way_back); v0.53.4 reads it. All 25 procedures dry-run and the 477 crate tests pass; not run on the phone.
+
+Rejected
+: Declaring fastboot reboot alone: a phone on a test image's shell is not in fastboot and would stay. A new host binary for the way back: a procedure already is one command with --dry-run and a log, and bin/attended pins the runner. Keeping the cmdline-cut slot-switch plan in it: that way back is the install procedures' own, it sets Android's slot first and stays with them.
+
+About
+: walleye-attend-program-display
+
+Scope
+: walleye procedures, lpoco-attended step groups
