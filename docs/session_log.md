@@ -9619,3 +9619,21 @@ Rejected
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-1900-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Phone on Android slot b, stock, nothing flashed; adb up. Ran walleye-touch-step-groups-run (used by run walleye-keeper 2026-11-26): z21 booted, touch controller listed, reader EVENTS-READY, stopped at the unanswered swipe ask, way back to Android. No go was open.
+
+Considered
+: next: walleye-nfc-nxp-nci-node (22) host reading; non-monotone display delay result still goes to the coordinator
+
+About
+: walleye-attend-program-display
