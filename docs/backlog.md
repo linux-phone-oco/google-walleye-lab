@@ -6802,6 +6802,9 @@ Status
 Note
 : 2026-11-26 (walleye-builder): steps 1 and 2 done. topic/walleye-tas2557-v3 (4b5ddbd8f821, two FROMLIST commits of Boiano's v3 on v7.3, pushed) passes dt_binding_check and builds W=1 clean; dt/msm8998-google-walleye-tas2557.dtso (an overlay) merges onto the walleye dtb (reg 0x4c 0x4d, reset pm8998 gpio6 active low). Evidence: research walleye-tas2557-v3-builds. Left: step 3 is item walleye-tas2557-try-image; step 4's unknowns need that boot try. The four supplies and the INT gpio are not read: the stock node has no supply property, but its driver asks for the pm8998 BoB regulator, so VBAT may be BoB (a lead). Proof test walleye-tas2557-driver-builds is not written yet: item walleye-tas2557-builds-test.
 
+Blocked by
+: walleye-tas2557-try-image
+
 About
 : walleye-audio-haptics
 
@@ -13606,3 +13609,28 @@ Proof
 
 Rank
 : 9
+
+
+<a id="walleye-tas2557-builds-review-left"></a>
+### walleye-tas2557-builds: the review's leftovers - main.rs as one Check list, board facts out of steps.rs into data, apk add pinned beyond a digest
+
+Status
+: open
+
+Note
+: From the builder's report on PR 1229 (walleye coordinator 2026-11-26).
+
+About
+: walleye-tas2557-driver
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: the tool's tests pass after the change and the programmer review finds none of the three
+
+Rank
+: 40
