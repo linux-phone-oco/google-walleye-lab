@@ -13508,6 +13508,9 @@ Status
 Note
 : From walleye-pon-read-after-bite-the-way. Phone off by adb reboot -p (cable in, then out), author holds power+volume-down once, lab fastboot-boots the reader image and saves 0xC0..0xCB raw; states what outlives a key press and the bootloader.
 
+Blocked by
+: walleye-wdt-pon-control-procedure
+
 About
 : walleye-pmic-wdt-v1-image
 
@@ -13519,6 +13522,34 @@ Needs
 
 Proof
 : the saved raw block names which of 0xC0, 0xC2, 0xC5, 0xC7 differ from the registers after an adb reboot, cable in and out
+
+Rank
+: 8
+
+Witness
+: person
+
+
+<a id="walleye-wdt-pon-control-procedure"></a>
+### The PON control read as one procedure: power-off by adb, the author's one act, fastboot-boot the reader image, save 0xC0..0xCB raw, way back
+
+Status
+: open
+
+Note
+: From decision 2026-11-26-pon-reasons-read-in-our-image-after-a-control (walleye coordinator 2026-11-26): an attended step is one command, built and tested before the author is called. The reader: an image already declared in device.toml that reads the PON block (spmi pon at 0x800 via regmap debugfs or a small tool), else the smallest change to one; Android-derived reads, nothing flashed.
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: procedures/pon-control-read-on-the-pixel-2.rs (or a step group) dry-runs; the reader image's PON read is proven on the host or its image test; every step without the author run for real except the phone; it tells the author what to do at its one hands step and waits for fastboot
 
 Rank
 : 8
