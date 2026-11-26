@@ -18,6 +18,7 @@ byte for byte the file of the branch (`cmp`). The files are in this folder's his
 | fuel-gauge-rfc | `topic/walleye-fuel-gauge-rfc` | 064940411 | 0001-0003: equal to the 3 commits |
 | display-mdss-reset | `topic/walleye-mdss-reset` | 58d8fd902 | 0001: equal to the commit |
 | panel-samsung-s6e3fa5.c | `topic/walleye-panel-s6e3fa5` | db21bdf17 | the driver, byte for byte (and `wip/walleye/ufs-root-display` carries the same) |
+| tas2557 | `topic/walleye-tas2557-v3` | 4b5ddbd8f821 | born as a branch (2026-11-26): Boiano's v3 binding and driver as FROMLIST on v7.3; no patch files ever; its walleye node is `dt/msm8998-google-walleye-tas2557.dtso` (research walleye-tas2557-v3-builds) |
 
 KEPT, a difference named and judged: `audio-adsp-q6/0009-*.patch` (with its `SHA256SUMS`) is the walleye board dts change, not a commit of
 the topic and not yet in `dt/msm8998-google-walleye.dts` (the audio test applies it to `dt/`): it stays until the audio is enabled in the

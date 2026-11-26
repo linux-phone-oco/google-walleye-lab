@@ -6797,10 +6797,10 @@ Rank
 ### Build the TAS2557 series on walleye from Boiano's v3: binding, driver, walleye dts
 
 Status
-: open
+: in-progress
 
 Note
-: Decision 2026-11-19-walleye-tas2557-from-upstream-v3 (research walleye-tas2557-v3-vs-porthole). Steps: (1) take v3 from lore (source lkml-boiano-tas2557-v3), apply 1/2 and 2/2 on our kernel as FROMLIST, dt_binding_check passes; (2) walleye dts patch: one node reg 0x4c,0x4d, reset on pm8998 (gpio index to confirm from the vendor dts), four supplies, slot numbers; (3) build with firmware-name pointing at the phone's own file, kept out of git (walleye-tas2557-firmware-source); (4) answer the three unknowns in the research: does v3 pick PG21 itself, are the amp supplies right, does the startup GPIO table fit walleye. Porthole's 0162/0171-0174 only where a try shows a gap. Only the boot try needs the firmware file.
+: 2026-11-26 (walleye-builder): steps 1 and 2 done. topic/walleye-tas2557-v3 (4b5ddbd8f821, two FROMLIST commits of Boiano's v3 on v7.3, pushed) passes dt_binding_check and builds W=1 clean; dt/msm8998-google-walleye-tas2557.dtso (an overlay) merges onto the walleye dtb (reg 0x4c 0x4d, reset pm8998 gpio6 active low). Evidence: research walleye-tas2557-v3-builds. Left: step 3 is item walleye-tas2557-try-image; step 4's unknowns need that boot try. The four supplies and the INT gpio are not read: the stock node has no supply property, but its driver asks for the pm8998 BoB regulator, so VBAT may be BoB (a lead). Proof test walleye-tas2557-driver-builds is not written yet: item walleye-tas2557-builds-test.
 
 About
 : walleye-audio-haptics
@@ -13553,3 +13553,56 @@ Proof
 
 Rank
 : 8
+
+
+<a id="walleye-tas2557-try-image"></a>
+### A test image with the TAS2557 pair: topic/walleye-tas2557-v3 and the overlay, the phone's own firmware in the ramdisk
+
+Status
+: open
+
+Note
+: From walleye-tas2557-driver step 3. Not booted without the keeper's queue; the firmware is the phone's own (decision 2026-11-19-walleye-tas2557-firmware-stays-on-the-phone). The supplies are unread: expect dummy-regulator notes in dmesg, not a failure.
+
+Blocked by
+: walleye-tas2557-driver
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: one boot image (UFS-off gate and AVB pass, rebuild identical, programmer review) of a test kernel assembled from a kernel/topics.toml list holding topic/walleye-tas2557-v3 and the audio-adsp-q6 topic, the overlay merged into the walleye dtb, ~/lab-material/walleye/tas2557/tas2557s_PG21_uCDSP.bin (sha256 ffadec7e...) in the ramdisk at the path the driver asks (never git); sha256 line; then the try is queued for the keeper with backlog-needs phone, proof amp-present-0x4c/0x4d
+
+Rank
+: 8
+
+
+<a id="walleye-tas2557-builds-test"></a>
+### The proof walleye-tas2557-driver-builds as a Rust program with argenv: the series applies to v7.3, the binding checks, the driver builds W=1, the overlay merges
+
+Status
+: open
+
+Note
+: The same four checks that were run by hand on 2026-11-26 (research walleye-tas2557-v3-builds); no new shell: the older tests/host/*-builds.sh are shell and are being retired, this one is not copied from them.
+
+About
+: walleye-audio-haptics
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: cargo test in the program passes against the captured outputs of research walleye-tas2557-v3-builds, and its run on the lab prints pass for the topic's tip
+
+Rank
+: 9

@@ -1,0 +1,4 @@
+make[1]: Entering directory '/home/mll/.cache/agent-build/7248fd/tas2557/out-drv'
+  CC [M]  sound/soc/codecs/tas2557.o
+make[1]: Leaving directory '/home/mll/.cache/agent-build/7248fd/tas2557/out-drv'
+build_exit=0

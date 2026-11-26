@@ -10075,3 +10075,24 @@ Considered
 
 About
 : nfc
+
+---
+
+
+<a id="2026-11-26-walleye-tas2557-v3-built"></a>
+### TAS2557: Boiano's v3 built on v7.3 with a walleye overlay
+
+Entry date
+: 2026-11-26
+
+Done
+: Took v3 (binding + driver) from lore onto v7.3 as topic/walleye-tas2557-v3 (FROMLIST, pushed); dt_binding_check clean in the pinned alpine container; driver builds W=1 clean; wrote dt/msm8998-google-walleye-tas2557.dtso and merged it onto the walleye dtb built on int/walleye/ufs-on/v7.3/1, read the node back. Queued walleye-tas2557-try-image and walleye-tas2557-builds-test.
+
+Considered
+: Which bus and pins: the stock muskie dtsi's ti_tas2557_4d (i2c_7 = blsp2_i2c1, reset pm8998 gpio 6, irq gpios 7 and 8). Naming the topic after the item id: the carried item row is docs' (upstreams coordinator), so the branch name walleye-tas2557-v3 follows the other carried topics (walleye-fuel-gauge-rfc).
+
+Rejected
+: Putting the node in dt/msm8998-google-walleye.dts: it would change the dtb of every image rebuilt from it (rebuild-identical rule), so an overlay like the ufs-match one. Guessing the four supplies and the INT gpio: the stock node names no supply, so they stay unknown. A new tests/host shell script for the proof: shell is being retired, the proof is a Rust item.
+
+About
+: walleye-audio-haptics
