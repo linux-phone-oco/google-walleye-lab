@@ -9342,10 +9342,7 @@ Entry date
 : 2026-11-26
 
 Done
-: Rebased the parked wip/walleye/install-steps-0461 commit on main (records conflicted, took main's, re-recorded); pin lpoco-attended 0.46.1, [connections.android] user root in device.toml; crate tests (471) and lpoco-attended check --host pass with a 0.46.1 binary built in AGENT_BUILD (the installed 0.45.4 cannot read [connections]); programmer review before landing.
-
-Considered
-: Installing 0.46.1 over the shared ~/.local/bin binary
+: Rebased the parked wip/walleye/install-steps-0461 commit on main (records conflicted, took main's, re-recorded); pin lpoco-attended 0.46.1, [connections.android] user root in device.toml; crate tests and lpoco-attended check --host pass with a 0.46.1 binary built in AGENT_BUILD (the installed 0.45.4 cannot read [connections]). Programmer review: no blocker; fixed by_name through plain_path and the dd-flags comments. Left as nits: target()'s allow-list check cannot fail (the library enforces it), read_slot step sits after staging (it only proves the connection answers; first live run proves the devlab path). walleye's own slot reads (slot_suffix, the_slot_is_read) stay. Stale rhizoid branch rhizoid/bump/lpoco-attended-0.45.2 (tip 4e7429d, no open PR) deleted after landing, at the walleye coordinator's word.
 
 Rejected
 : Installing 0.46.1 into the shared bin: other sessions use it; a private --root build did the check.

@@ -23,7 +23,7 @@ use std::rc::Rc;
 
 type Done = Result<(), String>;
 
-/// The flags of the one write, and of the rehearsal's probe: the same, so the probe proves this dd.
+/// The flags of the rehearsal's probe, copied from the library write step of lpoco-attended 0.46.1 (`write_script`: conv=fsync,notrunc); re-read on each attended bump, nothing else ties them.
 const DD_FLAGS: &str = "conv=fsync,notrunc";
 
 /// The rehearsal's probe: this file in the stage folder, this many blocks of the staged image.
@@ -140,7 +140,7 @@ pub fn expect(s: &Settings) -> String {
 /// What the author is told before the rehearsal (the keeper runs it; nothing in it writes a partition).
 pub fn expect_rehearsal(s: &Settings) -> String {
     format!(
-        "The rehearsal of the install write, about 10 minutes, the phone stays on Android (it visits fastboot once to read its slot). It runs every step of the write except the write: the battery, the backup, the image, the slot read in fastboot and in adb (they must agree), adb as root, the image staged and its copy hashed, the target partition read now and compared with its backup, and a dd probe - the write's own dd flags copy {} blocks of the image to a small file in {} and read back by sha256, then the file is removed. NO partition is written; the staged copy is removed at the end.",
+        "The rehearsal of the install write, about 10 minutes, the phone stays on Android (it visits fastboot once to read its slot). It runs every step of the write except the write: the battery, the backup, the image, the slot read in fastboot and in adb (they must agree), adb as root, the image staged and its copy hashed, the target partition read now and compared with its backup, and a dd probe - the write's dd flags as lpoco-attended 0.46.1 sets them copy {} blocks of the image to a small file in {} and read back by sha256, then the file is removed. NO partition is written; the staged copy is removed at the end.",
         PROBE_BLOCKS, s.stage_dir
     )
 }
@@ -368,7 +368,7 @@ impl Install {
         Ok(adb_write_partition(
             phone_on("android"),
             &WRITABLE,
-            &self.s.by_name,
+            plain_path(&self.s.by_name)?,
             &target,
             &self.staged()?,
             self.s.image_sha256.trim(),
