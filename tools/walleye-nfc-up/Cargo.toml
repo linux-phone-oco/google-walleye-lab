@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+[package]
+name = "walleye-nfc-up"
+version = "0.1.0"
+edition = "2021"
+description = "Open an NFC device (netlink NFC_CMD_DEV_UP) and print the kernel's answer: the ramdisk has nothing that does (item walleye-nfc-nfc0-opener-in-ramdisk)"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[lib]
+name = "walleye_nfc_up"
+
+[[bin]]
+name = "walleye-nfc-up"
+path = "src/main.rs"
+
+[dependencies]
+# the command line is declared once (argenv), not parsed by hand
+argenv-resolve = "0.4"
+libc = "0.2"
+
+[profile.release]
+opt-level = "s"
+lto = true
+panic = "abort"
+strip = true

@@ -221,18 +221,18 @@ cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walley
 # RFKILL, NFC, NFC_NCI, NFC_NXP_NCI, NFC_NXP_NCI_I2C =y, merged after walleye.config), the dtb of dt/ with the nfc@28 node on blsp2_i2c2 (c1b6000) and the ramdisk of `build/build-initramfs.sh phone`: the roof's init
 # (lpoco bringup initramfs init, gadget serial walleye-first-boot, net 43 as device.toml says: rebuilt 2026-11-26, decision 2026-11-26-walleye-ramdisk-on-net-43), so one boot proves the NFC node and walleye-init-from-roof. Header, size and AVB footer are slpi's. The kernel and the dtb
 # are hand-built (build-kernel.sh on a worktree of the tag; sha256 in ~/Projects/walleye-build/images-nfc/SHA256SUMS-nfc), not a [kernel_builds] row: they enter the store from the seed once.
-# The node is in the OnePlus 5's form since 2026-11-26 (enable on gpio116, pull-ups on 12, 116 and 92; research walleye-nfc-oneplus5-image-built): dtb 86550c1e, image bb881ba1. NOT KNOWN YET: the controller's clock (Android: BBCLK3, pm8998 gpio21 clkreq), the pins' drive strength. The roof's init lacks the 180 s hold, the watchdog petter and the banner
+# The ramdisk holds /bin/walleye-nfc-up since 2026-11-26 (item walleye-nfc-nfc0-opener-in-ramdisk: ramdisk 973bcb87, image 65cef2f5; [images.walleye-nfc-up]). The node is in the OnePlus 5's form since 2026-11-26 (enable on gpio116, pull-ups on 12, 116 and 92; research walleye-nfc-oneplus5-image-built): dtb 86550c1e (the image before the opener: bb881ba1). NOT KNOWN YET: the controller's clock (Android: BBCLK3, pm8998 gpio21 clkreq), the pins' drive strength. The roof's init lacks the 180 s hold, the watchdog petter and the banner
 # (research walleye-generated-init-gaps): read that before the try is queued. Host checks: tests/host/ufs-off-image.sh passes; the overlay merge leaves the node (the vendor's nq@28 lands in the stub i2c_8).
 [images.nfc]
 path = "images-nfc/boot-nfc.img"
 kernel_tag = "int/walleye/ufs-off/v7.3/1"
-sha256 = "bb881ba1d52bf39dfe49ec1cfdc86ba98e05921184635ec015a584483422646f"
+sha256 = "65cef2f5d0d30b72d44cfc6d9336a9579f581ef762f7366ce1f87796a90364f1"
 
 [images.nfc.recipe]
 control = "slpi"
 kernel = "78dbbff60f21ad372947d05c7c375632bb79a4dc2aeac1da4142f170ca117607"
 dtb = "86550c1e194000fcf89538951b30832d5cede49293d39a7385d99e6c3fea805c"
-ramdisk = "b094adc1696d5655459ee01ed96486392fa21a286c803eb64e9298c0880dbc67"
+ramdisk = "973bcb87d0d14939501440ae3fa26b1f2aabf2bf15ed237ba5baf903e0b9d5a1"
 
 # z20: z21's control (UFS ON, NOT TO BOOT: tests/host/ufs-off-image.sh refuses it by design); no [kernels] list and no procedure names it.
 [images.z20]
@@ -772,6 +772,11 @@ usb_log_match = "3-2"
 [images.walleye-reboot]
 path = "walleye-reboot/walleye-reboot"
 sha256 = "fd73925bffb8462f212267b9cfc120bd87b80239bbd4866856eeed6487e554ba"
+
+# The nfc0 opener of the NFC ramdisk (item walleye-nfc-nfc0-opener-in-ramdisk): tools/walleye-nfc-up built static for aarch64 by build/build-nfc-up-bin.sh (two builds, the same bytes); [images.nfc]'s ramdisk packs it as /bin/walleye-nfc-up (build-initramfs.sh phone with EXTRA_BIN). It sends NFC_CMD_DEV_UP over the kernel's generic netlink and prints the kernel's answer.
+[images.walleye-nfc-up]
+path = "images-nfc/walleye-nfc-up"
+sha256 = "04edd61f3768f11ebf97bb45bcb1a3cc86b6f4fa322ebb7f1b300c10e69004d5"
 
 # The transport run (procedures/transport-on-the-pixel-2.rs; item walleye-transport-procedure, for the run walleye-transport-real-phone-run; decision 2026-11-26-walleye-android-connection-user-root):
 # on Android, the library's read_slot (it runs adb root itself, lab-tools 0.53.5) over [connections.android], adb's own serial against [fastboot] serial, `adb reboot bootloader` honoured, fastboot's current-slot equal to adb's slot, `fastboot reboot` back to Android on that slot.

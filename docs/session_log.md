@@ -9997,3 +9997,24 @@ Rejected
 
 About
 : nfc
+
+---
+
+
+<a id="2026-11-26-walleye-builder-nfc-opener"></a>
+### walleye-builder: the nfc0 opener in the NFC ramdisk
+
+Entry date
+: 2026-11-26
+
+Done
+: Built tools/walleye-nfc-up, packed it in the NFC ramdisk (EXTRA_BIN of build-initramfs.sh), declared ramdisk 973bcb87, image 65cef2f5 and the tool's sha 04edd61f; the procedure's open step runs it instead of nfctool; the new image is in ~/Projects/walleye-build/images-nfc (the old one kept as prev-bb881ba1.img).
+
+Considered
+: neard's nfctool built static (needs libnl and a cross build of C); a Rust musl target (not installed, and walleye-reboot shows the cross glibc static build does the same job).
+
+Rejected
+: A libnfc dependency: a hundred lines of netlink are enough, and the answer printed is the kernel's own.
+
+About
+: nfc

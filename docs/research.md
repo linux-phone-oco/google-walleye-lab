@@ -8825,3 +8825,22 @@ Sources
 
 About
 : nfc
+
+
+<a id="walleye-nfc-up-opener-built"></a>
+### walleye-nfc-up-opener-built
+
+Date
+: 2026-11-26
+
+Brief
+: walleye-nfc-up opens nfc0 over netlink (NFC_CMD_DEV_UP): static aarch64 04edd61f, the NFC ramdisk 973bcb87 and image 65cef2f5 rebuild equal, UFS-off passes
+
+Question
+: Can the NFC ramdisk open nfc0 with a small Rust tool and no libnfc, and does the image still rebuild equal?
+
+Found
+: tools/walleye-nfc-up (libc and argenv, no libnfc): looks up the generic netlink family nfc in the controller (CTRL_CMD_GETFAMILY), sends NFC_CMD_DEV_UP with NFC_ATTR_DEVICE_INDEX, prints the kernel's ack or errno as it came (exit 1 on an errno, so the procedure's rc= reads it). Numbers are the v7.3 uapi headers' (nfc.h, genetlink.h, netlink.h), pinned by a test against libc's constants. Tests: 6 unit tests with a stand-in kernel (ack, errno 16/19/132, no family, request layout) and one against this host's real kernel (the controller answers nlctrl = id 16, a missing family = errno 2); the built binary on the host prints the real kernel's answer 'nfc0: NFC_CMD_DEV_UP answered: errno 1 (Operation not permitted)' for an unprivileged user (the host has the nfc family; DEV_UP needs root). build/build-nfc-up-bin.sh builds it static for aarch64-unknown-linux-gnu with the cross glibc, as walleye-reboot is built (no rootless musl target was needed): two builds, 04edd61fe57c; ELF aarch64 static-pie. build-initramfs.sh phone gained EXTRA_BIN (unset: b094adc1 as before, checked); with it the ramdisk is 973bcb87 (two builds equal), the image 65cef2f5 (lpoco-bringup image ensure nfc --rebuild: equal to the declared sha256), tests/host/ufs-off-image.sh passes. The procedure nfc-boot-on-the-pixel-2 now runs walleye-nfc-up --index 0 in place of nfctool; its judge still reads the same words (timed out, remote i/o, no such device), which the kernel's errno texts carry. NOT RUN ON THE PHONE: no qemu-user here, so the aarch64 file has not executed anywhere; the first run is the nfc boot (item walleye-nfc-boot-run-2).
+
+About
+: nfc

@@ -4,7 +4,7 @@
 //! image ([images.nfc]: UFS off by the gate, the nfc@28 node, NFC built in, the roof's init at walleye's net 43) is booted ONCE from memory - nothing flashed by this
 //! procedure (steps::phone_ready(nfc), `fastboot boot`). Over the image's telnet the lab runs tests/health/base/nfc-present.sh and reads the kernel's lines on nxp-nci, and the deferred devices
 //! and the clock lines (said in the verdict when it did not probe); the answer, whatever it is, is kept in the run's folder (read.txt, dmesg.txt, verdict.txt) for the research row.
-//! Then nfc0 is opened (nfctool -d nfc0 -1 where the ramdisk has it; else said not known yet), the pins gpio12, 116, 92 and 93 are read before and after, i2cdetect runs on the node's bus and ln_bb_clk3 is read (open.txt): the answers say VEN (no ACK), the clock (ACK, no NCI reply) or gpio93 (firmware framing) - research walleye-nfc-clock-and-minus-121.
+//! Then nfc0 is opened (walleye-nfc-up --index 0 (tools/walleye-nfc-up, in the ramdisk as /bin/walleye-nfc-up; item walleye-nfc-nfc0-opener-in-ramdisk); an image without it says not known yet), the pins gpio12, 116, 92 and 93 are read before and after, i2cdetect runs on the node's bus and ln_bb_clk3 is read (open.txt): the answers say VEN (no ACK), the clock (ACK, no NCI reply) or gpio93 (firmware framing) - research walleye-nfc-clock-and-minus-121.
 //! The roof's init has no hold and no watchdog petter (research walleye-generated-init-gaps): the read is short. Then steps::leave_known_good, last.
 //!   procedures/nfc-boot-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml [procedures.nfc-boot-on-the-pixel-2], [images.nfc])
 //!

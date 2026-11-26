@@ -153,6 +153,12 @@ jobs:
           cargo test --locked
           cargo fmt --check
           cargo clippy --locked --all-targets -- -D warnings
+      - name: the nfc0 opener (netlink NFC_CMD_DEV_UP; a stand-in kernel and the runner's own), clippy clean (no phone)
+        run: |
+          cd tools/walleye-nfc-up
+          cargo test --locked
+          cargo fmt --check
+          cargo clippy --locked --all-targets -- -D warnings
       - name: the reboot-with-a-command tool (the string given is the string passed to reboot(2)), clippy clean (no phone)
         run: |
           cd tools/walleye-reboot
