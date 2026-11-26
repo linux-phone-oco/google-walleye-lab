@@ -8904,3 +8904,25 @@ Found
 
 About
 : nfc
+
+
+<a id="walleye-nfc-poll-no-tag-run"></a>
+### walleye-nfc-poll-no-tag-run
+
+Date
+: 2026-11-26
+
+Brief
+: NFC boot 3 (poll 10 s, no tag): DEV_UP acked, poll started and ended 'no target' rc=0; the phone back on Android slot b
+
+Question
+: Does the poll instrument start and end 'no target' in its time with no tag near (its known case)?
+
+Found
+: nfc image booted once from RAM at net 43 (procedure nfc-boot-on-the-pixel-2, 11 of 11 steps). nfc-present passes (nfc0 from nxp-nci). open.txt: walleye-nfc-up nfc0 DEV_UP answered ok, 'poll 10 s: no target', rc=0. gpio116 (VEN) went low to high with the open, 12/92/93 unmoved. i2cdetect shows no 0x28 (the chip is held by the driver, as before). BBCLK3 enable count 0 as before. Way back passed; Android slot b answers over adb. Kept in ~/lab-material/walleye/nfc-boot-20261126-175721/.
+
+Sources
+: walleye-nfc-dev-up-ack-is-the-chips-reply
+
+About
+: nfc

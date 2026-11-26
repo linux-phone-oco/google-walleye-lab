@@ -6498,7 +6498,7 @@ Status
 : in-progress
 
 Note
-: run 2: DEV_UP acked = the chip answered NCI init (research walleye-nfc-dev-up-ack-is-the-chips-reply). Left: the tag poll, with a tag on the phone's back under the author's go, after the no-tag poll run.
+: run 3: the no-tag poll ran and ended 'no target' (research walleye-nfc-poll-no-tag-run). Left: the tag poll, a tag on the phone's back under the author's go.
 
 Blocked by
 : walleye-nfc-poll-run-no-tag
@@ -13475,10 +13475,10 @@ Rank
 ### NFC boot with the poll, no tag near: the poll starts and ends 'no target' in its time (the instrument on its known case)
 
 Status
-: open
+: done
 
 Note
-: Unattended. If START_POLL errs or the wait hangs, that is read before any fix.
+: proven by research walleye-nfc-poll-no-tag-run: open.txt DEV_UP ack, poll 10 s no target rc=0, back on Android slot b
 
 Blocked by
 : walleye-nfc-poll-in-tool
