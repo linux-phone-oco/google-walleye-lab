@@ -134,6 +134,8 @@ jobs:
           # the l7 image is a stand-in file here (the real run checks its sha256 before booting it)
           mkdir -p build/images/images-display-l7
           : > build/images/images-display-l7/boot-l7.img
+          mkdir -p build/images/images-display-look
+          : > build/images/images-display-look/boot-b2.img
           bin/attended check
       - name: no procedure, script or brief calls a bare lpoco-attended; bin/attended runs the one the steps crate is locked to
         run: sh tests/host/no-bare-lpoco-attended.sh

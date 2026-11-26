@@ -20,6 +20,9 @@ use std::time::{Duration, Instant};
 
 type Done = Result<(), String>;
 
+/// The test kernel (its `[images.NAME]` and `[kernels] test` entry) the try boots: steps::phone_ready names it.
+pub const KERNEL: &str = "b2";
+
 /// The init's own words in the kernel log: `walleye-display: insmod PATH`, then `walleye-display: ok` or `FAILED rc=N`.
 const SAYS: &str = "walleye-display: ";
 /// What the init says to the kernel log (as a banner step) when it has been through the whole list.
@@ -327,12 +330,6 @@ impl DisplayBoot {
         move || lab.phone_is_in_fastboot()
     }
 
-    /// Boot B1 from the phone's fastboot, from memory: nothing is written to it.
-    pub fn boot_image(&self) -> impl FnOnce() -> Done + 'static {
-        let d = self.clone();
-        move || d.lab.boot_image(&d.s.image)
-    }
-
     /// The shell answers by itself (no host script has loaded anything), the init's hold of the self-reboot is on
     /// and the image has the module list.
     pub fn shell_answers_and_the_hold_is_on(&self) -> impl FnOnce() -> Done + 'static {
@@ -541,18 +538,6 @@ impl DisplayBoot {
                 std::thread::sleep(Duration::from_secs(2));
             }
         }
-    }
-
-    /// The way back: the phone ends on Android (the shared step; `reboot -f` over the shell when it is not there yet).
-    pub fn way_back(&self) -> impl FnOnce() -> Done + 'static {
-        let lab = self.lab.clone();
-        move || lab.way_back()
-    }
-
-    /// The phone is back on Android (the shared step).
-    pub fn android_is_back(&self) -> impl FnOnce() -> Done + 'static {
-        let lab = self.lab.clone();
-        move || lab.android_is_back()
     }
 }
 

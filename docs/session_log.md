@@ -9487,3 +9487,24 @@ Considered
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-display-at-boot-on-step-groups"></a>
+### display-at-boot procedure on the step groups
+
+Entry date
+: 2026-11-26
+
+Done
+: procedures/display-at-boot-on-the-pixel-2.rs now runs phone_ready(b2) in place of boot, wait-for-gadget, and leave_known_good last in place of way back + android check; display_boot::KERNEL names b2 (settings read it); device.toml [kernels] test += b2; CI dry run gets a stand-in b2 image file. cargo fmt, clippy -D warnings, 477 tests, bin/attended check all ok. Real run queued for the keeper.
+
+Considered
+: the same move as the display look (9cc7207)
+
+Rejected
+: keeping DisplayBoot::way_back and android_is_back: nothing calls them (no watching parent in this procedure), leave_known_good does both
+
+About
+: walleye-attend-program-display
