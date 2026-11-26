@@ -9430,3 +9430,21 @@ Rejected
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-1600-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Phone on Android slot b, stock, nothing flashed; adb up. Ran walleye-way-back-procedure-run (used by run 2026-11-26-1600): way-back-on-the-pixel-2 passed on Android and from the bootloader (Android back in 31 s), slot b both times. No go was open; no bring-up step applies.
+
+Considered
+: next: walleye-nfc-nxp-nci-node (22) host reading, or walleye-declare-transport-login
+
+About
+: walleye-attend-program-display
