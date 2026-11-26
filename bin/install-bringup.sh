@@ -3,7 +3,7 @@
 # this machine, checked against the release's own sha256 before it is kept. Prints the program's path (one line).
 # make land-check runs the rebuild of every image a change touches with it. Version and place by environment.
 set -eu
-version="${LPOCO_BRINGUP_VERSION:-0.53.4}"
+version="${LPOCO_BRINGUP_VERSION:-0.53.5}"
 [ "$(uname -m)" = x86_64 ] || { echo "install-bringup: no lpoco-bringup release asset for $(uname -m)" >&2; exit 1; }
 name="lpoco-bringup-x86_64-unknown-linux-gnu"
 base="https://github.com/linux-phone-oco/lab-tools/releases/download/lpoco-bringup-v$version"
