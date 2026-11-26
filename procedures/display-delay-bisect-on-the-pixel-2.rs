@@ -8,7 +8,7 @@
 //! `rcg didn't update its configuration`, DSI -110), the way back to Android (steps::leave_known_good). The result table (delay, faults, warnings, -110) is
 //! kept in ~/lab-material/walleye/display-delay-PREFIX-DAY/table.txt (PREFIX: b-d, or the image_prefix) and said in the log; it is written before the
 //! last way back, which ends the run. NO person step: nobody is asked, the glass is not looked at.
-//! A failed step or a panic ends with the way back to Android (the phone_ready group's own); a signal (Ctrl-C) does not yet: do not interrupt a run (item attended-way-back-on-signal, lab-tools).
+//! A failed step or a panic ends with the way back to Android (the phone_ready group's own); a signal (Ctrl-C, SIGTERM, SIGHUP) runs the owed way backs too (lpoco-attended 0.46.3; exit 130/143/129).
 //!   procedures/display-delay-bisect-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
 //!
 //! ```cargo

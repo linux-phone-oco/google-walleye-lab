@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-//! The touch try's steps (item walleye-attend-program-touch): z21 once from memory, the touch reader open and
-//! showing EVENTS-READY BEFORE the author is asked, the window long enough for the swipe, the way back.
-//! Each method is one step of tests/attended/touch-try.rs and returns what that step runs; each fails with
+//! The touch try's steps (item walleye-attend-program-touch): the touch reader open and showing EVENTS-READY BEFORE the author is
+//! asked, the window long enough for the swipe, the count. The boot of z21 and the way back are the library's groups
+//! (steps::phone_ready, steps::leave_known_good) in procedures/touch-events-on-z21.rs; each method here is one step of it and fails with
 //! what it saw, and the entry file's runner stops the run there. Nothing is written to the phone beyond /tmp.
 
 use crate::host;
@@ -14,6 +14,8 @@ use std::time::{Duration, Instant};
 
 /// z21's init pets the SoC watchdog for 90 beats of 2 s and then restarts the phone; nothing keeps it up.
 pub const SELF_REBOOT_S: u64 = 180;
+/// The test kernel (its `[images.NAME]` and `[kernels] test` entry) the try boots: steps::phone_ready names it.
+pub const KERNEL: &str = "z21";
 /// What is left of the budget for the phone to be seen and the reader to be closed.
 const MARGIN_S: u64 = 8;
 
@@ -140,14 +142,8 @@ impl Touch {
         move || lab.phone_is_in_fastboot()
     }
 
-    /// Boot the image from the phone's fastboot, from memory: nothing is written to it.
-    pub fn boot_image(&self) -> impl FnOnce() -> Done + 'static {
-        let t = self.clone();
-        move || t.lab.boot_image(&t.s.image)
-    }
-
-    /// The gadget is up on USB, the shell answers, and the phone's dmesg is saved.
-    pub fn shell_answers(&self) -> impl FnOnce() -> Done + 'static {
+    /// The phone's dmesg is saved (the gadget and the shell are already up: steps::phone_ready brought the image up).
+    pub fn dmesg_is_saved(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
         move || {
             std::fs::create_dir_all(&t.s.out).map_err(|e| format!("{}: {e}", t.s.out.display()))?;
@@ -155,12 +151,6 @@ impl Touch {
                 &t.s.out,
                 std::os::unix::fs::PermissionsExt::from_mode(0o700),
             );
-            let toml = t.s.device_toml();
-            t.lab.script(
-                "gadget-up.sh",
-                &[&toml.to_string_lossy()],
-                &[("GADGET_WAIT", "60")],
-            )?;
             let mut sh = t.lab.shell(10)?;
             let dmesg = sh.run("dmesg", Duration::from_secs(20))?;
             if dmesg.trim().is_empty() {
@@ -277,12 +267,6 @@ impl Touch {
         }
     }
 
-    /// The phone is back on Android (the shared step).
-    pub fn android_is_back(&self) -> impl FnOnce() -> Done + 'static {
-        let lab = self.lab.clone();
-        move || lab.android_is_back()
-    }
-
     /// The saved files say the touch probed and a touch made events (the lab's touch-check: a `skip` - nobody
     /// touched - is not a pass, and says "not known yet").
     pub fn events_are_counted(&self) -> impl FnOnce() -> Done + 'static {
@@ -354,8 +338,6 @@ mod walkthrough {
         for (script, says) in [
             ("battery-ok.sh", "pass walleye-battery-ok host 4100 mV"),
             ("ufs-off-image.sh", "pass walleye-ufs-off image"),
-            ("gadget-up.sh", "pass walleye-gadget-up kernel up"),
-            ("idle-android.sh", "pass walleye-idle-android host back"),
         ] {
             std::fs::write(hosts.join(script), format!("echo '{says}'\n")).unwrap();
         }
@@ -378,7 +360,6 @@ mod walkthrough {
         s.window = 5;
         s.min_window = 3;
         s.device_wait = 5;
-        s.back_wait = 5;
         let image = d.join("boot-z.img");
         std::fs::write(&image, "image").unwrap();
         s.image = image;
@@ -397,13 +378,12 @@ mod walkthrough {
     }
 
     fn all_steps(t: &Touch) -> Done {
-        t.shell_answers()()?;
+        t.dmesg_is_saved()()?;
         t.touch_device_is_listed()()?;
         t.window_is_long_enough()()?;
         t.reader_is_started()()?;
         t.reader_shows_events_ready()()?;
         t.window_has_closed()()?;
-        t.android_is_back()()?;
         t.events_are_counted()()
     }
 
@@ -476,7 +456,7 @@ mod walkthrough {
     #[test]
     fn a_window_the_restart_would_cut_short_stops_before_the_author_is_asked() {
         let (t, d) = the_try("short", phone("170.0 5.0", vec![]));
-        t.shell_answers()().unwrap();
+        t.dmesg_is_saved()().unwrap();
         t.touch_device_is_listed()().unwrap();
         let e = t.window_is_long_enough()().unwrap_err();
         assert!(e.contains("the author is not asked"), "{e}");
