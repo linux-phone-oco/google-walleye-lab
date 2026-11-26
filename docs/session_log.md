@@ -10057,3 +10057,21 @@ Rejected
 
 About
 : nfc
+
+---
+
+
+<a id="2026-11-26-1830-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Run 3 (walleye-keeper): walleye-nfc-poll-run-no-tag done, unattended: NFC image booted once from RAM, DEV_UP acked, poll no target, way back passed. Phone on Android slot b, stock, nothing flashed. Build symlink build/images used in the worktree.
+
+Considered
+: next: walleye-nfc-nxp-nci-node needs the author's go for the tag poll (tag on the back); else top ready is walleye-deep-sleep-baseline (needs a meter, author's hands)
+
+About
+: nfc
