@@ -1,10 +1,10 @@
 #!/bin/sh
-# The attended runner of THIS repository: the lpoco-attended its own steps crate (tools/walleye-tries) is locked to, never the host's ~/.local/bin/lpoco-attended
+# The attended runner of THIS repository: the lpoco-attended its own steps crate (procedures/steps) is locked to, never the host's ~/.local/bin/lpoco-attended
 # (that one sits in no lab.toml pin; item walleye-procedures-run-own-cli). Built once per locked revision into ~/.cache/walleye-attended/REV, then run:
 #   bin/attended run|check|new ... [--dry-run]     (the arguments are lpoco-attended's own)
 set -eu
 HERE=$(cd "$(dirname "$0")/.." && pwd)
-REV=$(cargo metadata --locked --format-version 1 --manifest-path "$HERE/tools/walleye-tries/Cargo.toml" | jq -er '.packages[] | select(.name == "lpoco-attended") | .source | sub(".*#"; "")')
+REV=$(cargo metadata --locked --format-version 1 --manifest-path "$HERE/procedures/steps/Cargo.toml" | jq -er '.packages[] | select(.name == "lpoco-attended") | .source | sub(".*#"; "")')
 ROOT=${ATTENDED_ROOT:-$HOME/.cache/walleye-attended}/$REV
 [ -x "$ROOT/bin/lpoco-attended" ] || cargo install --locked --quiet --git https://github.com/linux-phone-oco/lab-tools --rev "$REV" --root "$ROOT" lpoco-attended >&2
 cd "$HERE"

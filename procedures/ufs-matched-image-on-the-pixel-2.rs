@@ -5,7 +5,7 @@
 //! read-only O_DIRECT read of one disk) and 2 s after it; the disk's GPT hashed before and after; the slots' flags before and after.
 //! The boot runs only while the author's go is recorded on the item the manifest names (no go: the run stops there and the phone
 //! goes back to Android). NOTHING is written to the card. The UFS-off gate refuses this image by design and is not run, weakened or bypassed.
-//! The pin is a choice (item walleye-ufs-unpinned-ramp-variant), declared once with argenv in tools/walleye-tries (ufs/choice.rs) as the environment
+//! The pin is a choice (item walleye-ufs-unpinned-ramp-variant), declared once with argenv in procedures/steps (ufs/choice.rs) as the environment
 //! variable WALLEYE_UFS_PIN = pinned (the default, as runs 1 to 9) or unpinned: unpinned writes no governor and no set_freq (step 16 only reads and keeps
 //! the node's governor, clocks and gear as found), reads them at every ramp step, asserts nothing about the gear and records what it saw
 //! (gear-seen-unpinned.txt), and adds a 2048 MiB step after the settings' ramp only when its limit ends before the image's reboot.
@@ -13,7 +13,7 @@
 //!
 //! ```cargo
 //! [dependencies]
-//! walleye-tries = { path = "../tools/walleye-tries" }
+//! walleye-tries = { path = "steps" }
 //! ```
 // SPDX-License-Identifier: MIT OR Apache-2.0
 

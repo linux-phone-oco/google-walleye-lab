@@ -9,11 +9,11 @@
 //! kept in ~/lab-material/walleye/display-delay-PREFIX-DAY/table.txt (PREFIX: b-d, or the image_prefix) and said in the log; it is written before the
 //! last way back, which ends the run. NO person step: nobody is asked, the glass is not looked at.
 //! A failed step or a panic ends with the way back to Android (the phone_ready group's own); a signal (Ctrl-C, SIGTERM, SIGHUP) runs the owed way backs too (lpoco-attended 0.46.3; exit 130/143/129).
-//!   procedures/display-delay-bisect-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
+//!   procedures/display-delay-bisect-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml, keys listed in procedures/steps/src/settings.rs)
 //!
 //! ```cargo
 //! [dependencies]
-//! walleye-tries = { path = "../tools/walleye-tries" }
+//! walleye-tries = { path = "steps" }
 //! ```
 // SPDX-License-Identifier: MIT OR Apache-2.0
 

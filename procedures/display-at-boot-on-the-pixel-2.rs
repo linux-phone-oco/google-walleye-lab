@@ -7,11 +7,11 @@
 //! (the console in KD_GRAPHICS), look 2: four stripes red, green, blue, white; the way back to Android. The init holds its own
 //! self-reboot for 600 s (its deadman). Each step stops the run when it fails; with nobody to answer it stops at the first look_for.
 //! The person steps use the prompt and answer files: ~/.cache/lpoco-attended/<device>/prompt and answer (lpoco-attended 0.34+).
-//!   procedures/display-at-boot-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
+//!   procedures/display-at-boot-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml, keys listed in procedures/steps/src/settings.rs)
 //!
 //! ```cargo
 //! [dependencies]
-//! walleye-tries = { path = "../tools/walleye-tries" }
+//! walleye-tries = { path = "steps" }
 //! ```
 // SPDX-License-Identifier: MIT OR Apache-2.0
 

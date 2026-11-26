@@ -5,11 +5,11 @@
 //! steps::phone_ready(KERNEL) boots the image once from memory, steps::leave_known_good ends the test on Android
 //! (lpoco-attended 0.46.4); a failed check or an unanswered ask in between runs the way back of the group that is open.
 //! Nothing is written to storage.
-//!   procedures/pmic-watchdog-v1-on-the-pixel-2.rs [--dry-run] [--log FILE]      (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
+//!   procedures/pmic-watchdog-v1-on-the-pixel-2.rs [--dry-run] [--log FILE]      (its values: device.toml, keys listed in procedures/steps/src/settings.rs)
 //!
 //! ```cargo
 //! [dependencies]
-//! walleye-tries = { path = "../tools/walleye-tries" }
+//! walleye-tries = { path = "steps" }
 //! ```
 // SPDX-License-Identifier: MIT OR Apache-2.0
 

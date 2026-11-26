@@ -13,4 +13,4 @@ bare=$(grep -rnIE '(^|[^/a-z-])(lpoco-attended|lpoco attended) +(run|check|new)(
 command -v cargo >/dev/null && command -v jq >/dev/null && command -v rust-script >/dev/null || say skip "cargo, jq or rust-script not installed: not known yet"
 out=$(bin/attended check --help 2>&1) || out=$(bin/attended 2>&1)
 case $out in *lpoco*attended*|*usage*|*Usage*|*check*) ;; *) say fail "bin/attended did not run the CLI: $(echo "$out" | head -n2 | tr '\n' '|')" ;; esac
-say pass "no bare call, and bin/attended runs the CLI locked at $(cargo metadata --locked --format-version 1 --manifest-path tools/walleye-tries/Cargo.toml | jq -r '.packages[] | select(.name == "lpoco-attended") | .version')"
+say pass "no bare call, and bin/attended runs the CLI locked at $(cargo metadata --locked --format-version 1 --manifest-path procedures/steps/Cargo.toml | jq -r '.packages[] | select(.name == "lpoco-attended") | .version')"

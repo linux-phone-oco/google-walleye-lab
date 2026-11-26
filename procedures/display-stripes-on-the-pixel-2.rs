@@ -7,11 +7,11 @@
 //! drawer's end (the console back in KD_TEXT). A real run is watched: whatever ends it - an unanswered look, a failed step, Ctrl-C -
 //! the way back runs after it: the step groups of lpoco-attended 0.46.3, phone_ready(l7) and leave_known_good (device.toml [kernels] way_back: procedures/way-back-on-the-pixel-2.rs), and the watching parent as the safety for Ctrl-C.
 //! The person steps use the prompt and answer files: ~/.cache/lpoco-attended/<device>/prompt and answer.
-//!   procedures/display-stripes-on-the-pixel-2.rs [--dry-run] [--log FILE] [--answer-limit SECONDS, at most 600: with no terminal the answer file is waited for only when a limit is given]   (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
+//!   procedures/display-stripes-on-the-pixel-2.rs [--dry-run] [--log FILE] [--answer-limit SECONDS, at most 600: with no terminal the answer file is waited for only when a limit is given]   (its values: device.toml, keys listed in procedures/steps/src/settings.rs)
 //!
 //! ```cargo
 //! [dependencies]
-//! walleye-tries = { path = "../tools/walleye-tries" }
+//! walleye-tries = { path = "steps" }
 //! ```
 // SPDX-License-Identifier: MIT OR Apache-2.0
 

@@ -20,5 +20,5 @@ case $(file -b "$F") in
   *"ARM aarch64"*static*) ;;
   *) say fail "$F is not a static aarch64 ELF: $(file -b "$F")" ;;
 esac
-cargo test --locked --quiet --manifest-path "$HERE/tools/walleye-tries/Cargo.toml" bootloader_way_back >/dev/null 2>&1 || say fail "the way back's tests fail (the tool is not sent to /tmp and run with bootloader)"
+cargo test --locked --quiet --manifest-path "$HERE/procedures/steps/Cargo.toml" bootloader_way_back >/dev/null 2>&1 || say fail "the way back's tests fail (the tool is not sent to /tmp and run with bootloader)"
 say pass "the tool's tests pass, $F is the declared static aarch64 file, and the way back sends it to /tmp and runs it with bootloader; that the bootloader stops in fastboot is not measured here"

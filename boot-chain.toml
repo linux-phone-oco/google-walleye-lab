@@ -1,4 +1,4 @@
 # The boot chain's A/B partitions by stem (xbl is xbl_a and xbl_b): the names the stored read-back (bootchain-2026-11-19) holds, the never-list of check 22 - a flash changes none of them, so a slot bit of one
-# of them changes on both halves or not at all (tools/walleye-tries flash_boot tests compare this list with the read-back's file names). Not in device.toml: lpoco-lab refuses a table it does not know.
+# of them changes on both halves or not at all (procedures/steps flash_boot tests compare this list with the read-back's file names). Not in device.toml: lpoco-lab refuses a table it does not know.
 [boot_chain]
 ab_stems = ["abl", "apdp", "cmnlib", "cmnlib64", "devcfg", "hyp", "keymaster", "lockbooter", "msadp", "pmic", "rpm", "storsec", "tz", "xbl"]
