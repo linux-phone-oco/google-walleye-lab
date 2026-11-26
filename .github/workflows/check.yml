@@ -130,11 +130,11 @@ jobs:
       - name: every procedure walks its steps in a dry run (lpoco-attended check)
         run: |
           cargo install --locked rust-script
-          # the library's boot_once asks `lpoco-bringup image ensure --dry-run` for an image not on disk (CI has none)
-          export LPOCO_BRINGUP_DEST="$RUNNER_TEMP/bringup"
-          prog=$(bin/install-bringup.sh)
-          ln -sf "$prog" "$LPOCO_BRINGUP_DEST/lpoco-bringup"
-          PATH="$LPOCO_BRINGUP_DEST:$PATH" bin/attended check
+          # boot_once plans `lpoco-bringup image ensure` for an image not on disk, which needs Nix: a dry run reads no image bytes, so
+          # the l7 image is a stand-in file here (the real run checks its sha256 before booting it)
+          mkdir -p build/images/images-display-l7
+          : > build/images/images-display-l7/boot-l7.img
+          bin/attended check
       - name: no procedure, script or brief calls a bare lpoco-attended; bin/attended runs the one the steps crate is locked to
         run: sh tests/host/no-bare-lpoco-attended.sh
       - name: the stripe drawer (frame, struct sizes), clippy clean (no phone)
