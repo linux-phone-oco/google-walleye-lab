@@ -8702,3 +8702,22 @@ About
 
 Material
 : research/walleye-retire-build-scripts/2026-11-26/
+
+
+<a id="walleye-roof-init-phone-ramdisk-builds"></a>
+### walleye-roof-init-phone-ramdisk-builds
+
+Date
+: 2026-11-26
+
+Brief
+: build-initramfs.sh phone builds the roof's init ramdisk on the lab machine (net 42, serial walleye-first-boot); no bootable image carries it yet: every phone-init image has UFS on
+
+Question
+: Can walleye-init-from-roof's proof (a keeper boot showing gadget serial walleye-first-boot) be run now?
+
+Found
+: Ramdisk built with GEN from out-display-late and busybox-arm64 (sha256 a3d5dd796596..., not yet declared). The only images with the phone init (images/boot-a..i) carry NOTTO-BOOT: UFS on, decision 2026-11-19-walleye-ufs-off-by-a-gate; no procedure boots a phone-init image. The proof rides on the next image built with the roof init that passes the ufs-off gate (e.g. the NFC test-ramdisk try); nothing booted, nothing flashed.
+
+About
+: walleye-bootimage
