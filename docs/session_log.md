@@ -9274,3 +9274,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-walleye-steps-claimed"></a>
+### walleye claims test-layer-boots, the last unclaimed step
+
+Entry date
+: 2026-11-26
+
+Done
+: Checked the chain: data/steps.json held 116 claims, docs' bringup-chain showed one step unknown, test-layer-boots (new in docs 2026-11-25). Claimed it open, not measured yet (lpoco-health test-layer-quiet has not run on a walleye boot). Proof walleye-steps-claimed: docs' bringup-chain-walleye.sh passes once docs feeds this base.
+
+Considered
+: Claiming test-layer-boots done from rootfs-boots: rejected, the records show no test-layer-quiet reading.
+
+About
+: walleye-bootimage
