@@ -8001,31 +8001,6 @@ Rank
 : 1
 
 
-<a id="walleye-ufs-opp-table-image"></a>
-### A UFS image with an operating-points table for the ufshc node that holds HS-G3, so the link stays at gear 3 under load: the patch candidate the upstreams lane wants measured
-
-Status
-: open
-
-Note
-: 2026-11-26 (walleye-builder): NOT BUILT. Research walleye-ufs-opp-g3-needs-201mhz: ufs_qcom_freq_to_gear_speed maps only a 201.5 MHz unipro clock to G3; the msm8998's top is 150 MHz = G2. A dts OPP table alone gives G1/G2, never G3, so the proof 'holds G3' cannot be met as written. The coordinator picks: (a) change the item to a ufs-qcom patch (150 MHz -> G3 for msm8998) plus the table, after the Android gear-with-clock rule is read; (b) a G1/G2 OPP image measured against the legacy path; (c) drop it. Original spec kept above.
-
-About
-: walleye-ufs-match-android-z
-
-Opened
-: 2026-11-19
-
-Needs
-: build
-
-Proof
-: an image (the UFS-on gate exception only through the same procedure as the matched image, never a bypass; AVB, rebuild identical, review) = the matched image plus an operating-points-v2 table on the msm8998 ufshc node (the G3 clock and the vendor's freq-table-hz as the vendor kernel's ufshc node lists them), built as a patch of msm8998.dtsi in the form it would go upstream (binding already in mainline for the ufshc: opp-table, required-opps if any); the procedure ufs-matched-image-on-the-pixel-2 reads the gear under load for it; NOT booted without the author's word
-
-Rank
-: 8
-
-
 <a id="walleye-try-pmic-wdt-v1"></a>
 ### Try the PMIC watchdog v1 once from slot b: the bite restarts the phone, and a clean reboot after arming leaves S2 off
 
@@ -13659,3 +13634,28 @@ Proof
 
 Rank
 : 7
+
+
+<a id="walleye-ufs-opp-table-image"></a>
+### A UFS image with an operating-points table for the ufshc node that holds HS-G3, so the link stays at gear 3 under load: the patch candidate the upstreams lane wants measured
+
+Status
+: dropped
+
+Note
+: dropped 2026-11-26 by the walleye coordinator: decision 2026-11-26-walleye-ufs-stays-on-the-legacy-freq-table (an OPP table of msm8998's clocks caps at G2; research walleye-ufs-opp-g3-needs-201mhz).
+
+About
+: walleye-ufs-match-android-z
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: an OPP-table image holding G3 under load
+
+Rank
+: 8

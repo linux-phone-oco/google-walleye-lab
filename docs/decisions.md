@@ -3935,3 +3935,31 @@ Research
 
 Tracked by
 : walleye-pon-block-reads-type
+
+
+<a id="2026-11-26-walleye-ufs-stays-on-the-legacy-freq-table"></a>
+### 2026-11-26-walleye-ufs-stays-on-the-legacy-freq-table
+
+Date
+: 2026-11-26
+
+Brief
+: walleye's UFS stays on the legacy freq-table path; no OPP-table image or patch: with msm8998's clocks an OPP table caps the link at G2
+
+Decision
+: Item walleye-ufs-opp-table-image is dropped. msm8998's ufshc keeps freq-table-hz (the legacy path, which trains up to the card's G3). No operating-points-v2 table is proposed upstream for msm8998 from this lane.
+
+Why
+: Research walleye-ufs-opp-g3-needs-201mhz: ufs_qcom_freq_to_gear_speed maps only 201.5 MHz unipro to G3; msm8998's top is 150 MHz (G2), so a table of its real clocks gives G1/G2, below today's G3.
+
+Rejected
+: (a) a ufs-qcom change mapping 150 MHz to G3 for msm8998: a driver change no research decided, with the PHY's G3 at 150 MHz unmeasured; (b) a G1/G2 table image: it measures a worse gear than the path in use.
+
+About
+: walleye-ufs-match-android-z
+
+Research
+: walleye-ufs-opp-g3-needs-201mhz
+
+Scope
+: the walleye lane and the upstreams lane's ufs candidates
