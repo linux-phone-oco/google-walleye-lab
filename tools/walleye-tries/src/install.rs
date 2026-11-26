@@ -14,6 +14,7 @@ use crate::android::{plain_path, Android, BLOCK};
 use crate::lab::Lab;
 use crate::settings::Settings;
 use crate::{host, watch};
+use lpoco_attended::phone_on;
 use lpoco_attended::steps::adb_write_partition;
 use lpoco_attended::Step;
 use std::cell::RefCell;
@@ -357,7 +358,7 @@ impl Install {
     }
 
     /// The gates of the write, checked right before it, and the write itself as the library's step: `adb_write_partition` (lpoco-attended
-    /// 0.45.8), which refuses a partition off [`WRITABLE`] or of the slot the phone runs from, a staged image that is not whole blocks or
+    /// 0.46.0, on the Android connection: device.toml [connections.android], adb, user root), which refuses a partition off [`WRITABLE`] or of the slot the phone runs from, a staged image that is not whole blocks or
     /// not the declared sha256, writes with one `dd` and fails when the partition read back does not hash to the image's sha256.
     fn write_gates(&self) -> Result<Step, String> {
         let slot = self.slot()?;
@@ -365,6 +366,7 @@ impl Install {
         let target = self.target()?;
         host::image_has_sha256(&self.s.image, &self.s.image_sha256)?;
         Ok(adb_write_partition(
+            phone_on("android"),
             &WRITABLE,
             &self.s.by_name,
             &target,
@@ -707,7 +709,7 @@ mod tests {
     /// The write step as a test runs it: walleye's own gates (`write_gates`, which builds the library's `adb_write_partition` for the
     /// target), then the dd the library's step sends, stood in on the bench's adb. The library's step itself reaches the phone through
     /// devlab, which a unit test has none of (its `procedure()` is called once per process): the step is tested upstream, against
-    /// captured phone text and a stand-in devlab (lab-tools attended/tests/install.rs, lpoco-attended-v0.45.8). The dd flags below are
+    /// captured phone text and a stand-in devlab (lab-tools attended/tests/install.rs, lpoco-attended-v0.46.0). The dd flags below are
     /// that step's script (attended/src/install.rs `write_script`: bs=4096, conv=fsync,notrunc).
     fn write_as_the_library_does(i: &Install) -> Done {
         i.write_gates()?;
