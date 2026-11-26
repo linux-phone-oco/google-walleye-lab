@@ -177,7 +177,7 @@ sha256 = "f132e0f2a857f200e1edd70a70bb123caa79c3275c5a5fa634a33e8d4e530baa"
 test = ["z21", "l7", "b2", "b-d5", "b-d15", "b-d25", "b-d35", "b-d50", "b-s5", "b-r5", "b-r2", "b-rp2", "b-q5", "wdt1-a", "wdt1-b"]   # b-*: the delay bisect's images (its image_prefix)
 boot = "fastboot"                   # a test image is booted from memory (its [images.NAME]), nothing written: boot_once and phone_ready read this
 kept = "z21"
-# How the phone comes back to Android after a try (lpoco-attended 0.46.2 runs each line in this folder, as argv, in order, then waits for `back_on` to answer; a test image has no systemd, so the library's `systemctl reboot` does not fit):
+# How the phone comes back to Android after a try (lpoco-attended 0.46.3 runs each line in this folder, as argv, in order, then waits for `back_on` to answer; a test image has no systemd, so the library's `systemctl reboot` does not fit):
 # the lab's own way back, procedures/way-back-on-the-pixel-2.rs: Android already, nothing sent; the bootloader, `fastboot reboot`; a test image's shell, `reboot -f` then the sysrq reboot. bin/attended is the runner the steps crate is locked to.
 way_back = ["bin/attended run way-back-on-the-pixel-2"]
 back_on = "android"
