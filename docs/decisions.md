@@ -3621,3 +3621,34 @@ Scope
 
 Tracked by
 : walleye-image-recipes-other-images
+
+
+<a id="2026-11-26-walleye-android-connection-user-root"></a>
+### 2026-11-26-walleye-android-connection-user-root
+
+Date
+: 2026-11-26
+
+Brief
+: walleye's [connections.android] is transport = adb, user = root; walleye's own adb root step stays before the library's install steps
+
+Decision
+: device.toml declares [connections.android] transport = adb, user = root. tools/walleye-tries keeps its adb root step (android.rs is_up_as_root, install.rs the_phone_is_on_android_as_root) and calls it before the library's read_slot and adb_write_partition with phone_on("android"). su is not used, and nothing is tried to see whether su exists.
+
+Why
+: Walleye reaches root on its stock Android b by adb root (adbd restarted as root), measured on the real phone in the Android visits of 2026-11-24 and 2026-11-25 (research walleye-android-read-visit-2026-11-24, walleye-android-touch-capture-2026-11-25). The library's user = shell runs adb shell su -c sh, which is proven only on a fake adb (orchestration 2026-11-26). With user = root it runs bare, which is what adb root gives.
+
+Rejected
+: (b) prove first that su exists on the stock Android: a phone visit for a path walleye does not need, and a stock user build is not expected to carry su (not measured, so not claimed). Asking lab-tools to run adb root itself is filed for its owner, not waited on.
+
+About
+: walleye-bootimage
+
+Research
+: walleye-android-read-visit-2026-11-24
+
+Scope
+: google-walleye-lab: walleye-builder, walleye-keeper
+
+Tracked by
+: walleye-install-steps-from-library

@@ -12892,7 +12892,7 @@ Status
 : open
 
 Note
-: Unblocked 2026-11-26 (orchestration): named-connections released - lpoco-manifest-v0.50.0, lpoco-lab-v0.53.3, lpoco-attended-v0.46.0 (lab-tools #448, #449). Next: bump the pins, add [connections.android] transport = adb, user = shell to device.toml, and pass the name on the parked branch wip/walleye/install-steps-from-library (read_slot(phone_on("android")) etc). The library's 'su -c sh' path is proven only on a fake adb: first check, from the records and tools/walleye-tries' own install.rs, how walleye reaches root on its stock Android today; if that differs from su -c sh, it is a stop for the coordinator, not a patch. Its first real proof rides on the next install or rw-write keeper run.
+: Re-placed 2026-11-26 by decision 2026-11-26-walleye-android-connection-user-root: bump the pins to lpoco-attended-v0.46.0, lpoco-lab-v0.53.3 and lpoco-manifest-v0.50.0 (lab-tools #448, #449); add [connections.android] transport = adb, user = root; keep walleye's adb root step and call it before read_slot(phone_on("android")) and adb_write_partition; finish the parked branch wip/walleye/install-steps-from-library. The previous builder stopped at the root check: walleye uses adb root, the library's user = shell uses su -c sh. The first real proof rides on the next install or rw-write keeper run.
 
 About
 : walleye-bootimage
