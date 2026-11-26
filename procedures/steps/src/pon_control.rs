@@ -24,30 +24,53 @@ pub mod words {
     pub const HOLD: &str = "The phone is off. Now hold volume-down and power together until the bootloader screen shows (white text, 'fastboot'), then let go. Say ok when you see it.";
 }
 
-/// One line of /bin/pon-block: the twelve registers 0xc0..0xcb as read (None where the kernel's line said XX, shown ?? by the reader), and the regmap's name.
+/// One line of /bin/pon-block: the twelve registers 0xc0..0xcb as read (None where the kernel's line said XX, shown ?? by the reader), the peripheral's TYPE (0x804, raw: no source names its value)
+/// and SUBTYPE (0x805) as read, and the regmap's name.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Line {
     pub regs: Vec<Option<u8>>,
+    pub type_reg: Option<u8>,
+    pub subtype: Option<u8>,
     pub src: String,
 }
 
-/// The `pon-block ...` lines among the phone's lines. A `pon-block none ...` line is an error naming what it saw.
+/// PON_PERPH_SUBTYPE of a PM8998-class PON: PON_GEN2_PRIMARY and PON_GEN2_SECONDARY, as drivers/input/misc/pm8941-pwrkey.c and the Android msm kernel's qpnp-power-on.c define them.
+pub const PON_GEN2_SUBTYPES: [u8; 2] = [0x04, 0x05];
+
+/// The hex byte after `key=` among the words of a reader's line (None for `??` or an absent key).
+fn byte_of(l: &str, key: &str) -> Option<u8> {
+    l.split_whitespace()
+        .find_map(|w| w.strip_prefix(key))
+        .and_then(|v| u8::from_str_radix(v, 16).ok())
+}
+
+/// The `pon-block ...` lines among the phone's lines. A `pon-block none ...` line is an error naming what it saw; a `pon-block refused ...` line (a regmap whose subtype is no PON's) is left out,
+/// and when no block is left the error names the refusals.
 pub fn parse_block(text: &str) -> Result<Vec<Line>, String> {
     let mut lines = vec![];
+    let mut refused = vec![];
     for l in text
         .lines()
         .map(str::trim)
         .filter(|l| l.starts_with("pon-block "))
     {
+        if l.starts_with("pon-block refused") {
+            refused.push(l);
+            continue;
+        }
         if l.starts_with("pon-block none") {
-            return Err(format!("the reader found no PON registers: {l}"));
+            return Err(format!(
+                "the reader found no PON registers: {}",
+                refused
+                    .iter()
+                    .chain([&l])
+                    .copied()
+                    .collect::<Vec<_>>()
+                    .join("; ")
+            ));
         }
         let regs: Vec<Option<u8>> = (0xc0u32..=0xcb)
-            .map(|r| {
-                l.split_whitespace()
-                    .find_map(|w| w.strip_prefix(&format!("0x{r:02x}=")))
-                    .and_then(|v| u8::from_str_radix(v, 16).ok())
-            })
+            .map(|r| byte_of(l, &format!("0x{r:02x}=")))
             .collect();
         let src = l
             .split("src=[")
@@ -55,7 +78,18 @@ pub fn parse_block(text: &str) -> Result<Vec<Line>, String> {
             .and_then(|s| s.strip_suffix(']'))
             .ok_or_else(|| format!("no src=[...] at the end of {l:?}"))?
             .to_string();
-        lines.push(Line { regs, src });
+        lines.push(Line {
+            regs,
+            type_reg: byte_of(l, "type="),
+            subtype: byte_of(l, "subtype="),
+            src,
+        });
+    }
+    if lines.is_empty() && !refused.is_empty() {
+        return Err(format!(
+            "the reader refused every regmap as no PON: {}",
+            refused.join("; ")
+        ));
     }
     if lines.is_empty() {
         return Err(format!("no pon-block line; the phone said: {text:?}"));
@@ -63,9 +97,11 @@ pub fn parse_block(text: &str) -> Result<Vec<Line>, String> {
     Ok(lines)
 }
 
-/// A reading is a line that holds PON_REASON1 (0xc0) and POFF_REASON1 (0xc5): a line of `??` is a read that failed, not a zero.
+/// A reading is a line from a regmap that proved itself the PON (its subtype 04 or 05) and holds PON_REASON1 (0xc0) and POFF_REASON1 (0xc5): a line of `??` is a read that failed, not a zero.
 pub fn is_a_reading(l: &Line) -> bool {
-    l.regs[0].is_some() && l.regs[5].is_some()
+    l.subtype.is_some_and(|s| PON_GEN2_SUBTYPES.contains(&s))
+        && l.regs[0].is_some()
+        && l.regs[5].is_some()
 }
 
 /// The control: its settings, its folder.
@@ -226,9 +262,45 @@ mod tests {
 
     #[test]
     fn a_line_of_failed_reads_is_not_a_reading() {
-        let l = parse_block("pon-block 0xc0=?? 0xc1=?? 0xc2=?? 0xc3=?? 0xc4=?? 0xc5=?? 0xc6=?? 0xc7=02 0xc8=?? 0xc9=?? 0xca=?? 0xcb=?? src=[x]").unwrap();
+        let l = parse_block("pon-block 0xc0=?? 0xc1=?? 0xc2=?? 0xc3=?? 0xc4=?? 0xc5=?? 0xc6=?? 0xc7=02 0xc8=?? 0xc9=?? 0xca=?? 0xcb=?? type=00 subtype=04 src=[x]").unwrap();
         assert!(!is_a_reading(&l[0]));
         assert_eq!(l[0].regs[7], Some(2));
+    }
+
+    /// A line the reader printed with a PON subtype of 04 (the fixture's) or 05 is a PON's; the type is kept raw.
+    #[test]
+    fn the_readers_line_carries_the_type_raw_and_the_pon_subtype() {
+        let l = &parse_block(READER).unwrap()[0];
+        assert_eq!(l.type_reg, Some(0x00));
+        assert_eq!(l.subtype, Some(0x04));
+        assert!(is_a_reading(l));
+    }
+
+    #[test]
+    fn a_line_whose_subtype_is_not_a_pon_one_is_not_a_reading() {
+        for sub in ["00", "01", "08", "??"] {
+            let text = format!("pon-block 0xc0=01 0xc1=00 0xc2=00 0xc3=00 0xc4=00 0xc5=04 0xc6=00 0xc7=02 0xc8=00 0xc9=00 0xca=00 0xcb=00 type=09 subtype={sub} src=[x]");
+            assert!(!is_a_reading(&parse_block(&text).unwrap()[0]), "{sub}");
+        }
+        let sec = parse_block("pon-block 0xc0=01 0xc1=00 0xc2=00 0xc3=00 0xc4=00 0xc5=04 0xc6=00 0xc7=02 0xc8=00 0xc9=00 0xca=00 0xcb=00 type=09 subtype=05 src=[x]").unwrap();
+        assert!(is_a_reading(&sec[0]));
+    }
+
+    /// The reader's refusal (tests/host/pon-block-selftest.sh, regmap spmi-3 whose 0x805 reads 00) is an error that says what it read, never a reading.
+    #[test]
+    fn a_refusal_alone_is_an_error_naming_the_subtype_it_read() {
+        let e = parse_block("pon-block refused subtype=00 want=04|05 src=[spmi-3]\npon-block none regmaps=[spmi-3] dbgfs=[yes]").unwrap_err();
+        assert!(e.contains("subtype=00") && e.contains("spmi-3"), "{e}");
+        let e = parse_block("pon-block refused subtype=00 want=04|05 src=[spmi-3]").unwrap_err();
+        assert!(e.contains("refused") && e.contains("subtype=00"), "{e}");
+    }
+
+    #[test]
+    fn a_refusal_beside_a_proved_block_leaves_the_block() {
+        let text = format!("pon-block refused subtype=00 want=04|05 src=[spmi-3]\n{READER}");
+        let lines = parse_block(&text).unwrap();
+        assert_eq!(lines.len(), 1);
+        assert_eq!(lines[0].src, "spmi-0");
     }
 }
 

@@ -10135,3 +10135,24 @@ Considered
 
 About
 : walleye-pmic-wdt-v1-image
+
+---
+
+
+<a id="2026-11-26-pon-block-reads-type-built"></a>
+### pon-block proves its regmap by the PON subtype
+
+Entry date
+: 2026-11-26
+
+Done
+: Tests first, seen failing (5 selftest cases; steps crate compile). pon-block: type and subtype read, block printed only for subtype 04|05, else refused line. steps crate: Line has type_reg and subtype, is_a_reading needs the subtype, a refusal alone is an error naming it (503 tests pass). pon-read rebuilt: known case first (wdt1-a ramdisk a491e1a2 and image 7630009d reproduced), then ramdisk b252dda6, image 3f4fe056, ensure --rebuild equal, UFS-off gate passes. Fixture and device.toml updated.
+
+Considered
+: Judging the TYPE register 0x804: no driver names its value (research walleye-pon-subtype-values).
+
+Rejected
+: A typed 09 for the type: no source.
+
+About
+: walleye-pmic-wdt-v1-image

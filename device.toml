@@ -293,13 +293,14 @@ kernel = "5fd9772018032bff545a696d6c4926aa940e0c3187c557030aaa7897b734bce3"
 # pon-read: wdt1-a (its kernel, dtb, command line, init) whose ramdisk holds one more file, /bin/pon-block (build/initramfs-mainline/pon-block): the PMIC PON block 0xC0..0xCB read raw through regmap debugfs, reads only
 # (item walleye-wdt-pon-control-procedure; research walleye-pon-read-after-bite-the-way). The ramdisk is packed as build-pmic-wdt-v1.sh packs wdt1-a's (gen_init_cpio, xz crc32 preset 6e: that packing gives wdt1-a's own ramdisk byte for byte), plus the file;
 # `lpoco-bringup image swap` with wdt1-a's own ramdisk gives wdt1-a byte for byte. UFS-off gate passes. NOT KNOWN YET: that regmap debugfs shows the PON on this phone (the earlier pon-regs reader was never shown to read here).
+# 2026-11-26: rebuilt with the reader that proves its regmap by PON_PERPH_SUBTYPE 0x805 = 04 or 05 (research walleye-pon-subtype-values; ramdisk b252dda6, image 3f4fe056); `image ensure pon-read --rebuild` equal.
 [images.pon-read]
 path = "images-pon-read/boot-pon-read.img"
-sha256 = "ec05365c9229afa542ce9acc0e16aaa3008d6414c99dd01f7885a442352d49e2"
+sha256 = "3f4fe05617d1c3e0994ebd69393c8c58a49b11eb20dc07f2c883f0800529f0e1"
 
 [images.pon-read.recipe]
 control = "wdt1-a"
-ramdisk = "a08b2bcd161b15cf3c190068a5ed843e63bb3e96a2b0e1f043dfd21c30d37875"
+ramdisk = "b252dda6b66d8b15fa5ca23e28297eea3d8026eb143a64dfcb89a0de9a4b32c4"
 
 # The values only one procedure uses (the procedure's name in lowercase words joined by -).
 [procedures.touch-events-on-z21]

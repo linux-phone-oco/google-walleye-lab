@@ -13640,10 +13640,10 @@ Rank
 ### pon-block also reads the PON TYPE register (0x804), so a reading proves it came from the PON regmap
 
 Status
-: open
+: done
 
 Note
-: Review item 4 on PR 1231, taken up by the walleye coordinator 2026-11-26: an attended run's instrument is proven on a known case before the author's hands are asked; the type register is that case. The expected value comes from the PM8998 PON driver source (qcom-pon / pm8941-pwrkey), named in the commit.
+: Built 2026-11-26 (walleye-builder): pon-block reads TYPE 0x804 (raw) and SUBTYPE 0x805 and prints a block only for 04|05, else a refused line; the value comes from pm8941-pwrkey.c / qpnp-power-on.c (research walleye-pon-subtype-values, decision 2026-11-26-pon-block-judges-the-subtype-prints-the-type), not from 0x804, which no source names. Selftest 2 refusal cases, 5 steps tests; image pon-read rebuilt equal, ramdisk b252dda6, image 3f4fe056, UFS-off gate passes.
 
 About
 : walleye-pmic-wdt-v1-image
@@ -13655,7 +13655,7 @@ Needs
 : build
 
 Proof
-: pon-block's tests cover a regmap whose 0x804 is the PON type (accepted) and one that is not (refused, printed as such); image pon-read rebuilt equal; tests/host/ufs-off-image.sh passes
+: pon-block's selftest and tests cover a regmap whose 0x805 reads 04|05 (accepted) and one that reads anything else or fails (refused, printed as such), 0x804 printed raw; image pon-read rebuilt equal; tests/host/ufs-off-image.sh passes
 
 Rank
 : 7

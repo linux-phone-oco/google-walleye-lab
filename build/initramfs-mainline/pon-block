@@ -1,11 +1,20 @@
 #!/bin/sh
 # pon-block (item walleye-wdt-pon-control-procedure; research walleye-pon-read-after-bite-the-way): the PMIC's PON block read RAW, registers 0xC0..0xCB of the PON peripheral (PM8998 is PON gen2: PON_REASON1 0xC0, WARM_RESET_REASON1 0xC2,
-# POFF_REASON1 0xC5, PON_OFF_REASON 0xC7, FAULT_REASON1 0xC8, S3_RESET_REASON 0xCA), one line "pon-block 0xC0=VV ... 0xCB=VV src=[REGMAP]" for each regmap that has them, READS ONLY: it names no register's meaning, the reader of the line does.
+# POFF_REASON1 0xC5, PON_OFF_REASON 0xC7, FAULT_REASON1 0xC8, S3_RESET_REASON 0xCA), one line "pon-block 0xC0=VV ... 0xCB=VV type=VV subtype=VV src=[REGMAP]" for each regmap that proves to be a PON, READS ONLY: it names no register's meaning, the reader of the line does.
+# The proof (item walleye-pon-block-reads-type): a regmap is the PON only if its PON_PERPH_SUBTYPE, 0x805, reads 04 (PON_GEN2_PRIMARY) or 05 (PON_GEN2_SECONDARY) - the values of drivers/input/misc/pm8941-pwrkey.c (PON_SUBTYPE 0x05, PON_SUBTYPE_GEN2_*)
+# and of the Android msm kernel's qpnp-power-on.c (QPNP_PON_PERPH_SUBTYPE, PON_GEN2_PRIMARY/SECONDARY); any other reading, or none, prints "pon-block refused subtype=VV want=04|05 src=[REGMAP]" and no block.
+# TYPE (0x804) is printed raw beside it, judged by no value: no driver source names one.
 # The kernel's regmap `registers` file has one fixed-width line "ADDR: VAL" per register (drivers/base/regmap/regmap-debugfs.c) and reads only the registers from the file position on, so each register is one dd of one line, as /bin/pon-regs does;
 # a line that is not the register asked for (a sparse map) falls back to grep; a failed read shows XX in the kernel's line and ?? here. DBG and NOMOUNT are for the host selftest.
 DBG=${DBG:-/sys/kernel/debug}
 D=$DBG/regmap
 [ -d "$D" ] || [ -n "${NOMOUNT:-}" ] || mount -t debugfs none "$DBG" 2>/dev/null
+# reg FILE LINEWIDTH HEXOFFSET: the register 0x8HH as the kernel printed it, or nothing
+reg() {
+  l=$(dd if="$1" bs="$2" skip=$((0x800 + 0x$3)) count=1 2>/dev/null)
+  case $l in *8$3:*) ;; *) l=$(grep -E "^0*8$3:" "$1" 2>/dev/null | head -n1);; esac
+  printf '%s\n' "$l" | sed -n "s/^0*8$3: *\([0-9a-fA-F][0-9a-fA-F]*\).*/\1/p" | head -n1
+}
 found=0; names=
 for d in "$D"/*; do
   f=$d/registers
@@ -15,14 +24,16 @@ for d in "$D"/*; do
   [ "$E" -gt 4 ] || continue
   line=; any=0
   for r in c0 c1 c2 c3 c4 c5 c6 c7 c8 c9 ca cb; do
-    l=$(dd if="$f" bs="$E" skip=$((0x800 + 0x$r)) count=1 2>/dev/null)
-    case $l in *8$r:*) ;; *) l=$(grep -E "^0*8$r:" "$f" 2>/dev/null | head -n1);; esac
-    v=$(printf '%s\n' "$l" | sed -n "s/^0*8$r: *\([0-9a-fA-F][0-9a-fA-F]*\).*/\1/p" | head -n1)
+    v=$(reg "$f" "$E" $r)
     [ -n "$v" ] && any=1
     line="$line 0x$r=${v:-??}"
   done
   [ $any -eq 1 ] || continue
-  echo "pon-block$line src=[$n]"; found=1
+  t=$(reg "$f" "$E" 04); s=$(reg "$f" "$E" 05)
+  case $s in
+    04|05) echo "pon-block$line type=${t:-??} subtype=$s src=[$n]"; found=1;;
+    *) echo "pon-block refused subtype=${s:-??} want=04|05 src=[$n]";;
+  esac
 done
 if [ $found -eq 0 ]; then
   dbg=no; [ -d "$D" ] && dbg=yes
