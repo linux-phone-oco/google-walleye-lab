@@ -12582,6 +12582,9 @@ Status
 Note
 : Fix landed (PR 1098, 447 host tests). Its phone proof rides on the next debug-image run (step 16 passes with no hand; record busybox nc on stdin EOF and any '[1]+ Done' line before the sha256 read); no run of its own is spent on it. Set open, rank 6, by the walleye coordinator 2026-11-25 so the timed reboot-twice try goes first.
 
+Waits
+: the next debug-image keeper run (rides on it; no boot of its own)
+
 About
 : walleye-bootimage
 
@@ -12656,6 +12659,9 @@ Status
 
 Note
 : Split from walleye-phone-text-captures-rest 2026-11-25: the answers need the late-probe image booted; no boot is spent on them alone, they ride on the next run of tests/host/display-late-probe.sh.
+
+Waits
+: the next display-late-probe keeper run (rides on it; no boot of its own)
 
 About
 : walleye-bootimage
