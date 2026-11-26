@@ -13450,10 +13450,10 @@ Rank
 ### walleye-nfc-up --poll SECONDS: START_POLL after DEV_UP, print the target found or 'no target', and the nfc boot reads it; verdict says the chip answered NCI init
 
 Status
-: open
+: done
 
 Note
-: From research walleye-nfc-dev-up-ack-is-the-chips-reply. The procedure's 'chip answered' verdict cites the DEV_UP ack (nci_open_device), not 'not known yet'. Protocols for START_POLL from NFC_CMD_GET_DEVICE; the wait listens on the nfc 'events' multicast group, bounded by SECONDS; STOP_POLL and DEV_DOWN after.
+: Built and proved on the host: 15 + 7 tool tests, 492 steps tests, binary ab2cf4c1 twice equal, ramdisk f4b6c1d7, image 019b0dce rebuilt equal twice, UFS-off gate passes (research walleye-nfc-poll-in-tool-built). Not run on the phone: walleye-nfc-poll-run-no-tag is the first run.
 
 About
 : nfc

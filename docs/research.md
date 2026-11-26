@@ -8885,3 +8885,22 @@ Found
 
 About
 : nfc
+
+
+<a id="walleye-nfc-poll-in-tool-built"></a>
+### walleye-nfc-poll-in-tool-built
+
+Date
+: 2026-11-26
+
+Brief
+: walleye-nfc-up --poll SECONDS: START_POLL after DEV_UP on one held socket; static aarch64 ab2cf4c1, NFC ramdisk f4b6c1d7 and image 019b0dce rebuild equal, UFS-off passes
+
+Question
+: Can walleye-nfc-up poll for a target after DEV_UP and say 'target found' or 'no target', and does the NFC image still rebuild equal?
+
+Found
+: tools/walleye-nfc-up --poll SECONDS (argenv, env WALLEYE_NFC_UP_POLL, default 0 = no poll): after DEV_UP acks, it asks the controller for family nfc and its multicast group "events" (CTRL_ATTR_MCAST_GROUPS), opens ONE socket that joins the group before anything is sent (the kernel stops a poll when the socket that started it closes, and events go to the group), sends NFC_CMD_START_POLL (DEVICE_INDEX, IM_PROTOCOLS 0xfe = every initiator protocol), waits up to SECONDS for NFC_EVENT_TARGETS_FOUND of that device, then NFC_CMD_STOP_POLL when none came (a found target ends the poll in the kernel). Prints 'nfc0: poll N s: target found (NFC_EVENT_TARGETS_FOUND)' or 'nfc0: poll N s: no target'; an errno to START_POLL is an error, exit 1. Numbers are the v7.3 uapi nfc.h and genetlink.h, pinned by a test (libc for the genetlink ones). Tests: 15 unit tests (stand-in kernel: join the group the controller named events not other, target ends it, no target is stopped and waited its time, an event of another device or kind is no target, START_POLL errno stops before the wait, request layout) and one against this host's real kernel (its nfc family lists group events, a socket joins it and reads nothing in 20 ms); 7 binary tests (dry run adds the poll step, poll not a number refused). The procedure nfc-boot-on-the-pixel-2 runs walleye-nfc-up --index 0 --poll 10 under timeout 30; open_judge reads the tool's two poll words into OpenAnswer.poll (target, no target, or not run when the open stopped first, never 'no target') and the verdict for rc=0 says the chip answered NCI init (DEV_UP is acked only after CORE_RESET and CORE_INIT, research walleye-nfc-dev-up-ack-is-the-chips-reply); a test with the tool's own words; 492 tests of the steps crate pass. Build: build-nfc-up-bin.sh twice = ab2cf4c1 (was 04edd61f); build-initramfs.sh phone with it twice = ramdisk f4b6c1d7; control: the same script with the old binary reproduces 973bcb87 and without EXTRA_BIN b094adc1, so the instrument is on its known case; lpoco-bringup image ensure nfc --rebuild twice: image 019b0dce (was 65cef2f5), declared in device.toml with the recipe's ramdisk; tests/host/ufs-off-image.sh passes on it. NOT RUN ON THE PHONE: the aarch64 file has not executed anywhere; no tag was held to a reader here, so 'target found' has never been seen on real input (the first run is walleye-nfc-poll-run-no-tag, the known case 'no target'). Not read: the target's own data (GET_TARGET: protocols, NFCID1), left out on purpose. Review by the programmer subagent fixed before landing: a START_POLL errno after a good DEV_UP is a failed poll with cause 'answered' (not the clock); events that come between a request and its answer are kept for the wait; a refused STOP_POLL is said; --poll above 3600 s is refused; the host kernel test returns when the host has no nfc family. The seq pick in the socket's exchange has no test of its own (needs a real socket pair).
+
+About
+: nfc

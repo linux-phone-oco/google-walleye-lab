@@ -10036,3 +10036,24 @@ Considered
 
 About
 : nfc
+
+---
+
+
+<a id="2026-11-26-walleye-builder-nfc-poll"></a>
+### walleye-builder: walleye-nfc-up --poll and the NFC image rebuilt
+
+Entry date
+: 2026-11-26
+
+Done
+: Item walleye-nfc-poll-in-tool: --poll SECONDS in tools/walleye-nfc-up (one held socket, events group, START_POLL, TARGETS_FOUND or timeout, STOP_POLL); the procedure runs it with --poll 10 and its judge reads the poll's words and the NCI-init verdict; binary ab2cf4c1, ramdisk f4b6c1d7, image 019b0dce rebuilt equal twice, UFS-off gate passes; the build tree's images-nfc and SHA256SUMS-nfc hold them (the previous binary and image kept as prev-*). The run item walleye-nfc-poll-run-no-tag is unblocked for the keeper.
+
+Considered
+: GET_TARGET for the target's data (left out); DEV_DOWN after the poll (see decision 2026-11-26-walleye-nfc-poll-stops-but-does-not-power-down).
+
+Rejected
+: A second socket for START_POLL: the kernel stops the poll when the socket that started it closes.
+
+About
+: nfc

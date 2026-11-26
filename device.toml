@@ -226,13 +226,13 @@ cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walley
 [images.nfc]
 path = "images-nfc/boot-nfc.img"
 kernel_tag = "int/walleye/ufs-off/v7.3/1"
-sha256 = "65cef2f5d0d30b72d44cfc6d9336a9579f581ef762f7366ce1f87796a90364f1"
+sha256 = "019b0dcee641b77b7e673ddc1a52c6fa4dab04b19f4e284afd4cf64c6c6bd1c4"
 
 [images.nfc.recipe]
 control = "slpi"
 kernel = "78dbbff60f21ad372947d05c7c375632bb79a4dc2aeac1da4142f170ca117607"
 dtb = "86550c1e194000fcf89538951b30832d5cede49293d39a7385d99e6c3fea805c"
-ramdisk = "973bcb87d0d14939501440ae3fa26b1f2aabf2bf15ed237ba5baf903e0b9d5a1"
+ramdisk = "f4b6c1d750e15cc180c76bd031489830b2fa256dc47969f253c81b5681e2d02b"
 
 # z20: z21's control (UFS ON, NOT TO BOOT: tests/host/ufs-off-image.sh refuses it by design); no [kernels] list and no procedure names it.
 [images.z20]
@@ -776,7 +776,7 @@ sha256 = "fd73925bffb8462f212267b9cfc120bd87b80239bbd4866856eeed6487e554ba"
 # The nfc0 opener of the NFC ramdisk (item walleye-nfc-nfc0-opener-in-ramdisk): tools/walleye-nfc-up built static for aarch64 by build/build-nfc-up-bin.sh (two builds, the same bytes); [images.nfc]'s ramdisk packs it as /bin/walleye-nfc-up (build-initramfs.sh phone with EXTRA_BIN). It sends NFC_CMD_DEV_UP over the kernel's generic netlink and prints the kernel's answer.
 [images.walleye-nfc-up]
 path = "images-nfc/walleye-nfc-up"
-sha256 = "04edd61f3768f11ebf97bb45bcb1a3cc86b6f4fa322ebb7f1b300c10e69004d5"
+sha256 = "ab2cf4c11650bd7c20e7b31fffd4e2437dee9ed431d31baa90cffc6e28a21171"
 
 # The transport run (procedures/transport-on-the-pixel-2.rs; item walleye-transport-procedure, for the run walleye-transport-real-phone-run; decision 2026-11-26-walleye-android-connection-user-root):
 # on Android, the library's read_slot (it runs adb root itself, lab-tools 0.53.5) over [connections.android], adb's own serial against [fastboot] serial, `adb reboot bootloader` honoured, fastboot's current-slot equal to adb's slot, `fastboot reboot` back to Android on that slot.

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //! walleye-nfc-up's invocation surface, declared once with argenv.
-//!   walleye-nfc-up [--index N] [--dry-run]
+//!   walleye-nfc-up [--index N] [--poll SECONDS] [--dry-run]
 
 use argenv_resolve::*;
 
@@ -12,6 +12,16 @@ contract! {
         env: Some(Env::new("WALLEYE_NFC_UP_INDEX")),
         default: Some(0),
         summary: "The NFC device to open: 0 is nfc0 (default 0).",
+        ..Input::EMPTY
+    };
+
+    POLL: u64 = Input {
+        key: "poll",
+        ty: Type::Uint,
+        arg: Some(Arg { value_name: "SECONDS", ..Arg::long("poll") }),
+        env: Some(Env::new("WALLEYE_NFC_UP_POLL")),
+        default: Some(0),
+        summary: "After the open, poll for a target for SECONDS and print 'target found' or 'no target' (default 0: no poll).",
         ..Input::EMPTY
     };
 
@@ -35,7 +45,7 @@ contract! {
 /// The usage `--help` prints, read from the declaration above.
 pub fn usage() -> String {
     let mut out = String::from(
-        "Usage: walleye-nfc-up [--index N] [--dry-run]\n\nAsk the kernel's NFC netlink family to power NFC device N on (NFC_CMD_DEV_UP) and print its answer: the kernel's own, an errno or ok.\n\nArguments:\n",
+        "Usage: walleye-nfc-up [--index N] [--poll SECONDS] [--dry-run]\n\nAsk the kernel's NFC netlink family to power NFC device N on (NFC_CMD_DEV_UP) and print its answer: the kernel's own, an errno or ok. With --poll it then polls for a target (NFC_CMD_START_POLL) and prints what the kernel reported, or that no target came in time.\n\nArguments:\n",
     );
     for r in &Contract::records() {
         let sig = r.usage();

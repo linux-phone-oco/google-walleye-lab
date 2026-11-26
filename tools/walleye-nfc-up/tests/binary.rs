@@ -41,3 +41,28 @@ fn an_open_this_host_cannot_make_prints_the_kernels_answer_and_ends_1() {
         "{out}{err}"
     );
 }
+
+#[test]
+fn the_dry_run_with_a_poll_adds_the_poll_step_and_without_one_does_not() {
+    let (rc, out, _) = run(&["--dry-run", "--poll", "10"]);
+    assert_eq!(rc, 0);
+    assert_eq!(out.lines().count(), 3, "{out}");
+    assert!(
+        out.contains("wait 10 s for NFC_EVENT_TARGETS_FOUND"),
+        "{out}"
+    );
+}
+
+#[test]
+fn a_poll_that_is_not_a_number_is_refused() {
+    let (rc, _, err) = run(&["--poll", "soon"]);
+    assert_ne!(rc, 0);
+    assert!(err.contains("poll"), "{err}");
+}
+
+#[test]
+fn a_poll_longer_than_an_hour_is_refused_before_anything_is_sent() {
+    let (rc, _, err) = run(&["--poll", "99999999999999"]);
+    assert_eq!(rc, 2);
+    assert!(err.contains("3600"), "{err}");
+}
