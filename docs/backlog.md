@@ -12907,7 +12907,7 @@ Needs
 : build
 
 Proof
-: tools/walleye-tries on lpoco-attended-v0.45.8 or later (rhizoid's pin bump, as PR 1118); install.rs and rw_write.rs call the library's read_slot, mount_is_readonly and adb_write_partition and their own copies are gone; the crate tests and lpoco-attended check --host for the install and rw-write procedures pass; the allow-list names only the partitions walleye's recorded decisions write (other slot)
+: tools/walleye-tries on an lpoco-attended release that reads [connections] (0.46.1 or later, rhizoid's bump); install.rs calls the library's read_slot and adb_write_partition with phone_on("android") over [connections.android] user = root after walleye's own adb root step, and their own copies are gone; rw_write.rs keeps its own mount check (it asserts rw, the library's mount_is_readonly asserts ro); the crate tests and lpoco-attended check --host for the install and rw-write procedures pass; the allow-list names only the other-slot partitions walleye's recorded decisions write
 
 Rank
 : 5
