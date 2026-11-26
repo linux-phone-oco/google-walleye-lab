@@ -9292,3 +9292,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-install-steps-from-the-library-parked-on"></a>
+### install steps from the library: parked on attended's manifest pin
+
+Entry date
+: 2026-11-26
+
+Done
+: Built the item on wip/walleye/install-steps-user-root (e00e821): attended 0.46.0 by rhizoid bump, [connections.android] user root, phone_on(android) in install.rs and the procedure; 471 crate tests and check-device-toml pass. bin/attended check --host fails: attended 0.46.0 pins lpoco-manifest 0.49.1 which rejects [connections]. Not landed (CI would break); item set open with its wait.
+
+Considered
+: Landing without [connections.android] (the procedure's phone_on(android) would fail its dry run); editing the attended binary's pin from here (lab-tools is the lab-tools builder's).
+
+Rejected
+: Landing the code anyway; leaving the mount_is_readonly clause for rw_write (it asserts rw, the library's step asserts ro).
+
+About
+: walleye-bootimage
