@@ -1,4 +1,4 @@
-#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.53.2/manifest/device.schema.json
+#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.53.3/manifest/device.schema.json
 # ^ the lpoco-lab release this file follows: editors complete and check from its schema, CI reads the file with that release.
 # This phone's manifest - the only file a new phone's lab needs to say. Every tool reads it:
 # lpoco lab (linux-phone-oco/lab-tools) finds it like cargo finds Cargo.toml, or by --device.
@@ -17,6 +17,13 @@ shell_address = "172.16.43.1"      # the shell's address as dev() reads it (a li
 shell_port = 23
 transport = "telnet"               # our test images answer over telnet on the USB-networking address; an Android boot would be "adb" (lab-tools 0.38.0)
 login = "none"                     # no password exists on walleye: lpoco lab suite says "not applicable" (decision walleye-declare-transport-login)
+
+# Stock Android, reached over adb. walleye's own step `adb root` runs first (it restarts adbd as root), so the library's steps run as root
+# with no su (decision 2026-11-26-walleye-android-connection-user-root).
+[connections.android]
+addresses = []                     # adb needs no address (lab-tools: addresses = [] is fine over adb)
+transport = "adb"
+user = "root"
 
 [provision]
 packages = "provision/packages.txt"   # installed on a freshly flashed phone: lpoco lab provision now

@@ -9313,3 +9313,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-install-steps-from-the-library-landed"></a>
+### install steps from the library: landed
+
+Entry date
+: 2026-11-26
+
+Done
+: Rebuilt the parked branch on main with attended 0.46.1 (rhizoid bump), crate tests 471 and attended check --host pass, landed; item done.
+
+Rejected
+: Editing the Cargo pin by hand: rhizoid bump moves it.
+
+About
+: walleye-bootimage

@@ -13,7 +13,7 @@
 //! ```
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use walleye_tries::lpoco_attended::prelude::*;
+use walleye_tries::lpoco_attended::{prelude::*, steps::read_slot, phone_on};
 use walleye_tries::{install::Install, settings::{Settings, INSTALL_PROCEDURE}, watch};
 
 fn main() {
@@ -32,9 +32,10 @@ fn main() {
     check_from("the slot Android runs from is read, the other one is the target", "research:walleye-install-stage-how-it-stands", install.the_slot_is_read());
     step("the phone is on Android, adbd as root", install.the_phone_is_on_android_as_root());
     step("stage the image on the phone and check the copy", install.the_image_is_staged());
+    run_step(read_slot(phone_on("android")).sourced("research:walleye-install-stage-how-it-stands")); // the phone says _a or _b, as the library reads it
     check_from("adb and fastboot name the same slot", "research:walleye-install-stage-how-it-stands", install.the_slots_agree());
     check_from("the target partition, read now, is its backup", "research:walleye-install-slot-readback-done-twice-same-bytes", install.the_backup_is_the_slot_as_it_is_now());
-    step("write the image to the target partition: one dd", install.the_image_is_written());
+    step("write the image to the target partition: the library's adb_write_partition, one dd and a read-back by sha256", install.the_image_is_written());
     check_from("the partition reads back as the image", "research:walleye-install-slot-readback-done-twice-same-bytes", install.the_partition_reads_back_as_the_image());
     check_from("every other partition of both slots is as its backup", "research:walleye-install-slot-readback-done-twice-same-bytes", install.the_other_partitions_are_unchanged());
     step("take the staged copy off the phone", install.the_stage_is_removed());

@@ -12889,10 +12889,10 @@ Rank
 ### tools/walleye-tries takes read_slot, mount_is_readonly and adb_write_partition from lpoco-attended 0.45.8; its own copies retire
 
 Status
-: open
+: done
 
 Note
-: Built 2026-11-26 (walleye-builder), parked on branch wip/walleye/install-steps-user-root (e00e821, pushed): lpoco-attended 0.46.0 via rhizoid bump (Cargo.toml and lock), device.toml schema pin lpoco-lab-v0.53.3, [connections.android] addresses = [], transport = adb, user = root, install.rs and the procedure call adb_write_partition(phone_on(android), ...) and read_slot(phone_on(android)); crate tests 471 pass; bin/check-device-toml.sh passes (lpoco-lab 0.53.3 reads it). STOP: bin/attended check --host fails: lpoco-attended 0.46.0 pins lpoco-manifest-v0.49.1 (attended/Cargo.toml:18), which does not know [connections] ('unknown field connections'), so landing would break CI. Next: lab-tools moves attended's manifest pin to 0.50.0 and releases attended; then rhizoid bump, re-run bin/attended check --host, land the branch. rw_write.rs keeps its own mount check: it asserts the root mounted READ-WRITE, the library's mount_is_readonly asserts the opposite, so the proof's mount_is_readonly clause does not apply to rw_write (to be re-worded by the coordinator).
+: Built 2026-11-27 (walleye-builder): lpoco-attended 0.46.1 via rhizoid bump (manifest 0.50.0 reads [connections]); the install procedure calls the library's adb_write_partition and read_slot with phone_on(android) over [connections.android] user = root; walleye's own write copies are gone. Kept: Android::slot_suffix (feeds slots_agree; the library's read_slot only parses) and rw_write.rs's own rw mount check. Crate tests 471, check-device-toml and attended check --host pass. Review leftovers: rehearsal does not exercise the android connection; the write test rebuilds the library's dd line.
 
 About
 : walleye-bootimage
