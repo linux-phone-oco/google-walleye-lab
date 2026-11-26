@@ -9313,3 +9313,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-27-install-steps-parked-on-bringup-pin"></a>
+### install steps: parked on the lpoco-bringup pin
+
+Entry date
+: 2026-11-26
+
+Done
+: Attended 0.46.1 unblocked the build; land-check then refused: bin/install-bringup.sh pins lpoco-bringup 0.51.1, which cannot read [connections]. Branch parked on wip/walleye/install-steps-0461.
+
+Rejected
+: Editing the bringup pin by hand or overriding LPOCO_BRINGUP_VERSION to land: a pin has one mover, and CI would still run 0.51.1.
+
+About
+: walleye-bootimage
