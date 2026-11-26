@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
-# wp1..wp5, wpa (backlog walleye-property-bisect): wa plus one group of pk2's property differences each; wpa is all five. The dtbs are the recorded ones: build/build-property-bisect.sh makes them.
+# wp1..wp5, wpa (backlog walleye-property-bisect): wa plus one group of pk2's property differences each; wpa is all five. The dtbs are the recorded ones: build-property-bisect.sh (retired 2026-11-26, batch 2; in git history) makes them.
 # Run: lpoco-bringup image bisect build/series/property-bisect.toml --out OUT; the images' sha256 are the SHA256SUMS of walleye-build/images-wp.
 control = "../../../../walleye-build/images-w/boot-wa.img"
 

@@ -9775,3 +9775,24 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-26-retire-build-scripts-batch-2"></a>
+### build scripts batch 2 retired
+
+Entry date
+: 2026-11-26
+
+Done
+: Removed build-fuel-gauge, taimen-walleye, property-bisect, fdt-bisect, dtb-bisect (24 build-*.sh left); build/README and kernel/fuel-gauge-rfc/README updated; list with last commits in research.
+
+Considered
+: build-display-any-order-images.sh: b-r2 and b-rp2 rebuild equal (ensure), but the script makes their seeded dtb and ramdisks.
+
+Rejected
+: Retiring the any-order script now: its parts have no recipe yet; the display series dtb scripts: their check-*.sh still run them; build-reboot-bin.sh: it builds the declared walleye-reboot.
+
+About
+: walleye-kernel-dts

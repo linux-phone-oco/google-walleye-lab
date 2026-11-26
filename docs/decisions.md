@@ -3764,3 +3764,34 @@ Scope
 
 Tracked by
 : walleye-adb-root-from-library
+
+
+<a id="2026-11-26-walleye-bisect-scripts-retired-series-stay"></a>
+### 2026-11-26-walleye-bisect-scripts-retired-series-stay
+
+Date
+: 2026-11-26
+
+Brief
+: The four dtb-bisect scripts (dtb, fdt, property, taimen-walleye) retire as history; their series files stay as data
+
+Decision
+: build-dtb-bisect, build-fdt-bisect, build-property-bisect and build-taimen-walleye are removed (git keeps them); build/series/*.toml and the recorded dtbs stay.
+
+Why
+: Nothing live calls them (review, grep); the experiments are finished.
+
+Rejected
+: Keeping them until a recipe makes their dtbs: the dtbs are recorded by sha256 and the experiments are over.
+
+About
+: walleye-kernel-dts
+
+Research
+: walleye-build-scripts-batch-2-retired
+
+Amends
+: 2026-11-19-walleye-bisect-by-series
+
+Tracked by
+: walleye-retire-build-scripts

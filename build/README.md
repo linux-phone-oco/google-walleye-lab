@@ -1,10 +1,12 @@
 # build - scripts that build the Pixel 2's kernel, initramfs and boot images
 
 They run on the lab machine and write into `~/Projects/walleye-build/` (outside git); `device.toml [images.*]`
-says which image is which. One script per try grew here (about 175, 26 left); once test kernels come from `int/walleye`
+says which image is which. One script per try grew here (about 175, 24 left); once test kernels come from `int/walleye`
 tags (docs decision 2026-11-23-structure-kernel-topics-and-integration), one image build replaces them.
 
 **Retired 2026-11-26 (batch 1):** 52 scripts of finished experiments (c1-c5 and their jobs, vendor-gadget*, vendor-facts*, pk*, ml*, t1/t3, y, z, z2-z10, z14-z17, z19, the early display and stripes scripts, drv2624, nocon, mainline-light) are removed: no image row, procedure, test or open item names them. They stay in git; each one's last commit is in research/walleye-retire-build-scripts/2026-11-26/retired-scripts.txt. Sections below that describe them are history.
+
+**Retired 2026-11-26 (batch 2):** 5 scripts whose experiments are finished and whose kernel or dtbs are recorded elsewhere (fuel-gauge: its kernel is the `ufs-on` list; taimen-walleye, property-bisect, fdt-bisect, dtb-bisect: the series files stay as data). No image row, procedure, test or open item names them; each one's last commit is in research/walleye-retire-build-scripts/2026-11-26/retired-scripts-batch-2.txt. Kept: build-display-any-order-images.sh (its dtb and ramdisks enter from the seed; b-r2 and b-rp2 rebuild equal from their recipes, but the script is what makes the parts), the display series dtb scripts with their check-*.sh, build-reboot-bin.sh (the declared walleye-reboot is built by it), the seeds z20, l6, ufs-match.
 
 ## Building the first walleye image
 
@@ -251,8 +253,7 @@ of each series are byte-equal to the recorded ones (sha256 in the SHA256SUMS of 
 | fdt-bisect.toml | wpa | x1..x7, xa |
 
 The parts the pk series names are `lpoco-bringup image unpack` of pk3, ml6a and ml5b into `walleye-build/parts-series/NAME/`, `ml6a/Image.gz`
-being ml6a's `kernel` less the dtb that ends it. The dtbs of the last four series are the recorded ones: `build-dtb-bisect.sh`,
-`build-taimen-walleye.sh`, `build-property-bisect.sh` and `build-fdt-bisect.sh` still make them (node edits, which `image bisect` does not do).
+being ml6a's `kernel` less the dtb that ends it. The dtbs of the last four series are the recorded ones; the scripts that made them (dtb-bisect, taimen-walleye, property-bisect, fdt-bisect: node edits, which `image bisect` does not do) are retired (batch 2, 2026-11-26) and stay in git.
 
 Three things to know when you run them:
 
