@@ -3677,3 +3677,31 @@ About
 
 Scope
 : walleye procedures, lpoco-attended step groups
+
+
+<a id="2026-11-26-walleye-display-delay-not-the-variable"></a>
+### 2026-11-26-walleye-display-delay-not-the-variable
+
+Date
+: 2026-11-26
+
+Brief
+: walleye's display signs do not follow boot delay: the delay is dropped as a variable, the dts mdss reset (B-r2, clean at 2 s) stays the path
+
+Decision
+: The delay bisect stops being a means. The display's path stays the mdss reset from the kernel's own dts form: B-r2 and B-rp2 were clean at 2 s (walleye-display-any-order-b-r2-b-rp2-clean). walleye-display-scanout-registers is dropped, because its question (what stops the scan-out near 25 s) rested on a flip the run did not show. walleye-display-handover-driver stays conditional on the reset leaving signs.
+
+Why
+: On the step groups the b-d* images (no reset) showed signs at 5, 15, 35 and 50 s and none only at 25 s (walleye-display-delay-step-groups-run-result). The signs are not monotone in delay, so the earlier flip at 25 s (walleye-display-delay-bisect-flips-at-25s) was one clean boot, not a threshold.
+
+Rejected
+: Repeat the bisect with more delays or more boots per delay: it measures a variable that does not order the signs. Read the scan-out registers at 5 s and 30 s: its premise is gone.
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-delay-step-groups-run-result
+
+Scope
+: walleye-display-s6e3fa5
