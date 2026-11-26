@@ -13051,7 +13051,7 @@ Status
 : in-progress
 
 Note
-: CTRL-C (coordinator 2026-11-26, pin 0.46.3 on main f3198e7): no open run item carries the line any more. With the next move, also change procedures/display-delay-bisect-on-the-pixel-2.rs line 11 ('a signal does not yet: do not interrupt') to say that a signal runs the way back. PIN MOVED to lpoco-attended v0.46.3 (walleye-builder 2026-11-26, tools/walleye-tries Cargo.toml and lock; 477 tests, clippy, check --host ok). With 0.46.3 SIGINT/TERM/HUP run the owed way backs (exit 130/143/129): the 'DO NOT Ctrl-C' line on the run items is dropped by the keeper's next orders once this is on main. PART 1 LANDED 2026-11-26 (declared way back, decision 2026-11-26-walleye-way-back-is-a-procedure). PART 2: DISPLAY LOOK DONE and run proven; DISPLAY-AT-BOOT DONE and run proven (research walleye-display-at-boot-step-groups-run-passed). DISPLAY DELAY BISECT DONE in code (walleye-builder 2026-11-26: phone_ready(IMAGE) and leave_known_good per image in the loop, the table step before the last leave, [kernels] test += b-d5..b-d50, b-s5, b-r5, b-r2, b-rp2, b-q5; no watching parent now: the group's way back ends a stop; dry run 39 steps, check --host, 477 tests ok); its real run is the item walleye-display-delay-step-groups-run (keeper). STILL OPEN, each the same move (name in [kernels] test, its [images.NAME] read by phone_ready, battery/sha/ufs checks stay as procedure checks, leave_known_good last): display any-order, UFS ufs-matched (image NOT-TO-BOOT, UFS-on: stays its own boot until a gate for it exists), PMIC (two images, a second boot mid-run), touch (z21). Lab-tools' attended-way-back-settled still owed: nothing after leave_known_good.
+: PART 1 LANDED 2026-11-26 (declared way back, decision 2026-11-26-walleye-way-back-is-a-procedure). PART 2: DISPLAY LOOK DONE and run proven; DISPLAY-AT-BOOT DONE and run proven (research walleye-display-at-boot-step-groups-run-passed); DISPLAY DELAY BISECT DONE in code, its run is walleye-display-delay-step-groups-run (keeper); TOUCH (z21) DONE in code (walleye-builder 2026-11-26: procedures/touch-events-on-z21.rs on phone_ready(z21) and leave_known_good last, the count before the way back; TouchKERNEL const, boot_image, android_is_back and the gadget-up call retire; CI gets a z21 stand-in file; dry run 16 steps, check --host, 477 tests ok); its real run is the item walleye-touch-step-groups-run (keeper). The bisect's stale 'a signal does not yet' comment now says a signal runs the way back. Display any-order is covered by the bisect's images (b-r2, b-rp2). STILL OPEN, each the same move: UFS ufs-matched (image NOT-TO-BOOT, UFS-on: stays its own boot until a gate for it exists), PMIC (two images, a second boot mid-run). Lab-tools' attended-way-back-settled still owed: nothing after leave_known_good.
 
 Blocked by
 : walleye-way-back-procedure-run
@@ -13098,3 +13098,31 @@ Proof
 
 Rank
 : 6
+
+
+<a id="walleye-touch-step-groups-run"></a>
+### One unattended run of procedures/touch-events-on-z21.rs on the step groups (phone_ready z21, leave_known_good), answer limit given
+
+Status
+: open
+
+Note
+: queued by walleye-builder 2026-11-26: the procedure is on the groups (dry run 16 steps, check --host, 477 tests ok); same shape as the display look's run. Nobody swipes in an unattended run: it stops at the ask.
+
+Blocked by
+: walleye-way-back-procedure-run
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-26
+
+Needs
+: phone
+
+Proof
+: bin/attended run touch-events-on-z21 --answer-limit 60 (unattended): boots z21 by phone_ready, the touch controller is listed, the reader shows EVENTS-READY, stops at the swipe ask with 'nobody answered', and the declared way back leaves the phone on Android; exit non-zero for the unanswered ask is the expected stop
+
+Rank
+: 5

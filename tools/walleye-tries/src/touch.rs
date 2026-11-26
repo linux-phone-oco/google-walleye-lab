@@ -14,6 +14,8 @@ use std::time::{Duration, Instant};
 
 /// z21's init pets the SoC watchdog for 90 beats of 2 s and then restarts the phone; nothing keeps it up.
 pub const SELF_REBOOT_S: u64 = 180;
+/// The test kernel (its `[images.NAME]` and `[kernels] test` entry) the try boots: steps::phone_ready names it.
+pub const KERNEL: &str = "z21";
 /// What is left of the budget for the phone to be seen and the reader to be closed.
 const MARGIN_S: u64 = 8;
 
@@ -140,14 +142,8 @@ impl Touch {
         move || lab.phone_is_in_fastboot()
     }
 
-    /// Boot the image from the phone's fastboot, from memory: nothing is written to it.
-    pub fn boot_image(&self) -> impl FnOnce() -> Done + 'static {
-        let t = self.clone();
-        move || t.lab.boot_image(&t.s.image)
-    }
-
-    /// The gadget is up on USB, the shell answers, and the phone's dmesg is saved.
-    pub fn shell_answers(&self) -> impl FnOnce() -> Done + 'static {
+    /// The phone's dmesg is saved (the gadget and the shell are already up: steps::phone_ready brought the image up).
+    pub fn dmesg_is_saved(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
         move || {
             std::fs::create_dir_all(&t.s.out).map_err(|e| format!("{}: {e}", t.s.out.display()))?;
@@ -155,12 +151,6 @@ impl Touch {
                 &t.s.out,
                 std::os::unix::fs::PermissionsExt::from_mode(0o700),
             );
-            let toml = t.s.device_toml();
-            t.lab.script(
-                "gadget-up.sh",
-                &[&toml.to_string_lossy()],
-                &[("GADGET_WAIT", "60")],
-            )?;
             let mut sh = t.lab.shell(10)?;
             let dmesg = sh.run("dmesg", Duration::from_secs(20))?;
             if dmesg.trim().is_empty() {
@@ -277,12 +267,6 @@ impl Touch {
         }
     }
 
-    /// The phone is back on Android (the shared step).
-    pub fn android_is_back(&self) -> impl FnOnce() -> Done + 'static {
-        let lab = self.lab.clone();
-        move || lab.android_is_back()
-    }
-
     /// The saved files say the touch probed and a touch made events (the lab's touch-check: a `skip` - nobody
     /// touched - is not a pass, and says "not known yet").
     pub fn events_are_counted(&self) -> impl FnOnce() -> Done + 'static {
@@ -397,13 +381,12 @@ mod walkthrough {
     }
 
     fn all_steps(t: &Touch) -> Done {
-        t.shell_answers()()?;
+        t.dmesg_is_saved()()?;
         t.touch_device_is_listed()()?;
         t.window_is_long_enough()()?;
         t.reader_is_started()()?;
         t.reader_shows_events_ready()()?;
         t.window_has_closed()()?;
-        t.android_is_back()()?;
         t.events_are_counted()()
     }
 
@@ -476,7 +459,7 @@ mod walkthrough {
     #[test]
     fn a_window_the_restart_would_cut_short_stops_before_the_author_is_asked() {
         let (t, d) = the_try("short", phone("170.0 5.0", vec![]));
-        t.shell_answers()().unwrap();
+        t.dmesg_is_saved()().unwrap();
         t.touch_device_is_listed()().unwrap();
         let e = t.window_is_long_enough()().unwrap_err();
         assert!(e.contains("the author is not asked"), "{e}");

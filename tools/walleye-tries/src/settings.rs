@@ -436,7 +436,7 @@ impl Settings {
         };
         match which {
             Try::Touch => {
-                s.image = image("z21");
+                s.image = image(crate::touch::KERNEL);
                 s.window = number("window", proc("window"));
                 s.min_window = number("min_window", proc("min_window"));
                 s.out = s.out_dir("touch");

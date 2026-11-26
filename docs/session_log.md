@@ -9598,3 +9598,24 @@ Considered
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-walleye-builder-touch-on-step-groups"></a>
+### touch procedure on the step groups
+
+Entry date
+: 2026-11-26
+
+Done
+: procedures/touch-events-on-z21.rs runs phone_ready(z21) in place of boot and gadget wait and leave_known_good last in place of the android check; events_are_counted moved before the way back (it reads saved files only, nothing may follow leave_known_good); touch::KERNEL names z21; boot_image, android_is_back and the gadget-up call retire; the bisect's stale signal comment fixed (coordinator's CTRL-C note); CI dry run gets a stand-in z21 image. fmt, clippy -D warnings, 477 tests, dry run 16 steps, check --host ok. Real run queued for the keeper.
+
+Considered
+: UFS and PMIC next: each needs its own care (UFS-on image the library's gate must not boot; PMIC boots two images).
+
+Rejected
+: keeping the touch gadget-up host script call: phone_ready already waits for the gadget and the shell.
+
+About
+: walleye-attend-program-display
