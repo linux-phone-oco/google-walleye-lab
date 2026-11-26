@@ -10219,3 +10219,24 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-27-retire-build-scripts-batch-4"></a>
+### Build scripts retired, batch 4
+
+Entry date
+: 2026-11-26
+
+Done
+: Removed build-z11, -z12, -z13 (UFS-on test images superseded by the matched image) and build-banner (done); the UFS-gate self-test no longer skips them and passes; walleye-try-z11 marked done as superseded; README and research list (retired-scripts-batch-4.txt) say so.
+
+Considered
+: build-display-image, build-upstream-dts-image, build-pmic-wdt-v1: still named by items, rows or open work, judged next.
+
+Rejected
+: Retiring init-banner with its script: it is data other docs name, it stays.
+
+About
+: walleye-kernel-dts
