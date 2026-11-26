@@ -9256,3 +9256,21 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-26-install-steps-from-the-library-built-parked"></a>
+### install steps from the library: built, parked
+
+Entry date
+: 2026-11-26
+
+Done
+: Built the install write on lpoco-attended 0.45.8 adb_write_partition and read_slot; tests green; review found the devlab transport (telnet) blocks it on Android; branch wip/walleye/install-steps-from-library pushed, item stays open with the next step.
+
+Rejected
+: Landing as is: the real install run would stop at its first library call. Flipping device.toml transport to adb: it would break the telnet procedures.
+
+About
+: walleye-bootimage
