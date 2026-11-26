@@ -13132,10 +13132,10 @@ Rank
 ### One unattended run of procedures/pmic-watchdog-v1-on-the-pixel-2.rs on the step groups (two phone_ready groups, each ended by leave_known_good), answer limit given
 
 Status
-: open
+: done
 
 Note
-: Queued by walleye-builder 2026-11-26 with the PMIC change on step groups. The reboot and bite tests themselves need the author at the phone: only this first part is unattended.
+: proven by run walleye-keeper 2026-11-26 (walleye-pmic-step-groups-run-result); reboot and bite tests need the author
 
 About
 : walleye-attend-program-display

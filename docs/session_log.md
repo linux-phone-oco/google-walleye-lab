@@ -9658,3 +9658,21 @@ Rejected
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-2000-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Phone on Android slot b, stock, nothing flashed; adb up. Ran walleye-pmic-step-groups-run (used by run walleye-keeper 2026-11-26): wdt1-a booted, watchdog probed, S2 type 7, stopped at unanswered ask 10, way back to Android. No go was open.
+
+Considered
+: next: walleye-nfc-nxp-nci-node (22) host reading; the PMIC reboot and bite tests wait for the author at the phone
+
+About
+: walleye-attend-program-display
