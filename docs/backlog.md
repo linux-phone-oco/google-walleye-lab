@@ -10562,7 +10562,7 @@ Status
 : open
 
 Note
-: Parts landed: PRs 1084, 1107, 1110, 1111 and build-z21.sh (2026-11-26); 78 build-*.sh left; z20, l6, ufs-match and the z/pk/vendor/display experiments to judge. Rank 5 from 2026-11-25 (walleye coordinator).
+: Parts landed: PRs 1084, 1107, 1110, 1111, 1143 (build-z21.sh); 78 build-*.sh left. HOW THE REST GOES (walleye coordinator 2026-11-26), in batches, many scripts per PR: (a) a script whose image has a recipe that rebuilds its declared sha256 retires; (b) a script whose image no [images.*] row, procedure or open item names (a finished experiment: z/pk/vendor/display tries) retires as history, listed with its last commit in one research row (git keeps it); (c) the seeds' scripts (z20, l6, ufs-match) stay until their kernel has a [kernel_builds] row. Rank 6 from 2026-11-26 so walleye-install-steps-from-library goes first.
 
 Blocked by
 : walleye-next-image-from-an-int-tag
@@ -10580,7 +10580,7 @@ Proof
 : for each build script that an [images.*] row names: rebuild that image from its kernel_tag with the new build and compare sha256 with the declared one: equal: the script is removed in the same change and the row says it is rebuilt from the tag; different: the difference is named (the script stays); the display, ramroot and bisect scripts of the dead experiments are listed and judged one by one (kept as history in research, or removed with a recorded reason); nothing retires a script whose image has not rebuilt equal
 
 Rank
-: 5
+: 6
 
 
 <a id="walleye-stage2-bounded-readback"></a>
