@@ -8658,3 +8658,25 @@ Sources
 
 About
 : nfc
+
+
+<a id="walleye-build-scripts-batch-1-retired"></a>
+### walleye-build-scripts-batch-1-retired
+
+Date
+: 2026-11-26
+
+Brief
+: 52 build scripts of finished experiments retired as history (c, vendor, pk, ml, t, y, z, early display); list with last commits in research
+
+Question
+: Which build scripts name no image row, procedure, test or open item, so they retire as history (batch b)?
+
+Found
+: git grep of each build-*.sh, job-*.sh, pk-kernel.sh over code, tests, tools, procedures, device.toml, kernel/, dt/ and open backlog items: 52 named by none (only by records and build/README history). Removed in one change; git keeps them; retired-scripts.txt lists each with its last commit. Kept: all-banner-bootimg-busybox-initramfs-kernel (the first-image method), series scripts (display bisect/late/dtb), display-any-order-images, reboot-bin, fuel-gauge, taimen-walleye, upstream-dts-image, display-image, ufs-match, z11-z13, z20 (seed), pmic-wdt-v1 (open item walleye-wdt-pon-bites-procedure). tests/host/ufs-off-image-selftest.sh passes. 26 build-*.sh left.
+
+About
+: walleye-kernel-dts
+
+Material
+: research/walleye-retire-build-scripts/2026-11-26/

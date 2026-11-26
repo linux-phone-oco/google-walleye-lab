@@ -1,8 +1,10 @@
 # build - scripts that build the Pixel 2's kernel, initramfs and boot images
 
 They run on the lab machine and write into `~/Projects/walleye-build/` (outside git); `device.toml [images.*]`
-says which image is which. One script per try grew here (about 175); once test kernels come from `int/walleye`
+says which image is which. One script per try grew here (about 175, 26 left); once test kernels come from `int/walleye`
 tags (docs decision 2026-11-23-structure-kernel-topics-and-integration), one image build replaces them.
+
+**Retired 2026-11-26 (batch 1):** 52 scripts of finished experiments (c1-c5 and their jobs, vendor-gadget*, vendor-facts*, pk*, ml*, t1/t3, y, z, z2-z10, z14-z17, z19, the early display and stripes scripts, drv2624, nocon, mainline-light) are removed: no image row, procedure, test or open item names them. They stay in git; each one's last commit is in research/walleye-retire-build-scripts/2026-11-26/retired-scripts.txt. Sections below that describe them are history.
 
 ## Building the first walleye image
 

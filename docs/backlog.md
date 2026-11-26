@@ -10540,7 +10540,7 @@ Status
 : open
 
 Note
-: Parts landed: PRs 1084, 1107, 1110, 1111, 1143 (build-z21.sh); 78 build-*.sh left. HOW THE REST GOES (walleye coordinator 2026-11-26), in batches, many scripts per PR: (a) a script whose image has a recipe that rebuilds its declared sha256 retires; (b) a script whose image no [images.*] row, procedure or open item names (a finished experiment: z/pk/vendor/display tries) retires as history, listed with its last commit in one research row (git keeps it); (c) the seeds' scripts (z20, l6, ufs-match) stay until their kernel has a [kernel_builds] row. Rank 6 from 2026-11-26 so walleye-install-steps-from-library goes first.
+: Parts landed: PRs 1084, 1107, 1110, 1111, 1143 (build-z21.sh) and batch 1 of 2026-11-26 (b): 52 history scripts removed; 26 build-*.sh left. Left: (a) scripts whose image has a recipe: display series dtbs, display-any-order-images, ufs-match/z11-z13/display-image/upstream-dts-image after judging, fuel-gauge, taimen-walleye, reboot-bin; (c) seeds z20, l6, ufs-match stay until their kernel has a [kernel_builds] row; pmic-wdt-v1 waits on walleye-wdt-pon-bites-procedure. Rank 6 kept; coordinator's how-it-goes plan stands.
 
 Blocked by
 : walleye-next-image-from-an-int-tag
