@@ -15,6 +15,9 @@ use std::time::{Duration, Instant};
 
 type Done = Result<(), String>;
 
+/// The test kernel (its `[images.NAME]` and `[kernels] test` entry) the look boots: steps::phone_ready names it.
+pub const KERNEL: &str = "l7";
+
 /// The drawer's log and the file that keeps the ramdisk's init from restarting the phone while the drawer works.
 pub const DRAWER_LOG: &str = "/tmp/stripes.log";
 pub const HOLD_FILE: &str = "/tmp/hold";
@@ -31,7 +34,7 @@ pub const GRACE_S: u64 = 60;
 pub const LOOK_WAIT_S: u64 = 600;
 
 /// What the words said to the author are: look 1 (the kernel log on the glass), then look 2 (four stripes held).
-pub const EXPECT_LOG: &str = "The phone has restarted into the test image and its display modules are loaded. Look at the glass: the kernel log (white text on black) is what should be there. Answer ok to go on to the stripes whatever you see (the run records what the phone itself says); answer anything else only to stop the run. A second look follows with four stripes. The phone returns to Android by itself when the run is done; if it is not there after 4 minutes, hold the power button about 15 seconds.";
+pub const EXPECT_LOG: &str = "The phone has restarted into the test image and its display modules are loaded. Look at the glass: the kernel log (white text on black) is what should be there. Answer ok to go on to the stripes whatever you see (the run records what the phone itself says); answer anything else only to stop the run. A second look follows with four stripes. The run sends the phone back to Android when it is done; if it is not there after 4 minutes, hold the power button about 15 seconds.";
 pub const LOOK_FOR_LOG: &str =
     "the kernel log's text on the glass (say what you see, or that it is blank or dark)";
 pub const EXPECT_STRIPES: &str = "Now the run draws four vertical stripes, red, green, blue and white, from left to right, and holds them. Look at the glass at once: they stay for the time said below and then the screen goes black.";
@@ -402,26 +405,10 @@ impl Display {
         }
     }
 
-    /// The way back, the last step: the phone ends on Android whatever stopped the run (the shared step); the watching
-    /// parent runs it after the child ends, whatever ended it.
+    /// The watching parent's way back (the Ctrl-C safety): the phone ends on Android whatever stopped the run (the shared step).
     pub fn way_back(&self) -> impl FnOnce() -> Done + 'static {
         let lab = self.lab.clone();
-        move || {
-            if std::env::var_os(crate::watch::CHILD).is_some() {
-                // the child releases the hold (best effort): the init restarts the phone; the watching parent is the way back if it does not
-                if let Ok(mut sh) = lab.shell(5) {
-                    let _ = sh.run_partial(&format!("rm -f {HOLD_FILE}"), Duration::from_secs(5));
-                }
-                return Ok(());
-            }
-            lab.way_back()
-        }
-    }
-
-    /// The phone is back on Android (the shared step).
-    pub fn android_is_back(&self) -> impl FnOnce() -> Done + 'static {
-        let lab = self.lab.clone();
-        move || lab.android_is_back()
+        move || lab.way_back()
     }
 }
 

@@ -9448,3 +9448,24 @@ Considered
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-walleye-builder-step-groups-display-look"></a>
+### Step groups part 2: the display look
+
+Entry date
+: 2026-11-26
+
+Done
+: Moved procedures/display-stripes-on-the-pixel-2.rs onto steps::phone_ready(l7) and steps::leave_known_good (last); device.toml [kernels] boot = fastboot, l7 in test (the library's boot_once then boots [images.l7] from memory and checks its sha256; the old entry default was 'devlab kernel try', which no walleye image uses). Opened the keeper run walleye-display-look-step-groups-run.
+
+Considered
+: Converting all six procedures in one change: the delay bisect (way back mid-run), UFS (a UFS-on image the library's gate must not boot), PMIC (two boots) each need their own care and a phone run to prove it; one proven procedure first.
+
+Rejected
+: Dropping the watching parent (watch.rs): the library's group way back runs on a failed step but Ctrl-C ends the process; the watcher stays as the safety, its way back is idempotent (Android already: nothing sent).
+
+About
+: walleye-attend-program-display

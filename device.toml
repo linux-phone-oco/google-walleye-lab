@@ -174,7 +174,8 @@ sha256 = "f132e0f2a857f200e1edd70a70bb123caa79c3275c5a5fa634a33e8d4e530baa"
 
 # The kernels the attended procedures' boot_once and back_to_known_good name. Walleye boots only by fastboot boot and nothing is written to it: "kept" names the image the way back returns to, not a kernel stored on the phone.
 [kernels]
-test = ["z21", "wdt1-a", "wdt1-b"]
+test = ["z21", "l7", "wdt1-a", "wdt1-b"]
+boot = "fastboot"                   # a test image is booted from memory (its [images.NAME]), nothing written: boot_once and phone_ready read this
 kept = "z21"
 # How the phone comes back to Android after a try (lpoco-attended 0.46.2 runs each line in this folder, as argv, in order, then waits for `back_on` to answer; a test image has no systemd, so the library's `systemctl reboot` does not fit):
 # the lab's own way back, procedures/way-back-on-the-pixel-2.rs: Android already, nothing sent; the bootloader, `fastboot reboot`; a test image's shell, `reboot -f` then the sysrq reboot. bin/attended is the runner the steps crate is locked to.

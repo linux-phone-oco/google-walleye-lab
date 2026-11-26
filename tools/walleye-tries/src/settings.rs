@@ -448,7 +448,7 @@ impl Settings {
                 s.bite_wait = number("bite_wait", proc("bite_wait"));
             }
             Try::Display => {
-                s.image = image("l7");
+                s.image = image(crate::display::KERNEL);
                 s.hold = number("hold", proc("hold"));
                 s.module_pause = number("module_pause", proc("module_pause"));
                 s.out = s.out_dir("display");

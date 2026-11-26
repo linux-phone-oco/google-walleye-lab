@@ -12945,7 +12945,7 @@ Status
 : in-progress
 
 Note
-: PART 1 LANDED 2026-11-26 (walleye-builder, decision 2026-11-26-walleye-way-back-is-a-procedure): lpoco-attended 0.46.2, schema line lpoco-lab-v0.53.4, [kernels] way_back = bin/attended run way-back-on-the-pixel-2 and back_on = android, procedures/way-back-on-the-pixel-2.rs; land-check's lpoco-bringup pin is 0.53.4 (manifest 0.51.0 or newer): no stop. PART 2 OPEN: move the display (look, delay bisect), UFS, PMIC and touch procedures onto steps::phone_ready(kernel) and steps::leave_known_good LAST in each entry file; values from device.toml; one real run of the display look (unattended, answer limit). Waits for the keeper run walleye-way-back-procedure-run to show the declared way back works on the phone before a procedure ends in it. Orchestration's text: lpoco-attended-v0.46.2 (lab-tools #454, #455) runs [kernels] way_back in the device folder, then waits for back_on.
+: PART 1 LANDED 2026-11-26 (declared way back, decision 2026-11-26-walleye-way-back-is-a-procedure). PART 2 (walleye-builder 2026-11-26, the way-back run is proven): DISPLAY LOOK DONE in code (procedures/display-stripes-on-the-pixel-2.rs: phone_ready(l7), leave_known_good last; [kernels] boot = fastboot, test += l7; dry run, check --host, 477 tests ok); its real run is the item walleye-display-look-step-groups-run (keeper). STILL OPEN, each the same move (name in [kernels] test, its [images.NAME] read by phone_ready, battery/sha/ufs checks stay as procedure checks, leave_known_good last): display-at-boot (b2), display delay bisect (b-d*, a loop: the way back per image sits mid-run, the table step must move before the last leave), UFS ufs-matched (image NOT-TO-BOOT, UFS-on: stays its own boot until a gate for it exists), PMIC (two images, a second boot mid-run), touch (z21). Lab-tools' attended-way-back-settled still owed: nothing after leave_known_good.
 
 Blocked by
 : walleye-way-back-procedure-run
@@ -12986,6 +12986,34 @@ Needs
 
 Proof
 : bin/attended run way-back-on-the-pixel-2 exits 0 with the phone on Android (it says nothing was sent), and again with the phone in its bootloader by adb reboot bootloader (fastboot reboot, Android answers within back_wait); the slot Android runs from is the one it began on
+
+Rank
+: 5
+
+
+<a id="walleye-display-look-step-groups-run"></a>
+### One unattended run of procedures/display-stripes-on-the-pixel-2.rs on the step groups (phone_ready l7, leave_known_good), answer limit given
+
+Status
+: open
+
+Note
+: Built 2026-11-26 (walleye-builder, branch builder/step-groups-2): the look's boot/gadget/shell lines are steps::phone_ready(l7) and its ending steps::leave_known_good LAST; device.toml [kernels] boot = fastboot and l7 in test. Dry run 18 steps, check --host ok, 477 stand-in tests ok. The run needs the phone in Android or fastboot, battery rule as the procedure's. Not asked of the author: look_for stops unanswered.
+
+Blocked by
+: walleye-way-back-procedure-run
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-26
+
+Needs
+: phone
+
+Proof
+: bin/attended run display-stripes-on-the-pixel-2 --answer-limit 60 (unattended): boots l7 by phone_ready, loads the modules, reads the connector, stops at the first look with 'nobody answered', and the declared way back leaves the phone on Android (slot as before); exit non-zero for the unanswered look is the expected stop
 
 Rank
 : 5
