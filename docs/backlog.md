@@ -6495,10 +6495,10 @@ Rank
 ### NFC: nxp-nci node for the PN553 from the Android dtb
 
 Status
-: open
+: in-progress
 
 Note
-: From walleye-nfc-way. Host first: read I2C address, enable/IRQ GPIOs, supplies from the Android dtb. Rank 22 set 2026-11-19 by the coordinator, after the display and the attended tries. Its firmware (the phone's own) reaches the test ramdisk from ~/lab-material, never git; no UFS-on image (the gate stays).
+: Host reading done (research walleye-nfc-android-dtb-read): nfc@28 on i2c@c1b6000, irq gpio92, VEN gpio12, FIRM gpio93. Next: the dts node on the test kernel's matching QUP, then one test-ramdisk try with nfc-present.sh; firmware from ~/lab-material.
 
 Blocked by
 : walleye-ufs-readonly
