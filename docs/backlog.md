@@ -13512,7 +13512,7 @@ Note
 : From walleye-pon-read-after-bite-the-way. Phone off by adb reboot -p (cable in, then out), author holds power+volume-down once, lab fastboot-boots the reader image and saves 0xC0..0xCB raw; states what outlives a key press and the bootloader.
 
 Blocked by
-: walleye-wdt-pon-control-procedure
+: walleye-pon-block-reads-type
 
 About
 : walleye-pmic-wdt-v1-image
@@ -13634,3 +13634,28 @@ Proof
 
 Rank
 : 40
+
+
+<a id="walleye-pon-block-reads-type"></a>
+### pon-block also reads the PON TYPE register (0x804), so a reading proves it came from the PON regmap
+
+Status
+: open
+
+Note
+: Review item 4 on PR 1231, taken up by the walleye coordinator 2026-11-26: an attended run's instrument is proven on a known case before the author's hands are asked; the type register is that case. The expected value comes from the PM8998 PON driver source (qcom-pon / pm8941-pwrkey), named in the commit.
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: pon-block's tests cover a regmap whose 0x804 is the PON type (accepted) and one that is not (refused, printed as such); image pon-read rebuilt equal; tests/host/ufs-off-image.sh passes
+
+Rank
+: 7
