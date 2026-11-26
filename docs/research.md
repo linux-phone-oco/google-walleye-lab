@@ -8866,3 +8866,22 @@ Sources
 
 About
 : nfc
+
+
+<a id="walleye-nfc-dev-up-ack-is-the-chips-reply"></a>
+### walleye-nfc-dev-up-ack-is-the-chips-reply
+
+Date
+: 2026-11-26
+
+Brief
+: DEV_UP rc=0 is the PN553's own reply: nci_open_device returns 0 only after CORE_RESET, CORE_INIT and init-complete responses came back over i2c
+
+Question
+: Run 2 acked NFC_CMD_DEV_UP (rc=0) but 0x28 was not probed: did the chip answer?
+
+Found
+: net/nfc/nci/core.c nci_open_device (linux-phone-oco/linux HEAD): after ops->open (nxp-nci: VEN up) it runs __nci_request(nci_reset_req), ops->setup, __nci_request(nci_init_req), post_setup, __nci_request(nci_init_complete_req); each waits on req_completion, which only a response packet from the chip completes (nci_rsp_packet), else -ETIMEDOUT and cleanup. NCI_UP is set and 0 returned only if all three answered. So run 2's ack (research walleye-nfc-boot-run-2) measures that the PN553 answered NCI over i2c at 0x28 with VEN high, gpio93 low, BBCLK3 unused: VEN, the bus and firmware mode are not the fault, and the chip runs without that clock at least to init. A plain i2c read of 0x28 would add nothing and races the bound driver (it needs -f). Not known yet: RF - whether a poll finds a tag. Next: a poll in walleye-nfc-up (START_POLL, TARGETS_FOUND), run once without a tag, then with a tag under the author's go.
+
+About
+: nfc

@@ -6498,10 +6498,10 @@ Status
 : in-progress
 
 Note
-: run 2: nfc-present pass, DEV_UP acked, VEN moves, no nxp-nci line, 0x28 not probed; tag poll not yet - see research walleye-nfc-boot-run-2
+: run 2: DEV_UP acked = the chip answered NCI init (research walleye-nfc-dev-up-ack-is-the-chips-reply). Left: the tag poll, with a tag on the phone's back under the author's go, after the no-tag poll run.
 
 Blocked by
-: walleye-nfc-node-oneplus5-form
+: walleye-nfc-poll-run-no-tag
 
 About
 : nfc
@@ -6517,6 +6517,9 @@ Proof
 
 Rank
 : 22
+
+Witness
+: person
 
 
 <a id="walleye-deep-sleep-baseline"></a>
@@ -13422,10 +13425,10 @@ Rank
 ### NFC: read the PN553 at 0x28 after the open (plain i2c read, VEN high), then the clock if it NACKs
 
 Status
-: open
+: dropped
 
 Note
-: From research walleye-nfc-boot-run-2: i2cdetect skipped 0x28, so 'the chip answered' is not measured. Procedure edit first (i2cget/i2ctransfer read in open.txt), then one run.
+: dropped 2026-11-26 by the walleye coordinator: the DEV_UP ack already is the chip's NCI reply over i2c (research walleye-nfc-dev-up-ack-is-the-chips-reply); a plain read adds nothing and races the bound driver. Next is the poll (walleye-nfc-poll-in-tool).
 
 About
 : nfc
@@ -13438,6 +13441,59 @@ Needs
 
 Proof
 : the nfc boot's open.txt has an i2c read of 0x28 (ACK or NACK, as printed) after DEV_UP, and the research row says VEN, clock or firmware
+
+Rank
+: 8
+
+
+<a id="walleye-nfc-poll-in-tool"></a>
+### walleye-nfc-up --poll SECONDS: START_POLL after DEV_UP, print the target found or 'no target', and the nfc boot reads it; verdict says the chip answered NCI init
+
+Status
+: open
+
+Note
+: From research walleye-nfc-dev-up-ack-is-the-chips-reply. The procedure's 'chip answered' verdict cites the DEV_UP ack (nci_open_device), not 'not known yet'. Protocols for START_POLL from NFC_CMD_GET_DEVICE; the wait listens on the nfc 'events' multicast group, bounded by SECONDS; STOP_POLL and DEV_DOWN after.
+
+About
+: nfc
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: walleye-nfc-up unit tests with the stand-in kernel cover START_POLL, TARGETS_FOUND and the timeout; the nfc image rebuilt equal twice; tests/host/ufs-off-image.sh passes
+
+Rank
+: 8
+
+
+<a id="walleye-nfc-poll-run-no-tag"></a>
+### NFC boot with the poll, no tag near: the poll starts and ends 'no target' in its time (the instrument on its known case)
+
+Status
+: open
+
+Note
+: Unattended. If START_POLL errs or the wait hangs, that is read before any fix.
+
+Blocked by
+: walleye-nfc-poll-in-tool
+
+About
+: nfc
+
+Opened
+: 2026-11-26
+
+Needs
+: phone
+
+Proof
+: procedures/nfc-boot-on-the-pixel-2.rs run once: open.txt has DEV_UP ack, START_POLL rc=0 and 'no target' within SECONDS; the phone back on Android slot b
 
 Rank
 : 8
