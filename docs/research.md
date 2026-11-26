@@ -8926,3 +8926,25 @@ Sources
 
 About
 : nfc
+
+
+<a id="walleye-device-config-elixir-parts-3-6"></a>
+### walleye-device-config-elixir-parts-3-6
+
+Date
+: 2026-11-26
+
+Brief
+: Elixir tree (udc, 603421f) holds the audio, thermal, touch idc, WCNSS and insmod files; insmod.cfg is the HTC list, the idc and thermal are small and usable as references
+
+Question
+: What do the Elixir tree's init.insmod.cfg, synaptics_dsxv26.idc, thermal-engine.conf, thermal_info_config.json, WCNSS_qcom_cfg.ini, mixer_paths_tavil.xml and audio_platform_info_tavil.xml give the bring-up steps?
+
+Found
+: All seven files exist on branch udc (commit 603421f), read only, nothing copied. (3) init.insmod.cfg is 5 lines: HTC synaptics_dsx_core/fw_update/rmi_dev, htc_battery, wlan - no display order, so our L7 order has no vendor counterpart here; the vendor_a copy is the real list. (5) synaptics_dsxv26.idc (muskie, Apache 2.0): internal touchScreen, orientationAware, size diameter scale 42.09 bias -21.91, pressure amplitude scale 0.0125 - userspace calibration only, no I2C or firmware config; the Synaptics S3708AR node needs none of it. (4) thermal-engine.conf: skin sensor back_therm limits cluster1 to 1804800 kHz at 40 C, 1497600 at 42 C, 1190400 at 47 C, GPU capped at a virtual hot-skin 39 C, monitors at 50/52/54 C; thermal_info_config.json names tsens_tz_sensor1-13, battery, usb_port_temp, back_therm - so mainline thermal zones for step thermal-zones-sane map tsens sensors 0-13 plus back_therm (a pm8998 ADC channel) with trips near 40-54 C. (6) WCNSS_qcom_cfg.ini (671 lines) is the wlan.ko (qcacld) config: channel bonding, NAN, 11d/11h; the ath10k wcn3990 path does not read it, only its MAC and regulatory hints matter. (2) mixer_paths_tavil.xml (2293 lines, 514 paths) routes through QUAT_MI2S_RX/TX and SLIMBUS for the WCD934x; audio_platform_info_tavil.xml gives acdb ids per SND_DEVICE - for walleye-adsp-q6-mi2s the QUAT MI2S backend is the one to match, SLIM the codec side; the ACDB ids are Qualcomm tuning we do not use.
+
+Sources
+: src-projectelixir-device-google-walleye
+
+About
+: walleye-device-config-sources-read
