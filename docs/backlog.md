@@ -6501,7 +6501,7 @@ Note
 : Host reading done (research walleye-nfc-android-dtb-read): nfc@28 on i2c@c1b6000, irq gpio92, VEN gpio12, FIRM gpio93. Next: the dts node on the test kernel's matching QUP, then one test-ramdisk try with nfc-present.sh; firmware from ~/lab-material.
 
 Blocked by
-: walleye-ufs-readonly
+: walleye-nfc-dts-node-image
 
 About
 : nfc
@@ -13204,3 +13204,28 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-nfc-dts-node-image"></a>
+### walleye's board dts carries the NXP NCI node (nxp,nxp-nci-i2c at 0x28) on the QUP that is Android's i2c@c1b6000, and a test image is built for one try
+
+Status
+: open
+
+Note
+: Queued by the walleye coordinator 2026-11-26 from the keeper's host reading (PR 1193). Clock (BBCLK3 / PM8998 gpio21 clkreq) and supplies are not known yet: the builder reads them from the msm8998 sources and names what stays unknown; the node goes without them first if nxp-nci probes without a clock.
+
+About
+: nfc
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: a commit on a wip/walleye/nfc branch of linux-phone-oco/linux adds the node: mainline compatible nxp,nxp-nci-i2c, reg 0x28, interrupt gpio 92 level high, enable-gpios 12, firmware-gpios 93, pinctrl from Android's nfc_active (walleye-nfc-android-dtb-read); the QUP node is named from the msm8998 dtsi by its address c1b6000 and enabled; nxp-nci and nxp-nci-i2c are built (module or in); dtbs_check clean for the node; an [images.*] row with its sha256 and recipe from an int/ tag; the keeper's try runs tests/health/base/nfc-present.sh on it (walleye-nfc-nxp-nci-node)
+
+Rank
+: 22
