@@ -8803,3 +8803,25 @@ Found
 
 About
 : nfc
+
+
+<a id="walleye-nfc-oneplus5-image-built"></a>
+### walleye-nfc-oneplus5-image-built
+
+Date
+: 2026-11-26
+
+Brief
+: The nfc image carries the OnePlus 5 form of the node (enable gpio116, pull-ups on 12, 116, 92), rebuilt from its recipe with a new dtb: sha256 bb881ba1, UFS-off gate passes
+
+Question
+: Does the nfc test image rebuild equal with the node in the OnePlus 5's form, and can the boot open nfc0 to tell VEN, clock and firmware apart?
+
+Found
+: dt/msm8998-google-walleye.dts: nfc@28 has enable-gpios on tlmm 116 and no firmware-gpios; nfc_ctl_pins pulls up gpio12 and gpio116, nfc_irq_pins gpio92 (the form of msm8998-oneplus-common.dtsi, research walleye-nfc-clock-and-minus-121). The dtb was built with build-kernel.sh on a worktree of int/walleye/ufs-off/v7.3/1; the build path was tested on a known case first: the old dts built the same way gives 67fb13fe, the dtb of the old recipe, byte for byte. The new dtb is 86550c1e; the kernel (78dbbff6) and the ramdisk (b094adc1, net 43) are the stored ones, unchanged (the full kernel build of this tree is not byte-equal to the stored Image.gz, e45867fa against 78dbbff6, so it was not used). Image [images.nfc] = slpi control with the new dtb: bb881ba1d52bf39dfe49ec1cfdc86ba98e05921184635ec015a584483422646f; lpoco bringup image ensure nfc --seed (the dtb only) says built from its recipe, equal to its declared sha256; tests/host/ufs-off-image.sh passes. The procedure nfc-boot-on-the-pixel-2 gained a step: it reads gpio12, 116, 92 and 93 before and after the open, opens nfc0 with nfctool -d nfc0 -1, runs i2cdetect on the bus of c1b6000.i2c and reads ln_bb_clk3, and says VEN (no ACK), clock (ACK or UU and a timeout) or gpio93 (firmware framing). NOT KNOWN YET: the ramdisk's busybox has i2cdetect but no tool that opens nfc0 (a netlink NFC_CMD_DEV_UP): without it the step says the cause is not known yet and the run reads only the pins and the bus; the answer texts the judge reads (nfctool's, i2cdetect's) are stand-ins from the tools' sources, not captured from a phone; the pin table is the phone's own format (Android b, 2026-11-25). With the driver bound i2cdetect prints UU at 0x28, so the ACK is told by the open's own answer.
+
+Sources
+: lkml-nxp-pn553-binding
+
+About
+: nfc

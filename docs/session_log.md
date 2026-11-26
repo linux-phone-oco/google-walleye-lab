@@ -9976,3 +9976,24 @@ Considered
 
 About
 : nfc
+
+---
+
+
+<a id="2026-11-26-walleye-builder-nfc-oneplus5-form"></a>
+### walleye-builder: the NFC node in the OnePlus 5 form and the open read
+
+Entry date
+: 2026-11-26
+
+Done
+: Reshaped nfc@28 (enable gpio116, no firmware gpio, pull-ups 12/116/92), built the dtb on the ufs-off tag's tree (known-case check: the old dts gives the old dtb), made [images.nfc] bb881ba1 from the slpi control with the new dtb, rebuilt equal by ensure from a dtb-only seed, gate passes; the old image kept in ~/Projects/walleye-build/images-nfc/prev-dab25d7f. nfc_boot.rs: the open read (pins before and after, nfctool, i2cdetect on the node's bus, ln_bb_clk3) and its judge with tests; the procedure gained the step; dry run passes.
+
+Considered
+: Opening nfc0 with busybox only: no applet speaks the NFC netlink family. A kernel-side open (nfc rfkill or sysfs): none exists.
+
+Rejected
+: Using the freshly built Image.gz: it is not byte-equal to the stored kernel (build path in it), so the recipe keeps the stored kernel and swaps only the dtb. A ramdisk change in this item: it would need a new tool and a musl target, so it is its own item.
+
+About
+: nfc
