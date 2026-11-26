@@ -9919,3 +9919,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-walleye-nfc-boot-procedure"></a>
+### NFC boot procedure and the image at net 43
+
+Entry date
+: 2026-11-26
+
+Done
+: Rebuilt the nfc ramdisk at net 43 (method proven on the recorded net-42 ramdisk first), declared image dab25d7f, wrote procedures/nfc-boot-on-the-pixel-2.rs with steps/src/nfc_boot.rs, device.toml table, settings. Unit tests 479 pass, dry run 10 steps, image UFS-off gate passes. Queued nothing new: walleye-nfc-nxp-nci-node already needs phone and is unblocked.
+
+Considered
+: Running nfc-present.sh on the phone by sending its text with the health lib's say/check in place of the sourced lib (the image has no suite).
+
+Rejected
+: Reading 172.16.42.1 in the procedure (decision 2026-11-26-walleye-ramdisk-on-net-43). A separate rehearse- entry: no step of it reads the phone beyond the shared trips, the dry run covers the listing. Note: lpoco attended check --host fails on the repo's device.toml at [connections.android] (installed lpoco-attended older than its manifest), also on main; not mine.
+
+About
+: nfc

@@ -8743,3 +8743,25 @@ Sources
 
 About
 : nfc
+
+
+<a id="walleye-nfc-image-rebuilt-at-net-43"></a>
+### walleye-nfc-image-rebuilt-at-net-43
+
+Date
+: 2026-11-26
+
+Brief
+: The nfc image's ramdisk is rebuilt at net 43: ramdisk b094adc1, image dab25d7f, rebuilds equal, UFS-off gate passes
+
+Question
+: Can [images.nfc] be rebuilt with the roof's init at walleye's net 43, and does the method reproduce the recorded net-42 ramdisk?
+
+Found
+: build-initramfs.sh phone now takes its net from device.toml's shell_address (43). Known case first: NET=42 gives a3d5dd79 = the recorded ramdisk, so the method is the one that built it. NET=43 gives b094adc1 twice, equal; recipe ramdisk set to it; lpoco bringup image ensure nfc --rebuild twice makes dab25d7f (old 3ccc7200 was net 42), equal to the declared sha256; tests/host/ufs-off-image.sh passes on it; images-nfc/boot-nfc.img and SHA256SUMS-nfc are the new bytes. Kernel and dtb unchanged (78dbbff6, 67fb13fe). Not run on the phone.
+
+Sources
+: walleye-nfc-image-built
+
+About
+: nfc

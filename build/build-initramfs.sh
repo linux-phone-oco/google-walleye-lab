@@ -5,7 +5,7 @@
 #   build-initramfs.sh phone    WORK_DIR OUT_CPIO_GZ     arm64 busybox, for the phone
 #   build-initramfs.sh selftest WORK_DIR OUT_CPIO_GZ     x86_64 busybox + the host's gadget modules and iproute2,
 #                                                        for the QEMU self-test (build/selftest-initramfs.sh)
-# NET=43 (default 42): the phone answers on 172.16.NET.1 and leases 172.16.NET.2; the init, udhcpd.conf and selftest.sh are made
+# NET (default: phone = the device.toml shell_address's net, 43; selftest = 42): the phone answers on 172.16.NET.1 and leases 172.16.NET.2; the init, udhcpd.conf and selftest.sh are made
 # by `lpoco bringup initramfs init/files --net NET` from the device's [boot.gadget] into WORK_DIR/roofNET/ (the roof's init, item
 # walleye-init-from-roof: the images built with it have new sha256s).
 # WORK_DIR holds busybox-arm64 / busybox-x86_64 (build-busybox.sh) and out/b (build-kernel.sh).
@@ -17,7 +17,9 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 case $MODE in phone|ufs-root) BB=$W/busybox-arm64 ;; selftest|ufs-root-selftest) BB=$W/busybox-x86_64 ;; *) echo "mode $MODE" >&2; exit 2 ;; esac
 GEN=${GEN:-$W/out/b/usr/gen_init_cpio}   # GEN: the usr/gen_init_cpio of any built kernel tree
 [ -x "$GEN" ] || make -C "$W/linux-v7.3" ARCH=arm64 LLVM=1 O="$W/out/b" usr/gen_init_cpio >/dev/null
-NET=${NET:-42}
+# phone: walleye's own net, the third byte of device.toml's shell_address (decision 2026-11-26-walleye-ramdisk-on-net-43); selftest keeps 42 (its QEMU host side); NET overrides both
+DEVNET=$(sed -n 's/^shell_address = "172\.16\.\([0-9]*\)\.1".*/\1/p' "$HERE/../device.toml")
+case $MODE in phone) NET=${NET:-${DEVNET:?build-initramfs: no shell_address 172.16.N.1 in device.toml}} ;; *) NET=${NET:-42} ;; esac
 SRC=; SUF=
 case $MODE in ufs-root|ufs-root-selftest) SRC=${INIT_DIR:-$HERE/initramfs-root} ;; esac   # INIT_DIR: another init (build/initramfs-root-display, the UFS root with the display)
 if [ "${MODE#ufs-root}" = "$MODE" ]; then
