@@ -13076,10 +13076,10 @@ Rank
 ### One run of procedures/display-delay-bisect-on-the-pixel-2.rs on the step groups (phone_ready per image, leave_known_good per image, table before the last)
 
 Status
-: open
+: done
 
 Note
-: queued by walleye-builder 2026-11-26: on the groups (dry run 39 steps, check --host, 477 tests, clippy, programmer review ok). Five images, about 3 min each; the keeper may run b-d5 alone (delays = 5, put back). DO NOT Ctrl-C the run: the groups' way back covers a failed step, not a signal (lab-tools item attended-way-back-on-signal owed); a phone left in fastboot is brought back with the way-back procedure.
+: proven by run walleye-keeper 2026-11-26: 39 of 39 steps passed, five rows, way back to Android after each; result research walleye-display-delay-step-groups-run-result; used by run walleye-keeper
 
 Blocked by
 : walleye-way-back-procedure-run

@@ -9562,3 +9562,21 @@ Rejected
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-1800-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Phone on Android slot b, stock, nothing flashed; adb up. Ran walleye-display-delay-step-groups-run (used by run walleye-keeper 2026-11-26): five images, 39/39 steps, 13/13 modules each, clean only at 25 s, no single flip point (research walleye-display-delay-step-groups-run-result). No go was open.
+
+Considered
+: next: walleye-nfc-nxp-nci-node (22) host reading; the non-monotone delay result goes to the coordinator for the display decision
+
+About
+: walleye-attend-program-display
