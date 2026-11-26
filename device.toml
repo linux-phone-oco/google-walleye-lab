@@ -174,7 +174,7 @@ sha256 = "f132e0f2a857f200e1edd70a70bb123caa79c3275c5a5fa634a33e8d4e530baa"
 
 # The kernels the attended procedures' boot_once and back_to_known_good name. Walleye boots only by fastboot boot and nothing is written to it: "kept" names the image the way back returns to, not a kernel stored on the phone.
 [kernels]
-test = ["z21", "nfc", "l7", "b2", "b-d5", "b-d15", "b-d25", "b-d35", "b-d50", "b-s5", "b-r5", "b-r2", "b-rp2", "b-q5", "wdt1-a", "wdt1-b"]   # b-*: the delay bisect's images (its image_prefix)
+test = ["z21", "nfc", "l7", "b2", "b-d5", "b-d15", "b-d25", "b-d35", "b-d50", "b-s5", "b-r5", "b-r2", "b-rp2", "b-q5", "wdt1-a", "wdt1-b", "pon-read"]   # b-*: the delay bisect's images (its image_prefix)
 boot = "fastboot"                   # a test image is booted from memory (its [images.NAME]), nothing written: boot_once and phone_ready read this
 kept = "z21"
 # How the phone comes back to Android after a try (lpoco-attended 0.46.3 runs each line in this folder, as argv, in order, then waits for `back_on` to answer; a test image has no systemd, so the library's `systemctl reboot` does not fit):
@@ -289,6 +289,17 @@ sha256 = "4a4ae255e5feee859310e9c4b4c4afb2ae139756787be90e90ad851458193c1a"
 [images.wdt1-b.recipe]
 control = "wdt1-a"
 kernel = "5fd9772018032bff545a696d6c4926aa940e0c3187c557030aaa7897b734bce3"
+
+# pon-read: wdt1-a (its kernel, dtb, command line, init) whose ramdisk holds one more file, /bin/pon-block (build/initramfs-mainline/pon-block): the PMIC PON block 0xC0..0xCB read raw through regmap debugfs, reads only
+# (item walleye-wdt-pon-control-procedure; research walleye-pon-read-after-bite-the-way). The ramdisk is packed as build-pmic-wdt-v1.sh packs wdt1-a's (gen_init_cpio, xz crc32 preset 6e: that packing gives wdt1-a's own ramdisk byte for byte), plus the file;
+# `lpoco-bringup image swap` with wdt1-a's own ramdisk gives wdt1-a byte for byte. UFS-off gate passes. NOT KNOWN YET: that regmap debugfs shows the PON on this phone (the earlier pon-regs reader was never shown to read here).
+[images.pon-read]
+path = "images-pon-read/boot-pon-read.img"
+sha256 = "ec05365c9229afa542ce9acc0e16aaa3008d6414c99dd01f7885a442352d49e2"
+
+[images.pon-read.recipe]
+control = "wdt1-a"
+ramdisk = "a08b2bcd161b15cf3c190068a5ed843e63bb3e96a2b0e1f043dfd21c30d37875"
 
 # The values only one procedure uses (the procedure's name in lowercase words joined by -).
 [procedures.touch-events-on-z21]
@@ -788,3 +799,8 @@ sha256 = "ab2cf4c11650bd7c20e7b31fffd4e2437dee9ed431d31baa90cffc6e28a21171"
 
 # The way back (procedures/way-back-on-the-pixel-2.rs; item walleye-procedures-on-step-groups): `[kernels] way_back` runs it. It reads no key of its own: the shell address, [tools], [boot] device_wait and back_wait are the shared ones.
 [procedures.way-back-on-the-pixel-2]
+
+# The PON control read (procedures/pon-control-read-on-the-pixel-2.rs; item walleye-wdt-pon-control-procedure): power off by adb, the author's one hold, the pon-read image from fastboot, the PON block read raw.
+[procedures.pon-control-read-on-the-pixel-2]
+off_wait = 60                       # seconds the phone may take to be off (adb and fastboot list nothing) after `adb shell reboot -p`
+hold_wait = 120                     # seconds after the author's ok that the bootloader may take to list the phone (the hold is volume-down and power together)

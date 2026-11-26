@@ -149,6 +149,8 @@ jobs:
           : > build/images/images-display-look/boot-b2.img
           mkdir -p build/images/images-wdt1-sysfsless
           : > build/images/images-wdt1-sysfsless/boot-wdt1-a.img
+          mkdir -p build/images/images-pon-read
+          : > build/images/images-pon-read/boot-pon-read.img
           mkdir -p build/images/images-nfc
           : > build/images/images-nfc/boot-nfc.img
           mkdir -p build/images/images-z21

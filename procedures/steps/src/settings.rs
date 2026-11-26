@@ -13,6 +13,7 @@
 //! | the images | `[images] dir`, `[images.z21]`, `[images.wdt1-a]` (`path`, `sha256`) |
 //! | the touch try's values | `[procedures.touch-events-on-z21] window`, `min_window` |
 //! | the PMIC try's values | `[procedures.pmic-watchdog-v1-on-the-pixel-2] stay`, `bite_wait` |
+//! | the PON control read's values | `[procedures.pon-control-read-on-the-pixel-2] off_wait`, `hold_wait` (image `[images.pon-read]`) |
 //! | the display try's values | `[images.l7]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
 //! | the UFS try's values | `[images.ufs-match]` (`path`, `sha256`), `[procedures.ufs-matched-image-on-the-pixel-2]` `dtb`, `kernel_tree`, `go_item`, `lun`, `load_mb`, `load_limit`, `luns`, `ramp_mb`, `devfreq` |
 //! | the install write's values | `[images.alpine-rootfs]` (`path`, `sha256`), `[procedures.install-rootfs-on-the-pixel-2]` `backup`, `stage_dir`, `by_name` |
@@ -54,6 +55,7 @@ pub const REHEARSE_FLASH_BOOT_PROCEDURE: &str = "rehearse install boot on the Pi
 pub const TRANSPORT_PROCEDURE: &str = "transport on the Pixel 2";
 pub const REHEARSE_TRANSPORT_PROCEDURE: &str = "rehearse transport on the Pixel 2";
 pub const WAY_BACK_PROCEDURE: &str = "way back on the Pixel 2";
+pub const PON_CONTROL_PROCEDURE: &str = "PON control read on the Pixel 2";
 
 /// The image of the root boot: the name of its `[images.NAME]` table.
 pub const ROOT_IMAGE: &str = "ufs-root";
@@ -81,6 +83,7 @@ pub enum Try {
     FlashBoot,
     Transport,
     WayBack,
+    PonControl,
 }
 
 /// One image of the delay bisect: the seconds of uptime its init waits, its file and the sha256 `device.toml` records.
@@ -123,6 +126,9 @@ pub struct Settings {
     /// the PMIC watchdog try: how long Android stays up, how long the bite may take (its image is `image`, `[images.wdt1-a]`)
     pub stay: u64,
     pub bite_wait: u64,
+    /// the PON control read: seconds the phone may take to power off after `reboot -p`, seconds the author's hold may take to show the bootloader (its image is `image`, `[images.pon-read]`)
+    pub off_wait: u64,
+    pub hold_wait: u64,
     /// the display try: seconds the drawer holds the stripes, seconds between two module loads
     pub hold: u64,
     pub module_pause: u64,
@@ -343,6 +349,13 @@ impl Settings {
         })
     }
 
+    /// The PON control read's settings, read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_pon_control() -> Settings {
+        Settings::read_linked(Try::PonControl, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
     /// The PMIC try's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_pmic() -> Settings {
         Settings::read_linked(Try::Pmic, &|k| dev(k).to_string(), &|k| proc(k).to_string())
@@ -403,6 +416,8 @@ impl Settings {
             fastboot: dev("tools.fastboot"),
             stay: 0,
             bite_wait: 0,
+            off_wait: 0,
+            hold_wait: 0,
             hold: 0,
             module_pause: 0,
             modules: 0,
@@ -445,6 +460,11 @@ impl Settings {
                 s.window = number("window", proc("window"));
                 s.min_window = number("min_window", proc("min_window"));
                 s.out = s.out_dir("touch");
+            }
+            Try::PonControl => {
+                s.image = image(crate::pon_control::KERNEL);
+                s.off_wait = number("off_wait", proc("off_wait"));
+                s.hold_wait = number("hold_wait", proc("hold_wait"));
             }
             Try::Pmic => {
                 s.image = image(crate::pmic::KERNEL);
@@ -767,6 +787,9 @@ impl Settings {
             ("min_window", "40"),
             ("stay", "180"),
             ("bite_wait", "150"),
+            ("off_wait", "60"),
+            ("hold_wait", "120"),
+            ("images.pon-read.path", "boot-pon-read.img"),
             ("images.l7.path", "boot-l7.img"),
             ("hold", "60"),
             ("module_pause", "5"),
@@ -903,6 +926,7 @@ mod tests {
         for (which, table) in [
             (Try::Touch, TOUCH_PROCEDURE),
             (Try::Pmic, PMIC_PROCEDURE),
+            (Try::PonControl, PON_CONTROL_PROCEDURE),
             (Try::Display, DISPLAY_PROCEDURE),
             (Try::DisplayBoot, DISPLAY_BOOT_PROCEDURE),
             (Try::Ufs, UFS_PROCEDURE),
