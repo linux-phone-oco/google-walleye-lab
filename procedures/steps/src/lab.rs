@@ -327,6 +327,94 @@ mod tests {
         );
     }
 
+    // The shell legs of the way back, on stand-in phones (ported from the removed pmic `the_way_back` module,
+    // `git show a855d3a:tools/walleye-tries/src/pmic.rs`; the stand-in phone is `phone::fake`). No clock decides:
+    // Android is "back" when the stand-in phone has restarted.
+
+    /// A lab whose idle-android check passes once the file `marker` is in the lab's folder (the stand-in phone
+    /// creates it when it restarts), or never when `marker` is None; fastboot lists nothing.
+    fn shell_lab(name: &str, marker: Option<&str>) -> (Lab, std::path::PathBuf) {
+        let lab = lab_in(name, Some("[connection]\nserial = \"SER1\"\n"));
+        let d = lab.s.lab.clone();
+        std::fs::create_dir_all(d.join("tests/host")).unwrap();
+        // a marker left by an earlier run with the same pid would read as "already on Android"
+        for m in ["restarted", "sysrq-sent"] {
+            let _ = std::fs::remove_file(d.join(m));
+        }
+        let check = match marker {
+            Some(m) => format!(
+                "[ -e \"{0}/{m}\" ] && echo 'pass walleye-idle-android host back' && exit 0\necho 'fail walleye-idle-android not yet'; exit 1\n",
+                d.display()
+            ),
+            None => "echo 'fail walleye-idle-android not yet'; exit 1\n".into(),
+        };
+        crate::fixture::executable(&d.join("tests/host/idle-android.sh"), &check);
+        crate::fixture::executable(&d.join("fastboot"), "#!/bin/sh\nexit 0\n");
+        let mut s = (*lab.s).clone();
+        s.fastboot = d.join("fastboot").to_string_lossy().into_owned();
+        s.back_wait = 3;
+        s.address = "127.0.0.1".into();
+        (Lab::new(Rc::new(s)), d)
+    }
+
+    fn on_port(lab: &Lab, port: u16) -> Lab {
+        let mut s = (*lab.s).clone();
+        s.port = port;
+        Lab::new(Rc::new(s))
+    }
+
+    #[test]
+    fn a_test_image_is_sent_reboot_f_over_its_shell() {
+        let (lab, d) = shell_lab("reboot", Some("restarted"));
+        let port = crate::phone::fake::phone_marking(
+            vec![(REBOOT_NOW, "!going")],
+            vec![],
+            Some(d.join("restarted")),
+        );
+        on_port(&lab, port).way_back().unwrap();
+        assert!(d.join("restarted").exists(), "reboot -f was not sent");
+    }
+
+    #[test]
+    fn when_reboot_f_does_nothing_the_sysrq_trigger_is_sent() {
+        // Android returns only when the phone restarts, which only the sysrq command makes it do
+        let (lab, d) = shell_lab("sysrq", Some("restarted"));
+        let port = crate::phone::fake::phone_marking(
+            vec![(REBOOT_NOW, "ignored"), ("sysrq-trigger", "!going")],
+            vec![],
+            Some(d.join("restarted")),
+        );
+        on_port(&lab, port).way_back().unwrap();
+        assert!(
+            d.join("restarted").exists(),
+            "the sysrq command was not sent"
+        );
+    }
+
+    #[test]
+    fn a_silent_shell_and_no_android_says_the_power_hold_sentence() {
+        let (lab, _d) = shell_lab("silent", None);
+        let e = on_port(&lab, crate::phone::fake::closed())
+            .way_back()
+            .unwrap_err();
+        assert!(e.contains(POWER_HOLD), "{e}");
+    }
+
+    #[test]
+    fn a_shell_that_answers_and_a_phone_that_stays_away_says_it_after_both_ways() {
+        let (lab, d) = shell_lab("stays", None);
+        // the first way is ignored, the second is sent (the phone marks it) and Android still does not come
+        let port = crate::phone::fake::phone_marking(
+            vec![(REBOOT_NOW, "ignored"), ("sysrq-trigger", "!x")],
+            vec![],
+            Some(d.join("sysrq-sent")),
+        );
+        let e = on_port(&lab, port).way_back().unwrap_err();
+        assert!(d.join("sysrq-sent").exists(), "the second way was not sent");
+        assert!(e.contains("did not come back to Android"), "{e}");
+        assert!(e.contains(POWER_HOLD), "{e}");
+    }
+
     #[test]
     fn the_serial_is_read_and_a_missing_file_or_serial_is_named() {
         let ok = lab_in("ok", Some("[connection]\nserial = \"SER1\"\n"));
