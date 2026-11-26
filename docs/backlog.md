@@ -12847,6 +12847,9 @@ Status
 Note
 : Moved from docs' base 2026-11-25 (orchestration; blocker bringup-generic-init done). Its gadget serial, address and functions move to device.toml [boot]; build/initramfs*/ and build/ffs-acm* stay in history. Every booted image changes with it: new sha256s, each image's first boot rides on its next keeper run.
 
+Blocked by
+: walleye-nfc-dts-node-image
+
 About
 : walleye-bootimage
 
@@ -13213,7 +13216,7 @@ Status
 : open
 
 Note
-: Queued by the walleye coordinator 2026-11-26 from the keeper's host reading (PR 1193). Clock (BBCLK3 / PM8998 gpio21 clkreq) and supplies are not known yet: the builder reads them from the msm8998 sources and names what stays unknown; the node goes without them first if nxp-nci probes without a clock.
+: ONE IMAGE FOR TWO PROOFS (coordinator 2026-11-26, after PR 1200): the NFC test image is UFS-off (on the walleye-ufs-off kernel line) and its ramdisk is build-initramfs.sh phone, with lpoco bringup's init. Then the keeper's NFC try also proves walleye-init-from-roof: the gadget serial walleye-first-boot. Every image with the phone init today has UFS on (NOT-TO-BOOT), so none could be booted. Rank 7, with init-from-roof. Queued by the walleye coordinator 2026-11-26 from the keeper's host reading (PR 1193). Clock (BBCLK3 / PM8998 gpio21 clkreq) and supplies are not known yet: the builder reads them from the msm8998 sources and names what stays unknown; the node goes without them first if nxp-nci probes without a clock.
 
 About
 : nfc
@@ -13228,4 +13231,4 @@ Proof
 : a commit on a wip/walleye/nfc branch of linux-phone-oco/linux adds the node: mainline compatible nxp,nxp-nci-i2c, reg 0x28, interrupt gpio 92 level high, enable-gpios 12, firmware-gpios 93, pinctrl from Android's nfc_active (walleye-nfc-android-dtb-read); the QUP node is named from the msm8998 dtsi by its address c1b6000 and enabled; nxp-nci and nxp-nci-i2c are built (module or in); dtbs_check clean for the node; an [images.*] row with its sha256 and recipe from an int/ tag; the keeper's try runs tests/health/base/nfc-present.sh on it (walleye-nfc-nxp-nci-node)
 
 Rank
-: 22
+: 7
