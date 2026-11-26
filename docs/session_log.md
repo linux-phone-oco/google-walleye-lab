@@ -9796,3 +9796,24 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-26-walleye-builder-init-from-roof"></a>
+### build-initramfs.sh phone and selftest take the roof's init
+
+Entry date
+: 2026-11-26
+
+Done
+: build-initramfs.sh phone|selftest makes the init and files with lpoco bringup initramfs init/files --net N from device.toml [boot.gadget] (WORK_DIR/roofN); own 42->43 rewrite gone; build/initramfs/init and udhcpd.conf retired (selftest.sh, udhcpc.script stay for the debug image); the build checks the generated init sets serial walleye-first-boot; selftest passes at nets 42 and 43, phone mode builds. New sha256s for every image built so; the generated init has no RNDIS config (rndis=false) and product 'Pixel 2 walleye (mainline banner shell)'. First boot rides on the keeper's next run.
+
+Considered
+: the generated init lacks the 180 s hold, watchdog petter, raw command loop and banner (research walleye-generated-init-gaps): UFS-root and SLPI inits are not touched
+
+Rejected
+: marking the item done: its proof names a keeper boot
+
+About
+: walleye-bootimage

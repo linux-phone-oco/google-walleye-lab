@@ -55,8 +55,8 @@ Pass the f dtb as the fifth argument of `build-bootimg.sh` (`build-all.sh` does)
 
 Walleye and surya share one host, and surya's pmOS gadget answers on 172.16.42.1, so lpoco lab must tell the phones apart; the manifest
 `[connection] addresses` already says 172.16.43.1. `boot-g.img` = e and `boot-h.img` = f with the initramfs built `NET=43`
-(`build-initramfs.sh` rewrites 172.16.42 to 172.16.43 in the init, udhcpd.conf and the self-test, and the ECM MAC byte 2a to 2b,
-into `WORK_DIR/net43/`; at the default NET=42 the files are used as they are, so a-f stay byte for byte). Only the ramdisk differs
+(then `build-initramfs.sh` rewrote 172.16.42 to 172.16.43 in the init, udhcpd.conf and the self-test, and the ECM MAC byte 2a to 2b; since item walleye-init-from-roof
+`lpoco bringup initramfs init --net N` makes them into `WORK_DIR/roofN/`, and every image built that way has a new sha256 - its generated init has no RNDIS configuration (`[boot.gadget] rndis = false`) and the product string "Pixel 2 walleye (mainline banner shell)"). Only the ramdisk differs
 from e, b and f. `check-bootimg.sh` now also counts `ifconfig usb0 172.16.NET.1` in /init and the lease in udhcpd.conf (`NET=43` for g, h, i).
 `NET=43 build/selftest-initramfs.sh WORK_DIR` is the QEMU proof at 172.16.43.1.
 

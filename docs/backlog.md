@@ -12854,10 +12854,10 @@ Opened
 : 2026-11-18
 
 Needs
-: build
+: phone
 
 Proof
-: build/selftest-initramfs.sh passes with the roof's init; the next keeper boot shows the gadget serial walleye-first-boot
+: build/selftest-initramfs.sh passes with the roof's init (passed 2026-11-26, nets 42 and 43); the next keeper boot of an image built by build-initramfs.sh phone shows the gadget serial walleye-first-boot
 
 Rank
 : 7
