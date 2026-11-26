@@ -12589,10 +12589,10 @@ Rank
 ### What C1's cut (slot a, RAM boot, 1141 chars, ends at androidboot.pk) leaves to check: C3 (our image with stock header fields, flashed to boot_a) or nothing while root=PARTUUID holds
 
 Status
-: open
+: done
 
 Note
-: C1 (research walleye-cmdline-cut-c1-slot-a-cuts, PR 1096) cut even a RAM-booted image on slot a, so the flashed-normal-boot candidate is out and C2 is skipped by the plan. C3 flashes boot_a: not urgent (step 21 passes on root=PARTUUID); the coordinator ranks it after the research.
+: Answered by research walleye-cmdline-cut-after-c1-harmless: the cut is the slot-a bootloader path, any image; C2/C3 void; harmless while root=PARTUUID.
 
 About
 : walleye-bootimage
