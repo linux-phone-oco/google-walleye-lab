@@ -2,7 +2,7 @@
 
 **The patch files are gone (2026-11-23): the series is the branch `topic/walleye-fuel-gauge-rfc` of linux-phone-oco/linux, proved equal to them (kernel/README.md).** The numbering below follows the commits' order.
 
-Brief: the patches of the RFC "Qualcomm 3rd gen fuel gauge support" that the Pixel 2's fuel gauge needs, kept as received so `build/build-fuel-gauge.sh` builds the same kernel every time (item walleye-fuel-gauge).
+Brief: the patches of the RFC "Qualcomm 3rd gen fuel gauge support" that the Pixel 2's fuel gauge needs, kept as received so the one kernel was built the same every time (its script, build-fuel-gauge.sh, is retired 2026-11-26; the kernel now comes from the `ufs-on` list, kernel/topics.toml) (item walleye-fuel-gauge).
 
 Source: [PATCH RFC 0/8], David Heidelberg for Joel Selvaraj's driver, 2025-11-24, message `20251124-pmi8998_fuel_gauge-v1-0-dd3791f61478@ixit.cz` on lore.kernel.org (not in mainline; carried by sdm845-next). Authors are in each patch; licence of each: GPL-2.0 as the kernel's.
 

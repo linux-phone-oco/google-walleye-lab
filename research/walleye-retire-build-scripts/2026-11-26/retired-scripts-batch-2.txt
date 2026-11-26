@@ -1,0 +1,5 @@
+build/build-fuel-gauge.sh	60abe3a 2026-11-26
+build/build-taimen-walleye.sh	edbf082 2026-11-19
+build/build-property-bisect.sh	edbf082 2026-11-19
+build/build-fdt-bisect.sh	edbf082 2026-11-19
+build/build-dtb-bisect.sh	edbf082 2026-11-19

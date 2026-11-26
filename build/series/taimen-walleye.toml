@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
-# w1..w5, wr, wa (backlog walleye-overlay-enables-what): pk5 (our kernel + porthole's taimen dtb, alive) made walleye-like group by group; wa is cumulative. The dtbs are the recorded ones: build/build-taimen-walleye.sh makes them.
+# w1..w5, wr, wa (backlog walleye-overlay-enables-what): pk5 (our kernel + porthole's taimen dtb, alive) made walleye-like group by group; wa is cumulative. The dtbs are the recorded ones: build-taimen-walleye.sh (retired 2026-11-26, batch 2; in git history) makes them.
 # Run: lpoco-bringup image bisect build/series/taimen-walleye.toml --out OUT; the images' sha256 are the SHA256SUMS of walleye-build/images-w.
 control = "../../../../walleye-build/images-pk456/boot-pk5.img"
 

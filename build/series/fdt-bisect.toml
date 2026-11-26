@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
-# x1..x7, xa (backlog walleye-compare-with-the-running-fdt): wpa (alive) with one disjoint group of its differences to our dtb made equal to ours; xa is all of them. The dtbs are the recorded ones: build/build-fdt-bisect.sh makes them.
+# x1..x7, xa (backlog walleye-compare-with-the-running-fdt): wpa (alive) with one disjoint group of its differences to our dtb made equal to ours; xa is all of them. The dtbs are the recorded ones: build-fdt-bisect.sh (retired 2026-11-26, batch 2; in git history) makes them.
 # Run: lpoco-bringup image bisect build/series/fdt-bisect.toml --out OUT; the images' sha256 are the SHA256SUMS of walleye-build/images-x.
 control = "../../../../walleye-build/images-wp/boot-wpa.img"
 

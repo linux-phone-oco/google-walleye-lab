@@ -8680,3 +8680,25 @@ About
 
 Material
 : research/walleye-retire-build-scripts/2026-11-26/
+
+
+<a id="walleye-build-scripts-batch-2-retired"></a>
+### walleye-build-scripts-batch-2-retired
+
+Date
+: 2026-11-26
+
+Brief
+: 5 more build scripts of finished experiments retired as history (fuel-gauge, taimen-walleye, property-bisect, fdt-bisect, dtb-bisect); any-order script stays: its dtb and ramdisk are seeds
+
+Question
+: Which of the remaining build-*.sh may retire, per the rule that nothing retires a script whose image has not rebuilt equal from its parts?
+
+Found
+: git grep over code, tests, tools, procedures, device.toml, kernel and open backlog items: the five named by none (only history records, build/README, series toml data). fg1's kernel is in the ufs-on list. Checked 2026-11-26: image ensure b-r2 (in the store) and b-rp2 (built from its recipe, equal to its declared sha256) - equal, but their dtb and ramdisk enter by sha256 seed that only build-display-any-order-images.sh makes, so it stays (as the 2026-11-25 session log judged). Left: 24 build-*.sh (counted by ls).
+
+About
+: walleye-kernel-dts
+
+Material
+: research/walleye-retire-build-scripts/2026-11-26/

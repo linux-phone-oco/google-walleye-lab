@@ -10540,7 +10540,7 @@ Status
 : open
 
 Note
-: Parts landed: PRs 1084, 1107, 1110, 1111, 1143 (build-z21.sh) and batch 1 of 2026-11-26 (b): 52 history scripts removed; 26 build-*.sh left. Left: (a) scripts whose image has a recipe: display series dtbs, display-any-order-images, ufs-match/z11-z13/display-image/upstream-dts-image after judging, fuel-gauge, taimen-walleye, reboot-bin; (c) seeds z20, l6, ufs-match stay until their kernel has a [kernel_builds] row; pmic-wdt-v1 waits on walleye-wdt-pon-bites-procedure. Rank 6 kept; coordinator's how-it-goes plan stands.
+: Parts landed: PRs 1084, 1107, 1110, 1111, 1143, batch 1 (52) and batch 2 of 2026-11-26 (5: fuel-gauge, taimen-walleye, property-bisect, fdt-bisect, dtb-bisect); 24 build-*.sh left. Left: display series dtb scripts with their check-*.sh, display-any-order-images (dtb and ramdisks are seeds), ufs-match/z11-z13/display-image/upstream-dts-image after judging, reboot-bin (builds the declared walleye-reboot); seeds z20, l6, ufs-match stay until their kernel has a [kernel_builds] row; pmic-wdt-v1 waits on walleye-wdt-pon-bites-procedure. Rank 6 kept.
 
 Blocked by
 : walleye-next-image-from-an-int-tag
