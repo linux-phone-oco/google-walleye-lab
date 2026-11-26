@@ -12995,10 +12995,10 @@ Rank
 ### walleye leaves adb root to the library: [connections.android] user = root runs it once per Phone (lab-tools 0.53.5)
 
 Status
-: in-progress
+: done
 
 Note
-: BUILT 2026-11-26 (walleye-builder), landing: transport and install-rootfs (and rehearse-transport) leave adb root to the library (Android::is_up; install-rootfs reads the slot through the library before staging); is_up_as_root stays where walleye's own adb calls come first (flash_boot, rootfs_boot, the install rehearsals); device.toml schema pin lpoco-lab-v0.53.5; decision 2026-11-26-walleye-adb-root-is-the-librarys; cargo test 470, clippy, fmt, dry runs, check --host pass. Done when the keeper's run walleye-adb-root-from-library-run passes.
+: proven by walleye-adb-root-from-library-run (PR 1191): transport 12/12 with the library asking adb root once, no refusal text; built in PR 1190 (decision 2026-11-26-walleye-adb-root-is-the-librarys)
 
 About
 : walleye-bootimage
