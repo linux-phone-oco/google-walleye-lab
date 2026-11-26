@@ -10177,3 +10177,24 @@ Rejected
 
 About
 : walleye-ufs-match-android-z
+
+---
+
+
+<a id="2026-11-26-walleye-builder-way-back-shell-legs-tests"></a>
+### walleye-builder: the way back's shell legs have tests again
+
+Entry date
+: 2026-11-26
+
+Done
+: Ported four tests of Lab::way_back's shell legs (reboot -f, sysrq trigger, power-hold sentence, shell answers and phone stays away) from the removed pmic the_way_back module into procedures/steps/src/lab.rs on phone::fake; no clock decides. cargo test 507 pass, fmt and clippy clean.
+
+Considered
+: First ready row walleye-z21-hold-init is conditional on a too-short touch window; z21 touch later passed, so its note says so and the next concrete row was built.
+
+Rejected
+: Copying the old module whole: its Pmic wrapper is gone; the tests now run on Lab itself.
+
+About
+: walleye-attend-program-display

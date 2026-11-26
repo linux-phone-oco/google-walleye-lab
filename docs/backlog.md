@@ -6164,7 +6164,7 @@ Status
 : open
 
 Note
-: One change on z21: the petter loop of init-late (while n -lt 90 or /tmp/hold exists), nothing else; the UFS-off gate and the tests of the image pass; sha256 line. Only if the 65 s window of the program on z21 as built proves too short (research walleye-z21-init-has-no-hold). The program would then also need a hold step.
+: Not needed so far: the z21 touch try later passed (research walleye-z21-touch-events-pass, 3593 events) after the missed-window try, and the step-group touch run reached EVENTS-READY; build only if the window proves too short again (research walleye-z21-init-has-no-hold).
 
 About
 : walleye-attend-program-touch
@@ -13147,10 +13147,10 @@ Rank
 ### Lab::way_back's shell legs (reboot -f, sysrq trigger, power-hold sentence, shell-answers-phone-stays-away) have tests again, in lab.rs
 
 Status
-: open
+: done
 
 Note
-: From the programmer review of the PMIC step-groups change 2026-11-26 (walleye-builder).
+: Four tests of the shell legs (reboot -f, sysrq trigger, power-hold sentence, shell-answers-phone-stays-away) back in procedures/steps/src/lab.rs, ported from a855d3a pmic the_way_back; cargo test 507 pass.
 
 About
 : walleye-attend-program-display
