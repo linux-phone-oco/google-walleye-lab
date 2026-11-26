@@ -156,11 +156,11 @@ jobs:
           cargo fmt --check
           cargo clippy --locked --all-targets -- -D warnings
   device-toml:
-    name: device.toml is read by the newest lpoco-lab
+    name: device.toml is read by its pinned lpoco-lab and the newest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # the script's own proof against a stand-in release, then the real check with the newest lpoco-lab release asset
+      # the script's own proof against a stand-in release, then the real check: the release pinned on the first line, and the newest
       - run: sh tests/ci/check-device-toml.sh
       - run: sh bin/check-device-toml.sh
         env:

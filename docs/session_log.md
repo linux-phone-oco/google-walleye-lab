@@ -9217,3 +9217,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-walleye-device-toml-pins-its-schema"></a>
+### walleye device.toml pins its schema
+
+Entry date
+: 2026-11-26
+
+Done
+: device.toml first line pins lpoco-lab-v0.53.2; check script reads the file with the pinned release and the newest (from device-template main); test 13 cases, seen failing on the old script; misspelled table refused by the real release.
+
+Considered
+: Pin to the newest tag at landing (0.53.2), as the template does.
+
+Rejected
+: Writing a new check: the template's is the same job and a fix there flows here.
+
+About
+: walleye-bootimage
