@@ -74,3 +74,6 @@ source = "file:research/walleye-slpi-boot-qrtr/read.txt"
 
 [scripts."slpi-boot-qrtr-dmesg.cap"]
 source = "file:research/walleye-slpi-boot-qrtr/dmesg.txt"
+
+[scripts."fastboot-slots-android-b-2026-11-25.cap"]
+source = "file:research/walleye-bootimage/2026-11-25-c1-run/slots-before.txt"

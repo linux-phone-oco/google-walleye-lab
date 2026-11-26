@@ -745,3 +745,11 @@ usb_log_match = "3-2"
 [images.walleye-reboot]
 path = "walleye-reboot/walleye-reboot"
 sha256 = "fd73925bffb8462f212267b9cfc120bd87b80239bbd4866856eeed6487e554ba"
+
+# The transport run (procedures/transport-on-the-pixel-2.rs; item walleye-transport-procedure, for the run walleye-transport-real-phone-run; decision 2026-11-26-walleye-android-connection-user-root):
+# on Android, walleye's `adb root` step, the library's read_slot over [connections.android], adb's own serial against [fastboot] serial, `adb reboot bootloader` honoured, fastboot's current-slot equal to adb's slot, `fastboot reboot` back to Android on that slot.
+# Read only: no image, no go, no ssh key, nothing written or set. It reads no key of its own: the serial, [tools], [boot] back_wait and [health] battery_floor_mv are the shared ones.
+[procedures.transport-on-the-pixel-2]
+
+# The rehearsal (procedures/rehearse-transport-on-the-pixel-2.rs): the same reads on Android, the phone never leaves it.
+[procedures.rehearse-transport-on-the-pixel-2]

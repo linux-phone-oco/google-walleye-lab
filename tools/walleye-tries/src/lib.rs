@@ -28,6 +28,7 @@ pub mod rw_write;
 pub mod settings;
 pub mod slpi_boot;
 pub mod touch;
+pub mod transport;
 pub mod ufs;
 pub mod watch;
 pub mod wdt0;

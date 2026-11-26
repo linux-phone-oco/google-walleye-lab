@@ -10046,7 +10046,7 @@ Needs
 : phone
 
 Proof
-: from docs' item transport-real-phone-run (read it: tad q row --id transport-real-phone-run in docs): a keeper's run on the phone on Android, read-mostly: (1) over each transport the lab declares for walleye (adb on Android; ssh on our image) the shell is reached; (2) 'reboot bootloader' over ADB on Android is honoured (Android's init reads the argument) and fastboot lists the phone with current-slot b, then 'fastboot reboot' and Android returns on the same slot (the excursion rerun 7 made from our kernel, here from Android); over busybox it is NOT honoured (research walleye-reboot-reason-bootloader-read: busybox drops the argument; the walleye-reboot RESTART2 tool is the way from our kernel); (3) Phone::at uses the declared addr, not a default; (4) the adb serial from [fastboot] equals adb's own; the result is one research row with the text each printed; nothing is written, flashed or set; the phone ends on Android slot b
+: procedures/transport-on-the-pixel-2.rs run by the keeper on Android b: transport.txt kept, one research row with the texts, phone ends on Android b
 
 Rank
 : 5
@@ -12942,10 +12942,10 @@ Rank
 ### A read-mostly procedure for the transport run: the library's android connection reads the slot, then the declared transports are checked
 
 Status
-: open
+: done
 
 Note
-: From the builder 2026-11-26 (PR 1158): the first live run proves the devlab android connection. walleye-transport-real-phone-run has no procedure to run, so a keeper would stop; this gives it one. Pattern: procedures/fastboot-reboot-twice-on-the-pixel-2.rs (already reaches the bootloader from Android and back).
+: Built and landed 2026-11-26: procedures/transport-on-the-pixel-2.rs and its rehearse- pair; crate tests, fmt, clippy and bin/attended check --host pass. The adb get-serialno text and fastboot's raw getvar current-slot text are not captured yet: the first real run keeps them in transport.txt.
 
 About
 : walleye-bootimage

@@ -9349,3 +9349,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-transport-procedure-built"></a>
+### transport procedure built
+
+Entry date
+: 2026-11-26
+
+Done
+: procedures/transport-on-the-pixel-2.rs and rehearse-transport-on-the-pixel-2.rs over walleye-tries::transport: adb root, library read_slot(phone_on(android)), adb serial vs [fastboot], adb reboot bootloader, fastboot slot equals adb's, fastboot reboot back; read only; transport.txt keeps each call's text. Programmer review: no blocker; fixed a self-comparing slot check and added a step test on the captured slot fixture.
+
+Considered
+: a Try with its own device.toml keys
+
+Rejected
+: own keys: the run reads only shared ones (serial, tools, back_wait), so the tables are empty
+
+About
+: walleye-bootimage
