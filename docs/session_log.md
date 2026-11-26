@@ -9676,3 +9676,24 @@ Considered
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-adb-root-from-library"></a>
+### walleye leaves adb root to the library where the library comes first
+
+Entry date
+: 2026-11-26
+
+Done
+: Android::is_up added; transport and rehearse-transport use it; install-rootfs uses it and reads the slot through the library before staging; a stand-in test asserts no adb root of walleye's own; device.toml schema pin to 0.53.5; decision amends 2026-11-26-walleye-android-connection-user-root; keeper run queued as walleye-adb-root-from-library-run.
+
+Considered
+: Dropping root everywhere (breaks tries whose own adb calls come first); one shared step for both.
+
+Rejected
+: Removing is_up_as_root: flash_boot, rootfs_boot and the install rehearsals have no library Phone before their adb calls.
+
+About
+: walleye-bootimage

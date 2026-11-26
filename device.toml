@@ -1,4 +1,4 @@
-#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.53.4/manifest/device.schema.json
+#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.53.5/manifest/device.schema.json
 # ^ the lpoco-lab release this file follows: editors complete and check from its schema, CI reads the file with that release.
 # This phone's manifest - the only file a new phone's lab needs to say. Every tool reads it:
 # lpoco lab (linux-phone-oco/lab-tools) finds it like cargo finds Cargo.toml, or by --device.
@@ -18,8 +18,8 @@ shell_port = 23
 transport = "telnet"               # our test images answer over telnet on the USB-networking address; an Android boot would be "adb" (lab-tools 0.38.0)
 login = "none"                     # no password exists on walleye: lpoco lab suite says "not applicable" (decision walleye-declare-transport-login)
 
-# Stock Android, reached over adb. walleye's own step `adb root` runs first (it restarts adbd as root), so the library's steps run as root
-# with no su (decision 2026-11-26-walleye-android-connection-user-root).
+# Stock Android, reached over adb. user = "root": the library (lab-tools 0.53.5) runs `adb root` and waits for the device once per Phone, so its steps run as root
+# with no su (decisions 2026-11-26-walleye-android-connection-user-root, 2026-11-26-walleye-adb-root-is-the-librarys). walleye's own `adb root` stays only where its own adb calls come before any library call.
 [connections.android]
 addresses = []                     # adb needs no address (lab-tools: addresses = [] is fine over adb)
 transport = "adb"
@@ -752,7 +752,7 @@ path = "walleye-reboot/walleye-reboot"
 sha256 = "fd73925bffb8462f212267b9cfc120bd87b80239bbd4866856eeed6487e554ba"
 
 # The transport run (procedures/transport-on-the-pixel-2.rs; item walleye-transport-procedure, for the run walleye-transport-real-phone-run; decision 2026-11-26-walleye-android-connection-user-root):
-# on Android, walleye's `adb root` step, the library's read_slot over [connections.android], adb's own serial against [fastboot] serial, `adb reboot bootloader` honoured, fastboot's current-slot equal to adb's slot, `fastboot reboot` back to Android on that slot.
+# on Android, the library's read_slot (it runs adb root itself, lab-tools 0.53.5) over [connections.android], adb's own serial against [fastboot] serial, `adb reboot bootloader` honoured, fastboot's current-slot equal to adb's slot, `fastboot reboot` back to Android on that slot.
 # Read only: no image, no go, no ssh key, nothing written or set. It reads no key of its own: the serial, [tools], [boot] back_wait and [health] battery_floor_mv are the shared ones.
 [procedures.transport-on-the-pixel-2]
 

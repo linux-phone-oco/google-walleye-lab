@@ -130,7 +130,7 @@ pub fn expect(s: &Settings) -> String {
         .map(|m| (m.len() / (1024 * 1024)).to_string())
         .unwrap_or_else(|_| "?".into());
     format!(
-        "One command, about 25 minutes, the phone stays on Android (adb root; it visits fastboot once to read its slot). It writes the Alpine image ({mib} MiB, sha256 {sha}...) with ONE dd to the system partition of the slot Android is NOT on (read from the phone: fastboot current-slot, equal to adb's slot suffix) and nothing else: no boot partition, no slot switch, no partition table, no erase. \
+        "One command, about 25 minutes, the phone stays on Android (the library asks adbd for root; it visits fastboot once to read its slot). It writes the Alpine image ({mib} MiB, sha256 {sha}...) with ONE dd to the system partition of the slot Android is NOT on (read from the phone: fastboot current-slot, equal to adb's slot suffix) and nothing else: no boot partition, no slot switch, no partition table, no erase. \
          Before the write that partition is read and must equal the sha256 of its stored backup; after it, the partition is read back and must hash to the image's sha256, and every other partition of both slots is read again and must equal its backup. \
          Any doubt stops it before the write. The way back: Android's own slot is never touched, so the phone runs as before even if the write is cut off; the stored backup goes back with one dd, which the run prints if it stops.",
         sha = s.image_sha256.chars().take(12).collect::<String>()
@@ -301,7 +301,15 @@ impl Install {
         }
     }
 
-    /// The phone is on Android again (out of fastboot if it is there) and adbd answers as root.
+    /// The phone is on Android again (out of fastboot if it is there); the library's `read_slot` that follows asks adbd for root
+    /// (`[connections.android]` user = root, once per Phone, lab-tools 0.53.5), so the staging after it runs as root.
+    pub fn the_phone_is_on_android(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || u.android.is_up()
+    }
+
+    /// The phone is on Android again (out of fastboot if it is there) and adbd answers as root: walleye's own `adb root`, for the
+    /// rehearsal, whose adb calls have no library Phone before them.
     pub fn the_phone_is_on_android_as_root(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || u.android.is_up_as_root()
@@ -880,6 +888,30 @@ mod tests {
                 .unwrap()
                 .contains("root"),
             "adb root was asked"
+        );
+    }
+
+    #[test]
+    fn the_phone_is_taken_out_of_fastboot_and_adbd_is_left_to_the_library() {
+        let b = bench("lib", "b", "_b", true);
+        executable(
+            &b.d.join("tests/host/idle-android.sh"),
+            "#!/bin/sh\necho 'pass idle-android host up'\n",
+        );
+        let fb = b.d.join("fastboot");
+        executable(
+            &fb,
+            &format!("#!/bin/sh\ncase \"$*\" in *devices*) echo 'SER1 fastboot';; *reboot*) echo reboot >> \"{0}/fastboot.rebooted\";; esac\n", b.d.display()),
+        );
+        (b.install.the_phone_is_on_android())().unwrap();
+        assert!(
+            b.d.join("fastboot.rebooted").exists(),
+            "fastboot reboot was sent"
+        );
+        let calls = std::fs::read_to_string(b.d.join("adb.calls")).unwrap_or_default();
+        assert!(
+            !calls.lines().any(|l| l.ends_with(" root")),
+            "walleye asked no adb root of its own: {calls}"
         );
     }
 

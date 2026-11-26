@@ -30,9 +30,9 @@ fn main() {
     step("say what to expect", install.author_is_told());
     step("take the phone to fastboot", install.phone_is_in_fastboot());
     check_from("the slot Android runs from is read, the other one is the target", "research:walleye-install-stage-how-it-stands", install.the_slot_is_read());
-    step("the phone is on Android, adbd as root", install.the_phone_is_on_android_as_root());
+    step("the phone is on Android", install.the_phone_is_on_android());
+    run_step(read_slot(phone_on("android")).sourced("research:walleye-install-stage-how-it-stands")); // first library call: it asks adbd for root once (lab-tools 0.53.5), so the staging after it runs as root; the phone says _a or _b, as the library reads it
     step("stage the image on the phone and check the copy", install.the_image_is_staged());
-    run_step(read_slot(phone_on("android")).sourced("research:walleye-install-stage-how-it-stands")); // the phone says _a or _b, as the library reads it
     check_from("adb and fastboot name the same slot", "research:walleye-install-stage-how-it-stands", install.the_slots_agree());
     check_from("the target partition, read now, is its backup", "research:walleye-install-slot-readback-done-twice-same-bytes", install.the_backup_is_the_slot_as_it_is_now());
     step("write the image to the target partition: the library's adb_write_partition, one dd and a read-back by sha256", install.the_image_is_written());

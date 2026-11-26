@@ -12995,10 +12995,10 @@ Rank
 ### walleye leaves adb root to the library: [connections.android] user = root runs it once per Phone (lab-tools 0.53.5)
 
 Status
-: open
+: in-progress
 
 Note
-: Queued by the walleye coordinator 2026-11-26 from orchestration's message: transport = adb, user = root now runs adb root and waits for the device once per Phone (limit 30 s); a refusal error names the refusal, tested only against a stand-in, so walleye's run is its first live proof. After walleye-procedures-on-step-groups part 2 (one builder at a time).
+: BUILT 2026-11-26 (walleye-builder), landing: transport and install-rootfs (and rehearse-transport) leave adb root to the library (Android::is_up; install-rootfs reads the slot through the library before staging); is_up_as_root stays where walleye's own adb calls come first (flash_boot, rootfs_boot, the install rehearsals); device.toml schema pin lpoco-lab-v0.53.5; decision 2026-11-26-walleye-adb-root-is-the-librarys; cargo test 470, clippy, fmt, dry runs, check --host pass. Done when the keeper's run walleye-adb-root-from-library-run passes.
 
 About
 : walleye-bootimage
@@ -13179,3 +13179,28 @@ Proof
 
 Rank
 : 8
+
+
+<a id="walleye-adb-root-from-library-run"></a>
+### One keeper run of procedures/transport-on-the-pixel-2.rs: the library's adb root and wait are the only root asked
+
+Status
+: open
+
+Note
+: Queued by walleye-builder 2026-11-26 after walleye-adb-root-from-library landed (decision 2026-11-26-walleye-adb-root-is-the-librarys). Read only; one research row with the log's root lines. Closes walleye-adb-root-from-library.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-26
+
+Needs
+: phone
+
+Proof
+: procedures/transport-on-the-pixel-2.rs run by the keeper on Android: it passes 12/12 with no step of its own asking adb root, transport.txt kept, the run's log shows the library's adb root and wait; any refusal text it prints is reported to orchestration if it differs from the stand-in; the phone ends on Android
+
+Rank
+: 5
