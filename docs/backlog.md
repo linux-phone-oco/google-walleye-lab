@@ -9015,6 +9015,9 @@ Status
 Note
 : PARKED, NOT LANDED (2026-11-20, author's gentle pause): the build is whole on branch walleye-wdt-pon-bites-procedure (commit after 43f1090; fetch it from origin) but the programmer review found 3 blockers to fix before landing: (1) look_for in the dark-phone group: any answer but 'ok' stops the run and loses the observation: make the check text 'ok once you have looked' or drop it; (2) the_host_lost_the_phone passes after the bite already fired with the cable in: fail when armed.elapsed() >= bite_seconds, and print cable_out_s in the CABLE_OUT prompt; (3) a warm bite can run as hard when the PON registers do not read (probe trusts any type; the patch ignores device_property_read_u32's result): dev_dbg the chosen type in the patch and require that line in bite_type_reads when registers are unread, or fail the probe on an unreadable property. Also fix: after the author forces a reset the 'by itself' labels and reason.txt are false (record the intervention; keep the first seen.txt); charger_wait 60 is measured from the shell loss: use about 150 s from arming; comments claiming the registers are read before anything resets them and that fastboot boot is not a reset must say not known yet; pon_names uses gen1 offsets on a PM8998: disclaim; rename W in build-pmic-wdt-v1.sh one(); stale text in init-wdt2 (banner 'wdt1', 'seven', usage); tests should assert the command lines sent (wdt-bite 1 read 20, 7 read 45). The images wdt2-hard e7590705 and wdt2-warm 9b3b0394 are built in ~/Projects/walleye-build/images-wdt2-bites; fixing the patch changes the warm image (rebuild: kernel tree $AGENT_BUILD/k-wdt-warm of the shared linux clone, build/build-kernel.sh with EXTRA_CONFIG=build/walleye-wdt.config, then build-pmic-wdt-v1.sh with INIT_NAME=wdt2 PREFIX=wdt2 NAME_A=hard NAME_B=warm VERSION_B=next-20261118 DTB_PROP_B='qcom,s2-type 1'; update the sha256 in device.toml). Then land, and the keeper runs it unattended. Needs: phone (keeper), after the fixes. BRANCH: origin/walleye-wdt-pon-bites-procedure (4b83994), pushed, not landed, the pause 2026-11-20 at the author's word. 2026-11-20 (coordinator, the author resumes with the goal Linux installed and booting from its own storage): open again at rank 5, behind walleye-display-reset-image (B-r5, rank 2) and walleye-ufs-try-2's preparation; resume from the branch, fix the 3 blockers first. 2026-11-22 (coordinator): rank 7: the PMIC steps (watchdog-way-back, pon-reason-read, reset-types-right) unlock 13, 6 and 6 steps: the lab's unattended way back, after the firmware front.
 
+Blocked by
+: walleye-wdt-pon-read-after-bite
+
 About
 : walleye-pmic-wdt-v1-image
 
@@ -9028,7 +9031,7 @@ Proof
 : image B = image A with the S2 reset type 0x01 (the way the series' reset-type hook allows: a DT property or the module's parameter, the smallest; UFS-off gate and AVB pass, rebuild identical, review) and procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs on the current lpoco-attended, keys at the top of main (device.toml [procedures.*], [images.*]), one screen of entry file; four bites as step groups (0x07 cable in, 0x07 cable out, 0x01 cable in, 0x01 cable out), each: battery rule, arm, bite, then the PON registers (PON_REASON1, PON_ON_REASON, POFF_REASON1, WARM_RESET_REASON1) read BEFORE anything resets them, then the way back to Android; a research row first says how the registers can be read after a bite on this phone (the bootloader's charger screen has no adb: what reads them? Android's dmesg after the power press is already a second boot) and the procedure follows it; the lab decides every part it can without the author (no adb within N s after the bite with the cable in = charger screen or off; adb up by itself = Android came back); the author is asked only for the physical steps (the cable moves, the power press, the look at the cable-in screen) and only through the lpoco-attended physical steps; dry-run, lpoco-attended check --host, stand-in tests, clippy, fmt, review; then a keeper's unattended run of every part that needs nobody, ending at the first physical ask with 'nobody answered' and the phone back on Android BY ITS OWN WAY BACK; the answer file path printed
 
 Rank
-: 7
+: 8
 
 
 <a id="walleye-display-dts-any-order"></a>
@@ -13232,3 +13235,81 @@ Proof
 
 Rank
 : 7
+
+
+<a id="walleye-wdt-pon-read-after-bite"></a>
+### How walleye's PON registers are read after a watchdog bite
+
+Status
+: open
+
+Note
+: Slice 1 of walleye-wdt-pon-bites-procedure (walleye coordinator 2026-11-26, from session log 2026-11-26-wdt-pon-bites-reslice). It decides the procedure's shape.
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-26
+
+Needs
+: research
+
+Proof
+: a research row answers it, with sources: how PON_REASON1, PON_ON_REASON, POFF_REASON1 and WARM_RESET_REASON1 are read after a bite on this phone, given that the charger screen has no adb and Android's dmesg is already a second boot (a Linux read on the next boot, a pstore line, or Android's own boot reason); the way chosen names what the procedure reads and when
+
+Rank
+: 8
+
+
+<a id="walleye-wdt-s2-type-topic-branch"></a>
+### The S2 reset type from a qcom property, as a topic/ branch of linux-phone-oco/linux with the three review blockers fixed
+
+Status
+: open
+
+Note
+: Slice 2 of walleye-wdt-pon-bites-procedure (session log 2026-11-26-wdt-pon-bites-reslice).
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: a topic/ branch on a mainline tag carries the patch, checkpatch-clean with a message fit for upstream; the three review blockers on the old branch origin/walleye-wdt-pon-bites-procedure are fixed and named in the commit or the PR; the old .patch file does not come back
+
+Rank
+: 8
+
+
+<a id="walleye-wdt2-images-from-tag"></a>
+### The wdt2-hard and wdt2-warm images rebuilt from an int/ tag, their sha256 in device.toml
+
+Status
+: open
+
+Note
+: Slice 3 of walleye-wdt-pon-bites-procedure (session log 2026-11-26-wdt-pon-bites-reslice).
+
+Blocked by
+: walleye-wdt-s2-type-topic-branch
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: lpoco bringup kernel assemble makes an int/walleye/... tag from kernel/topics.toml with the S2 topic; [images.wdt2-hard] and [images.wdt2-warm] carry recipe and sha256, rebuild identical; the UFS-off gate and AVB pass
+
+Rank
+: 8
