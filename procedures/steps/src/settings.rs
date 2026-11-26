@@ -45,6 +45,7 @@ pub const CMDLINE_CUT_PROCEDURE: &str = "cmdline cut c1 on the Pixel 2";
 pub const REHEARSE_CMDLINE_CUT_PROCEDURE: &str = "rehearse cmdline cut c1 on the Pixel 2";
 pub const REBOOT_TWICE_PROCEDURE: &str = "fastboot reboot twice on the Pixel 2";
 pub const REHEARSE_REBOOT_TWICE_PROCEDURE: &str = "rehearse fastboot reboot twice on the Pixel 2";
+pub const NFC_BOOT_PROCEDURE: &str = "nfc boot on the Pixel 2";
 pub const SLPI_BOOT_PROCEDURE: &str = "slpi boot on the Pixel 2";
 pub const REHEARSE_SLPI_BOOT_PROCEDURE: &str = "rehearse slpi boot on the Pixel 2";
 pub const RAMROOT_PROCEDURE: &str = "alpine login on the glass on the Pixel 2";
@@ -75,6 +76,7 @@ pub enum Try {
     CmdlineCut,
     RebootTwice,
     SlpiBoot,
+    NfcBoot,
     Ramroot,
     FlashBoot,
     Transport,
@@ -288,6 +290,13 @@ impl Settings {
     /// The SLPI boot's settings (item walleye-slpi-boot-procedure), read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_slpi_boot() -> Settings {
         Settings::read_linked(Try::SlpiBoot, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
+    /// The NFC boot's settings (item walleye-nfc-boot-procedure), read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_nfc_boot() -> Settings {
+        Settings::read_linked(Try::NfcBoot, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
@@ -605,6 +614,19 @@ impl Settings {
                 );
                 s.out = s.out_dir("fastboot-reboot-twice");
             }
+            Try::NfcBoot => {
+                // the NFC boot: the image named by its [images.NAME], booted from RAM by steps::phone_ready; no ssh, no go (nothing is flashed, the image is UFS-off by the gate)
+                let name = proc("image");
+                assert_eq!(
+                    name,
+                    crate::nfc_boot::KERNEL,
+                    "image in device.toml names the kernel steps::phone_ready boots"
+                );
+                s.image = image(&name);
+                s.image_name = name.clone();
+                s.image_sha256 = dev(&format!("images.{name}.sha256"));
+                s.out = s.out_dir("nfc-boot");
+            }
             Try::SlpiBoot => {
                 // the SLPI boot: the image named by its [images.NAME] row, booted from RAM; no ssh, no go (nothing is flashed, the image is UFS-off by the gate)
                 let name = proc("image");
@@ -897,6 +919,7 @@ mod tests {
             (Try::CmdlineCut, REHEARSE_CMDLINE_CUT_PROCEDURE),
             (Try::RebootTwice, REBOOT_TWICE_PROCEDURE),
             (Try::RebootTwice, REHEARSE_REBOOT_TWICE_PROCEDURE),
+            (Try::NfcBoot, NFC_BOOT_PROCEDURE),
             (Try::SlpiBoot, SLPI_BOOT_PROCEDURE),
             (Try::SlpiBoot, REHEARSE_SLPI_BOOT_PROCEDURE),
             (Try::Ramroot, RAMROOT_PROCEDURE),

@@ -219,20 +219,20 @@ cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walley
 
 # The NFC test image (item walleye-nfc-dts-node-image): the slpi image's kernel line (the list ufs-off, tag int/walleye/ufs-off/v7.3/1, UFS OFF) with NFC built in (build/walleye-nfc.config:
 # RFKILL, NFC, NFC_NCI, NFC_NXP_NCI, NFC_NXP_NCI_I2C =y, merged after walleye.config), the dtb of dt/ with the nfc@28 node on blsp2_i2c2 (c1b6000) and the ramdisk of `build/build-initramfs.sh phone`: the roof's init
-# (lpoco bringup initramfs init, gadget serial walleye-first-boot, net 42), so one boot proves the NFC node and walleye-init-from-roof. Header, size and AVB footer are slpi's. The kernel and the dtb
+# (lpoco bringup initramfs init, gadget serial walleye-first-boot, net 43 as device.toml says: rebuilt 2026-11-26, decision 2026-11-26-walleye-ramdisk-on-net-43), so one boot proves the NFC node and walleye-init-from-roof. Header, size and AVB footer are slpi's. The kernel and the dtb
 # are hand-built (build-kernel.sh on a worktree of the tag; sha256 in ~/Projects/walleye-build/images-nfc/SHA256SUMS-nfc), not a [kernel_builds] row: they enter the store from the seed once.
 # NOT KNOWN YET: the controller's clock (Android: BBCLK3, pm8998 gpio21 clkreq), the pins' drive strength, gpio116's role. The roof's init lacks the 180 s hold, the watchdog petter and the banner
 # (research walleye-generated-init-gaps): read that before the try is queued. Host checks: tests/host/ufs-off-image.sh passes; the overlay merge leaves the node (the vendor's nq@28 lands in the stub i2c_8).
 [images.nfc]
 path = "images-nfc/boot-nfc.img"
 kernel_tag = "int/walleye/ufs-off/v7.3/1"
-sha256 = "3ccc72000def2215fbb3615bf557b176f1db4912b5db181fd17b582d5de34617"
+sha256 = "dab25d7fe0d1391208fe3a02f0b52f298a6cadfce85b9a9ecc334c53a058424f"
 
 [images.nfc.recipe]
 control = "slpi"
 kernel = "78dbbff60f21ad372947d05c7c375632bb79a4dc2aeac1da4142f170ca117607"
 dtb = "67fb13fe96a10d3ac17b30bb1412b9a908ce9062163345ef25cbdfebb130ed68"
-ramdisk = "a3d5dd796596c092f36b43fb1846ca97aea9c84a76d61ecc9b51a7caa621f892"
+ramdisk = "b094adc1696d5655459ee01ed96486392fa21a286c803eb64e9298c0880dbc67"
 
 # z20: z21's control (UFS ON, NOT TO BOOT: tests/host/ufs-off-image.sh refuses it by design); no [kernels] list and no procedure names it.
 [images.z20]
@@ -657,6 +657,11 @@ luns = 6
 # The SLPI boot (procedures/slpi-boot-on-the-pixel-2.rs; item walleye-slpi-boot-procedure, for the try walleye-slpi-boot-qrtr; research walleye-slpi-image-kernel-pas, walleye-slpi-qrtr-lookup): the SLPI image
 # `image` names ([images.slpi]) is booted once from memory (UFS off by the gate, nothing flashed, no slot changed); over its telnet the remoteproc states, the kernel's slpi lines and qrtr-lookup's list are read.
 # No go and no ssh key: the image is UFS-off and boots from RAM only. The card's tables, the boot chain and the slots' flags are read before and after and must be equal.
+# The NFC boot (procedures/nfc-boot-on-the-pixel-2.rs; item walleye-nfc-boot-procedure; research walleye-nfc-image-built; decision 2026-11-26-walleye-ramdisk-on-net-43): the NFC image `image` names ([images.nfc]) is booted once from memory
+# by steps::phone_ready (UFS off by the gate, nothing flashed, no slot changed); over its telnet at 172.16.43.1 tests/health/base/nfc-present.sh runs and the kernel's nxp-nci lines are read. No go, no ssh key.
+[procedures.nfc-boot-on-the-pixel-2]
+image = "nfc"
+
 [procedures.slpi-boot-on-the-pixel-2]
 image = "slpi"
 bootchain = "~/lab-material/walleye/bootchain-2026-11-19"   # the stored boot chain read-back: read again at the end it must equal it
