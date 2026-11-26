@@ -10,7 +10,7 @@
 //! | the host programs | `[tools] adb`, `fastboot` |
 //! | waits for the phone | `[boot] device_wait`, `back_wait` |
 //! | the battery floor | `[health] battery_floor_mv` (tests/host/battery-ok.sh reads it too) |
-//! | the images | `[images] dir`, `[images.z21]`, `[images.wdt1-a]`, `[images.wdt1-b]` (`path`, `sha256`) |
+//! | the images | `[images] dir`, `[images.z21]`, `[images.wdt1-a]` (`path`, `sha256`) |
 //! | the touch try's values | `[procedures.touch-events-on-z21] window`, `min_window` |
 //! | the PMIC try's values | `[procedures.pmic-watchdog-v1-on-the-pixel-2] stay`, `bite_wait` |
 //! | the display try's values | `[images.l7]`, `[procedures.display-stripes-on-the-pixel-2] hold`, `module_pause` |
@@ -118,9 +118,7 @@ pub struct Settings {
     pub bringup: String,
     pub adb: String,
     pub fastboot: String,
-    /// the PMIC watchdog try: image A, image B, how long Android stays up, how long the bite may take
-    pub image_a: PathBuf,
-    pub image_b: PathBuf,
+    /// the PMIC watchdog try: how long Android stays up, how long the bite may take (its image is `image`, `[images.wdt1-a]`)
     pub stay: u64,
     pub bite_wait: u64,
     /// the display try: seconds the drawer holds the stripes, seconds between two module loads
@@ -394,8 +392,6 @@ impl Settings {
             bringup: "lpoco-bringup".into(),
             adb: dev("tools.adb"),
             fastboot: dev("tools.fastboot"),
-            image_a: PathBuf::new(),
-            image_b: PathBuf::new(),
             stay: 0,
             bite_wait: 0,
             hold: 0,
@@ -442,8 +438,7 @@ impl Settings {
                 s.out = s.out_dir("touch");
             }
             Try::Pmic => {
-                s.image_a = image("wdt1-a");
-                s.image_b = image("wdt1-b");
+                s.image = image(crate::pmic::KERNEL);
                 s.stay = number("stay", proc("stay"));
                 s.bite_wait = number("bite_wait", proc("bite_wait"));
             }
@@ -739,7 +734,6 @@ impl Settings {
             ("images.dir", "images"),
             ("images.z21.path", "boot-z21.img"),
             ("images.wdt1-a.path", "boot-wdt1-a.img"),
-            ("images.wdt1-b.path", "boot-wdt1-b.img"),
             ("boot.device_wait", "170"),
             ("boot.back_wait", "240"),
             ("health.battery_floor_mv", "3700"),
@@ -850,10 +844,10 @@ mod tests {
         let t = Settings::stand_in(Try::Touch);
         assert_eq!((t.window, t.min_window, t.port), (120, 40, 23));
         assert_eq!(t.image, t.lab.join("images/boot-z21.img"));
-        assert_eq!((t.stay, t.image_a), (0, PathBuf::new()));
+        assert_eq!(t.stay, 0);
         let p = Settings::stand_in(Try::Pmic);
         assert_eq!((p.stay, p.bite_wait, p.back_wait), (180, 150, 240));
-        assert_eq!(p.image_b, p.lab.join("images/boot-wdt1-b.img"));
+        assert_eq!(p.image, p.lab.join("images/boot-wdt1-a.img"));
         assert_eq!(p.window, 0);
         assert_eq!((p.address.as_str(), p.adb.as_str()), ("127.0.0.1", "adb"));
     }

@@ -136,6 +136,8 @@ jobs:
           : > build/images/images-display-l7/boot-l7.img
           mkdir -p build/images/images-display-look
           : > build/images/images-display-look/boot-b2.img
+          mkdir -p build/images/images-wdt1-sysfsless
+          : > build/images/images-wdt1-sysfsless/boot-wdt1-a.img
           mkdir -p build/images/images-z21
           : > build/images/images-z21/boot-z21.img
           mkdir -p build/images/images-display-delay

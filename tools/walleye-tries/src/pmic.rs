@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //! The PMIC watchdog v1 try's steps (item walleye-attend-program-pmic; decision 2026-11-19-walleye-attended-tries-one-command):
-//! image A (next + the six patches) from memory, B when A shows no banner; the reboot test first (arm, clean
-//! reboot, Android up and no loop), the bite last (arm, never pet, the phone restarts by itself). Each method is
-//! one step of tests/attended/pmic-try.rs, returns what that step runs and fails with what it saw. Nothing is
-//! written to the phone's storage: the init's commands (wdt-state, wdt-reboot, wdt-bite) only read and arm.
+//! the reboot test first (arm, clean reboot, Android up and no loop), the bite last (arm, never pet, the phone restarts by itself).
+//! The image's boot (from memory, nothing flashed) and the way back are the library's groups (steps::phone_ready, steps::leave_known_good)
+//! in procedures/pmic-watchdog-v1-on-the-pixel-2.rs, one pair for each test; each method here is one step of it and fails with what it saw.
+//! Nothing is written to the phone's storage: the init's commands (wdt-state, wdt-reboot, wdt-bite) only read and arm.
 
 use crate::host;
 use crate::lab::Lab;
@@ -14,6 +14,8 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use std::time::{Duration, Instant};
 
+/// The test kernel (its `[images.NAME]` and `[kernels] test` entry) both tests boot: steps::phone_ready names it.
+pub const KERNEL: &str = "wdt1-a";
 /// The bite's timeout (what wdt-arm sets), and how long past it the phone may keep answering the shell.
 pub const BITE_S: u64 = 20;
 const BITE_SLACK_S: u64 = 25;
@@ -113,19 +115,10 @@ pub fn fresh_boot(uptime: u64, since_arming: u64) -> bool {
     uptime <= since_arming + 5
 }
 
-/// One of the two images the try may boot: A (next + the six patches) or B (the fallback), with its path.
-#[derive(Debug, Clone, PartialEq)]
-pub struct Image {
-    pub name: &'static str,
-    pub path: PathBuf,
-}
-
 #[derive(Default)]
 struct Facts {
     /// boots of the image so far: the files of each boot are kept apart (b1-, b2-)
     boots: u32,
-    /// the image that booted (A, or B when A showed no banner)
-    chosen: Option<Image>,
     know: Option<Know>,
     armed_at: Option<Instant>,
     /// what each step learned, written to summary.txt at the end
@@ -214,59 +207,16 @@ impl Pmic {
         }
     }
 
-    /// The two images, in the order they are tried: A, then B.
-    fn images(&self) -> [Image; 2] {
-        [
-            Image {
-                name: "A",
-                path: self.s.image_a.clone(),
-            },
-            Image {
-                name: "B",
-                path: self.s.image_b.clone(),
-            },
-        ]
-    }
-
-    /// Both images are the ones built: each sha256 is the one its SHA256SUMS line records.
-    pub fn images_are_the_built_ones(&self) -> impl FnOnce() -> Done + 'static {
+    /// The image is the one built: its sha256 is the one its SHA256SUMS line records.
+    pub fn image_is_the_built_one(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
-        move || {
-            for i in t.images() {
-                host::image_is_the_built_one(&i.path)
-                    .map_err(|e| format!("image {}: {e}", i.name))?;
-            }
-            Ok(())
-        }
+        move || host::image_is_the_built_one(&t.s.image)
     }
 
-    /// UFS is off in both images (the gate every image passes before a boot).
-    pub fn ufs_is_off_in_both(&self) -> impl FnOnce() -> Done + 'static {
+    /// UFS is off in the image (the gate every image passes before a boot).
+    pub fn ufs_is_off(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
-        move || {
-            for i in t.images() {
-                let path = i.path.to_string_lossy().into_owned();
-                let line = t.lab.script("ufs-off-image.sh", &[&path], &[])?;
-                if !line.starts_with("pass ") {
-                    return Err(format!("image {}: {line}", i.name));
-                }
-            }
-            Ok(())
-        }
-    }
-
-    fn boot(&self, image: &PathBuf) -> Done {
-        let mut c = std::process::Command::new(&self.s.lpoco);
-        c.args(["lab", "--device"])
-            .arg(self.s.device_toml())
-            .args(["fastboot", "boot", "now"])
-            .arg(image);
-        let said = host::run(c)?;
-        if said.ok {
-            Ok(())
-        } else {
-            Err(format!("the boot did not go: {}", said.text))
-        }
+        move || t.lab.ufs_is_off(&t.s.image)
     }
 
     /// The battery is above the lab's minimum (the shared step).
@@ -281,86 +231,24 @@ impl Pmic {
         move || lab.android_is_back()
     }
 
-    /// The way back, the last step: the phone ends on Android whatever stopped the run (the shared step).
-    pub fn way_back(&self) -> impl FnOnce() -> Done + 'static {
-        let lab = self.lab.clone();
-        move || {
-            if std::env::var_os(crate::watch::CHILD).is_some() {
-                return Ok(()); // the watching parent runs it after the child ends, whatever ended it
-            }
-            lab.way_back()
-        }
-    }
-
     /// The phone is in fastboot: already, or taken there from Android (the shared step).
     pub fn phone_is_in_fastboot(&self) -> impl FnOnce() -> Done + 'static {
         let lab = self.lab.clone();
-        move || {
-            crate::watch::phone_is_touched(); // the first act on the phone: the watcher then owns the way back
-            lab.phone_is_in_fastboot()
-        }
+        move || lab.phone_is_in_fastboot()
     }
 
-    /// Boot image A from fastboot, from memory (never flashed); the banner's gadget is up. When A shows no
-    /// banner (the gadget never comes), say so - "next does not boot walleye" - wait for the phone's own restart
-    /// and boot B instead. After the first boot the same image is booted again.
-    pub fn boot_image(&self) -> impl FnOnce() -> Done + 'static {
+    /// The phone's dmesg is saved, kept apart per boot (b1-, b2-); the gadget and the shell are already up:
+    /// steps::phone_ready brought the image up. No serial number is kept in it. It numbers the boot, so it is the first save after each boot.
+    pub fn dmesg_is_saved(&self) -> impl FnOnce() -> Done + 'static {
         let t = self.clone();
         move || {
-            let chosen = t.facts.borrow().chosen.clone();
-            let which: Vec<Image> = match chosen {
-                Some(image) => vec![image],
-                None => t.images().to_vec(),
-            };
-            let toml = t.s.device_toml();
-            for (i, image) in which.iter().enumerate() {
-                let w = image.name;
-                t.boot(&image.path)?;
-                let up = t.lab.script(
-                    "gadget-up.sh",
-                    &[&toml.to_string_lossy()],
-                    &[("GADGET_WAIT", "120")],
-                );
-                if up.is_ok() {
-                    {
-                        let mut f = t.facts.borrow_mut();
-                        f.chosen = Some(image.clone());
-                        f.boots += 1;
-                    }
-                    t.note(format!("image {w} booted and shows its banner"));
-                    return Ok(());
-                }
-                if i + 1 == which.len() {
-                    return Err(format!(
-                        "image {w} shows no banner within 120 s: {}",
-                        up.unwrap_err()
-                    ));
-                }
-                t.note(format!(
-                    "image {w} shows no banner within 120 s: next does not boot walleye; B is used for both tests"
-                ));
-                t.android_is_back()()?; // the phone's own restart brings Android back
-                t.phone_is_in_fastboot()()?;
-            }
-            Ok(())
-        }
-    }
-
-    /// The gadget is up on USB and the shell answers; the phone's dmesg is saved (no serial number in it).
-    pub fn shell_answers(&self) -> impl FnOnce() -> Done + 'static {
-        let t = self.clone();
-        move || {
-            let toml = t.s.device_toml();
-            t.lab.script(
-                "gadget-up.sh",
-                &[&toml.to_string_lossy()],
-                &[("GADGET_WAIT", "60")],
-            )?;
             let mut sh = t.lab.shell(10)?;
             let dmesg = sh.run("dmesg", Duration::from_secs(20))?;
             if dmesg.trim().is_empty() {
                 return Err("the shell answers, but dmesg is empty".into());
             }
+            t.facts.borrow_mut().boots += 1;
+            t.note(format!("image {KERNEL} booted, dmesg saved"));
             t.save("dmesg.txt", &redact(&dmesg))
         }
     }
@@ -692,7 +580,6 @@ mod walkthrough {
         for (script, says) in [
             ("battery-ok.sh", "pass walleye-battery-ok host 4100 mV"),
             ("ufs-off-image.sh", "pass walleye-ufs-off image"),
-            ("gadget-up.sh", "pass walleye-gadget-up kernel up"),
             ("idle-android.sh", "pass walleye-idle-android host back"),
         ] {
             std::fs::write(hosts.join(script), format!("echo '{says}'\n")).unwrap();
@@ -713,16 +600,10 @@ mod walkthrough {
                 d.display()
             ),
         );
-        crate::fixture::executable(&d.join("lpoco"), "#!/bin/sh\necho \"$@\" >> \"$0.calls\"\n");
-        for w in ["a", "b"] {
-            std::fs::write(d.join(format!("boot-wdt1-{w}.img")), w).unwrap();
-        }
+        std::fs::write(d.join("boot-wdt1-a.img"), "a").unwrap();
         let sums = std::process::Command::new("sh")
             .current_dir(&d)
-            .args([
-                "-c",
-                "sha256sum boot-wdt1-a.img boot-wdt1-b.img > SHA256SUMS-wdt1",
-            ])
+            .args(["-c", "sha256sum boot-wdt1-a.img > SHA256SUMS-wdt1"])
             .status()
             .unwrap();
         assert!(sums.success());
@@ -734,11 +615,9 @@ mod walkthrough {
         s.lab = d.to_path_buf();
         s.address = "127.0.0.1".into();
         s.port = port;
-        s.lpoco = d.join("lpoco").to_string_lossy().into_owned();
         s.adb = d.join("adb").to_string_lossy().into_owned();
         s.fastboot = d.join("fastboot").to_string_lossy().into_owned();
-        s.image_a = d.join("boot-wdt1-a.img");
-        s.image_b = d.join("boot-wdt1-b.img");
+        s.image = d.join("boot-wdt1-a.img");
         s.out_given = Some(d.join("out"));
         s.stay = 6;
         s.bite_wait = 8;
@@ -768,11 +647,10 @@ mod walkthrough {
         let d = lab("pass", "5");
         // the stand-in phone hangs up when it reboots, so the reboot test uses its own phone; the second one then bites
         let t = the_try(&d, phone(STATE_OK, BITE_OK));
-        t.images_are_the_built_ones()().unwrap();
-        t.ufs_is_off_in_both()().unwrap();
+        t.image_is_the_built_one()().unwrap();
+        t.ufs_is_off()().unwrap();
         t.battery_is_good()().unwrap();
-        t.boot_image()().unwrap();
-        t.shell_answers()().unwrap();
+        t.dmesg_is_saved()().unwrap();
         t.s2_type_is_seven()().unwrap();
         t.arm_and_reboot()().unwrap();
         t.android_is_back()().unwrap();
@@ -783,7 +661,7 @@ mod walkthrough {
             port: phone(STATE_OK, BITE_OK),
             ..(*t.s).clone()
         });
-        t2.boot_image()().unwrap();
+        t2.dmesg_is_saved()().unwrap();
         t2.s2_is_off_after_the_reboot()().unwrap();
         std::fs::write(d.join("n"), "3").unwrap(); // the bite restarts the phone: a new boot
         t2.arm_and_bite()().unwrap();
@@ -791,59 +669,14 @@ mod walkthrough {
         t2.result_is_saved()().unwrap();
         let summary = std::fs::read_to_string(d.join("out/summary.txt")).unwrap();
         assert!(
-            summary.contains("image A booted")
+            summary.contains("image wdt1-a booted")
                 && summary.contains("BITE:")
                 && summary.contains("S2 reads OFF"),
             "{summary}"
         );
+        assert!(d.join("out/b2-wdt-state.txt").exists());
         let dmesg = std::fs::read_to_string(d.join("out/b1-dmesg.txt")).unwrap();
         assert!(dmesg.contains("serialno=REDACTED") && !dmesg.contains("SECRET"));
-        std::fs::remove_dir_all(d).ok();
-    }
-
-    #[test]
-    fn image_a_not_booting_leads_to_b_and_says_so() {
-        let d = lab("fallback", "5");
-        // a gadget that comes up only for the image B (the last image lpoco was asked to boot)
-        std::fs::write(
-            d.join("tests/host/gadget-up.sh"),
-            format!(
-                "tail -n1 \"{}/lpoco.calls\" | grep -q boot-wdt1-b.img && echo 'pass walleye-gadget-up kernel up' && exit 0\necho 'fail walleye-gadget-up no gadget'; exit 1\n",
-                d.display()
-            ),
-        )
-        .unwrap();
-        let t = the_try(&d, phone(STATE_OK, BITE_OK));
-        t.boot_image()().unwrap();
-        let notes = t.facts.borrow().notes.join("\n");
-        assert!(
-            notes.contains("image A shows no banner")
-                && notes.contains("next does not boot walleye"),
-            "{notes}"
-        );
-        assert!(notes.contains("image B booted"), "{notes}");
-        let chosen = t.facts.borrow().chosen.clone().unwrap();
-        assert_eq!(chosen.name, "B");
-        assert_eq!(chosen.path, d.join("boot-wdt1-b.img"));
-        // the second boot of the test keeps B and does not try A again
-        t.boot_image()().unwrap();
-        let calls = std::fs::read_to_string(d.join("lpoco.calls")).unwrap();
-        let a = calls.matches("boot-wdt1-a.img").count();
-        assert_eq!(a, 1, "{calls}");
-        std::fs::remove_dir_all(d).ok();
-    }
-
-    #[test]
-    fn both_images_not_booting_is_an_error_naming_the_last() {
-        let d = lab("neither", "5");
-        std::fs::write(
-            d.join("tests/host/gadget-up.sh"),
-            "echo 'fail walleye-gadget-up no gadget'; exit 1\n",
-        )
-        .unwrap();
-        let t = the_try(&d, phone(STATE_OK, BITE_OK));
-        let e = t.boot_image()().unwrap_err();
-        assert!(e.contains("image B shows no banner"), "{e}");
         std::fs::remove_dir_all(d).ok();
     }
 
@@ -879,7 +712,7 @@ mod walkthrough {
     fn a_type_that_is_not_seven_stops_before_any_arming() {
         let d = lab("warm", "5");
         let t = the_try(&d, phone(STATE_WARM, BITE_OK));
-        t.shell_answers()().unwrap();
+        t.dmesg_is_saved()().unwrap();
         let e = t.s2_type_is_seven()().unwrap_err();
         assert!(e.contains("no bite"), "{e}");
         std::fs::remove_dir_all(d).ok();
@@ -986,144 +819,6 @@ mod walkthrough {
         let d = lab("noguard", "5");
         let t = the_try(&d, phone(STATE_OK, BITE_OK));
         assert!(t.arm_and_bite()().unwrap_err().contains("no arming"));
-        std::fs::remove_dir_all(d).ok();
-    }
-}
-
-#[cfg(test)]
-mod the_way_back {
-    //! The last step of the try, on stand-in phones: no answer from the author, a failed check and a stop all end
-    //! in it; each path of it on its own.
-    use super::*;
-    use crate::phone::fake;
-
-    /// A lab whose idle-android check always passes: the phone is on Android.
-    fn lab_android_already(name: &str) -> (PathBuf, Pmic) {
-        lab_with(name, |_| {
-            "echo 'pass walleye-idle-android host back'\n".into()
-        })
-    }
-
-    /// A lab whose idle-android check never passes: Android does not come back.
-    fn lab_never_back(name: &str) -> (PathBuf, Pmic) {
-        lab_with(name, |_| {
-            "echo 'fail walleye-idle-android not yet'; exit 1\n".into()
-        })
-    }
-
-    /// A lab whose idle-android check passes once the stand-in phone has been told to restart (the file `marker`
-    /// is in the lab's folder): no clock decides it.
-    fn lab_back_after(name: &str, marker: &str) -> (PathBuf, Pmic) {
-        lab_with(name, |d| {
-            format!(
-                "[ -e \"{0}/{1}\" ] && echo 'pass walleye-idle-android host back' && exit 0\necho 'fail walleye-idle-android not yet'; exit 1\n",
-                d.display(),
-                marker
-            )
-        })
-    }
-
-    fn lab_with(name: &str, check: impl Fn(&std::path::Path) -> String) -> (PathBuf, Pmic) {
-        let d = std::env::temp_dir().join(format!("wt-back-{name}-{}", std::process::id()));
-        let hosts = d.join("tests/host");
-        std::fs::create_dir_all(&hosts).unwrap();
-        std::fs::write(d.join("device.toml"), "[connection]\nserial = \"SER1\"\n").unwrap();
-        std::fs::write(hosts.join("idle-android.sh"), check(&d)).unwrap();
-        let fastboot = d.join("fastboot");
-        crate::fixture::executable(
-            &fastboot,
-            "#!/bin/sh\nif [ \"$3\" = reboot ]; then : > \"$0.rebooted\"; exit 0; fi; [ -e \"$0.listed\" ] && echo 'SER1 fastboot'\nexit 0\n",
-        );
-        let mut s = Settings::stand_in(crate::settings::Try::Pmic);
-        s.lab = d.clone();
-        s.address = "127.0.0.1".into();
-        s.fastboot = d.join("fastboot").to_string_lossy().into_owned();
-        s.back_wait = 3;
-        (d, Pmic::new(s))
-    }
-
-    fn on_port(t: &Pmic, port: u16) -> Pmic {
-        t.with(Settings {
-            port,
-            ..(*t.s).clone()
-        })
-    }
-
-    #[test]
-    fn a_phone_on_android_is_left_alone() {
-        let (d, t) = lab_android_already("android");
-        // a shell that would hang up on a command: nothing may be sent to it
-        let t = on_port(&t, fake::phone(vec![("reboot", "!x")], vec![]));
-        t.way_back()().unwrap();
-        assert!(t
-            .lab
-            .shell(2)
-            .and_then(|mut s| s.run("true", Duration::from_secs(2)))
-            .is_ok());
-        std::fs::remove_dir_all(d).ok();
-    }
-
-    #[test]
-    fn a_test_image_is_sent_reboot_f_over_its_shell() {
-        let (d, t) = lab_back_after("reboot", "restarted");
-        let t = on_port(
-            &t,
-            fake::phone_marking(
-                vec![("reboot -f", "!going")],
-                vec![],
-                Some(d.join("restarted")),
-            ),
-        );
-        t.way_back()().unwrap();
-        // the phone hung up on the reboot: the shell is gone
-        assert!(!t.answers());
-        std::fs::remove_dir_all(d).ok();
-    }
-
-    #[test]
-    fn when_reboot_f_does_nothing_the_sysrq_trigger_is_sent() {
-        // android returns when the phone restarts, which only the sysrq command makes it do: no clock decides
-        let (d, t) = lab_back_after("sysrq", "restarted");
-        let t = on_port(
-            &t,
-            fake::phone_marking(
-                vec![("reboot -f", "ignored"), ("sysrq-trigger", "!going")],
-                vec![],
-                Some(d.join("restarted")),
-            ),
-        );
-        t.way_back()().unwrap();
-        assert!(!t.answers(), "the sysrq command was not sent");
-        std::fs::remove_dir_all(d).ok();
-    }
-
-    #[test]
-    fn a_phone_in_fastboot_is_rebooted_by_fastboot() {
-        let (d, t) = lab_back_after("fastboot", "fastboot.rebooted");
-        std::fs::write(d.join("fastboot.listed"), "").unwrap();
-        let t = on_port(&t, fake::closed());
-        t.way_back()().unwrap();
-        assert!(d.join("fastboot.rebooted").exists());
-        std::fs::remove_dir_all(d).ok();
-    }
-
-    #[test]
-    fn a_silent_shell_and_no_android_says_the_power_hold_sentence() {
-        let (d, t) = lab_never_back("silent");
-        let t = on_port(&t, fake::closed());
-        let e = t.way_back()().unwrap_err();
-        assert!(e.contains("hold the power button about 15 seconds"), "{e}");
-        std::fs::remove_dir_all(d).ok();
-    }
-
-    #[test]
-    fn a_shell_that_answers_and_a_phone_that_stays_away_says_it_after_both_ways() {
-        let (d, t) = lab_never_back("stays");
-        let t = on_port(&t, fake::phone(vec![("reboot -f", "!x")], vec![]));
-        let t0 = std::time::Instant::now();
-        let e = t.way_back()().unwrap_err();
-        assert!(e.contains("hold the power button"), "{e}");
-        assert!(t0.elapsed().as_secs() < 30);
         std::fs::remove_dir_all(d).ok();
     }
 }
