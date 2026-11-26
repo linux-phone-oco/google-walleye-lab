@@ -174,7 +174,7 @@ sha256 = "f132e0f2a857f200e1edd70a70bb123caa79c3275c5a5fa634a33e8d4e530baa"
 
 # The kernels the attended procedures' boot_once and back_to_known_good name. Walleye boots only by fastboot boot and nothing is written to it: "kept" names the image the way back returns to, not a kernel stored on the phone.
 [kernels]
-test = ["z21", "l7", "b2", "b-d5", "b-d15", "b-d25", "b-d35", "b-d50", "b-s5", "b-r5", "b-r2", "b-rp2", "b-q5", "wdt1-a", "wdt1-b"]   # b-*: the delay bisect's images (its image_prefix)
+test = ["z21", "nfc", "l7", "b2", "b-d5", "b-d15", "b-d25", "b-d35", "b-d50", "b-s5", "b-r5", "b-r2", "b-rp2", "b-q5", "wdt1-a", "wdt1-b"]   # b-*: the delay bisect's images (its image_prefix)
 boot = "fastboot"                   # a test image is booted from memory (its [images.NAME]), nothing written: boot_once and phone_ready read this
 kept = "z21"
 # How the phone comes back to Android after a try (lpoco-attended 0.46.3 runs each line in this folder, as argv, in order, then waits for `back_on` to answer; a test image has no systemd, so the library's `systemctl reboot` does not fit):
@@ -216,6 +216,23 @@ kernel = "cc051a6e30369c0867245af7a1811e0059ebf6832ee2a2c1cba0bb8f823c16b7"
 dtb = "782de8ee84dd18bfb45b51054c3aa6f277ee29df9d78fe7761628e6d5adb851f"
 ramdisk = "59d0cb601bab4ffa4b97ffb038e4e10408085dcdb1e4fce920253ae964ecc32c"
 cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3"
+
+# The NFC test image (item walleye-nfc-dts-node-image): the slpi image's kernel line (the list ufs-off, tag int/walleye/ufs-off/v7.3/1, UFS OFF) with NFC built in (build/walleye-nfc.config:
+# RFKILL, NFC, NFC_NCI, NFC_NXP_NCI, NFC_NXP_NCI_I2C =y, merged after walleye.config), the dtb of dt/ with the nfc@28 node on blsp2_i2c2 (c1b6000) and the ramdisk of `build/build-initramfs.sh phone`: the roof's init
+# (lpoco bringup initramfs init, gadget serial walleye-first-boot, net 42), so one boot proves the NFC node and walleye-init-from-roof. Header, size and AVB footer are slpi's. The kernel and the dtb
+# are hand-built (build-kernel.sh on a worktree of the tag; sha256 in ~/Projects/walleye-build/images-nfc/SHA256SUMS-nfc), not a [kernel_builds] row: they enter the store from the seed once.
+# NOT KNOWN YET: the controller's clock (Android: BBCLK3, pm8998 gpio21 clkreq), the pins' drive strength, gpio116's role. The roof's init lacks the 180 s hold, the watchdog petter and the banner
+# (research walleye-generated-init-gaps): read that before the try is queued. Host checks: tests/host/ufs-off-image.sh passes; the overlay merge leaves the node (the vendor's nq@28 lands in the stub i2c_8).
+[images.nfc]
+path = "images-nfc/boot-nfc.img"
+kernel_tag = "int/walleye/ufs-off/v7.3/1"
+sha256 = "3ccc72000def2215fbb3615bf557b176f1db4912b5db181fd17b582d5de34617"
+
+[images.nfc.recipe]
+control = "slpi"
+kernel = "78dbbff60f21ad372947d05c7c375632bb79a4dc2aeac1da4142f170ca117607"
+dtb = "67fb13fe96a10d3ac17b30bb1412b9a908ce9062163345ef25cbdfebb130ed68"
+ramdisk = "a3d5dd796596c092f36b43fb1846ca97aea9c84a76d61ecc9b51a7caa621f892"
 
 # z20: z21's control (UFS ON, NOT TO BOOT: tests/host/ufs-off-image.sh refuses it by design); no [kernels] list and no procedure names it.
 [images.z20]
