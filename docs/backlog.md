@@ -12845,10 +12845,10 @@ Rank
 ### walleye's boot images take the init lpoco bringup makes; its own init variants retire
 
 Status
-: open
+: done
 
 Note
-: Moved from docs' base 2026-11-25 (orchestration; blocker bringup-generic-init done). Its gadget serial, address and functions move to device.toml [boot]; build/initramfs*/ and build/ffs-acm* stay in history. Every booted image changes with it: new sha256s, each image's first boot rides on its next keeper run.
+: proven by build/selftest-initramfs.sh (2026-11-26, nets 42 and 43) and the first phone boot of an image built by build-initramfs.sh phone: [images.nfc] dab25d7f came up with the gadget serial walleye-first-boot at 172.16.43.1 (research walleye-nfc-boot-run-1, PR 1211)
 
 Blocked by
 : walleye-nfc-dts-node-image
