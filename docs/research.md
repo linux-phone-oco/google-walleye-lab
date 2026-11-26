@@ -8579,3 +8579,22 @@ Found
 
 About
 : walleye-attend-program-display
+
+
+<a id="walleye-touch-step-groups-run-result"></a>
+### walleye-touch-step-groups-run-result
+
+Date
+: 2026-11-26
+
+Brief
+: Touch events on z21 on step groups, real Pixel 2: boot, touch controller listed, reader EVENTS-READY, stop at swipe ask unanswered, way back to Android
+
+Question
+: Does procedures/touch-events-on-z21.rs run on the library's step groups unattended?
+
+Found
+: Run by walleye-keeper 2026-11-26 (bin/attended run touch-events-on-z21 --answer-limit 60). Checks 1-3 passed; step 4 fastboot; group phone_ready booted z21 once (left fastboot 15 s, back as USB 1d6b:0104 after 18 s); checks 6-10 passed (phone and shell answer, dmesg saved, touch controller listed, reader window 120 s); step 11 reader started; check 12 EVENTS-READY. Ask 13 (swipe) stopped: nobody answered within 60 s - the expected stop. Way back via bin/attended run way-back-on-the-pixel-2 passed; phone-state: Android over adb. No go was open; nothing flashed. Nobody touched the glass, so touch events themselves are not known yet.
+
+About
+: walleye-attend-program-display

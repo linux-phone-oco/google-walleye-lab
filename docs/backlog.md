@@ -13104,10 +13104,10 @@ Rank
 ### One unattended run of procedures/touch-events-on-z21.rs on the step groups (phone_ready z21, leave_known_good), answer limit given
 
 Status
-: open
+: done
 
 Note
-: queued by walleye-builder 2026-11-26: the procedure is on the groups (dry run 16 steps, check --host, 477 tests ok); same shape as the display look's run. Nobody swipes in an unattended run: it stops at the ask.
+: proven by walleye-touch-step-groups-run-result: boot, controller listed, EVENTS-READY, stop at the ask, way back to Android (run walleye-keeper 2026-11-26)
 
 Blocked by
 : walleye-way-back-procedure-run
