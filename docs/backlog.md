@@ -4268,13 +4268,13 @@ Rank
 ### Try z11 once from slot b: do the UFS LUNs and partitions show, and does boot_a's header read ANDROID!?
 
 Status
-: open
+: done
 
 Note
-: Use z12 instead (walleye-try-z12): z11 has no Hynix quirks, so it is not to be tried.
+: Superseded (never run): z11 has no Hynix quirks; z12, z13 and then walleye-try-ufs-match replaced it. Its build script is retired (walleye-retire-build-scripts batch 4).
 
 Waits
-: the Android-derived solution (the lane's work: items walleye-ufs-gap-*, then walleye-ufs-solution-extracted); then the go note goes to the author (research walleye-ufs-go-note, refreshed) and his word opens the try (decisions 2026-11-19-walleye-ufs-android-derived-solution, 2026-11-19-walleye-ufs-hold-second-path)
+: none
 
 About
 : walleye-first-fastboot-boot
@@ -10524,7 +10524,7 @@ Status
 : open
 
 Note
-: Parts landed: PRs 1084, 1107, 1110, 1111, 1143, batches 1 (52), 2 (5) and 3 (14: the display dtb makers and their checks) of 2026-11-26; 18 build-*.sh left. Left: display-late and display-any-order-images (dtb and ramdisks are seeds), ufs-match/z11-z13/display-image/upstream-dts-image after judging, reboot-bin and nfc-up-bin (built binaries: image ensure has no recipe form, a lab-tools ask); seeds z20, l6, ufs-match stay until their kernel has a [kernel_builds] row; pmic-wdt-v1 waits on walleye-wdt-pon-bites-procedure. Rank 6 kept.
+: Parts landed: PRs 1084, 1107, 1110, 1111, 1143, batches 1 (52), 2 (5) and 3 (14) of 2026-11-26, batch 4 (4: z11, z12, z13, banner) of 2026-11-27; 14 build-*.sh left. Left: display-late and display-any-order-images (dtb and ramdisks are seeds), ufs-match/display-image/upstream-dts-image/pmic-wdt-v1 after judging (named by rows or open items), reboot-bin and nfc-up-bin (built binaries: image ensure has no recipe form, a lab-tools ask); seeds z20, l6, ufs-match stay until their kernel has a [kernel_builds] row; pmic-wdt-v1 waits on walleye-wdt-pon-bites-procedure. Rank 6 kept.
 
 Blocked by
 : walleye-next-image-from-an-int-tag

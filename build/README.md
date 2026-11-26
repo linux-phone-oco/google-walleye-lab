@@ -10,6 +10,8 @@ tags (docs decision 2026-11-23-structure-kernel-topics-and-integration), one ima
 
 **Retired 2026-11-26 (batch 3):** 14 scripts of the finished display dtb experiments: the seven dtb makers (display-bisect, display-dtb-bisect, display-f3-split, display-late-l, -l3, -l4, -l5) and the seven check scripts that only checked their output. No image row, procedure, test or open item names them; the series files in `build/series/` and the recorded dtbs stay as data. Each one's last commit is in research/walleye-retire-build-scripts/2026-11-26/retired-scripts-batch-3.txt. Kept: build-display-late.sh (it makes the LATE_DIR the any-order script reads), build-display-any-order-images.sh, build-reboot-bin.sh (no recipe form for a binary yet), the seeds z20, l6, ufs-match. Sections below that describe the retired scripts are history.
 
+**Retired 2026-11-27 (batch 4):** 4 scripts: build-z11, build-z12, build-z13 (the UFS-on test images, superseded by the matched image of walleye-try-ufs-match; their tries are done, dropped or "not to be tried") and build-banner (y2 with a banner init, done). No image row, procedure or open item names them; init-banner stays as data. Each one's last commit is in research/walleye-retire-build-scripts/2026-11-26/retired-scripts-batch-4.txt. Sections below that describe them are history.
+
 ## Building the first walleye image
 
 Everything here builds the first thing the phone is tried with: mainline v7.3 + our own `dt/msm8998-google-walleye.dts`, a
@@ -234,7 +236,7 @@ command line (dtb, ramdisk and the rest are z19's, byte for byte). `tests/host/g
 Decision 2026-11-19-walleye-ufs-off-by-a-gate; research walleye-ufs-on-by-accident. UFS was on in every image from z11 and was probed against the author's word. Now `&ufshc` and `&ufsphy` are `status = "disabled"` in `dt/msm8998-google-walleye.dts`;
 the z11, z12 and z13 experiments take `dt/msm8998-google-walleye-ufs.dts` (the same file with the two nodes okay, built by `build-kernel.sh` as `msm8998-google-walleye-ufs.dtb`) and nothing else does.
 `tests/host/ufs-off-image.sh IMAGE|DTB` is the gate: every dtb appended to the image's kernel, alone and merged with the phone's own dtbo entry 3, must hold no UFS host or phy node that is on (okay, or with no status), and the command line must name no ufs
-(the bootloader's own `androidboot.*` words aside). `build/ufs-gate.sh IMAGE...` runs it for the build scripts: every `build-*.sh` that writes a boot image stops there when UFS is on (z11, z12, z13 are the experiments that keep it on and carry no gate: their images are not to boot).
+(the bootloader's own `androidboot.*` words aside). `build/ufs-gate.sh IMAGE...` runs it for the build scripts: every `build-*.sh` that writes a boot image stops there when UFS is on (z11, z12, z13, retired 2026-11-27, were the experiments that kept it on and carried no gate: their images were not to boot).
 `tests/host/ufs-off-image-selftest.sh` proves the gate on made dtbs and images (CI job `ufs-off-gate`); `tests/host/ufs-off-inventory.sh` lists which images under `~/Projects/walleye-build/images*` have UFS on.
 (script retired 2026-11-26: `lpoco bringup image ensure z21` rebuilds it equal) z21 = z20 with the stub container and UFS disabled in the dtb, nothing else changed (the gate fails z20 and passes z21).
 
