@@ -13587,10 +13587,10 @@ Rank
 ### The proof walleye-tas2557-driver-builds as a Rust program with argenv: the series applies to v7.3, the binding checks, the driver builds W=1, the overlay merges
 
 Status
-: open
+: done
 
 Note
-: The same four checks that were run by hand on 2026-11-26 (research walleye-tas2557-v3-builds); no new shell: the older tests/host/*-builds.sh are shell and are being retired, this one is not copied from them.
+: 2026-11-26 (walleye-builder): tools/walleye-tas2557-builds (Rust, argenv), 13 tests on the captured texts of research walleye-tas2557-v3-builds; run on the lab: pass for tip 4b5ddbd8f821 (base dtb built with symbols from int/walleye/ufs-on/v7.3/1). Programmer review fixed: binding judged by line shape (the kernel Makefile ends its checks with || true), series must start on its base, no shell in the steps, evidence writes fail the run. Left from the review, not done: the Check{name,needs,step,judge} shape for main.rs, board facts hard-coded in steps.rs, apk add pulls current edge packages (image digest pins little), shared default work dir. The proof walleye-tas2557-driver-builds is now this program.
 
 About
 : walleye-audio-haptics

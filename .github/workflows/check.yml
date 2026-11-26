@@ -83,6 +83,17 @@ jobs:
         run: |
           out=$(sh tests/host/kernel-pd-mapper.sh || true); echo "$out"
           case "$out" in "skip walleye-kernel-pd-mapper host the fragments set it"*|pass*) ;; *) exit 1 ;; esac
+  tas2557-builds:
+    name: the TAS2557 series proof judges the captured texts and each spoiled one
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: the judges pass the texts captured on 2026-11-26 (research walleye-tas2557-v3-builds) and fail each fault in them; the run on the lab host needs the kernel clone and docker, so it is not here
+        run: |
+          cd tools/walleye-tas2557-builds
+          cargo test --locked
+          cargo fmt --check
+          cargo clippy --locked --all-targets -- -D warnings
   checks-have-sources:
     name: every host script names its source
     runs-on: ubuntu-latest
