@@ -13552,7 +13552,7 @@ Proof
 : procedures/pon-control-read-on-the-pixel-2.rs (or a step group) dry-runs; the reader image's PON read is proven on the host or its image test; every step without the author run for real except the phone; it tells the author what to do at its one hands step and waits for fastboot
 
 Rank
-: 8
+: 7
 
 
 <a id="walleye-tas2557-try-image"></a>
