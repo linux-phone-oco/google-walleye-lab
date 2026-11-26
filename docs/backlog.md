@@ -12947,6 +12947,9 @@ Status
 Note
 : PART 1 LANDED 2026-11-26 (walleye-builder, decision 2026-11-26-walleye-way-back-is-a-procedure): lpoco-attended 0.46.2, schema line lpoco-lab-v0.53.4, [kernels] way_back = bin/attended run way-back-on-the-pixel-2 and back_on = android, procedures/way-back-on-the-pixel-2.rs; land-check's lpoco-bringup pin is 0.53.4 (manifest 0.51.0 or newer): no stop. PART 2 OPEN: move the display (look, delay bisect), UFS, PMIC and touch procedures onto steps::phone_ready(kernel) and steps::leave_known_good LAST in each entry file; values from device.toml; one real run of the display look (unattended, answer limit). Waits for the keeper run walleye-way-back-procedure-run to show the declared way back works on the phone before a procedure ends in it. Orchestration's text: lpoco-attended-v0.46.2 (lab-tools #454, #455) runs [kernels] way_back in the device folder, then waits for back_on.
 
+Blocked by
+: walleye-way-back-procedure-run
+
 About
 : walleye-attend-program-display
 
@@ -12972,9 +12975,6 @@ Status
 Note
 : Read only on Android, one reboot out of the bootloader. Built 2026-11-26 (decision 2026-11-26-walleye-way-back-is-a-procedure); dry run, bin/attended check and the programmer review pass (no blockers); never run on the phone. Run bin/attended run way-back-on-the-pixel-2 --dry-run first (warms rust-script). Its limits, from the review: it cannot restore Android's slot after the install tries (they keep their own way back), has no ssh leg or pushed reboot tool, and a phone whose telnet is not up yet is only watched for Android for back_wait. The library shows its output only on failure, up to back_wait 240 s per leg. Part 2 must keep the install and rootfs procedures on their own way back until it handles the slot switch.
 
-Blocked by
-: walleye-procedures-on-step-groups
-
 About
 : walleye-attend-program-display
 
@@ -12988,4 +12988,4 @@ Proof
 : bin/attended run way-back-on-the-pixel-2 exits 0 with the phone on Android (it says nothing was sent), and again with the phone in its bootloader by adb reboot bootloader (fastboot reboot, Android answers within back_wait); the slot Android runs from is the one it began on
 
 Rank
-: 6
+: 5
