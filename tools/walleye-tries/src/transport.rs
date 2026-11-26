@@ -130,7 +130,9 @@ impl Transport {
         move || {
             let suffix = u.android.slot_suffix()?.trim().to_string();
             u.keep(&format!("adb getprop ro.boot.slot_suffix said: {suffix}"))?;
-            slots_agree(&suffix, suffix.trim_start_matches('_'))?; // a slot a or b, or a doubt
+            if suffix != "_a" && suffix != "_b" {
+                return Err(format!("adb told no slot _a or _b: {suffix:?}"));
+            }
             *u.first.borrow_mut() = Some(suffix);
             Ok(())
         }
@@ -285,5 +287,40 @@ mod tests {
         let t = lab("noslot", "x", "x");
         let e = t.fastboot_lists_the_slot_adb_read()().unwrap_err();
         assert!(e.contains("not read yet"), "{e}");
+    }
+}
+
+#[cfg(test)]
+mod fastboot_tests {
+    use super::*;
+    use crate::fixture::executable;
+    use crate::settings::Try;
+
+    /// A lab whose fastboot prints the captured slot lines (tests/fixtures/phone-text, a cut of research/walleye-bootimage/2026-11-25-c1-run/slots-before.txt) and whose adb read `first`.
+    /// Fastboot's raw `getvar current-slot` text alone is not captured yet (not known yet): the first run keeps it in transport.txt.
+    fn lab(name: &str, first: &str) -> Transport {
+        let d = std::env::temp_dir().join(format!("wt-trf-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        std::fs::write(d.join("device.toml"), "[fastboot]\nserial = \"SER1\"\n").unwrap();
+        let cap = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../tests/fixtures/phone-text/fastboot-slots-android-b-2026-11-25.cap"
+        );
+        executable(&d.join("fastboot"), &format!("#!/bin/sh\ncat '{cap}'\n"));
+        let mut s = Settings::stand_in(Try::Touch);
+        s.lab = d.clone();
+        s.out = d.join("out");
+        s.fastboot = d.join("fastboot").to_string_lossy().into_owned();
+        let t = Transport::new(s);
+        *t.first.borrow_mut() = Some(first.to_string());
+        t
+    }
+
+    #[test]
+    fn fastboot_agreeing_with_adb_passes_and_disagreeing_fails() {
+        lab("same", "_b").fastboot_lists_the_slot_adb_read()().unwrap();
+        let e = lab("other", "_a").fastboot_lists_the_slot_adb_read()().unwrap_err();
+        assert!(e.contains("disagree"), "{e}");
     }
 }
