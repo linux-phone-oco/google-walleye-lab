@@ -6,7 +6,7 @@
 #   replaced by the driver's one dev_dbg, the chip id (dyndbg="file drivers/input/misc/drv2624.c +p"). UFS off by the gate. Built only - no phone run; the keeper reads the part over the mainline shell
 #   (ls /sys/bus/i2c/devices, the driver link, dmesg), as tests/health/base/amp-present.sh does on a phone with a Linux userland.
 #   build-drv2624.sh Z21_BOOT_IMG KERNEL_OUT OUT_DIR
-# KERNEL_OUT is build-kernel.sh's OUT_DIR, run with EXTRA_CONFIG=build/walleye-drv2624.config. Environment DTBO as in build-z21.sh. Writes OUT_DIR/{boot-drv1.img,SHA256SUMS-drv1};
+# KERNEL_OUT is build-kernel.sh's OUT_DIR, run with EXTRA_CONFIG=build/walleye-drv2624.config. Environment DTBO as in ufs-gate.sh. Writes OUT_DIR/{boot-drv1.img,SHA256SUMS-drv1};
 # every check stops the build (ok/FAIL, exit 1, nothing written).
 set -eu
 Z21=${1:?usage: build-drv2624.sh Z21_BOOT_IMG KERNEL_OUT OUT_DIR}

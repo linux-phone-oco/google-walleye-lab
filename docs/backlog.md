@@ -10562,7 +10562,7 @@ Status
 : open
 
 Note
-: Parts landed: PRs 1084, 1107, 1110, 1111 (79 build-*.sh left; ufs-match the control, the z-series and the display experiments to judge). Rank 5 from 2026-11-25 (walleye coordinator): the pieces left are small, so the rank-4 feature items (slpi carve-out, ufs-on kernel build) go first.
+: Parts landed: PRs 1084, 1107, 1110, 1111 and build-z21.sh (2026-11-26); 78 build-*.sh left; z20, l6, ufs-match and the z/pk/vendor/display experiments to judge. Rank 5 from 2026-11-25 (walleye coordinator).
 
 Blocked by
 : walleye-next-image-from-an-int-tag

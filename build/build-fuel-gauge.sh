@@ -6,7 +6,7 @@
 #   replaced by the driver's own dev_dbg lines (dyndbg="file drivers/power/supply/pmi8998_fg.c +p"). UFS off by the gate. Built only - no phone run; the keeper tries it once
 #   (walleye-try-fuel-gauge); tests/host/fuel-gauge-check.sh judges the reader's output against battery-ok.sh's fastboot reading.
 #   build-fuel-gauge.sh Z21_BOOT_IMG KERNEL_OUT OUT_DIR
-# KERNEL_OUT is build-kernel.sh's OUT_DIR, run with EXTRA_CONFIG=build/walleye-fg.config. Environment DTBO as in build-z21.sh. Writes OUT_DIR/{boot-fg1.img,SHA256SUMS-fg1};
+# KERNEL_OUT is build-kernel.sh's OUT_DIR, run with EXTRA_CONFIG=build/walleye-fg.config. Environment DTBO as in ufs-gate.sh. Writes OUT_DIR/{boot-fg1.img,SHA256SUMS-fg1};
 # every check stops the build (ok/FAIL, exit 1, nothing written).
 set -eu
 Z21=${1:?usage: build-fuel-gauge.sh Z21_BOOT_IMG KERNEL_OUT OUT_DIR}

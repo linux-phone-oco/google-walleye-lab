@@ -110,8 +110,8 @@ DTBO=$T/clean.dtbo sh "$HERE/../../build/ufs-gate.sh" "$T/gate-on.img" >/dev/nul
 DTBO=$T/clean.dtbo sh "$HERE/../../build/ufs-gate.sh" "$T/gate-off.img" >/dev/null 2>&1 && g2=pass || g2=fail
 DTBO=$T/missing.dtbo sh "$HERE/../../build/ufs-gate.sh" "$T/boot-off.img" >/dev/null 2>&1 && g3=pass || g3=fail
 [ "$g1 $g2 $g3 $([ -e "$T/gate-on.img" ] && echo kept || echo removed)" = "fail pass fail removed" ] && echo "ok   ufs-gate.sh: UFS on fails and the image is removed, off passes, a skip is not a pass" || { echo "FAIL ufs-gate.sh: $g1 $g2 $g3"; total=$((total+1)); }
-# every script that writes a boot image runs the gate (z11-z13 are the UFS-on experiments, z21, the display image and the upstream-dts image run it by their own check); build-ufs-match.sh is a UFS-on image of walleye-ufs-match-android-z: it proves the gate FAILS it and writes it only to a NOT-TO-BOOT- directory
-miss=$(cd "$HERE/../../build" && for s in $(grep -l 'mkbootimg' build-*.sh); do case $s in build-z11.sh|build-z12.sh|build-z13.sh|build-z21.sh|build-display-image.sh|build-upstream-dts-image.sh|build-ufs-match.sh) continue;; esac; grep -q 'ufs-gate.sh' "$s" || echo "$s"; done)
+# every script that writes a boot image runs the gate (z11-z13 are the UFS-on experiments, the display image and the upstream-dts image run it by their own check); build-ufs-match.sh is a UFS-on image of walleye-ufs-match-android-z: it proves the gate FAILS it and writes it only to a NOT-TO-BOOT- directory
+miss=$(cd "$HERE/../../build" && for s in $(grep -l 'mkbootimg' build-*.sh); do case $s in build-z11.sh|build-z12.sh|build-z13.sh|build-display-image.sh|build-upstream-dts-image.sh|build-ufs-match.sh) continue;; esac; grep -q 'ufs-gate.sh' "$s" || echo "$s"; done)
 [ -z "$miss" ] && echo "ok   every build script that runs mkbootimg runs the UFS gate" || { echo "FAIL build scripts without the gate: $miss"; total=$((total+1)); }
 [ $total -eq 0 ] || { echo "ufs-off-image-selftest: $total failed" >&2; exit 1; }
 echo "pass ufs-off-image-selftest"
