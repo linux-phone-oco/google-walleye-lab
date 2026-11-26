@@ -8988,10 +8988,10 @@ Rank
 ### Read Google's wahoo device configuration (and Project Elixir's tree) for what the bring-up steps need: firmware paths, WCD934x routing, vendor module order, thermal zones, touch config, Wi-Fi config
 
 Status
-: in-progress
+: done
 
 Note
-: Firmware part done 2026-11-23 (walleye-device-config-firmware). 2026-11-24 walleye-device-config-public-tree: public device/google/wahoo has NONE of the audio, thermal, touch idc, WCNSS files nor init.insmod.cfg (vendor-image files): parts 2-6 read the phone's own vendor_a (read-only extraction) or the Elixir tree, each when its step comes due (touch/z21 first).
+: All six parts read: firmware 2026-11-23, public tree 2026-11-24, Elixir files 2026-11-26 (walleye-device-config-elixir-parts-3-6); the phone's vendor_a copies stay for a step that needs the exact bytes
 
 About
 : walleye-display-s6e3fa5
