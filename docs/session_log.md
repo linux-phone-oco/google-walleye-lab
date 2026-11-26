@@ -9508,3 +9508,36 @@ Rejected
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-walleye-display-at-boot-step-groups-run-used"></a>
+### Display at boot run on step groups (used by run walleye-keeper 2026-11-26)
+
+Entry date
+: 2026-11-26
+
+Done
+: Ran bin/attended run display-at-boot-on-the-pixel-2 --answer-limit 60: boot b2, 13/13 modules ok, connected, stop at the unanswered look, way back to Android. Item walleye-display-at-boot-step-groups-run done.
+
+About
+: walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-1700-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Phone on Android slot b, stock, nothing flashed; adb up. Ran walleye-display-at-boot-step-groups-run: b2 13/13 display modules ok, connected, stopped at the unanswered look as expected, way back to Android. No go was open.
+
+Considered
+: next: walleye-nfc-nxp-nci-node (22) host reading, or walleye-declare-transport-login
+
+About
+: walleye-attend-program-display
