@@ -1,5 +1,5 @@
 #!/usr/bin/env rust-script
-//! The rehearsal of the transport run (item walleye-transport-procedure): the reads on Android only - adb as root, the library's `read_slot(phone_on("android"))`, adb's
+//! The rehearsal of the transport run (item walleye-transport-procedure): the reads on Android only - the library's `read_slot(phone_on("android"))`, adb's
 //! own serial against the declared one - and no trip to the bootloader. It writes nothing and needs no go. The phone never leaves Android.
 //!   procedures/rehearse-transport-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml [procedures.rehearse-transport-on-the-pixel-2])
 //!
@@ -24,7 +24,7 @@ fn main() {
 
     check_from("the battery is good enough", "research:walleye-rootfs-boots-run-5-passed", t.battery_is_good());
     step("say what to expect", t.author_is_told(true));
-    step("the phone is on Android, adbd as root", t.the_phone_is_on_android_as_root());
+    step("the phone is on Android (the library asks adbd for root)", t.the_phone_is_on_android());
     run_step(steps::read_slot(phone_on("android"))); // the library over [connections.android]
     check_from("adb reads the slot Android runs from", "research:walleye-rootfs-boots-run-5-passed", t.the_slot_is_read_by_adb());
     check_from("adb's own serial is the one [fastboot] declares", "research:walleye-transport-serial-check-source", t.the_adb_serial_is_the_declared_one());

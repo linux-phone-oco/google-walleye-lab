@@ -3733,3 +3733,34 @@ Scope
 
 Tracked by
 : walleye-procedures-on-step-groups
+
+
+<a id="2026-11-26-walleye-adb-root-is-the-librarys"></a>
+### 2026-11-26-walleye-adb-root-is-the-librarys
+
+Date
+: 2026-11-26
+
+Brief
+: walleye leaves adb root to the library where a library call comes first (transport, install-rootfs); its own root stays where its own adb calls come first
+
+Decision
+: [connections.android] user = root now makes lab-tools 0.53.5 run adb root once per Phone. The transport run and the install-rootfs run no longer ask for root themselves: the phone is on Android (Android::is_up), then the library's read_slot asks adbd for root, and install-rootfs stages the image only after it (the staging push is walleye's own adb call and needs the root the library asked for). Android::is_up_as_root and the_phone_is_on_android_as_root stay for every try whose first reads are walleye's own adb calls with no library Phone before them (flash_boot, rootfs_boot, the rehearsals of install), because adb root of the library is asked only when a library Phone runs. device.toml's schema pin moves to lpoco-lab-v0.53.5 (lpoco-bringup was already 0.53.5).
+
+Why
+: lab-tools #456/#457 (lpoco 0.53.5, phone.rs: user = root on adb runs adb root and waits up to 30 s once per Phone); decision 2026-11-26-walleye-android-connection-user-root said walleye's step stays until the library does it. A refusal text of the library is tested only against a stand-in, so the keeper's run is its first live proof.
+
+Rejected
+: (a) drop is_up_as_root everywhere: the tries that push or hash over adb before any library call would then run as shell and fail; (b) leave both roots in place: two adb root calls per run, the library's untested live; (c) call the library's phone root from walleye's own steps: a new surface for no gain.
+
+About
+: walleye-bootimage
+
+Amends
+: 2026-11-26-walleye-android-connection-user-root
+
+Scope
+: google-walleye-lab: walleye-builder, walleye-keeper
+
+Tracked by
+: walleye-adb-root-from-library

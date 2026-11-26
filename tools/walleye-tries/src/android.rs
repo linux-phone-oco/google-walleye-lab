@@ -78,14 +78,21 @@ impl Android {
         self.adb(&["shell", "getprop ro.boot.slot_suffix"])
     }
 
-    /// The phone is on Android (out of fastboot if it is there) and adbd answers as root.
-    pub fn is_up_as_root(&self) -> Result<(), String> {
+    /// The phone is on Android (out of fastboot if it is there). adbd runs as it is: a library call over `[connections.android]`
+    /// (user = root) asks adbd for root itself, once per Phone (lab-tools 0.53.5).
+    pub fn is_up(&self) -> Result<(), String> {
         if self.lab.in_fastboot()? {
             let mut c = Command::new(&self.s.fastboot);
             c.args(["-s", &self.lab.serial()?, "reboot"]);
             host::run(c)?;
         }
-        self.lab.android_is_back()?;
+        self.lab.android_is_back()
+    }
+
+    /// The phone is on Android (out of fastboot if it is there) and adbd answers as root: walleye's own `adb root`, kept for the tries
+    /// whose first reads are its own adb calls, with no library Phone before them.
+    pub fn is_up_as_root(&self) -> Result<(), String> {
+        self.is_up()?;
         let _ = self.adb(&["root"]);
         let until = Instant::now() + ROOT_WAIT;
         loop {

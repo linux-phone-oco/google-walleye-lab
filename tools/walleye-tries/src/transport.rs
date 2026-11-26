@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //! The declared transports on the real Pixel 2, read only (item walleye-transport-procedure, for the run walleye-transport-real-phone-run;
-//! decision 2026-11-26-walleye-android-connection-user-root): on Android, walleye's own `adb root` step, then the library's
+//! decision 2026-11-26-walleye-android-connection-user-root): the phone is on Android, then the library, which asks adbd for root itself (lab-tools 0.53.5): the
 //! `read_slot(phone_on("android"))` (the first live use of `[connections.android]`, which the entry file runs), then what this
 //! file adds - the adb serial equals the `[fastboot]` serial, `adb reboot bootloader` is honoured and fastboot lists the phone with the
 //! slot adb read, `fastboot reboot` returns Android on that slot. Every text each call printed is kept in the run's folder (transport.txt)
@@ -42,12 +42,12 @@ pub fn serial_matches(printed: &str, declared: &str) -> Result<(), String> {
 
 /// What the author is told before the run.
 pub fn expect() -> String {
-    "The transport run, about 5 minutes, read only: adb as root, the slot read through the library's android connection, adb's own serial against the declared one, then the phone goes to its bootloader by `adb reboot bootloader` (fastboot must list it with the slot adb read) and out again by `fastboot reboot`. Nothing is written, flashed or set; the phone ends on Android on the slot it began on.".into()
+    "The transport run, about 5 minutes, read only: the slot read through the library's android connection, adb's own serial against the declared one, then the phone goes to its bootloader by `adb reboot bootloader` (fastboot must list it with the slot adb read) and out again by `fastboot reboot`. Nothing is written, flashed or set; the phone ends on Android on the slot it began on.".into()
 }
 
 /// What the author is told before the rehearsal.
 pub fn expect_rehearsal() -> String {
-    "The rehearsal of the transport run, about 2 minutes: adb as root, the slot read through the library's android connection, adb's own serial against the declared one. The phone never leaves Android; nothing is written.".into()
+    "The rehearsal of the transport run, about 2 minutes: the slot read through the library's android connection, adb's own serial against the declared one. The phone never leaves Android; nothing is written.".into()
 }
 
 #[derive(Clone)]
@@ -100,12 +100,12 @@ impl Transport {
         }
     }
 
-    /// The phone is on Android (out of fastboot if it is there) and adbd answers as root: walleye's own `adb root` step, before the library's.
-    pub fn the_phone_is_on_android_as_root(&self) -> impl FnOnce() -> Done + 'static {
+    /// The phone is on Android (out of fastboot if it is there); the library's next call asks adbd for root (`[connections.android]` user = root, once per Phone).
+    pub fn the_phone_is_on_android(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
             watch::phone_is_touched();
-            u.android.is_up_as_root()
+            u.android.is_up()
         }
     }
 
@@ -163,14 +163,13 @@ impl Transport {
         }
     }
 
-    /// `fastboot reboot` is sent and Android answers within `back_wait`, adbd as root again.
+    /// `fastboot reboot` is sent and Android answers within `back_wait` (getprop needs no root).
     pub fn fastboot_reboot_returns_android(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
             u.lab.fastboot_reboot();
             u.keep("fastboot reboot sent")?;
-            u.lab.android_is_back()?;
-            u.android.is_up_as_root()
+            u.lab.android_is_back()
         }
     }
 
