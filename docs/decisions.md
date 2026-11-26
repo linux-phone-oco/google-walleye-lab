@@ -3882,3 +3882,28 @@ Scope
 
 Tracked by
 : walleye-wdt-pon-control-read
+
+
+<a id="2026-11-26-pon-read-is-wdt1-a-plus-one-file"></a>
+### 2026-11-26-pon-read-is-wdt1-a-plus-one-file
+
+Date
+: 2026-11-26
+
+Brief
+: The PON reader image is wdt1-a with /bin/pon-block as one more file of its ramdisk; init-wdt1 and the wdt1 pair stay as they are
+
+Decision
+: Image pon-read = wdt1-a (kernel, dtb, command line, init) whose ramdisk holds one more file, build/initramfs-mainline/pon-block, which prints registers 0xC0..0xCB raw from every regmap of debugfs. The control procedure procedures/pon-control-read-on-the-pixel-2.rs boots it with steps::phone_ready after adb reboot -p and the author's one hold, saves the raw lines, and leaves by the declared way back.
+
+Why
+: The control counts what a key press and the bootloader leave; the first reader should change nothing else (research walleye-pon-read-image-built: the packing is proven on wdt1-a's own ramdisk byte for byte). The wdt1 pair is the bite images' sha and keeps it.
+
+Rejected
+: Adding pon-block to init-wdt1: changes wdt1-a and wdt1-b's ramdisks and their declared sha256 for a try that has run. A new init copy: 300 duplicated lines for one tool. Reading with the older pon-regs only: it reads seven registers (0x54..0x5b, 0xc5), not the block, and never read on this phone.
+
+About
+: walleye-pmic-wdt-v1-image
+
+Research
+: walleye-pon-read-image-built

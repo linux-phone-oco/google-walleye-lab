@@ -13537,10 +13537,10 @@ Witness
 ### The PON control read as one procedure: power-off by adb, the author's one act, fastboot-boot the reader image, save 0xC0..0xCB raw, way back
 
 Status
-: open
+: done
 
 Note
-: From decision 2026-11-26-pon-reasons-read-in-our-image-after-a-control (walleye coordinator 2026-11-26): an attended step is one command, built and tested before the author is called. The reader: an image already declared in device.toml that reads the PON block (spmi pon at 0x800 via regmap debugfs or a small tool), else the smallest change to one; Android-derived reads, nothing flashed.
+: Built and landed: procedures/pon-control-read-on-the-pixel-2.rs, image pon-read, /bin/pon-block; dry run passes, steps tests pass, image rebuilds equal. The run is walleye-wdt-pon-control-read (keeper, author's one hold).
 
 About
 : walleye-pmic-wdt-v1-image

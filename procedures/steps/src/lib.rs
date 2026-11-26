@@ -20,6 +20,7 @@ pub mod lab;
 pub mod nfc_boot;
 pub mod phone;
 pub mod pmic;
+pub mod pon_control;
 pub mod ramroot;
 pub mod reader;
 pub mod reboot_tool;

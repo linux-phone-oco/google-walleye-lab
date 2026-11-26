@@ -9017,3 +9017,25 @@ About
 
 Material
 : research/walleye-tas2557-series/2026-11-26/
+
+
+<a id="walleye-pon-read-image-built"></a>
+### walleye-pon-read-image-built
+
+Date
+: 2026-11-26
+
+Brief
+: pon-read: wdt1-a with /bin/pon-block in its ramdisk; swapping wdt1-a's own ramdisk back gives wdt1-a byte for byte; rebuilds equal from its recipe
+
+Question
+: What is the smallest change to an image we have that reads the PON block 0xC0..0xCB raw, built and proven on the host?
+
+Found
+: The packing of build-pmic-wdt-v1.sh (gen_init_cpio -t 0 on the spec of dirs, nods, busybox, init-wdt1, udhcpd-z14.conf; xz --check=crc32 --lzma2=preset=6e) reproduced wdt1-a's ramdisk a491e1a2 byte for byte (the known case); with one more line in the spec (file /bin/pon-block build/initramfs-mainline/pon-block) the ramdisk is a08b2bcd; lpoco-bringup image swap of wdt1-a's own ramdisk gave wdt1-a's sha 7630009d byte for byte (known case), and with the new one boot-pon-read.img ec05365c; tests/host/ufs-off-image.sh passes; image ensure pon-read --rebuild: rebuilt from its recipe, equal to its declared sha256 (the ramdisk entered from the seed, as a hand-built part does). /bin/pon-block reads registers 0x8c0..0x8cb of each regmap of debugfs (reads only), tests/host/pon-block-selftest.sh passes (fake tree shaped as the kernel's regmap debugfs prints; no phone has printed a regmap registers file yet). NOT KNOWN YET: that regmap debugfs shows the PON on this phone (the older pon-regs reader never read here, research walleye-z10-tried-pon-regs-not-read): the control run is that proof; if pon-block prints none, the next reader is the vendor driver's own log lines or Android's getprop.
+
+Sources
+: vendor-qpnp-power-on-c
+
+About
+: walleye-pmic-wdt-v1-image

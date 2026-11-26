@@ -10117,3 +10117,21 @@ Rejected
 
 About
 : walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-26-pon-control-procedure-built"></a>
+### PON control read: the procedure and the pon-read image built
+
+Entry date
+: 2026-11-26
+
+Done
+: Built procedures/pon-control-read-on-the-pixel-2.rs (13 steps, dry run passes, the author is asked twice: once to be there, once for the hold), steps/src/pon_control.rs with 6 tests (parse of the reader's own output, power-off, bootloader wait, block read), /bin/pon-block with its host selftest, the image pon-read (rebuilds equal from its recipe, UFS-off gate passes), settings Try::PonControl and its device.toml table, the CI stand-in image. No phone touched. The control run (walleye-wdt-pon-control-read) is now unblocked for the keeper.
+
+Considered
+: Whether regmap debugfs shows the PON on this phone is not known yet; the run is the proof and the procedure stops with the lines saved if pon-block prints none.
+
+About
+: walleye-pmic-wdt-v1-image
