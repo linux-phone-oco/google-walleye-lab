@@ -6498,7 +6498,7 @@ Status
 : in-progress
 
 Note
-: TRY ORDERS (coordinator 2026-11-26, image [images.nfc] from PR 1206): one boot of nfc from RAM (fastboot boot, nothing flashed), kept short, because the roof's init has no 180 s hold, no watchdog petter and no banner (research walleye-generated-init-gaps). In that boot: (a) the gadget serial walleye-first-boot, which also closes walleye-init-from-roof; (b) tests/health/base/nfc-present.sh; (c) if nxp-nci does not probe, read the clock first (BBCLK3 / pm8998 gpio21), then stop. A tag poll only after (b) passes. Host reading done (research walleye-nfc-android-dtb-read): nfc@28 on i2c@c1b6000, irq gpio92, VEN gpio12, FIRM gpio93. Next: the dts node on the test kernel's matching QUP, then one test-ramdisk try with nfc-present.sh; firmware from ~/lab-material. THE TRY'S COMMAND (2026-11-26, from walleye-nfc-boot-procedure): procedures/nfc-boot-on-the-pixel-2.rs (dry run first), image nfc sha256 dab25d7f, net 43; its folder ~/lab-material/walleye/nfc-boot-DAY holds read.txt, dmesg.txt, verdict.txt.
+: run 1: nfc-present pass (nfc0), nxp-nci read -121, BBCLK3 count 0; tag poll not yet - see research walleye-nfc-boot-run-1
 
 Blocked by
 : walleye-nfc-boot-procedure

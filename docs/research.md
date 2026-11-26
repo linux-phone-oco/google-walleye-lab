@@ -8765,3 +8765,22 @@ Sources
 
 About
 : nfc
+
+
+<a id="walleye-nfc-boot-run-1"></a>
+### walleye-nfc-boot-run-1
+
+Date
+: 2026-11-26
+
+Brief
+: nfc image booted once from RAM at net 43: nfc-present passes (nfc0 from nxp-nci), but nxp-nci logged read error -121 at 1.19 s; BBCLK3 enable count 0
+
+Question
+: Does nxp-nci probe on the Pixel 2 from the nfc@28 node, and does the controller answer?
+
+Found
+: procedures/nfc-boot-on-the-pixel-2.rs ran 2026-11-26 15:21, all 10 steps passed, way back to z21 and Android answered. Gadget walleye-first-boot up at 172.16.43.1 (closes the walleye-init-from-roof first-boot proof for the nfc image). nfc-present passes: nfc0 registered by nxp-nci. dmesg: 'nxp-nci_i2c 1-0028: NFC: Read failed with error -121' (EREMOTEIO: no ack/answer on the read), not deferred; ln_bb_clk3 enable count 0 in clk_summary. So present = node probed and nfc0 exists; works is NOT shown: the controller may not be answering (VEN/clock/firmware mode). Folder ~/lab-material/walleye/nfc-boot-20261126-152142 (read.txt dmesg.txt verdict.txt). Next: read VEN gpio12 / FIRM gpio93 levels and BBCLK3 (pm8998 gpio21 clkreq) in a second short boot; tag poll only once the read error is explained.
+
+About
+: nfc
