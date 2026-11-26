@@ -10033,6 +10033,9 @@ Status
 Note
 : From orchestration (2026-11-23): an item lab-tools left that only a real phone closes; recorded in docs, so it is put on walleye's phone queue here at LOW rank (15): walleye's own path (stage 2 rehearsal and go, the UFS silence) comes first. Knowledge for lab-tools from our lane: busybox 'reboot bootloader' drops the argument (reboot(RB_AUTOBOOT)), so it is not honoured on a busybox transport; a static reboot(2) RESTART2 'bootloader' tool (tools/walleye-reboot, PR 809) reached the bootloader on our kernel in rerun 7 (PR 814).
 
+Blocked by
+: walleye-transport-procedure
+
 About
 : walleye-bootimage
 
@@ -10046,7 +10049,7 @@ Proof
 : from docs' item transport-real-phone-run (read it: tad q row --id transport-real-phone-run in docs): a keeper's run on the phone on Android, read-mostly: (1) over each transport the lab declares for walleye (adb on Android; ssh on our image) the shell is reached; (2) 'reboot bootloader' over ADB on Android is honoured (Android's init reads the argument) and fastboot lists the phone with current-slot b, then 'fastboot reboot' and Android returns on the same slot (the excursion rerun 7 made from our kernel, here from Android); over busybox it is NOT honoured (research walleye-reboot-reason-bootloader-read: busybox drops the argument; the walleye-reboot RESTART2 tool is the way from our kernel); (3) Phone::at uses the declared addr, not a default; (4) the adb serial from [fastboot] equals adb's own; the result is one research row with the text each printed; nothing is written, flashed or set; the phone ends on Android slot b
 
 Rank
-: 15
+: 5
 
 
 <a id="walleye-ufs-silent-ramped-pinned-try"></a>
@@ -12933,3 +12936,28 @@ Proof
 
 Rank
 : 6
+
+
+<a id="walleye-transport-procedure"></a>
+### A read-mostly procedure for the transport run: the library's android connection reads the slot, then the declared transports are checked
+
+Status
+: open
+
+Note
+: From the builder 2026-11-26 (PR 1158): the first live run proves the devlab android connection. walleye-transport-real-phone-run has no procedure to run, so a keeper would stop; this gives it one. Pattern: procedures/fastboot-reboot-twice-on-the-pixel-2.rs (already reaches the bootloader from Android and back).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: procedures/transport-on-the-pixel-2.rs and its rehearse- pair pass lpoco-attended check --host and the crate tests: on Android b, walleye's adb root step, then the library's read_slot(phone_on("android")) answers b (the first live use of [connections.android], decision 2026-11-26-walleye-android-connection-user-root); then the read-only checks of walleye-transport-real-phone-run's proof (adb serial equals [fastboot]'s, reboot bootloader over adb honoured, fastboot lists current-slot b, fastboot reboot returns Android b); nothing written, flashed or set; ends on Android slot b
+
+Rank
+: 5
