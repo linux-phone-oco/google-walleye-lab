@@ -8448,10 +8448,10 @@ Rank
 ### Read the live scan-out's DPU registers at 5 s and 30 s from the shell (read only), to see what stops near 25 s
 
 Status
-: open
+: dropped
 
 Note
-: devmem of 0x0c901000.. while mdss clocks are on (clk_ignore_unused). A read with a gated clock can hang the bus: RAM boot, the watcher reboots. Image: B-d5's ramdisk plus a devmem script, nothing else. Keeper tries it after B-r5 or with it. 2026-11-20 (coordinator): rank 30: B-r5 cleared the signs at 5 s, so the register read is not on the path.
+: dropped by decision 2026-11-26-walleye-display-delay-not-the-variable (walleye coordinator): the delay run on the step groups showed no flip near 25 s, so the question has no ground
 
 Waits
 : only if the reset leaves signs at 2 s (item walleye-display-dts-any-order): the reset is the handover, what stops the scan-out near 25 s is a question for later
