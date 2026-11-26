@@ -3,11 +3,12 @@
 //! decision 2026-11-19-walleye-display-early-load-splash-handover). B2's kernel, dtb and modules fail when msm loads at about 2 s of uptime and
 //! are clean at 66 s: where between them do the signs stop? Five images B-d5, B-d15, B-d25, B-d35, B-d50 are B2 whose init waits the
 //! number of seconds in its own /display-delay before it loads the display modules (rebuilt by `lpoco bringup image ensure`; its script is retired), so the load time
-//! does not depend on the shell. For each, in a row: the phone to fastboot, the image from memory (nothing flashed), the shell answering with
-//! the image's own delay, the kernel log read once the init says it is through the list and the three signs counted (SMMU context faults,
-//! `rcg didn't update its configuration`, DSI -110), the way back to Android. At the end the result table (delay, faults, warnings, -110) is
-//! kept in ~/lab-material/walleye/display-delay-PREFIX-DAY/table.txt (PREFIX: b-d, or the image_prefix) and said in the log. NO person step: nobody is asked, the glass is not looked at.
-//! A stop ends with the way back to Android (the watching parent).
+//! does not depend on the shell. For each, in a row: the phone to fastboot, the image from memory (nothing flashed; steps::phone_ready),
+//! the shell answering with the image's own delay, the kernel log read once the init says it is through the list and the three signs counted (SMMU context faults,
+//! `rcg didn't update its configuration`, DSI -110), the way back to Android (steps::leave_known_good). The result table (delay, faults, warnings, -110) is
+//! kept in ~/lab-material/walleye/display-delay-PREFIX-DAY/table.txt (PREFIX: b-d, or the image_prefix) and said in the log; it is written before the
+//! last way back, which ends the run. NO person step: nobody is asked, the glass is not looked at.
+//! A stop ends with the way back to Android (the phone_ready group's own).
 //!   procedures/display-delay-bisect-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
 //!
 //! ```cargo
@@ -20,54 +21,41 @@ use walleye_tries::lpoco_attended::{prelude::*, steps};
 use walleye_tries::{
     display_delay::DisplayDelay,
     settings::{Settings, DISPLAY_DELAY_PROCEDURE},
-    watch,
 };
 
 fn main() {
     let _run = procedure(DISPLAY_DELAY_PROCEDURE, "google-walleye");
     let bisect = DisplayDelay::new(Settings::for_display_delay());
-    // a real run is watched: whatever ends it (a failed check, Ctrl-C), the way back runs after
-    let args: Vec<String> = std::env::args().skip(1).collect();
-    if watch::watches(&args) {
-        watch::watch_the_try(bisect.way_back_after_any_stop());
-    }
 
     check_from("the battery is good enough", "research:walleye-display-delay-bisect-flips-at-25s", bisect.battery_is_good());
     check_from("every image is the one built (sha256)", "research:walleye-display-delay-bisect-flips-at-25s",
         bisect.every_image_is_the_built_one(),
     );
     check_from("UFS is off in every image", "research:walleye-display-delay-bisect-flips-at-25s", bisect.ufs_is_off_in_every_image());
-    for delay in bisect.delays() {
+    let delays = bisect.delays();
+    for &delay in &delays {
+        let kernel = bisect.kernel(delay).expect("device.toml names an image for each delay");
         step(
-            &format!("B-d{delay}: take the phone to fastboot"),
+            &format!("{kernel}: take the phone to fastboot"),
             bisect.phone_is_in_fastboot(),
         );
+        run_group(steps::phone_ready(&kernel)); // boots [images.NAME] from memory, nothing flashed, its gadget on the bus
         step(
-            &format!("B-d{delay}: boot the image from memory, nothing flashed"),
-            bisect.boot_image(delay),
-        );
-        run_step(steps::wait_for_gadget(30, 5));
-        step(
-            &format!("B-d{delay}: the shell answers and the image has its delay"),
+            &format!("{kernel}: the shell answers and the image has its delay"),
             bisect.shell_answers_and_the_image_has_its_delay(delay),
         );
         check_from(
-            &format!("B-d{delay}: the modules load at {delay} s and the three signs are counted"),
+            &format!("{kernel}: the modules load at {delay} s and the three signs are counted"),
             "research:walleye-display-delay-bisect-flips-at-25s",
             bisect.modules_load_and_the_signs_are_scored(delay),
         );
-        step(
-            &format!("B-d{delay}: send the phone back to Android"),
-            bisect.way_back(),
-        );
-        check_from(
-            &format!("B-d{delay}: the phone is back on Android"),
-            "research:walleye-display-flip-15-25-read-from-logs",
-            bisect.android_is_back(),
-        );
+        if Some(&delay) == delays.last() {
+            // nothing may follow the last leave_known_good: the table goes before it
+            step(
+                "write the result table: delay, faults, warnings, -110",
+                bisect.the_table_is_written(),
+            );
+        }
+        run_group(steps::leave_known_good()); // the declared way back (device.toml [kernels]), then Android answers
     }
-    step(
-        "write the result table: delay, faults, warnings, -110",
-        bisect.the_table_is_written(),
-    );
 }
