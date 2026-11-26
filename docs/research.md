@@ -8560,3 +8560,22 @@ Found
 
 About
 : walleye-attend-program-display
+
+
+<a id="walleye-display-delay-step-groups-run-result"></a>
+### walleye-display-delay-step-groups-run-result
+
+Date
+: 2026-11-26
+
+Brief
+: Display delay bisect on step groups, real Pixel 2: 39/39 steps, 13/13 modules at every delay; clean only at 25 s, signs at 5,15,35,50 - no single flip point
+
+Question
+: Where between 2 s and 66 s of uptime do the display signs (SMMU faults, rcg warnings, DSI -110) stop, run on the step groups?
+
+Found
+: Table (delay reached smmu rcg dsi110): 5 5 10 4 5; 15 16 10 4 5; 25 25 0 0 0; 35 35 10 0 0; 50 50 10 0 0, all 13 of 13 modules ok. Only 25 s clean; 35 and 50 show SMMU faults again, so the earlier flip at 25 s (walleye-display-delay-bisect-flips-at-25s) does not hold as a threshold: the signs are not monotone in delay. Table kept in ~/lab-material/walleye/display-delay-b-d-20261126-085956/table.txt. Phone back on Android slot b, nothing flashed.
+
+About
+: walleye-attend-program-display
