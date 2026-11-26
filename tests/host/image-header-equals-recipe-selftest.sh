@@ -1,7 +1,7 @@
 #!/bin/sh
 # Proves tests/host/image-header-equals-recipe.sh with stand-in programs (no store, no phone): the stand-in `lpoco-bringup image ensure --dry-run`
 # prints the line of the real one (captured text of lpoco-bringup 0.48.4: research walleye-image-recipe-z21-rebuilt-equal), the stand-in unpack_bootimg
-# prints the lines of the real one (tools/walleye-tries/fixtures/rw-image-2477-unpack-info.txt, the text 2477...b54f printed).
+# prints the lines of the real one (procedures/steps/fixtures/rw-image-2477-unpack-info.txt, the text 2477...b54f printed).
 set -eu
 HERE=$(cd "$(dirname "$0")" && pwd)
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT

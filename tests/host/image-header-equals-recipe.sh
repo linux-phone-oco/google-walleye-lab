@@ -3,7 +3,7 @@
 # the one its recipe gives? Run 4 booted 2477276882987c8e...b54f, whose header kept walleye.booted-slot, which [images.NAME.recipe].cmdline lacks:
 # the sha256 was declared from a build script's output and `image ensure` found it in the store, so the recipe was never followed.
 # Takes the file `lpoco-bringup image ensure NAME --dry-run` names (store, cache or seed: it builds nothing), reads its header with unpack_bootimg
-# (captured text of it: tools/walleye-tries/fixtures/rw-image-2477-unpack-info.txt) and compares the words with the recipe's cmdline, in order.
+# (captured text of it: procedures/steps/fixtures/rw-image-2477-unpack-info.txt) and compares the words with the recipe's cmdline, in order.
 # Usage: image-header-equals-recipe.sh NAME [DEVICE_TOML]. Prints `pass|fail|skip walleye-image-header-equals-recipe DETAIL`; exit 0 only on pass.
 # Environment: LPOCO_BRINGUP (the program, default lpoco-bringup).
 NAME=${1:-}

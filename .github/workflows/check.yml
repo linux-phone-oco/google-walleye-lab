@@ -123,7 +123,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: the try's plumbing against a stand-in phone, clippy clean (no phone)
         run: |
-          cd tools/walleye-tries
+          cd procedures/steps
           cargo test --locked
           cargo fmt --check
           cargo clippy --locked --all-targets -- -D warnings

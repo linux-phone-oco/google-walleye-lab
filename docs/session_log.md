@@ -9835,3 +9835,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-walleye-builder-steps-crate-moved"></a>
+### tools/walleye-tries moved to procedures/steps
+
+Entry date
+: 2026-11-26
+
+Done
+: git mv tools/walleye-tries procedures/steps; the 27 procedures' //! headers (path = "steps"), bin/attended, check.yml, device.toml and boot-chain.toml comments, tests/host (4 scripts + SOURCES.toml), procedures/README.md and tools/README.md name the new path. Read back: cargo test 470 ok (1 ignored), fmt, clippy -D warnings, bin/attended check ok on every procedure, no-bare-lpoco-attended, walleye-reboot-restart2 and image-header-equals-recipe-selftest pass. No phone touched.
+
+Considered
+: renaming the crate itself (walleye-tries to steps): not needed for the item's proof, only churn in every header and use line
+
+Rejected
+: rewriting old paths in data/ and the generated docs: they are history of what was true then
+
+About
+: walleye-first-fastboot-boot

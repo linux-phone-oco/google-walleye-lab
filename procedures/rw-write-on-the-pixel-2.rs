@@ -1,5 +1,5 @@
 #!/usr/bin/env rust-script
-//! The rw write on the Pixel 2 as ONE command (item walleye-install-rw-write-procedure; image walleye-rw-write-image, plumbing walleye-rw-write-plumbing in tools/walleye-tries/src/rw_write.rs):
+//! The rw write on the Pixel 2 as ONE command (item walleye-install-rw-write-procedure; image walleye-rw-write-image, plumbing walleye-rw-write-plumbing in procedures/steps/src/rw_write.rs):
 //! the rw-write image booted once from fastboot, from memory, with its root - the system partition of the slot Android is NOT on - mounted READ-WRITE (ext4 rw,nodiscard, no overlay; the
 //! init's word walleye.rw); the lab logs in over usb-network by ssh, writes ONE bounded file of zeros into that root, syncs, reads it back, checks the filesystem without repairing it,
 //! removes the file, checks the filesystem (read-only, the answer kept), reads the kernel log and sends the phone back. The gates before the boot are the root boot's (battery, the image's sha256 and its command line - it must carry walleye.rw once -, the stored boot chain
@@ -11,7 +11,7 @@
 //!
 //! ```cargo
 //! [dependencies]
-//! walleye-tries = { path = "../tools/walleye-tries" }
+//! walleye-tries = { path = "steps" }
 //! ```
 // SPDX-License-Identifier: MIT OR Apache-2.0
 

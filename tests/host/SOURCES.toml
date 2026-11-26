@@ -333,7 +333,7 @@ source = "file:data/backlog.json"  # item walleye-procedures-run-own-cli: from o
 source = "research:walleye-rw-image-header-equals-recipe-built"
 
 [scripts."image-header-equals-recipe-selftest.sh"]
-source = "file:tools/walleye-tries/fixtures/rw-image-2477-unpack-info.txt"
+source = "file:procedures/steps/fixtures/rw-image-2477-unpack-info.txt"
 
 [scripts."kernel-pd-mapper.sh"]
 source = "file:tests/fixtures/kernel-text/pd-mapper-Kconfig.txt"
