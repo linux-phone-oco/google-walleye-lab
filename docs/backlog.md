@@ -13468,7 +13468,7 @@ Proof
 : walleye-nfc-up unit tests with the stand-in kernel cover START_POLL, TARGETS_FOUND and the timeout; the nfc image rebuilt equal twice; tests/host/ufs-off-image.sh passes
 
 Rank
-: 8
+: 7
 
 
 <a id="walleye-nfc-poll-run-no-tag"></a>
