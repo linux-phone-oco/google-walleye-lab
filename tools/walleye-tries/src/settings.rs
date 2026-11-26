@@ -676,8 +676,8 @@ impl Settings {
                 s.out = s.out_dir("install-boot");
             }
             Try::DisplayBoot => {
-                s.image = image("b2");
-                s.image_sha256 = dev("images.b2.sha256");
+                s.image = image(crate::display_boot::KERNEL);
+                s.image_sha256 = dev(&format!("images.{}.sha256", crate::display_boot::KERNEL));
                 s.hold = number("hold", proc("hold"));
                 s.modules = number("modules", proc("modules"));
                 s.out = s.out_dir("display-boot");
