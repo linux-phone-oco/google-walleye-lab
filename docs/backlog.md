@@ -13079,7 +13079,7 @@ Status
 : open
 
 Note
-: queued by walleye-builder 2026-11-26: the procedure is on the groups (dry run 39 steps, check --host, 477 tests, clippy ok); five images b-d5..b-d50, each booted by phone_ready and left by leave_known_good, the table written before the last leave. A run is long (about 5 x 3 min): a keeper's call whether the whole row or b-d5 alone (set delays = 5 in device.toml, put back).
+: queued by walleye-builder 2026-11-26: on the groups (dry run 39 steps, check --host, 477 tests, clippy, programmer review ok). Five images, about 3 min each; the keeper may run b-d5 alone (delays = 5, put back). DO NOT Ctrl-C the run: the groups' way back covers a failed step, not a signal (lab-tools item attended-way-back-on-signal owed); a phone left in fastboot is brought back with the way-back procedure.
 
 Blocked by
 : walleye-way-back-procedure-run

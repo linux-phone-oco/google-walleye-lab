@@ -293,13 +293,10 @@ impl DisplayDelay {
         }
     }
 
-    /// The phone is in fastboot (the shared step); from here the watching parent knows the phone was touched.
+    /// The phone is in fastboot (the shared step).
     pub fn phone_is_in_fastboot(&self) -> impl FnOnce() -> Done + 'static {
         let lab = self.lab.clone();
-        move || {
-            crate::watch::phone_is_touched();
-            lab.phone_is_in_fastboot()
-        }
+        move || lab.phone_is_in_fastboot()
     }
 
     /// The shell answers by itself and the image has the delay: `/display-delay` holds the number and the init is the delay init.
@@ -631,6 +628,8 @@ mod tests {
         let d = DisplayDelay::new(s);
         assert!(d.image(25).is_ok());
         assert!(d.image(7).unwrap_err().contains("7 s"));
+        assert_eq!(d.kernel(15).unwrap(), "b-d15");
+        assert!(d.kernel(7).is_err());
     }
 
     #[test]

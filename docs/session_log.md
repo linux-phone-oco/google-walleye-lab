@@ -9558,7 +9558,7 @@ Considered
 : the same move as display-at-boot; the table written by the last row's scoring step alone
 
 Rejected
-: keeping the watching parent (watch_the_try): the group's own way back covers every stop, two ways back would run twice; one phone_ready per run: each image is its own boot and its own way back
+: keeping the watching parent (watch_the_try): the group's own way back covers a failed step or a panic, two ways back would run twice; it does NOT cover a signal (Ctrl-C), which the watcher did: owed to lab-tools (attended-way-back-on-signal), a run must not be interrupted until it lands; one phone_ready per run: each image is its own boot and its own way back
 
 About
 : walleye-attend-program-display

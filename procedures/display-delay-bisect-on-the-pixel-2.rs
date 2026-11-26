@@ -8,7 +8,7 @@
 //! `rcg didn't update its configuration`, DSI -110), the way back to Android (steps::leave_known_good). The result table (delay, faults, warnings, -110) is
 //! kept in ~/lab-material/walleye/display-delay-PREFIX-DAY/table.txt (PREFIX: b-d, or the image_prefix) and said in the log; it is written before the
 //! last way back, which ends the run. NO person step: nobody is asked, the glass is not looked at.
-//! A stop ends with the way back to Android (the phone_ready group's own).
+//! A failed step or a panic ends with the way back to Android (the phone_ready group's own); a signal (Ctrl-C) does not yet: do not interrupt a run (item attended-way-back-on-signal, lab-tools).
 //!   procedures/display-delay-bisect-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml, keys listed in tools/walleye-tries/src/settings.rs)
 //!
 //! ```cargo
@@ -33,13 +33,14 @@ fn main() {
     );
     check_from("UFS is off in every image", "research:walleye-display-delay-bisect-flips-at-25s", bisect.ufs_is_off_in_every_image());
     let delays = bisect.delays();
-    for &delay in &delays {
+    for (at, &delay) in delays.iter().enumerate() {
         let kernel = bisect.kernel(delay).expect("device.toml names an image for each delay");
+        let ready = steps::phone_ready(&kernel); // built first: a kernel [kernels] test does not list ends the run before the phone is touched
         step(
             &format!("{kernel}: take the phone to fastboot"),
             bisect.phone_is_in_fastboot(),
         );
-        run_group(steps::phone_ready(&kernel)); // boots [images.NAME] from memory, nothing flashed, its gadget on the bus
+        run_group(ready); // boots [images.NAME] from memory, nothing flashed, its gadget on the bus
         step(
             &format!("{kernel}: the shell answers and the image has its delay"),
             bisect.shell_answers_and_the_image_has_its_delay(delay),
@@ -49,7 +50,7 @@ fn main() {
             "research:walleye-display-delay-bisect-flips-at-25s",
             bisect.modules_load_and_the_signs_are_scored(delay),
         );
-        if Some(&delay) == delays.last() {
+        if at + 1 == delays.len() {
             // nothing may follow the last leave_known_good: the table goes before it
             step(
                 "write the result table: delay, faults, warnings, -110",
