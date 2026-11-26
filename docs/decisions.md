@@ -3705,3 +3705,31 @@ Research
 
 Scope
 : walleye-display-s6e3fa5
+
+
+<a id="2026-11-26-walleye-pmic-one-image-two-groups"></a>
+### 2026-11-26-walleye-pmic-one-image-two-groups
+
+Date
+: 2026-11-26
+
+Brief
+: The PMIC try boots wdt1-a in each of its two tests by steps::phone_ready, each ended by leave_known_good; the fallback to image B goes
+
+Decision
+: procedures/pmic-watchdog-v1-on-the-pixel-2.rs runs the reboot test and the bite as two groups on [images.wdt1-a] (phone_ready, leave_known_good). The try's own boot_image, A-then-B fallback, the both-images checks, watch/way_back and their tests are removed; settings read one image.
+
+Why
+: wdt1-b is wdt1-a with the S2 reset type changed (device.toml), so the try's own check 'S2 is type 7' would stop on it: it was no fallback any more. A failed check or an unanswered ask runs the way back of the open group (library, lab-tools #302), which the watching parent did by hand. Same move as the display and touch procedures.
+
+Rejected
+: Keeping the A-then-B fallback inside a group (the library's phone_ready boots one named kernel; a fallback would be a second boot path of our own). Keeping watch.rs for the PMIC (a second way back beside the group's).
+
+About
+: walleye-attend-program-display
+
+Scope
+: walleye procedures, tools/walleye-tries pmic
+
+Tracked by
+: walleye-procedures-on-step-groups

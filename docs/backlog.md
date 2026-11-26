@@ -13051,7 +13051,7 @@ Status
 : in-progress
 
 Note
-: PMIC IS NOT BLOCKED (coordinator 2026-11-26): lab-tools attended-way-back-settled is DONE since 2026-11-19 (lab-tools #302, Group::settling; leave_known_good settles the way backs of finished groups). It is in every pin since then, 0.46.4 included, so the 'still owed' lines below are stale. PMIC goes now: two phone_ready groups in one run (the clean reboot, then the bite), each ended by its own leave_known_good. UFS ufs-matched still waits for a gate for its UFS-on NOT-TO-BOOT image; it keeps its own boot and is the only part left after PMIC. PART 1 LANDED 2026-11-26 (declared way back, decision 2026-11-26-walleye-way-back-is-a-procedure). PART 2: DISPLAY LOOK DONE and run proven; DISPLAY-AT-BOOT DONE and run proven (research walleye-display-at-boot-step-groups-run-passed); DISPLAY DELAY BISECT DONE in code, its run is walleye-display-delay-step-groups-run (keeper); TOUCH (z21) DONE in code (walleye-builder 2026-11-26: procedures/touch-events-on-z21.rs on phone_ready(z21) and leave_known_good last, the count before the way back; TouchKERNEL const, boot_image, android_is_back and the gadget-up call retire; CI gets a z21 stand-in file; dry run 16 steps, check --host, 477 tests ok); its real run is the item walleye-touch-step-groups-run (keeper). The bisect's stale 'a signal does not yet' comment now says a signal runs the way back. Display any-order is covered by the bisect's images (b-r2, b-rp2). STILL OPEN, each the same move: UFS ufs-matched (image NOT-TO-BOOT, UFS-on: stays its own boot until a gate for it exists), PMIC (two images, a second boot mid-run). Lab-tools' attended-way-back-settled still owed: nothing after leave_known_good.
+: PMIC IS NOT BLOCKED (coordinator 2026-11-26): lab-tools attended-way-back-settled is DONE since 2026-11-19 (lab-tools #302, Group::settling; leave_known_good settles the way backs of finished groups). It is in every pin since then, 0.46.4 included, so the 'still owed' lines below are stale. PMIC goes now: two phone_ready groups in one run (the clean reboot, then the bite), each ended by its own leave_known_good. UFS ufs-matched still waits for a gate for its UFS-on NOT-TO-BOOT image; it keeps its own boot and is the only part left after PMIC. PART 1 LANDED 2026-11-26 (declared way back, decision 2026-11-26-walleye-way-back-is-a-procedure). PART 2: DISPLAY LOOK DONE and run proven; DISPLAY-AT-BOOT DONE and run proven (research walleye-display-at-boot-step-groups-run-passed); DISPLAY DELAY BISECT DONE in code, its run is walleye-display-delay-step-groups-run (keeper); TOUCH (z21) DONE in code (walleye-builder 2026-11-26: procedures/touch-events-on-z21.rs on phone_ready(z21) and leave_known_good last, the count before the way back; TouchKERNEL const, boot_image, android_is_back and the gadget-up call retire; CI gets a z21 stand-in file; dry run 16 steps, check --host, 477 tests ok); its real run is the item walleye-touch-step-groups-run (keeper). The bisect's stale 'a signal does not yet' comment now says a signal runs the way back. Display any-order is covered by the bisect's images (b-r2, b-rp2). PMIC DONE IN CODE (walleye-builder 2026-11-26, decision 2026-11-26-walleye-pmic-one-image-two-groups): two phone_ready(wdt1-a) groups, the reboot test and the bite, each ended by leave_known_good; image B and the own watch/way_back retire; dry run 31 steps, check --host, 469 tests ok; its real run is the item walleye-pmic-step-groups-run (keeper). STILL OPEN: UFS ufs-matched (image NOT-TO-BOOT, UFS-on: stays its own boot until a gate for it exists), the only part left.
 
 Blocked by
 : walleye-way-back-procedure-run
@@ -13126,3 +13126,53 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-pmic-step-groups-run"></a>
+### One unattended run of procedures/pmic-watchdog-v1-on-the-pixel-2.rs on the step groups (two phone_ready groups, each ended by leave_known_good), answer limit given
+
+Status
+: open
+
+Note
+: Queued by walleye-builder 2026-11-26 with the PMIC change on step groups. The reboot and bite tests themselves need the author at the phone: only this first part is unattended.
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-26
+
+Needs
+: phone
+
+Proof
+: bin/attended run pmic-watchdog-v1-on-the-pixel-2 --answer-limit 60 (unattended): wdt1-a boots by phone_ready, the watchdog probed and S2 reads type 7, it stops at the first ask with 'nobody answered', and the declared way back leaves the phone on Android; exit non-zero for the unanswered ask is the expected stop
+
+Rank
+: 5
+
+
+<a id="walleye-lab-way-back-shell-legs-tests"></a>
+### Lab::way_back's shell legs (reboot -f, sysrq trigger, power-hold sentence, shell-answers-phone-stays-away) have tests again, in lab.rs
+
+Status
+: open
+
+Note
+: From the programmer review of the PMIC step-groups change 2026-11-26 (walleye-builder).
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: cargo test in tools/walleye-tries runs four lab.rs tests for those legs, ported from the removed pmic the_way_back module (git show a855d3a:tools/walleye-tries/src/pmic.rs)
+
+Rank
+: 8

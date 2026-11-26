@@ -9637,3 +9637,24 @@ Considered
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-walleye-pmic-on-step-groups"></a>
+### PMIC procedure on step groups
+
+Entry date
+: 2026-11-26
+
+Done
+: pmic-watchdog-v1-on-the-pixel-2.rs: two phone_ready(wdt1-a) groups (reboot test, bite) each ended by leave_known_good; walleye-tries pmic: own boot, A-then-B fallback, both-images checks, watch/way_back and their tests removed; settings read one image; CI gets a wdt1-a stand-in. Dry run 31 steps, bin/attended check ok, clippy clean, 469 tests ok; programmer review nits 4-7 fixed. Keeper run queued as walleye-pmic-step-groups-run; UFS is the only part left of walleye-procedures-on-step-groups.
+
+Considered
+: Open from the review, same as touch and display: (1) the removed the_way_back tests exercised the shared Lab::way_back shell legs (reboot -f, sysrq, power-hold sentence); lab.rs tests cover only the fastboot legs - move them into lab.rs; (2) pmic's long waits use thread::sleep so a Ctrl-C is acted on only when the step returns; (3) the phone is unowned between 'take the phone to fastboot' and the group's first step.
+
+Rejected
+: Keeping image B as a fallback (its S2 type is the changed one: the try's own type-7 check stops on it).
+
+About
+: walleye-attend-program-display
