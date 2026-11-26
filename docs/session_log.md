@@ -9856,3 +9856,24 @@ Rejected
 
 About
 : walleye-first-fastboot-boot
+
+---
+
+
+<a id="2026-11-26-wdt-pon-bites-reslice"></a>
+### walleye-wdt-pon-bites-procedure read against main: re-slice, not built
+
+Entry date
+: 2026-11-26
+
+Done
+: Read the parked item (first ready row) against origin/main: branch origin/walleye-wdt-pon-bites-procedure (4b83994) is 538 commits behind main and its home, tools/walleye-tries/src/pmic.rs (pmic/bites.rs), no longer exists - procedures are now procedures/*.rs on lpoco-attended step groups. Nothing built, nothing landed but this record.
+
+Considered
+: Slices, in order: (1) a research row: how the PON registers (PON_REASON1, PON_ON_REASON, POFF_REASON1, WARM_RESET_REASON1) are read after a bite on this phone (charger screen has no adb; Android's dmesg is already a second boot); (2) the kernel patch (S2 type from qcom property) as a topic/ branch of the kernel clone with the three review blockers fixed - the .patch file on the old branch must not come back, per the kernel-branches rule; (3) the two images wdt2-hard / wdt2-warm rebuilt from an int/ tag, sha256 in device.toml; (4) the procedure procedures/pmic-wdt-pon-reasons-on-the-pixel-2.rs as four step groups on the current lpoco-attended, modelled on pmic-watchdog-v1-on-the-pixel-2.rs, with the old branch's blocker list as its checklist. Next ready rows: walleye-nfc-dts-node-image (rank 7, kernel branch wip/walleye/nfc, one image for two proofs).
+
+Rejected
+: Porting the old branch whole in this run: a port onto a 538-commit-newer layout plus two kernel builds and a review is more than one landed piece, and the register-reading question (slice 1) decides the procedure's shape.
+
+About
+: walleye-pmic-wdt-v1-image
