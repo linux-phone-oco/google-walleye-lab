@@ -3795,3 +3795,28 @@ Amends
 
 Tracked by
 : walleye-retire-build-scripts
+
+
+<a id="2026-11-26-walleye-ramdisk-on-net-43"></a>
+### 2026-11-26-walleye-ramdisk-on-net-43
+
+Date
+: 2026-11-26
+
+Brief
+: walleye's roof-init ramdisks are built at walleye's own net 43 (172.16.43.1), never surya's 42; the nfc image is rebuilt so
+
+Decision
+: build-initramfs.sh phone takes walleye's net from device.toml (shell_address 172.16.43.1), and [images.nfc] is rebuilt at NET=43 with its new sha256. No procedure reads 172.16.42.1.
+
+Why
+: The nfc ramdisk (a3d5dd79) came out at NET=42, so walleye would answer on surya's address while device.toml and gadget-up.sh say 43.1 (keeper session log 2026-11-26-2330-how-the-phone-stands). Two phones on one host must not share an address.
+
+Rejected
+: Let the procedure read 172.16.42.1: it bends walleye's declared address to a build slip and collides with surya when both are plugged in.
+
+About
+: walleye-bootimage
+
+Scope
+: walleye-bootimage
