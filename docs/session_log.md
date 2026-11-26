@@ -9331,3 +9331,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-install-steps-from-the-library-landed"></a>
+### install steps from the library: landed
+
+Entry date
+: 2026-11-26
+
+Done
+: Rebased the parked wip/walleye/install-steps-0461 commit on main (records conflicted, took main's, re-recorded); pin lpoco-attended 0.46.1, [connections.android] user root in device.toml; crate tests (471) and lpoco-attended check --host pass with a 0.46.1 binary built in AGENT_BUILD (the installed 0.45.4 cannot read [connections]); programmer review before landing.
+
+Considered
+: Installing 0.46.1 over the shared ~/.local/bin binary
+
+Rejected
+: Installing 0.46.1 into the shared bin: other sessions use it; a private --root build did the check.
+
+About
+: walleye-bootimage
