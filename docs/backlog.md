@@ -13369,10 +13369,10 @@ Rank
 ### A tool that opens nfc0 in the ramdisk (netlink NFC_CMD_DEV_UP), so the NFC boot can tell VEN, clock and firmware apart
 
 Status
-: open
+: in-progress
 
 Note
-: From walleye-nfc-node-oneplus5-form (research walleye-nfc-oneplus5-image-built): busybox has i2cdetect but nothing that opens nfc0; the procedure's open step says the cause is not known yet without nfctool. The smallest way: a Rust static aarch64 binary with the genl NFC family (no libnfc); it needs the rootless musl target of item walleye-install-rootfs-health-binary, or neard's nfctool built static.
+: Host side done 2026-11-26 (research walleye-nfc-up-opener-built): tool, ramdisk 973bcb87, image 65cef2f5 rebuild equal, UFS-off gate passes. Left: the phone run, which is the nfc boot (item walleye-nfc-boot-run-2); done when open.txt shows the kernel's answer.
 
 About
 : nfc
@@ -13381,10 +13381,10 @@ Opened
 : 2026-11-26
 
 Needs
-: build
+: phone
 
 Proof
-: an aarch64 static tool in the nfc ramdisk (new ramdisk sha256, image rebuilds equal, UFS-off gate passes) whose run on the host against a fake netlink answer, and then on the phone, powers nfc0 on and prints the kernel's answer; the procedure's open step stops saying not known yet
+: walleye-nfc-boot-run-2: the nfc boot prints the opener's answer in open.txt (a cause, or answers) in place of 'not known yet'
 
 Rank
 : 7

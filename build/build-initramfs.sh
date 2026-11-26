@@ -8,6 +8,7 @@
 # NET (default: phone = the device.toml shell_address's net, 43; selftest = 42): the phone answers on 172.16.NET.1 and leases 172.16.NET.2; the init, udhcpd.conf and selftest.sh are made
 # by `lpoco bringup initramfs init/files --net NET` from the device's [boot.gadget] into WORK_DIR/roofNET/ (the roof's init, item
 # walleye-init-from-roof: the images built with it have new sha256s).
+# EXTRA_BIN (phone only): a static program packed as /bin/NAME (the NFC image's walleye-nfc-up).
 # WORK_DIR holds busybox-arm64 / busybox-x86_64 (build-busybox.sh) and out/b (build-kernel.sh).
 set -eu
 MODE=${1:?usage: build-initramfs.sh phone|selftest WORK_DIR OUT}
@@ -38,6 +39,11 @@ SPEC=$W/initramfs-$MODE$SUF.spec
   echo "nod /dev/console 600 0 0 c 5 1"; echo "nod /dev/null 666 0 0 c 1 3"
   echo "file /bin/busybox $BB 755 0 0"
   echo "slink /bin/sh busybox 777 0 0"
+  # EXTRA_BIN (phone only): one more static program as /bin/NAME, e.g. walleye-nfc-up (item walleye-nfc-nfc0-opener-in-ramdisk); unset, the ramdisk is the one it always was
+  if [ -n "${EXTRA_BIN:-}" ]; then
+    [ -x "$EXTRA_BIN" ] && [ "$MODE" = phone ] || { echo "build-initramfs: EXTRA_BIN needs an executable file and the phone mode" >&2; exit 2; }
+    echo "file /bin/$(basename "$EXTRA_BIN") $EXTRA_BIN 755 0 0"
+  fi
   echo "file /init $SRC/init 755 0 0"
   [ "${MODE#ufs-root}" != "$MODE" ] || echo "file /etc/udhcpd.conf $SRC/udhcpd.conf 644 0 0"
 } > "$SPEC"

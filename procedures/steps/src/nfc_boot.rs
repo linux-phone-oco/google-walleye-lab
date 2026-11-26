@@ -228,12 +228,12 @@ impl Answer {
 
 /// The pins the node and Android's dtb name: gpio12 (Android's enable, nq-ven), gpio116 (the OnePlus 5's enable, and this node's), gpio92 (the interrupt), gpio93 (firmware download, nq-firm).
 pub const GPIOS: [u32; 4] = [12, 116, 92, 93];
-/// The tool that opens nfc0 (research walleye-nfc-clock-and-minus-121: `nfctool -d nfc0 -1`). The ramdisk's busybox has none and no other tool: when it is not there the open is said not made (not known yet), never guessed.
-pub const OPEN_TOOL: &str = "nfctool -d nfc0 -1";
+/// The tool that opens nfc0: tools/walleye-nfc-up (item walleye-nfc-nfc0-opener-in-ramdisk), in the NFC ramdisk as /bin/walleye-nfc-up; it prints the kernel's own answer and exits 1 on an errno. The ramdisk's busybox has none: when it is not there the open is said not made (not known yet), never guessed.
+pub const OPEN_TOOL: &str = "walleye-nfc-up --index 0";
 
 /// The open read over telnet, one line for the shell, marks between the parts: the four pins before the open; the open (its output and `rc=`, or `no-tool`); the four pins after; i2cdetect on the bus of c1b6000
-/// after the open (nfctool has exited by then: whether nfc0 stays powered is NOT KNOWN YET; `no-bus` when sysfs names none); the clock summary's ln_bb_clk3 lines.
-pub const OPEN_COMMAND: &str = "mount -t debugfs none /sys/kernel/debug 2>/dev/null; P='^ *gpio(12|116|92|93) +:'; echo ---gpio-before; grep -E \"$P\" /sys/kernel/debug/gpio; echo ---open; if command -v nfctool >/dev/null; then timeout 20 nfctool -d nfc0 -1 2>&1; echo rc=$?; else echo no-tool; fi; echo ---gpio-after; grep -E \"$P\" /sys/kernel/debug/gpio; echo ---i2c; B=$(ls /sys/bus/platform/devices/c1b6000.i2c 2>/dev/null | grep '^i2c-' | head -1 | cut -c5-); if [ -n \"$B\" ]; then i2cdetect -y $B 2>&1; else echo no-bus; fi; echo ---clock; grep -i ln_bb_clk3 /sys/kernel/debug/clk/clk_summary 2>/dev/null; echo ---end";
+/// after the open (the opener has exited by then: whether nfc0 stays powered is NOT KNOWN YET; `no-bus` when sysfs names none); the clock summary's ln_bb_clk3 lines.
+pub const OPEN_COMMAND: &str = "mount -t debugfs none /sys/kernel/debug 2>/dev/null; P='^ *gpio(12|116|92|93) +:'; echo ---gpio-before; grep -E \"$P\" /sys/kernel/debug/gpio; echo ---open; if command -v walleye-nfc-up >/dev/null; then timeout 20 walleye-nfc-up --index 0 2>&1; echo rc=$?; else echo no-tool; fi; echo ---gpio-after; grep -E \"$P\" /sys/kernel/debug/gpio; echo ---i2c; B=$(ls /sys/bus/platform/devices/c1b6000.i2c 2>/dev/null | grep '^i2c-' | head -1 | cut -c5-); if [ -n \"$B\" ]; then i2cdetect -y $B 2>&1; else echo no-bus; fi; echo ---clock; grep -i ln_bb_clk3 /sys/kernel/debug/clk/clk_summary 2>/dev/null; echo ---end";
 
 /// The pins of [`GPIOS`] in a pin table (the msm pinctrl's `gpioN : in|out VALUE DRIVE PULL`), each as its number and its words in single spaces; a pin not listed is not in the answer.
 pub fn pin_lines(text: &str) -> Vec<(u32, String)> {
@@ -307,7 +307,7 @@ fn the_cause(opened: &[&str], cell: &Option<String>) -> Cause {
     if said.contains("firmware") {
         return Cause::Gpio93;
     }
-    // `timeout 20` ends a hung nfctool with 124 (143 on some busybox): a chip that ACKs and never answers NCI
+    // `timeout 20` ends a hung opener with 124 (143 on some busybox): a chip that ACKs and never answers NCI
     let hung = said.contains("rc=124") || said.contains("rc=143");
     if hung || said.contains("timed out") || said.contains("timeout") || said.contains("-110") {
         return Cause::Clock;
@@ -757,7 +757,8 @@ mod tests {
             OPEN_COMMAND.find("---open").unwrap() < OPEN_COMMAND.find("---gpio-after").unwrap()
         );
         assert!(
-            OPEN_COMMAND.contains("nfctool -d nfc0 -1") && OPEN_COMMAND.contains("c1b6000.i2c")
+            OPEN_COMMAND.contains("walleye-nfc-up --index 0")
+                && OPEN_COMMAND.contains("c1b6000.i2c")
         );
         assert!(OPEN_COMMAND.contains("i2cdetect") && OPEN_COMMAND.contains("ln_bb_clk3"));
         for n in GPIOS {
@@ -779,7 +780,7 @@ mod tests {
         let before = pins(&capture());
         let a = open_judge(&open_read(
             &before,
-            "nfctool: Power on failed: No such device or address\nrc=1",
+            "walleye-nfc-up: nfc0: NFC_CMD_DEV_UP answered: errno 6 (No such device or address (os error 6))\nrc=1",
             &before,
             "--",
         ))
@@ -792,7 +793,7 @@ mod tests {
         let before = pins(&capture());
         let a = open_judge(&open_read(
             &before,
-            "nfctool: Power on failed: Connection timed out\nrc=1",
+            "walleye-nfc-up: nfc0: NFC_CMD_DEV_UP answered: errno 110 (Connection timed out (os error 110))\nrc=1",
             &before,
             "28",
         ))
@@ -801,7 +802,7 @@ mod tests {
         // with the driver bound i2cdetect prints UU: the bus ACK is not its to tell, the open's own answer is
         let b = open_judge(&open_read(
             &before,
-            "nfctool: Power on failed: Connection timed out\nrc=1",
+            "walleye-nfc-up: nfc0: NFC_CMD_DEV_UP answered: errno 110 (Connection timed out (os error 110))\nrc=1",
             &before,
             "UU",
         ))
@@ -811,16 +812,17 @@ mod tests {
     }
 
     #[test]
-    fn a_firmware_answer_points_to_gpio93_and_an_open_that_works_to_none() {
+    fn an_errno_71_with_an_ack_reads_as_the_clock_and_an_open_that_works_to_none() {
         let before = pins(&capture());
         let a = open_judge(&open_read(
             &before,
-            "nfctool: firmware download mode answered\nrc=1",
+            "walleye-nfc-up: nfc0: NFC_CMD_DEV_UP answered: errno 71 (Protocol error (os error 71))\nrc=1",
             &before,
             "UU",
         ))
         .unwrap();
-        assert_eq!(a.cause, Cause::Gpio93);
+        // walleye-nfc-up prints no word of firmware framing: errno 71 with an ACK reads as the clock, and gpio93 stays NOT KNOWN YET until a phone run shows what the kernel says then (the rule on the word "firmware" is for any open that prints it)
+        assert_eq!(a.cause, Cause::Clock);
         let ok = open_judge(&open_read(&before, "rc=0", &before, "UU")).unwrap();
         assert_eq!(ok.cause, Cause::Answers);
     }
@@ -863,7 +865,7 @@ mod tests {
         let before = pins(&capture());
         let a = open_judge(&open_read(
             &before,
-            "nfctool: Remote I/O error\nrc=1",
+            "walleye-nfc-up: nfc0: NFC_CMD_DEV_UP answered: errno 121 (Remote I/O error (os error 121))\nrc=1",
             &before,
             "28",
         ))
@@ -873,7 +875,7 @@ mod tests {
         assert_eq!(h.cause, Cause::Clock);
         let w = open_judge(&open_read(
             &before,
-            "nfctool: Remote I/O error\nrc=1",
+            "walleye-nfc-up: nfc0: NFC_CMD_DEV_UP answered: errno 121 (Remote I/O error (os error 121))\nrc=1",
             &before,
             "--",
         ))
@@ -888,7 +890,7 @@ mod tests {
             |r: String| r.replace(r.lines().find(|l| l.starts_with("20:")).unwrap(), "no-bus");
         let v = open_judge(&no_bus(open_read(
             &before,
-            "nfctool: No such device or address\nrc=1",
+            "walleye-nfc-up: nfc0: NFC_CMD_DEV_UP answered: errno 6 (No such device or address (os error 6))\nrc=1",
             &before,
             "--",
         )))

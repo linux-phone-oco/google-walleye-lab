@@ -355,3 +355,6 @@ source = "file:rootfs/pins"
 
 [scripts."slpi-sensor-service-selftest.sh"]
 source = "file:tests/fixtures/phone-text/slpi-boot-qrtr-read.cap"
+
+[scripts."walleye-nfc-up.sh"]
+source = "research:walleye-nfc-up-opener-built"
