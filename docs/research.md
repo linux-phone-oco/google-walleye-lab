@@ -9061,3 +9061,25 @@ Sources
 
 About
 : walleye-pmic-wdt-v1-image
+
+
+<a id="walleye-ufs-opp-g3-needs-201mhz"></a>
+### walleye-ufs-opp-g3-needs-201mhz
+
+Date
+: 2026-11-26
+
+Brief
+: An OPP table with the msm8998's own clocks cannot hold HS-G3: ufs_qcom_freq_to_gear_speed maps only a 201.5 MHz unipro clock to G3, and the msm8998's top is 150 MHz (G2)
+
+Question
+: Does an operating-points-v2 table on the msm8998 ufshc node, with the freq-table-hz the vendor lists, keep the link at HS-G3 under load (item walleye-ufs-opp-table-image)?
+
+Found
+: Read in the kernel tree wt-k-ufsm (topic/ufs-match-android on v7.3), drivers/ufs/host/ufs-qcom.c ufs_qcom_freq_to_gear_speed (about line 2545): with use_pm_opp true the gear is taken from the OPP's core_clk_unipro entry: 403 MHz G5, 300 MHz G4, 201.5 MHz G3, 150 or 100 MHz G2, 75 or 37.5 MHz G1, any other value logs 'Unsupported clock freq' and returns DONT_CHANGE; the result is capped by the card's max gear. msm8998.dtsi freq-table-hz (line 1040) and the vendor's (research walleye-ufs-hold-the-clock-read: 50/200 MHz core, 37.5/150 MHz unipro) have no 201.5 MHz. So an OPP table of the msm8998's real clocks gives G1 at the low point and G2 at the high point: with it the link would run UNDER load at G2, below the G3 it has now (the legacy path idles at G1 and trains up to the card's gear). The item's proof 'keeps G3' cannot be met by a dts table alone; it needs either a ufs-qcom change that maps 150 MHz to G3 for this SoC (a driver patch with its own review, and whether the PHY and 150 MHz unipro really carry G3 is not known yet: the vendor kernel's gear-with-clock rule was not read, the Android source is not in the commons) or the table as a G1/G2 ladder measured against the legacy path. Not built: no image was made. Source: mainline code only.
+
+Sources
+: src-lineage-wahoo-4-4-302-clock-gcc-8998
+
+About
+: walleye-ufs-match-android-z
