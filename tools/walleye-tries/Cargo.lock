@@ -184,8 +184,8 @@ checksum = "65cd87c9a6d60536580b316ad985726104730a5151c99845f2490428ef91240a"
 
 [[package]]
 name = "lpoco-attended"
-version = "0.46.3"
-source = "git+https://github.com/linux-phone-oco/lab-tools?tag=lpoco-attended-v0.46.3#ea06408339a690a0ae5d6a68886100c7b6c7cfd8"
+version = "0.46.4"
+source = "git+https://github.com/linux-phone-oco/lab-tools?tag=lpoco-attended-v0.46.4#23c6864654ab74a7e70013372cd52f06291a725a"
 dependencies = [
  "argenv-resolve",
  "lpoco-manifest",
