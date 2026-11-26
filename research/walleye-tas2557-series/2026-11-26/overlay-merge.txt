@@ -1,0 +1,7 @@
+# overlay merged onto the walleye dtb built on int/walleye/ufs-on/v7.3/1 (fdtoverlay), read back with fdtget
+ov.dtbo sha256: 52ee86cdbf9bfb0e4f039a2a289488329c790c800be9c008567826d64213d945
+i2c status: okay
+compatible: ti,tas2557
+reg: 4c 4d
+reset-gpios (phandle gpio flags): 91 6 1
+phandle 91 is: gpio@c000 compatible qcom,pm8998-gpio (fdtdump line 2017-2025)

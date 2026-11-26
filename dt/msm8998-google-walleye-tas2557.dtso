@@ -1,0 +1,40 @@
+// SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
+/*
+ * The Pixel 2's speaker amplifier pair (item walleye-tas2557-driver, decision 2026-11-19-walleye-tas2557-from-upstream-v3): an overlay on a built walleye
+ * dtb, for the test kernel that carries topic/walleye-tas2557-v3 (Boiano's v3, binding ti,tas2557). An overlay, so no image already declared in device.toml
+ * changes its dtb by this file.
+ *
+ * Each value, and where it is from (the stock kernel's arch/arm64/boot/dts/htc/msm8998-audio-muskie.dtsi, node ti_tas2557_4d, read from the android remote of the
+ * kernel clone on 2026-11-26; research google-walleye/2026-11-17/vendor-kernel-hardware-inventory.md row "speaker amplifier"):
+ * - the bus: i2c@c1b5000 ("i2c_7" there), mainline's blsp2_i2c1;
+ * - the pair: the left amp at 0x4c and the right at 0x4d, one node, reg = <0x4c>, <0x4d> (v3: the device at index 0 is DEV_A, at index 1 DEV_B), sharing one reset;
+ * - the reset: pm8998 gpio 6 ("ti,reset-gpio-left" and "-right" both name it), the part's RESET pin is active low.
+ *
+ * NOT KNOWN YET, and so not written (research walleye-tas2557-v3-vs-porthole, unknowns 1 to 3):
+ * - the four supplies (vbat, iovdd, avdd, dvdd): the stock node has no supply property, but its driver asks for the pm8998 BoB regulator (tas2557-core.c:2973, because the node sets ti,bob-fast-profile), so VBAT may be the BoB rail: a lead, not read; the binding
+ *   requires them, so this node does not pass dt-validate until they are read, and the driver gets dummy regulators from the kernel meanwhile;
+ * - the fault interrupt: the stock node has one irq gpio per amp (pm8998 gpio 7 left, 8 right), the binding has one interrupt for the pair, which of them
+ *   the pair's INT is wired to is not read;
+ * - firmware-name (does v3 pick tas2557s_PG21_uCDSP.bin by itself) and ti,imon-slot-nos / ti,vmon-slot-nos: settled by the boot try, which needs the phone's own
+ *   firmware file (kept out of git: decision 2026-11-19-walleye-tas2557-firmware-stays-on-the-phone).
+ * The quaternary MI2S link to the amps is the audio-adsp-q6 series' (kernel/audio-adsp-q6/), not here.
+ */
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+
+&blsp2_i2c1 {
+	status = "okay";
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	speaker_amps: audio-codec@4c {
+		compatible = "ti,tas2557";
+		reg = <0x4c>, <0x4d>;
+		#sound-dai-cells = <0>;
+
+		reset-gpios = <&pm8998_gpios 6 GPIO_ACTIVE_LOW>;
+	};
+};

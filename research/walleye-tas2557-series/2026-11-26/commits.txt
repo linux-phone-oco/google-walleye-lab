@@ -1,0 +1,2 @@
+4b5ddbd8f82116df9fbaa91570316b271b909e7a FROMLIST: ASoC: codecs: add TAS2557 mono smart amplifier driver
+59c726f9c87926f1bdea500699107a96b3f4cf2f FROMLIST: dt-bindings: sound: add Texas Instruments TAS2557

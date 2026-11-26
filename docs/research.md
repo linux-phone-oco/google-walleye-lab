@@ -8992,3 +8992,28 @@ Sources
 
 About
 : walleye-pmic-wdt-v1-image
+
+
+<a id="walleye-tas2557-v3-builds"></a>
+### walleye-tas2557-v3-builds
+
+Date
+: 2026-11-26
+
+Brief
+: Boiano's TAS2557 v3 applies to v7.3 as topic/walleye-tas2557-v3: binding check clean, driver builds W=1 clean, walleye overlay merges; supplies, INT and firmware still unknown
+
+Question
+: Does Boiano's v3 apply to our v7.3, pass dt_binding_check, build W=1, and does a walleye node for the 0x4c/0x4d pair merge into the board dtb?
+
+Found
+: Yes to all four (research folder README, captured outputs). Open: the amps' four supplies (stock node names none), which pm8998 gpio is INT, firmware-name and TDM slots: only a boot try with the phone's own firmware answers them.
+
+Sources
+: lkml-boiano-tas2557-v3,lkml-broonie-tas2557-v3-review
+
+About
+: walleye-audio-haptics
+
+Material
+: research/walleye-tas2557-series/2026-11-26/
