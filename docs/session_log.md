@@ -9580,3 +9580,21 @@ Considered
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-step-groups-pin-0-46-3"></a>
+### step groups: pin moved to lpoco-attended 0.46.3
+
+Entry date
+: 2026-11-26
+
+Done
+: tools/walleye-tries pinned to lpoco-attended v0.46.3 (signals run the owed way backs); cargo test 477 ok, fmt, clippy, bin/attended check --host ok, no-bare-lpoco-attended ok.
+
+Considered
+: Display any-order, UFS, PMIC and touch moves to step groups stay open; each a larger change with its own proof.
+
+About
+: walleye-attend-program-display
