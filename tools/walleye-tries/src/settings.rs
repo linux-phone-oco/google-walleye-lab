@@ -52,6 +52,7 @@ pub const FLASH_BOOT_PROCEDURE: &str = "install boot on the Pixel 2";
 pub const REHEARSE_FLASH_BOOT_PROCEDURE: &str = "rehearse install boot on the Pixel 2";
 pub const TRANSPORT_PROCEDURE: &str = "transport on the Pixel 2";
 pub const REHEARSE_TRANSPORT_PROCEDURE: &str = "rehearse transport on the Pixel 2";
+pub const WAY_BACK_PROCEDURE: &str = "way back on the Pixel 2";
 
 /// The image of the root boot: the name of its `[images.NAME]` table.
 pub const ROOT_IMAGE: &str = "ufs-root";
@@ -77,6 +78,7 @@ pub enum Try {
     Ramroot,
     FlashBoot,
     Transport,
+    WayBack,
 }
 
 /// One image of the delay bisect: the seconds of uptime its init waits, its file and the sha256 `device.toml` records.
@@ -267,6 +269,13 @@ impl Settings {
     /// The transport run's settings (item walleye-transport-procedure), read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_transport() -> Settings {
         Settings::read_linked(Try::Transport, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
+    /// The way back's settings (the command `[kernels] way_back` names), read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_way_back() -> Settings {
+        Settings::read_linked(Try::WayBack, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
@@ -581,6 +590,10 @@ impl Settings {
                     "by_name in device.toml is an absolute path on the phone, luns is 1 to 26"
                 );
                 s.out = s.out_dir("cmdline-cut-c1");
+            }
+            Try::WayBack => {
+                // the lab's way back as a command of its own (`[kernels] way_back` names it): no image, no go, no card read - only the shared keys (adb, fastboot, shell address, device_wait, back_wait)
+                s.out = s.out_dir("way-back");
             }
             Try::Transport => {
                 // the transport run: read only, no image, no go, no ssh, no card read - only the shared keys (adb, fastboot, back_wait, the serial)
@@ -897,6 +910,7 @@ mod tests {
             (Try::FlashBoot, REHEARSE_FLASH_BOOT_PROCEDURE),
             (Try::Transport, TRANSPORT_PROCEDURE),
             (Try::Transport, REHEARSE_TRANSPORT_PROCEDURE),
+            (Try::WayBack, WAY_BACK_PROCEDURE),
         ] {
             let name: Vec<String> = table
                 .split(|c: char| !c.is_ascii_alphanumeric())

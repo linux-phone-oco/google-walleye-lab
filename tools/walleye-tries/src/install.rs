@@ -23,7 +23,7 @@ use std::rc::Rc;
 
 type Done = Result<(), String>;
 
-/// The flags of the rehearsal's probe, copied from the library write step of lpoco-attended 0.46.1 (`write_script`: conv=fsync,notrunc); re-read on each attended bump, nothing else ties them.
+/// The flags of the rehearsal's probe, copied from the library write step of lpoco-attended 0.46.2 (`write_script`: conv=fsync,notrunc); re-read on each attended bump, nothing else ties them.
 const DD_FLAGS: &str = "conv=fsync,notrunc";
 
 /// The rehearsal's probe: this file in the stage folder, this many blocks of the staged image.

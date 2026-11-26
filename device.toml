@@ -1,4 +1,4 @@
-#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.53.3/manifest/device.schema.json
+#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.53.4/manifest/device.schema.json
 # ^ the lpoco-lab release this file follows: editors complete and check from its schema, CI reads the file with that release.
 # This phone's manifest - the only file a new phone's lab needs to say. Every tool reads it:
 # lpoco lab (linux-phone-oco/lab-tools) finds it like cargo finds Cargo.toml, or by --device.
@@ -176,6 +176,10 @@ sha256 = "f132e0f2a857f200e1edd70a70bb123caa79c3275c5a5fa634a33e8d4e530baa"
 [kernels]
 test = ["z21", "wdt1-a", "wdt1-b"]
 kept = "z21"
+# How the phone comes back to Android after a try (lpoco-attended 0.46.2 runs each line in this folder, as argv, in order, then waits for `back_on` to answer; a test image has no systemd, so the library's `systemctl reboot` does not fit):
+# the lab's own way back, procedures/way-back-on-the-pixel-2.rs: Android already, nothing sent; the bootloader, `fastboot reboot`; a test image's shell, `reboot -f` then the sysrq reboot. bin/attended is the runner the steps crate is locked to.
+way_back = ["bin/attended run way-back-on-the-pixel-2"]
+back_on = "android"
 
 # The images the tries boot, named; `dir` is a folder of this lab (a link to ~/Projects/walleye-build, which stays out of git), each
 # path below it. The checksum is the one SHA256SUMS beside the image records. wdt1-a and wdt1-b are the rebuilt pair
@@ -753,3 +757,6 @@ sha256 = "fd73925bffb8462f212267b9cfc120bd87b80239bbd4866856eeed6487e554ba"
 
 # The rehearsal (procedures/rehearse-transport-on-the-pixel-2.rs): the same reads on Android, the phone never leaves it.
 [procedures.rehearse-transport-on-the-pixel-2]
+
+# The way back (procedures/way-back-on-the-pixel-2.rs; item walleye-procedures-on-step-groups): `[kernels] way_back` runs it. It reads no key of its own: the shell address, [tools], [boot] device_wait and back_wait are the shared ones.
+[procedures.way-back-on-the-pixel-2]
