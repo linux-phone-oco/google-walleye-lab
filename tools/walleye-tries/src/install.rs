@@ -14,13 +14,16 @@ use crate::android::{plain_path, Android, BLOCK};
 use crate::lab::Lab;
 use crate::settings::Settings;
 use crate::{host, watch};
+use lpoco_attended::phone_on;
+use lpoco_attended::steps::adb_write_partition;
+use lpoco_attended::Step;
 use std::cell::RefCell;
 use std::process::Command;
 use std::rc::Rc;
 
 type Done = Result<(), String>;
 
-/// The flags of the one write, and of the rehearsal's probe: the same, so the probe proves this dd.
+/// The flags of the rehearsal's probe, copied from the library write step of lpoco-attended 0.46.1 (`write_script`: conv=fsync,notrunc); re-read on each attended bump, nothing else ties them.
 const DD_FLAGS: &str = "conv=fsync,notrunc";
 
 /// The rehearsal's probe: this file in the stage folder, this many blocks of the staged image.
@@ -73,30 +76,10 @@ pub fn slots_agree(adb_suffix: &str, fastboot_slot: &str) -> Result<String, Stri
     }
 }
 
-/// The only partitions this program writes: `system_a` or `system_b`, by name, and no other.
-pub fn partition_for_write(name: &str) -> Result<String, String> {
-    match name {
-        "system_a" | "system_b" => Ok(name.to_string()),
-        other => Err(format!(
-            "{other:?} is not system_a or system_b: this program writes no other partition"
-        )),
-    }
-}
-
-/// The one command that writes: `dd` from the staged copy to `BY_NAME/system_X`, nothing else in it.
-pub fn write_command(
-    staged: &str,
-    by_name: &str,
-    partition: &str,
-    blocks: u64,
-) -> Result<String, String> {
-    let partition = partition_for_write(partition)?;
-    Ok(format!(
-        "dd if={} of={}/{partition} bs={BLOCK} count={blocks} {DD_FLAGS}",
-        plain_path(staged)?,
-        plain_path(by_name)?
-    ))
-}
+/// The allow-list handed to the library's `adb_write_partition`: the only partitions this program writes, `system_a` and
+/// `system_b`, by name (the library refuses the one of the slot the phone runs from, so only the other slot's is written).
+/// Source: decision 2026-11-20-walleye-install-stage-1-go (the Alpine image goes to the system partition of the other slot).
+pub const WRITABLE: [&str; 2] = ["system_a", "system_b"];
 
 /// The rehearsal's dd: the write's flags, from a staged file to a file in the stage folder - never to a partition.
 pub fn probe_command(staged: &str, probe: &str, blocks: u64) -> Result<String, String> {
@@ -157,7 +140,7 @@ pub fn expect(s: &Settings) -> String {
 /// What the author is told before the rehearsal (the keeper runs it; nothing in it writes a partition).
 pub fn expect_rehearsal(s: &Settings) -> String {
     format!(
-        "The rehearsal of the install write, about 10 minutes, the phone stays on Android (it visits fastboot once to read its slot). It runs every step of the write except the write: the battery, the backup, the image, the slot read in fastboot and in adb (they must agree), adb as root, the image staged and its copy hashed, the target partition read now and compared with its backup, and a dd probe - the write's own dd flags copy {} blocks of the image to a small file in {} and read back by sha256, then the file is removed. NO partition is written; the staged copy is removed at the end.",
+        "The rehearsal of the install write, about 10 minutes, the phone stays on Android (it visits fastboot once to read its slot). It runs every step of the write except the write: the battery, the backup, the image, the slot read in fastboot and in adb (they must agree), adb as root, the image staged and its copy hashed, the target partition read now and compared with its backup, and a dd probe - the write's dd flags as lpoco-attended 0.46.1 sets them copy {} blocks of the image to a small file in {} and read back by sha256, then the file is removed. NO partition is written; the staged copy is removed at the end.",
         PROBE_BLOCKS, s.stage_dir
     )
 }
@@ -191,7 +174,12 @@ impl Install {
 
     /// The partition the write goes to: `system_` and the slot that is not Android's.
     fn target(&self) -> Result<String, String> {
-        partition_for_write(&format!("system_{}", other_slot(&self.slot()?)?))
+        let target = format!("system_{}", other_slot(&self.slot()?)?);
+        if WRITABLE.contains(&target.as_str()) {
+            Ok(target)
+        } else {
+            Err(format!("{target:?} is not on the allow-list {WRITABLE:?}"))
+        }
     }
 
     fn image_bytes(&self) -> Result<u64, String> {
@@ -366,20 +354,25 @@ impl Install {
     /// the slot read twice, the partition's name, the image's sha256.
     pub fn the_image_is_written(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
-        move || {
-            let slot = u.slot()?;
-            slots_agree(&u.adb_suffix()?, &slot)?;
-            let target = u.target()?;
-            host::image_has_sha256(&u.s.image, &u.s.image_sha256)?;
-            let command = write_command(
-                &u.staged()?,
-                &u.s.by_name,
-                &target,
-                u.image_bytes()? / BLOCK,
-            )?;
-            u.adb(&["shell", &command])?;
-            u.adb(&["shell", "sync"]).map(|_| ())
-        }
+        move || u.write_gates()?.execute()
+    }
+
+    /// The gates of the write, checked right before it, and the write itself as the library's step: `adb_write_partition` (lpoco-attended
+    /// 0.46.1, on the Android connection: device.toml [connections.android], adb, user root), which refuses a partition off [`WRITABLE`] or of the slot the phone runs from, a staged image that is not whole blocks or
+    /// not the declared sha256, writes with one `dd` and fails when the partition read back does not hash to the image's sha256.
+    fn write_gates(&self) -> Result<Step, String> {
+        let slot = self.slot()?;
+        slots_agree(&self.adb_suffix()?, &slot)?;
+        let target = self.target()?;
+        host::image_has_sha256(&self.s.image, &self.s.image_sha256)?;
+        Ok(adb_write_partition(
+            phone_on("android"),
+            &WRITABLE,
+            plain_path(&self.s.by_name)?,
+            &target,
+            &self.staged()?,
+            self.s.image_sha256.trim(),
+        ))
     }
 
     /// The first bytes of the partition, as many as the image has, hash to the image's sha256 (what follows the image is padding).
@@ -564,48 +557,20 @@ mod tests {
     }
 
     #[test]
-    fn only_system_a_and_system_b_are_ever_written() {
-        assert_eq!(partition_for_write("system_a").unwrap(), "system_a");
-        assert_eq!(partition_for_write("system_b").unwrap(), "system_b");
-        for name in [
-            "boot_a",
-            "vendor_b",
-            "system",
-            "system_c",
-            "system_a ",
-            "system_a/../boot_a",
-            "userdata",
-            "sda",
-            "",
-        ] {
-            assert!(partition_for_write(name).is_err(), "{name:?}");
+    fn only_system_a_and_system_b_are_ever_on_the_allow_list() {
+        assert_eq!(WRITABLE, ["system_a", "system_b"]);
+        for name in ["boot_a", "vendor_b", "system", "userdata", "sda", ""] {
+            assert!(!WRITABLE.contains(&name), "{name:?}");
         }
     }
 
     #[test]
-    fn the_write_is_one_dd_to_the_one_partition_and_nothing_else() {
-        let c = write_command(
-            "/data/local/tmp/walleye.ext4",
-            "/dev/block/by-name",
-            "system_a",
-            262144,
-        )
-        .unwrap();
-        assert_eq!(c.matches("of=").count(), 1, "{c}");
-        assert!(
-            c.starts_with("dd if=/data/local/tmp/walleye.ext4 of=/dev/block/by-name/system_a "),
-            "{c}"
-        );
-        assert!(c.contains("conv=fsync"), "{c}");
-        for forbidden in [
-            ";", "|", "&&&", "`", "$(", ">", "fastboot", "flash", "erase", "boot_",
-        ] {
-            assert!(!c.contains(forbidden), "{forbidden}: {c}");
+    fn the_target_is_the_other_slots_system_partition() {
+        for (android_on, target) in [("a", "system_b"), ("b", "system_a")] {
+            let b = bench("target", android_on, &format!("_{android_on}"), true);
+            *b.install.current.borrow_mut() = Some(android_on.into());
+            assert_eq!(b.install.target().unwrap(), target);
         }
-        assert!(write_command("/x", "/dev/block/by-name", "boot_a", 1).is_err());
-        assert!(write_command("/x y", "/dev/block/by-name", "system_a", 1).is_err());
-        assert!(write_command("/x;rm", "/dev/block/by-name", "system_a", 1).is_err());
-        assert!(write_command("/x", "/dev/block/by-name/../x", "system_a", 1).is_err());
     }
 
     #[test]
@@ -741,6 +706,23 @@ mod tests {
         std::fs::read(b.d.join("by-name").join(name)).unwrap()
     }
 
+    /// The write step as a test runs it: walleye's own gates (`write_gates`, which builds the library's `adb_write_partition` for the
+    /// target), then the dd the library's step sends, stood in on the bench's adb. The library's step itself reaches the phone through
+    /// devlab, which a unit test has none of (its `procedure()` is called once per process): the step is tested upstream, against
+    /// captured phone text and a stand-in devlab (lab-tools attended/tests/install.rs, lpoco-attended-v0.46.1). The dd flags below are
+    /// that step's script (attended/src/install.rs `write_script`: bs=4096, conv=fsync,notrunc).
+    fn write_as_the_library_does(i: &Install) -> Done {
+        i.write_gates()?;
+        let command = format!(
+            "dd if={} of={}/{} bs={BLOCK} count={} {DD_FLAGS}",
+            i.staged()?,
+            i.s.by_name,
+            i.target()?,
+            i.image_bytes()? / BLOCK
+        );
+        i.adb(&["shell", &command]).map(|_| ())
+    }
+
     fn run_all(b: &Bench) -> Done {
         let i = &b.install;
         (i.the_image_is_the_declared_one())()?;
@@ -748,7 +730,7 @@ mod tests {
         (i.the_image_is_staged())()?;
         (i.the_slots_agree())()?;
         (i.the_backup_is_the_slot_as_it_is_now())()?;
-        (i.the_image_is_written())()?;
+        write_as_the_library_does(i)?;
         (i.the_partition_reads_back_as_the_image())()?;
         (i.the_other_partitions_are_unchanged())()?;
         (i.the_stage_is_removed())()

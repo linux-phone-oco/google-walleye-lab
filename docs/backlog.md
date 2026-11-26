@@ -12889,10 +12889,10 @@ Rank
 ### tools/walleye-tries takes read_slot, mount_is_readonly and adb_write_partition from lpoco-attended 0.45.8; its own copies retire
 
 Status
-: open
+: done
 
 Note
-: Unblocked 2026-11-26: main reads lpoco-bringup 0.53.3 (PR 1156, rhizoid edge now exists). NEXT: rebase wip/walleye/install-steps-0461 (00ea85f) on main and land it with its own attended 0.46.1 bump; then the rhizoid branch rhizoid/bump/lpoco-attended-0.46.1 (state branch-exists) is superseded: close its PR, if any, as carried by the landed change. Decision 2026-11-26-walleye-android-connection-user-root holds.
+: Landed 2026-11-26 (walleye-builder): tools/walleye-tries on lpoco-attended 0.46.1; install.rs calls the library's adb_write_partition (phone_on(android), [connections.android] user root, allow-list system_a/system_b) and procedures/install-rootfs-on-the-pixel-2.rs the library's read_slot; its own write_command and partition_for_write retire; rw_write.rs keeps its own ro/rw mount check. Proof: crate tests 471 pass; lpoco-attended 0.46.1 check --host ok for every procedure. The rhizoid branch rhizoid/bump/lpoco-attended-0.46.1 is carried by this change: its PR, if any, is to be closed.
 
 About
 : walleye-bootimage
