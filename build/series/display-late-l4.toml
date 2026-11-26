@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 # L4 (backlog walleye-display-late-probe-l4-pinctrl-labels-image; research walleye-display-dsi-defer-pinctrl-stubs; decision 2026-11-19-walleye-display-l4-pinctrl-labels-not-trace): image L3 (late-probe image, iommu.passthrough=1, vdd-supply on the dsi node) with the four overlay pinctrl labels naming real tlmm groups instead of stubs.
-# l4.dtb is build/build-display-late-l4-dtb.sh's. Run: lpoco-bringup image bisect build/series/display-late-l4.toml --out OUT; the image passes tests/host/ufs-off-image.sh (build/check-display-late-l4.sh).
+# l4.dtb is build/build-display-late-l4-dtb.sh (retired 2026-11-26, batch 3; in git history). Run: lpoco-bringup image bisect build/series/display-late-l4.toml --out OUT; the image passes tests/host/ufs-off-image.sh (its check script build/check-display-*.sh is retired too).
 control = "../../../../walleye-build/images-display-late-l3/boot-l3.img"
 
 [[image]]   # L3 with the four pinctrl labels on real tlmm groups

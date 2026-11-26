@@ -10198,3 +10198,24 @@ Rejected
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-retire-build-scripts-batch-3"></a>
+### build scripts batch 3 retired
+
+Entry date
+: 2026-11-26
+
+Done
+: Removed 14 display dtb and check scripts (18 build-*.sh left); README, series comments, research list updated.
+
+Considered
+: build-reboot-bin.sh: image ensure has no recipe form for a binary; display-late: feeds any-order.
+
+Rejected
+: Retiring the binary builders before lab-tools has a recipe for a built binary.
+
+About
+: walleye-kernel-dts

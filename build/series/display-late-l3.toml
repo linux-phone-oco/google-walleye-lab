@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 # L3 (backlog walleye-display-late-probe-l3-image; research walleye-display-why-dsi-defers-silently): image L1 (late-probe image, iommu.passthrough=1) with the DSI host node's vdd-supply added (l1a, chosen by analogy: neither the phone's dtbo nor mainline names the rail).
-# l3.dtb is build/build-display-late-l3-dtb.sh's. Run: lpoco-bringup image bisect build/series/display-late-l3.toml --out OUT; the image passes tests/host/ufs-off-image.sh (build/check-display-late-l3.sh).
+# l3.dtb is build/build-display-late-l3-dtb.sh (retired 2026-11-26, batch 3; in git history). Run: lpoco-bringup image bisect build/series/display-late-l3.toml --out OUT; the image passes tests/host/ufs-off-image.sh (its check script build/check-display-*.sh is retired too).
 control = "../../../../walleye-build/images-display-late-l/boot-l1.img"
 
 [[image]]   # L1 with vdd-supply on dsi@c994000

@@ -3963,3 +3963,34 @@ Research
 
 Scope
 : the walleye lane and the upstreams lane's ufs candidates
+
+
+<a id="2026-11-26-walleye-display-dtb-scripts-retired-series-stay"></a>
+### 2026-11-26-walleye-display-dtb-scripts-retired-series-stay
+
+Date
+: 2026-11-26
+
+Brief
+: The seven display dtb scripts and their seven check scripts retire as history; their series files and dtbs stay as data
+
+Decision
+: build-display-bisect-dtbs, -dtb-bisect-dtbs, -f3-split-dtbs, -late-l-dtb, -late-l3-dtb, -late-l4-dtb, -late-l5-dtb and their check-*.sh are removed (git keeps them); build/series/display-*.toml stay, their comments say the maker is retired. build-display-late.sh, build-display-any-order-images.sh and build-reboot-bin.sh stay.
+
+Why
+: Nothing live calls them; the experiments are finished (the path is the dts mdss reset, decision 2026-11-26-walleye-display-delay-not-the-variable); the check scripts were the only callers kept alive.
+
+Rejected
+: Retiring build-reboot-bin.sh now: the declared walleye-reboot has no recipe and image ensure cannot rebuild it; retiring display-late: the any-order script reads its output.
+
+About
+: walleye-kernel-dts
+
+Research
+: walleye-build-scripts-batch-3-retired
+
+Amends
+: 2026-11-19-walleye-bisect-by-series
+
+Tracked by
+: walleye-retire-build-scripts

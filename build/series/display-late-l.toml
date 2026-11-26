@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 # L1, L2 (backlog walleye-display-late-probe-l-images; decision 2026-11-19-walleye-display-iommu-reading): the late-probe image (display drivers as modules, netconsole, init-late, the full display dtb) with the iommu fix of g1 and g2.
-# l2.dtb is build/build-display-late-l-dtb.sh's. Run: lpoco-bringup image bisect build/series/display-late-l.toml --out OUT; every image passes tests/host/ufs-off-image.sh (build/check-display-late-l.sh).
+# l2.dtb is build/build-display-late-l-dtb.sh (retired 2026-11-26, batch 3; in git history). Run: lpoco-bringup image bisect build/series/display-late-l.toml --out OUT; every image passes tests/host/ufs-off-image.sh (its check script build/check-display-*.sh is retired too).
 control = "../../../../walleye-build/images-display-late/boot-display-late.img"
 
 [[image]]   # the late-probe image with iommu.passthrough=1 on the command line
