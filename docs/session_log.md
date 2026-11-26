@@ -9898,3 +9898,24 @@ Rejected
 
 About
 : nfc
+
+---
+
+
+<a id="2026-11-26-2330-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Phone on Android slot b, stock, nothing booted or flashed. Took walleye-nfc-nxp-nci-node; stopped before any boot: no procedure boots [images.nfc] (slpi-boot-on-the-pixel-2 is slpi-specific: it reads remoteprocs and qrtr), and the nfc image's roof ramdisk is built at NET=42 (build-initramfs.sh default; the phone then answers on 172.16.42.1, surya's address) while device.toml [connection] shell_address and gadget-up.sh use 172.16.43.1, so the lab could not reach its shell.
+
+Considered
+: next: a nfc-boot procedure (boot_image, gadget serial walleye-first-boot, nfc-present.sh plus the dmesg lines on nxp-nci/i2c, reboot -f, the way back, short: the roof init has no 180 s hold or petter) and the ramdisk at NET=43 so [images.nfc] is reachable at the manifest's address (new ramdisk and image sha256, recipe change), or the procedure reads 42.1; coordinator picks
+
+Rejected
+: booting [images.nfc] by hand through lpoco lab fastboot boot: no way to read it back at the manifest address, no recorded way back for an image without a petter
+
+About
+: walleye-bootimage
