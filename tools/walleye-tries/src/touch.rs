@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-//! The touch try's steps (item walleye-attend-program-touch): z21 once from memory, the touch reader open and
-//! showing EVENTS-READY BEFORE the author is asked, the window long enough for the swipe, the way back.
-//! Each method is one step of tests/attended/touch-try.rs and returns what that step runs; each fails with
+//! The touch try's steps (item walleye-attend-program-touch): the touch reader open and showing EVENTS-READY BEFORE the author is
+//! asked, the window long enough for the swipe, the count. The boot of z21 and the way back are the library's groups
+//! (steps::phone_ready, steps::leave_known_good) in procedures/touch-events-on-z21.rs; each method here is one step of it and fails with
 //! what it saw, and the entry file's runner stops the run there. Nothing is written to the phone beyond /tmp.
 
 use crate::host;
@@ -338,8 +338,6 @@ mod walkthrough {
         for (script, says) in [
             ("battery-ok.sh", "pass walleye-battery-ok host 4100 mV"),
             ("ufs-off-image.sh", "pass walleye-ufs-off image"),
-            ("gadget-up.sh", "pass walleye-gadget-up kernel up"),
-            ("idle-android.sh", "pass walleye-idle-android host back"),
         ] {
             std::fs::write(hosts.join(script), format!("echo '{says}'\n")).unwrap();
         }
@@ -362,7 +360,6 @@ mod walkthrough {
         s.window = 5;
         s.min_window = 3;
         s.device_wait = 5;
-        s.back_wait = 5;
         let image = d.join("boot-z.img");
         std::fs::write(&image, "image").unwrap();
         s.image = image;
