@@ -8516,3 +8516,28 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-transport-real-phone-run-passed"></a>
+### walleye-transport-real-phone-run-passed
+
+Date
+: 2026-11-26
+
+Brief
+: Transport run on the real Pixel 2 (Android b): rehearsal 7/7, real run 12/12; adb serial = [fastboot] serial, reboot bootloader honoured, slot b kept
+
+Question
+: Do the declared transports work on the real Pixel 2?
+
+Found
+: Rehearsal 7/7, then the real run 12/12 (transport.txt kept): adbd as root, the library's read_slot over [connections.android] read _b, adb's serial equals [fastboot]'s, adb reboot bootloader reached fastboot (13 s) listing current-slot equal to adb's, fastboot reboot returned Android in 36 s, slot b again. Nothing written or flashed; phone ends on Android b.
+
+Sources
+: walleye-transport-serial-check-source
+
+About
+: walleye-bootimage
+
+Material
+: research/walleye-bootimage/2026-11-26/

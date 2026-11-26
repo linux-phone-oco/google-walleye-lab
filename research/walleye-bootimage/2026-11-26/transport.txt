@@ -1,0 +1,28 @@
+1795665998 start : transport on the Pixel 2 on google-walleye
+1795665998 start : transport on the Pixel 2 on google-walleye
+1795665998 begin the battery is good enough: check
+1795665998 ok the battery is good enough: 
+1795665998 begin say what to expect: step
+1795665998 ok say what to expect: 
+1795665998 begin the phone is on Android, adbd as root: step
+1795665999 ok the phone is on Android, adbd as root: 
+1795665999 begin the phone says which slot it runs from: check
+1795665999 out the phone says which slot it runs from: _b
+1795665999 ok the phone says which slot it runs from: 
+1795665999 begin adb reads the slot Android runs from: check
+1795665999 ok adb reads the slot Android runs from: 
+1795665999 begin adb's own serial is the one [fastboot] declares: check
+1795665999 ok adb's own serial is the one [fastboot] declares: 
+1795665999 begin take the phone to its bootloader by `adb reboot bootloader`: step
+1795666012 ok take the phone to its bootloader by `adb reboot bootloader`: 
+1795666012 begin fastboot lists the phone and its current-slot is the slot adb read: check
+1795666012 ok fastboot lists the phone and its current-slot is the slot adb read: 
+1795666012 begin `fastboot reboot`: Android answers, adbd as root again: step
+1795666048 ok `fastboot reboot`: Android answers, adbd as root again: 
+1795666048 begin the phone is on Android (the way back, if it is not): step
+1795666048 ok the phone is on Android (the way back, if it is not): 
+1795666048 begin the phone is back on Android: check
+1795666049 ok the phone is back on Android: 
+1795666049 begin Android runs from the slot it began on: check
+1795666049 ok Android runs from the slot it began on: 
+1795666049 end : all steps passed

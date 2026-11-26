@@ -10028,10 +10028,10 @@ Rank
 ### The declared transports on the real Pixel 2 (lab-tools' docs item transport-real-phone-run): reboot to the bootloader per transport, Phone::at with the declared addr, the adb serial equal to adb's
 
 Status
-: open
+: done
 
 Note
-: From orchestration (2026-11-23): an item lab-tools left that only a real phone closes; recorded in docs, so it is put on walleye's phone queue here at LOW rank (15): walleye's own path (stage 2 rehearsal and go, the UFS silence) comes first. Knowledge for lab-tools from our lane: busybox 'reboot bootloader' drops the argument (reboot(RB_AUTOBOOT)), so it is not honoured on a busybox transport; a static reboot(2) RESTART2 'bootloader' tool (tools/walleye-reboot, PR 809) reached the bootloader on our kernel in rerun 7 (PR 814).
+: proven by procedures/transport-on-the-pixel-2.rs 12/12 on Android b, research walleye-transport-real-phone-run-passed
 
 Blocked by
 : walleye-transport-procedure
