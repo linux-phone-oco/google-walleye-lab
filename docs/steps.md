@@ -1710,3 +1710,18 @@ Notes
 
 Updated
 : 2026-11-24
+
+
+### Row 117
+
+Step
+: test-layer-boots
+
+Status
+: open
+
+Notes
+: not measured yet: lpoco-health test-layer-quiet has not run on a walleye boot; the rootfs-boots step is done (stage 1 Alpine, run 6) but its image is not shown to be the test layer
+
+Updated
+: 2026-11-26

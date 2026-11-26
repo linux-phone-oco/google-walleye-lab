@@ -12917,10 +12917,10 @@ Rank
 ### walleye claims its bring-up steps in its own base, from its records
 
 Status
-: open
+: done
 
 Note
-: Moved from docs' base 2026-11-25 (orchestration closes its row as moved). Spec: the 26 claims in docs research/bringup-steps/2026-11-18/claims-walleye.sh (its tad r step-claim lines become ikb step here, without --device and --updated), then the ~80 more steps of the chain (phone stages, linux-runs) claimed, even as open or not-needed. Check first which steps keepers already claimed since 2026-11-18 (tad q bringup-chain --device google-walleye); every claim from the records, never beyond them (measured-not-claimed). Data only; no phone.
+: 2026-11-26: every step of docs' chain is claimed by this base (117 rows; the last, test-layer-boots, open). Proof docs research/bringup-steps/2026-11-18/bringup-chain-walleye.sh passes after docs' next feed; not run against this change yet.
 
 About
 : walleye-bootimage
