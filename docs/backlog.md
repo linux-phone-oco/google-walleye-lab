@@ -12892,10 +12892,7 @@ Status
 : open
 
 Note
-: Rebuilt 2026-11-27 (walleye-builder) on main with lpoco-attended 0.46.1, parked on wip/walleye/install-steps-0461 (00ea85f, pushed): crate tests 471, check-device-toml and attended check --host pass, programmer review done. STOP: land's land-check fails: bin/install-bringup.sh pins lpoco-bringup 0.51.1 (LPOCO_BRINGUP_VERSION default), which does not know [connections] in device.toml ('unknown field connections'); that pin has no mover in rhizoid bump. Next: the coordinator/orchestration gives that pin a mover or moves it to 0.53.3 or later; then land the wip branch (rebase, re-run land). Review leftovers to fold in: rehearse-install-rootfs does not exercise the android connection (add a read_slot step); dead Err arm in Install::target and its constant-only test; stale 'parked' wording gone by squash.
-
-Waits
-: lab-tools/rhizoid: a mover for google-walleye-lab's bin/install-bringup.sh lpoco-bringup pin (0.51.1, rejects [connections]) to 0.53.3 or later, asked of orchestration 2026-11-26; then rebase wip/walleye/install-steps-0461 (00ea85f) and land
+: Unblocked 2026-11-26: main reads lpoco-bringup 0.53.3 (PR 1156, rhizoid edge now exists). NEXT: rebase wip/walleye/install-steps-0461 (00ea85f) on main and land it with its own attended 0.46.1 bump; then the rhizoid branch rhizoid/bump/lpoco-attended-0.46.1 (state branch-exists) is superseded: close its PR, if any, as carried by the landed change. Decision 2026-11-26-walleye-android-connection-user-root holds.
 
 About
 : walleye-bootimage
