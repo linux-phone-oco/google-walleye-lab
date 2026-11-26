@@ -9940,3 +9940,39 @@ Rejected
 
 About
 : nfc
+
+---
+
+
+<a id="2026-11-26-1525-walleye-keeper-nfc-boot-run-1"></a>
+### walleye-keeper: nfc boot run 1 (used by run 1)
+
+Entry date
+: 2026-11-26
+
+Done
+: Item walleye-nfc-nxp-nci-node (used by run 1, walleye-nfc-boot-run-1): nfc image booted once from RAM, nfc-present pass, nxp-nci read error -121, clock count 0; phone back on Android slot b stock
+
+Considered
+: next: explain -121 (VEN/FIRM levels, BBCLK3 enable via clocks in the node) before a tag poll; no go was open on the item (witness NULL), ready was the go
+
+About
+: nfc
+
+---
+
+
+<a id="2026-11-26-1530-how-the-phone-stands-b"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Phone on Android slot b, stock, nothing flashed; nfc boot run 1 passed its ten steps and way back returned to Android; healthy
+
+Considered
+: next: nfc read error -121 and the BBCLK3 clock (second short boot after a node change, coordinator picks); walleye-init-from-roof gadget serial seen in this boot
+
+About
+: nfc
