@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+[package]
+name = "walleye-tas2557-builds"
+version = "0.1.0"
+edition = "2021"
+description = "The proof walleye-tas2557-driver-builds: the TAS2557 series applies to the kernel base, its binding checks, its driver builds with W=1, and the overlay merges onto the walleye dtb"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[lib]
+name = "walleye_tas2557_builds"
+
+[[bin]]
+name = "walleye-tas2557-builds"
+path = "src/main.rs"
+
+[dependencies]
+# the command line is declared once (argenv), not parsed by hand
+argenv-resolve = "0.4"

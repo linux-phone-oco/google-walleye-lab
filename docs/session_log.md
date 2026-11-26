@@ -10096,3 +10096,24 @@ Rejected
 
 About
 : walleye-audio-haptics
+
+---
+
+
+<a id="2026-11-26-walleye-builder-the-tas2557-builds-proof-as-a"></a>
+### walleye-builder: the TAS2557 builds proof as a Rust program
+
+Entry date
+: 2026-11-26
+
+Done
+: Built tools/walleye-tas2557-builds: judges of the four checks (series, binding, W=1 build, overlay merge) tested on the 2026-11-26 captures and on each spoiled one; steps that make those texts on the lab; CI job. Lab run printed pass for 4b5ddbd8f821. The lab run found two faults the tests had not (argenv keys must be snake_case; 'strerror' matched 'error'), both now tested.
+
+Considered
+: Judging the binding check by its exit: the kernel's Makefile ends CHKDT, LINT and STYLE with '|| true', so make_exit=0 says nothing.
+
+Rejected
+: Searching only for the words warning and error in the binding text: schema complaints carry neither. Copying the older shell *-builds.sh: shell is being retired.
+
+About
+: walleye-audio-haptics
