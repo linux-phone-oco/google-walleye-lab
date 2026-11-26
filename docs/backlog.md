@@ -13017,3 +13017,28 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-adb-root-from-library"></a>
+### walleye leaves adb root to the library: [connections.android] user = root runs it once per Phone (lab-tools 0.53.5)
+
+Status
+: open
+
+Note
+: Queued by the walleye coordinator 2026-11-26 from orchestration's message: transport = adb, user = root now runs adb root and waits for the device once per Phone (limit 30 s); a refusal error names the refusal, tested only against a stand-in, so walleye's run is its first live proof. After walleye-procedures-on-step-groups part 2 (one builder at a time).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: the pins move to the lab-tools release carrying adb-connection-user-root (lab-tools #456, release #457, 0.53.5); walleye's own adb root step before the library's install steps is removed (transport.rs, install.rs; android.rs's own root wait kept only where no library Phone is used); a decision amends 2026-11-26-walleye-android-connection-user-root; dry-run, check --host and stand-in tests pass; the keeper's next transport procedure run passes on the phone and its log shows the library's adb root and wait; any refusal text it prints is reported to orchestration if it differs from the stand-in
+
+Rank
+: 6
