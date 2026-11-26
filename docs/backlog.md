@@ -13051,7 +13051,7 @@ Status
 : in-progress
 
 Note
-: PART 1 LANDED 2026-11-26 (declared way back, decision 2026-11-26-walleye-way-back-is-a-procedure). PART 2: DISPLAY LOOK DONE and run proven. DISPLAY-AT-BOOT DONE in code (walleye-builder 2026-11-26: procedures/display-at-boot-on-the-pixel-2.rs on phone_ready(b2) and leave_known_good last; [kernels] test += b2; dry run, check --host, 477 tests ok); its real run is the item walleye-display-at-boot-step-groups-run (keeper). STILL OPEN, each the same move (name in [kernels] test, its [images.NAME] read by phone_ready, battery/sha/ufs checks stay as procedure checks, leave_known_good last): display delay bisect (b-d*, a loop: the way back per image sits mid-run, the table step must move before the last leave), UFS ufs-matched (image NOT-TO-BOOT, UFS-on: stays its own boot until a gate for it exists), PMIC (two images, a second boot mid-run), touch (z21). Lab-tools' attended-way-back-settled still owed: nothing after leave_known_good.
+: PART 1 LANDED 2026-11-26 (declared way back, decision 2026-11-26-walleye-way-back-is-a-procedure). PART 2: DISPLAY LOOK DONE and run proven; DISPLAY-AT-BOOT DONE and run proven (research walleye-display-at-boot-step-groups-run-passed). DISPLAY DELAY BISECT DONE in code (walleye-builder 2026-11-26: phone_ready(IMAGE) and leave_known_good per image in the loop, the table step before the last leave, [kernels] test += b-d5..b-d50, b-s5, b-r5, b-r2, b-rp2, b-q5; no watching parent now: the group's way back ends a stop; dry run 39 steps, check --host, 477 tests ok); its real run is the item walleye-display-delay-step-groups-run (keeper). STILL OPEN, each the same move (name in [kernels] test, its [images.NAME] read by phone_ready, battery/sha/ufs checks stay as procedure checks, leave_known_good last): display any-order, UFS ufs-matched (image NOT-TO-BOOT, UFS-on: stays its own boot until a gate for it exists), PMIC (two images, a second boot mid-run), touch (z21). Lab-tools' attended-way-back-settled still owed: nothing after leave_known_good.
 
 Blocked by
 : walleye-way-back-procedure-run
@@ -13067,6 +13067,34 @@ Needs
 
 Proof
 : the display (look and delay bisect and any-order), UFS, PMIC and touch procedures pinned to lpoco-attended v0.37.3 or newer; each one's repeated battery/gate/fastboot/boot/wait-for-gadget/shell lines are one group steps::phone_ready(kernel) and its ending is steps::leave_known_good LAST in the entry file (a finished group's way back is still owed until lab-tools attended-way-back-settled lands: do not put any step after leave_known_good); values from device.toml ([kernels], [images.*], [procedures.*]); the entry files get shorter, still read as a checklist on one screen; dry-run, lpoco-attended check --host, stand-in tests and one real run each of the display look (unattended, answer limit) pass; the way back on an unanswered ask still leaves the phone on Android by its own way
+
+Rank
+: 6
+
+
+<a id="walleye-display-delay-step-groups-run"></a>
+### One run of procedures/display-delay-bisect-on-the-pixel-2.rs on the step groups (phone_ready per image, leave_known_good per image, table before the last)
+
+Status
+: open
+
+Note
+: queued by walleye-builder 2026-11-26: on the groups (dry run 39 steps, check --host, 477 tests, clippy, programmer review ok). Five images, about 3 min each; the keeper may run b-d5 alone (delays = 5, put back). DO NOT Ctrl-C the run: the groups' way back covers a failed step, not a signal (lab-tools item attended-way-back-on-signal owed); a phone left in fastboot is brought back with the way-back procedure.
+
+Blocked by
+: walleye-way-back-procedure-run
+
+About
+: walleye-attend-program-display
+
+Opened
+: 2026-11-26
+
+Needs
+: phone
+
+Proof
+: bin/attended run display-delay-bisect-on-the-pixel-2: each image boots by phone_ready, its row is scored (signs counted, 13 of 13 modules ok), the way back leaves the phone on Android after each image, table.txt holds five rows; same table as the earlier bisect (research walleye-display-delay-bisect-flips-at-25s)
 
 Rank
 : 6

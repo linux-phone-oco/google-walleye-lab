@@ -247,6 +247,11 @@ impl DisplayDelay {
         self.s.delays.clone()
     }
 
+    /// The test kernel the image of `delay` is (its `[images.NAME]` and `[kernels] test` entry): steps::phone_ready names it.
+    pub fn kernel(&self, delay: u64) -> Result<String, String> {
+        self.image(delay).map(|i| i.name)
+    }
+
     fn image(&self, delay: u64) -> Result<DelayImage, String> {
         self.s
             .delay_images
@@ -288,19 +293,10 @@ impl DisplayDelay {
         }
     }
 
-    /// The phone is in fastboot (the shared step); from here the watching parent knows the phone was touched.
+    /// The phone is in fastboot (the shared step).
     pub fn phone_is_in_fastboot(&self) -> impl FnOnce() -> Done + 'static {
         let lab = self.lab.clone();
-        move || {
-            crate::watch::phone_is_touched();
-            lab.phone_is_in_fastboot()
-        }
-    }
-
-    /// Boot the image of `delay` from the phone's fastboot, from memory: nothing is written to it.
-    pub fn boot_image(&self, delay: u64) -> impl FnOnce() -> Done + 'static {
-        let d = self.clone();
-        move || d.lab.boot_image(&d.image(delay)?.path)
+        move || lab.phone_is_in_fastboot()
     }
 
     /// The shell answers by itself and the image has the delay: `/display-delay` holds the number and the init is the delay init.
@@ -376,32 +372,6 @@ impl DisplayDelay {
             rows.push(row);
             d.lab.save("table.txt", &table(&rows))
         }
-    }
-
-    /// The way back: the phone ends on Android (the shared step; `reboot -f` over the shell when it is not there yet).
-    pub fn way_back(&self) -> impl FnOnce() -> Done + 'static {
-        let lab = self.lab.clone();
-        move || {
-            // the watching parent runs the way back after the child; the child's last step is the real one
-            lab.way_back()
-        }
-    }
-
-    /// The watching parent's way back: only the parent runs it.
-    pub fn way_back_after_any_stop(&self) -> impl FnOnce() -> Done + 'static {
-        let lab = self.lab.clone();
-        move || {
-            if std::env::var_os(crate::watch::CHILD).is_some() {
-                return Ok(());
-            }
-            lab.way_back()
-        }
-    }
-
-    /// The phone is back on Android (the shared step).
-    pub fn android_is_back(&self) -> impl FnOnce() -> Done + 'static {
-        let lab = self.lab.clone();
-        move || lab.android_is_back()
     }
 
     /// The result table is said and kept in a file of the lab's material: delay, faults, warnings, -110, and where the signs stop.
@@ -658,6 +628,8 @@ mod tests {
         let d = DisplayDelay::new(s);
         assert!(d.image(25).is_ok());
         assert!(d.image(7).unwrap_err().contains("7 s"));
+        assert_eq!(d.kernel(15).unwrap(), "b-d15");
+        assert!(d.kernel(7).is_err());
     }
 
     #[test]

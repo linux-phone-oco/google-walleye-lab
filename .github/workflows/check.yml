@@ -136,6 +136,8 @@ jobs:
           : > build/images/images-display-l7/boot-l7.img
           mkdir -p build/images/images-display-look
           : > build/images/images-display-look/boot-b2.img
+          mkdir -p build/images/images-display-delay
+          for n in 5 15 25 35 50; do : > build/images/images-display-delay/boot-b-d$n.img; done
           bin/attended check
       - name: no procedure, script or brief calls a bare lpoco-attended; bin/attended runs the one the steps crate is locked to
         run: sh tests/host/no-bare-lpoco-attended.sh

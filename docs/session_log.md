@@ -9541,3 +9541,24 @@ Considered
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-display-delay-on-step-groups"></a>
+### display delay bisect on the step groups
+
+Entry date
+: 2026-11-26
+
+Done
+: procedures/display-delay-bisect-on-the-pixel-2.rs runs phone_ready(IMAGE) then leave_known_good for each image in its loop; the result table step moves before the last leave (nothing after it); DisplayDelay::kernel names the image, boot_image, way_back, android_is_back and way_back_after_any_stop are gone with the watching parent; device.toml [kernels] test lists every image the procedure's image_prefix can name; CI dry run gets five stand-in b-d images. fmt, clippy -D warnings, 477 tests, dry run of 39 steps, check --host ok. Real run queued for the keeper.
+
+Considered
+: the same move as display-at-boot; the table written by the last row's scoring step alone
+
+Rejected
+: keeping the watching parent (watch_the_try): the group's own way back covers a failed step or a panic, two ways back would run twice; it does NOT cover a signal (Ctrl-C), which the watcher did: owed to lab-tools (attended-way-back-on-signal), a run must not be interrupted until it lands; one phone_ready per run: each image is its own boot and its own way back
+
+About
+: walleye-attend-program-display
