@@ -6501,7 +6501,7 @@ Note
 : TRY ORDERS (coordinator 2026-11-26, image [images.nfc] from PR 1206): one boot of nfc from RAM (fastboot boot, nothing flashed), kept short, because the roof's init has no 180 s hold, no watchdog petter and no banner (research walleye-generated-init-gaps). In that boot: (a) the gadget serial walleye-first-boot, which also closes walleye-init-from-roof; (b) tests/health/base/nfc-present.sh; (c) if nxp-nci does not probe, read the clock first (BBCLK3 / pm8998 gpio21), then stop. A tag poll only after (b) passes. Host reading done (research walleye-nfc-android-dtb-read): nfc@28 on i2c@c1b6000, irq gpio92, VEN gpio12, FIRM gpio93. Next: the dts node on the test kernel's matching QUP, then one test-ramdisk try with nfc-present.sh; firmware from ~/lab-material.
 
 Blocked by
-: walleye-nfc-dts-node-image
+: walleye-nfc-boot-procedure
 
 About
 : nfc
@@ -13313,3 +13313,28 @@ Proof
 
 Rank
 : 8
+
+
+<a id="walleye-nfc-boot-procedure"></a>
+### A procedure boots [images.nfc] from RAM and reads NFC, with the image rebuilt at walleye's net 43
+
+Status
+: open
+
+Note
+: Queued by the walleye coordinator 2026-11-26 from the keeper's stop (session log 2026-11-26-2330-how-the-phone-stands): no procedure boots [images.nfc] (slpi-boot is slpi-specific), and the ramdisk was built at NET=42. The same fix unblocks walleye-init-from-roof and the fingerprint try.
+
+About
+: nfc
+
+Opened
+: 2026-11-26
+
+Needs
+: build
+
+Proof
+: build-initramfs.sh phone builds at walleye's net from device.toml (decision 2026-11-26-walleye-ramdisk-on-net-43); [images.nfc] rebuilt, new sha256, rebuilds equal; procedures/nfc-boot-on-the-pixel-2.rs on the step groups: phone_ready(nfc) boots it, checks the gadget serial walleye-first-boot, runs tests/health/base/nfc-present.sh and reads dmesg for nxp-nci (and the clock if it did not probe), then leave_known_good; dry run, check --host and stand-in tests pass; short, since the roof init has no hold or petter
+
+Rank
+: 7
