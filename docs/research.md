@@ -8948,3 +8948,25 @@ Sources
 
 About
 : walleye-device-config-sources-read
+
+
+<a id="walleye-cmdline-cut-after-c1-harmless"></a>
+### walleye-cmdline-cut-after-c1-harmless
+
+Date
+: 2026-11-26
+
+Brief
+: C1 settles it: slot a's bootloader path cuts the tail for any image; C2 and C3 are void by their own rule; the cut is harmless while root=PARTUUID, no check left
+
+Question
+: What is left to check after C1's cut on slot a (RAM boot, 1141 chars, ends at androidboot.pk, no slot_suffix)?
+
+Found
+: The plan in cmdline-cut-checks.md (research walleye-cmdline-tail-cut-candidates) reads C1 as: cut at pk means the slot-a path cuts whatever the image. C1 ran exactly that: a RAM-booted debug image (149-char header, not flashed) was cut on slot a (run 20261125-085235). So the cause is on the bootloader side with slot a current, not our header, kernel, ramdisk, DTB or footer; C2 (stock image flashed to boot_a) was only for a whole tail and is void; C3 (our image with stock header fields flashed to boot_a) could only separate header fields from sizes, which a RAM boot with a different header already did not change, and it needs a boot_a flash for no gain. Nothing the cmdline's slot words carry is needed: step 21 takes the slot from root=PARTUUID (run 12 passed that way). Cause stays not proven (the bootloader is closed and not read); it is recorded as known-unexplained, not broken. Reopen only if something needs androidboot.slot_suffix or words after pk (then read it from slot b, where the line is whole, or flip the question to why slot b is whole). No phone work queued.
+
+About
+: walleye-bootimage
+
+Supersedes
+: walleye-cmdline-tail-cut-candidates
