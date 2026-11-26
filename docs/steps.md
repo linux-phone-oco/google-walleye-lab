@@ -1595,30 +1595,6 @@ Updated
 ### Row 112
 
 Step
-: display-boots-any-order
-
-Status
-: partial
-
-Proof
-: tests/host/dtb-display-reset.sh
-
-Run
-: walleye-display-reset-image-b-r5-tried-signs-vanish
-
-Proven on
-: b-r5 boot image sha256 6dc0239e
-
-Notes
-: B-r5 (mdss resets MDSS_BCR) loaded at 5 s: signs 0, 13 of 13 modules ok; not yet at boot time (2 s) and not looked at on the glass
-
-Updated
-: 2026-11-20
-
-
-### Row 113
-
-Step
 : display-any-order
 
 Status
@@ -1640,7 +1616,7 @@ Updated
 : 2026-11-23
 
 
-### Row 114
+### Row 113
 
 Step
 : rootfs-boots
@@ -1664,7 +1640,7 @@ Updated
 : 2026-11-23
 
 
-### Row 115
+### Row 114
 
 Step
 : storage-readonly
@@ -1688,7 +1664,7 @@ Updated
 : 2026-11-24
 
 
-### Row 116
+### Row 115
 
 Step
 : storage-full-speed
@@ -1712,7 +1688,7 @@ Updated
 : 2026-11-24
 
 
-### Row 117
+### Row 116
 
 Step
 : test-layer-boots
@@ -1722,6 +1698,27 @@ Status
 
 Notes
 : not measured yet: lpoco-health test-layer-quiet has not run on a walleye boot; the rootfs-boots step is done (stage 1 Alpine, run 6) but its image is not shown to be the test layer
+
+Updated
+: 2026-11-26
+
+
+### Row 117
+
+Step
+: display-boots-any-order
+
+Status
+: partial
+
+Proof
+: tests/host/dtb-display-reset.sh
+
+Run
+: research walleye-display-at-boot-step-groups-run-passed
+
+Notes
+: b2 at boot (2.5 s): 13 of 13 modules ok, connector connected on the step-group run; still not looked at on the glass, and three cold boots not yet
 
 Updated
 : 2026-11-26

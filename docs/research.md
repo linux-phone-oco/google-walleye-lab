@@ -8541,3 +8541,22 @@ About
 
 Material
 : research/walleye-bootimage/2026-11-26/
+
+
+<a id="walleye-display-at-boot-step-groups-run-passed"></a>
+### walleye-display-at-boot-step-groups-run-passed
+
+Date
+: 2026-11-26
+
+Brief
+: Display at boot on step groups, real Pixel 2 (b2): 13 of 13 modules ok, card0-DSI-1 connected, stop at ask 14 unanswered, way back to Android
+
+Question
+: Does display-at-boot-on-the-pixel-2 on the step groups boot b2 with every display module ok and the connector connected, stop at the first look, and leave Android?
+
+Found
+: Unattended run 2026-11-26 (answer limit 60): checks 1-3 passed, b2 booted once, back as USB 1d6b:0104 after 18 s, shell answers, 13 of 13 display modules ok, card0 and card0-DSI-1 connected, 88 display lines recorded (walleye-display: ok at 2.5 s), backlight written once through sysfs c994000.dsi.0=127 with 0 backlight lines in the log. Stopped at ask 14 (nobody answered, expected); way_back passed; phone on Android, adb device. The glass was not looked at.
+
+About
+: walleye-attend-program-display

@@ -13020,10 +13020,10 @@ Rank
 ### One unattended run of procedures/display-at-boot-on-the-pixel-2.rs on the step groups (phone_ready b2, leave_known_good), answer limit given
 
 Status
-: open
+: done
 
 Note
-: queued by walleye-builder 2026-11-26: the procedure is on the groups (dry run, check --host, 477 tests ok); same shape as the display look's run
+: proven by the run 2026-11-26 (research walleye-display-at-boot-step-groups-run-passed): used by run walleye-keeper; no go was open
 
 Blocked by
 : walleye-way-back-procedure-run
