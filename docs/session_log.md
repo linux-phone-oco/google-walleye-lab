@@ -9697,3 +9697,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-2100-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Phone on Android slot b, stock, nothing flashed; adb up. Ran walleye-adb-root-from-library-run (used by run walleye-keeper 2026-11-26): transport 12/12, root asked only by the library. Note: the global lpoco-attended 0.45.4 cannot read device.toml; use bin/attended.
+
+Considered
+: next: walleye-nfc-nxp-nci-node (22) host reading; the PMIC and deep-sleep items wait for the author
+
+About
+: walleye-bootimage

@@ -13185,10 +13185,10 @@ Rank
 ### One keeper run of procedures/transport-on-the-pixel-2.rs: the library's adb root and wait are the only root asked
 
 Status
-: open
+: done
 
 Note
-: Queued by walleye-builder 2026-11-26 after walleye-adb-root-from-library landed (decision 2026-11-26-walleye-adb-root-is-the-librarys). Read only; one research row with the log's root lines. Closes walleye-adb-root-from-library.
+: proven by bin/attended run transport-on-the-pixel-2: 12/12, library's adb root the only one (research walleye-adb-root-from-library-run-passed); transport.txt not written by this runner
 
 About
 : walleye-bootimage
