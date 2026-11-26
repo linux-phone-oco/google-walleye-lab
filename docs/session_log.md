@@ -9817,3 +9817,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-2300-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Phone on Android slot b, stock, nothing flashed or booted. Took walleye-init-from-roof: ramdisk with the roof's init builds (research walleye-roof-init-phone-ramdisk-builds); the real-phone proof needs a ufs-off image carrying it, none exists.
+
+Considered
+: next: build a ufs-off image with the roof ramdisk (recipe from a ufs-off control + ramdisk) alongside the NFC try; the item stays open
+
+About
+: walleye-bootimage
