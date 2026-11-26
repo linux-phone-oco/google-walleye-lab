@@ -12970,10 +12970,10 @@ Rank
 ### One run of procedures/way-back-on-the-pixel-2.rs: the phone on Android, then from its bootloader
 
 Status
-: open
+: done
 
 Note
-: Read only on Android, one reboot out of the bootloader. Built 2026-11-26 (decision 2026-11-26-walleye-way-back-is-a-procedure); dry run, bin/attended check and the programmer review pass (no blockers); never run on the phone. Run bin/attended run way-back-on-the-pixel-2 --dry-run first (warms rust-script). Its limits, from the review: it cannot restore Android's slot after the install tries (they keep their own way back), has no ssh leg or pushed reboot tool, and a phone whose telnet is not up yet is only watched for Android for back_wait. The library shows its output only on failure, up to back_wait 240 s per leg. Part 2 must keep the install and rootfs procedures on their own way back until it handles the slot switch.
+: proven by bin/attended run way-back-on-the-pixel-2: exit 0 on Android (nothing sent), and from the bootloader (adb reboot bootloader; fastboot reboot; Android back after 31 s); slot b before and after. Run 2026-11-26 walleye-keeper.
 
 About
 : walleye-attend-program-display
