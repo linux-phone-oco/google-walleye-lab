@@ -12892,7 +12892,10 @@ Status
 : open
 
 Note
-: Re-placed 2026-11-26 by decision 2026-11-26-walleye-android-connection-user-root: bump the pins to lpoco-attended-v0.46.0, lpoco-lab-v0.53.3 and lpoco-manifest-v0.50.0 (lab-tools #448, #449); add [connections.android] transport = adb, user = root; keep walleye's adb root step and call it before read_slot(phone_on("android")) and adb_write_partition; finish the parked branch wip/walleye/install-steps-from-library. The previous builder stopped at the root check: walleye uses adb root, the library's user = shell uses su -c sh. The first real proof rides on the next install or rw-write keeper run.
+: Built 2026-11-26 (walleye-builder), parked on branch wip/walleye/install-steps-user-root (e00e821, pushed): lpoco-attended 0.46.0 via rhizoid bump (Cargo.toml and lock), device.toml schema pin lpoco-lab-v0.53.3, [connections.android] addresses = [], transport = adb, user = root, install.rs and the procedure call adb_write_partition(phone_on(android), ...) and read_slot(phone_on(android)); crate tests 471 pass; bin/check-device-toml.sh passes (lpoco-lab 0.53.3 reads it). STOP: bin/attended check --host fails: lpoco-attended 0.46.0 pins lpoco-manifest-v0.49.1 (attended/Cargo.toml:18), which does not know [connections] ('unknown field connections'), so landing would break CI. Next: lab-tools moves attended's manifest pin to 0.50.0 and releases attended; then rhizoid bump, re-run bin/attended check --host, land the branch. rw_write.rs keeps its own mount check: it asserts the root mounted READ-WRITE, the library's mount_is_readonly asserts the opposite, so the proof's mount_is_readonly clause does not apply to rw_write (to be re-worded by the coordinator).
+
+Waits
+: lab-tools: lpoco-attended's lpoco-manifest pin moves 0.49.1 -> 0.50.0 and attended is released (0.46.1 or later)
 
 About
 : walleye-bootimage
