@@ -8497,3 +8497,22 @@ Found
 
 About
 : walleye-kernel-dts
+
+
+<a id="walleye-transport-serial-check-source"></a>
+### walleye-transport-serial-check-source
+
+Date
+: 2026-11-26
+
+Brief
+: The transport run's serial check comes from the proof of walleye-transport-real-phone-run: the adb serial equals the [fastboot] serial
+
+Question
+: What says the adb serial must equal the declared one?
+
+Found
+: The proof of backlog item walleye-transport-real-phone-run (docs item transport-real-phone-run), point (4): the adb serial from [fastboot] equals adb's own. adb get-serialno's own text is not captured yet (not known yet); the first run keeps it in transport.txt.
+
+About
+: walleye-bootimage

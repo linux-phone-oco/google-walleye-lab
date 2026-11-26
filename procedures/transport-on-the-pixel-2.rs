@@ -30,7 +30,7 @@ fn main() {
     step("the phone is on Android, adbd as root", t.the_phone_is_on_android_as_root());
     run_step(steps::read_slot(phone_on("android"))); // the library over [connections.android]
     check_from("adb reads the slot Android runs from", "research:walleye-rootfs-boots-run-5-passed", t.the_slot_is_read_by_adb());
-    check_from("adb's own serial is the one [fastboot] declares", "file:docs/backlog.md", t.the_adb_serial_is_the_declared_one());
+    check_from("adb's own serial is the one [fastboot] declares", "research:walleye-transport-serial-check-source", t.the_adb_serial_is_the_declared_one());
     step("take the phone to its bootloader by `adb reboot bootloader`", t.the_phone_is_taken_to_the_bootloader());
     check_from("fastboot lists the phone and its current-slot is the slot adb read", "research:walleye-rootfs-boots-run-5-passed", t.fastboot_lists_the_slot_adb_read());
     step("`fastboot reboot`: Android answers, adbd as root again", t.fastboot_reboot_returns_android());
