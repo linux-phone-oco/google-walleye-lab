@@ -9469,3 +9469,21 @@ Rejected
 
 About
 : walleye-attend-program-display
+
+---
+
+
+<a id="2026-11-26-0830-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Run 2026-11-26-0830 of walleye-display-look-step-groups-run (used by run 2026-11-26-0830): the display procedure on the step groups booted l7 once, loaded 13 display modules, DSI-1 connected enabled, stopped at the first look 'nobody answered' (expected), the declared way back left the phone on Android. Phone on Android stock, nothing flashed, adb up.
+
+Considered
+: next: walleye-nfc-nxp-nci-node (22) host reading; walleye-declare-transport-login
+
+About
+: walleye-attend-program-display

@@ -12995,10 +12995,10 @@ Rank
 ### One unattended run of procedures/display-stripes-on-the-pixel-2.rs on the step groups (phone_ready l7, leave_known_good), answer limit given
 
 Status
-: open
+: done
 
 Note
-: Built 2026-11-26 (walleye-builder, branch builder/step-groups-2): the look's boot/gadget/shell lines are steps::phone_ready(l7) and its ending steps::leave_known_good LAST; device.toml [kernels] boot = fastboot and l7 in test. Dry run 18 steps, check --host ok, 477 stand-in tests ok. The run needs the phone in Android or fastboot, battery rule as the procedure's. Not asked of the author: look_for stops unanswered.
+: proven by run 2026-11-26-0830 (bin/attended run display-stripes-on-the-pixel-2 --answer-limit 60): 13 modules loaded, DSI-1 connected enabled, stopped at ask 12 'nobody answered' (exit 1, expected), way back left phone on Android
 
 Blocked by
 : walleye-way-back-procedure-run
