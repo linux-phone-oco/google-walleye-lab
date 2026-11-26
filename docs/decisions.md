@@ -3848,3 +3848,37 @@ Research
 
 Tracked by
 : walleye-nfc-poll-in-tool
+
+
+<a id="2026-11-26-pon-reasons-read-in-our-image-after-a-control"></a>
+### 2026-11-26-pon-reasons-read-in-our-image-after-a-control
+
+Date
+: 2026-11-26
+
+Brief
+: After a bite read 0xC0..0xCB raw in our image via fastboot (one vol-down+power hold); a no-bite control read comes first; Android getprop is the second reading
+
+Decision
+: The procedure reads the PON block 0xC0..0xCB (and 0x08..0x0d) raw, naming 0xC0 PON_REASON1, 0xC2 WARM_RESET_REASON1, 0xC5 POFF_REASON1, 0xC7 PON_OFF_REASON. Where: at the first place that answers without a hand (adb on a warm return: getprop bootreason); else the author does one act, power+volume-down to the bootloader, and the lab fastboot-boots the reader image before Android ever boots. Before any bite, a control read after a known power-off settles what the key press and bootloader leave.
+
+Why
+: Vendor driver read whole: offsets are gen2 and PON_OFF_REASON selects which reason register holds the cause; the vendor kernel clears WARM_RESET_REASON at probe, so Android booting first destroys it. A control costs no bite and no risk.
+
+Rejected
+: Android-only read after a power press: its kernel eats WARM_RESET_REASON and the key press rewrites PON_REASON1. Reading only 0xC5: misses fault and S3 sequences. A pstore line: our kernel's log is of the run before the bite, not the PMIC's reason after it. Bootloader/PON handover bit (SOFT_RB_SPARE): works only if the closed bootloader reads it, unproven.
+
+About
+: walleye-pmic-wdt-v1-image
+
+Research
+: walleye-pon-read-after-bite-the-way
+
+Amends
+: 2026-11-20-pon-bites-two-images-and-one-ask-before-the-bite
+
+Scope
+: walleye keeper, walleye-wdt-pon-bites-procedure
+
+Tracked by
+: walleye-wdt-pon-control-read

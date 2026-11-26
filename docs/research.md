@@ -8970,3 +8970,25 @@ About
 
 Supersedes
 : walleye-cmdline-tail-cut-candidates
+
+
+<a id="walleye-pon-read-after-bite-the-way"></a>
+### walleye-pon-read-after-bite-the-way
+
+Date
+: 2026-11-26
+
+Brief
+: PON reasons after a bite: read raw 0xC0..0xCB in our image via fastboot after one vol-down+power hold; Android getprop second; a no-bite control read first settles what a key press leaves
+
+Question
+: How are PON_REASON1, PON_ON_REASON, POFF_REASON1 and WARM_RESET_REASON1 read after a watchdog bite on walleye, given the charger screen has no adb and Android's dmesg is already a second boot?
+
+Found
+: READ this session in the vendor msm driver (qpnp-power-on.c, whole file fetched): PM8998 is PON gen2; offsets PON_REASON1 0xC0, WARM_RESET_REASON1 0xC2, POFF_REASON1 0xC5, PON_OFF_REASON 0xC7, FAULT_REASON1 0xC8, S3_RESET_REASON 0xCA (gen1: 0x08, 0x0A, 0x0C). This settles the offsets the earlier row left open: the driver has no separate PON_ON_REASON register - warm vs cold is WARM_RESET_REASON1 non-zero (qpnp_pon_is_warm_reset). On gen2 the driver reads 0xC7 first and only then POFF_REASON1 (0xC5, bit 2 = PMIC_WD per mainline), FAULT_REASON1 (0xC8/0xC9) or S3_RESET_REASON (0xCA), by which of the POFF_SEQ/FAULT_SEQ/S3_RESET_SEQ bits is set; a procedure reading only 0xC5 can miss a bite recorded elsewhere, so read 0xC0..0xCB raw. At probe the vendor driver stores WARM_RESET_REASON then clears it: the first Linux that probes the PON eats it, so Android's kernel after the press shows the warm bit once and a later reader sees zero; reading in our image before Android boots keeps it. It logs 'Power-on reason: X and cold/warm boot' and 'Power-off reason: Y' at probe (Android's own reading; needs dmesg access, which a user build may refuse). WAYS: (a) phone returns by itself (warm bite): adb getprop ro.boot.bootreason / sys.boot.reason, no hand; (b) charger screen or off, nothing answers, so ONE physical act: power+volume-down hold to the bootloader (fastboot lists the phone), then fastboot boot of our reader image (a jump, not a PMIC reset - recalled, to confirm) reads 0xC0..0xCB raw through regmap debugfs; (c) a plain power press boots Android: only getprop and, if allowed, dmesg lines, and Android's kernel eats the registers first. NOT MEASURED: whether POFF_REASON1/0xC7/WARM_RESET_REASON1 survive the bootloader and a key press on this phone, and whether the bootloader clears them. A CONTROL with no bite settles it: power the phone off by a known cause (adb reboot -p, or a hold-down hard reset), then path (b), read the same registers - it counts what a key press and the bootloader leave, at no risk to the phone, the author's hands only for the hold. Not read: mainline qcom-pon.c for a PON reason print, and the bootloader's own boot-reason rule (closed).
+
+Sources
+: vendor-qpnp-power-on-c,qcom-pmic-pon-reset-status,mainline-pm8916-wdt-c,android-bootstat-reasons
+
+About
+: walleye-pmic-wdt-v1-image
