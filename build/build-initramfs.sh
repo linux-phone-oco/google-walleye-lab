@@ -1,13 +1,13 @@
 #!/bin/sh
-# Pack the walleye initramfs (busybox + build/initramfs/*) as a gzip cpio, with the kernel's own gen_init_cpio
+# Pack the walleye initramfs (busybox + the roof's init) as a gzip cpio, with the kernel's own gen_init_cpio
 # (no root, fixed timestamps, so the same inputs give the same bytes).
 #
 #   build-initramfs.sh phone    WORK_DIR OUT_CPIO_GZ     arm64 busybox, for the phone
 #   build-initramfs.sh selftest WORK_DIR OUT_CPIO_GZ     x86_64 busybox + the host's gadget modules and iproute2,
 #                                                        for the QEMU self-test (build/selftest-initramfs.sh)
-# NET=43 (default 42): the phone answers on 172.16.NET.1 and leases 172.16.NET.2; the init, udhcpd.conf and selftest.sh are
-# rewritten into WORK_DIR/net43/ (172.16.42 -> 172.16.43, the ECM MAC byte 2a -> 2b); at 42 the files are used as they are,
-# so every image built before stays byte for byte.
+# NET=43 (default 42): the phone answers on 172.16.NET.1 and leases 172.16.NET.2; the init, udhcpd.conf and selftest.sh are made
+# by `lpoco bringup initramfs init/files --net NET` from the device's [boot.gadget] into WORK_DIR/roofNET/ (the roof's init, item
+# walleye-init-from-roof: the images built with it have new sha256s).
 # WORK_DIR holds busybox-arm64 / busybox-x86_64 (build-busybox.sh) and out/b (build-kernel.sh).
 set -eu
 MODE=${1:?usage: build-initramfs.sh phone|selftest WORK_DIR OUT}
@@ -18,15 +18,16 @@ case $MODE in phone|ufs-root) BB=$W/busybox-arm64 ;; selftest|ufs-root-selftest)
 GEN=${GEN:-$W/out/b/usr/gen_init_cpio}   # GEN: the usr/gen_init_cpio of any built kernel tree
 [ -x "$GEN" ] || make -C "$W/linux-v7.3" ARCH=arm64 LLVM=1 O="$W/out/b" usr/gen_init_cpio >/dev/null
 NET=${NET:-42}
-SRC=$HERE/initramfs; SUF=
+SRC=; SUF=
 case $MODE in ufs-root|ufs-root-selftest) SRC=${INIT_DIR:-$HERE/initramfs-root} ;; esac   # INIT_DIR: another init (build/initramfs-root-display, the UFS root with the display)
-if [ "$NET" != 42 ] && [ "${MODE#ufs-root}" = "$MODE" ]; then
-  SRC=$W/net$NET; SUF=-$NET; rm -rf "$SRC"; mkdir -p "$SRC"
-  MAC=$(printf %02x "$NET")
-  for n in init udhcpd.conf selftest.sh udhcpc.script; do
-    sed -e "s/172\.16\.42\./172.16.$NET./g" -e "s/ac:10:2a:/ac:10:$MAC:/g" "$HERE/initramfs/$n" > "$SRC/$n"
-  done
-  grep -q "172.16.$NET.1" "$SRC/init" && ! grep -q "172\.16\.42" "$SRC/init" "$SRC/udhcpd.conf" "$SRC/selftest.sh" || { echo "build-initramfs: address rewrite left 42 behind" >&2; exit 1; }
+if [ "${MODE#ufs-root}" = "$MODE" ]; then
+  # phone and selftest: the roof's init, made by lpoco-bringup from the device's [boot.gadget] (item walleye-init-from-roof);
+  # the address and the ECM MAC byte follow --net, so no rewriting of ours is left
+  SRC=$W/roof$NET; SUF=-$NET; rm -rf "$SRC"; mkdir -p "$SRC"
+  lpoco bringup initramfs init --device "$HERE/../device.toml" --net "$NET" --out "$SRC/init"
+  lpoco bringup initramfs files --device "$HERE/../device.toml" --net "$NET" --out "$SRC"
+  grep -q "serialnumber" "$SRC/init" && grep -q "echo \"walleye-first-boot\" > .*serialnumber" "$SRC/init" || { echo "build-initramfs: the roof's init does not set serial walleye-first-boot" >&2; exit 1; }
+  [ -s "$SRC/init" ] && [ -s "$SRC/udhcpd.conf" ] && grep -q "172.16.$NET.1" "$SRC/init" || { echo "build-initramfs: the roof's init is not for 172.16.$NET.1" >&2; exit 1; }
 fi
 SPEC=$W/initramfs-$MODE$SUF.spec
 {

@@ -18,7 +18,7 @@ SELFTEST_KVER=$KVER NET=$NET "$HERE/build-initramfs.sh" selftest "$W" "$W/initra
 ACCEL=tcg; [ -w /dev/kvm ] && ACCEL=kvm
 timeout 240 qemu-system-x86_64 -machine accel=$ACCEL -cpu max -m 1024 -nographic -no-reboot \
   -kernel "$KERNEL" -initrd "$W/initramfs-selftest.cpio.gz" \
-  -append "console=ttyS0 panic=-1 loglevel=4 walleye.selftest=1" > "$W/selftest.log" 2>&1 || true
+  -append "console=ttyS0 panic=-1 loglevel=4 bringup.selftest=1" > "$W/selftest.log" 2>&1 || true
 grep -a "walleye-init\|SELFTEST" "$W/selftest.log" | tr -d '\r'
 tail -n1 "$W/selftest.log" >/dev/null
 grep -aq "^SELFTEST PASS" "$W/selftest.log"
