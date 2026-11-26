@@ -9388,3 +9388,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-walleye-builder-step-groups-not-built"></a>
+### Step groups for the procedures: read, not built
+
+Entry date
+: 2026-11-26
+
+Done
+: Read walleye-procedures-on-step-groups against lpoco-attended v0.46.1 (our pin): phone_ready/leave_known_good end in back_to_known_good, a root shell running systemctl reboot. Recorded why that does not fit walleye on the item and set its waits. No code changed.
+
+Considered
+: Converting display-at-boot first with phone_ready(b2) and keeping our own way_back; adding b2 to [kernels] test
+
+Rejected
+: Converting now: phone_ready's way back would run systemctl reboot on a busybox telnet shell with no systemd, beside our own way back that ends on Android, and I cannot prove either on the phone; no speculative code landed
+
+About
+: walleye-attend-program-display
