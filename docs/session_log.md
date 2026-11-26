@@ -9370,3 +9370,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-1500-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Phone on Android slot b, stock, nothing flashed or set; adb up. Ran walleye-transport-real-phone-run: rehearsal 7/7, real run 12/12, transport.txt kept in research/walleye-bootimage/2026-11-26/. No bring-up step applies; no go was open (read only).
+
+Considered
+: next: walleye-nfc-nxp-nci-node (22) host reading, or move the SLPI judge tests onto the captured text and run slpi-sensor-service.sh
+
+About
+: walleye-bootimage
