@@ -12892,10 +12892,7 @@ Status
 : open
 
 Note
-: Builder 2026-11-26: the change is built and passes (471 crate tests, clippy, check --host) on origin branch wip/walleye/install-steps-from-library, NOT landed: programmer review found the library steps (read_slot, adb_write_partition) reach the phone through devlab 'phone root', and device.toml [connection] says transport=telnet (172.16.43.1, test images), so on Android they would fail at the first library call (fail-safe, before any dd). Needs: lab-tools lets these steps use adb (a transport option, or the steps take an adb serial), or walleye declares an adb connection for the install procedures; then land the branch. Also: the rehearsal must run read_slot and the library's script path; put read_slot right after 'adbd as root'. mount_is_readonly does not apply: rw_write.rs reads the booted image's /proc/mounts over ssh and wants rw. Library does not export its dd flags (probe and write tied by a comment only): ask for a pub const.
-
-Waits
-: lab-tools item named-connections (docs, rank 1; decision 2026-11-26-a-phone-that-boots-more-than-one-system-declares) released: then walleye adds [connections.android] transport = adb to device.toml and the parked branch wip/walleye/install-steps-from-library names that connection in its steps
+: Unblocked 2026-11-26 (orchestration): named-connections released - lpoco-manifest-v0.50.0, lpoco-lab-v0.53.3, lpoco-attended-v0.46.0 (lab-tools #448, #449). Next: bump the pins, add [connections.android] transport = adb, user = shell to device.toml, and pass the name on the parked branch wip/walleye/install-steps-from-library (read_slot(phone_on("android")) etc). The library's 'su -c sh' path is proven only on a fake adb: first check, from the records and tools/walleye-tries' own install.rs, how walleye reaches root on its stock Android today; if that differs from su -c sh, it is a stop for the coordinator, not a patch. Its first real proof rides on the next install or rw-write keeper run.
 
 About
 : walleye-bootimage
