@@ -10156,3 +10156,24 @@ Rejected
 
 About
 : walleye-pmic-wdt-v1-image
+
+---
+
+
+<a id="2026-11-26-walleye-builder-ufs-opp-premise"></a>
+### walleye-ufs-opp-table-image: the premise fails in the source
+
+Entry date
+: 2026-11-26
+
+Done
+: Read ufs-qcom.c's gear-from-OPP map against msm8998.dtsi's clocks; recorded research walleye-ufs-opp-g3-needs-201mhz and the item's note; built nothing
+
+Considered
+: building the dts table anyway as the item says; writing the ufs-qcom 150 MHz to G3 mapping myself
+
+Rejected
+: the table alone: it would be measured at G2 and look like a patch candidate it is not; the driver mapping: a change of the item's meaning and of a driver whose gear rule for this SoC was not read, the coordinator's call
+
+About
+: walleye-ufs-match-android-z

@@ -8008,7 +8008,7 @@ Status
 : open
 
 Note
-: From research walleye-ufs-why-gear1-ranked: msm8998.dtsi has freq-table-hz but no operating-points table, so use_pm_opp is false, ufs_qcom_freq_to_gear_speed returns DONT_CHANGE and the legacy ufshcd_scale_gear path drops to min_gear G1 at idle. The upstreams coordinator (docs #714) will take the OPP table up as a patch once the gear under load or a dtsi with an OPP table holding G3 is measured. A second UFS try needs the author's word.
+: 2026-11-26 (walleye-builder): NOT BUILT. Research walleye-ufs-opp-g3-needs-201mhz: ufs_qcom_freq_to_gear_speed maps only a 201.5 MHz unipro clock to G3; the msm8998's top is 150 MHz = G2. A dts OPP table alone gives G1/G2, never G3, so the proof 'holds G3' cannot be met as written. The coordinator picks: (a) change the item to a ufs-qcom patch (150 MHz -> G3 for msm8998) plus the table, after the Android gear-with-clock rule is read; (b) a G1/G2 OPP image measured against the legacy path; (c) drop it. Original spec kept above.
 
 About
 : walleye-ufs-match-android-z
