@@ -9715,3 +9715,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-2200-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Phone on Android slot b, stock, nothing flashed; adb up (adb root used for read-only /proc/device-tree reads). Took walleye-nfc-nxp-nci-node (22): host reading of the Android dtb done and recorded as research walleye-nfc-android-dtb-read; item in-progress, no try yet.
+
+Considered
+: next: walleye-nfc-nxp-nci-node dts node (identify mainline QUP for c1b6000) and one test-ramdisk try with nfc-present.sh; PMIC and deep-sleep items wait for the author
+
+About
+: walleye-bootimage

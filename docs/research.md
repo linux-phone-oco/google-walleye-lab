@@ -8636,3 +8636,25 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-nfc-android-dtb-read"></a>
+### walleye-nfc-android-dtb-read
+
+Date
+: 2026-11-26
+
+Brief
+: NFC from the live Android dtb: nq-nci at 0x28 on i2c@c1b6000, IRQ gpio92, VEN gpio12, FIRM gpio93, eSE pwr 30, clear_n 29, clkreq PM8998 gpio21, clk BB_CLK3
+
+Question
+: Which I2C address, GPIOs, clock and supplies does Android's dtb give the NFC controller of walleye?
+
+Found
+: Read as adb root from /proc/device-tree on 2026-11-26 (userdebug, slot b, nothing changed): soc/i2c@c1b6000/nq@28, compatible qcom,nq-nci, reg 0x28, interrupt gpio 0x5c=92 type 4 (level high; interrupt-names nfc_irq), qcom,nq-ven=gpio12, nq-firm=gpio93 (0x5d), nq-clear_n=gpio29, nq-esepwr=gpio30, nq-spi_cs=gpio2 (eSE on spi), nq-clkreq=PM8998 gpio21 (phandle 0x237), clock ref_clk from rpmcc phandle 0x3e id 0xc4de7dad? (qcom,clk-src BBCLK3). Pinctrl nfc_active/nfc_suspend: gpio12 and gpio116 pull-up on active (116 is a second enable-group pin, role not read), gpio92 irq pull-up. Android binds the nq-nci driver to 8-0028 (answers on the bus). Not known yet: which mainline QUP node i2c@c1b6000 is, the supply regulators (none named in the nq node: the controller's VDD is board-fixed or via gpio), whether the PN553 mainline nxp-nci driver accepts the pn553 compatible with nq's pins (needs enable=VEN, firmware=FIRM, irq). The node for mainline: nfc@28 { compatible nxp,pn553 ; reg 0x28; interrupts-extended tlmm 92 level-high? ; enable-gpios tlmm 12; firmware-gpios tlmm 93; pinctrl; } on the QUP for c1b6000.
+
+Sources
+: lkml-nxp-pn553-binding
+
+About
+: nfc
