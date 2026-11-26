@@ -3820,3 +3820,31 @@ About
 
 Scope
 : walleye-bootimage
+
+
+<a id="2026-11-26-walleye-nfc-poll-stops-but-does-not-power-down"></a>
+### 2026-11-26-walleye-nfc-poll-stops-but-does-not-power-down
+
+Date
+: 2026-11-26
+
+Brief
+: walleye-nfc-up --poll ends with STOP_POLL only: nfc0 stays powered, so the procedure's i2c and clock reads after the open still see the chip
+
+Decision
+: After the poll walleye-nfc-up sends NFC_CMD_STOP_POLL (only when no target came) and no NFC_CMD_DEV_DOWN. The item's note said STOP_POLL and DEV_DOWN; DEV_DOWN is left out. It prints a target found as the event's word only, not its data.
+
+Why
+: The procedure reads i2cdetect at 0x28 and ln_bb_clk3 after the open; DEV_DOWN drops VEN and the clock, so 'no ACK' would read as VEN whatever the chip did. The opener already leaves nfc0 up at exit. The phone is rebooted by the way back right after the read.
+
+Rejected
+: DEV_DOWN after the poll (the item's note): changes what the reads after it mean. GET_TARGET for protocols and NFCID1: a tag's identifier is the holder's data and the run item only needs found / not found; it can be added when a run wants the protocol.
+
+About
+: nfc
+
+Research
+: walleye-nfc-poll-in-tool-built
+
+Tracked by
+: walleye-nfc-poll-in-tool

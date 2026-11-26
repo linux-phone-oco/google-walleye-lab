@@ -137,6 +137,30 @@ pub struct Answer {
     pub clocks: Vec<String>,
 }
 
+/// The poll after the open, as the tool printed it (its words: `target found`, `no target`).
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum Poll {
+    NotRun,
+    Target,
+    NoTarget,
+    /// the tool's own line says START_POLL was answered with an errno: the poll ran and failed
+    Failed,
+}
+
+/// The poll's word in the open part.
+fn the_poll(opened: &[&str]) -> Poll {
+    let said = opened.join(" ").to_ascii_lowercase();
+    if said.contains("start_poll answered") {
+        Poll::Failed
+    } else if said.contains("target found") {
+        Poll::Target
+    } else if said.contains("no target") {
+        Poll::NoTarget
+    } else {
+        Poll::NotRun
+    }
+}
+
 fn named(lines: Option<Vec<&str>>) -> Vec<String> {
     lines
         .unwrap_or_default()
@@ -229,11 +253,11 @@ impl Answer {
 /// The pins the node and Android's dtb name: gpio12 (Android's enable, nq-ven), gpio116 (the OnePlus 5's enable, and this node's), gpio92 (the interrupt), gpio93 (firmware download, nq-firm).
 pub const GPIOS: [u32; 4] = [12, 116, 92, 93];
 /// The tool that opens nfc0: tools/walleye-nfc-up (item walleye-nfc-nfc0-opener-in-ramdisk), in the NFC ramdisk as /bin/walleye-nfc-up; it prints the kernel's own answer and exits 1 on an errno. The ramdisk's busybox has none: when it is not there the open is said not made (not known yet), never guessed.
-pub const OPEN_TOOL: &str = "walleye-nfc-up --index 0";
+pub const OPEN_TOOL: &str = "walleye-nfc-up --index 0 --poll 10";
 
 /// The open read over telnet, one line for the shell, marks between the parts: the four pins before the open; the open (its output and `rc=`, or `no-tool`); the four pins after; i2cdetect on the bus of c1b6000
 /// after the open (the opener has exited by then: whether nfc0 stays powered is NOT KNOWN YET; `no-bus` when sysfs names none); the clock summary's ln_bb_clk3 lines.
-pub const OPEN_COMMAND: &str = "mount -t debugfs none /sys/kernel/debug 2>/dev/null; P='^ *gpio(12|116|92|93) +:'; echo ---gpio-before; grep -E \"$P\" /sys/kernel/debug/gpio; echo ---open; if command -v walleye-nfc-up >/dev/null; then timeout 20 walleye-nfc-up --index 0 2>&1; echo rc=$?; else echo no-tool; fi; echo ---gpio-after; grep -E \"$P\" /sys/kernel/debug/gpio; echo ---i2c; B=$(ls /sys/bus/platform/devices/c1b6000.i2c 2>/dev/null | grep '^i2c-' | head -1 | cut -c5-); if [ -n \"$B\" ]; then i2cdetect -y $B 2>&1; else echo no-bus; fi; echo ---clock; grep -i ln_bb_clk3 /sys/kernel/debug/clk/clk_summary 2>/dev/null; echo ---end";
+pub const OPEN_COMMAND: &str = "mount -t debugfs none /sys/kernel/debug 2>/dev/null; P='^ *gpio(12|116|92|93) +:'; echo ---gpio-before; grep -E \"$P\" /sys/kernel/debug/gpio; echo ---open; if command -v walleye-nfc-up >/dev/null; then timeout 30 walleye-nfc-up --index 0 --poll 10 2>&1; echo rc=$?; else echo no-tool; fi; echo ---gpio-after; grep -E \"$P\" /sys/kernel/debug/gpio; echo ---i2c; B=$(ls /sys/bus/platform/devices/c1b6000.i2c 2>/dev/null | grep '^i2c-' | head -1 | cut -c5-); if [ -n \"$B\" ]; then i2cdetect -y $B 2>&1; else echo no-bus; fi; echo ---clock; grep -i ln_bb_clk3 /sys/kernel/debug/clk/clk_summary 2>/dev/null; echo ---end";
 
 /// The pins of [`GPIOS`] in a pin table (the msm pinctrl's `gpioN : in|out VALUE DRIVE PULL`), each as its number and its words in single spaces; a pin not listed is not in the answer.
 pub fn pin_lines(text: &str) -> Vec<(u32, String)> {
@@ -279,6 +303,8 @@ pub struct OpenAnswer {
     /// the cell of the row 20: at column 8 (0x28): `--` no ACK, `UU` the address is held by a driver, `28` an ACK; None: the bus was not found or the table is unreadable
     pub cell: Option<String>,
     pub clocks: Vec<String>,
+    /// what the tool said of the poll after the open (walleye-nfc-up --poll)
+    pub poll: Poll,
 }
 
 /// The cell for 0x28 in busybox's i2cdetect table (its rows: `20: ` then one cell per address, `--`, `UU` or the address in hex).
@@ -296,7 +322,8 @@ fn the_cause(opened: &[&str], cell: &Option<String>) -> Cause {
     if said.trim() == "no-tool" || said.trim().is_empty() {
         return Cause::NotOpened;
     }
-    if said.contains("rc=0") {
+    // the tool's own DEV_UP line: the kernel acked it, which it does only after the chip's NCI init replies (research walleye-nfc-dev-up-ack-is-the-chips-reply), whatever the poll after it did
+    if said.contains("rc=0") || said.contains("dev_up answered: ok") {
         return Cause::Answers;
     }
     // the bus first: no ACK at 0x28 is VEN whatever the open said
@@ -307,7 +334,7 @@ fn the_cause(opened: &[&str], cell: &Option<String>) -> Cause {
     if said.contains("firmware") {
         return Cause::Gpio93;
     }
-    // `timeout 20` ends a hung opener with 124 (143 on some busybox): a chip that ACKs and never answers NCI
+    // `timeout 30` ends a hung opener with 124 (143 on some busybox): a chip that ACKs and never answers NCI
     let hung = said.contains("rc=124") || said.contains("rc=143");
     if hung || said.contains("timed out") || said.contains("timeout") || said.contains("-110") {
         return Cause::Clock;
@@ -348,6 +375,7 @@ pub fn open_judge(read: &str) -> Result<OpenAnswer, String> {
     let cell = cell_28(&i2c);
     Ok(OpenAnswer {
         cause: the_cause(&open, &cell),
+        poll: the_poll(&open),
         before: before_pins,
         after: after_pins,
         moved,
@@ -403,11 +431,19 @@ impl OpenAnswer {
             Cause::Ven => "points to VEN (no ACK: the enable pin does not switch the chip on; the pins that moved with the open say which of gpio12 and gpio116 is it)".to_string(),
             Cause::Clock => "points to the clock (the chip is there and gave no NCI reply)".to_string(),
             Cause::Gpio93 => "points to gpio93 (firmware framing)".to_string(),
-            Cause::Answers => "nfc0 opened and the chip answered: neither VEN, clock nor gpio93".to_string(),
+            Cause::Answers => "nfc0 opened and the chip answered NCI init (DEV_UP acked after CORE_RESET and CORE_INIT): neither VEN, clock nor gpio93".to_string(),
             Cause::Unnamed(l) => format!("cause not known yet: the open said `{l}`"),
         };
+        let poll = match self.poll {
+            Poll::Target => "poll: a target came (NFC_EVENT_TARGETS_FOUND)",
+            Poll::NoTarget => "poll: no target in its time",
+            Poll::Failed => {
+                "poll: START_POLL was refused by the kernel (its errno is in the open part)"
+            }
+            Poll::NotRun => "poll not known yet (not run)",
+        };
         format!(
-            "before: {}; after: {}; {moved}; {cell}; {clock}; {cause}",
+            "before: {}; after: {}; {moved}; {cell}; {clock}; {cause}; {poll}",
             pins(&self.before),
             pins(&self.after)
         )
@@ -757,7 +793,7 @@ mod tests {
             OPEN_COMMAND.find("---open").unwrap() < OPEN_COMMAND.find("---gpio-after").unwrap()
         );
         assert!(
-            OPEN_COMMAND.contains("walleye-nfc-up --index 0")
+            OPEN_COMMAND.contains("walleye-nfc-up --index 0 --poll 10")
                 && OPEN_COMMAND.contains("c1b6000.i2c")
         );
         assert!(OPEN_COMMAND.contains("i2cdetect") && OPEN_COMMAND.contains("ln_bb_clk3"));
@@ -825,6 +861,51 @@ mod tests {
         assert_eq!(a.cause, Cause::Clock);
         let ok = open_judge(&open_read(&before, "rc=0", &before, "UU")).unwrap();
         assert_eq!(ok.cause, Cause::Answers);
+    }
+
+    /// The line is the one tools/walleye-nfc-up prints (lib.rs poll: "nfc{index}: NFC_CMD_START_POLL answered: errno {e} ({text})").
+    #[test]
+    fn a_refused_start_poll_after_a_good_open_is_a_failed_poll_not_the_clock() {
+        let before = pins(&capture());
+        let a = open_judge(&open_read(
+            &before,
+            "walleye-nfc-up: nfc0: NFC_CMD_DEV_UP answered: ok (the kernel acked it)\nwalleye-nfc-up: nfc0: NFC_CMD_START_POLL answered: errno 16 (Device or resource busy (os error 16))\nrc=1",
+            &before,
+            "UU",
+        ))
+        .unwrap();
+        assert_eq!((a.cause, a.poll), (Cause::Answers, Poll::Failed));
+    }
+    /// The words are the ones tools/walleye-nfc-up/src/main.rs prints for --poll (its two println! lines), the DEV_UP line as in its lib.rs.
+    #[test]
+    fn the_polls_word_is_read_beside_the_open_and_a_chip_that_answered_says_so() {
+        let before = pins(&capture());
+        let up = "walleye-nfc-up: nfc0: NFC_CMD_DEV_UP answered: ok (the kernel acked it)";
+        let none = open_judge(&open_read(
+            &before,
+            &format!("{up}\nwalleye-nfc-up: nfc0: poll 10 s: no target\nrc=0"),
+            &before,
+            "UU",
+        ))
+        .unwrap();
+        assert_eq!(
+            (none.cause.clone(), none.poll),
+            (Cause::Answers, Poll::NoTarget)
+        );
+        assert!(none.said().contains("poll: no target in its time"));
+        assert!(none.said().contains("answered NCI init"));
+        let found = open_judge(&open_read(
+            &before,
+            &format!("{up}\nwalleye-nfc-up: nfc0: poll 10 s: target found (NFC_EVENT_TARGETS_FOUND)\nrc=0"),
+            &before,
+            "UU",
+        ))
+        .unwrap();
+        assert_eq!(found.poll, Poll::Target);
+        // an open that stopped before the poll says the poll was not run, never "no target"
+        let stopped = open_judge(&open_read(&before, "rc=1", &before, "28")).unwrap();
+        assert_eq!(stopped.poll, Poll::NotRun);
+        assert!(stopped.said().contains("poll not known yet"));
     }
 
     #[test]
