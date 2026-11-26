@@ -9238,3 +9238,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-26-retire-build-z21"></a>
+### build-z21.sh retired
+
+Entry date
+: 2026-11-26
+
+Done
+: z21 ensured equal; script removed with its README line and the selftest excuse; item stays open (78 scripts left)
+
+Rejected
+: retiring z20/l6 scripts: no recipe, so no equal rebuild shown
+
+About
+: walleye-kernel-dts

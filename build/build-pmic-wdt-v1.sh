@@ -7,7 +7,7 @@
 # reach the banner). Header (offsets, os version, page size), size and AVB footer are z21's. Built only - no phone run; the keeper tries one image once (walleye-try-pmic-wdt-v1), UFS off by the gate first.
 #   build-pmic-wdt-v1.sh WORK_DIR Z21_BOOT_IMG KERNEL_A_OUT KERNEL_B_OUT OUT_DIR
 # KERNEL_x_OUT is build-kernel.sh's OUT_DIR, run with EXTRA_CONFIG=build/walleye-wdt.config. WORK_DIR holds busybox-arm64, busybox-x86_64 (+ busybox-arm64.src). GEN_INIT_CPIO (default
-# WORK_DIR/out-z20/b/usr/gen_init_cpio) is the kernel's own cpio packer. Environment DTBO as in build-z21.sh. Writes OUT_DIR/{boot-wdt1-a.img,boot-wdt1-b.img,SHA256SUMS-wdt1}; every check stops the build
+# WORK_DIR/out-z20/b/usr/gen_init_cpio) is the kernel's own cpio packer. Environment DTBO as in ufs-gate.sh. Writes OUT_DIR/{boot-wdt1-a.img,boot-wdt1-b.img,SHA256SUMS-wdt1}; every check stops the build
 # (ok/FAIL, exit 1, nothing written).
 set -eu
 W=${1:?usage: build-pmic-wdt-v1.sh WORK_DIR Z21_BOOT_IMG KERNEL_A_OUT KERNEL_B_OUT OUT_DIR}

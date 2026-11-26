@@ -230,7 +230,7 @@ the z11, z12 and z13 experiments take `dt/msm8998-google-walleye-ufs.dts` (the s
 `tests/host/ufs-off-image.sh IMAGE|DTB` is the gate: every dtb appended to the image's kernel, alone and merged with the phone's own dtbo entry 3, must hold no UFS host or phy node that is on (okay, or with no status), and the command line must name no ufs
 (the bootloader's own `androidboot.*` words aside). `build/ufs-gate.sh IMAGE...` runs it for the build scripts: every `build-*.sh` that writes a boot image stops there when UFS is on (z11, z12, z13 are the experiments that keep it on and carry no gate: their images are not to boot).
 `tests/host/ufs-off-image-selftest.sh` proves the gate on made dtbs and images (CI job `ufs-off-gate`); `tests/host/ufs-off-inventory.sh` lists which images under `~/Projects/walleye-build/images*` have UFS on.
-`build/build-z21.sh Z20_BOOT_IMG OUT_DIR` makes z21 = z20 with the stub container and UFS disabled in the dtb, nothing else changed (the gate fails z20 and passes z21).
+(script retired 2026-11-26: `lpoco bringup image ensure z21` rebuilds it equal) z21 = z20 with the stub container and UFS disabled in the dtb, nothing else changed (the gate fails z20 and passes z21).
 
 ## The series files: every bisect, declared (build/series/)
 

@@ -8478,3 +8478,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-build-z21-script-retired"></a>
+### walleye-build-z21-script-retired
+
+Date
+: 2026-11-26
+
+Brief
+: build-z21.sh retired: image z21 rebuilds equal from its recipe (lpoco bringup image ensure z21, sha256 bdc0a891...)
+
+Question
+: May build-z21.sh retire under the rule that its image rebuilds byte for byte first?
+
+Found
+: 2026-11-26: lpoco bringup image ensure z21 gave /nix/store/6vmx4fp4...-boot-z21.img and sha256sum of it is bdc0a89179d2d7fdb75e729515fcaadb9a501d4c6fdb835dc1fc3cff4639c7ff, the declared one. Script removed; comments in build-pmic-wdt-v1/fuel-gauge/drv2624 now say DTBO as in ufs-gate.sh; the gate selftest no longer excuses it and passes. Not retired, not judged yet: z20 (control, no recipe), l6 (stripes image), ufs-match (control), the z-series, vendor, pk, display experiments.
+
+About
+: walleye-kernel-dts
