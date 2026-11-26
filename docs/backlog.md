@@ -6498,7 +6498,7 @@ Status
 : in-progress
 
 Note
-: run 1: nfc-present pass (nfc0), nxp-nci read -121, BBCLK3 count 0; tag poll not yet - see research walleye-nfc-boot-run-1
+: run 2: nfc-present pass, DEV_UP acked, VEN moves, no nxp-nci line, 0x28 not probed; tag poll not yet - see research walleye-nfc-boot-run-2
 
 Blocked by
 : walleye-nfc-node-oneplus5-form
@@ -13369,10 +13369,10 @@ Rank
 ### A tool that opens nfc0 in the ramdisk (netlink NFC_CMD_DEV_UP), so the NFC boot can tell VEN, clock and firmware apart
 
 Status
-: in-progress
+: done
 
 Note
-: Host side done 2026-11-26 (research walleye-nfc-up-opener-built): tool, ramdisk 973bcb87, image 65cef2f5 rebuild equal, UFS-off gate passes. Left: the phone run, which is the nfc boot (item walleye-nfc-boot-run-2); done when open.txt shows the kernel's answer.
+: proven by run nfc-boot-20261126-161808: open.txt shows the kernel's answer (DEV_UP acked, rc=0, VEN gpio116 low to high); research walleye-nfc-boot-run-2
 
 About
 : nfc
@@ -13394,10 +13394,10 @@ Rank
 ### Second short NFC boot: the OnePlus 5 form of the node, the pins and the bus read around the open
 
 Status
-: open
+: done
 
 Note
-: Queued by walleye-builder 2026-11-26. Without the opener (walleye-nfc-nfc0-opener-in-ramdisk) the open step says the cause is not known yet; the run still reads nxp-nci's lines with the new node, the pins before and after, i2cdetect on the bus and ln_bb_clk3.
+: run by the keeper 2026-11-26 (nfc-boot-20261126-161808): read, dmesg, open, verdict kept; research walleye-nfc-boot-run-2
 
 Blocked by
 : walleye-nfc-nfc0-opener-in-ramdisk
@@ -13416,3 +13416,28 @@ Proof
 
 Rank
 : 7
+
+
+<a id="walleye-nfc-read-0x28-after-open"></a>
+### NFC: read the PN553 at 0x28 after the open (plain i2c read, VEN high), then the clock if it NACKs
+
+Status
+: open
+
+Note
+: From research walleye-nfc-boot-run-2: i2cdetect skipped 0x28, so 'the chip answered' is not measured. Procedure edit first (i2cget/i2ctransfer read in open.txt), then one run.
+
+About
+: nfc
+
+Opened
+: 2026-11-26
+
+Needs
+: phone
+
+Proof
+: the nfc boot's open.txt has an i2c read of 0x28 (ACK or NACK, as printed) after DEV_UP, and the research row says VEN, clock or firmware
+
+Rank
+: 8

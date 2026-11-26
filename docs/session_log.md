@@ -10018,3 +10018,21 @@ Rejected
 
 About
 : nfc
+
+---
+
+
+<a id="2026-11-26-1630-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-26
+
+Done
+: Ran procedures/nfc-boot-on-the-pixel-2.rs once (nfc-boot-20261126-161808, image 65cef2f5, net 43): nfc-present pass, DEV_UP acked, VEN gpio116 low to high, no nxp-nci dmesg line, 0x28 not probed. Phone back on Android slot b, stock/z21 way back passed, nothing flashed. Items opener and boot-run-2 done; nxp-nci-node still in progress.
+
+Considered
+: next: item walleye-nfc-read-0x28-after-open (procedure reads 0x28 plainly after the open); the 'chip answered' verdict text overclaims and should say not known yet without an ACK read
+
+About
+: nfc

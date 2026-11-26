@@ -8844,3 +8844,25 @@ Found
 
 About
 : nfc
+
+
+<a id="walleye-nfc-boot-run-2"></a>
+### walleye-nfc-boot-run-2
+
+Date
+: 2026-11-26
+
+Brief
+: NFC boot 2 (OnePlus 5 node, opener): nfc0 opened, kernel acked DEV_UP, VEN gpio116 went high; no nxp-nci line in dmesg; 0x28 not probed
+
+Question
+: With the opener in the ramdisk, what does the nfc image say when nfc0 is opened: VEN, clock or firmware?
+
+Found
+: Run nfc-boot-20261126-161808 (kept in ~/lab-material/walleye/): image 65cef2f5, nfc-present pass (nfc0). walleye-nfc-up: NFC_CMD_DEV_UP acked ok, rc=0. gpio116 (VEN) low->high with the open; gpio12 high, gpio92 low, gpio93 low (pull down) before and after. dmesg has no nxp-nci line at all (neither success nor the -121 of run 1). ln_bb_clk3 enable count 0 and deviceless (nothing consumes it). i2cdetect did not probe 0x28 (SMBus quick write skipped; the table has no 0x28 row), so the procedure's 'the chip answered' verdict is NOT measured: it rests on the kernel's ack only. Not known yet: whether the PN553 ACKs at 0x28 with VEN high and the clock off; next: read 0x28 with a plain i2c read (i2cget/-r mode) after the open, and try the clock (BBCLK3 via a clk consumer) if it NACKs. Phone left on Android slot b, nothing flashed.
+
+Sources
+: walleye-nfc-clock-and-minus-121
+
+About
+: nfc
