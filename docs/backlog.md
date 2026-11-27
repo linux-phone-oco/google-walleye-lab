@@ -14743,7 +14743,7 @@ Opened
 : 2026-11-27
 
 Needs
-: phone
+: build
 
 Proof
 : tests/health/base/modem-calls.sh: modem-mm-listed passes (mmcli -L lists one modem)
