@@ -11086,3 +11086,21 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-2119-how-the-phone-stands-run8"></a>
+### How the phone stands (modem run 8)
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-mm-net-port-candidate: modem boot run modem-boot-20261127-210717 (image e008a671, nothing flashed): udevd runs and tags qrtr0, but the chroot's udevadm trigger says 'Running in chroot, ignoring request' so rmnet_ipa0 stays not candidate; no modem listed; modem crashed once at 40 s (DOG_HB) as in run 7; stopped at check 22 (Android not back in 240 s, came back after). Phone on Android slot b (adb), stock; card tables and slot flags equal to before. Nothing patched. Item blocked on the new build item walleye-modem-mm-udev-replay-by-uevent.
+
+Considered
+: next: walleye-modem-mm-udev-replay-by-uevent (builder), then one modem boot; also the slow way back (>240 s, twice) and the DOG_HB crash
+
+About
+: modem-calls
