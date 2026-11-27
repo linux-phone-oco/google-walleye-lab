@@ -10324,3 +10324,24 @@ Rejected
 
 About
 : walleye-pmic-wdt-v1-image
+
+---
+
+
+<a id="2026-11-27-walleye-topics-retagged"></a>
+### Walleye's list topics retagged
+
+Entry date
+: 2026-11-27
+
+Done
+: Rewrote commit subjects only (git filter-branch --msg-filter, line 1 prefixed OURS(item): ) on the four list topics and two archives; tip trees equal before and after, range-diff differs in subjects only; pushed with force-with-lease, old tips kept as pre-retag/2026-11-27/* tags; assemble accepted ufs-off, ufs-on, ufs-off-e123d3bff, ufs-on-3644090c7 (tags /2 made, tree-compared, ended and deleted); docs row pmic-wdt-s2-type landed as docs #945.
+
+Considered
+: bin/check-fork-tags.sh named in docs AGENTS.md exists in no repository; lab-tools' own judge (lpoco bringup kernel assemble) was the check run instead.
+
+Rejected
+: Retagging every walleye topic: the six outside the lists belong to their series' own work and need no list.
+
+About
+: walleye-pmic-wdt-v1-image

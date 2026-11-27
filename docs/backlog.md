@@ -13721,10 +13721,10 @@ Rank
 ### Retag walleye's topic branches: each carried commit's subject TAG(item): ..., code unchanged, upstream-item rows for each
 
 Status
-: open
+: done
 
 Note
-: Decision docs 2026-11-27-topic-lists-made-before-kernel-assemble-s-record (orchestration, docs #944): retag, the judge stays. Upstream-item rows go to docs' base through ikb (--carried-in FORK-ID/BRANCH). Shipped images keep their int/ tags; nothing booted.
+: Retagged 2026-11-27 on the fork: topic/pmic-wdt-wake-in-suspend, topic/pmic-wdt-s2-type, topic/ufs-match-android, topic/walleye-fuel-gauge-rfc and the archives archive/pmic-wdt-e123d3bff, archive/ufs-match-android-3644090c7 carry OURS(item): subjects; tip tree hashes equal; old tips kept as tags pre-retag/2026-11-27/*; upstream-item row pmic-wdt-s2-type added (docs #945); lpoco bringup kernel assemble accepted all four lists (ufs-off, ufs-on and the two frozen); the two frozen lists' trees equal their /1 tags. Not retagged (in no list): walleye-drv2624, -panel-s6e3fa5, -audio-adsp-q6, -mdss-reset, -tas2557-v3, ufs-hynix-quirks, pmic-wdt-next-prep.
 
 About
 : walleye-pmic-wdt-v1-image
