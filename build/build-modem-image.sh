@@ -40,6 +40,7 @@ mkdir "$T/v" && cp "$T/boot-modem.img" "$T/v/boot.img"
 ck "the AVB footer verifies" "$(avbtool verify_image --image "$T/v/boot.img" >/dev/null 2>&1 && echo yes || echo no)" yes
 ck "the UFS-off gate (build/ufs-gate.sh) passes the image" "$(sh "$HERE/build/ufs-gate.sh" "$T/boot-modem.img" >/dev/null 2>&1 && echo pass || echo fail)" pass
 ck "tests/host/dtb-modem-mss.sh passes the dtb" "$(DTB="$T/modem.dtb" sh "$HERE/tests/host/dtb-modem-mss.sh" | cut -d' ' -f1)" pass
+ck "tests/host/dtb-modem-ipa.sh passes the dtb" "$(DTB="$T/modem.dtb" sh "$HERE/tests/host/dtb-modem-ipa.sh" | cut -d' ' -f1)" pass
 ck "tests/host/modem-ramdisk.sh passes the ramdisk" "$(RAMDISK="$RAMDISK" sh "$HERE/tests/host/modem-ramdisk.sh" | cut -d' ' -f1)" pass
 for t in touch-gpio-single-claimant overlay-collisions dtbo-overlay-merges overlay-clock-gcc i2c-qup-after-merge touch-power-after-merge adreno-smmu-disabled; do
   ck "tests/host/$t.sh on the dtb" "$(DTB="$T/modem.dtb" QUIET=1 sh "$HERE/tests/host/$t.sh" | tail -n1 | cut -d' ' -f1)" pass

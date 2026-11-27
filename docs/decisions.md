@@ -4377,3 +4377,31 @@ Research
 
 Tracked by
 : walleye-modem-net-port-ipa-node
+
+
+<a id="2026-11-27-walleye-ipa-node-ap-loads-no-interconnects"></a>
+### 2026-11-27-walleye-ipa-node-ap-loads-no-interconnects
+
+Date
+: 2026-11-27
+
+Brief
+: The walleye modem dts has the msm8998 ipa node with the AP loading ipa_fws (gsi-loader self) and no interconnects; the provider is its own item
+
+Decision
+: dt/msm8998-google-walleye-modem.dts carries ipa@1e40000 (qcom,msm8998-ipa), qcom,gsi-loader self, memory-region the phone's ipa_gpu_mem block, firmware-name qcom/msm8998/google/walleye/ipa_fws.mdt, the ipa smp2p entries; build/walleye-modem.config sets CONFIG_QCOM_IPA=y. No interconnects property until an msm8998 provider exists (item walleye-msm8998-interconnect-provider).
+
+Why
+: The phone's vendor firmware holds ipa_fws.mdt and wahoo's dtsi loads it through Trust Zone (pas-id 0xF); the OnePlus 5 node has the AP load it; the driver takes NULL interconnect paths when the property is absent, so the first host-built try is not blocked; dtbs_check names only that one missing property.
+
+Rejected
+: gsi-loader modem: no source says the modem loads it on this phone. Carrying the fork's interconnect driver in this item: a driver series (six NoC providers) is a separate change with its own proof. A made-up interconnects line: it would name a provider that does not exist.
+
+About
+: modem-calls
+
+Research
+: walleye-modem-ipa-node-values
+
+Tracked by
+: walleye-modem-net-port-ipa-node

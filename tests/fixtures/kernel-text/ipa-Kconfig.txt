@@ -1,0 +1,11 @@
+# Captured text: kernel.org v7.3 (the tag int/walleye/ufs-off-modem/v7.3/1's tree, drivers/net/ipa/Kconfig, read 2026-11-27) for item walleye-modem-net-port-ipa-node: the Kconfig block of the symbol build/walleye-modem.config sets.
+config QCOM_IPA
+	tristate "Qualcomm IPA support"
+	depends on NET && QCOM_SMEM
+	depends on ARCH_QCOM || COMPILE_TEST
+	depends on INTERCONNECT
+	depends on QCOM_RPROC_COMMON || (QCOM_RPROC_COMMON=n && COMPILE_TEST)
+	depends on QCOM_AOSS_QMP || QCOM_AOSS_QMP=n
+	select QCOM_MDT_LOADER
+	select QCOM_PAS
+	select QCOM_QMI_HELPERS

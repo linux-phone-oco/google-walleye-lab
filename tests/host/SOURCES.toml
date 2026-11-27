@@ -400,3 +400,15 @@ source = "research:walleye-modem-mm-runs-where-research"
 
 [scripts."modem-mm-starts-selftest.sh"]
 source = "research:walleye-mmcli-list-words"
+
+[scripts."dtb-modem-ipa.sh"]
+source = "file:tests/fixtures/kernel-text/msm8998-ipa-sources.txt"
+
+[scripts."dtb-modem-ipa-selftest.sh"]
+source = "file:tests/fixtures/kernel-text/msm8998-ipa-sources.txt"
+
+[scripts."kernel-modem-ipa.sh"]
+source = "file:tests/fixtures/kernel-text/ipa-Kconfig.txt"
+
+[scripts."kernel-modem-ipa-selftest.sh"]
+source = "file:tests/fixtures/kernel-text/ipa-Kconfig.txt"

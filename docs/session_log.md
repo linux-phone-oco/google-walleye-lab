@@ -10948,3 +10948,24 @@ Considered
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-ipa-node"></a>
+### walleye-builder: the ipa node in the modem dts
+
+Entry date
+: 2026-11-27
+
+Done
+: Fixture of the sources, failing check then node, config, selftests (16 and 7 cases), dtbs_check in the container, merged-config read-back on the tag's tree.
+
+Considered
+: Wahoo's downstream reg layout (ipa-base 0x1e00000) against the fork's mainline layout: took the fork's, the wahoo gsi range equal.
+
+Rejected
+: Putting the node in msm8998.dtsi: the tag's mainline file stays as it is.
+
+About
+: modem-calls

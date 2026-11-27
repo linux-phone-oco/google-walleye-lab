@@ -99,6 +99,8 @@ jobs:
         run: sh tests/host/kernel-slpi-pas-selftest.sh
       - name: the check for the modem image's config passes this repository's fragments and fails each way they can lose the modem driver or the rmtfs memory (no kernel tree, no phone)
         run: sh tests/host/kernel-modem-mss-selftest.sh
+      - name: the check for the modem image's ipa driver passes this repository's fragments and fails each way they can lose it (no kernel tree, no phone)
+        run: sh tests/host/kernel-modem-ipa-selftest.sh
       - name: the fragments set it (the merged .config is read back on the lab host, tests/host/kernel-pd-mapper.sh KERNEL_TREE)
         run: |
           out=$(sh tests/host/kernel-pd-mapper.sh || true); echo "$out"
