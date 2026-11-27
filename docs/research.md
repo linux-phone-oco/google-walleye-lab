@@ -9514,3 +9514,25 @@ Found
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-net-port-how-it-stands"></a>
+### walleye-modem-net-port-how-it-stands
+
+Date
+: 2026-11-27
+
+Brief
+: MM 1.24.2 cannot list a QMI modem without a net port; mainline ipa has msm8998 data, no DT node; OnePlus 5 gets the port from 'modprobe ipa'
+
+Question
+: What gives the Pixel 2 modem a net port so ModemManager's qcom-soc plugin lists it?
+
+Found
+: 1) The check is hard in ModemManager 1.24.2 (mm-base-modem.c: qmi && !data_net -> fail); no option, no plugin-side bypass; qcom-soc only accepts the wwan/rpmsg/net/qrtr subsystems and handles bam-dmux net ports. 2) Linux v7.3 has driver and binding for qcom,msm8998-ipa (ipa_data_v3_1), but no msm8998 DT ipa node (msm8998.dtsi has only the ipa_fw_mem/ipa_gsi_mem reserves, which the walleye DT deletes for the phone's own layout). 3) postmarketOS pmaports MR 3531: on the OnePlus 5 the ipa driver is blocked from autoload because of modem stability; 'modprobe ipa' lets ModemManager detect the modem over QRTR (the ipa net device is its net port) and gives working SMS. So the data interface is IPA (v3.1), not BAM-DMUX. Not yet read: the ipa node values (registers, interrupts, iommu, gsi-loader) - they come from the wahoo GPL dtsi and the OnePlus postmarketOS patch; not guessed here. Vectors: A ipa node + CONFIG_QCOM_IPA in the modem test kernel (OnePlus 5 way, mainline driver, upstreamable); B patch ModemManager to allow a QMI modem without a net port (voice/SMS need none; small, upstreamable, but a fork of MM until merged); C a dummy netdev tagged for the plugin (hack, no real data, grouping by physdev unlikely to work over qrtr).
+
+Sources
+: mm-base-modem-1-24-2-net-port-check,linux-v7-3-ipa-main-msm8998,pmaports-oneplus5-mainline-mr3531,modemmanager-issue-386
+
+About
+: modem-calls

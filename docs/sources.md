@@ -2147,3 +2147,23 @@ By
 
 Takes
 : mmcli -L prints 4-space PATH [MANUFACTURER] MODEL per modem (output_modem_info, FOUND_ACTION_PREFIX); 'No modems were found' when none (dump_output_list_human); -m takes an index
+
+
+<a id="mm-base-modem-1-24-2-net-port-check"></a>
+### ModemManager 1.24.2 src/mm-base-modem.c organize_ports: QMI modem needs a net port
+
+Url
+: https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/raw/1.24.2/src/mm-base-modem.c
+
+Takes
+: line 1642: 'if (qmi && !data_net)' fails with 'Failed to find a net port in the QMI modem'; no switch
+
+
+<a id="linux-v7-3-ipa-main-msm8998"></a>
+### Linux v7.3 drivers/net/ipa/ipa_main.c: qcom,msm8998-ipa -> ipa_data_v3_1
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/net/ipa/ipa_main.c
+
+Takes
+: driver and binding know msm8998-ipa; arch/arm64/boot/dts/qcom has no ipa node for msm8998 (only ipa_fw_mem, ipa_gsi_mem reserved)

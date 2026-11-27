@@ -4349,3 +4349,31 @@ About
 
 Research
 : walleye-modem-mm-first-try-run-3-dbus-system-and-config-file
+
+
+<a id="2026-11-27-walleye-net-port-from-mainline-ipa"></a>
+### 2026-11-27-walleye-net-port-from-mainline-ipa
+
+Date
+: 2026-11-27
+
+Brief
+: The modem's net port for ModemManager comes from mainline ipa (msm8998-ipa) with a DT node in the modem test kernel; ModemManager no-net-port patch is the fallback
+
+Decision
+: Vector A: add an msm8998 ipa node (values from the wahoo GPL dtsi, checked against the OnePlus 5 patch) and CONFIG_QCOM_IPA to the modem test kernel, host-built first; the phone try is the keeper's. B is the fallback only if ipa probe stops on the phone for a reason we cannot fix.
+
+Why
+: A is how the only mainline MSM8998 phone gets MM to list its modem (pmaports MR 3531), uses the driver already in v7.3, and gives the real data path later; the OnePlus ipa stability warning is the unknown the first phone try settles, at the lowest risk (nothing flashed, RAM boot).
+
+Rejected
+: B patch ModemManager: works for calls/SMS only, carries a fork, data never works; kept as fallback. C dummy netdev: no real data path and MM groups by physdev, unlikely to work over qrtr, proves nothing about the phone.
+
+About
+: modem-calls
+
+Research
+: walleye-modem-net-port-how-it-stands
+
+Tracked by
+: walleye-modem-net-port-ipa-node
