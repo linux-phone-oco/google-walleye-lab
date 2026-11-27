@@ -10714,3 +10714,21 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-modem-image-with-mm-scripts"></a>
+### walleye builder: the modem image with rootfs-recv and mm-up
+
+Entry date
+: 2026-11-27
+
+Done
+: Rebuilt the ramdisk (nix outputs of build/modem-tools.nix equal to tools.sha256; two packs equal) c0f407f8, 8247680 bytes, and the 32 MiB image e6e846bd (kernel 3651b543 and dtb cb6ec054 cut from the previous image and equal to their recorded sums; header, size, AVB footer, UFS-off gate and the dtb tests all ok; swap twice equal). tests/host/modem-ramdisk.sh passes (it now lists bin/rootfs-recv and bin/mm-up), modem-ramdisk-selftest.sh passes all its cases; the firmware tar is unchanged (95ca6961). images-modem replaced; device.toml [images.modem] carries the new sha256. Not run on the phone.
+
+Considered
+: Rebuilding the kernel: the tag's Image.gz is already the recorded 3651b543.
+
+About
+: modem-calls
