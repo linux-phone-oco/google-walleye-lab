@@ -7284,10 +7284,10 @@ Rank
 ### A test image with remoteproc_mss: the qcom_q6v5_mss node, rmtfs memory, the modem firmware set in the ramdisk, rmtfs read-only on the modem partitions' copies
 
 Status
-: open
+: done
 
 Note
-: 2026-11-27 (walleye builder): step (3) done: rmtfs, qrtr-ns, tqftpserv static by nix with libudev-zero, build/modem-tools.nix, research walleye-rmtfs-static-nix-ok (sha256 there). Next: step (4), the ramdisk (modem firmware set from ~/lab-material/walleye/modem-2026-11-19 + these three, read-only modem partition copies), boot image, sha256, host test of no UFS-on node. Earlier: the dtb (walleye-modem-mss-dtb); kernel list ufs-off-modem and build/walleye-modem.config, tag not published. Privacy: modemst1/2, fsg, fsc stay in ~/lab-material, never in git.
+: 2026-11-27 (walleye builder): image modem built and checked on the host: ae22f965 (device.toml [images.modem]); kernel by the sandbox, ramdisk 9721e71d, firmware pushed by tar (decision 2026-11-27-walleye-modem-firmware-is-pushed-not-packed; the proof's 'ramdisk holding the firmware' is replaced by that: 61 MB does not fit 32 MiB). Programmer review done, its findings fixed. Next: walleye-modem-firmware-push-procedure, then walleye-try-modem-mss.
 
 Blocked by
 : walleye-modem-mss-dtb
@@ -13824,6 +13824,62 @@ Needs
 
 Proof
 : walleye-dtb-modem-mss
+
+Rank
+: 21
+
+
+<a id="walleye-modem-firmware-push-procedure"></a>
+### The modem boot as a procedure: boot image modem from memory, push the firmware tar (firmware-recv, nc), modem-up, read the remoteproc state, the kernel's modem lines and qrtr-lookup
+
+Status
+: open
+
+Note
+: From the image builder (2026-11-27): the image holds no firmware (decision 2026-11-27-walleye-modem-firmware-is-pushed-not-packed). The procedure, in Rust with argenv beside procedures/slpi-boot-on-the-pixel-2.rs: boot image modem once from memory (UFS off by the gate), over telnet 172.16.43.1 start 'firmware-recv &', push ~/Projects/walleye-build/images-modem/modem-firmware.tar to 172.16.43.1:9000 with nc, run modem-up, then read /sys/class/remoteproc/*/state, dmesg for q6v5/mss/rmtfs/qrtr lines, /tmp/*.log and qrtr-lookup. Its rehearsal (every step but the boot) first. The whole must finish inside the init's 180 s window.
+
+Blocked by
+: walleye-modem-mss-image
+
+About
+: walleye-modem-mss-proof
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: walleye-modem-boot-rehearsal
+
+Rank
+: 21
+
+
+<a id="walleye-try-modem-mss"></a>
+### The first modem boot on the phone: image modem, the firmware pushed, modem-up; read whether remoteproc_mss runs and where rmtfs's block belongs
+
+Status
+: open
+
+Note
+: From the image builder (2026-11-27): after the procedure. Read-only on the phone's storage (UFS off by the gate, nothing flashed, rmtfs -r on RAM copies). NOT KNOWN YET: that the modem boots, and the address of the rmtfs block (decision 2026-11-27-walleye-modem-rmtfs-region-not-known-yet): the try reads it.
+
+Blocked by
+: walleye-modem-firmware-push-procedure
+
+About
+: walleye-modem-mss-proof
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: walleye-modem-mss-proof
 
 Rank
 : 21

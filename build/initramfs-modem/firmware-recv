@@ -1,0 +1,11 @@
+#!/bin/sh
+# firmware-recv: take the modem firmware tar from the lab host (item walleye-modem-mss-image; decision 2026-11-27-walleye-modem-firmware-is-pushed-not-packed).
+# The set is 61 MB of the phone's own files (34 MB xz): with the kernel it does not fit the 32 MiB boot partition's image, so the host pushes it into RAM over the USB network:
+# on the phone `firmware-recv &`, on the host `nc -N 172.16.43.1 9000 < modem-firmware.tar` (-N: the OpenBSD nc closes at the end of its input). One connection; the folder is emptied first, then the tar unpacks into it; the exit status says whether it worked.
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+FW=/lib/firmware/qcom/msm8998/google/walleye
+mkdir -p $FW && rm -f $FW/*
+nc -l -p 9000 > /tmp/firmware.tar || { echo "firmware-recv: nc failed"; exit 1; }
+tar -x -C $FW -f /tmp/firmware.tar || { echo "firmware-recv: tar failed"; exit 1; }
+rm -f /tmp/firmware.tar
+echo "firmware-recv: done, $(ls $FW | wc -l) files in $FW"

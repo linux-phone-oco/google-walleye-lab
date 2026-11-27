@@ -10447,3 +10447,24 @@ Rejected
 
 About
 : walleye-modem-mss-proof
+
+---
+
+
+<a id="2026-11-27-walleye-builder-modem-image"></a>
+### walleye builder: the modem image built
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-mss-image. Built the tag's kernel (hand build, then the sandbox, equal to its declared hash), the modem dtb, the ramdisk (static tools, storage copies, modem-up, firmware-recv) and the 32 MiB image; found the firmware cannot ride in it and made it a tar pushed over USB; host tests for the firmware layout and the ramdisk with selftests; programmer review fixed (setsid, pid checks, nc -N, exact file list, cleanup traps). Published the tag. Queued the procedure and the try.
+
+Considered
+: Starting the modem at boot; a recipe with the ramdisk as seeded part
+
+Rejected
+: An image over 32 MiB; the ramdisk in the Nix store (it holds modemst1/2).
+
+About
+: walleye-modem-mss-proof
