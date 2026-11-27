@@ -4075,3 +4075,28 @@ Amends
 
 Tracked by
 : walleye-wdt2-images-from-tag
+
+
+<a id="2026-11-27-walleye-modem-rmtfs-region-not-known-yet"></a>
+### 2026-11-27-walleye-modem-rmtfs-region-not-known-yet
+
+Date
+: 2026-11-27
+
+Brief
+: The modem variant keeps mainline's rmtfs_mem (0x88f00000): the phone's running fdt names no rmtfs region, so its place is shown by the try, not guessed
+
+Decision
+: dt/msm8998-google-walleye-modem.dts changes only remoteproc_mss. rmtfs_mem, mdata_mem stay as msm8998.dtsi has them, the check judges their kind and size but not the rmtfs address, and the first try reads whether rmtfs and the modem come up.
+
+Why
+: tests/fixtures/phone-text/walleye-running-fdt-memory.cap lists the phone's reserved regions (modem_region, pil_mba_region and others) and no rmtfs one; 0x88f00000 lies right after removed_regions@85800000 and inside no phone region. Nothing read so far says where the stock system puts it.
+
+Rejected
+: Moving rmtfs_mem to a guessed address (a guess wearing a source's clothes); dropping rmtfs_mem (the userspace rmtfs needs /dev/qcom_rmtfs_mem1); reading the dtbo for it first (a research of its own, queued by the try's outcome, not a blocker for one read-only boot)
+
+About
+: walleye-modem-mss-proof
+
+Tracked by
+: walleye-modem-mss-image

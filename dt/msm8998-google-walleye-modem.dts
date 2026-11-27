@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Variant modem of the walleye board file (item walleye-modem-mss-dtb; research walleye-modem-way, walleye-modem-blobs-found): the same tree plus the modem
+ * subsystem (remoteproc_mss) on the phone's own firmware set. The main file stays as it is: the images already tried keep their dtb byte for byte.
+ *
+ * The carve-outs are the main file's, which are the phone's running ones (mpss_mem 0x8cc00000/120 MiB, mba_mem 0x94500000/2 MiB: tests/fixtures/phone-text/walleye-running-fdt-memory.cap,
+ * modem_region and pil_mba_region); the metadata block (mdata_mem) and the rmtfs block (rmtfs_mem, 0x88f00000, client 1, vmid MSS_MSA) are mainline's msm8998.dtsi as it stands:
+ * the phone's running fdt names no rmtfs region, so where the modem may put its remote file system on this phone is not known yet (decision 2026-11-27-walleye-modem-rmtfs-region-not-known-yet).
+ * The firmware names are the files of the phone's own modem_b partition (/image: mba.mbn, modem.mdt, b00-b27), which the ramdisk of the image holds under /lib/firmware
+ * from ~/lab-material (never git). The node is enabled the way mainline's msm8998-mtp.dts does: status only, no supplies.
+ */
+#include "msm8998-google-walleye.dts"
+
+&remoteproc_mss {
+	firmware-name = "qcom/msm8998/google/walleye/mba.mbn",
+			"qcom/msm8998/google/walleye/modem.mdt";
+
+	status = "okay";
+};

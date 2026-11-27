@@ -7287,7 +7287,10 @@ Status
 : open
 
 Note
-: Keeper run 2026-11-19 (PR 536, research walleye-modem-blobs-found): the modem firmware set is read from the phone's own modem_b partition. PRIVACY: modemst1, modemst2, fsg and fsc are the modem's own per-device data (calibration and identifiers, an IMEI among them): they stay in ~/lab-material (mode 700, outside git), the ramdisk and the image that hold them stay in the build tree (never git, never a published package, never printed or put in a message or a research row); rmtfs gets them read-only. Then walleye-modem-mss-proof is the one try.
+: Keeper run 2026-11-19 (PR 536, research walleye-modem-blobs-found): the modem firmware set is read from the phone's own modem_b partition. PRIVACY: modemst1, modemst2, fsg and fsc are the modem's own per-device data (calibration and identifiers, an IMEI among them): they stay in ~/lab-material (mode 700, outside git), the ramdisk and the image that hold them stay in the build tree (never git, never a published package, never printed or put in a message or a research row); rmtfs gets them read-only. Then walleye-modem-mss-proof is the one try. 2026-11-27 (walleye builder): the dtb is done (walleye-modem-mss-dtb). Left: (1) a kernel list - ufs-off has no pmi8998_fg, which our board dts enables, so the list needs topic/walleye-fuel-gauge-rfc on the wake-in-suspend watchdog topic, UFS off; (2) a config fragment with QCOM_Q6V5_MSS, QCOM_SYSMON, QRTR (+ smd/tun), RMTFS_MEM and the pd-mapper (in the kernel since v6.16, to be confirmed in the v7.3 tree); (3) static aarch64 rmtfs and tqftpserv in the ramdisk (nixpkgs has rmtfs-1.3, tqftpserv, qrtr-1.2: pkgsStatic cross); (4) the ramdisk from ~/lab-material, then the UFS-off gate, AVB, a rebuild equal and the programmer review.
+
+Blocked by
+: walleye-modem-mss-dtb
 
 About
 : walleye-modem-mss-proof
@@ -13793,3 +13796,28 @@ Proof
 
 Rank
 : 30
+
+
+<a id="walleye-modem-mss-dtb"></a>
+### The modem variant dtb: remoteproc_mss okay on the phone's running memory layout and the phone's firmware names, with its host test
+
+Status
+: done
+
+Note
+: dt/msm8998-google-walleye-modem.dts (the board dts plus &remoteproc_mss okay, firmware-name qcom/msm8998/google/walleye/mba.mbn and modem.mdt) builds on the int/walleye/ufs-on/v7.3/1 tree; tests/host/dtb-modem-mss.sh passes on it and fails on the board dtb; its selftest runs 10 known bad cases. Not known yet: where the modem's rmtfs block belongs on this phone (the running fdt names none; rmtfs_mem stays mainline's 0x88f00000).
+
+About
+: walleye-modem-mss-proof
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: walleye-dtb-modem-mss
+
+Rank
+: 21
