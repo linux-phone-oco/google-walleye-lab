@@ -14219,7 +14219,7 @@ Status
 : open
 
 Note
-: Decision 2026-11-27-walleye-mm-runs-in-a-pushed-alpine-rootfs. apk-tools-static from dl-cdn, --no-scripts, edge main+community aarch64, versions pinned in device.toml; no modem storage in it. The tar stays out of git (like the firmware tar); build/build-modem-rootfs.sh is in git.
+: Decision 2026-11-27-walleye-mm-rootfs-built-by-nix (amends 2026-11-27-walleye-mm-runs-in-a-pushed-alpine-rootfs): a nix expression beside build/modem-tools.nix builds the closure, its tar sha256 recorded and rebuilt equal; Alpine (a release branch, checksums recorded) only if nix cannot. No modem storage in it; the tar stays out of git like the firmware tar.
 
 About
 : modem-calls
