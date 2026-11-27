@@ -10489,3 +10489,18 @@ Rejected
 
 About
 : walleye-modem-mss-proof
+
+---
+
+
+<a id="2026-11-27-1100-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-boot-rehearsal-run (no go needed): the rehearsal passed 14 of 14; nothing booted or written; phone on Android slot b, stock, fastboot trip and back in 31 s, card and boot chain and slot flags equal to before. Item done. Not claimed as a bring-up step: a rehearsal proves no step.
+
+Considered
+: next: walleye-try-modem-mss is now unblocked (rank 21): the first modem boot, read-only, image modem, firmware pushed; check whether it needs a go (tad q ready). Then walleye-modem-mss-proof. Earlier open: nfc image NET=43 vs 42 mismatch awaits coordinator.

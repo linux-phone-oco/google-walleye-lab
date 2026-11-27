@@ -13889,10 +13889,10 @@ Rank
 ### Rehearse the modem boot on the phone: every step but the boot, the push and the read
 
 Status
-: open
+: done
 
 Note
-: bin/attended run rehearse-modem-boot-on-the-pixel-2 (no go, nothing booted or written, phone ends on Android; checks the image and firmware tar sha256, the UFS-off gate, the boot chain, the card and the slots' flags before and after). Its dry run and the steps tests passed on the builder's side. Then the real try walleye-try-modem-mss.
+: proven by bin/attended run rehearse-modem-boot-on-the-pixel-2: all 14 steps passed 2026-11-27 (image, firmware tar sha256, UFS-off gate, boot chain, card 6 disks + system_a hashed before/after, slot flags as before, way back leg 1 in 31 s); next walleye-try-modem-mss
 
 Blocked by
 : walleye-modem-firmware-push-procedure
