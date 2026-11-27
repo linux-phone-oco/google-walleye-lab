@@ -10774,3 +10774,21 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-1930-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-mm-first-try: ran the prepared modem boot (run modem-boot-20261127-144810); checks 1-16 passed, mm-up stopped: dbus has no socket in 10 s; the logs were lost because the procedure stops before its read. Way back ran: phone on Android slot b (adb), nothing flashed; the after-card/boot chain/flags checks did not run (stopped before). Nothing patched.
+
+Considered
+: next: builder item walleye-modem-mm-up-reads-logs-on-stop (read logs on a stop), then retry mm-first-try; the test tests/health/modem-mm-starts.sh still to write
+
+About
+: modem-calls
