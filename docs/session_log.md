@@ -10891,3 +10891,21 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-2200-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Run 4 (modem-boot-20261127-165116) of walleye-modem-mm-first-try: 25/25 pass, dbus and ModemManager run in the chroot, qrtr node 0 seen by MM. Phone back on Android slot b; nothing flashed; card, boot chain, flags as before.
+
+Considered
+: next: walleye-modem-mm-sees-modem (add mmcli -L to mm-up/procedure, tests/health/modem-mm-starts.sh); tqftpserv mcfg.tmp loop and wlanmdsp/ota_firewall rejects to read
+
+About
+: modem-calls

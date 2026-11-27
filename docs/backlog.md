@@ -14425,10 +14425,10 @@ Rank
 ### First phone try: ModemManager in the chroot; read udev and polkit stops, logs
 
 Status
-: open
+: done
 
 Note
-: Run 3 (modem-boot-20261127-162502): mm-up stopped, dbus --system clashes with --config-file. Fixed: image f54b8b85 (device.toml [images.modem], installed in images-modem, SHA256SUMS-modem) - next phone try shows whether the bus socket appears; a stop now also reads card, boot chain and flags after the way back.
+: proven by bin/attended run modem-boot-on-the-pixel-2, 25 of 25 passed, run modem-boot-20261127-165116: mm-up ran dbus and ModemManager (research walleye-modem-mm-first-try-run-4-mm-up-passes); mmcli -L is walleye-modem-mm-sees-modem's
 
 About
 : modem-calls
