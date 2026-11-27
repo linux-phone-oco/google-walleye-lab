@@ -1,5 +1,6 @@
 #!/bin/sh
 # Known cases for check-qmicli-qrtr.sh (a check is trusted only after it fails on a known bad case).
+# The cases are made text, kept small for CI (the real binaries live in the nix store, not at test time); the real ones were seen on 2026-11-27: a8dd865f 0 names, acd5b8b5 5.
 # The good case carries the two type names libqrtr-glib registers (QrtrNode, QrtrBus), the bad case is a binary of the 1.38.0 build without QRTR as nix built it on 2026-11-27 (qmicli's own words only: no type name of libqrtr-glib).
 set -eu
 H=$(cd "$(dirname "$0")" && pwd)

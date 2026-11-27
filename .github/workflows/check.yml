@@ -35,6 +35,15 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq binutils gawk
       - name: the check passes a folder sized as the mdt says and fails a missing, short, stray or beyond-the-headers file
         run: sh tests/host/modem-firmware-selftest.sh
+  qmicli-qrtr:
+    name: qmicli QRTR check proves itself
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq binutils
+      - name: the check passes a binary with libqrtr-glib type names and fails one without, and a missing file
+        run: sh build/check-qmicli-qrtr-selftest.sh
   ufs-off-gate:
     name: ufs-off gate proves itself
     runs-on: ubuntu-latest
