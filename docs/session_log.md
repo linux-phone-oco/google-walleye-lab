@@ -11190,13 +11190,13 @@ Entry date
 : 2026-11-27
 
 Done
-: modem_boot.rs: the mmcli ask keeps asking 11 x (3+1) s = 45 s, records each try with uptime and the crash's dmesg lines; step window MMCLI_S 55; test added, 543 pass, command checked with sh -n.
+: modem_boot.rs: the mmcli ask loops on the phone's uptime up to 45 s, records each try with uptime and the DOG_HB dmesg lines; MMCLI_S 63; host test against a fake chroot, 544 pass.
 
 Considered
-: A time-bounded loop on the phone (date arithmetic in busybox sh) instead of a try count
+: A try-count loop (first version): worst case 44 s only when every ask hangs
 
 Rejected
-: Time-bounded loop: more shell logic than counting tries, and the constants test pins the count against the 45 s.
+: Try count: with mmcli answering at once it ended after 11 s, before the 39-43 s crash (programmer review); replaced by the uptime-bounded loop.
 
 About
 : modem-calls

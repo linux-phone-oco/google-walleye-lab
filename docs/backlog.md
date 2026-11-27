@@ -14949,7 +14949,7 @@ Status
 : done
 
 Note
-: Built 2026-11-27: MMCLI_TRIES 6->11 (ask covers 45 s, MMCLI_ASK_COVERS_S), MMCLI_S 35->55; mmcli.txt gains ---mmcli-tries (each try's answer with the phone's uptime) and ---mmcli-crash (DOG_HB/crash dmesg lines); proof: the_ask_covers_the_crash_and_keeps_each_answer_with_its_time, 543 tests pass. Not run on the phone: the next modem boot reads it. Watch: the step's guard now needs 105 s left (was 85).
+: Built 2026-11-27: the ask loops on the phone's uptime until a modem is listed or MMCLI_ASK_COVERS_S=45 s passed (a try count covered only 11 s when mmcli answers at once: the programmer review found it); MMCLI_S 35->63; mmcli.txt gains ---mmcli-tries (each try with uptime) and ---mmcli-crash (DOG_HB dmesg lines). Proof: the_ask_keeps_asking_for_its_seconds_when_mmcli_answers_at_once (host run against a fake chroot) + the bounds test, 544 pass. Not run on the phone. OPEN: the step's guard now needs 113 s left (was 85) and MMCLI_USUAL_S=3 no longer holds when no modem lists; the earlier guards (firmware_to_end_usual_s) do not count the 45 s, so a boot they accept this step may refuse - check the elapsed time at this step on the next run.
 
 About
 : modem-calls
