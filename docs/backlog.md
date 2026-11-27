@@ -14550,10 +14550,10 @@ Status
 : open
 
 Note
-: Run 5 (modem-boot-20261127-172447): mmcli -L runs and says 'No modems were found'; MM stops at no net port (item walleye-modem-net-port). The 180 s window does not cover the 10-minute stay-up; that needs a longer hold in the procedure once a modem is listed.
+: run 7: ipa bound, rmnet_ipa0 exists, MM: port not candidate; blocked by walleye-modem-mm-net-port-candidate
 
 Blocked by
-: walleye-modem-net-port-ipa-try
+: walleye-modem-mm-net-port-candidate
 
 About
 : modem-calls
@@ -14678,10 +14678,10 @@ Rank
 ### modem-up binds ipa again after the firmware is unpacked, then mm-up: dmesg ipa probe ok, a net device, mmcli -L lists the modem
 
 Status
-: in-progress
+: done
 
 Note
-: Built 2026-11-27 (builder): build/initramfs-modem/modem-up needs ipa_fws.mdt in the set, unbinds 1e40000.ipa if bound, binds it (built-in driver, no suppress_bind_attrs; no module needed), prints 'bound' or 'NOT bound' and the ipa/gsi dmesg lines, all after the SHA256SUMS check and before qrtr-ns/tqftpserv/rmtfs. Order cited: ipa_probe loads ipa_fws itself (gsi-loader self); tests/host/modem-up-ipa-order.sh, in CI. Image images-modem/boot-modem.img 5bf54e38 (ramdisk 21553a94; firmware tar unchanged 9073e47e; old image kept as boot-modem.img.8c632662). Programmer review done, findings fixed. NOT KNOWN YET: that the bind probes ok on the phone. Next: the keeper's modem-boot run, then modem-mm-listed.
+: proven in part by run 7 (research walleye-modem-mm-first-try-run-7-ipa-bound-net-port-not-candidate): ipa probes ok after the firmware, rmnet_ipa0 exists; modem-mm-listed still fails; next walleye-modem-mm-net-port-candidate
 
 About
 : modem-calls
@@ -14725,3 +14725,28 @@ Proof
 
 Rank
 : 21
+
+
+<a id="walleye-modem-mm-net-port-candidate"></a>
+### ModemManager takes rmnet_ipa0 as the qcom-soc modem's net port: read MM's candidate rule (udev tags), give the chroot what it needs
+
+Status
+: open
+
+Note
+: From run 7: rmnet_ipa0 'not candidate' in MM's log. Read MM 1.24.2's rule (porting guide, 77-mm-*.rules, base-manager) first; then host-side fix in mm-up/rootfs, one modem boot. Also look at: DOG_HB modem crash at 40 s, and the way back slower than 240 s.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: tests/health/base/modem-calls.sh: modem-mm-listed passes (mmcli -L lists one modem)
+
+Rank
+: 20

@@ -11050,3 +11050,18 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-2359-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-net-port-ipa-rebind-after-push: modem boot run modem-boot-20261127-202446 (nothing flashed): ipa binds after the firmware, rmnet_ipa0 exists, but MM says 'port rmnet_ipa0 not candidate' and lists no modem; modem crashed once at 40 s (DOG_HB) and came back; the procedure stopped at check 22 (Android not back in 240 s; it came up later). Phone on Android slot b (adb root), stock; boot chain re-read equal (32 partitions). Nothing patched.
+
+Considered
+: next: walleye-modem-mm-net-port-candidate (read MM's candidate rule; chroot udev tags), then re-run; also the slow way back (>240 s) and the DOG_HB crash

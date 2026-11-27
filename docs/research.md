@@ -9621,3 +9621,25 @@ Sources
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-mm-first-try-run-7-ipa-bound-net-port-not-candidate"></a>
+### walleye-modem-mm-first-try-run-7-ipa-bound-net-port-not-candidate
+
+Date
+: 2026-11-27
+
+Brief
+: Seventh modem try (run modem-boot-20261127-202446): ipa bound after firmware, rmnet_ipa0 exists; MM says 'port rmnet_ipa0 not candidate', still no modem; modem crashed once at 40 s (DOG_HB)
+
+Question
+: With modem-up rebinding ipa after the firmware is unpacked, does ModemManager list the modem?
+
+Found
+: Run modem-boot-20261127-202446 (bin/attended run modem-boot-on-the-pixel-2, nothing flashed): checks 1-20 pass, check 22 (phone back on Android within 240 s) failed. modem-up: 'ipa 1e40000.ipa is bound'; dmesg: first probe failed -2 on ipa_fws.mdt at 3.9 s, rebind at ~19 s 'IPA driver setup completed successfully', 'modem starting/running event'. rmnet_ipa0 appears at /sys/devices/platform/soc@0/1e40000.ipa/net/rmnet_ipa0, so the ipa data port exists. ModemManager (daemon-logs.txt): 'adding port rmnet_ipa0 ... port rmnet_ipa0 not candidate' (no udev in the chroot), later qrtr0 grabbed by qcom-soc and 'couldn't create modem for device qcom-soc: Failed to find a net port in the QMI modem'; mmcli -L: No modems were found. Second finding: the modem processor crashed once, 39.9 s after boot: 'fatal error received: dog_hb.c:266 DOG_HB detects starvation of task', 'port failed halt', then restarted and ran again (cause not known yet). Third: Android was not back within 240 s; it came up later (adb device, slot _b, boot chain re-read: 32 partitions, same bytes as the stored read). Cause of the not-candidate not known yet: MM's candidate test for non-USB ports is udev tags; whether the chroot lacks them is a hypothesis, not read from MM's source.
+
+About
+: modem-calls
+
+Material
+: research/modem-calls/2026-11-27/
