@@ -10303,3 +10303,24 @@ Rejected
 
 About
 : walleye-pmic-wdt-v1-image
+
+---
+
+
+<a id="2026-11-27-walleye-builder-wdt2-assemble-refused"></a>
+### walleye builder: wdt2 images stop at the assemble's tag check
+
+Entry date
+: 2026-11-27
+
+Done
+: Read walleye-wdt2-images-from-tag against main; added the list ufs-off-wdt2 (topic/pmic-wdt-wake-in-suspend, then topic/pmic-wdt-s2-type) and ran lpoco bringup kernel assemble. It refused before rhizoid ran: bringup/src/kernel.rs judge() wants every carried commit's subject to read TAG(item): (UPSTREAM, BACKPORT, FROMGIT, FROMLIST or OURS) with item a row of tad q carried, and none of the lane's topics does: the six commits of pmic-wdt-wake-in-suspend have no tag, so the shipped list ufs-off is refused the same way (so is topic/ufs-match-android, whose subjects are plain); topic/pmic-wdt-s2-type has no upstream-item row (tad q carried), so it names no item. Nothing assembled, no tag pushed, no branch rewritten, no phone touched; the list edit is not landed.
+
+Considered
+: Retagging the subjects and force-pushing the topics, and recording an upstream-item row for pmic-wdt-s2-type in docs: both change places the upstreams and orchestration sessions own (docs records; a held RFC series whose subjects send-back drafts from).
+
+Rejected
+: Rewriting topic/pmic-wdt-wake-in-suspend and pushing it myself, or bypassing the record check with rhizoid assemble directly: the check is the conveyor's rule (decision 2026-11-23-structure-kernel-topics-and-integration) and the subject form of a series sent upstream is not mine to change.
+
+About
+: walleye-pmic-wdt-v1-image
