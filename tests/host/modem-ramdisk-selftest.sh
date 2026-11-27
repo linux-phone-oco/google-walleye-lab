@@ -24,6 +24,8 @@ cp -a "$W/tree" "$W/qmi";    printf x >> "$W/qmi/bin/qmicli";                   
 cp -a "$W/tree" "$W/noqmi";  rm "$W/noqmi/bin/qmicli";                               want "qmicli missing" "/bin/qmicli is not the recorded" noqmi
 cp -a "$W/tree" "$W/up";     printf '#x\n' >> "$W/up/bin/modem-up";                  want "modem-up changed" "/bin/modem-up differs" up
 cp -a "$W/tree" "$W/fw";     : > "$W/fw/lib/firmware/qcom/msm8998/google/walleye/mba.mbn"; want "a firmware file inside" "firmware files are in the ramdisk" fw
-cp -a "$W/tree" "$W/init";   printf '#x\n' >> "$W/init/init";                        want "init changed" "window end is not" init
-cp -a "$W/tree" "$W/old";    cp "$REPO/build/initramfs-slpi/init" "$W/old/init";                  want "slpi's own end, reboot -f first" "window end is not" old
+cp -a "$W/tree" "$W/init";   printf '#x\n' >> "$W/init/init";                        want "init changed" "/init differs from the derivation" init
+cp -a "$W/tree" "$W/old";    cp "$REPO/build/initramfs-slpi/init" "$W/old/init";                  want "slpi's own end, reboot -f first" "/init differs from the derivation" old
+cp -a "$W/tree" "$W/moved"; { sed -n 1,10p "$W/tree/init"; cat "$REPO/build/initramfs-modem/window-end"; sed -n "11,\$p" "$W/tree/init" | grep -vxF "$(cat "$REPO/build/initramfs-modem/window-end")"; } > "$W/moved/init"; want "the window end moved to the top" "/init differs from the derivation" moved
+cp -a "$W/tree" "$W/other"2; sed -i "s/90 beats/91 beats/" "$W/other2/init"; want "another line changed" "/init differs from the derivation" other2
 exit $bad

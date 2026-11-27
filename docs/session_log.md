@@ -11151,13 +11151,13 @@ Entry date
 : 2026-11-27
 
 Done
-: Added build/initramfs-modem/window-end; build-modem-ramdisk.sh derives the modem /init from slpi's (checked: slpi's end once, one line differs); modem-ramdisk.sh and its selftest check the same, a known bad case (slpi's own end) fails. Rebuilt the static tools by nix, the ramdisk (twice equal, ee017394), the image (9e3e3ab2; kernel blob byte-equal to the old image's, AVB, UFS gate, dtb tests ok); old image kept as boot-modem.img.492253d9; device.toml sha256 updated; README note. Queued the keeper's run.
+: Added build/initramfs-modem/window-end and build/modem-init.sh (slpi's init with its window end replaced, one script for the build and the check); modem-ramdisk.sh compares /init byte for byte to the derivation; the selftest fails on slpi's own end, a moved end and another changed line. Review (programmer) findings fixed: a moved line passed the old diff check; duplicated strings; awk -v escapes. Rebuilt tools by nix, ramdisk ee017394 (twice equal, same after the fix), image 9e3e3ab2 (kernel blob byte-equal to old; AVB, UFS gate, dtb tests ok); old image kept as boot-modem.img.492253d9; device.toml sha updated; README note; keeper run queued.
 
 Considered
-: A modem init file of its own (a 150-line copy that drifts from slpi's); a flag read by slpi's init (changes slpi's ramdisk and its recorded sha).
+: A modem init file of its own (a 150-line copy that drifts); a flag in slpi's init (changes slpi's recorded ramdisk).
 
 Rejected
-: Both, for the reasons given: the derived line keeps slpi's image bytes and the init in one place.
+: Both, for the reasons given.
 
 About
 : modem-calls

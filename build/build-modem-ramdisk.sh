@@ -1,5 +1,5 @@
 #!/bin/sh
-# The ramdisk of the modem image (item walleye-modem-mss-image) and the tar of the phone's own modem firmware that the host pushes to it: the ramdisk holds the slpi ramdisk's init and busybox, the static modem tools,
+# The ramdisk of the modem image (item walleye-modem-mss-image) and the tar of the phone's own modem firmware that the host pushes to it: the ramdisk holds the slpi ramdisk's init (its window end replaced: modem-init.sh) and busybox, the static modem tools,
 # and read-only copies of its four modem storage partitions, packed with the roof's lpoco-bringup initramfs build (gen_init_cpio, xz crc32). Nothing here touches the phone.
 #   build-modem-ramdisk.sh WORK_DIR OUT_CPIO_XZ OUT_FIRMWARE_TAR
 # WORK_DIR is a folder of your own (mode 700) that this script fills and the cpio spec names; ENV: MATERIAL (default ~/lab-material/walleye/modem-2026-11-19, the phone's reads
@@ -33,11 +33,7 @@ ck "busybox is the recorded arm64 build" "$(sum "$BUSYBOX")" "$(want busybox-arm
 cp "$BUSYBOX" "$W/busybox"; chmod 755 "$W/busybox"
 # The modem image's init is slpi's with ONE line replaced, the end of its 180 s window (build/initramfs-modem/window-end): sync and sysrq b first, because with ipa bound
 # 'reboot -f' runs device_shutdown -> ipa_remove and never ends (decision 2026-11-27-walleye-modem-image-ends-by-sysrq-b-with-ipa). slpi's own init is untouched.
-SLPI_END='  sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger'
-ck "slpi's init has its window end exactly once" "$(grep -cxF -- "$SLPI_END" "$HERE/initramfs-slpi/init")" 1
-ck "window-end is one line" "$(wc -l < "$HERE/initramfs-modem/window-end")" 1
-awk -v old="$SLPI_END" -v new="$(cat "$HERE/initramfs-modem/window-end")" '$0 == old { print new; next } { print }' "$HERE/initramfs-slpi/init" > "$W/init"
-ck "the modem init differs from slpi's in exactly one line" "$(diff "$HERE/initramfs-slpi/init" "$W/init" | grep -c '^>')" 1
+sh "$HERE/modem-init.sh" "$HERE/initramfs-slpi/init" "$HERE/initramfs-modem/window-end" > "$W/init"
 cp "$HERE/initramfs-slpi/udhcpd.conf" "$HERE/initramfs-modem/modem-up" "$HERE/initramfs-modem/firmware-recv" "$HERE/initramfs-modem/rootfs-recv" "$HERE/initramfs-modem/mm-up" "$W/"
 chmod 755 "$W/init" "$W/modem-up" "$W/firmware-recv" "$W/rootfs-recv" "$W/mm-up"
 # the phone's reads: the material's own sha256sums name each one
