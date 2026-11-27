@@ -80,6 +80,11 @@ b1=$(line 'mount --bind /proc'); b2=$(line 'mount --bind /sys'); b3=$(line 'moun
 [ -n "$b1" ] && [ -n "$b4" ] && [ -n "$d" ] && [ -n "$m" ] && [ "$b1" -lt "$b2" ] && [ "$b2" -lt "$b3" ] && [ "$b3" -lt "$b4" ] && [ "$b4" -lt "$d" ] && [ "$d" -lt "$m" ] && ok "binds (proc, sys, dev, firmware), then dbus, then ModemManager" || no "the order is not binds, dbus, ModemManager: $(cat "$T/log")"
 grep -q "ModemManager --debug" "$T/log" && grep -q "^messagebus" "$T/root/etc/passwd" && ok "ModemManager runs with --debug; the pushed rootfs has root and messagebus" || no "ModemManager's flags or /etc/passwd"
 grep -q "dbus-daemon .*--config-file=/env/share/dbus-1/system.conf" "$T/log" && grep -q "dbus-uuidgen --ensure=/etc/machine-id" "$T/log" && [ "$(line dbus-uuidgen)" -lt "$d" ] && ok "dbus starts from the store config, after a machine-id" || no "dbus-daemon without --config-file or no machine-id: $(cat "$T/log")"
+# item walleye-modem-mm-net-port-candidate: MM tags a port ID_MM_CANDIDATE only from udev's rules (80-mm-candidate.rules: SUBSYSTEM=="net"; 77-mm-qcom-soc.rules: DRIVERS=="ipa"), run 7's 'port rmnet_ipa0 not candidate' came from a chroot with no udevd:
+# so udevd (rules read through /etc/udev/rules.d -> the env's lib/udev/rules.d, where the ModemManager package puts them) starts after dbus, the devices are replayed (trigger --action=add, then settle), all before ModemManager
+u=$(line '/env/bin/udevd'); t=$(line 'udevadm trigger --action=add'); s=$(line 'udevadm settle')
+[ -n "$u" ] && [ -n "$t" ] && [ -n "$s" ] && [ "$d" -lt "$u" ] && [ "$u" -lt "$t" ] && [ "$t" -lt "$s" ] && [ "$s" -lt "$m" ] && ok "udevd starts after dbus, the devices are replayed and settled, then ModemManager" || no "udev order (dbus < udevd < trigger < settle < ModemManager): $(cat "$T/log")"
+[ "$(readlink "$T/root/etc/udev/rules.d")" = /env/lib/udev/rules.d ] && ok "udevd reads the rules ModemManager ships: /etc/udev/rules.d -> /env/lib/udev/rules.d" || no "/etc/udev/rules.d is not a link to /env/lib/udev/rules.d"
 run mm-up ""; [ $RC != 0 ] && case "$OUT" in *"started once only"*) ok "a second mm-up stops and says so" ;; *) no "second mm-up said: $OUT" ;; esac || no "second mm-up passed"
 fresh; echo qrtr-ns >> "$T/state/running"; run mm-up ""
 [ $RC != 0 ] && case "$OUT" in *"push the rootfs first"*) [ ! -s "$T/log" ] && ok "no rootfs: mm-up stops and starts nothing" || no "mm-up acted without a rootfs" ;; *) no "no-rootfs said: $OUT" ;; esac || no "no-rootfs passed"
@@ -94,7 +99,7 @@ printf '#!/bin/sh\necho "chroot $*" >> "$LOG"\necho "dbus: fake complaint" >&2\n
 case "$OUT" in *"== dbus.log"*"dbus: fake complaint"*) ok "the stop prints dbus.log (kept by the run before the way back)" ;; *) no "the stop did not print dbus.log: $OUT" ;; esac
 # ModemManager that exits at once: its log is printed too
 fresh; run rootfs-recv "$T/good.tar"; echo qrtr-ns >> "$T/state/running"; : > "$T/log"
-printf '#!/bin/sh\necho "chroot $*" >> "$LOG"\np=$(basename "$2")\n[ "$p" != dbus-daemon ] || { touch "$1/run/dbus/system_bus_socket"; echo dbus-daemon >> "$STATE/running"; }\n[ "$p" != ModemManager ] || echo "mm: fake exit" >&2\n' > "$S/chroot"; run mm-up ""
-[ $RC != 0 ] && case "$OUT" in *"ModemManager is not running"*"== ModemManager.log"*"mm: fake exit"*) ok "a ModemManager that stopped: its log is printed after the words" ;; *) no "mm stop said: $OUT" ;; esac || no "mm stop passed"
+printf '#!/bin/sh\necho "chroot $*" >> "$LOG"\np=$(basename "$2")\n[ "$p" != dbus-daemon ] || { touch "$1/run/dbus/system_bus_socket"; echo dbus-daemon >> "$STATE/running"; }\n[ "$p" != udevd ] || echo udevd >> "$STATE/running"\n[ "$p" != ModemManager ] || echo "mm: fake exit" >&2\n' > "$S/chroot"; run mm-up ""
+[ $RC != 0 ] && case "$OUT" in *"ModemManager is not running"*"== udevd.log"*"== ModemManager.log"*"mm: fake exit"*) ok "a ModemManager that stopped: its log is printed after the words" ;; *) no "mm stop said: $OUT" ;; esac || no "mm stop passed"
 [ $bad -eq 0 ] || { echo "modem-boot-selftest: failed" >&2; exit 1; }
 echo "pass modem-boot-selftest"

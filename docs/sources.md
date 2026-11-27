@@ -2177,3 +2177,16 @@ Url
 
 Takes
 : of_icc_get returns NULL when the consumer node has no interconnects property; of_icc_bulk_get fails only on an ERR_PTR; icc_set_bw and __icc_enable return 0 on a NULL path
+
+
+<a id="modemmanager-1-24-2-udev-candidate-rules"></a>
+### ModemManager 1.24.2 data/80-mm-candidate.rules and 77-mm-qcom-soc.rules
+
+Url
+: https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/tree/1.24.2/data
+
+By
+: ModemManager project
+
+Takes
+: SUBSYSTEM==net gets ID_MM_CANDIDATE; DRIVERS==ipa net ports get ID_MM_QCOM_SOC and ID_MM_PHYSDEV_UID=qcom-soc (read from the packaged files of modemmanager 1.24.2)

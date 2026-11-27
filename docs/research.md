@@ -9643,3 +9643,25 @@ About
 
 Material
 : research/modem-calls/2026-11-27/
+
+
+<a id="walleye-modem-mm-candidate-needs-udev"></a>
+### walleye-modem-mm-candidate-needs-udev
+
+Date
+: 2026-11-27
+
+Brief
+: MM's candidate tag for a net port comes only from udev rules (80-mm-candidate, 77-mm-qcom-soc for driver ipa); the chroot ran no udevd, so rmnet_ipa0 was 'not candidate'
+
+Question
+: Why did ModemManager call rmnet_ipa0 'not candidate' in run 7, and what does the chroot need?
+
+Found
+: Read from ModemManager 1.24.2's own rules (the pacman package of the same version; the rootfs tar holds the same two files in env/lib/udev/rules.d): 80-mm-candidate.rules sets ID_MM_CANDIDATE=1 on every SUBSYSTEM==net device on add|change|move|bind; 77-mm-qcom-soc.rules takes a net port whose parent driver is ipa (DRIVERS==ipa, the 1e40000.ipa platform device that owns rmnet_ipa0), flags it ID_MM_QCOM_SOC and gives it ID_MM_PHYSDEV_UID=qcom-soc, the uid the rpmsg/wwan control ports of the SoC share, so the qcom-soc plugin binds them into one modem. The rootfs tar already holds eudev's udevd, udevadm and both rules (env/lib/udev/rules.d), but mm-up started only dbus and ModemManager, so no udev database had the tags and ModemManager logged 'port rmnet_ipa0 not candidate' (the hypothesis of run 7, now read from the rules). Fix: mm-up starts udevd (rules read through /etc/udev/rules.d -> /env/lib/udev/rules.d), replays the devices with udevadm trigger --action=add and settle, before ModemManager; no change to the rootfs tar. NOT KNOWN YET: that the replayed ipa net port is then listed (one modem boot); eudev 3.3.0 in a bare chroot over the phone's devtmpfs; the DOG_HB crash and the slow way back are their own items.
+
+Sources
+: modemmanager-1-24-2-udev-candidate-rules
+
+About
+: modem-calls

@@ -2,9 +2,9 @@
 # mm-up: run dbus and ModemManager in the pushed rootfs, chrooted, after modem-up has the modem running (item walleye-modem-mm-chroot-in-modem-up; decision 2026-11-27-walleye-mm-runs-in-a-pushed-alpine-rootfs).
 # dbus-daemon gets --config-file ONLY: --system loads the default /etc/dbus-1/system.conf and then refuses --config-file (run 3, research walleye-modem-mm-first-try-run-3-dbus-system-and-config-file).
 # Order: bind /proc /sys /dev and the firmware folder into the rootfs (its /etc, root and messagebus included, comes in the tar), a machine-id, dbus's system bus from the store config (nix has none in /etc; item walleye-modem-mm-rootfs-dbus-config), then ModemManager over QRTR (-Dqrtr: no udev port is needed for the modem itself).
-# It stops, starting nothing, unless rootfs-recv has unpacked the rootfs and modem-up has started qrtr-ns. Each daemon's output goes to /tmp/NAME.log; this program ends at once, the daemons stay. udevd and polkit are not started: the first try settles them.
+# It stops, starting nothing, unless rootfs-recv has unpacked the rootfs and modem-up has started qrtr-ns. Each daemon's output goes to /tmp/NAME.log (dbus, udevd, ModemManager); this program ends at once, the daemons stay. udevd runs (after dbus, before ModemManager, its devices replayed: ModemManager tags a port a candidate only from udev's rules); polkit is not started.
 # ENV (defaults are the phone's; MM_PATH is the test's stand-in for PATH): MM_ROOT (/mm), MM_WAIT (seconds the bus socket is waited for, 10), MM_LOGS (where the daemons' logs go, /tmp).
-# When it stops after a daemon was started, it prints that daemon's log after its words ("== dbus.log", "== ModemManager.log"): the run keeps this output (mm-up.txt) before the way back, which would take /tmp with it (item walleye-modem-mm-up-reads-logs-on-stop).
+# When it stops after a daemon was started, it prints that daemon's log after its words ("== dbus.log", "== udevd.log", "== ModemManager.log"): the run keeps this output (mm-up.txt) before the way back, which would take /tmp with it (item walleye-modem-mm-up-reads-logs-on-stop).
 export PATH=${MM_PATH:-/bin:/sbin:/usr/bin:/usr/sbin}
 MM_ROOT=${MM_ROOT:-/mm}; MM_WAIT=${MM_WAIT:-10}; MM_LOGS=${MM_LOGS:-/tmp}
 FW=/lib/firmware
@@ -20,7 +20,14 @@ setsid chroot "$MM_ROOT" /env/bin/dbus-daemon --nofork --nopidfile --config-file
 i=0
 while [ ! -e "$MM_ROOT/run/dbus/system_bus_socket" ] && [ "$i" -lt "$MM_WAIT" ]; do sleep 1; i=$((i + 1)); done
 [ -e "$MM_ROOT/run/dbus/system_bus_socket" ] || { echo "mm-up: the system bus has no socket after $MM_WAIT s (see $MM_LOGS/dbus.log)"; logs dbus; exit 1; }
+# udev, for ModemManager's candidate tags (run 7: 'port rmnet_ipa0 not candidate'; item walleye-modem-mm-net-port-candidate): its rules (80-mm-candidate, 77-mm-qcom-soc) are in the env's lib/udev/rules.d, udevd reads /etc/udev/rules.d, and the devices that came before udevd are replayed
+mkdir -p "$MM_ROOT/etc/udev" "$MM_ROOT/run/udev"
+ln -sfn /env/lib/udev/rules.d "$MM_ROOT/etc/udev/rules.d"
+setsid chroot "$MM_ROOT" /env/bin/udevd --debug > "$MM_LOGS/udevd.log" 2>&1 &
+sleep 1
+pidof udevd > /dev/null || { echo "mm-up: udevd is not running (see $MM_LOGS/udevd.log)"; logs dbus udevd; exit 1; }
+chroot "$MM_ROOT" /env/bin/udevadm trigger --action=add && chroot "$MM_ROOT" /env/bin/udevadm settle --timeout="$MM_WAIT" || { echo "mm-up: udevadm could not replay the devices"; logs dbus udevd; exit 1; }
 setsid chroot "$MM_ROOT" /env/bin/ModemManager --debug > "$MM_LOGS/ModemManager.log" 2>&1 &
 sleep 1
-pidof ModemManager > /dev/null || { echo "mm-up: ModemManager is not running (see $MM_LOGS/ModemManager.log)"; logs dbus ModemManager; exit 1; }
+pidof ModemManager > /dev/null || { echo "mm-up: ModemManager is not running (see $MM_LOGS/ModemManager.log)"; logs dbus udevd ModemManager; exit 1; }
 echo "mm-up: dbus and ModemManager run in $MM_ROOT (logs in $MM_LOGS/dbus.log and $MM_LOGS/ModemManager.log)"
