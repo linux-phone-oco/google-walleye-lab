@@ -719,6 +719,26 @@ bootchain = "~/lab-material/walleye/bootchain-2026-11-19"
 by_name = "/dev/block/by-name"
 luns = 6
 
+# The modem boot (procedures/modem-boot-on-the-pixel-2.rs; item walleye-modem-firmware-push-procedure; decision 2026-11-27-walleye-modem-firmware-is-pushed-not-packed): the modem image `image` names ([images.modem]) is booted once
+# from memory (UFS off by the gate, nothing flashed, no slot changed); over its USB network the firmware tar of the procedure table is pushed (firmware-recv, port 9000), modem-up runs and the remoteproc states, the kernel's modem lines,
+# the daemons' logs and qrtr-lookup's list are read inside the init's 180 s. No go and no ssh key. The card's tables, the boot chain and the slots' flags are read before and after and must be equal.
+[procedures.modem-boot-on-the-pixel-2]
+image = "modem"
+firmware = "images-modem/modem-firmware.tar"                # under [images] dir; the manifest's image rows take no extra key, so the tar is named here
+firmware_sha256 = "95ca69619326e97decb4711b989a0b0b9105ed7c2df6c97764128cef777f1d31"   # 61501440 bytes, 31 files and their SHA256SUMS (build/build-modem-ramdisk.sh); images-modem/SHA256SUMS-modem lists the image only
+bootchain = "~/lab-material/walleye/bootchain-2026-11-19"   # the stored boot chain read-back: read again at the end it must equal it
+by_name = "/dev/block/by-name"                              # the phone's partition names on Android
+luns = 6                                                    # the card's disks (sda to sdf): the partition table of each is hashed before and after
+
+# The rehearsal of the modem boot (procedures/rehearse-modem-boot-on-the-pixel-2.rs): every step but the boot, the push and the read; nothing booted. The keys are the boot's.
+[procedures.rehearse-modem-boot-on-the-pixel-2]
+image = "modem"
+firmware = "images-modem/modem-firmware.tar"
+firmware_sha256 = "95ca69619326e97decb4711b989a0b0b9105ed7c2df6c97764128cef777f1d31"
+bootchain = "~/lab-material/walleye/bootchain-2026-11-19"
+by_name = "/dev/block/by-name"
+luns = 6
+
 # The rw write on the Pixel 2 (item walleye-rw-write-plumbing; plumbing in procedures/steps/src/rw_write.rs): the rw-write image booted once from memory with its root, the system partition of the slot Android is NOT on, mounted READ-WRITE;
 # ONE bounded file of zeros is written into it, synced, read back, the filesystem checked read-only (fsck.ext4 -n), the kernel log read; the card's partition tables and the boot chain must be equal, the root partition changed. The keys are the root boot's
 # (same image kind, same ssh and card reads) plus `write_mib`, the size of the one write (1 to 64). The procedure that composes the steps is its own item; NOT to boot except under the coordinator's go that names the image's sha256.

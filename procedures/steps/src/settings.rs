@@ -49,6 +49,8 @@ pub const REHEARSE_REBOOT_TWICE_PROCEDURE: &str = "rehearse fastboot reboot twic
 pub const NFC_BOOT_PROCEDURE: &str = "nfc boot on the Pixel 2";
 pub const SLPI_BOOT_PROCEDURE: &str = "slpi boot on the Pixel 2";
 pub const REHEARSE_SLPI_BOOT_PROCEDURE: &str = "rehearse slpi boot on the Pixel 2";
+pub const MODEM_BOOT_PROCEDURE: &str = "modem boot on the Pixel 2";
+pub const REHEARSE_MODEM_BOOT_PROCEDURE: &str = "rehearse modem boot on the Pixel 2";
 pub const RAMROOT_PROCEDURE: &str = "alpine login on the glass on the Pixel 2";
 pub const FLASH_BOOT_PROCEDURE: &str = "install boot on the Pixel 2";
 pub const REHEARSE_FLASH_BOOT_PROCEDURE: &str = "rehearse install boot on the Pixel 2";
@@ -78,6 +80,7 @@ pub enum Try {
     CmdlineCut,
     RebootTwice,
     SlpiBoot,
+    ModemBoot,
     NfcBoot,
     Ramroot,
     FlashBoot,
@@ -169,6 +172,9 @@ pub struct Settings {
     /// the way back's tool: the static walleye-reboot the lab pushes to the phone's tmpfs, and the sha256 it must have
     pub reboot_tool: PathBuf,
     pub reboot_tool_sha256: String,
+    /// the modem boot: the firmware tar pushed over the USB network (`images.NAME.firmware`, under the images folder) and the sha256 it must have
+    pub firmware: PathBuf,
+    pub firmware_sha256: String,
     /// stage 2: the partitions the flash may name (`boot_a boot_b`; the run picks the one that is not Android's) and the command that takes our slot's root to the bootloader
     pub flash_allow: String,
     pub to_bootloader: String,
@@ -314,6 +320,20 @@ impl Settings {
         s
     }
 
+    /// The modem boot's settings (item walleye-modem-firmware-push-procedure), read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_modem_boot() -> Settings {
+        Settings::read_linked(Try::ModemBoot, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
+    /// The modem boot's rehearsal reads the boot's own keys and keeps its own folder (the real run's refuses a folder with files).
+    pub fn for_rehearse_modem_boot() -> Settings {
+        let mut s = Settings::for_modem_boot();
+        s.out = s.out_dir("modem-boot-rehearsal");
+        s
+    }
+
     /// The rw write's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_rw_write() -> Settings {
         Settings::read_linked(Try::RwWrite, &|k| dev(k).to_string(), &|k| {
@@ -449,6 +469,8 @@ impl Settings {
             fixtures: PathBuf::new(),
             reboot_tool: PathBuf::new(),
             reboot_tool_sha256: String::new(),
+            firmware: PathBuf::new(),
+            firmware_sha256: String::new(),
             flash_allow: String::new(),
             to_bootloader: String::new(),
             out_given: None,
@@ -662,6 +684,23 @@ impl Settings {
                 );
                 s.out = s.out_dir("slpi-boot");
             }
+            Try::ModemBoot => {
+                // the modem boot: the SLPI boot's keys, and the firmware tar of the image's row, pushed over the USB network (never packed in the image)
+                let name = proc("image");
+                s.image = image(&name);
+                s.image_name = name.clone();
+                s.image_sha256 = dev(&format!("images.{name}.sha256"));
+                s.firmware = lab.join(&image_dir).join(proc("firmware"));
+                s.firmware_sha256 = proc("firmware_sha256");
+                s.bootchain = home_path(&proc("bootchain"));
+                s.by_name = proc("by_name");
+                s.luns = number("luns", proc("luns"));
+                assert!(
+                    s.by_name.starts_with('/') && (1..=26).contains(&s.luns),
+                    "by_name in device.toml is an absolute path on the phone, luns is 1 to 26"
+                );
+                s.out = s.out_dir("modem-boot");
+            }
             Try::Ramroot => {
                 let name = proc("image");
                 s.image = image(&name);
@@ -838,6 +877,8 @@ impl Settings {
             ("images.b-a5.sha256", "a5a5"),
             ("images.alpine-rootfs.path", "images-rootfs/rootfs.ext4"),
             ("images.alpine-rootfs.sha256", "a1b2"),
+            ("firmware", "images-modem/modem-firmware.tar"),
+            ("firmware_sha256", "f1f1"),
             ("backup", "~/backup"),
             ("stage_dir", "/data/local/tmp"),
             ("by_name", "/dev/block/by-name"),
@@ -946,6 +987,8 @@ mod tests {
             (Try::NfcBoot, NFC_BOOT_PROCEDURE),
             (Try::SlpiBoot, SLPI_BOOT_PROCEDURE),
             (Try::SlpiBoot, REHEARSE_SLPI_BOOT_PROCEDURE),
+            (Try::ModemBoot, MODEM_BOOT_PROCEDURE),
+            (Try::ModemBoot, REHEARSE_MODEM_BOOT_PROCEDURE),
             (Try::Ramroot, RAMROOT_PROCEDURE),
             (Try::FlashBoot, FLASH_BOOT_PROCEDURE),
             (Try::FlashBoot, REHEARSE_FLASH_BOOT_PROCEDURE),
