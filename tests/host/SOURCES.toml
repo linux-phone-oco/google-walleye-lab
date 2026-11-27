@@ -424,3 +424,9 @@ source = "file:tests/fixtures/phone-text/modem-tqftpserv-20261127-165116.cap"
 
 [scripts."modem-tqftpserv-clean-selftest.sh"]
 source = "file:tests/fixtures/phone-text/modem-tqftpserv-20261127-165116.cap"
+
+[scripts."modem-up-ipa-order.sh"]
+source = "research:walleye-modem-mm-first-try-run-6-ipa-probes-before-firmware"
+
+[scripts."modem-up-ipa-order-selftest.sh"]
+source = "research:walleye-modem-mm-first-try-run-6-ipa-probes-before-firmware"
