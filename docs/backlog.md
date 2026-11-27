@@ -14428,7 +14428,7 @@ Status
 : open
 
 Note
-: Run 1 and run 2 stopped at dbus (run 2: /etc/dbus-1/system.conf missing, logs read). The rootfs and the modem image are rebuilt (rootfs 5484b570, image 8afd8bc7; device.toml): the keeper retries; read dbus.log first (the bus socket), then udev and polkit stops.
+: Run 3 (modem-boot-20261127-162502): mm-up stopped, dbus --system clashes with --config-file; retry after walleye-modem-mm-up-no-system-flag.
 
 About
 : modem-calls
@@ -14444,3 +14444,28 @@ Proof
 
 Rank
 : 22
+
+
+<a id="walleye-modem-mm-up-no-system-flag"></a>
+### mm-up: start dbus-daemon with --config-file only, not --system
+
+Status
+: open
+
+Note
+: From run modem-boot-20261127-162502: dbus-daemon says --config-file specified but /etc/dbus-1/system.conf already requested. Then rebuild ramdisk and image; keeper retries walleye-modem-mm-first-try.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: tests/host/modem-up-selftest.sh passes with no --system in the dbus line; a phone try then shows the bus socket
+
+Rank
+: 5
