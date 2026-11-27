@@ -13995,7 +13995,7 @@ Status
 : in-progress
 
 Note
-: Run 1 (2026-11-27): qmicli -d qrtr://0 answered 'URI is not a local file path: (NULL)'; modem up, 38 qrtr services; proof not yet passed. Next (builder): read libqmi 1.38 qmicli device open and the nix build's qrtr flag; fix; one more modem boot run.
+: Run 1 (2026-11-27): qmicli -d qrtr://0 answered 'URI is not a local file path: (NULL)'; modem up, 38 qrtr services. Cause fixed (item walleye-modem-qmicli-qrtr-enabled, image a43788755 in images-modem): one more modem boot re-runs the read.
 
 Blocked by
 : walleye-modem-qmicli-qrtr-enabled
@@ -14166,10 +14166,10 @@ Rank
 ### qmicli built with libqmi's QRTR transport (qrtr=true, libqrtr-glib), so -d qrtr://0 opens node 0
 
 Status
-: open
+: done
 
 Note
-: From run 2026-11-27 of walleye-modem-qmi-ids-read (PR 1274): 'URI is not a local file path: (NULL)' - libqmi built without QRTR treats -d as a file path (coordinator's reading; the builder confirms it in libqmi's source before the change). Then one modem boot re-runs the read.
+: Built and proven host-side 2026-11-27: nixpkgs' libqmi ties -Dqrtr to withIntrospection, so the introspection-off build had no QRTR transport; modem-tools.nix now sets qrtr=true with a static libqrtr-glib (introspection and docs off). qmicli acd5b8b5 (nix --rebuild equal), build/check-qmicli-qrtr.sh failed on a8dd865f (0 type names) and passes on it (5), selftest and the ramdisk build run it. Ramdisk 066694b3, image a43788755 (device.toml), twice equal, AVB and UFS-off gate pass, firmware tar unchanged. The re-run is walleye-modem-qmi-ids-read (one modem boot).
 
 About
 : modem-calls

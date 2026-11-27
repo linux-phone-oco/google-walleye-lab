@@ -264,7 +264,7 @@ ramdisk = "f4b6c1d750e15cc180c76bd031489830b2fa256dc47969f253c81b5681e2d02b"
 [images.modem]
 path = "images-modem/boot-modem.img"
 kernel_tag = "int/walleye/ufs-off-modem/v7.3/1"
-sha256 = "b769917e939ca994c2baaf6c5e3ac942c611c3608fe5c6fe477be55b42d31abd"   # kernel_builds.walleye-ufs-off-modem (sha 3651b543), dtb cb6ec054 after the clock_gcc fix, ramdisk 3bd122c3 (with the static qmicli, item walleye-modem-qmicli-in-image; was ae22f965 with ramdisk 9721e71d); swapped twice equal
+sha256 = "a43788755fb9e4f98e63cb903712f15e95141fa5573dfc0d887abb912b106604"   # kernel_builds.walleye-ufs-off-modem (sha 3651b543), dtb cb6ec054 after the clock_gcc fix, ramdisk 066694b3 (static qmicli acd5b8b5 with the QRTR transport, item walleye-modem-qmicli-qrtr-enabled; was b769917e with ramdisk 3bd122c3); swapped twice equal
 
 # z20: z21's control (UFS ON, NOT TO BOOT: tests/host/ufs-off-image.sh refuses it by design); no [kernels] list and no procedure names it.
 [images.z20]

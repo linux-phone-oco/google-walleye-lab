@@ -10615,3 +10615,24 @@ Considered
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-qmicli-qrtr"></a>
+### walleye builder: qmicli with libqmi's QRTR transport
+
+Entry date
+: 2026-11-27
+
+Done
+: nixpkgs' libqmi expression sets -Dqrtr from withIntrospection (and adds libqrtr-glib only then), so the introspection-off qmicli a8dd865f had no QRTR and read -d qrtr://0 as a file path. build/modem-tools.nix sets qrtr=true and adds libqrtr-glib 1.4.0 static (introspection, gtk-doc off): qmicli acd5b8b5, nix --rebuild equal. build/check-qmicli-qrtr.sh (libqrtr-glib type names QrtrNode, QrtrBus in the binary) failed on a8dd865f (0) and passes on the new one (5); its selftest has a good, a bad and a missing case; build-modem-ramdisk.sh now stops without it. tools.sha256 updated; ramdisk 066694b3 and image a43788755 rebuilt twice equal (kernel 3651b543 and dtb cb6ec054 cut from the previous image and matching their recorded sums), AVB and UFS-off gate pass, firmware tar unchanged 95ca6961; images-modem replaced. Not run on the phone: the re-run is walleye-modem-qmi-ids-read, already on the keeper's queue and now unblocked.
+
+Considered
+: The check reads type-name strings, a proxy for the compiled transport: the real proof is the phone's run.
+
+Rejected
+: Checking qmicli --help for a transport word: not looked at; the type names are what the linked library leaves in the binary, seen 0 before and 5 after.
+
+About
+: modem-calls
