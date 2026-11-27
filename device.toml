@@ -183,6 +183,17 @@ patches = []
 targets = ["Image.gz"]
 sha256 = "8d00ca7e86378418c2f9ac5beff37a927f3571504d95ecab0e436707d9420fe7"
 
+# The kernel of the modem image (item walleye-modem-mss-image): the tag int/walleye/ufs-off-modem/v7.3/1 (the list ufs-off-modem: the watchdog topic and the PMI8998 fuel gauge RFC; UFS off), built with build/walleye.config
+# and build/walleye-modem.config (QCOM_Q6V5_MSS and QCOM_RMTFS_MEM =y), in Nix's sandbox as the kernels above. Image.gz holds no dtb: the modem image's dtb is dt/msm8998-google-walleye-modem.dts built on this tag's tree.
+[kernel_builds.walleye-ufs-off-modem]
+tag = "int/walleye/ufs-off-modem/v7.3/1"
+rev = "78cfb5a6b6170ad9731344e2b8208ed811d78677"          # the commit the tag points at (git rev-parse TAG^{commit})
+epoch = 1795753563                                          # the tagged commit's committer time (git log -1 --format=%ct TAG)
+configs = ["695954ce34021b736e8b3b6231fb35953e7d6c5badf191313fa45faed1a164f3", "f4cb7cca9df7db020d1f102e74dda6463ce54f789668c1dc839d70cf1018c5f2"]   # build/walleye.config, build/walleye-modem.config
+patches = []
+targets = ["Image.gz"]
+sha256 = "3651b543ba9d8fb3d71c7f0bddf2d9c5df1adb178f600a60d6aeb57024e8225a"
+
 # The kernels the attended procedures' boot_once and back_to_known_good name. Walleye boots only by fastboot boot and nothing is written to it: "kept" names the image the way back returns to, not a kernel stored on the phone.
 [kernels]
 test = ["z21", "nfc", "l7", "b2", "b-d5", "b-d15", "b-d25", "b-d35", "b-d50", "b-s5", "b-r5", "b-r2", "b-rp2", "b-q5", "wdt1-a", "wdt1-b", "pon-read"]   # b-*: the delay bisect's images (its image_prefix)
@@ -244,6 +255,16 @@ control = "slpi"
 kernel = "78dbbff60f21ad372947d05c7c375632bb79a4dc2aeac1da4142f170ca117607"
 dtb = "86550c1e194000fcf89538951b30832d5cede49293d39a7385d99e6c3fea805c"
 ramdisk = "f4b6c1d750e15cc180c76bd031489830b2fa256dc47969f253c81b5681e2d02b"
+
+# The modem image (item walleye-modem-mss-image): UFS OFF; remoteproc_mss okay on the phone's own firmware names; nothing starts at boot. The slpi image's header, size (32 MiB) and AVB footer, with the kernel of [kernel_builds.walleye-ufs-off-modem],
+# the dtb of dt/msm8998-google-walleye-modem.dts (clock_gcc named real, as every image since z3) and the ramdisk of build/build-modem-ramdisk.sh: the slpi init and busybox, static rmtfs, qrtr-ns, qrtr-lookup and tqftpserv (build/modem-tools.nix),
+# /bin/modem-up and /bin/firmware-recv, and the phone's own modemst1, modemst2, fsg and fsc reads as /rmtfs/modem_fs1, _fs2, _fsg, _fsc (mode 444; rmtfs runs with -r). The modem firmware (61 MB) is NOT in it - with the kernel it does not fit the 32 MiB
+# boot partition (decision 2026-11-27-walleye-modem-firmware-is-pushed-not-packed): the host pushes build's modem-firmware.tar over the USB network (firmware-recv, then modem-up). PRIVACY: the ramdisk holds the modem's storage partitions, so the
+# image has no [recipe] and never enters the Nix store or the binary cache; it lives in ~/Projects/walleye-build/images-modem (mode 700), the firmware tar beside it. NOT KNOWN YET: that the modem boots, where rmtfs's block belongs on this phone.
+[images.modem]
+path = "images-modem/boot-modem.img"
+kernel_tag = "int/walleye/ufs-off-modem/v7.3/1"
+sha256 = "ae22f9653f3af97869b1dad6c556e12f8b00c0676f898dbb20c6cefccf9c09cc"   # kernel_builds.walleye-ufs-off-modem (sha 3651b543), dtb cb6ec054 after the clock_gcc fix, ramdisk 9721e71d; swapped twice equal
 
 # z20: z21's control (UFS ON, NOT TO BOOT: tests/host/ufs-off-image.sh refuses it by design); no [kernels] list and no procedure names it.
 [images.z20]

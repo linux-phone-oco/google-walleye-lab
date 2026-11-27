@@ -1,0 +1,25 @@
+#!/bin/sh
+# modem-up: start the modem on the phone, over its telnet, after the firmware is pushed (item walleye-modem-mss-image; decision 2026-11-27-walleye-modem-firmware-is-pushed-not-packed).
+# The kernel's remoteproc_mss does not boot by itself (auto_boot is off), so nothing starts at boot: a keeper's procedure runs firmware-recv, pushes the tar, then runs this once.
+# It stops, starting nothing, unless the pushed set is whole: mba.mbn and modem.mdt are there and every file matches SHA256SUMS (the tar's own list).
+# Then: the qrtr name service, tqftpserv (the modem's read-only files from /lib/firmware), rmtfs, which opens the modem's four storage files READ-ONLY (-r: it never writes
+# them; /rmtfs holds copies in the ramdisk, the phone's storage is not opened) and, with -s, writes "start" to the mss remoteproc once it is ready.
+# Each daemon's output goes to /tmp/NAME.log; this program ends at once, the daemons stay.
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+FW=/lib/firmware/qcom/msm8998/google/walleye
+[ -s $FW/mba.mbn ] && [ -s $FW/modem.mdt ] || { echo "modem-up: no mba.mbn and modem.mdt in $FW: push the firmware first (firmware-recv)"; exit 1; }
+(cd $FW && sha256sum -c SHA256SUMS > /tmp/firmware-sums.log 2>&1) || { echo "modem-up: the pushed set does not match its SHA256SUMS (see /tmp/firmware-sums.log)"; exit 1; }
+# one start only, and each daemon in a session of its own: a closed telnet must not take them down
+for p in qrtr-ns tqftpserv rmtfs; do
+  ! pidof $p > /dev/null || { echo "modem-up: $p already runs: started once only"; exit 1; }
+done
+setsid qrtr-ns -f -v > /tmp/qrtr-ns.log 2>&1 &
+sleep 1
+setsid tqftpserv > /tmp/tqftpserv.log 2>&1 &
+sleep 1
+setsid rmtfs -r -s -v -o /rmtfs > /tmp/rmtfs.log 2>&1 &
+sleep 1
+for p in qrtr-ns tqftpserv rmtfs; do
+  pidof $p > /dev/null || { echo "modem-up: $p is not running (see /tmp/$p.log)"; exit 1; }
+done
+echo "modem-up: qrtr-ns, tqftpserv and rmtfs run (logs in /tmp/*.log)"

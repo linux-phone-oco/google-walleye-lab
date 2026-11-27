@@ -4100,3 +4100,56 @@ About
 
 Tracked by
 : walleye-modem-mss-image
+
+
+<a id="2026-11-27-walleye-modem-image-stays-out-of-the-store"></a>
+### 2026-11-27-walleye-modem-image-stays-out-of-the-store
+
+Date
+: 2026-11-27
+
+Brief
+: The modem image has no recipe and never enters the Nix store or the binary cache: its ramdisk holds the phone's modemst1, modemst2, fsg and fsc
+
+Decision
+: [images.modem] is a path and a sha256 only, built by build/build-modem-ramdisk.sh and build/build-modem-image.sh into ~/Projects/walleye-build/images-modem (mode 700), as [images.z20] is; the firmware tar sits beside it. The kernel is the one declared, rebuilt in the sandbox ([kernel_builds.walleye-ufs-off-modem]); the dtb has no private content.
+
+Why
+: A store path is readable by every user of the machine and a cache is copied about; modemst1/2 are the modem's own NV storage (calibration, identity numbers) and the brief of the item says they stay in ~/lab-material, never git. The slpi and nfc ramdisks went through the seed because they hold firmware only.
+
+Rejected
+: A recipe with the ramdisk as a seeded part: the store would hold the partitions. The ramdisk built in the sandbox from material: the sandbox has no reach into ~/lab-material by design.
+
+About
+: walleye-modem-mss-proof
+
+Tracked by
+: walleye-modem-mss-image
+
+
+<a id="2026-11-27-walleye-modem-firmware-is-pushed-not-packed"></a>
+### 2026-11-27-walleye-modem-firmware-is-pushed-not-packed
+
+Date
+: 2026-11-27
+
+Brief
+: The modem image does not carry the modem firmware: the 61 MB set goes into RAM over the USB network (firmware-recv, one tar), because kernel plus ramdisk would not fit the 32 MiB boot image
+
+Decision
+: The ramdisk of image modem holds the tools (rmtfs, qrtr-ns, qrtr-lookup, tqftpserv), the slpi init, modem-up, firmware-recv and the four storage copies; the firmware set (mba.mbn, modem.mdt, b00-b27 less b15 and b19, qdsp6m.qdb, modemr.jsn) is a tar built beside it (build/build-modem-ramdisk.sh) that the host pushes: firmware-recv on the phone, nc to 172.16.43.1:9000, then modem-up, which starts nothing unless mba.mbn, modem.mdt and the tar's own SHA256SUMS are whole. b15 and b19 are not in the partition: the mdt's program headers 15 and 19 have file size 0, so the loader reads no file for them (tests/host/modem-firmware.sh, selftested).
+
+Why
+: Measured on the lab: the firmware set is 61.5 MB raw and 28.7 MiB at xz -9e (34.3 MiB at the ramdisk's preset), the kernel Image.gz 14.4 MiB, the boot partition 32 MiB (device.toml [boot] partition_size; /proc/partitions sda9 32768 KiB), so about 17 MiB are left for a ramdisk. lpoco-bringup's AVB footer refuses an image over the partition size (bringup/src/avb.rs add_footer). Over that size the image could not be flashed or made by the lab tools, and whether the bootloader's fastboot boot takes it is not known.
+
+Rejected
+: A boot image over 32 MiB with a larger partition_size in the footer: the lab tools refuse it, nobody has shown the bootloader takes it, and it is a change to a tool another session owns. Dropping segments: the mba loads all of them. Compressing harder: xz -9e leaves 28.7 MiB against 17. Starting the modem at boot (auto-start in init): the 180 s watchdog window and an unread firmware state; the keeper's procedure starts it once.
+
+About
+: walleye-modem-mss-proof
+
+Scope
+: walleye builder, walleye keeper, the modem try
+
+Tracked by
+: walleye-modem-mss-image

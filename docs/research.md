@@ -9187,3 +9187,22 @@ Found
 
 About
 : walleye-modem-mss-proof
+
+
+<a id="walleye-modem-image-built"></a>
+### walleye-modem-image-built
+
+Date
+: 2026-11-27
+
+Brief
+: Image modem built (32 MiB, sha ae22f965): declared kernel, modem dtb, ramdisk with static tools and storage copies; firmware goes as a tar over USB
+
+Question
+: Can the modem test image be made in 32 MiB with the item's parts, and does every host check pass?
+
+Found
+: Kernel: [kernel_builds.walleye-ufs-off-modem], tag int/walleye/ufs-off-modem/v7.3/1 pushed and read back with ls-remote, sandbox build equal to its declared sha256 3651b543ba9d8fb3d71c7f0bddf2d9c5df1adb178f600a60d6aeb57024e8225a. Ramdisk 9721e71d6c64ef96cf432599b6303a3f670169729a8f9424856a1cf7c49b3d0f (5.5 MB xz, twice equal). Image ae22f9653f3af97869b1dad6c556e12f8b00c0676f898dbb20c6cefccf9c09cc, 32 MiB, swapped twice equal; AVB verifies, UFS-off gate passes, dtb-modem-mss, modem-ramdisk and the seven overlay tests pass. Firmware tar 95ca69619326e97decb4711b989a0b0b9105ed7c2df6c97764128cef777f1d31 (modem_b: mba.mbn, modem.mdt, b00-b27 less b15 and b19 which have file size 0 in the mdt, qdsp6m.qdb, modemr.jsn). It does not fit the image (decision 2026-11-27-walleye-modem-firmware-is-pushed-not-packed). rmtfs -r -s -o /rmtfs reads the four copies from RAM; nothing opens the phone's storage. Not run on the phone: that the modem boots, the rmtfs block address, and that the daemons survive the telnet session (setsid) are NOT KNOWN YET.
+
+About
+: walleye-modem-mss-proof
