@@ -10990,3 +10990,21 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-2100-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-net-port-ipa-try: ran the modem boot (run modem-boot-20261127-184720), 26 of 26 pass. ipa initialized but its probe failed -2 at 3.8 s (ipa_fws.mdt not yet pushed); mmcli -L still none. Phone on Android slot b, stock, nothing flashed; card, chain, flags equal. Nothing patched.
+
+Considered
+: next: walleye-modem-net-port-ipa-rebind-after-push (builder: modem-up rebinds ipa after unpack), then re-run; then walleye-deep-sleep-baseline (meter, author's hands)
+
+About
+: modem-calls

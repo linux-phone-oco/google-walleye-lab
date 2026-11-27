@@ -14596,31 +14596,6 @@ Rank
 : 21
 
 
-<a id="walleye-modem-net-port-ipa-try"></a>
-### Modem boot with ipa: dmesg ipa probe, a net device, then mmcli -L lists the modem
-
-Status
-: open
-
-Note
-: Ready for the keeper: images-modem/boot-modem.img 8c632662 and modem-firmware.tar 46582cc4 (both in device.toml [images.modem] and the modem boot procedures). Watch MSS stay up (OnePlus 5 ipa stability issue); dmesg ipa probe, ipa_fws load, a net device, then mmcli -L. If ipa cannot probe: item walleye-modem-net-port-mm-nonet.
-
-About
-: modem-calls
-
-Opened
-: 2026-11-27
-
-Needs
-: phone
-
-Proof
-: tests/health/base/modem-calls.sh: modem-mm-listed passes (mmcli -L lists one modem)
-
-Rank
-: 21
-
-
 <a id="walleye-modem-net-port-mm-nonet"></a>
 ### Fallback: ModemManager patched to accept a QMI modem with no net port
 
@@ -14697,3 +14672,56 @@ Proof
 
 Rank
 : 30
+
+
+<a id="walleye-modem-net-port-ipa-rebind-after-push"></a>
+### modem-up binds ipa again after the firmware is unpacked, then mm-up: dmesg ipa probe ok, a net device, mmcli -L lists the modem
+
+Status
+: open
+
+Note
+: From run 6 (research walleye-modem-mm-first-try-run-6-ipa-probes-before-firmware): ipa probed at 3.8 s before the firmware tar was pushed. Change build/modem-up (ramdisk script): after the unpack, echo 1e40000.ipa > /sys/bus/platform/drivers/ipa/bind (unbind first if bound), print the ipa dmesg lines; rebuild boot-modem.img, update device.toml sha, rehearse; then the keeper runs modem-boot. Builder work.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: tests/health/base/modem-calls.sh: modem-mm-listed passes (mmcli -L lists one modem)
+
+Rank
+: 20
+
+
+<a id="walleye-modem-net-port-ipa-try"></a>
+### Modem boot with ipa: dmesg ipa probe, a net device, then mmcli -L lists the modem
+
+Status
+: open
+
+Note
+: Run 6 (modem-boot-20261127-184720, used by run 6 of this item): 26/26 pass, ipa probe failed -2 for want of ipa_fws.mdt before the push. Blocked by the rebind item.
+
+Blocked by
+: walleye-modem-net-port-ipa-rebind-after-push
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: tests/health/base/modem-calls.sh: modem-mm-listed passes (mmcli -L lists one modem)
+
+Rank
+: 21

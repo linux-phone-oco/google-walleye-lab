@@ -9580,3 +9580,22 @@ Sources
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-mm-first-try-run-6-ipa-probes-before-firmware"></a>
+### walleye-modem-mm-first-try-run-6-ipa-probes-before-firmware
+
+Date
+: 2026-11-27
+
+Brief
+: Sixth modem try (run modem-boot-20261127-184720): 26 of 26 pass; ipa probe failed at 3.8 s, ipa_fws.mdt not found (-2): the firmware tar is pushed after boot; no net device
+
+Question
+: With QCOM_IPA=y and the ipa node, does ipa probe and give ModemManager a net port?
+
+Found
+: dmesg: 'ipa 1e40000.ipa: IPA driver initialized' (1.08 s), then at 3.84 s 'Direct firmware load for qcom/msm8998/google/walleye/ipa_fws.mdt failed with error -2' and 'probe with driver ipa failed with error -2'. The firmware tar (ipa_fws.mdt, b00-b04, all OK in SHA256SUMS) reaches the phone only after boot, by firmware-recv, so the probe runs before the files exist and is not retried. MM still stops at 'Failed to find a net port'. MSS stayed up (remoteproc modem running, 38 qrtr services, IPA control service listed). Next: after modem-up unpacks the firmware, bind the device again (echo 1e40000.ipa > /sys/bus/platform/drivers/ipa/bind) before mm-up; a ramdisk script change, then a new image. Nothing flashed; Android back on slot b, card, chain and flags equal.
+
+About
+: modem-calls
