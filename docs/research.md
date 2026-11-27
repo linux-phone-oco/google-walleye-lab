@@ -9350,3 +9350,25 @@ Sources
 
 About
 : modem-calls
+
+
+<a id="walleye-mm-rootfs-nix-built"></a>
+### walleye-mm-rootfs-nix-built
+
+Date
+: 2026-11-27
+
+Brief
+: nix builds the aarch64 ModemManager 1.24.2 closure (polkit, systemd off; qrtr on by hand) as one 185 MiB tar, rebuilt byte-equal
+
+Question
+: Can nix give a working aarch64 ModemManager rootfs for the pushed chroot, rebuildable?
+
+Found
+: Yes: build/modem-mm-rootfs.nix; nixpkgs ties ModemManager's -Dqrtr to introspection (as libqmi's), so it is set true by hand with libqrtr-glib; tar sha256 70d239a9aca392b977e98c8fe48d147a306043d7c8b4e3d4accdc2e406134a08, nix build --rebuild equal; all five programs aarch64 ELF. Not yet run on the phone. Unpinned nixpkgs: item walleye-nix-pin-nixpkgs.
+
+Sources
+: alpine-aports-modemmanager,modemmanager-meson-options
+
+About
+: modem-calls

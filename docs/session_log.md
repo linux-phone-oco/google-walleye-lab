@@ -10651,3 +10651,24 @@ Done
 
 Considered
 : next: walleye-modem-mm-sees-modem (ModemManager over qrtr); deep-sleep-baseline needs meter+hands; fingerprint-spi-hwid is host-first
+
+---
+
+
+<a id="2026-11-27-walleye-builder-the-modemmanager-rootfs-by-nix"></a>
+### walleye builder: the ModemManager rootfs by nix
+
+Entry date
+: 2026-11-27
+
+Done
+: build/modem-mm-rootfs.nix builds one tar: the nix store closure of ModemManager (polkit off, systemd off, -Dqrtr=true by hand with libqrtr-glib, as nixpkgs ties qrtr to introspection), libqmi with QRTR, dbus, eudev, busybox, plus env/ symlink farm and empty mount points; sorted names, mtime 0, owner 0. Test written first and seen skipping with no tar; then tests/host/modem-rootfs.sh passes and its selftest (6 bad cases) 7/7; rebuild with nix --rebuild equal; sha256 recorded.
+
+Considered
+: Alpine release by apk (the fallback; not needed, nix gave a working closure)
+
+Rejected
+: Not run on the phone: the unpack and chroot is walleye-modem-mm-chroot-in-modem-up; the tar is 185 MiB and its closure carries dev/man outputs libqmi's -dev, which a later trim may drop
+
+About
+: modem-calls

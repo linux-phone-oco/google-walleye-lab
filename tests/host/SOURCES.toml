@@ -388,3 +388,9 @@ source = "research:walleye-rmtfs-static-nix-ok"
 
 [scripts."modem-up-selftest.sh"]
 source = "research:walleye-modem-mss-first-boot"
+
+[scripts."modem-rootfs.sh"]
+source = "research:walleye-mm-rootfs-nix-built"
+
+[scripts."modem-rootfs-selftest.sh"]
+source = "research:walleye-mm-rootfs-nix-built"
