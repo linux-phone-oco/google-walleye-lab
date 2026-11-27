@@ -13861,10 +13861,10 @@ Rank
 ### The first modem boot on the phone: image modem, the firmware pushed, modem-up; read whether remoteproc_mss runs and where rmtfs's block belongs
 
 Status
-: open
+: done
 
 Note
-: From the image builder (2026-11-27): after the procedure. Read-only on the phone's storage (UFS off by the gate, nothing flashed, rmtfs -r on RAM copies). NOT KNOWN YET: that the modem boots, and the address of the rmtfs block (decision 2026-11-27-walleye-modem-rmtfs-region-not-known-yet): the try reads it.
+: proven by bin/attended run modem-boot-on-the-pixel-2, 21 of 21 passed 2026-11-27 (research walleye-modem-mss-first-boot): remoteproc modem running, qrtr 38 services; used by run 1
 
 Blocked by
 : walleye-modem-boot-rehearsal-run
