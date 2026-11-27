@@ -14275,7 +14275,7 @@ Note
 : Keeper's battery rule, RAM only, nothing flashed. If polkit or udev stops it: record the line, queue a rebuild of ModemManager with -Dpolkit=no in modem-tools.nix.
 
 Blocked by
-: walleye-modem-mm-try-prepared
+: walleye-modem-mm-up-reads-logs-on-stop
 
 About
 : modem-calls
@@ -14397,3 +14397,28 @@ Proof
 
 Rank
 : 22
+
+
+<a id="walleye-modem-mm-up-reads-logs-on-stop"></a>
+### modem boot: when mm-up stops, read /tmp/dbus.log and /tmp/ModemManager.log (and the rest of the read) before the way back, keep them
+
+Status
+: open
+
+Note
+: From run modem-boot-20261127-144810: mm-up stopped (no bus socket) and the logs died with the reboot. Then retry walleye-modem-mm-first-try.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: tests/host/modem-boot-selftest.sh passes with a fake mm-up that fails; a real run keeps dbus.log of a stopped mm-up
+
+Rank
+: 5

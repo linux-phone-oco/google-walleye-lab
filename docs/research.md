@@ -9394,3 +9394,22 @@ Sources
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-mm-first-try-run-1-bus-no-socket"></a>
+### walleye-modem-mm-first-try-run-1-bus-no-socket
+
+Date
+: 2026-11-27
+
+Brief
+: First ModemManager try (run modem-boot-20261127-144810): rootfs pushed and unpacked, mm-up stopped: dbus system bus had no socket in 10 s; why not read
+
+Question
+: Does ModemManager start in the pushed rootfs on the modem image?
+
+Found
+: Checks 1-16 passed (firmware, modem-up, rootfs push). mm-up printed 'the system bus has no socket after 10 s (see /tmp/dbus.log)'; the procedure stopped at check 17 before its read, so /tmp/dbus.log (in RAM) was lost with the reboot. The cause (missing /etc/dbus config, dbus user, socket path, chroot loader) is NOT known yet. Phone back on Android slot b, card/boot chain/flags checks not reached (way back ran; phone-state: android over adb). Nothing was patched.
+
+About
+: modem-calls
