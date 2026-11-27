@@ -12,6 +12,8 @@ tags (docs decision 2026-11-23-structure-kernel-topics-and-integration), one ima
 
 **Retired 2026-11-27 (batch 4):** 4 scripts: build-z11, build-z12, build-z13 (the UFS-on test images, superseded by the matched image of walleye-try-ufs-match; their tries are done, dropped or "not to be tried") and build-banner (y2 with a banner init, done). No image row, procedure or open item names them; init-banner stays as data. Each one's last commit is in research/walleye-retire-build-scripts/2026-11-26/retired-scripts-batch-4.txt. Sections below that describe them are history.
 
+**Retired 2026-11-27 (batch 5):** build-display-image.sh (the first display try image, z21 with the display kernel and dtb; no image row, procedure, test or open item names it, and its dtb lever lives on in build-display-any-order-images.sh). Its last commit is in research/walleye-retire-build-scripts/2026-11-26/retired-scripts-batch-5.txt. Kept after judging: build-upstream-dts-image.sh (item walleye-upstream-board-dts-next needs one boot of the exact dtb, which is what it makes). Sections below that describe the display image are history.
+
 ## Building the first walleye image
 
 Everything here builds the first thing the phone is tried with: mainline v7.3 + our own `dt/msm8998-google-walleye.dts`, a

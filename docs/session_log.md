@@ -10261,3 +10261,24 @@ Rejected
 
 About
 : walleye-retire-build-scripts
+
+---
+
+
+<a id="2026-11-27-walleye-builder-retire-build-display-image-batch"></a>
+### walleye builder: retire build-display-image (batch 5)
+
+Entry date
+: 2026-11-27
+
+Done
+: Judged the four open scripts: build-display-image.sh retired (no row, procedure, test or item names it; the lever it set is repeated in the any-order script); ufs-off-image-selftest and a comment updated; selftest passes.
+
+Considered
+: Retiring build-upstream-dts-image.sh too.
+
+Rejected
+: build-upstream-dts-image.sh stays: walleye-upstream-board-dts-next needs one boot of the exact dtb and this is its maker.
+
+About
+: walleye-retire-build-scripts
