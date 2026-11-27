@@ -7318,7 +7318,7 @@ Note
 : Host step done 2026-11-19 (research walleye-modem-blobs-found): blobs and rmtfs partitions read into ~/lab-material/walleye/modem-2026-11-19 (adb root, read only). Next: a builder row for a test image with remoteproc_mss + mba/modem firmware in the ramdisk + rmtfs read-only, then one try; no UFS-on image. Host step done (PR 536): the firmware set was read from modem_b. Now blocked by walleye-modem-mss-image.
 
 Blocked by
-: walleye-modem-mss-image
+: walleye-try-modem-mss
 
 About
 : modem-calls
