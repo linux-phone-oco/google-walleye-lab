@@ -14575,10 +14575,10 @@ Rank
 ### ipa node and CONFIG_QCOM_IPA in the modem test kernel (host build)
 
 Status
-: open
+: in-progress
 
 Note
-: Values: wahoo GPL dtsi ipa node + OnePlus 5 pmaports patch; carve-outs: the phone's 0x95b00000 ipa/gpu block. gsi-loader per what the phone's modem does.
+: Built on builder/modem-ipa-node: ipa node, CONFIG_QCOM_IPA=y, tests/host/dtb-modem-ipa.sh and kernel-modem-ipa.sh with selftests; dtbs_check names only 'interconnects' (decision 2026-11-27-walleye-ipa-node-ap-loads-no-interconnects, item walleye-msm8998-interconnect-provider). Left: rebuild the kernel tag with the new config (lpoco bringup kernel assemble) and the image (build/build-modem-image.sh), then queue the phone try.
 
 About
 : modem-calls
@@ -14650,3 +14650,28 @@ Proof
 
 Rank
 : 40
+
+
+<a id="walleye-msm8998-interconnect-provider"></a>
+### An msm8998 interconnect provider for the ipa node's 'interconnects' (v7.3 has none)
+
+Status
+: open
+
+Note
+: From walleye-modem-ipa-node-values: the msm8998-mainline fork carries bimc, cnoc, snoc, a1noc, a2noc, mnoc providers (qcom,msm8998.h); mainline has clk-smd-rpm's msm8998_icc_clks only. Not needed for the first try (NULL paths); needed for the node to pass the binding and for upstreaming it.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: dtbs_check on qcom/msm8998-google-walleye-modem.dtb names no property of the ipa node; the ipa driver's icc paths are real (not NULL) on the phone
+
+Rank
+: 30

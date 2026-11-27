@@ -1,0 +1,138 @@
+# Captured text for item walleye-modem-net-port-ipa-node (read 2026-11-27): the sources of the ipa node's values in dt/msm8998-google-walleye-modem.dts. Each block names its source; none is edited. Both trees are GPL-2.0.
+# ---- A: Google's wahoo kernel, https://android.googlesource.com/kernel/msm branch android-msm-wahoo-4.4-android11, arch/arm/boot/dts/qcom/msm8998.dtsi lines 1165-1179 (ipa_hw: base, interrupts, IPA v3.1)
+	ipa_hw: qcom,ipa@01e00000 {
+		compatible = "qcom,ipa";
+		reg = <0x01e00000 0x34000>,
+			<0x01e84000 0x31fff>,
+			<0x01e04000 0x2c000>;
+		reg-names = "ipa-base", "bam-base", "gsi-base";
+		interrupts =
+			<0 333 0>,
+			<0 432 0>,
+			<0 432 0>;
+		interrupt-names = "ipa-irq", "bam-irq", "gsi-irq";
+		qcom,ipa-hw-ver = <11>; /* IPA core version = IPAv3.1 */
+		qcom,ipa-hw-mode = <0>; /* IPA hw type = Normal */
+		qcom,ee = <0>;
+		qcom,use-gsi;
+# ---- A2: the same file, lines 1182-1183 (the clock)
+		clocks = <&clock_gcc clk_ipa_clk>;
+# ---- A3: the same file, lines 1295-1321 (the three IPA SMMU context banks)
+		qcom,smp2pgpio_map_ipa_1_out {
+			compatible = "qcom,smp2pgpio-map-ipa-1-out";
+			gpios = <&smp2pgpio_ipa_1_out 0 0>;
+		};
+
+		qcom,smp2pgpio_map_ipa_1_in {
+			compatible = "qcom,smp2pgpio-map-ipa-1-in";
+			gpios = <&smp2pgpio_ipa_1_in 0 0>;
+		};
+
+		ipa_smmu_ap: ipa_smmu_ap {
+			compatible = "qcom,ipa-smmu-ap-cb";
+			iommus = <&anoc2_smmu 0x18e0>;
+			qcom,iova-mapping = <0x10000000 0x40000000>;
+		};
+
+		ipa_smmu_wlan: ipa_smmu_wlan {
+			compatible = "qcom,ipa-smmu-wlan-cb";
+			iommus = <&anoc2_smmu 0x18e1>;
+		};
+
+		ipa_smmu_uc: ipa_smmu_uc {
+			compatible = "qcom,ipa-smmu-uc-cb";
+			iommus = <&anoc2_smmu 0x18e2>;
+			qcom,iova-mapping = <0x40000000 0x20000000>;
+		};
+	};
+# ---- A4: the same file, lines 1323-1328 (the IPA firmware's load through Trust Zone: pas-id 0xF, so the AP loads it)
+	qcom,ipa_fws@1e08000 {
+		compatible = "qcom,pil-tz-generic";
+		qcom,pas-id = <0xF>;
+		qcom,firmware-name = "ipa_fws";
+	};
+
+# ---- B: the msm8998-mainline fork https://gitlab.com/msm8998-mainline/linux branch mainline/6.1, arch/arm64/boot/dts/qcom/msm8998.dtsi lines 856-866 (smp2p ipa entries) and 1716-1755 (the ipa node)
+		ipa_smp2p_out: ipa-ap-to-modem {
+			qcom,entry-name = "ipa";
+			#qcom,smem-state-cells = <1>;
+		};
+
+		ipa_smp2p_in: ipa-modem-to-ap {
+			qcom,entry-name = "ipa";
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+	};
+		ipa: ipa@1e40000 {
+			compatible = "qcom,msm8998-ipa";
+
+			iommus = <&anoc2_smmu 0x18e0 0x0>,
+				 <&anoc2_smmu 0x18e2 0x0>;
+			reg = <0x1e40000 0x7000>,
+			      <0x1e47000 0x2000>,
+			      <0x1e04000 0x2c000>;
+			reg-names = "ipa-reg",
+				    "ipa-shared",
+				    "gsi";
+
+			interrupts-extended = <&intc GIC_SPI 333 IRQ_TYPE_EDGE_RISING>,
+					      <&intc GIC_SPI 432 IRQ_TYPE_LEVEL_HIGH>,
+					      <&ipa_smp2p_in 0 IRQ_TYPE_EDGE_RISING>,
+					      <&ipa_smp2p_in 1 IRQ_TYPE_EDGE_RISING>;
+			interrupt-names = "ipa",
+					  "gsi",
+					  "ipa-clock-query",
+					  "ipa-setup-ready";
+
+			clocks = <&rpmcc RPM_SMD_IPA_CLK>;
+			clock-names = "core";
+
+/* Elder's proposed interconnects:
+			<&aggre2_noc MASTER_IPA 0 &mem_noc SLAVE_EBI1 0>,
+			<&aggre2_noc MASTER_IPA 0 &system_noc SLAVE_IMEM 0>,
+			<&gladiator_noc MASTER_APPSS_PROC 0 &config_noc SLAVE_IPA_CFG 0>
+*/
+			interconnects = <&a2noc MASTER_IPA &bimc SLAVE_EBI>,
+					<&a2noc MASTER_IPA &snoc SLAVE_IMEM>,
+					<&gnoc MASTER_APSS_PROC &cnoc SLAVE_IPA>;
+			interconnect-names = "memory",
+					     "imem",
+					     "config";
+
+			qcom,smem-states = <&ipa_smp2p_out 0>,
+					   <&ipa_smp2p_out 1>;
+			qcom,smem-state-names = "ipa-clock-enabled-valid",
+						"ipa-clock-enabled";
+# ---- B2: the same fork, arch/arm64/boot/dts/qcom/msm8998-oneplus-common.dtsi lines 349-354 (the OnePlus 5 enables it, the AP loads the firmware)
+&ipa {
+	status = "okay";
+
+	memory-region = <&ipa_fws_region>; // ipa_fw_mem? ipa_gsi_mem?
+	firmware-name = "qcom/msm8998/oneplus/ipa_fws.mbn";
+};
+# ---- C: kernel.org v7.3 (the tag's tree, read 2026-11-27), include/dt-bindings/clock/qcom,rpmcc.h lines 114-115 (the clock numbers)
+#define RPM_SMD_IPA_CLK				68
+#define RPM_SMD_IPA_A_CLK			69
+# ---- C2: Documentation/devicetree/bindings/net/qcom,ipa.yaml, qcom,gsi-loader (what self means) and the required properties
+loader:
+    enum:
+      - self
+      - modem
+      - skip
+    description:
+      Indicates how GSI firmware should be loaded.  If the AP loads
+      and validates GSI firmware, this property has value "self".
+      If the modem does this, this property has value "modem".
+      Otherwise, "skip" means GSI firmware loading is not required.
+
+  modem-init:
+    deprecated: true
+-
+# ---- C3: the phone's own vendor firmware, ~/lab-material/walleye/vendor-firmware-2026-11-24/firmware (listing, read 2026-11-27)
+ipa_fws.b00
+ipa_fws.b01
+ipa_fws.b02
+ipa_fws.b03
+ipa_fws.b04
+ipa_fws.mdt

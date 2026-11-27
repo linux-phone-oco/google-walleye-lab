@@ -9536,3 +9536,25 @@ Sources
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-ipa-node-values"></a>
+### walleye-modem-ipa-node-values
+
+Date
+: 2026-11-27
+
+Brief
+: The msm8998 ipa node's values come from wahoo's dtsi and the msm8998-mainline fork; v7.3 has no msm8998 interconnect provider, so dtbs_check says 'interconnects' is required
+
+Question
+: What are the values of the msm8998 ipa node for the modem test kernel, and does it pass the binding?
+
+Found
+: Values and sources are in tests/fixtures/kernel-text/msm8998-ipa-sources.txt. Wahoo (Google, android11 branch): ipa irq SPI 333, gsi irq SPI 432, gsi range 0x1e04000/0x2c000, SMMU stream ids 0x18e0 (ap) and 0x18e2 (uc) on anoc2_smmu, firmware loaded through Trust Zone (pas-id 0xF). The fork (OnePlus 5): ipa-reg 0x1e40000/0x7000, ipa-shared 0x1e47000/0x2000, clock RPM_SMD_IPA_CLK, the smp2p ipa entries, AP loads the firmware (memory-region + firmware-name). The phone's own vendor firmware has ipa_fws.mdt (lab-material vendor-firmware-2026-11-24), so gsi-loader is self. Two findings from dtbs_check in the alpine:edge container: anoc2_smmu has one iommu cell (the fork's two-cell form fails 'too long'); and v7.3 has no msm8998 interconnect provider (no driver, no binding header), so the binding's required 'interconnects' cannot be written: the node has none and the driver gets NULL paths (of_icc_get_by_index returns NULL without the property), running unvoted. The fork carries an interconnect driver (qcom,msm8998.h: bimc, cnoc, snoc, a1noc, a2noc, mnoc) that is not in mainline.
+
+Sources
+: linux-v7-3-ipa-main-msm8998,pmaports-oneplus5-mainline-mr3531
+
+About
+: modem-calls
