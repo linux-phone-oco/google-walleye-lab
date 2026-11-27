@@ -13280,6 +13280,9 @@ Status
 Note
 : Stopped 2026-11-27 at lpoco bringup kernel assemble: its record check refuses every list of the lane (no carried commit has a TAG(item): subject; topic/pmic-wdt-s2-type has no upstream-item row). Needs from orchestration/upstreams: an upstream-item row for pmic-wdt-s2-type and the form the topics' subjects take (retag, or the check eased); then the list ufs-off-wdt2 (topic/pmic-wdt-wake-in-suspend, topic/pmic-wdt-s2-type, base v7.3) assembles. Session log 2026-11-27-walleye-builder-wdt2-assemble-refused.
 
+Waits
+: orchestration/upstreams: walleye's topic commits retagged TAG(item) and an upstream-item row for topic/pmic-wdt-s2-type, or lab-tools eases kernel assemble's judge (google-walleye-lab #1247)
+
 Blocked by
 : walleye-wdt-s2-type-topic-branch
 
