@@ -13668,7 +13668,7 @@ Status
 : open
 
 Note
-: From lab-tools 0.53.7 (recipe-static-binary-part, #466/#467; orchestration 2026-11-27). Needs walleye's lpoco-bringup pin at 0.53.7 or later (rhizoid's hourly bump, or bump it here). Limits: crates.io deps only, the crate stands alone; whether deps, LTO and panic=abort reproduce is not measured yet - a mismatch is read before any fix. Packing parts into a ramdisk is lab-tools part-ramdisk-packs-parts; until then the ramdisk keeps its EXTRA_BIN path.
+: 2026-11-27 builder: measured, not declared. nix's part build gives other bytes than the declared ones (research walleye-part-builds-nix-bytes-differ): reboot 8f141f1b vs fd73925b, nfc-up 50a85d99 vs ab2cf4c1; the scripts still reproduce theirs. Pin lpoco-bringup 0.53.7 landed. Next: the coordinator picks (a) accept nix's bytes (rows renamed or consumers moved, nfc ramdisk/image rebuilt and re-proved by the keeper), (b) a matching toolchain from lab-tools, or (c) keep the scripts. Scripts stay until then.
 
 About
 : walleye-retire-build-scripts

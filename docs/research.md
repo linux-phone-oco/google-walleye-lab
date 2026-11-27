@@ -9105,3 +9105,28 @@ About
 
 Material
 : research/walleye-retire-build-scripts/2026-11-26/
+
+
+<a id="walleye-part-builds-nix-bytes-differ"></a>
+### walleye-part-builds-nix-bytes-differ
+
+Date
+: 2026-11-27
+
+Brief
+: lab-tools 0.53.7 part_builds builds walleye-reboot and walleye-nfc-up from tools/ at 0184dc18 but not to the declared bytes: nix's pinned toolchain differs; the old scripts still reproduce
+
+Question
+: Does [part_builds.*] (lpoco-bringup 0.53.7, nix sandbox) rebuild the declared sha256 of walleye-reboot and walleye-nfc-up?
+
+Found
+: Measured 2026-11-27 with lpoco-bringup 0.53.7 on a scratch device.toml (the two [images.*] rows replaced by [part_builds.*]: repo google-walleye-lab, rev 0184dc18 full sha, crate tools/walleye-reboot and tools/walleye-nfc-up).
+- walleye-reboot: declared fd73925bffb8462f212267b9cfc120bd87b80239bbd4866856eeed6487e554ba; nix builds 8f141f1b2973fd8fa1eaa433f55c26ca60538395c12407cb39c24c721ecf17f8 (1059104 bytes; the declared file is 994064 bytes). Declaring nix's own hash then ensures fine ("built from its recipe, equal to its declared sha256").
+- walleye-nfc-up: declared ab2cf4c11650bd7c20e7b31fffd4e2437dee9ed431d31baa90cffc6e28a21171; nix builds 50a85d9982a807cb5c499ceaee5394b88cd486bc41157ff8874e5f119684ab04.
+- Why: both are static aarch64 ELF, but the toolchains differ: nix builds std from /rustc-src with its pinned compiler and cross glibc (crate addr2line 0.25.1), the host script with the Arch rust 1.99.1 and aarch64-linux-gnu-gcc (addr2line 0.27.1, /rustc/lib/rustlib paths). Release profile (lto, panic=abort, opt-level s) is the same in both.
+- The old build/build-reboot-bin.sh still gives fd73925b today (re-run on this host): the declared bytes are reproducible by the script, not by nix.
+- A name clash too: lab-tools refuses [part_builds.N] beside [images.N] of the same name, and procedures/steps settings.rs reads images.walleye-reboot.path and .sha256, the NFC ramdisk packs the declared nfc-up file (ramdisk 973bcb87, image 65cef2f5), the tests/host scripts walleye-reboot-restart2.sh and walleye-nfc-up.sh read the images rows.
+Not done, on purpose: accepting nix's bytes changes the way-back tool the phone runs and the NFC ramdisk and image shas the keeper proved, so it is a decision, not a fix. Options: (a) accept nix's bytes, rename part rows or move the consumers, rebuild the nfc ramdisk/image and re-prove them on the phone; (b) ask lab-tools for a part-build toolchain that matches (host rust + cross gcc), or (c) keep the two scripts. Packing a part into a ramdisk is lab-tools part-ramdisk-packs-parts.
+
+About
+: walleye-retire-build-scripts
