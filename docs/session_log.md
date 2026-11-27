@@ -11065,3 +11065,24 @@ Done
 
 Considered
 : next: walleye-modem-mm-net-port-candidate (read MM's candidate rule; chroot udev tags), then re-run; also the slow way back (>240 s) and the DOG_HB crash
+
+---
+
+
+<a id="2026-11-27-walleye-builder-mm-udev-candidate"></a>
+### walleye-builder: mm-up starts udevd for ModemManager's candidate tags
+
+Entry date
+: 2026-11-27
+
+Done
+: Read MM 1.24.2's 80-mm-candidate and 77-mm-qcom-soc rules: a net port is a candidate only from udev; the chroot ran no udevd. Test first: tests/host/modem-boot-selftest.sh now expects dbus < udevd < udevadm trigger < settle < ModemManager and the /etc/udev/rules.d link (seen failing), and the stop prints udevd's log. Changed build/initramfs-modem/mm-up. Rebuilt the ramdisk 8ba9f394 (tools equal to tools.sha256, two packs equal, firmware tar unchanged 9073e47e) and the 32 MiB image 8081c7f2 (kernel cut from the previous image equal to 0347728b; every check of build-modem-image.sh ok); images-modem replaced (previous kept as boot-modem.img.5bf54e38); device.toml [images.modem] carries it. Queued for the keeper: one modem boot. Not run on the phone.
+
+Considered
+: Whether eudev 3.3.0 reads /etc/udev/rules.d in a bare chroot: it does by its default rule directories; the try shows it (udevd.log is kept with the run).
+
+Rejected
+: A hand-made udev database and a ModemManager patch (decision 2026-11-27-walleye-mm-up-starts-udevd-for-the-candidate-tags).
+
+About
+: modem-calls

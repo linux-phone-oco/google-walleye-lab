@@ -4405,3 +4405,31 @@ Research
 
 Tracked by
 : walleye-modem-net-port-ipa-node
+
+
+<a id="2026-11-27-walleye-mm-up-starts-udevd-for-the-candidate-tags"></a>
+### 2026-11-27-walleye-mm-up-starts-udevd-for-the-candidate-tags
+
+Date
+: 2026-11-27
+
+Brief
+: mm-up starts udevd in the chroot and replays the devices before ModemManager: the candidate tags of a net port exist only from udev's rules
+
+Decision
+: mm-up links /etc/udev/rules.d to the env's lib/udev/rules.d, starts udevd after dbus, runs udevadm trigger --action=add and settle, then starts ModemManager. The rootfs tar is unchanged.
+
+Why
+: ModemManager 1.24.2 tags a port ID_MM_CANDIDATE only from udev (80-mm-candidate.rules, 77-mm-qcom-soc.rules); run 7 had none, and said 'not candidate'.
+
+Rejected
+: A tagged fake udev database written by hand (ID_MM_* files in /run/udev/data): tied to ModemManager's rule text, wrong the day a rule changes. Patching ModemManager to skip the tag: a fork where running its own rules is enough. Rebuilding the tar to put a rules link in /etc: the link is made by mm-up, so the recorded tar keeps its sha.
+
+About
+: modem-calls
+
+Research
+: walleye-modem-mm-candidate-needs-udev
+
+Tracked by
+: walleye-modem-mm-net-port-candidate
