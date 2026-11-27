@@ -14141,10 +14141,10 @@ Rank
 ### qmicli (libqmi with QRTR) static aarch64 in the modem image, and the modem boot runs qmicli --dms-get-ids read only
 
 Status
-: open
+: done
 
 Note
-: From research walleye-modem-to-calls-how-it-stands (coordinator 2026-11-27): qmicli is not in today's modem image (build/, procedures/ and device.toml name none), so walleye-modem-qmi-ids-read waits on this. Read-only DMS only; no NAS/WDS writes, no SIM.
+: Built and proven host-side 2026-11-27: qmicli a8dd865f, ramdisk 3bd122c3, image b769917e (device.toml). The real read is walleye-modem-qmi-ids-read on the next modem boot.
 
 About
 : modem-calls
@@ -14156,7 +14156,7 @@ Needs
 : build
 
 Proof
-: build/modem-tools.nix also gives a static qmicli with qrtr support (sha256 recorded, rebuilds equal); the modem ramdisk and image rebuilt equal with it; UFS-off gate and AVB pass; the modem boot procedure runs qmicli -p qrtr://0 --dms-get-ids after modem-up and keeps its output only in ~/lab-material (the IMEI never in git, a log or a commit); dry run and steps tests pass
+: build/modem-tools.nix also gives a static qmicli with qrtr support (sha256 recorded, rebuilds equal); the modem ramdisk and image rebuilt equal with it; UFS-off gate and AVB pass; the modem boot procedure runs qmicli -d qrtr://0 --dms-get-ids after modem-up (-d: libqmi's -p is the proxy flag, decision 2026-11-27-walleye-qmicli-names-the-node-with-d-not-p) and keeps its output only in ~/lab-material (the IMEI never in git, a log or a commit); dry run and steps tests pass
 
 Rank
 : 20

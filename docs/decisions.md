@@ -4181,3 +4181,31 @@ Research
 
 Scope
 : walleye keeper, walleye builder
+
+
+<a id="2026-11-27-walleye-qmicli-names-the-node-with-d-not-p"></a>
+### 2026-11-27-walleye-qmicli-names-the-node-with-d-not-p
+
+Date
+: 2026-11-27
+
+Brief
+: qmicli asks the modem with -d qrtr://0 (the item's -p is libqmi's proxy flag); ids kept only in lab-material
+
+Decision
+: The modem boot runs 'timeout 15 qmicli -d qrtr://0 --dms-get-ids' after the read; the answer holds the IMEI, so it is saved only as qmi-ids.txt in the run's folder under ~/lab-material and the step prints only its shape (answered, error, none; lines), never a value.
+
+Why
+: libqmi 1.38 src/qmicli/qmicli.c: -d/--device takes 'device path or QRTR URI (e.g. qrtr://0)', -p/--device-open-proxy is a flag with no value that asks for qmi-proxy, which does not run here; qmicli-dms.c dms-get-ids prints the IMEI.
+
+Rejected
+: -p qrtr://0 as the item's text had it (a proxy flag: qmicli would fail on the URI as a stray argument); redacting the IMEI in a kept log (a redaction is a second place for a mistake: no copy outside lab-material is made at all); a stripped or dynamic qmicli (glib static from nix with musl links fully static and rebuilds equal at 12 MB, 2.7 MB xz, the image keeps its headroom).
+
+About
+: modem-calls
+
+Research
+: walleye-modem-to-calls-how-it-stands
+
+Tracked by
+: walleye-modem-qmicli-in-image

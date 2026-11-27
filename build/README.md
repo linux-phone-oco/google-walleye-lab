@@ -317,9 +317,9 @@ The drawer is started by `tests/host/display-late-probe.sh` after the modules ar
 `[images.modem]` in `device.toml`: UFS off, `remoteproc_mss` okay on the phone's own firmware names, nothing started at boot. The parts: the kernel of `[kernel_builds.walleye-ufs-off-modem]` (tag `int/walleye/ufs-off-modem/v7.3/1`, built in the Nix sandbox with `walleye.config` + `walleye-modem.config`), the dtb of `dt/msm8998-google-walleye-modem.dts` (built on the tag's tree with `DTC_FLAGS=-@`, `qcom/msm8998-google-walleye-modem.dtb`), and the ramdisk.
 
 ```sh
-# the three static tools (build/modem-tools.nix) and the sha256 of each is in build/initramfs-modem/tools.sha256
-nix --extra-experimental-features 'nix-command flakes' build --impure -f build/modem-tools.nix -o $AGENT_BUILD/modem-tools
-RMTFS=... QRTR_NS=... QRTR_LOOKUP=... TQFTPSERV=... build/build-modem-ramdisk.sh WORK_DIR RAMDISK.cpio.xz FIRMWARE.tar
+# the static tools (build/modem-tools.nix, each by its attribute) and the sha256 of each is in build/initramfs-modem/tools.sha256
+for t in rmtfs qrtr tqftpserv qmicli; do nix --extra-experimental-features 'nix-command flakes' build --impure -f build/modem-tools.nix $t -o $AGENT_BUILD/modem-tools-$t; done
+RMTFS=... QRTR_NS=... QRTR_LOOKUP=... TQFTPSERV=... QMICLI=... build/build-modem-ramdisk.sh WORK_DIR RAMDISK.cpio.xz FIRMWARE.tar
 build/build-modem-image.sh IMAGE_SLPI Image.gz MODEM.dtb RAMDISK.cpio.xz OUT_DIR   # OUT_DIR/boot-modem.img, SHA256SUMS-modem
 ```
 
