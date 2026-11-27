@@ -21,7 +21,12 @@ tool() { sed -n "s/^\([0-9a-f]\{64\}\)  $1\$/\1/p" "$HERE/build/initramfs-modem/
 for t in rmtfs qrtr-ns qrtr-lookup tqftpserv qmicli; do [ -n "$(tool $t)" ] && [ "$(sum "$T/bin/$t")" = "$(tool $t)" ] || say fail "/bin/$t is not the recorded static build"; done
 [ -n "$(tool busybox-arm64)" ] && [ "$(sum "$T/bin/busybox")" = "$(tool busybox-arm64)" ] || say fail "/bin/busybox is not the recorded arm64 build"
 for s in modem-up firmware-recv rootfs-recv mm-up; do cmp -s "$T/bin/$s" "$HERE/build/initramfs-modem/$s" || say fail "/bin/$s differs from build/initramfs-modem/$s"; done
-cmp -s "$T/init" "$HERE/build/initramfs-slpi/init" || say fail "/init differs from build/initramfs-slpi/init"
+# /init is slpi's with exactly one line changed - the end of the 180 s window - and the new line is build/initramfs-modem/window-end (decision 2026-11-27-walleye-modem-image-ends-by-sysrq-b-with-ipa)
+d=$(diff "$HERE/build/initramfs-slpi/init" "$T/init")
+[ "$(printf '%s\n' "$d" | sed -n 's/^> //p')" = "$(cat "$HERE/build/initramfs-modem/window-end")" ] || say fail "/init's window end is not build/initramfs-modem/window-end"
+[ "$(printf '%s\n' "$d" | grep -c '^[<>]')" = 2 ] || say fail "/init differs from build/initramfs-slpi/init in more than one line"
+[ "$(printf '%s\n' "$d" | sed -n 's/^< //p')" = '  sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger' ] || say fail "/init changed a line other than slpi's window end"
+[ "$(grep -n 'sysrq-trigger' "$T/init" | head -n1 | grep -c 'echo b > /proc/sysrq-trigger; sleep 5; reboot -f')" = 1 ] || say fail "/init does not end with sync, sysrq b, then reboot -f as the fallback"
 for pr in modem_fs1:modemst1 modem_fs2:modemst2 modem_fsg:fsg modem_fsc:fsc; do
   f=${pr%%:*}; p=${pr#*:}
   want=$(sed -n "s/^\([0-9a-f]\{64\}\)  $p.img\$/\1/p" "$MATERIAL/sha256sums")

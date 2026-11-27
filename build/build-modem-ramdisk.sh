@@ -31,7 +31,14 @@ done
 "$HERE/check-qmicli-qrtr.sh" "$W/qmicli" >&2 || total=$((total+1))
 ck "busybox is the recorded arm64 build" "$(sum "$BUSYBOX")" "$(want busybox-arm64)"
 cp "$BUSYBOX" "$W/busybox"; chmod 755 "$W/busybox"
-cp "$HERE/initramfs-slpi/init" "$HERE/initramfs-slpi/udhcpd.conf" "$HERE/initramfs-modem/modem-up" "$HERE/initramfs-modem/firmware-recv" "$HERE/initramfs-modem/rootfs-recv" "$HERE/initramfs-modem/mm-up" "$W/"
+# The modem image's init is slpi's with ONE line replaced, the end of its 180 s window (build/initramfs-modem/window-end): sync and sysrq b first, because with ipa bound
+# 'reboot -f' runs device_shutdown -> ipa_remove and never ends (decision 2026-11-27-walleye-modem-image-ends-by-sysrq-b-with-ipa). slpi's own init is untouched.
+SLPI_END='  sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger'
+ck "slpi's init has its window end exactly once" "$(grep -cxF -- "$SLPI_END" "$HERE/initramfs-slpi/init")" 1
+ck "window-end is one line" "$(wc -l < "$HERE/initramfs-modem/window-end")" 1
+awk -v old="$SLPI_END" -v new="$(cat "$HERE/initramfs-modem/window-end")" '$0 == old { print new; next } { print }' "$HERE/initramfs-slpi/init" > "$W/init"
+ck "the modem init differs from slpi's in exactly one line" "$(diff "$HERE/initramfs-slpi/init" "$W/init" | grep -c '^>')" 1
+cp "$HERE/initramfs-slpi/udhcpd.conf" "$HERE/initramfs-modem/modem-up" "$HERE/initramfs-modem/firmware-recv" "$HERE/initramfs-modem/rootfs-recv" "$HERE/initramfs-modem/mm-up" "$W/"
 chmod 755 "$W/init" "$W/modem-up" "$W/firmware-recv" "$W/rootfs-recv" "$W/mm-up"
 # the phone's reads: the material's own sha256sums name each one
 for p in modemst1 modemst2 fsg fsc modem_b; do

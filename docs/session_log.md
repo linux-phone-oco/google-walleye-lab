@@ -11140,3 +11140,24 @@ Done
 
 Considered
 : next: walleye-modem-mm-lists-modem-after-init (read MM's primary-port rule, keep the log to the window's end); also the slow way back and the DOG_HB crash at 40 s
+
+---
+
+
+<a id="2026-11-27-walleye-modem-image-ends-by-sysrq-b-built"></a>
+### Modem image ends its window with sysrq b: built
+
+Entry date
+: 2026-11-27
+
+Done
+: Added build/initramfs-modem/window-end; build-modem-ramdisk.sh derives the modem /init from slpi's (checked: slpi's end once, one line differs); modem-ramdisk.sh and its selftest check the same, a known bad case (slpi's own end) fails. Rebuilt the static tools by nix, the ramdisk (twice equal, ee017394), the image (9e3e3ab2; kernel blob byte-equal to the old image's, AVB, UFS gate, dtb tests ok); old image kept as boot-modem.img.492253d9; device.toml sha256 updated; README note. Queued the keeper's run.
+
+Considered
+: A modem init file of its own (a 150-line copy that drifts from slpi's); a flag read by slpi's init (changes slpi's ramdisk and its recorded sha).
+
+Rejected
+: Both, for the reasons given: the derived line keeps slpi's image bytes and the init in one place.
+
+About
+: modem-calls

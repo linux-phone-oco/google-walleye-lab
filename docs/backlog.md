@@ -14865,10 +14865,10 @@ Rank
 ### Modem image ends its window with sync and sysrq b
 
 Status
-: open
+: done
 
 Note
-: Research walleye-modem-way-back-slow-read-reboot-f-hangs-with-ipa; decision 2026-11-27-walleye-modem-image-ends-by-sysrq-b-with-ipa. Edit the modem image's init (build/initramfs-slpi/init is shared with slpi: a modem-only end, not a change of slpi's). Build only; the run is the keeper's item below.
+: Built 2026-11-27: build-modem-ramdisk.sh derives the modem /init from slpi's with one line replaced (build/initramfs-modem/window-end); ramdisk ee017394 (twice equal), image boot-modem.img 9e3e3ab2 (kernel blob byte-equal to 492253d9's, was 492253d9), in device.toml [images.modem]; tests/host/modem-ramdisk.sh and its selftest pass. The run is walleye-modem-image-sysrq-b-run.
 
 About
 : modem-calls
@@ -14912,3 +14912,31 @@ Proof
 
 Rank
 : 22
+
+
+<a id="walleye-modem-image-sysrq-b-run"></a>
+### Run the modem image with the sysrq b end on an IPA run: phone back on Android within 240 s
+
+Status
+: open
+
+Note
+: Image images-modem/boot-modem.img sha256 9e3e3ab2b823bd84b4efa2c2f8106f47b1a86a5594de35ab330616479b872b12 ([images.modem]); firmware tar unchanged (9073e47e). Decision 2026-11-27-walleye-modem-image-ends-by-sysrq-b-with-ipa, part 3 (a measured ipa unbind with timestamps) is a later try.
+
+Blocked by
+: walleye-modem-image-ends-by-sysrq-b
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: modem-boot-on-the-pixel-2 check 22 (phone back on Android within 240 s) passes on an IPA run, and the host journal shows the image's USB gadget gone 180 s (+-5) after it appears
+
+Rank
+: 19

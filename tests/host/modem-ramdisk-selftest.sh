@@ -2,6 +2,7 @@
 # Known cases for modem-ramdisk.sh: the ramdisk of the build passes, and each defect made in a copy of its tree fails with its own word (a check is trusted only after it fails on a known bad case).
 # Environment: RAMDISK (the good one). Exit 0 only when every case came out as expected.
 HERE=$(cd "$(dirname "$0")" && pwd)
+REPO=$(cd "$HERE/../.." && pwd)
 CHECK=$HERE/modem-ramdisk.sh
 [ -r "${RAMDISK:-}" ] || { echo "skip walleye-modem-ramdisk-selftest need RAMDISK readable: not known yet"; exit 1; }
 umask 077; W=$(mktemp -d); trap 'rm -rf "$W"' EXIT
@@ -23,5 +24,6 @@ cp -a "$W/tree" "$W/qmi";    printf x >> "$W/qmi/bin/qmicli";                   
 cp -a "$W/tree" "$W/noqmi";  rm "$W/noqmi/bin/qmicli";                               want "qmicli missing" "/bin/qmicli is not the recorded" noqmi
 cp -a "$W/tree" "$W/up";     printf '#x\n' >> "$W/up/bin/modem-up";                  want "modem-up changed" "/bin/modem-up differs" up
 cp -a "$W/tree" "$W/fw";     : > "$W/fw/lib/firmware/qcom/msm8998/google/walleye/mba.mbn"; want "a firmware file inside" "firmware files are in the ramdisk" fw
-cp -a "$W/tree" "$W/init";   printf '#x\n' >> "$W/init/init";                        want "init changed" "/init differs" init
+cp -a "$W/tree" "$W/init";   printf '#x\n' >> "$W/init/init";                        want "init changed" "window end is not" init
+cp -a "$W/tree" "$W/old";    cp "$REPO/build/initramfs-slpi/init" "$W/old/init";                  want "slpi's own end, reboot -f first" "window end is not" old
 exit $bad
