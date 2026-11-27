@@ -13992,10 +13992,10 @@ Rank
 ### Read the modem over QMI, read only: qmicli over qrtr, DMS get-ids (IMEI) and the qrtr service list, on the existing modem image
 
 Status
-: in-progress
+: done
 
 Note
-: Run 1 (2026-11-27): qmicli -d qrtr://0 answered 'URI is not a local file path: (NULL)'; modem up, 38 qrtr services. Cause fixed (item walleye-modem-qmicli-qrtr-enabled, image a43788755 in images-modem): one more modem boot re-runs the read.
+: proven by bin/attended run modem-boot-on-the-pixel-2, 22 of 22 passed, run modem-boot-20261127-124252: a 15-digit IMEI read over qrtr://0 (research walleye-modem-qmi-ids-read-run-3); used by run 3
 
 Blocked by
 : walleye-modem-qmicli-qrtr-enabled

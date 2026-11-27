@@ -10547,24 +10547,6 @@ About
 ---
 
 
-<a id="2026-11-27-1300-how-the-phone-stands"></a>
-### How the phone stands
-
-Entry date
-: 2026-11-27
-
-Done
-: Closed walleye-modem-mss-proof on the record of the first modem boot (modem-up check, selftest passes on the kept read); no phone change this run. Phone on Android slot b, stock; fastboot reachable per last stand.
-
-Considered
-: next: walleye-deep-sleep-baseline needs meter and hands, walleye-display-late-probe-poll-stripes-rc waits for an idle slot, walleye-fingerprint-spi-hwid is host-first; calls/pd-mapper/SIM unknown, coordinator picks
-
-About
-: walleye-modem-mss-proof
-
----
-
-
 <a id="2026-11-27-1500-how-the-phone-stands"></a>
 ### How the phone stands
 
@@ -10636,3 +10618,18 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-1300-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-qmi-ids-read: modem boot run 3 passed 22 of 22, qmicli over qrtr read the IMEI (kept in lab-material only); item done. Phone on Android slot b, stock, fastboot reachable, card/boot chain/flags equal before and after.
+
+Considered
+: next: walleye-modem-mm-sees-modem (ModemManager over qrtr); deep-sleep-baseline needs meter+hands; fingerprint-spi-hwid is host-first
