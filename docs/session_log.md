@@ -10753,3 +10753,24 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-mm-try-prepared"></a>
+### walleye builder: the ModemManager try is prepared
+
+Entry date
+: 2026-11-27
+
+Done
+: The rootfs tar placed in ~/Projects/walleye-build/images-modem by nix build of build/modem-mm-rootfs.nix (sha256 70d239a9 = build/modem-mm-rootfs.sha256, 194375680 bytes; tests/host/modem-rootfs.sh passes). modem_boot.rs: both guards count the same usual costs - the firmware step's (firmware_to_end_usual_s: push from size at a stated 2.4 MB/s, 17 s to the read from run 20261127-124252, then rootfs_tail_s) and the rootfs step's (rootfs_tail_s: push from size, mm-up 11 s, read 2 s); a test chains them. Waits named CONNECT_WAIT_S 20 and RECEIVER_SAYS_S 60; receiver logs FIRMWARE_LOG and ROOTFS_LOG once, the command built by recv_command; PUSH_S removed. 536 tests, clippy and fmt clean; the modem-boot dry run passes 25 steps. The 2.4 MB/s is an assumption: the rootfs push time is not measured yet.
+
+Considered
+: Guarding the firmware step with the bounds (PUSH_S+UP_S+tail): 205-209 s of 180, so the try could never start.
+
+Rejected
+: Bounds in the firmware guard and usual costs elsewhere: the programmer review showed the rootfs guard (bounds, 151 s) would refuse after the firmware guard (137 s) accepted; one set in both now. The tests were written with the change, not seen failing first.
+
+About
+: modem-calls

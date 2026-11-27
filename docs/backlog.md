@@ -14378,10 +14378,10 @@ Rank
 ### Ready the ModemManager try: the rootfs tar placed in build/images/images-modem by its nix build, the firmware step's time guard counting the rootfs push, the push waits named, the receiver log path written once
 
 Status
-: open
+: done
 
 Note
-: From PR 1287's report (coordinator 2026-11-27): the tar is not on the lab yet, and a late boot would be refused only after the 61 MB firmware push. The push time stays not measured until the try; the guard's throughput is stated as an assumption the try checks.
+: Tar placed (sha256 equals the record), firmware guard counts the rootfs push at stated throughput, waits and logs named once; cargo test 535 pass, dry run 25 steps pass. Not measured: the rootfs push time (assumed 2.4 MB/s), the next try reads it.
 
 About
 : modem-calls
