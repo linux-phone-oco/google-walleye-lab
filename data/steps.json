@@ -21,7 +21,6 @@
 {"step":"firmware-reachable","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"pd-mapper-before-remoteproc","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"camera-bus-bound","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
-{"step":"remoteprocs-running","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"gpu-renders","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"bt-controller-up","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
 {"step":"image-sensor-identified","status":"open","proof":null,"run":null,"proven_on":null,"notes":null,"updated":"2026-11-18"}
@@ -115,3 +114,4 @@
 {"step":"storage-full-speed","status":"partial","proof":"ufs-matched-image-on-the-pixel-2","run":"walleye-ufs-try-2-run-10-unpinned-ramp-passes-at-hs-gear3","proven_on":"ufs-match image sha256 461077869fb2","notes":"Run 10: under an unpinned read the card chose HS_GEAR3, 2 lanes, HS_RATE_B, 200 MHz, reads to 2048 MiB fine. Idle stays HS_GEAR1 at 50 MHz. Reads only; writes not tried (stage 3).","updated":"2026-11-24"}
 {"step":"test-layer-boots","status":"open","proof":null,"run":null,"proven_on":null,"notes":"not measured yet: lpoco-health test-layer-quiet has not run on a walleye boot; the rootfs-boots step is done (stage 1 Alpine, run 6) but its image is not shown to be the test layer","updated":"2026-11-26"}
 {"step":"display-boots-any-order","status":"partial","proof":"tests/host/dtb-display-reset.sh","run":"research walleye-display-at-boot-step-groups-run-passed","proven_on":null,"notes":"b2 at boot (2.5 s): 13 of 13 modules ok, connector connected on the step-group run; still not looked at on the glass, and three cold boots not yet","updated":"2026-11-26"}
+{"step":"remoteprocs-running","status":"partial","proof":"walleye-modem-up","run":"walleye-modem-mss-second-boot","proven_on":"modem image ae22f965 (kernel int/walleye/ufs-off-modem/v7.3/1)","notes":"mss runs (remoteproc 4080000 'now up', modem-up.sh passed live in run 2, PR 1270; first in run 1, PR 1265); adsp and cdsp not measured yet.","updated":"2026-11-27"}
