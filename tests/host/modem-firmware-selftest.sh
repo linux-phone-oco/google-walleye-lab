@@ -24,5 +24,22 @@ mk "$W/extra";  : > "$W/extra/modem.b15"; truncate -s 1 "$W/extra/modem.b15"; wa
 mk "$W/beyond"; truncate -s 5 "$W/beyond/modem.b40";      want "a segment file beyond the headers" "beyond the 29 headers" "$W/beyond"
 mk "$W/nomba";  rm "$W/nomba/mba.mbn";                     want "mba.mbn missing" "no mba.mbn" "$W/nomba"
 mk "$W/nomdt";  rm "$W/nomdt/modem.mdt";                   want "modem.mdt missing" "no modem.mdt" "$W/nomdt"
+IPAHEADERS=$(cat "$HERE/../fixtures/phone-text/walleye-ipa-fws-mdt-readelf.cap")
+mki() { # DIR: empty ipa_fws files of the sizes the ipa header text gives (the AP loads them: qcom,gsi-loader self, no mba)
+  mkdir -p "$1"; : > "$1/ipa_fws.mdt"
+  printf '%s\n' "$IPAHEADERS" | awk '$1=="NULL"||$1=="LOAD" { printf "%d %d\n", n++, strtonum($5) }' | while read -r i sz; do
+    [ "$sz" -gt 0 ] && truncate -s "$sz" "$(printf '%s/ipa_fws.b%02d' "$1" "$i")"
+  done
+}
+wanti() { # NAME WORD DIR
+  out=$(NAME=ipa_fws HEADERS="$IPAHEADERS" FW_DIR="$3" sh "$CHECK") && { echo "FAIL $1: the check passed"; bad=1; return; }
+  case "$out" in *"$2"*) echo "ok   $1";; *) echo "FAIL $1: '$out' lacks '$2'"; bad=1;; esac
+}
+mki "$W/ipa-good"
+if out=$(NAME=ipa_fws HEADERS="$IPAHEADERS" FW_DIR="$W/ipa-good" sh "$CHECK"); then echo "ok   the good ipa_fws folder passes (no mba.mbn asked)"; else echo "FAIL the good ipa_fws folder: $out"; bad=1; fi
+mki "$W/ipa-gap";   rm "$W/ipa-gap/ipa_fws.b02";                wanti "an ipa_fws segment file missing" "ipa_fws.b02 missing" "$W/ipa-gap"
+mki "$W/ipa-short"; truncate -s 100 "$W/ipa-short/ipa_fws.b04"; wanti "an ipa_fws segment of the wrong size" "ipa_fws.b04 is 100 bytes" "$W/ipa-short"
+mki "$W/ipa-nomdt"; rm "$W/ipa-nomdt/ipa_fws.mdt";              wanti "ipa_fws.mdt missing" "no ipa_fws.mdt" "$W/ipa-nomdt"
+mki "$W/ipa-beyond"; truncate -s 5 "$W/ipa-beyond/ipa_fws.b09"; wanti "an ipa_fws segment beyond the headers" "beyond the 5 headers" "$W/ipa-beyond"
 out=$(sh "$CHECK"); case "$out" in skip*) echo "ok   no FW_DIR is a skip";; *) echo "FAIL no FW_DIR: '$out'"; bad=1;; esac
 exit $bad

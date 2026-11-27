@@ -1,0 +1,101 @@
+# Linux v7.3 (git show v7.3:PATH, read in ~/Projects/linux-phone-oco/linux): a consumer node without an "interconnects" property gets NULL paths and the IPA driver goes on.
+# drivers/interconnect/core.c  of_icc_get():
+577: struct icc_path *of_icc_get(struct device *dev, const char *name)
+578: {
+579: 	struct device_node *np;
+580: 	int idx = 0;
+581: 
+582: 	if (!dev || !dev->of_node)
+583: 		return ERR_PTR(-ENODEV);
+584: 
+585: 	np = dev->of_node;
+586: 
+587: 	/*
+588: 	 * When the consumer DT node do not have "interconnects" property
+589: 	 * return a NULL path to skip setting constraints.
+590: 	 */
+591: 	if (!of_property_present(np, "interconnects"))
+592: 		return NULL;
+593: 
+594: 	/*
+595: 	 * We use a combination of phandle and specifier for endpoint. For now
+596: 	 * lets support only global ids and extend this in the future if needed
+597: 	 * without breaking DT compatibility.
+598: 	 */
+599: 	if (name) {
+600: 		idx = of_property_match_string(np, "interconnect-names", name);
+601: 		if (idx < 0)
+602: 			return ERR_PTR(idx);
+603: 	}
+604: 
+605: 	return of_icc_get_by_index(dev, idx);
+606: }
+# drivers/interconnect/bulk.c of_icc_bulk_get(): only an ERR_PTR path fails; NULL is kept
+int __must_check of_icc_bulk_get(struct device *dev, int num_paths,
+				 struct icc_bulk_data *paths)
+{
+	int ret, i;
+
+	for (i = 0; i < num_paths; i++) {
+		paths[i].path = of_icc_get(dev, paths[i].name);
+		if (IS_ERR(paths[i].path)) {
+			ret = PTR_ERR(paths[i].path);
+			if (ret != -EPROBE_DEFER)
+				dev_err(dev, "of_icc_get() failed on path %s (%d)\n",
+					paths[i].name, ret);
+			paths[i].path = NULL;
+			goto err;
+		}
+	}
+
+	return 0;
+# drivers/interconnect/core.c icc_set_bw / icc_enable / icc_disable on a NULL path:
+715:int icc_set_bw(struct icc_path *path, u32 avg_bw, u32 peak_bw)
+722-	if (!path)
+725-	if (WARN_ON(IS_ERR(path) || !path->num_nodes))
+789:int icc_enable(struct icc_path *path)
+791-	return __icc_enable(path, true);
+793-EXPORT_SYMBOL_GPL(icc_enable);
+795:int icc_disable(struct icc_path *path)
+797-	return __icc_enable(path, false);
+799-EXPORT_SYMBOL_GPL(icc_disable);
+56: * icc_bulk_set_bw() - set bandwidth to a set of paths
+57- * @num_paths: the number of icc_bulk_data
+58- * @paths: the icc_bulk_data table containing the paths and bandwidth
+62:int icc_bulk_set_bw(int num_paths, const struct icc_bulk_data *paths)
+68-		ret = icc_set_bw(paths[i].path, paths[i].avg_bw, paths[i].peak_bw);
+70-			pr_err("icc_set_bw() failed on path %s (%d)\n", paths[i].name, ret);
+77:EXPORT_SYMBOL_GPL(icc_bulk_set_bw);
+80- * icc_bulk_enable() - enable a previously disabled set of paths
+81- * @num_paths: the number of icc_bulk_data
+82- * @paths: the icc_bulk_data table containing the paths and bandwidth
+86-int icc_bulk_enable(int num_paths, const struct icc_bulk_data *paths)
+101:	icc_bulk_disable(i, paths);
+105-EXPORT_SYMBOL_GPL(icc_bulk_enable);
+108: * icc_bulk_disable() - disable a set of interconnect paths
+109- * @num_paths: the number of icc_bulk_data
+110- * @paths: the icc_bulk_data table containing the paths and bandwidth
+112:void icc_bulk_disable(int num_paths, const struct icc_bulk_data *paths)
+115-		icc_disable(paths[num_paths].path);
+117:EXPORT_SYMBOL_GPL(icc_bulk_disable);
+119-struct icc_bulk_devres {
+120-	struct icc_bulk_data *paths;
+124-static void devm_icc_bulk_release(struct device *dev, void *res)
+126-	struct icc_bulk_devres *devres = res;
+128-	icc_bulk_put(devres->num_paths, devres->paths);
+# drivers/interconnect/core.c icc_set_bw() and __icc_enable() (icc_enable, icc_disable): a NULL path returns 0
+int icc_set_bw(struct icc_path *path, u32 avg_bw, u32 peak_bw)
+{
+	struct icc_node *node;
+	u32 old_avg, old_peak;
+	size_t i;
+	int ret;
+
+	if (!path)
+		return 0;
+static int __icc_enable(struct icc_path *path, bool enable)
+{
+	int i;
+
+	if (!path)
+		return 0;

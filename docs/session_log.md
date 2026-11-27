@@ -10969,3 +10969,24 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-ipa-image"></a>
+### walleye-builder: the IPA kernel, firmware tar and modem image
+
+Entry date
+: 2026-11-27
+
+Done
+: Test first: tests/host/modem-firmware.sh takes NAME (ipa_fws) and its selftest saw the ipa cases fail. build-modem-ramdisk.sh adds ipa_fws.mdt/.b00-.b04 from ~/lab-material/walleye/vendor-firmware-2026-11-24 (each checked against its sha256sums, then by the mdt). Cited the v7.3 lines that make interconnects optional. Updated the config hash in [kernel_builds.walleye-ufs-off-modem], built the kernel in the Nix sandbox (fixed-output sha 0347728b), built the modem dtb on the tag's tree, rebuilt ramdisk (daa0faaa equal), tar (46582cc4) and image (8c632662); every check of build-modem-image.sh ok.
+
+Considered
+: Keeping the old kernel sha (ensure said 'in the store' for the old build: the sha is the store key, so a changed config needs a new one).
+
+Rejected
+: A second tar for ipa_fws: firmware-recv unpacks one tar into the one folder the dts firmware-name reads.
+
+About
+: modem-calls

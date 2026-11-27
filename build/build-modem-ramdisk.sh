@@ -12,6 +12,7 @@ OUT=${2:?usage: build-modem-ramdisk.sh WORK_DIR OUT_CPIO_XZ OUT_FIRMWARE_TAR}
 TAR=${3:?usage: build-modem-ramdisk.sh WORK_DIR OUT_CPIO_XZ OUT_FIRMWARE_TAR}
 HERE=$(cd "$(dirname "$0")" && pwd)
 MATERIAL=${MATERIAL:-$HOME/lab-material/walleye/modem-2026-11-19}
+VENDOR=${VENDOR:-$HOME/lab-material/walleye/vendor-firmware-2026-11-24}   # the phone's /vendor/firmware pull with its sha256sums: ipa_fws.* comes from it (the dts ipa node: qcom,gsi-loader self, firmware-name .../walleye/ipa_fws.mdt)
 BUSYBOX=${BUSYBOX:-$HOME/Projects/walleye-build/busybox-arm64}
 TOOLS=${TOOLS:-$HERE/initramfs-modem/tools.sha256}
 umask 077
@@ -49,6 +50,12 @@ for i in $(seq 0 27); do
 done
 ck "the firmware folder is whole by the mdt (tests/host/modem-firmware.sh)" "$(FW_DIR="$W/firmware" sh "$HERE/../tests/host/modem-firmware.sh" | cut -d' ' -f1)" pass
 ck "qdsp6m.qdb is there (tqftpserv serves it)" "$([ -s "$W/firmware/qdsp6m.qdb" ] && echo yes || echo no)" yes
+# ipa_fws: the AP loads it itself (qcom,gsi-loader self; firmware-name qcom/msm8998/google/walleye/ipa_fws.mdt), so it sits beside the modem's files; the pull's own sha256sums name each file
+for e in mdt b00 b01 b02 b03 b04; do
+  ck "ipa_fws.$e is the phone's pull (sha256sums of the vendor material)" "$(sum "$VENDOR/firmware/ipa_fws.$e")" "$(sed -n "s|^\([0-9a-f]\{64\}\)  ./firmware/ipa_fws.$e\$|\1|p" "$VENDOR/sha256sums")"
+  cp "$VENDOR/firmware/ipa_fws.$e" "$W/firmware/"
+done
+ck "the ipa_fws files are whole by their mdt (tests/host/modem-firmware.sh)" "$(NAME=ipa_fws FW_DIR="$W/firmware" sh "$HERE/../tests/host/modem-firmware.sh" | cut -d' ' -f1)" pass
 # the firmware is NOT in the ramdisk: 61 MB (34 MB xz) with the kernel does not fit the 32 MiB boot partition (decision 2026-11-27-walleye-modem-firmware-is-pushed-not-packed).
 # It goes to the phone as one tar over the USB network (firmware-recv), with its own sha256 list that modem-up checks.
 (cd "$W/firmware" && rm -f SHA256SUMS && sha256sum -- * > SHA256SUMS)

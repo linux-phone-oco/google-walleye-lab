@@ -189,10 +189,10 @@ sha256 = "8d00ca7e86378418c2f9ac5beff37a927f3571504d95ecab0e436707d9420fe7"
 tag = "int/walleye/ufs-off-modem/v7.3/1"
 rev = "78cfb5a6b6170ad9731344e2b8208ed811d78677"          # the commit the tag points at (git rev-parse TAG^{commit})
 epoch = 1795753563                                          # the tagged commit's committer time (git log -1 --format=%ct TAG)
-configs = ["695954ce34021b736e8b3b6231fb35953e7d6c5badf191313fa45faed1a164f3", "f4cb7cca9df7db020d1f102e74dda6463ce54f789668c1dc839d70cf1018c5f2"]   # build/walleye.config, build/walleye-modem.config
+configs = ["695954ce34021b736e8b3b6231fb35953e7d6c5badf191313fa45faed1a164f3", "7a80900e8e9aa7379157870a8e7ff0b4deff9729925861baa96a953ee45385b6"]   # build/walleye.config, build/walleye-modem.config (QCOM_IPA=y added; was f4cb7cca)
 patches = []
 targets = ["Image.gz"]
-sha256 = "3651b543ba9d8fb3d71c7f0bddf2d9c5df1adb178f600a60d6aeb57024e8225a"
+sha256 = "0347728b82e416fbdc4c90c7ef7abef3ad3216366fb45cd207560a7e4b7aa1ad"   # the tag int/walleye/ufs-off-modem/v7.3/1 with CONFIG_QCOM_IPA=y (was 3651b543 without it)
 
 # The kernels the attended procedures' boot_once and back_to_known_good name. Walleye boots only by fastboot boot and nothing is written to it: "kept" names the image the way back returns to, not a kernel stored on the phone.
 [kernels]
@@ -264,7 +264,7 @@ ramdisk = "f4b6c1d750e15cc180c76bd031489830b2fa256dc47969f253c81b5681e2d02b"
 [images.modem]
 path = "images-modem/boot-modem.img"
 kernel_tag = "int/walleye/ufs-off-modem/v7.3/1"
-sha256 = "f54b8b85d72270f92b106b215eefa776edc2435fab2aa4a43b37c045cdd11b34"   # kernel_builds.walleye-ufs-off-modem (sha 3651b543), dtb cb6ec054 after the clock_gcc fix, ramdisk daa0faaa (mm-up starts dbus-daemon with --config-file only, no --system, which the real daemon refuses beside it; was 8afd8bc7 with ramdisk 23274ac2) (mm-up starts dbus with --config-file to the store, makes a machine-id and no longer writes passwd; was ce993726 with ramdisk fccb1f41) (mm-up prints the logs of a daemon it started when it stops; was e6e846bd with ramdisk c0f407f8) (static qmicli acd5b8b5, with bin/rootfs-recv and bin/mm-up; was a43788755 with ramdisk 066694b3), swapped twice equal; firmware tar unchanged 95ca6961
+sha256 = "8c632662258d4bd44351c4421f936846fb8137924710e614f48f3c1257ee9a49"   # kernel_builds.walleye-ufs-off-modem (sha 0347728b, CONFIG_QCOM_IPA=y; was 3651b543), dtb of the modem dts with the ipa node (host-built on the tag's tree, clock_gcc named real), image before the ipa node: f54b8b85; the dtb was cb6ec054 after the clock_gcc fix; ramdisk daa0faaa (mm-up starts dbus-daemon with --config-file only, no --system, which the real daemon refuses beside it; was 8afd8bc7 with ramdisk 23274ac2) (mm-up starts dbus with --config-file to the store, makes a machine-id and no longer writes passwd; was ce993726 with ramdisk fccb1f41) (mm-up prints the logs of a daemon it started when it stops; was e6e846bd with ramdisk c0f407f8) (static qmicli acd5b8b5, with bin/rootfs-recv and bin/mm-up; was a43788755 with ramdisk 066694b3), swapped twice equal; firmware tar 46582cc4 (with ipa_fws.mdt and .b00-.b04 of the phone's /vendor/firmware; was 95ca6961)
 
 # z20: z21's control (UFS ON, NOT TO BOOT: tests/host/ufs-off-image.sh refuses it by design); no [kernels] list and no procedure names it.
 [images.z20]
@@ -725,7 +725,7 @@ luns = 6
 [procedures.modem-boot-on-the-pixel-2]
 image = "modem"
 firmware = "images-modem/modem-firmware.tar"                # under [images] dir; the manifest's image rows take no extra key, so the tar is named here
-firmware_sha256 = "95ca69619326e97decb4711b989a0b0b9105ed7c2df6c97764128cef777f1d31"   # 61501440 bytes, 31 files and their SHA256SUMS (build/build-modem-ramdisk.sh); images-modem/SHA256SUMS-modem lists the image only
+firmware_sha256 = "46582cc411706908224f0e0dbc0bfea4b0829152511d22c853024f8a3d4115ad"   # 61532160 bytes, 37 files (the ipa_fws set added; was 95ca6961, 61501440 bytes, 31 files) and their SHA256SUMS (build/build-modem-ramdisk.sh); images-modem/SHA256SUMS-modem lists the image only
 rootfs = "images-modem/modem-mm-rootfs.tar"                   # the ModemManager rootfs tar, pushed second (port 9001); build/modem-mm-rootfs.nix builds it
 rootfs_sha256 = "5484b5704d21b8774025ad872404ce27af3c1081d42d58c724a7a221c499dd20"   # build/modem-mm-rootfs.sha256
 bootchain = "~/lab-material/walleye/bootchain-2026-11-19"   # the stored boot chain read-back: read again at the end it must equal it
@@ -736,7 +736,7 @@ luns = 6                                                    # the card's disks (
 [procedures.rehearse-modem-boot-on-the-pixel-2]
 image = "modem"
 firmware = "images-modem/modem-firmware.tar"
-firmware_sha256 = "95ca69619326e97decb4711b989a0b0b9105ed7c2df6c97764128cef777f1d31"
+firmware_sha256 = "46582cc411706908224f0e0dbc0bfea4b0829152511d22c853024f8a3d4115ad"
 rootfs = "images-modem/modem-mm-rootfs.tar"                   # the ModemManager rootfs tar, pushed second (port 9001); build/modem-mm-rootfs.nix builds it
 rootfs_sha256 = "5484b5704d21b8774025ad872404ce27af3c1081d42d58c724a7a221c499dd20"   # build/modem-mm-rootfs.sha256
 bootchain = "~/lab-material/walleye/bootchain-2026-11-19"
