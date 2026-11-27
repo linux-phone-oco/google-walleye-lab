@@ -14312,7 +14312,7 @@ Needs
 : build
 
 Proof
-: the sha256 of build/modem-mm-rootfs.sha256 rebuilds equal from a named nixpkgs rev written in the file header
+: build/modem-tools.nix and build/modem-mm-rootfs.nix both build from one named nixpkgs rev (a pinned fetchTarball with its sha256, or the lab's flake input), and each recorded sha256 (modem tools, qmicli, the rootfs tar) rebuilds equal from it; any hash that moves is re-recorded with the image rows that pack it and said in the PR
 
 Rank
-: 50
+: 20
