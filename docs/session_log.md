@@ -10636,3 +10636,18 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-1830-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-qmi-ids-read: modem boot run 3 passed 22 of 22, qmicli over qrtr read the IMEI (kept in lab-material only); item done. Phone on Android slot b, stock, fastboot reachable, card/boot chain/flags equal before and after.
+
+Considered
+: next: walleye-modem-mm-sees-modem (ModemManager over qrtr); deep-sleep-baseline needs meter+hands; fingerprint-spi-hwid is host-first

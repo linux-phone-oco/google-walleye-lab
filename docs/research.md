@@ -9307,3 +9307,22 @@ Found
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-qmi-ids-read-run-3"></a>
+### walleye-modem-qmi-ids-read-run-3
+
+Date
+: 2026-11-27
+
+Brief
+: Third modem boot (run modem-boot-20261127-124252, 22 of 22): qmicli -d qrtr://0 --dms-get-ids answered with a 15-digit IMEI; kept in lab-material only
+
+Question
+: Does qmicli with libqmi's QRTR transport (image a43788755) read the modem's device ids over qrtr://0?
+
+Found
+: Yes: DMS get-ids returned ESN, IMEI (15 digits), MEID, IMEI SV; the file qmi-ids.txt is in ~/lab-material/walleye/modem-boot-20261127-124252, never git, never shown. Modem remoteproc running, qrtr-lookup 38 services; slpi_v2.mdt load -2 failure lines are the known slpi firmware names, not the modem. Card (6 disks, system_a hash), boot chain and both slots' flags equal before and after; Android back in 31 s, slot b. Not known yet: the SIM state, registration.
+
+About
+: modem-calls
