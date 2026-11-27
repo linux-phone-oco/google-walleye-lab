@@ -3,7 +3,7 @@
 # Passes only when (1) remoteproc_mss is okay; (2) its firmware-name is, in order, qcom/msm8998/google/walleye/mba.mbn and qcom/msm8998/google/walleye/modem.mdt (the names of the phone's own modem_b
 # partition files mba.mbn and modem.mdt, research walleye-modem-blobs-found); (3) its mba, mpss and metadata children point at the labels mba_mem, mpss_mem and mdata_mem; (4) mba_mem and mpss_mem
 # equal, by address and size, the phone's running fdt (FIXTURE, the phone's own text: pil_mba_region, modem_region), both no-map; (5) mdata_mem is the 0x4000-byte no-map block mainline allocates; (6) rmtfs_mem is the
-# qcom,rmtfs-mem no-map block - its ADDRESS is not judged: the phone's running fdt names no rmtfs region, so where it belongs is not known yet.
+# qcom,rmtfs-mem no-map block - its ADDRESS is not judged: the fixture (reserved regions with a reg) holds no rmtfs region, so where it belongs is not known yet; size, client, DRAM and overlap are judged.
 # Prints one line `pass|fail|skip walleye-dtb-modem-mss kernel DETAIL`; exit 0 only on pass. Read-only. Needs fdtget (dtc) and awk. Environment: DTB (no default: the image build names it), FIXTURE (default
 # tests/fixtures/phone-text/walleye-running-fdt-memory.cap in this lab).
 HERE=$(cd "$(dirname "$0")/../.." && pwd)
@@ -43,4 +43,15 @@ fdtget -p "$DTB" "$p" | grep -qx no-map || say fail "$N: mdata_mem is not no-map
 p=$(label rmtfs_mem) || say fail "$N: no label rmtfs_mem"
 [ "$(fdtget "$DTB" "$p" compatible)" = qcom,rmtfs-mem ] || say fail "$N: rmtfs_mem is not qcom,rmtfs-mem"
 fdtget -p "$DTB" "$p" | grep -qx no-map || say fail "$N: rmtfs_mem is not no-map"
-say pass "$N: remoteproc_mss okay with mba.mbn and modem.mdt, mba_mem and mpss_mem equal the phone's running fdt, metadata 0x4000, rmtfs_mem a qcom,rmtfs-mem block (its address not known yet)"
+# (6b) not its address, but what holds wherever it is: 2 MiB, client 1, inside the phone's DRAM, clear of the modem's own blocks
+[ "$(regs "$(fdtget -t x "$DTB" "$p" reg)" | cut -d' ' -f2)" = 2097152 ] || say fail "$N: rmtfs_mem is not 2 MiB"
+[ "$(fdtget -t u "$DTB" "$p" qcom,client-id 2>/dev/null)" = 1 ] || say fail "$N: rmtfs_mem's qcom,client-id is not 1"
+RS=$(regs "$(fdtget -t x "$DTB" "$p" reg)" | cut -d' ' -f1)
+dram=$(awk '/^    memory \{/{m=1} m&&/reg = </{ gsub(/.*<|>;.*/,""); print; exit }' "$FIXTURE")
+[ -n "$dram" ] || say fail "$FIXTURE holds no /memory reg"
+regs "$dram" | awk -v s="$RS" '{ if (s>=$1 && s+2097152<=$1+$2) ok=1 } END { exit !ok }' || say fail "$N: rmtfs_mem is outside the phone's DRAM"
+for l in mba_mem mpss_mem; do
+  b=$(regs "$(fdtget -t x "$DTB" "$(label $l)" reg)")
+  echo "$b" | awk -v s="$RS" '{ exit !(s < $1+$2 && $1 < s+2097152) }' && say fail "$N: rmtfs_mem overlaps $l"
+done
+say pass "$N: remoteproc_mss okay with mba.mbn and modem.mdt, mba_mem and mpss_mem equal the phone's running fdt, metadata 0x4000, rmtfs_mem a 2 MiB client-1 qcom,rmtfs-mem block inside the DRAM and clear of the modem's blocks (its address not known yet)"
