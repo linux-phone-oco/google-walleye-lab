@@ -9168,3 +9168,22 @@ Found
 
 About
 : walleye-modem-mss-proof
+
+
+<a id="walleye-rmtfs-static-nix-ok"></a>
+### walleye-rmtfs-static-nix-ok
+
+Date
+: 2026-11-27
+
+Brief
+: rmtfs, qrtr-ns and tqftpserv build static aarch64 by nix with libudev-zero and no systemd: build/modem-tools.nix
+
+Question
+: Can nix give static rmtfs, qrtr and tqftpserv for the modem ramdisk, with libudev-zero as the coordinator said?
+
+Found
+: Yes, four overrides: rmtfs udev=libudev-zero; qrtr systemd=none (-Dsystemd-service=disabled) and static_library (its meson has shared_library hard-coded; default_library does not reach it); tqftpserv without systemdLibs and without nixpkgs' /lib/firmware rewrite. Built on the lab (musl, ~2 min after the toolchain was cached): file says aarch64 statically linked for each. sha256: rmtfs 6d8bbdc0bd34db48c1535956d8226b4e410876f0e1d5b3d5628dca075a4fcff5, qrtr-ns f13efba7a8a52b544ef992c0136f9a4f73985b5d2841ec35849a60605b88db43, tqftpserv dfdabc5a7e8e86386ef85196ca5bcdfab432e14de3f8503ed0074ff7ce6da559. Not run on the phone. No source patch needed: the fallback is dropped.
+
+About
+: walleye-modem-mss-proof

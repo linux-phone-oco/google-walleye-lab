@@ -7287,7 +7287,7 @@ Status
 : open
 
 Note
-: Coordinator 2026-11-27, after research walleye-rmtfs-static-nix-fails: before patching rmtfs's source, try linking rmtfs against libudev-zero (a drop-in libudev that reads sysfs, made for static and systemd-less systems; in nixpkgs as libudev-zero) - nixpkgs pkgsStatic rmtfs with udev overridden to libudev-zero, or the same in a [part_builds] recipe if its form allows. A patch to sharedmem.c and a hand script are the fallback, said why in the record. | 2026-11-27 (walleye builder): step (3) by nix fails, research walleye-rmtfs-static-nix-fails: pkgsStatic rmtfs needs static systemd (link error). Next: a patch of rmtfs sharedmem.c reading sysfs instead of libudev, then rmtfs, libqrtr and tqftpserv built static with aarch64-linux-gnu-gcc (a build script like build-nfc-up-bin.sh, sha256 declared in device.toml); then step (4). Earlier: the dtb (walleye-modem-mss-dtb); kernel list ufs-off-modem and build/walleye-modem.config, tag not published. Privacy: modemst1/2, fsg, fsc stay in ~/lab-material, never in git.
+: 2026-11-27 (walleye builder): step (3) done: rmtfs, qrtr-ns, tqftpserv static by nix with libudev-zero, build/modem-tools.nix, research walleye-rmtfs-static-nix-ok (sha256 there). Next: step (4), the ramdisk (modem firmware set from ~/lab-material/walleye/modem-2026-11-19 + these three, read-only modem partition copies), boot image, sha256, host test of no UFS-on node. Earlier: the dtb (walleye-modem-mss-dtb); kernel list ufs-off-modem and build/walleye-modem.config, tag not published. Privacy: modemst1/2, fsg, fsc stay in ~/lab-material, never in git.
 
 Blocked by
 : walleye-modem-mss-dtb
