@@ -15018,3 +15018,31 @@ Proof
 
 Rank
 : 18
+
+
+<a id="walleye-osfact-image-installs"></a>
+### An osfact image installed on walleye with osfact's install command, and booting: the first of walleye's one rolling image
+
+Status
+: open
+
+Note
+: From docs decision 2026-11-27-osfact-own-rust-in-lab-tools (lab-tools item image-factory-any-distro-any-phone). When lab-tools osfact-walleye-two-distros has landed: build walleye's Alpine image with osfact pack now from this lab's device.toml (its [install] table added by lab-tools osfact-device-declaration), install it with the install command it prints - the same writes install-rootfs and install-boot make today (system_{other} by dd from Android, boot_{other} by fastboot, set_active, the way back) under the coordinator's go - and boot it. Debian after Alpine, as its own run. No bootloader, GPT bytes of ours, erase or purge. Not ready before the build: it waits on it.
+
+Waits
+: lab-tools osfact-walleye-two-distros landed (linux-phone-oco/docs base)
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: procedures/rootfs-boots-on-the-pixel-2.rs passes on the osfact-built image, and the image's sha256 equals the one osfact's install.toml names
+
+Rank
+: 90
+
+Witness
+: person
