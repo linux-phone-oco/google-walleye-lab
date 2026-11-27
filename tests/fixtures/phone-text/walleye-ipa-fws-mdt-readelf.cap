@@ -1,0 +1,13 @@
+
+
+Elf file type is EXEC (Executable file)
+Entry point 0x0
+There are 5 program headers, starting at offset 52
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  NULL           0x000000 0x00000000 0x00000000 0x000d4 0x00000     0
+  NULL           0x001000 0x00005000 0x00005000 0x019c8 0x02000     0x1000
+  LOAD           0x003000 0x01e08000 0x00000000 0x03528 0x04000 RWE 0x1000
+  LOAD           0x007000 0x01e5e000 0x00004000 0x00080 0x00080 RWE 0x1000
+  LOAD           0x008000 0x01e5e080 0x00004080 0x00140 0x00140 RWE 0x1000

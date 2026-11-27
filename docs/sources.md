@@ -2167,3 +2167,13 @@ Url
 
 Takes
 : driver and binding know msm8998-ipa; arch/arm64/boot/dts/qcom has no ipa node for msm8998 (only ipa_fw_mem, ipa_gsi_mem reserved)
+
+
+<a id="linux-v7-3-interconnect-core"></a>
+### Linux v7.3 drivers/interconnect/core.c and bulk.c: no interconnects property gives a NULL path
+
+Url
+: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/interconnect/core.c?h=v7.3
+
+Takes
+: of_icc_get returns NULL when the consumer node has no interconnects property; of_icc_bulk_get fails only on an ERR_PTR; icc_set_bw and __icc_enable return 0 on a NULL path

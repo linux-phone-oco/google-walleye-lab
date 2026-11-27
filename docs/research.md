@@ -9558,3 +9558,25 @@ Sources
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-ipa-interconnects-optional"></a>
+### walleye-modem-ipa-interconnects-optional
+
+Date
+: 2026-11-27
+
+Brief
+: v7.3's ipa driver probes without an interconnects property: of_icc_get gives NULL paths and every bulk call returns 0 on them
+
+Question
+: Does drivers/net/ipa (v7.3) fail probe on an ipa node with no interconnects, as the modem test dts has?
+
+Found
+: No. ipa_interconnect_init (ipa_power.c) calls of_icc_bulk_get, icc_bulk_disable and icc_bulk_set_bw. of_icc_get (drivers/interconnect/core.c) returns NULL when the node has no interconnects property; of_icc_bulk_get (bulk.c) fails only on an ERR_PTR; icc_set_bw and __icc_enable return 0 on a NULL path. So the node probes unvoted. The lines are captured in tests/fixtures/kernel-text/ipa-interconnect-optional-v7.3.txt (git show v7.3:PATH in the kernel clone). dtbs_check's missing-interconnects error stays accepted for this test dtb only; upstream waits on walleye-msm8998-interconnect-provider. NOT KNOWN YET: that the unvoted bus clocks are enough on the phone: the try shows it.
+
+Sources
+: linux-v7-3-interconnect-core,linux-v7-3-ipa-main-msm8998
+
+About
+: modem-calls

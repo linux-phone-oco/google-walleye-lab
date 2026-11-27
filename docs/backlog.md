@@ -14575,10 +14575,10 @@ Rank
 ### ipa node and CONFIG_QCOM_IPA in the modem test kernel (host build)
 
 Status
-: in-progress
+: done
 
 Note
-: Coordinator 2026-11-27 after PR 1306, left for this item before the phone try: (1) ipa_fws (.mdt/.b0x, gsi-loader self) from the phone's own vendor firmware into the pushed firmware tar (today's tar has no ipa file), its new sha256 recorded, read in ~/lab-material, never git; (2) the test kernel goes without 'interconnects' only if drivers/net/ipa (v7.3) treats a missing path as optional - cite the lines; if it fails probe without it, stop and say so; dtbs_check's interconnects error is accepted for this test dtb only, upstream waits on walleye-msm8998-interconnect-provider; (3) kernel assemble and the modem image rebuilt with CONFIG_QCOM_IPA; then the phone try. | Built on builder/modem-ipa-node: ipa node, CONFIG_QCOM_IPA=y, tests/host/dtb-modem-ipa.sh and kernel-modem-ipa.sh with selftests; dtbs_check names only 'interconnects' (decision 2026-11-27-walleye-ipa-node-ap-loads-no-interconnects, item walleye-msm8998-interconnect-provider). Left: rebuild the kernel tag with the new config (lpoco bringup kernel assemble) and the image (build/build-modem-image.sh), then queue the phone try.
+: Done 2026-11-27 (walleye-builder): ipa_fws.mdt and .b00-.b04 from the phone's /vendor/firmware pull are in the firmware tar (new sha256 46582cc4, 61532160 bytes; tests/host/modem-firmware.sh now checks a part by NAME, selftest with captured readelf text of ipa_fws.mdt); v7.3 treats a missing interconnects property as NULL paths (research walleye-modem-ipa-interconnects-optional, lines in tests/fixtures/kernel-text/ipa-interconnect-optional-v7.3.txt); kernel int/walleye/ufs-off-modem/v7.3/1 rebuilt with CONFIG_QCOM_IPA=y (sha 0347728b, the Image.gz now holds qcom,msm8998-ipa), the modem dtb built on the tag's tree, the image rebuilt (boot-modem.img 8c632662, ramdisk daa0faaa unchanged, every build-modem-image.sh check ok) in ~/Projects/walleye-build/images-modem. Left: the phone try, item walleye-modem-net-port-ipa-try.
 
 About
 : modem-calls
@@ -14603,10 +14603,7 @@ Status
 : open
 
 Note
-: Watch MSS stay up (OnePlus 5 ipa stability issue). If ipa cannot probe: item walleye-modem-net-port-mm-nonet.
-
-Blocked by
-: walleye-modem-net-port-ipa-node
+: Ready for the keeper: images-modem/boot-modem.img 8c632662 and modem-firmware.tar 46582cc4 (both in device.toml [images.modem] and the modem boot procedures). Watch MSS stay up (OnePlus 5 ipa stability issue); dmesg ipa probe, ipa_fws load, a net device, then mmcli -L. If ipa cannot probe: item walleye-modem-net-port-mm-nonet.
 
 About
 : modem-calls
