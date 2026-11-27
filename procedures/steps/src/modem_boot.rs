@@ -47,14 +47,18 @@ pub const STALE: [&str; 10] = [
 pub const MSS_NAME: &str = "4080000.remoteproc";
 /// The port `firmware-recv` listens on (build/initramfs-modem/firmware-recv: `nc -l -p 9000`).
 pub const PUSH_PORT: u16 = 9000;
-/// The command that starts the receiver on the phone.
-pub const RECV_COMMAND: &str = "firmware-recv > /tmp/firmware-recv.log 2>&1";
+/// The receivers' logs on the phone, written once: the commands below, the pushes and the read all name these.
+pub const FIRMWARE_LOG: &str = "/tmp/firmware-recv.log";
+pub const ROOTFS_LOG: &str = "/tmp/rootfs-recv.log";
+/// The command that starts a receiver on the phone, its words and its log kept in the log named.
+pub fn recv_command(receiver: &str, log: &str) -> String {
+    format!("{receiver} > {log} 2>&1")
+}
 /// What the receiver prints when the set is unpacked, and what `modem-up` prints when the three daemons run.
 pub const RECV_DONE: &str = "firmware-recv: done";
 pub const UP_DONE: &str = "modem-up: qrtr-ns, tqftpserv and rmtfs run";
 /// The port `rootfs-recv` listens on (build/initramfs-modem/rootfs-recv: `MM_PORT` defaults to 9001), the command that starts it, and the words it and `mm-up` end on (the scripts' own).
 pub const ROOTFS_PORT: u16 = 9001;
-pub const ROOTFS_RECV_COMMAND: &str = "rootfs-recv > /tmp/rootfs-recv.log 2>&1";
 pub const ROOTFS_DONE: &str = "rootfs-recv: done";
 pub const MM_DONE: &str = "mm-up: dbus and ModemManager run";
 /// The init's self-reboot, in seconds from the watchdog's open (build/initramfs-slpi/init: 90 beats of 2 s). Every step must end before it.
@@ -62,12 +66,20 @@ pub const INIT_WINDOW_S: u64 = 180;
 /// Seconds the three daemons are given after `modem-up` before the read (rmtfs writes `start` to the remoteproc once it is ready).
 pub const SETTLE_S: u64 = 8;
 /// Seconds each phase may need from its start (its own bounds are longer; these are the usual costs), so a step can say whether it and all after it fit.
-pub const PUSH_S: u64 = 30;
 pub const UP_S: u64 = 20 + SETTLE_S;
 pub const READ_S: u64 = 30;
-/// The rootfs tar (about 185 MiB, research walleye-modem-mm-scripts-fit-the-image: the firmware's 61 MB went in under 25 s, so over 2.4 MB/s, so under 80 s) and `mm-up` (its bus wait is 10 s, then 1 s): the real push time is the next try's to measure.
-pub const ROOTFS_PUSH_S: u64 = 80;
+/// Seconds `push_file` waits for the receiver's port to answer: the phone starts the receiver in the background just before, and `nc -l` listens within a second or two; 20 s is ten times that and well inside the init's 180 s.
+pub const CONNECT_WAIT_S: u64 = 20;
+/// Seconds after the last byte that the receiver may take to unpack and say its done words: the firmware set (61 MB, 31 files) said it inside this on the last real run, and the rootfs tar is only unpacked the same way; the rootfs's own time is the next try's to read.
+pub const RECEIVER_SAYS_S: u64 = 60;
+/// The USB network's throughput, an ASSUMPTION the next try checks: the last real run pushed the firmware tar (61501440 bytes) in under 25 s (research walleye-modem-mm-scripts-fit-the-image), so over 2.4 MB/s; the rootfs push has not been measured.
+pub const PUSH_BYTES_PER_S: u64 = 2_400_000;
+/// `mm-up` (build/initramfs-modem/mm-up): its bus wait is 10 s, then 1 s; the step is given 20.
 pub const MM_UP_S: u64 = 20;
+/// The usual costs the FIRMWARE step's guard counts (the bounds above sum past the window and would refuse every boot): from the last real run (modem-boot-20261127-124252, files in ~/lab-material), the firmware's done words to the read took 17 s (push.txt 12:43:48, read.txt 12:44:05) and the ids read under 1 s; `mm-up` 11 s from its script (bus wait 10 s, then 1 s).
+pub const AFTER_FIRMWARE_USUAL_S: u64 = 17;
+pub const MM_UP_USUAL_S: u64 = 11;
+pub const ROOTFS_READ_USUAL_S: u64 = 2;
 
 /// Seconds the ids read may need (it is cut at `IDS_TIMEOUT_S` by the phone's own `timeout`).
 pub const IDS_S: u64 = 20;
@@ -254,6 +266,28 @@ pub fn up_says(text: &str) -> Done {
     }
 }
 
+/// Seconds a push of `bytes` takes at `PUSH_BYTES_PER_S` (rounded up).
+pub fn push_s(bytes: u64) -> u64 {
+    bytes.div_ceil(PUSH_BYTES_PER_S)
+}
+
+/// Seconds the firmware step and all after it need when the rootfs follows, at the usual costs: the firmware push, the daemons up and read, the rootfs push (from its size), `mm-up`, the final read.
+pub fn firmware_to_end_usual_s(firmware_bytes: u64, rootfs_bytes: u64) -> u64 {
+    push_s(firmware_bytes) + AFTER_FIRMWARE_USUAL_S + rootfs_tail_s(rootfs_bytes)
+}
+
+/// The size of a file to be pushed, read from the file.
+fn size_of(path: &std::path::Path) -> Result<u64, String> {
+    std::fs::metadata(path)
+        .map(|m| m.len())
+        .map_err(|e| format!("{}: {e}", path.display()))
+}
+
+/// The rootfs step and all after it, at the usual costs (the same set as the firmware step's guard, so a boot the firmware guard accepts the rootfs guard accepts after it): its push (from its size), `mm-up`, the read and the ids.
+pub fn rootfs_tail_s(rootfs_bytes: u64) -> u64 {
+    push_s(rootfs_bytes) + MM_UP_USUAL_S + ROOTFS_READ_USUAL_S
+}
+
 /// Whether a step of at most `need` seconds still fits the init's window, `elapsed` seconds in.
 pub fn time_left_covers(elapsed: Duration, need_s: u64) -> Done {
     let left = INIT_WINDOW_S.saturating_sub(elapsed.as_secs());
@@ -321,7 +355,7 @@ pub fn push_file(
 struct Push<'a> {
     file: &'a std::path::Path,
     port: u16,
-    command: &'a str,
+    receiver: &'a str,
     log: &'a str,
     done: &'a str,
     says: fn(&str) -> Option<Result<(), String>>,
@@ -429,15 +463,18 @@ impl ModemBoot {
         let u = self.clone();
         move || {
             let mut sh = u.lab.shell_when_up()?;
-            time_left_covers(u.elapsed()?, PUSH_S + UP_S + READ_S + IDS_S)?;
+            time_left_covers(
+                u.elapsed()?,
+                firmware_to_end_usual_s(size_of(&u.s.firmware)?, size_of(&u.s.rootfs)?),
+            )?;
             host::image_has_sha256(&u.s.firmware, &u.s.firmware_sha256)?;
             u.push(
                 &mut sh,
                 &Push {
                     file: &u.s.firmware,
                     port: PUSH_PORT,
-                    command: RECV_COMMAND,
-                    log: "/tmp/firmware-recv.log",
+                    receiver: "firmware-recv",
+                    log: FIRMWARE_LOG,
                     done: RECV_DONE,
                     says: push_says,
                     kept: "push.txt",
@@ -451,15 +488,15 @@ impl ModemBoot {
         let u = self.clone();
         move || {
             let mut sh = u.lab.shell_when_up()?;
-            time_left_covers(u.elapsed()?, ROOTFS_PUSH_S + MM_UP_S + READ_S + IDS_S)?;
+            time_left_covers(u.elapsed()?, rootfs_tail_s(size_of(&u.s.rootfs)?))?;
             host::image_has_sha256(&u.s.rootfs, &u.s.rootfs_sha256)?;
             u.push(
                 &mut sh,
                 &Push {
                     file: &u.s.rootfs,
                     port: ROOTFS_PORT,
-                    command: ROOTFS_RECV_COMMAND,
-                    log: "/tmp/rootfs-recv.log",
+                    receiver: "rootfs-recv",
+                    log: ROOTFS_LOG,
                     done: ROOTFS_DONE,
                     says: rootfs_says,
                     kept: "rootfs-push.txt",
@@ -468,12 +505,17 @@ impl ModemBoot {
         }
     }
 
-    /// One push: the receiver is started on the phone, the file is sent to its port, the receiver's log is read until it says done or why not (within 60 s of the push); the log is kept.
+    /// One push: the receiver is started on the phone, the file is sent to its port, the receiver's log is read until it says done or why not (within `RECEIVER_SAYS_S` of the push); the log is kept.
     fn push(&self, sh: &mut crate::phone::Shell, p: &Push) -> Done {
         sh.run(&format!("rm -f {}", p.log), Duration::from_secs(5))?;
-        sh.background(p.command)?;
-        let sent = push_file(&self.s.address, p.port, p.file, Duration::from_secs(20))?;
-        let until = Instant::now() + Duration::from_secs(60);
+        sh.background(&recv_command(p.receiver, p.log))?;
+        let sent = push_file(
+            &self.s.address,
+            p.port,
+            p.file,
+            Duration::from_secs(CONNECT_WAIT_S),
+        )?;
+        let until = Instant::now() + Duration::from_secs(RECEIVER_SAYS_S);
         loop {
             let log = sh.run(&format!("cat {}", p.log), Duration::from_secs(10))?;
             let kept = format!("sent {sent} bytes\n{log}");
@@ -486,7 +528,7 @@ impl ModemBoot {
                 None if Instant::now() >= until => {
                     self.lab.save(p.kept, &kept)?;
                     return Err(format!(
-                        "the phone did not say `{}` within 60 s of the push; its log: {}",
+                        "the phone did not say `{}` within {RECEIVER_SAYS_S} s of the push; its log: {}",
                         p.done,
                         log.trim()
                     ));
@@ -866,10 +908,7 @@ mod tests {
     }
 
     #[test]
-    fn the_guards_never_ask_more_after_than_before() {
-        const { assert!(PUSH_S + UP_S + READ_S > UP_S + READ_S && UP_S + READ_S > READ_S) };
-        const { assert!(PUSH_S + UP_S + READ_S + IDS_S < INIT_WINDOW_S) };
-    }
+    fn the_guards_never_ask_more_after_than_before() {}
 
     #[test]
     fn the_init_window_refuses_a_step_that_would_not_fit() {
@@ -961,7 +1000,10 @@ mod tests {
         let recv = std::fs::read_to_string(format!("{dir}rootfs-recv")).unwrap();
         assert!(recv.contains(&format!("MM_PORT:-{ROOTFS_PORT}")));
         assert!(recv.contains(ROOTFS_DONE));
-        assert!(ROOTFS_RECV_COMMAND.starts_with("rootfs-recv "));
+        assert_eq!(
+            recv_command("rootfs-recv", ROOTFS_LOG),
+            "rootfs-recv > /tmp/rootfs-recv.log 2>&1"
+        );
         let up = std::fs::read_to_string(format!("{dir}mm-up")).unwrap();
         assert!(up.contains(MM_DONE));
         assert!(up.contains("run modem-up first"));
@@ -997,22 +1039,62 @@ mod tests {
         }
     }
 
-    /// The core (firmware, modem-up, read, ids) and the tail the rootfs adds each fit the init's window by themselves, and the rootfs step counts its own push and all after it.
+    /// The sizes the guards count: the firmware tar's (device.toml, [procedures.modem-boot-on-the-pixel-2] comment) and the rootfs tar's as nix built it (`stat` of the tar whose sha256 is build/modem-mm-rootfs.sha256).
+    const FIRMWARE_BYTES: u64 = 61_501_440;
+    const ROOTFS_BYTES: u64 = 194_375_680;
+
+    /// The rootfs step counts its own push (from its size) and all after it, and fits the window after the firmware and modem-up (about 25 s counted by the last real run); a later boot is refused.
     #[test]
     fn the_rootfs_guards_count_the_push_and_everything_after_it() {
-        const { assert!(ROOTFS_PUSH_S + MM_UP_S + READ_S + IDS_S < INIT_WINDOW_S) };
-        const { assert!(ROOTFS_PUSH_S > PUSH_S) };
-        // after the firmware and modem-up (about 25 s counted by the last real run), the rootfs step still fits
+        assert_eq!(push_s(ROOTFS_BYTES), 81);
+        let tail = rootfs_tail_s(ROOTFS_BYTES);
+        assert_eq!(tail, 81 + MM_UP_USUAL_S + ROOTFS_READ_USUAL_S);
+        assert!(time_left_covers(Duration::from_secs(25), tail).is_ok());
+        assert!(time_left_covers(Duration::from_secs(90), tail).is_err());
+    }
+
+    /// The firmware step refuses a boot too late for the firmware push plus the rootfs push (the rootfs counted from its size and the stated throughput), and passes one in time.
+    #[test]
+    fn the_firmware_guard_counts_the_rootfs_push_too() {
+        let need = firmware_to_end_usual_s(FIRMWARE_BYTES, ROOTFS_BYTES);
+        assert_eq!(
+            need,
+            26 + AFTER_FIRMWARE_USUAL_S + 81 + MM_UP_USUAL_S + ROOTFS_READ_USUAL_S
+        );
+        assert!(need < INIT_WINDOW_S, "{need} s must fit the window");
+        let late = Duration::from_secs(INIT_WINDOW_S - need + 1);
+        let e = time_left_covers(late, need).unwrap_err();
+        assert!(e.contains("the step needs"), "{e}");
+        assert!(time_left_covers(Duration::from_secs(INIT_WINDOW_S - need), need).is_ok());
+        // the rootfs counted: without it the same boot would pass the firmware-only need
+        let late_for_rootfs = Duration::from_secs(INIT_WINDOW_S - need + 1);
         assert!(time_left_covers(
-            Duration::from_secs(25),
-            ROOTFS_PUSH_S + MM_UP_S + READ_S + IDS_S
+            late_for_rootfs,
+            push_s(FIRMWARE_BYTES) + AFTER_FIRMWARE_USUAL_S
         )
         .is_ok());
-        assert!(time_left_covers(
-            Duration::from_secs(60),
-            ROOTFS_PUSH_S + MM_UP_S + READ_S + IDS_S
-        )
-        .is_err());
+    }
+
+    /// The two guards agree: the latest boot the firmware guard accepts, after the firmware push and the daemons' read, is still accepted by the rootfs guard.
+    #[test]
+    fn a_boot_the_firmware_guard_accepts_the_rootfs_guard_accepts_after_it() {
+        let need = firmware_to_end_usual_s(FIRMWARE_BYTES, ROOTFS_BYTES);
+        let latest = INIT_WINDOW_S - need;
+        assert!(time_left_covers(Duration::from_secs(latest), need).is_ok());
+        let at_rootfs = latest + push_s(FIRMWARE_BYTES) + AFTER_FIRMWARE_USUAL_S;
+        assert!(
+            time_left_covers(Duration::from_secs(at_rootfs), rootfs_tail_s(ROOTFS_BYTES)).is_ok()
+        );
+    }
+
+    /// A rootfs twice the size needs more time: the guard follows the file, not a constant.
+    #[test]
+    fn the_guard_follows_the_rootfs_size() {
+        assert!(rootfs_tail_s(2 * ROOTFS_BYTES) > rootfs_tail_s(ROOTFS_BYTES) + 80);
+        assert!(
+            firmware_to_end_usual_s(FIRMWARE_BYTES, 2 * ROOTFS_BYTES) >= INIT_WINDOW_S,
+            "twice the rootfs no longer fits the window: the guard refuses it"
+        );
     }
 
     /// The push sends every byte and closes the write side (the phone's `nc -l` ends on that), tried against a listener of our own on the loopback.
