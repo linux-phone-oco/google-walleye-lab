@@ -14403,7 +14403,7 @@ Status
 : open
 
 Note
-: From run 2 of mm-first-try: dbus-daemon cannot open /etc/dbus-1/system.conf. Rebuild build/modem-mm-rootfs.nix, update the sha256 in device.toml and the image, rehearse; then the keeper retries mm-first-try.
+: From run 2 of mm-first-try (PR 1294): dbus-daemon cannot open /etc/dbus-1/system.conf. A nix closure has no NixOS /etc, so the coordinator (2026-11-27) widened the proof to the whole set dbus and ModemManager read at start, each named from the package's own files, so the next try does not stop once per missing file. Rebuild build/modem-mm-rootfs.nix, update rootfs_sha256 and the image; then the keeper retries mm-first-try.
 
 About
 : modem-calls
@@ -14415,7 +14415,7 @@ Needs
 : build
 
 Proof
-: host: the rootfs tar holds /etc/dbus-1/system.conf (or mm-up passes --config-file); phone: dbus socket up in mm-up
+: host: tests/host/modem-rootfs.sh also fails a tar missing any of /etc/dbus-1/system.conf (or mm-up's --config-file to the nix dbus share), ModemManager's bus policy (dbus-1/system.d/org.freedesktop.ModemManager1.conf, from the ModemManager package), the messagebus user and group in /etc/passwd and /etc/group (or the config's <user> matching one present), /run/dbus made by mm-up, and /etc/machine-id or dbus's own; the rebuilt tar passes and its sha256 rebuilds equal; phone: dbus socket up in mm-up
 
 Rank
 : 1
