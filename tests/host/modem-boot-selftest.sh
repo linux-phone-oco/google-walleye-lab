@@ -48,6 +48,7 @@ X
 chmod 755 "$S"/*
 # the pushed stream: a tar of the build's shape
 mkdir -p "$T/tree/nix/store/x/bin" "$T/tree/etc"; ln -s /nix/store/x "$T/tree/env"
+printf 'root:x:0:0:root:/:/bin/sh\nmessagebus:x:100:100:dbus:/:/bin/false\n' > "$T/tree/etc/passwd"
 printf '#!/bin/sh\n' > "$T/tree/nix/store/x/bin/ModemManager"; cp "$T/tree/nix/store/x/bin/ModemManager" "$T/tree/nix/store/x/bin/dbus-daemon"; chmod 755 "$T/tree/nix/store/x/bin"/*
 tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf "$T/good.tar" -C "$T/tree" .
 printf 'not a tar' > "$T/junk.tar"
@@ -72,7 +73,8 @@ run mm-up ""
 [ $RC = 0 ] && case "$OUT" in "mm-up: dbus and ModemManager run in"*) ok "mm-up says dbus and ModemManager run" ;; *) no "mm-up said: $OUT" ;; esac || no "mm-up failed ($RC): $OUT"
 b1=$(line 'mount --bind /proc'); b2=$(line 'mount --bind /sys'); b3=$(line 'mount --bind /dev'); b4=$(line 'mount --bind /lib/firmware'); d=$(line 'dbus-daemon'); m=$(line 'ModemManager')
 [ -n "$b1" ] && [ -n "$b4" ] && [ -n "$d" ] && [ -n "$m" ] && [ "$b1" -lt "$b2" ] && [ "$b2" -lt "$b3" ] && [ "$b3" -lt "$b4" ] && [ "$b4" -lt "$d" ] && [ "$d" -lt "$m" ] && ok "binds (proc, sys, dev, firmware), then dbus, then ModemManager" || no "the order is not binds, dbus, ModemManager: $(cat "$T/log")"
-grep -q "ModemManager --debug" "$T/log" && grep -q "^messagebus" "$T/root/etc/passwd" && ok "ModemManager runs with --debug; the rootfs has root and messagebus" || no "ModemManager's flags or /etc/passwd"
+grep -q "ModemManager --debug" "$T/log" && grep -q "^messagebus" "$T/root/etc/passwd" && ok "ModemManager runs with --debug; the pushed rootfs has root and messagebus" || no "ModemManager's flags or /etc/passwd"
+grep -q "dbus-daemon .*--config-file=/env/share/dbus-1/system.conf" "$T/log" && grep -q "dbus-uuidgen --ensure=/etc/machine-id" "$T/log" && ok "dbus starts from the store config, after a machine-id" || no "dbus-daemon without --config-file or no machine-id: $(cat "$T/log")"
 run mm-up ""; [ $RC != 0 ] && case "$OUT" in *"started once only"*) ok "a second mm-up stops and says so" ;; *) no "second mm-up said: $OUT" ;; esac || no "second mm-up passed"
 fresh; echo qrtr-ns >> "$T/state/running"; run mm-up ""
 [ $RC != 0 ] && case "$OUT" in *"push the rootfs first"*) [ ! -s "$T/log" ] && ok "no rootfs: mm-up stops and starts nothing" || no "mm-up acted without a rootfs" ;; *) no "no-rootfs said: $OUT" ;; esac || no "no-rootfs passed"

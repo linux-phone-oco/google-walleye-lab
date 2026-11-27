@@ -4,6 +4,7 @@
 # Passes only when the tar lists the six programs ModemManager needs on the phone (ModemManager, dbus-daemon, mmcli, qmicli, udevd, and the qrtr transport inside qmicli/ModemManager is checked by its library name libqrtr-glib),
 # when the programs are aarch64 ELF (read from the tar's own bytes), when no modem storage or firmware is inside (decision 2026-11-27-walleye-modem-image-stays-out-of-the-store), and when its sha256
 # equals the one recorded in build/modem-mm-rootfs.sha256 (a second build of the same expression must equal it). Source of the names: item walleye-modem-mm-rootfs-build and decision 2026-11-27-walleye-mm-rootfs-built-by-nix.
+# It also fails a tar (or mm-up) lacking what dbus and ModemManager read at start: the bus config and ModemManager's policy in the env share, dbus-uuidgen, messagebus in /etc/passwd and /etc/group, and mm-up's --config-file, /run/dbus and machine-id (item walleye-modem-mm-rootfs-dbus-config).
 # Prints `pass|fail|skip walleye-modem-mm-rootfs modem DETAIL`; exit 0 only on pass. Read-only; extracts to a temp folder (mode 700) that it removes.
 HERE=$(cd "$(dirname "$0")/../.." && pwd)
 say() { echo "$1 walleye-modem-mm-rootfs modem $2"; [ "$1" = pass ]; exit $?; }
@@ -15,11 +16,25 @@ for p in ModemManager dbus-daemon mmcli qmicli udevd; do
 done
 echo "$LIST" | grep -Eq '(^|/)libqrtr-glib[^/]*\.so' || say fail "libqrtr-glib is not in the tar (no QRTR transport)"
 echo "$LIST" | grep -Eq '(^|/)(modemst[12]|modem_fs[12cg]|fsg|fsc|mba\.mbn|modem\.mdt)$' && say fail "modem storage or firmware is inside the tar"
+# What dbus and ModemManager read at start (item walleye-modem-mm-rootfs-dbus-config; source: run 2's dbus.log, research walleye-modem-mm-first-try-run-2-dbus-no-config, and dbus's own share/dbus-1/system.conf):
+# nix keeps dbus's config in the store, so mm-up starts the daemon with --config-file to the env's share; the file, ModemManager's bus policy in the same share, the messagebus user and group, and dbus-uuidgen (machine-id) must be in the tar.
+MMUP="$HERE/build/initramfs-modem/mm-up"
+echo "$LIST" | grep -Eq -- '-modem-mm-env/share/dbus-1/system\.conf$' || say fail "dbus's share/dbus-1/system.conf is not in the tar (the bus config)"
+echo "$LIST" | grep -Eq -- '-modem-mm-env/share/dbus-1/system\.d/org\.freedesktop\.ModemManager1\.conf$' || say fail "ModemManager's bus policy (system.d/org.freedesktop.ModemManager1.conf) is not in the tar"
+echo "$LIST" | grep -Eq -- '-dbus-[^/]*/bin/dbus-uuidgen$' || say fail "dbus-uuidgen is not in the tar (no machine-id)"
+echo "$LIST" | grep -Eq '^\./etc/passwd$' || say fail "/etc/passwd is not in the tar"
+echo "$LIST" | grep -Eq '^\./etc/group$' || say fail "/etc/group is not in the tar"
+[ -r "$MMUP" ] || say fail "no $MMUP to read the way dbus is started"
+grep -Eq -- '/env/bin/dbus-daemon --system .*--config-file=/env/share/dbus-1/system\.conf' "$MMUP" || say fail "mm-up does not start dbus-daemon with --config-file=/env/share/dbus-1/system.conf"
+grep -Eq 'mkdir -p .*run/dbus' "$MMUP" || say fail "mm-up does not make /run/dbus"
+grep -Eq 'dbus-uuidgen --ensure=/etc/machine-id' "$MMUP" || say fail "mm-up does not make /etc/machine-id with dbus-uuidgen"
 umask 077; T=$(mktemp -d); trap 'chmod -R u+w "$T"; rm -rf "$T"' EXIT
 tar -xf "$TAR" -C "$T" --wildcards '*/bin/ModemManager' '*/bin/mmcli' '*/bin/dbus-daemon' '*/bin/qmicli' '*/bin/udevd' || say fail "could not extract the five programs from the tar"
 n=$(find "$T" -type f | wc -l)
 [ "$n" -ge 5 ] || say fail "only $n of ModemManager, dbus-daemon, mmcli, qmicli, udevd could be read from the tar"
 [ -z "$(find "$T" -type f -exec sh -c 'file "$1" | grep -q "ELF 64-bit LSB.*ARM aarch64" || echo "$1"' _ {} \;)" ] || say fail "a program in the tar is not an aarch64 ELF"
+tar -xOf "$TAR" ./etc/passwd 2>/dev/null | grep -q '^messagebus:' || say fail "/etc/passwd has no messagebus user (the bus config's <user>)"
+tar -xOf "$TAR" ./etc/group 2>/dev/null | grep -q '^messagebus:' || say fail "/etc/group has no messagebus group"
 want=$(sed -n 's/^\([0-9a-f]\{64\}\)  modem-mm-rootfs.tar$/\1/p' "$HERE/build/modem-mm-rootfs.sha256" 2>/dev/null)
 [ -n "$want" ] || say fail "no sha256 recorded in build/modem-mm-rootfs.sha256"
 got=$(sha256sum "$TAR" | cut -d' ' -f1)

@@ -4296,3 +4296,31 @@ About
 
 Tracked by
 : walleye-nix-pin-nixpkgs
+
+
+<a id="2026-11-27-walleye-mm-dbus-starts-from-the-store-config"></a>
+### 2026-11-27-walleye-mm-dbus-starts-from-the-store-config
+
+Date
+: 2026-11-27
+
+Brief
+: mm-up starts dbus-daemon with --config-file to the env's share/dbus-1/system.conf; the tar carries passwd, group and the policy, not a copy of the config in /etc
+
+Decision
+: dbus in the nix rootfs reads its bus config from the store through mm-up's --config-file=/env/share/dbus-1/system.conf; ModemManager's policy comes in the same merged system.d; /etc/passwd and /etc/group (root, messagebus) are in the tar; /etc/machine-id is made by dbus-uuidgen at mm-up.
+
+Why
+: run 2's dbus.log: Failed to open /etc/dbus-1/system.conf; the daemon's compiled default is that path and share/dbus-1/system.conf includes it as a legacy file, so a link there includes itself.
+
+Rejected
+: A copy or link of the config at /etc/dbus-1/system.conf (self-include, a second copy of the policy); a fixed machine-id in the tar (one id on every phone).
+
+About
+: modem-calls
+
+Research
+: walleye-modem-mm-first-try-run-2-dbus-no-config
+
+Tracked by
+: walleye-modem-mm-rootfs-dbus-config
