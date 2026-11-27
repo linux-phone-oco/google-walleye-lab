@@ -9413,3 +9413,25 @@ Found
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-mm-first-try-run-2-dbus-no-config"></a>
+### walleye-modem-mm-first-try-run-2-dbus-no-config
+
+Date
+: 2026-11-27
+
+Brief
+: Second ModemManager try (run modem-boot-20261127-151057): logs now kept; dbus-daemon in the nix rootfs fails: /etc/dbus-1/system.conf missing
+
+Question
+: Why does dbus have no socket in the chroot, now that the stop's logs are read?
+
+Found
+: mm-up's log read works (#1293). dbus.log: 'Failed to start message bus: Failed to open /etc/dbus-1/system.conf: No such file or directory'. The rootfs is a nix closure (rootfs pushed 194375680 bytes, unpacked to /mm); nix keeps dbus's config in the store (share/dbus-1), not under /etc. Next: the builder gives the rootfs /etc/dbus-1/system.conf (and system.d policy for ModemManager) or starts dbus-daemon with --config-file to the store path. Phone back on Android slot b; modem up and 38 qrtr services as before (read.txt); nothing flashed, nothing patched. Run folder ~/lab-material/walleye/modem-boot-20261127-151057.
+
+Sources
+: modem-boot-20261127-151057
+
+About
+: modem-calls
