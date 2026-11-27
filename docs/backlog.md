@@ -14768,7 +14768,7 @@ Status
 : open
 
 Note
-: From research walleye-modem-mm-first-try-run-7-ipa-bound-net-port-not-candidate (coordinator 2026-11-27). The modem restarted and ran again; nothing on the phone changed.
+: Coordinator 2026-11-27 from PR 1323's side finding: DOG_HB at 39-43 s is in every ModemManager run with and without IPA, so IPA is not its cause; read what ModemManager (or the services it starts, tqftpserv's mcfg.tmp loop, pd-mapper absent) asks of the modem near 40 s, against the runs before MM (1042, 112433) which ran clean, with stock Android's logs as the reference (decision 2026-11-27-walleye-modem-stock-android-reference-no-sim-goal). | From research walleye-modem-mm-first-try-run-7-ipa-bound-net-port-not-candidate (coordinator 2026-11-27). The modem restarted and ran again; nothing on the phone changed.
 
 About
 : modem-calls
