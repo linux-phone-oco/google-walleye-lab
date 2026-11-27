@@ -10240,3 +10240,24 @@ Rejected
 
 About
 : walleye-kernel-dts
+
+---
+
+
+<a id="2026-11-27-walleye-builder-part-builds"></a>
+### walleye builder: part_builds for reboot and nfc-up measured
+
+Entry date
+: 2026-11-27
+
+Done
+: Bumped lpoco-bringup 0.53.6 -> 0.53.7 with rhizoid bump; built both tools with [part_builds] in a scratch manifest at 0184dc18; recorded that the bytes differ from the declared ones and why.
+
+Considered
+: Declaring nix's hashes and moving the consumers (settings.rs, two host tests, the nfc ramdisk): rests on a re-proof by the keeper of a changed way-back tool and image.
+
+Rejected
+: Swapping in nix's bytes unasked: the item says a mismatch is read before any fix, and the images are phone-proven.
+
+About
+: walleye-retire-build-scripts
