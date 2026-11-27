@@ -14453,7 +14453,7 @@ Status
 : open
 
 Note
-: From run modem-boot-20261127-162502: dbus-daemon says --config-file specified but /etc/dbus-1/system.conf already requested. Then rebuild ramdisk and image; keeper retries walleye-modem-mm-first-try.
+: From run 3 of mm-first-try (PR 1297). Coordinator 2026-11-27: the stop also skipped the after-reads (card, boot chain, flags) though the way back ran; a stop must not skip them - the way back's reads are what say the phone is as it was.
 
 About
 : modem-calls
@@ -14465,7 +14465,7 @@ Needs
 : build
 
 Proof
-: tests/host/modem-up-selftest.sh passes with no --system in the dbus line; a phone try then shows the bus socket
+: tests/host/modem-up-selftest.sh passes with no --system in the dbus line, and fails on a fake dbus-daemon that refuses --system with --config-file as the real one did (run 3); a steps test shows a run stopped at mm-up still reads the card, the boot chain and the slots' flags after its way back and compares them with before; ramdisk and image rebuilt equal; a phone try then shows the bus socket
 
 Rank
 : 5
