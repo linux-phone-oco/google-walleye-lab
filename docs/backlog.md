@@ -13917,10 +13917,10 @@ Rank
 ### A suite check that the modem is up: remoteproc_mss running and qrtr lists the modem's services, read in the modem boot
 
 Status
-: open
+: done
 
 Note
-: From research walleye-modem-mss-first-boot (coordinator 2026-11-27). The service ids it requires are named from the run's qrtr-lookup list with their sources (the QMI service ids in libqmi or the kernel's qrtr docs), not guessed; NAS/WDS/voice present or absent is printed, not assumed. Then one modem boot proves walleye-modem-mss-proof.
+: check, selftest on captured text, procedure hook landed; the docs tests row (proves present) is orchestration's to add; next: the modem boot run proves walleye-modem-mss-proof
 
 About
 : walleye-modem-mss-proof

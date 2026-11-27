@@ -80,3 +80,6 @@ source = "file:research/walleye-bootimage/2026-11-25-c1-run/slots-before.txt"
 
 [scripts."walleye-modem-mdt-readelf.cap"]
 source = "research:walleye-modem-blobs-found"   # readelf -lW of image/modem.mdt, the file read from the phone's own modem_b partition (~/lab-material/walleye/modem-2026-11-19, never git): its program-header layout, not its content
+
+[scripts."modem-read-20261127-104225.cap"]
+source = "research:walleye-modem-mss-first-boot"   # read.txt of run modem-boot-20261127-104225 as kept (~/lab-material/walleye/modem-boot-20261127-104225, never git): remoteproc states, dmesg, daemon logs, qrtr-lookup

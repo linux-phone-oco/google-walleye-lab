@@ -29,12 +29,13 @@ use std::time::{Duration, Instant};
 type Done = Result<(), String>;
 
 /// The files of the run's folder; an earlier run of the day's are forgotten at the start (a stale answer is never this run's).
-pub const STALE: [&str; 6] = [
+pub const STALE: [&str; 7] = [
     "read.txt",
     "dmesg.txt",
     "daemon-logs.txt",
     "push.txt",
     "modem-up.txt",
+    "modem-up-check.txt",
     "verdict.txt",
 ];
 /// The modem's remoteproc: its device's name (see the sources above).
@@ -366,6 +367,7 @@ impl ModemBoot {
             time_left_covers(u.elapsed()?, READ_S)?;
             let text = sh.run(READ_COMMAND, Duration::from_secs(40))?;
             u.lab.save("read.txt", &crate::touch::redact(&text))?;
+            u.lab.save("modem-up-check.txt", &u.health_check())?;
             let dmesg = sh.run("dmesg", Duration::from_secs(20))?;
             u.lab.save("dmesg.txt", &crate::touch::redact(&dmesg))?;
             let logs = section(&text, "logs")
@@ -386,9 +388,42 @@ impl ModemBoot {
         }
     }
 
+    /// tests/health/base/modem-up.sh run on the read just kept (read.txt), as the phone's suite would run it. Evidence only: its `fail` lines are kept
+    /// in modem-up-check.txt and never end the run (the verdict and dmesg are still kept); a lib or a shell that is not there is said, never guessed.
+    /// The suite's words (lab-tools health/suite/lib.sh) come from `LPOCO_HEALTH_LIB`, else the lab-tools clone's file.
+    fn health_check(&self) -> String {
+        let lib = std::env::var("LPOCO_HEALTH_LIB").unwrap_or_else(|_| {
+            format!(
+                "{}/Projects/linux-phone-oco/lab-tools/health/suite/lib.sh",
+                std::env::var("HOME").unwrap_or_default()
+            )
+        });
+        health_text(
+            &lib,
+            &self.s.lab.join("tests/health/base/modem-up.sh"),
+            &self.s.out.join("read.txt"),
+        )
+    }
+
     /// The way back, the last step of the run, the shared one (only the watching parent runs it on a failure).
     pub fn way_back(&self) -> impl FnOnce() -> Done + 'static {
         self.base.way_back()
+    }
+}
+
+/// What `sh CHECK` prints on the kept read, with the suite's words at `lib`; the reasons it could not run are the text, not an error.
+fn health_text(lib: &str, check: &std::path::Path, read: &std::path::Path) -> String {
+    if !std::path::Path::new(lib).is_file() {
+        return format!("not run: the suite's lib.sh is not at {lib} (set LPOCO_HEALTH_LIB)");
+    }
+    let mut c = std::process::Command::new("sh");
+    c.arg(check)
+        .env("LPOCO_HEALTH_LIB", lib)
+        .env("LPOCO_MODEM_READ", read);
+    match host::run(c) {
+        Ok(said) if said.ok => said.text,
+        Ok(said) => format!("not run: modem-up.sh exited with an error: {}", said.text),
+        Err(e) => format!("not run: {e}"),
     }
 }
 
@@ -496,6 +531,33 @@ mod tests {
         assert!(up_says("").is_err());
     }
 
+    #[test]
+    fn the_health_check_text_says_what_it_could_not_run_and_keeps_fail_lines() {
+        let d = std::env::temp_dir().join(format!("wt-modem-hc-{}", std::process::id()));
+        std::fs::create_dir_all(&d).unwrap();
+        let (lib, check, read) = (d.join("lib.sh"), d.join("check.sh"), d.join("read.txt"));
+        std::fs::write(
+            &check,
+            "echo \"fail modem-remoteproc-running modem-data via $LPOCO_MODEM_READ\"\n",
+        )
+        .unwrap();
+        let missing = health_text("/nonexistent/lib.sh", &check, &read);
+        assert!(
+            missing.starts_with("not run: the suite's lib.sh is not at /nonexistent/lib.sh"),
+            "{missing}"
+        );
+        std::fs::write(&lib, "").unwrap();
+        let said = health_text(lib.to_str().unwrap(), &check, &read);
+        assert_eq!(
+            said,
+            format!(
+                "fail modem-remoteproc-running modem-data via {}",
+                read.display()
+            )
+        );
+        std::fs::remove_dir_all(&d).unwrap();
+    }
+
     /// Every file a step saves is in STALE (read from this file's own text), so a run never keeps an earlier run's answer.
     #[test]
     fn every_file_the_steps_save_is_forgotten_at_the_start() {
@@ -505,6 +567,7 @@ mod tests {
         for name in [
             "push.txt",
             "modem-up.txt",
+            "modem-up-check.txt",
             "read.txt",
             "dmesg.txt",
             "daemon-logs.txt",
