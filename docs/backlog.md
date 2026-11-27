@@ -14681,7 +14681,7 @@ Status
 : open
 
 Note
-: From run 6 (research walleye-modem-mm-first-try-run-6-ipa-probes-before-firmware): ipa probed at 3.8 s before the firmware tar was pushed. Change build/modem-up (ramdisk script): after the unpack, echo 1e40000.ipa > /sys/bus/platform/drivers/ipa/bind (unbind first if bound), print the ipa dmesg lines; rebuild boot-modem.img, update device.toml sha, rehearse; then the keeper runs modem-boot. Builder work.
+: Coordinator 2026-11-27 (run 184720 read: ipa probe -2 at 3.8 s, the firmware tar not yet pushed): bind 1e40000.ipa after the firmware unpack and BEFORE modem-up, so GSI is loaded before the modem starts (cite the order from drivers/net/ipa: ipa_probe / the modem SSR notifier). If a built-in driver's failed probe cannot be rebound through /sys/bus/platform/drivers/ipa/bind, build ipa as a module and modprobe it at that point (the OnePlus 5's way); say which and why. | From run 6 (research walleye-modem-mm-first-try-run-6-ipa-probes-before-firmware): ipa probed at 3.8 s before the firmware tar was pushed. Change build/modem-up (ramdisk script): after the unpack, echo 1e40000.ipa > /sys/bus/platform/drivers/ipa/bind (unbind first if bound), print the ipa dmesg lines; rebuild boot-modem.img, update device.toml sha, rehearse; then the keeper runs modem-boot. Builder work.
 
 About
 : modem-calls
