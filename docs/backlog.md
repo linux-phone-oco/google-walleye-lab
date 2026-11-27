@@ -15002,7 +15002,10 @@ Status
 : open
 
 Note
-: From PR 1331's report (coordinator 2026-11-27): the ask step needs 113 s left, while modem_boot.rs:331, 1179 and 1191 count the ask as 3 s, so a boot the early guards accept may push 61 MB + 185 MiB and be refused at the ask. Before walleye-modem-mm-lists-modem-after-init.
+: Builder 2026-11-28, from modem_boot.rs constants (nothing built): counting the ask at MMCLI_ASK_COVERS_S 45 makes the firmware guard need push_s(fw) 26 + AFTER_FIRMWARE_USUAL_S 17 + rootfs push 81 + MM_UP_USUAL_S 11 + ask 45 + ROOTFS_READ_USUAL_S 2 = 182 s > INIT_WINDOW_S 180, before any boot time has passed: every boot would be refused, so the proof's 'one with time for the 45 s ask passes every guard' cannot hold. Same sum shows the ask step (needs MMCLI_S+READ_S+IDS_S = 113 s left) is refused after a usual push, elapsed ~25+26+17+81+11 = 160 s. Something must give: a smaller rootfs tar (81 s push), a faster push, a shorter ask cover (<= 43 s minus the boot's elapsed), or a longer window in the image. Pick one, then the guards change as the proof says.
+
+Waits
+: a coordinator's choice: the 45 s ask cannot fit the 180 s window with the 185 MiB rootfs push
 
 About
 : modem-calls
