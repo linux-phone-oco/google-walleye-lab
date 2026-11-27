@@ -7,7 +7,7 @@
 # Each daemon's output goes to /tmp/NAME.log; this program ends at once, the daemons stay.
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 FW=/lib/firmware/qcom/msm8998/google/walleye
-[ -s $FW/mba.mbn ] && [ -s $FW/modem.mdt ] || { echo "modem-up: no mba.mbn and modem.mdt in $FW: push the firmware first (firmware-recv)"; exit 1; }
+[ -s $FW/mba.mbn ] && [ -s $FW/modem.mdt ] && [ -s $FW/ipa_fws.mdt ] || { echo "modem-up: no mba.mbn, modem.mdt and ipa_fws.mdt in $FW: push the firmware first (firmware-recv)"; exit 1; }
 (cd $FW && sha256sum -c SHA256SUMS > /tmp/firmware-sums.log 2>&1) || { echo "modem-up: the pushed set does not match its SHA256SUMS (see /tmp/firmware-sums.log)"; exit 1; }
 # one start only, and each daemon in a session of its own: a closed telnet must not take them down
 for p in qrtr-ns tqftpserv rmtfs; do
@@ -20,11 +20,12 @@ IPA=1e40000.ipa
 IPAD=/sys/bus/platform/drivers/ipa
 if [ -d $IPAD ]; then
   [ ! -e $IPAD/$IPA ] || echo $IPA > $IPAD/unbind
-  echo $IPA > $IPAD/bind || echo "modem-up: ipa bind of $IPA failed"
+  echo $IPA > $IPAD/bind || echo "modem-up: ipa bind of $IPA failed (a deferred probe may still run later)"
+  if [ -e $IPAD/$IPA ]; then echo "modem-up: ipa $IPA is bound"; else echo "modem-up: ipa $IPA is NOT bound"; fi
 else
   echo "modem-up: no ipa driver in /sys/bus/platform/drivers: no net port"
 fi
-dmesg | grep -i ipa | tail -n 20 | sed 's/^/modem-up: dmesg: /'
+dmesg | grep -i "ipa\|gsi" | tail -n 20 | sed 's/^/modem-up: dmesg: /'
 setsid qrtr-ns -f -v > /tmp/qrtr-ns.log 2>&1 &
 sleep 1
 setsid tqftpserv > /tmp/tqftpserv.log 2>&1 &

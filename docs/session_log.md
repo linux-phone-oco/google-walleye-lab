@@ -11040,13 +11040,13 @@ Entry date
 : 2026-11-27
 
 Done
-: modem-up now unbinds (if bound) and binds 1e40000.ipa after the firmware check and before the daemons, printing the ipa dmesg lines; tests/host/modem-up-ipa-order.sh (+selftest) pins the order from ipa_probe's own firmware load; ramdisk 7258294c and image 479d018d rebuilt from the recorded kernel Image.gz (sha 0347728b matched) and dtb, all build checks ok; device.toml sha updated; handed to the keeper
+: modem-up needs ipa_fws.mdt, unbinds (if bound) and binds 1e40000.ipa after the firmware check and before the daemons, says bound or NOT bound, prints ipa/gsi dmesg; tests/host/modem-up-ipa-order.sh (+selftest, in CI, anchored patterns, mutations for commented-out and dead block); ramdisk 21553a94, image 5bf54e38 rebuilt from the recorded Image.gz (0347728b) and dtb, all build checks ok; programmer review fixed (anchoring, CI, bound line, ipa_fws guard); handed to the keeper
 
 Considered
-: build ipa as a module and modprobe it (the OnePlus 5's way): not needed, the built-in driver has no suppress_bind_attrs so sysfs bind re-probes a device whose probe failed with -2
+: ipa as a module with modprobe (OnePlus 5's way): not needed, sysfs bind re-probes; bind-only-if-unbound (review): kept unbind-first since the boot probe's state is not known yet
 
 Rejected
-: binding in firmware-recv: the daemons' start is modem-up's, and the set is checked there first; a rehearsal run: it reads the phone, a builder never touches one
+: binding in firmware-recv: the set is checked in modem-up first; a rehearsal run: it reads the phone, a builder never touches one
 
 About
 : modem-calls

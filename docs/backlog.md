@@ -14681,7 +14681,7 @@ Status
 : in-progress
 
 Note
-: Built 2026-11-27 (builder): build/initramfs-modem/modem-up unbinds 1e40000.ipa if bound, binds it (built-in driver, no suppress_bind_attrs, so /sys/bus/platform/drivers/ipa/bind takes it; no module needed), prints the ipa dmesg lines, all after the SHA256SUMS check and before qrtr-ns/tqftpserv/rmtfs. Order cited: ipa_probe loads ipa_fws itself (gsi-loader self), tests/host/modem-up-ipa-order.sh. Image images-modem/boot-modem.img 479d018d (ramdisk 7258294c; firmware tar unchanged 9073e47e; was 8c632662, kept as boot-modem.img.8c632662). Host tests pass. NOT KNOWN YET: that the bind probes ok on the phone. Next: the keeper's modem-boot run, then modem-mm-listed.
+: Built 2026-11-27 (builder): build/initramfs-modem/modem-up needs ipa_fws.mdt in the set, unbinds 1e40000.ipa if bound, binds it (built-in driver, no suppress_bind_attrs; no module needed), prints 'bound' or 'NOT bound' and the ipa/gsi dmesg lines, all after the SHA256SUMS check and before qrtr-ns/tqftpserv/rmtfs. Order cited: ipa_probe loads ipa_fws itself (gsi-loader self); tests/host/modem-up-ipa-order.sh, in CI. Image images-modem/boot-modem.img 5bf54e38 (ramdisk 21553a94; firmware tar unchanged 9073e47e; old image kept as boot-modem.img.8c632662). Programmer review done, findings fixed. NOT KNOWN YET: that the bind probes ok on the phone. Next: the keeper's modem-boot run, then modem-mm-listed.
 
 About
 : modem-calls

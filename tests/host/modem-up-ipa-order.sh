@@ -9,12 +9,13 @@ F=${MODEM_UP:-$HERE/build/initramfs-modem/modem-up}
 say() { echo "$1 walleye-modem-up-ipa-order modem $2"; [ "$1" = pass ]; exit $?; }
 [ -r "$F" ] || say fail "no $F"
 n() { grep -n -m1 -- "$1" "$F" | cut -d: -f1; }
-sums=$(n 'sha256sum -c SHA256SUMS')
-unb=$(n 'echo \$IPA > \$IPAD/unbind')
-bind=$(n 'echo \$IPA > \$IPAD/bind')
+sums=$(n '^(cd \$FW && sha256sum -c SHA256SUMS')
+unb=$(n '^  \[ ! -e \$IPAD/\$IPA \] .* echo \$IPA > \$IPAD/unbind')
+bind=$(n '^  echo \$IPA > \$IPAD/bind')
 qrtr=$(n '^setsid qrtr-ns')
 rmtfs=$(n '^setsid rmtfs')
 for v in "$sums" "$unb" "$bind" "$qrtr" "$rmtfs"; do [ -n "$v" ] || say fail "a step is missing in $F (sums '$sums', unbind '$unb', bind '$bind', qrtr-ns '$qrtr', rmtfs '$rmtfs')"; done
+grep -q "^if \[ -d \$IPAD \]; then\$" "$F" || say fail "the bind block is not live"
 grep -q '^IPA=1e40000.ipa$' "$F" || say fail "the device is not 1e40000.ipa"
 grep -q '^IPAD=/sys/bus/platform/drivers/ipa$' "$F" || say fail "the driver folder is not /sys/bus/platform/drivers/ipa"
 [ "$sums" -lt "$unb" ] && [ "$unb" -lt "$bind" ] && [ "$bind" -lt "$qrtr" ] && [ "$qrtr" -lt "$rmtfs" ] || say fail "order is wrong: sums $sums, unbind $unb, bind $bind, qrtr-ns $qrtr, rmtfs $rmtfs"
