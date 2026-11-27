@@ -14809,10 +14809,10 @@ Rank
 ### mm-up replays the devices by writing add to their uevent files (the chroot's udevadm trigger refuses)
 
 Status
-: open
+: in-progress
 
 Note
-: From run 8 (research walleye-modem-mm-first-try-run-8-udev-trigger-refused-in-chroot): in mm-up replace 'udevadm trigger/settle' by echo add > /sys/class/net/*/uevent (and the other classes MM reads) with udevd running, then settle by waiting for ID_MM_CANDIDATE in /run/udev/data; or start udevd before ipa binds. Then one modem boot.
+: Built and host-tested 2026-11-27: mm-up replays by uevent writes, image 88ddf088 in images-modem. Waits for one modem boot (the keeper); done when its ModemManager.log shows rmnet_ipa0 a candidate.
 
 About
 : modem-calls
@@ -14821,10 +14821,10 @@ Opened
 : 2026-11-27
 
 Needs
-: build
+: phone
 
 Proof
-: tests/host/modem-mm-starts-selftest.sh passes with a fake phone whose udevadm refuses, and a real modem boot lists rmnet_ipa0 as a candidate
+: tests/host/modem-boot-selftest.sh passes with a fake phone whose udevadm refuses (it does), and a real modem boot lists rmnet_ipa0 as a candidate (mm-up.txt or ModemManager.log of the run)
 
 Rank
 : 19

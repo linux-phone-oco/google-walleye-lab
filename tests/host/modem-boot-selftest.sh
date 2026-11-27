@@ -8,6 +8,7 @@ set -eu
 HERE=$(cd "$(dirname "$0")" && pwd)
 SRC="$HERE/../../build/initramfs-modem"
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
+export MM_SYS="$T/sys" # every mm-up here writes uevent files under the fake /sys, never the real one
 bad=0
 ok() { echo "ok   $1"; }
 no() { echo "FAIL $1"; bad=1; }
@@ -43,9 +44,16 @@ p=$(basename "$2")
 if [ "$p" = dbus-daemon ]; then
   case " $* " in *" --system "*) case " $* " in *" --config-file="*) echo "--config-file specified but configuration file /etc/dbus-1/system.conf already requested" >&2; exit 1 ;; esac ;; esac
 fi
-if [ "$p" = udevd ]; then [ -z "${FAKE_NO_UDEVD:-}" ] || exit 0; touch "$1/run/udev/control"; fi
-if [ "$p" = udevadm ] && [ -n "${FAKE_UDEVADM_FAIL:-}" ] && [ "$3" = "$FAKE_UDEVADM_FAIL" ]; then echo "udevadm: fake failure" >&2; exit 1; fi
-[ "$p" = udevadm ] || echo "$p" >> "$STATE/running"
+if [ "$p" = udevd ]; then
+  [ -z "${FAKE_NO_UDEVD:-}" ] || exit 0
+  touch "$1/run/udev/control"; cat "$MM_SYS"/class/net/*/uevent > "$STATE/uevent-at-udevd"
+  # udev answers the replayed devices a moment later: its database gets the candidate tag (the real one: /run/udev/data/n<ifindex>, ID_MM_CANDIDATE=1)
+  [ -n "${FAKE_NO_CANDIDATE:-}" ] || ( /bin/sleep 0.3; mkdir -p "$1/run/udev/data"; echo "E:ID_MM_CANDIDATE=1" > "$1/run/udev/data/n3" ) &
+fi
+# the chroot's udevadm refuses and says so, with status 0 (run 8, research walleye-modem-mm-first-try-run-8-udev-trigger-refused-in-chroot: mm-up.txt shows its words twice, mm-up went on)
+if [ "$p" = udevadm ]; then echo "Running in chroot, ignoring request."; exit 0; fi
+[ "$p" != ModemManager ] || { [ -e "$1/run/udev/data/n3" ] && echo "candidate-before-mm" >> "$STATE/seen" || echo "no-candidate-before-mm" >> "$STATE/seen"; }
+echo "$p" >> "$STATE/running"
 [ "$p" != dbus-daemon ] || touch "$1/run/dbus/system_bus_socket"
 X
 cat > "$S/sleep" <<'X'
@@ -61,6 +69,9 @@ tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf "$T/good.tar"
 printf 'not a tar' > "$T/junk.tar"
 fresh() { # a new fake phone: its own root, state, log
   rm -rf "$T/root" "$T/state" "$T/logs"; mkdir -p "$T/state" "$T/logs"; : > "$T/state/running"; : > "$T/log"
+  # its /sys (mm-up writes into MM_SYS, never the real one): the classes ModemManager reads, each device with an uevent file
+  rm -rf "$T/sys"; mkdir -p "$T/sys/class/net/rmnet_ipa0" "$T/sys/class/net/lo" "$T/sys/class/tty/ttyMSM0" "$T/sys/class/rpmsg/rpmsg0" "$T/sys/class/usbmisc/cdc-wdm0" "$T/sys/class/wwan/wwan0" "$T/sys/class/block/sda"
+  for u in "$T"/sys/class/*/*; do echo "DEVTYPE=none" > "$u/uevent"; done
 }
 run() { # SCRIPT STREAM -> output in $OUT, status in $RC
   OUT=$(LOG="$T/log" STATE="$T/state" STREAM="$2" MM_PATH="$S:$PATH" MM_ROOT="$T/root" MM_LOGS="$T/logs" MM_TAR="$T/pushed.tar" MM_WAIT=3 sh "$SRC/$1" 2>&1) && RC=0 || RC=$?
@@ -77,15 +88,22 @@ fresh; run rootfs-recv "$T/junk.tar"; [ $RC != 0 ] && case "$OUT" in *"rootfs-re
 # mm-up: the rootfs unpacked and qrtr-ns running (as modem-up leaves them)
 fresh; run rootfs-recv "$T/good.tar"; echo qrtr-ns >> "$T/state/running"; : > "$T/log"
 run mm-up ""
-[ $RC = 0 ] && case "$OUT" in "mm-up: dbus and ModemManager run in"*) ok "mm-up says dbus and ModemManager run" ;; *) no "mm-up said: $OUT" ;; esac || no "mm-up failed ($RC): $OUT"
+[ $RC = 0 ] && case "$OUT" in *"mm-up: replayed 6 devices from "*"mm-up: dbus and ModemManager run in"*) ok "mm-up says how many devices it replayed, then that dbus and ModemManager run" ;; *) no "mm-up said: $OUT" ;; esac || no "mm-up failed ($RC): $OUT"
 b1=$(line 'mount --bind /proc'); b2=$(line 'mount --bind /sys'); b3=$(line 'mount --bind /dev'); b4=$(line 'mount --bind /lib/firmware'); d=$(line 'dbus-daemon'); m=$(line 'ModemManager')
 [ -n "$b1" ] && [ -n "$b4" ] && [ -n "$d" ] && [ -n "$m" ] && [ "$b1" -lt "$b2" ] && [ "$b2" -lt "$b3" ] && [ "$b3" -lt "$b4" ] && [ "$b4" -lt "$d" ] && [ "$d" -lt "$m" ] && ok "binds (proc, sys, dev, firmware), then dbus, then ModemManager" || no "the order is not binds, dbus, ModemManager: $(cat "$T/log")"
 grep -q "ModemManager --debug" "$T/log" && grep -q "^messagebus" "$T/root/etc/passwd" && ok "ModemManager runs with --debug; the pushed rootfs has root and messagebus" || no "ModemManager's flags or /etc/passwd"
 grep -q "dbus-daemon .*--config-file=/env/share/dbus-1/system.conf" "$T/log" && grep -q "dbus-uuidgen --ensure=/etc/machine-id" "$T/log" && [ "$(line dbus-uuidgen)" -lt "$d" ] && ok "dbus starts from the store config, after a machine-id" || no "dbus-daemon without --config-file or no machine-id: $(cat "$T/log")"
 # item walleye-modem-mm-net-port-candidate: MM tags a port ID_MM_CANDIDATE only from udev's rules (80-mm-candidate.rules: SUBSYSTEM=="net"; 77-mm-qcom-soc.rules: DRIVERS=="ipa"), run 7's 'port rmnet_ipa0 not candidate' came from a chroot with no udevd:
-# so udevd (rules read through /etc/udev/rules.d -> the env's lib/udev/rules.d, where the ModemManager package puts them) starts after dbus, the devices are replayed (trigger --action=add, then settle), all before ModemManager
-u=$(line '/env/bin/udevd'); t=$(line 'udevadm trigger --action=add'); s=$(line 'udevadm settle')
-[ -n "$u" ] && [ -n "$t" ] && [ -n "$s" ] && [ "$d" -lt "$u" ] && [ "$u" -lt "$t" ] && [ "$t" -lt "$s" ] && [ "$s" -lt "$m" ] && ok "udevd starts after dbus, the devices are replayed and settled, then ModemManager" || no "udev order (dbus < udevd < trigger < settle < ModemManager): $(cat "$T/log")"
+# so udevd (rules read through /etc/udev/rules.d -> the env's lib/udev/rules.d, where the ModemManager package puts them) starts after dbus, the devices are replayed (writes of add to uevent files), all before ModemManager
+u=$(line '/env/bin/udevd'); m=$(line 'ModemManager --debug')
+[ -n "$u" ] && [ "$d" -lt "$u" ] && [ "$u" -lt "$m" ] && ok "udevd starts after dbus and before ModemManager" || no "udev order (dbus < udevd < ModemManager): $(cat "$T/log")"
+# item walleye-modem-mm-udev-replay-by-uevent: the chroot's udevadm refuses (run 8), so the devices are replayed by writing add to their uevent files, after udevd runs; udevadm is not called
+! grep -qvx DEVTYPE=none "$T/state/uevent-at-udevd" && ok "no uevent file had add when udevd started: the replay comes after it" || no "uevent files at udevd start: $(cat "$T/state/uevent-at-udevd")"
+all=$(cat "$T"/sys/class/net/*/uevent "$T"/sys/class/tty/*/uevent "$T"/sys/class/rpmsg/*/uevent "$T"/sys/class/usbmisc/*/uevent "$T"/sys/class/wwan/*/uevent | grep -vxc add || true)
+[ "$all" = 0 ] && [ "$(cat "$T/sys/class/net/rmnet_ipa0/uevent")" = add ] && ok "add is written to every net, tty, usbmisc, wwan and rpmsg device's uevent file" || no "uevent files not all add: $all other lines"
+[ "$(cat "$T/sys/class/block/sda/uevent")" = DEVTYPE=none ] && ok "a class ModemManager does not read (block) is left alone" || no "block uevent was written"
+! grep -q "udevadm" "$T/log" && ok "udevadm is not called (its trigger and settle refuse in a chroot)" || no "udevadm was called: $(grep udevadm "$T/log")"
+grep -qx candidate-before-mm "$T/state/seen" && ok "ModemManager starts after udev tagged a candidate (ID_MM_CANDIDATE in /run/udev/data)" || no "ModemManager started before a candidate tag: $(cat "$T/state/seen")"
 [ "$(readlink "$T/root/etc/udev/rules.d")" = /env/lib/udev/rules.d ] && ok "udevd reads the rules ModemManager ships: /etc/udev/rules.d -> /env/lib/udev/rules.d" || no "/etc/udev/rules.d is not a link to /env/lib/udev/rules.d"
 run mm-up ""; [ $RC != 0 ] && case "$OUT" in *"started once only"*) ok "a second mm-up stops and says so" ;; *) no "second mm-up said: $OUT" ;; esac || no "second mm-up passed"
 fresh; echo qrtr-ns >> "$T/state/running"; run mm-up ""
@@ -93,16 +111,16 @@ fresh; echo qrtr-ns >> "$T/state/running"; run mm-up ""
 fresh; run rootfs-recv "$T/good.tar"; : > "$T/log"; run mm-up ""
 [ $RC != 0 ] && case "$OUT" in *"run modem-up first"*) [ ! -s "$T/log" ] && ok "no qrtr-ns: mm-up stops and starts nothing" || no "mm-up acted without qrtr-ns" ;; *) no "no-qrtr-ns said: $OUT" ;; esac || no "no-qrtr-ns passed"
 # udev's failure paths (review of builder/mm-udev-candidate): each stops before ModemManager and prints udevd.log
-for mode in "FAKE_NO_UDEVD=1:no control socket after 2 s" "FAKE_UDEVADM_FAIL=trigger:udevadm trigger failed"; do
+for mode in "FAKE_NO_UDEVD=1:no control socket after 2 s"; do
   fresh; run rootfs-recv "$T/good.tar"; echo qrtr-ns >> "$T/state/running"; : > "$T/log"
   OUT=$(env "${mode%%:*}" LOG="$T/log" STATE="$T/state" MM_PATH="$S:$PATH" MM_ROOT="$T/root" MM_LOGS="$T/logs" MM_WAIT=2 sh "$SRC/mm-up" 2>&1) && RC=0 || RC=$?
   [ $RC != 0 ] && case "$OUT" in *"${mode#*:}"*"== udevd.log"*) ok "udev stop (${mode#*:}): says so and prints udevd.log" ;; *) no "udev stop said: $OUT" ;; esac || no "udev stop passed (${mode%%:*})"
   ! grep -q "ModemManager --debug" "$T/log" && ok "udev stop (${mode%%:*}): ModemManager not started" || no "ModemManager started after a udev stop"
 done
-# settle that gives up: said, and the start goes on
+# no candidate tag within the wait: said, and the start goes on
 fresh; run rootfs-recv "$T/good.tar"; echo qrtr-ns >> "$T/state/running"; : > "$T/log"
-OUT=$(env FAKE_UDEVADM_FAIL=settle LOG="$T/log" STATE="$T/state" MM_PATH="$S:$PATH" MM_ROOT="$T/root" MM_LOGS="$T/logs" MM_WAIT=2 MM_UDEV_WAIT=7 sh "$SRC/mm-up" 2>&1) && RC=0 || RC=$?
-[ $RC = 0 ] && case "$OUT" in *"settle gave up after 7 s: going on"*"dbus and ModemManager run"*) ok "a settle timeout is said and ModemManager still starts" ;; *) no "settle said: $OUT" ;; esac || no "settle timeout stopped mm-up: $OUT"
+OUT=$(env FAKE_NO_CANDIDATE=1 LOG="$T/log" STATE="$T/state" MM_PATH="$S:$PATH" MM_ROOT="$T/root" MM_LOGS="$T/logs" MM_WAIT=2 MM_UDEV_WAIT=7 sh "$SRC/mm-up" 2>&1) && RC=0 || RC=$?
+[ $RC = 0 ] && case "$OUT" in *"no ID_MM_CANDIDATE=1 in udev's database, or its queue not empty, after"*"dbus and ModemManager run"*) ok "no candidate tag in time is said and ModemManager still starts" ;; *) no "candidate wait said: $OUT" ;; esac || no "candidate wait stopped mm-up: $OUT"
 # dbus that never makes its socket: the stop names the log
 fresh; run rootfs-recv "$T/good.tar"; echo qrtr-ns >> "$T/state/running"; : > "$T/log"
 printf '#!/bin/sh\necho "chroot $*" >> "$LOG"\necho "dbus: fake complaint" >&2\n' > "$S/chroot"; run mm-up ""
