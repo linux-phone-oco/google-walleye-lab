@@ -4240,3 +4240,34 @@ Scope
 
 Tracked by
 : walleye-modem-mm-rootfs-build
+
+
+<a id="2026-11-27-walleye-mm-rootfs-built-by-nix"></a>
+### 2026-11-27-walleye-mm-rootfs-built-by-nix
+
+Date
+: 2026-11-27
+
+Brief
+: The pushed ModemManager rootfs is built by nix (the closure of ModemManager, dbus, libqmi with QRTR) beside build/modem-tools.nix; Alpine edge by apk is the fallback
+
+Decision
+: Keep the vector (a rootfs pushed into RAM, a chroot, nothing flashed). Its source changes: a nix expression builds the aarch64 closure of ModemManager (polkit off, udev from libudev-zero or eudev as nix gives), dbus, mmcli and qmicli with QRTR, packed as a tar with a recorded sha256 that rebuilds equal. If nix cannot give a working closure, the Alpine way stands, pinned to a release branch (not edge) with each package's checksum recorded.
+
+Why
+: Edge removes old package versions, so pinned edge versions stop being fetchable and the tar stops being rebuildable; the lab already builds the modem tools reproducibly with nix (build/modem-tools.nix, research walleye-rmtfs-static-nix-ok) and is retiring hand build scripts (walleye-retire-build-scripts); nix also sets -Dpolkit=no directly, the research's own fallback.
+
+Rejected
+: Alpine edge by a new build-modem-rootfs.sh as first choice: not rebuildable later, and a new hand script.
+
+About
+: modem-calls
+
+Amends
+: 2026-11-27-walleye-mm-runs-in-a-pushed-alpine-rootfs
+
+Scope
+: the walleye lane's modem rootfs
+
+Tracked by
+: walleye-modem-mm-rootfs-build
