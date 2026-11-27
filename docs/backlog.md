@@ -15002,7 +15002,7 @@ Status
 : open
 
 Note
-: Builder 2026-11-28, from modem_boot.rs constants (nothing built): counting the ask at MMCLI_ASK_COVERS_S 45 makes the firmware guard need push_s(fw) 26 + AFTER_FIRMWARE_USUAL_S 17 + rootfs push 81 + MM_UP_USUAL_S 11 + ask 45 + ROOTFS_READ_USUAL_S 2 = 182 s > INIT_WINDOW_S 180, before any boot time has passed: every boot would be refused, so the proof's 'one with time for the 45 s ask passes every guard' cannot hold. Same sum shows the ask step (needs MMCLI_S+READ_S+IDS_S = 113 s left) is refused after a usual push, elapsed ~25+26+17+81+11 = 160 s. Something must give: a smaller rootfs tar (81 s push), a faster push, a shorter ask cover (<= 43 s minus the boot's elapsed), or a longer window in the image. Pick one, then the guards change as the proof says.
+: Decision 2026-11-28-walleye-modem-push-the-rootfs-compressed (coordinator, after PR 1334's 182 > 180): compress the rootfs push first (busybox-unpackable, measured ratio, nix-built, sha recorded), then count the ask at 45 s in every guard; raise INIT_WINDOW_S only if it still does not fit, with the way back's wait re-derived. Image and procedure rebuilt; steps tests prove a too-late boot is refused before any push.
 
 Waits
 : a coordinator's choice: the 45 s ask cannot fit the 180 s window with the 185 MiB rootfs push
