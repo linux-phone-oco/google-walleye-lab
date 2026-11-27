@@ -264,7 +264,7 @@ ramdisk = "f4b6c1d750e15cc180c76bd031489830b2fa256dc47969f253c81b5681e2d02b"
 [images.modem]
 path = "images-modem/boot-modem.img"
 kernel_tag = "int/walleye/ufs-off-modem/v7.3/1"
-sha256 = "ce99372645b2ae7e94c28024ba6b6c85dffe2a128badb0c2227a88d0afeff7bb"   # kernel_builds.walleye-ufs-off-modem (sha 3651b543), dtb cb6ec054 after the clock_gcc fix, ramdisk fccb1f41 (mm-up prints the logs of a daemon it started when it stops; was e6e846bd with ramdisk c0f407f8) (static qmicli acd5b8b5, with bin/rootfs-recv and bin/mm-up; was a43788755 with ramdisk 066694b3), swapped twice equal; firmware tar unchanged 95ca6961
+sha256 = "8afd8bc7c0032218373c286b48a9a9e4b14c959191800487ddbc94b355a9e423"   # kernel_builds.walleye-ufs-off-modem (sha 3651b543), dtb cb6ec054 after the clock_gcc fix, ramdisk 23274ac2 (mm-up starts dbus with --config-file to the store, makes a machine-id and no longer writes passwd; was ce993726 with ramdisk fccb1f41) (mm-up prints the logs of a daemon it started when it stops; was e6e846bd with ramdisk c0f407f8) (static qmicli acd5b8b5, with bin/rootfs-recv and bin/mm-up; was a43788755 with ramdisk 066694b3), swapped twice equal; firmware tar unchanged 95ca6961
 
 # z20: z21's control (UFS ON, NOT TO BOOT: tests/host/ufs-off-image.sh refuses it by design); no [kernels] list and no procedure names it.
 [images.z20]
@@ -727,7 +727,7 @@ image = "modem"
 firmware = "images-modem/modem-firmware.tar"                # under [images] dir; the manifest's image rows take no extra key, so the tar is named here
 firmware_sha256 = "95ca69619326e97decb4711b989a0b0b9105ed7c2df6c97764128cef777f1d31"   # 61501440 bytes, 31 files and their SHA256SUMS (build/build-modem-ramdisk.sh); images-modem/SHA256SUMS-modem lists the image only
 rootfs = "images-modem/modem-mm-rootfs.tar"                   # the ModemManager rootfs tar, pushed second (port 9001); build/modem-mm-rootfs.nix builds it
-rootfs_sha256 = "70d239a9aca392b977e98c8fe48d147a306043d7c8b4e3d4accdc2e406134a08"   # build/modem-mm-rootfs.sha256
+rootfs_sha256 = "5484b5704d21b8774025ad872404ce27af3c1081d42d58c724a7a221c499dd20"   # build/modem-mm-rootfs.sha256
 bootchain = "~/lab-material/walleye/bootchain-2026-11-19"   # the stored boot chain read-back: read again at the end it must equal it
 by_name = "/dev/block/by-name"                              # the phone's partition names on Android
 luns = 6                                                    # the card's disks (sda to sdf): the partition table of each is hashed before and after
@@ -738,7 +738,7 @@ image = "modem"
 firmware = "images-modem/modem-firmware.tar"
 firmware_sha256 = "95ca69619326e97decb4711b989a0b0b9105ed7c2df6c97764128cef777f1d31"
 rootfs = "images-modem/modem-mm-rootfs.tar"                   # the ModemManager rootfs tar, pushed second (port 9001); build/modem-mm-rootfs.nix builds it
-rootfs_sha256 = "70d239a9aca392b977e98c8fe48d147a306043d7c8b4e3d4accdc2e406134a08"   # build/modem-mm-rootfs.sha256
+rootfs_sha256 = "5484b5704d21b8774025ad872404ce27af3c1081d42d58c724a7a221c499dd20"   # build/modem-mm-rootfs.sha256
 bootchain = "~/lab-material/walleye/bootchain-2026-11-19"
 by_name = "/dev/block/by-name"
 luns = 6

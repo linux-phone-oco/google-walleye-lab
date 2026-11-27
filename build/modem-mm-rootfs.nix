@@ -31,8 +31,11 @@ let
   closure = host.closureInfo { rootPaths = [ env ]; };
 in
 host.runCommand "modem-mm-rootfs" { nativeBuildInputs = [ host.gnutar ]; } ''
-  mkdir -p $out root/etc root/var/run root/proc root/sys root/dev root/run root/tmp
+  mkdir -p $out root/etc/dbus-1/system.d root/var/run root/proc root/sys root/dev root/run root/tmp
   ln -s ${env} root/env
+  # the users dbus's bus config names (<user>messagebus</user>) and root, which ModemManager runs as; the same ids for every phone, so the tar stays byte-equal
+  printf 'root:x:0:0:root:/:/bin/sh\nmessagebus:x:100:100:dbus:/:/bin/false\n' > root/etc/passwd
+  printf 'root:x:0:\nmessagebus:x:100:\n' > root/etc/group
   sed 's|^/||' ${closure}/store-paths > list
   # the closure from /, then the mount points and the symlink from root/ (each -C applies to the names after it)
   R=$PWD

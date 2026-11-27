@@ -10831,3 +10831,24 @@ Considered
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-mm-rootfs-dbus-config"></a>
+### walleye builder: the ModemManager rootfs carries what dbus reads
+
+Entry date
+: 2026-11-27
+
+Done
+: Looked at the failure (run 2 dbus.log: Failed to open /etc/dbus-1/system.conf) and at the tar: nix's dbus-daemon compiles /etc/dbus-1/system.conf as its default and the package's share/dbus-1/system.conf includes that same path as a legacy file, so a symlink to the share file would include itself. mm-up now starts dbus-daemon with --config-file=/env/share/dbus-1/system.conf (the env share merges ModemManager's system.d policy), makes /etc/machine-id with dbus-uuidgen; the tar carries /etc/passwd and /etc/group (root, messagebus 100) so mm-up no longer writes them, and an empty /etc/dbus-1/system.d for the absolute includedir. tests/host/modem-rootfs.sh gained eight checks (seen failing on the old tar), its selftest six cases. Tar rebuilt equal (nix --rebuild), sha 5484b570; modem ramdisk and image rebuilt from the same tools and kernel 3651b543 (Image.gz cut from the old image, sha equal to device.toml): ramdisk 23274ac2, image 8afd8bc7, firmware tar unchanged; swap twice equal, AVB, gate, dtb tests ok. Not run on the phone.
+
+Considered
+: A symlink /etc/dbus-1/system.conf to the share file (self-include); the config copied into the tar (a second source of the bus policy).
+
+Rejected
+: Starting udevd and polkit now: the research says the first try settles them, and the item's proof does not ask.
+
+About
+: modem-calls

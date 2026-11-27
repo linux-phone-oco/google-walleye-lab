@@ -14400,10 +14400,10 @@ Rank
 ### ModemManager rootfs: dbus config in /etc (or --config-file to the store), polkit/udev policy for ModemManager
 
 Status
-: open
+: done
 
 Note
-: From run 2 of mm-first-try (PR 1294): dbus-daemon cannot open /etc/dbus-1/system.conf. A nix closure has no NixOS /etc, so the coordinator (2026-11-27) widened the proof to the whole set dbus and ModemManager read at start, each named from the package's own files, so the next try does not stop once per missing file. Rebuild build/modem-mm-rootfs.nix, update rootfs_sha256 and the image; then the keeper retries mm-first-try.
+: Built: the rootfs tar (sha256 5484b570, rebuilt equal with nix --rebuild) has /etc/passwd and /etc/group with messagebus, /etc/dbus-1/system.d, and the env's share/dbus-1 with dbus's system.conf and ModemManager's bus policy (system.d/org.freedesktop.ModemManager1.conf), dbus-uuidgen; mm-up makes /etc/machine-id with dbus-uuidgen, makes /run/dbus and starts dbus-daemon with --config-file=/env/share/dbus-1/system.conf. tests/host/modem-rootfs.sh (and its selftest, six new cases seen failing on the old tar) and modem-boot-selftest pass. Modem image rebuilt: images-modem/boot-modem.img sha256 8afd8bc7, ramdisk 23274ac2, firmware tar unchanged. The phone half (dbus socket up in mm-up) is walleye-modem-mm-first-try's run. Not run on the phone.
 
 About
 : modem-calls
@@ -14428,10 +14428,7 @@ Status
 : open
 
 Note
-: Run 1 and run 2 stopped at dbus (run 2: /etc/dbus-1/system.conf missing, logs read). Waits for the rootfs rebuild.
-
-Blocked by
-: walleye-modem-mm-rootfs-dbus-config
+: Run 1 and run 2 stopped at dbus (run 2: /etc/dbus-1/system.conf missing, logs read). The rootfs and the modem image are rebuilt (rootfs 5484b570, image 8afd8bc7; device.toml): the keeper retries; read dbus.log first (the bus socket), then udev and polkit stops.
 
 About
 : modem-calls
