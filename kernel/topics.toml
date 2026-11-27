@@ -75,3 +75,17 @@ state = "trying"
 branch = "topic/pmic-wdt-s2-type"
 for = "the S2 reset type from qcom,s2-type (1 warm, 4 shutdown, 7 hard; hard when absent)"
 state = "trying"
+
+# The kernel of the modem image (item walleye-modem-mss-image): the watchdog topic and, on it, the PMI8998 fuel gauge (our board dts enables pmi8998_fg, so a tree without it does not build the dtb); UFS stays off.
+[lists.ufs-off-modem]
+base = "v7.3"
+
+[[lists.ufs-off-modem.entries]]
+branch = "topic/pmic-wdt-wake-in-suspend"
+for = "the PMIC watchdog that keeps running through suspend"
+state = "trying"
+
+[[lists.ufs-off-modem.entries]]
+branch = "topic/walleye-fuel-gauge-rfc"
+for = "the PMI8998 fuel gauge (carried: others' patches)"
+state = "trying"
