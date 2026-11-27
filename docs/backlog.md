@@ -15004,9 +15004,6 @@ Status
 Note
 : Decision 2026-11-28-walleye-modem-push-the-rootfs-compressed (coordinator, after PR 1334's 182 > 180): compress the rootfs push first (busybox-unpackable, measured ratio, nix-built, sha recorded), then count the ask at 45 s in every guard; raise INIT_WINDOW_S only if it still does not fit, with the way back's wait re-derived. Image and procedure rebuilt; steps tests prove a too-late boot is refused before any push.
 
-Waits
-: a coordinator's choice: the 45 s ask cannot fit the 180 s window with the 185 MiB rootfs push
-
 About
 : modem-calls
 
