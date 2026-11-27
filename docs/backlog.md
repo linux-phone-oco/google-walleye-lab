@@ -13997,6 +13997,9 @@ Status
 Note
 : First step of decision 2026-11-27-walleye-calls-signalling-first-audio-last. Image: the modem image of 2026-11-27 (nothing flashed). Needs libqmi (qmicli) in the test ramdisk; record whether it is there. No SIM, no witness.
 
+Blocked by
+: walleye-modem-qmicli-in-image
+
 About
 : modem-calls
 
@@ -14132,3 +14135,28 @@ Proof
 
 Rank
 : 40
+
+
+<a id="walleye-modem-qmicli-in-image"></a>
+### qmicli (libqmi with QRTR) static aarch64 in the modem image, and the modem boot runs qmicli --dms-get-ids read only
+
+Status
+: open
+
+Note
+: From research walleye-modem-to-calls-how-it-stands (coordinator 2026-11-27): qmicli is not in today's modem image (build/, procedures/ and device.toml name none), so walleye-modem-qmi-ids-read waits on this. Read-only DMS only; no NAS/WDS writes, no SIM.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: build/modem-tools.nix also gives a static qmicli with qrtr support (sha256 recorded, rebuilds equal); the modem ramdisk and image rebuilt equal with it; UFS-off gate and AVB pass; the modem boot procedure runs qmicli -p qrtr://0 --dms-get-ids after modem-up and keeps its output only in ~/lab-material (the IMEI never in git, a log or a commit); dry run and steps tests pass
+
+Rank
+: 20
