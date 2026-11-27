@@ -11104,3 +11104,24 @@ Considered
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-mm-udev-replay"></a>
+### walleye-builder: mm-up replays the devices by uevent writes
+
+Entry date
+: 2026-11-27
+
+Done
+: Test first: tests/host/modem-boot-selftest.sh got a fake phone whose chroot udevadm refuses (the run-8 words) and a fake /sys (MM_SYS); it expects add in each net, tty, usbmisc, wwan and rpmsg uevent file after udevd starts, none in block, no udevadm call, 'replayed N devices' said, ModemManager only after ID_MM_CANDIDATE=1 is in /run/udev/data, and a said timeout that goes on - seen failing, then passing; cargo test modem_boot passes (34). Changed build/initramfs-modem/mm-up (replay_devices, has_candidate, wait_for_candidate; MM_SYS; MM_UDEV_WAIT is now the candidate wait). Programmer review fixed: the wait also needs udev's queue empty (lo is a candidate too), a dead udevd ends the wait, a replay of nothing is said, the write's own error stays out of the output, usbmisc and wwan in the test. Rebuilt ramdisk 39f92f04 (tools equal to tools.sha256, two packs equal, firmware tar unchanged 9073e47e) and the 32 MiB image 492253d9 (kernel and dtb cut from the previous image, Image.gz sha 0347728b; every check of build-modem-image.sh ok); images-modem replaced (previous kept as boot-modem.img.e008a671); device.toml [images.modem] carries it. Queued for the keeper: one modem boot. Not run on the phone.
+
+Considered
+: Which classes: those ModemManager's ports are made of (net, tty, usbmisc, wwan, rpmsg); block and the rest are left alone. Repeating the replay if no candidate shows (events before udevd's netlink socket is bound): left for the try to show.
+
+Rejected
+: udevadm settle as the wait: it refuses in the chroot, so the wait reads the database and the queue file it is meant to wait for.
+
+About
+: modem-calls

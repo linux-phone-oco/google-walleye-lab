@@ -4433,3 +4433,34 @@ Research
 
 Tracked by
 : walleye-modem-mm-net-port-candidate
+
+
+<a id="2026-11-27-walleye-mm-up-replays-by-uevent-writes"></a>
+### 2026-11-27-walleye-mm-up-replays-by-uevent-writes
+
+Date
+: 2026-11-27
+
+Brief
+: mm-up replays the devices by writing add to the uevent files of the classes ModemManager reads, and waits for ID_MM_CANDIDATE in udev's database
+
+Decision
+: mm-up (outside the chroot, udevd running) writes add to /sys/class/{net,tty,usbmisc,wwan,rpmsg}/*/uevent, then waits up to MM_UDEV_WAIT s for ID_MM_CANDIDATE in the chroot's /run/udev/data; a timeout is said and ModemManager starts anyway. udevadm trigger and settle are not called.
+
+Why
+: Run 8 (research walleye-modem-mm-first-try-run-8-udev-trigger-refused-in-chroot): the chroot's udevadm prints 'Running in chroot, ignoring request.' for both, so rmnet_ipa0, made before udevd, stayed 'not candidate'. A uevent write is what trigger does.
+
+Rejected
+: Starting udevd before modem-up binds ipa: moves the order of modem-up, a proven script, for a thing a replay does without. A ModemManager patch to take the port without the tag: carries a fork of a package (decision 2026-11-27-walleye-mm-up-starts-udevd-for-the-candidate-tags). A hand-made udev database: it would state the answer the rules are there to give.
+
+About
+: modem-calls
+
+Research
+: walleye-modem-mm-first-try-run-8-udev-trigger-refused-in-chroot
+
+Amends
+: 2026-11-27-walleye-mm-up-starts-udevd-for-the-candidate-tags
+
+Tracked by
+: walleye-modem-mm-udev-replay-by-uevent
