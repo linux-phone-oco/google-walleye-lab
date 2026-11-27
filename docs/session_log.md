@@ -10870,3 +10870,24 @@ Considered
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-mm-up-no-system-flag"></a>
+### walleye builder: mm-up without --system, and a stop still measures
+
+Entry date
+: 2026-11-27
+
+Done
+: mm-up drops --system (config file alone names the bus); the fake chroot of tests/host/modem-boot-selftest.sh refuses --system with --config-file (source: run 3's dbus.log), seen failing then passing. The after-reads were skipped because ModemBoot::way_back was SlpiBoot's rehearsal way back: RootfsBoot::way_back_measured added, then_measured tested for order and for a phone that did not return. Ramdisk daa0faaa, image f54b8b85 from the old image's own kernel (3651b543) and dtb with the nix tools, equal twice; firmware tar unchanged. Not run on the phone.
+
+Considered
+: RootfsBoot::way_back whole (ssh wait on a telnet image).
+
+Rejected
+: Editing the image's sha by hand without a rebuild.
+
+About
+: modem-calls

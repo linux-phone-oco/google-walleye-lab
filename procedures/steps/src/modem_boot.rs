@@ -638,9 +638,9 @@ impl ModemBoot {
         )
     }
 
-    /// The way back, the last step of the run, the shared one (only the watching parent runs it on a failure).
+    /// The way back, the last step of the run: the shared one, then the card, boot chain and flags a stop skipped are read and compared with before (run 3 stopped at mm-up and lost them; item walleye-modem-mm-up-no-system-flag). Only the watching parent runs it on a failure.
     pub fn way_back(&self) -> impl FnOnce() -> Done + 'static {
-        self.base.way_back()
+        self.base.shared().way_back_measured()
     }
 }
 
@@ -833,6 +833,23 @@ mod tests {
         keep_the_ids(&d, "error: x").unwrap();
         assert_eq!(std::fs::read_to_string(&file).unwrap(), "error: x\n");
         std::fs::remove_dir_all(&d).unwrap();
+    }
+
+    /// Run 3 stopped at mm-up and the card, boot chain and flags were not read after: the modem boot's way back is the measuring one, read from its source.
+    #[test]
+    fn the_modem_boot_ends_in_the_way_back_that_measures() {
+        let src =
+            std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/src/modem_boot.rs"))
+                .unwrap();
+        let way_back = src
+            .split("pub fn way_back(&self)")
+            .nth(1)
+            .unwrap()
+            .split("\n    }\n")
+            .next()
+            .unwrap();
+        assert!(way_back.contains("way_back_measured()"), "{way_back}");
+        assert!(!way_back.contains("rehearsal_way_back"), "{way_back}");
     }
 
     /// `-d` takes the QRTR URI and `-p` is the proxy flag (libqmi qmicli.c lines 79-104): the command must name the device with -d, and ask nothing but get-ids.

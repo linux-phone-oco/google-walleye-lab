@@ -264,7 +264,7 @@ ramdisk = "f4b6c1d750e15cc180c76bd031489830b2fa256dc47969f253c81b5681e2d02b"
 [images.modem]
 path = "images-modem/boot-modem.img"
 kernel_tag = "int/walleye/ufs-off-modem/v7.3/1"
-sha256 = "8afd8bc7c0032218373c286b48a9a9e4b14c959191800487ddbc94b355a9e423"   # kernel_builds.walleye-ufs-off-modem (sha 3651b543), dtb cb6ec054 after the clock_gcc fix, ramdisk 23274ac2 (mm-up starts dbus with --config-file to the store, makes a machine-id and no longer writes passwd; was ce993726 with ramdisk fccb1f41) (mm-up prints the logs of a daemon it started when it stops; was e6e846bd with ramdisk c0f407f8) (static qmicli acd5b8b5, with bin/rootfs-recv and bin/mm-up; was a43788755 with ramdisk 066694b3), swapped twice equal; firmware tar unchanged 95ca6961
+sha256 = "f54b8b85d72270f92b106b215eefa776edc2435fab2aa4a43b37c045cdd11b34"   # kernel_builds.walleye-ufs-off-modem (sha 3651b543), dtb cb6ec054 after the clock_gcc fix, ramdisk daa0faaa (mm-up starts dbus-daemon with --config-file only, no --system, which the real daemon refuses beside it; was 8afd8bc7 with ramdisk 23274ac2) (mm-up starts dbus with --config-file to the store, makes a machine-id and no longer writes passwd; was ce993726 with ramdisk fccb1f41) (mm-up prints the logs of a daemon it started when it stops; was e6e846bd with ramdisk c0f407f8) (static qmicli acd5b8b5, with bin/rootfs-recv and bin/mm-up; was a43788755 with ramdisk 066694b3), swapped twice equal; firmware tar unchanged 95ca6961
 
 # z20: z21's control (UFS ON, NOT TO BOOT: tests/host/ufs-off-image.sh refuses it by design); no [kernels] list and no procedure names it.
 [images.z20]

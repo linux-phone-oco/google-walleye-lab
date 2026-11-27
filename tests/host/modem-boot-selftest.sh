@@ -38,7 +38,12 @@ X
 cat > "$S/chroot" <<'X'
 #!/bin/sh
 echo "chroot $*" >> "$LOG"
-p=$(basename "$2"); echo "$p" >> "$STATE/running"
+p=$(basename "$2")
+# the real dbus-daemon refuses --system together with --config-file (run 3, research walleye-modem-mm-first-try-run-3-dbus-system-and-config-file: its dbus.log said so), starts nothing and makes no socket
+if [ "$p" = dbus-daemon ]; then
+  case " $* " in *" --system "*) case " $* " in *" --config-file="*) echo "--config-file specified but configuration file /etc/dbus-1/system.conf already requested" >&2; exit 1 ;; esac ;; esac
+fi
+echo "$p" >> "$STATE/running"
 [ "$p" != dbus-daemon ] || touch "$1/run/dbus/system_bus_socket"
 X
 cat > "$S/sleep" <<'X'

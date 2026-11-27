@@ -14428,7 +14428,7 @@ Status
 : open
 
 Note
-: Run 3 (modem-boot-20261127-162502): mm-up stopped, dbus --system clashes with --config-file; retry after walleye-modem-mm-up-no-system-flag.
+: Run 3 (modem-boot-20261127-162502): mm-up stopped, dbus --system clashes with --config-file. Fixed: image f54b8b85 (device.toml [images.modem], installed in images-modem, SHA256SUMS-modem) - next phone try shows whether the bus socket appears; a stop now also reads card, boot chain and flags after the way back.
 
 About
 : modem-calls
@@ -14450,10 +14450,10 @@ Rank
 ### mm-up: start dbus-daemon with --config-file only, not --system
 
 Status
-: open
+: done
 
 Note
-: From run 3 of mm-first-try (PR 1297). Coordinator 2026-11-27: the stop also skipped the after-reads (card, boot chain, flags) though the way back ran; a stop must not skip them - the way back's reads are what say the phone is as it was.
+: Built 2026-11-27 (builder/mm-up-no-system): mm-up starts dbus-daemon with --config-file only; modem-boot-selftest's fake chroot refuses --system beside --config-file as run 3's dbus.log did (seen failing with --system, passing without); the modem boot's way back is now RootfsBoot::way_back_measured (way back, then card, boot chain and flags compared with before; unit test + source test, seen failing first). Ramdisk daa0faaa and image f54b8b85 rebuilt (swap and pack twice equal, AVB, UFS-off gate, dtb tests ok), firmware tar unchanged 95ca6961. The proof line names modem-up-selftest.sh; the mm-up test is tests/host/modem-boot-selftest.sh. Phone try: walleye-modem-mm-first-try.
 
 About
 : modem-calls
@@ -14469,3 +14469,28 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-way-back-measures-in-the-other-boots"></a>
+### slpi-boot, cmdline-cut and reboot-twice end in rehearsal_way_back: a stop after their boot skips the after-reads too
+
+Status
+: open
+
+Note
+: Found while building walleye-modem-mm-up-no-system-flag: those three entries use RootfsBoot::rehearsal_way_back; where the run boots something, use way_back_measured (decision 2026-11-27-walleye-modem-boot-way-back-measures).
+
+About
+: walleye-first-fastboot-boot
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: a source test per entry like the modem boot's (the_modem_boot_ends_in_the_way_back_that_measures), the tool's tests pass
+
+Rank
+: 45
