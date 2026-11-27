@@ -43,7 +43,9 @@ p=$(basename "$2")
 if [ "$p" = dbus-daemon ]; then
   case " $* " in *" --system "*) case " $* " in *" --config-file="*) echo "--config-file specified but configuration file /etc/dbus-1/system.conf already requested" >&2; exit 1 ;; esac ;; esac
 fi
-echo "$p" >> "$STATE/running"
+if [ "$p" = udevd ]; then [ -z "${FAKE_NO_UDEVD:-}" ] || exit 0; touch "$1/run/udev/control"; fi
+if [ "$p" = udevadm ] && [ -n "${FAKE_UDEVADM_FAIL:-}" ] && [ "$3" = "$FAKE_UDEVADM_FAIL" ]; then echo "udevadm: fake failure" >&2; exit 1; fi
+[ "$p" = udevadm ] || echo "$p" >> "$STATE/running"
 [ "$p" != dbus-daemon ] || touch "$1/run/dbus/system_bus_socket"
 X
 cat > "$S/sleep" <<'X'
@@ -90,6 +92,17 @@ fresh; echo qrtr-ns >> "$T/state/running"; run mm-up ""
 [ $RC != 0 ] && case "$OUT" in *"push the rootfs first"*) [ ! -s "$T/log" ] && ok "no rootfs: mm-up stops and starts nothing" || no "mm-up acted without a rootfs" ;; *) no "no-rootfs said: $OUT" ;; esac || no "no-rootfs passed"
 fresh; run rootfs-recv "$T/good.tar"; : > "$T/log"; run mm-up ""
 [ $RC != 0 ] && case "$OUT" in *"run modem-up first"*) [ ! -s "$T/log" ] && ok "no qrtr-ns: mm-up stops and starts nothing" || no "mm-up acted without qrtr-ns" ;; *) no "no-qrtr-ns said: $OUT" ;; esac || no "no-qrtr-ns passed"
+# udev's failure paths (review of builder/mm-udev-candidate): each stops before ModemManager and prints udevd.log
+for mode in "FAKE_NO_UDEVD=1:no control socket after 2 s" "FAKE_UDEVADM_FAIL=trigger:udevadm trigger failed"; do
+  fresh; run rootfs-recv "$T/good.tar"; echo qrtr-ns >> "$T/state/running"; : > "$T/log"
+  OUT=$(env "${mode%%:*}" LOG="$T/log" STATE="$T/state" MM_PATH="$S:$PATH" MM_ROOT="$T/root" MM_LOGS="$T/logs" MM_WAIT=2 sh "$SRC/mm-up" 2>&1) && RC=0 || RC=$?
+  [ $RC != 0 ] && case "$OUT" in *"${mode#*:}"*"== udevd.log"*) ok "udev stop (${mode#*:}): says so and prints udevd.log" ;; *) no "udev stop said: $OUT" ;; esac || no "udev stop passed (${mode%%:*})"
+  ! grep -q "ModemManager --debug" "$T/log" && ok "udev stop (${mode%%:*}): ModemManager not started" || no "ModemManager started after a udev stop"
+done
+# settle that gives up: said, and the start goes on
+fresh; run rootfs-recv "$T/good.tar"; echo qrtr-ns >> "$T/state/running"; : > "$T/log"
+OUT=$(env FAKE_UDEVADM_FAIL=settle LOG="$T/log" STATE="$T/state" MM_PATH="$S:$PATH" MM_ROOT="$T/root" MM_LOGS="$T/logs" MM_WAIT=2 MM_UDEV_WAIT=7 sh "$SRC/mm-up" 2>&1) && RC=0 || RC=$?
+[ $RC = 0 ] && case "$OUT" in *"settle gave up after 7 s: going on"*"dbus and ModemManager run"*) ok "a settle timeout is said and ModemManager still starts" ;; *) no "settle said: $OUT" ;; esac || no "settle timeout stopped mm-up: $OUT"
 # dbus that never makes its socket: the stop names the log
 fresh; run rootfs-recv "$T/good.tar"; echo qrtr-ns >> "$T/state/running"; : > "$T/log"
 printf '#!/bin/sh\necho "chroot $*" >> "$LOG"\necho "dbus: fake complaint" >&2\n' > "$S/chroot"; run mm-up ""
@@ -99,7 +112,7 @@ printf '#!/bin/sh\necho "chroot $*" >> "$LOG"\necho "dbus: fake complaint" >&2\n
 case "$OUT" in *"== dbus.log"*"dbus: fake complaint"*) ok "the stop prints dbus.log (kept by the run before the way back)" ;; *) no "the stop did not print dbus.log: $OUT" ;; esac
 # ModemManager that exits at once: its log is printed too
 fresh; run rootfs-recv "$T/good.tar"; echo qrtr-ns >> "$T/state/running"; : > "$T/log"
-printf '#!/bin/sh\necho "chroot $*" >> "$LOG"\np=$(basename "$2")\n[ "$p" != dbus-daemon ] || { touch "$1/run/dbus/system_bus_socket"; echo dbus-daemon >> "$STATE/running"; }\n[ "$p" != udevd ] || echo udevd >> "$STATE/running"\n[ "$p" != ModemManager ] || echo "mm: fake exit" >&2\n' > "$S/chroot"; run mm-up ""
+printf '#!/bin/sh\necho "chroot $*" >> "$LOG"\np=$(basename "$2")\n[ "$p" != dbus-daemon ] || { touch "$1/run/dbus/system_bus_socket"; echo dbus-daemon >> "$STATE/running"; }\n[ "$p" != udevd ] || { touch "$1/run/udev/control"; echo udevd >> "$STATE/running"; }\n[ "$p" != ModemManager ] || echo "mm: fake exit" >&2\n' > "$S/chroot"; run mm-up ""
 [ $RC != 0 ] && case "$OUT" in *"ModemManager is not running"*"== udevd.log"*"== ModemManager.log"*"mm: fake exit"*) ok "a ModemManager that stopped: its log is printed after the words" ;; *) no "mm stop said: $OUT" ;; esac || no "mm stop passed"
 [ $bad -eq 0 ] || { echo "modem-boot-selftest: failed" >&2; exit 1; }
 echo "pass modem-boot-selftest"
