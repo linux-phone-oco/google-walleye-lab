@@ -14275,7 +14275,7 @@ Note
 : Keeper's battery rule, RAM only, nothing flashed. If polkit or udev stops it: record the line, queue a rebuild of ModemManager with -Dpolkit=no in modem-tools.nix.
 
 Blocked by
-: walleye-modem-mm-chroot-in-modem-up
+: walleye-modem-image-with-mm-scripts,walleye-modem-mm-push-in-procedure
 
 About
 : modem-calls
