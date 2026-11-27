@@ -10282,3 +10282,24 @@ Rejected
 
 About
 : walleye-retire-build-scripts
+
+---
+
+
+<a id="2026-11-27-walleye-builder-s2-type-topic"></a>
+### walleye builder: the S2 reset type patch as topic/pmic-wdt-s2-type
+
+Entry date
+: 2026-11-27
+
+Done
+: Made topic/pmic-wdt-s2-type on v7.3 (tip cbdaf1c7791e, pushed, read back with git ls-remote): the series' reset-type patch b2a08d5d5add (cherry-pick of f5bb57d27574, applies clean) and 'watchdog: pm8916_wdt: Take the S2 reset type from qcom,s2-type'. Blocker 3 of the old branch fixed in the patch: the property is read only when present (device_property_present), a present property that does not read, or an unknown type, fails the probe, and the chosen type is logged with dev_dbg. Built with clang LLVM=1 W=1 on arm64 defconfig plus PM8916_WATCHDOG: no warnings. checkpatch --strict on the patch: no finding on the code or message but the author's missing Signed-off-by and the Co-Authored-By trailer (the same two on the prerequisite commit). Programmer review: no failing case; its low finding (-EINVAL as absent) taken, the rest (fail before IRQ setup, count of cells, which type was read back in the -EIO message) left. Blockers 1 and 2 and the smaller fixes of the old branch's note are the procedure's, not the patch's: they stay with walleye-wdt-pon-bites-procedure. NOT KNOWN YET: that it boots; no image built, no phone touched.
+
+Considered
+: Where the blockers sit: only blocker 3 is in the patch.
+
+Rejected
+: The old .patch file; the whole old branch; the binding in this patch (see decision 2026-11-27-s2-type-topic-stacks-on-the-reset-type-patch)
+
+About
+: walleye-pmic-wdt-v1-image

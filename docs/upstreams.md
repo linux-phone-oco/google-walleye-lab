@@ -51,3 +51,22 @@ Address
 
 How
 : git send-email to the list; Qualcomm maintainers and the DT binding reviewers in Cc (scripts/get_maintainer.pl)
+
+
+<a id="linux-watchdog"></a>
+### linux-watchdog (watchdog drivers) and its maintainers
+
+Kind
+: list
+
+Address
+: linux-watchdog@vger.kernel.org
+
+How
+: git send-email of a b4-prepared series, each patch passing scripts/checkpatch.pl --strict, signed off by the person who sends; recipients from scripts/get_maintainer.pl (copy of docs' upstream row of the same id; the outgoing series live in docs upstream/linux-watchdog/)
+
+Contacts
+: Wim Van Sebroeck, Guenter Roeck; pm8916_wdt binding: Krzysztof Kozlowski
+
+Notes
+: Subjects 'watchdog: pm8916_wdt: ...'; an AI agent adds no Signed-off-by (docs row has the full rule)

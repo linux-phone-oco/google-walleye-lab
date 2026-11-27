@@ -13250,10 +13250,10 @@ Rank
 ### The S2 reset type from a qcom property, as a topic/ branch of linux-phone-oco/linux with the three review blockers fixed
 
 Status
-: open
+: done
 
 Note
-: Slice 2 of walleye-wdt-pon-bites-procedure (session log 2026-11-26-wdt-pon-bites-reslice).
+: Done 2026-11-27: topic/pmic-wdt-s2-type on v7.3, tip cbdaf1c7791e, pushed and read back; blocker 3 fixed in the patch, blockers 1-2 and the small fixes are the procedure's (walleye-wdt-pon-bites-procedure). Next: walleye-wdt2-images-from-tag (an int/ tag list holding this topic).
 
 About
 : walleye-pmic-wdt-v1-image
@@ -13690,3 +13690,28 @@ Proof
 
 Rank
 : 30
+
+
+<a id="walleye-wdt-s2-binding-patch"></a>
+### The dt-bindings patch for qcom,s2-type in qcom,pm8916-wdt.yaml, first in the series, dt_binding_check clean
+
+Status
+: open
+
+Note
+: From walleye-wdt-s2-type-topic-branch: the driver patch reads qcom,s2-type (1 warm, 4 shutdown, 7 hard, default 7) and the binding does not name it yet. Upstream only matters if the four bites say a warm type is wanted (walleye-wdt-bite-pon-reasons-read).
+
+About
+: walleye-pmic-wdt-v1-image
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: a patch on topic/pmic-wdt-s2-type (or its own topic) before the driver patch, dt_binding_check run in the container of docs research/upstream-forks/2026-11-19/dt-checks-in-a-container.md, checkpatch --strict clean but for the sign-off
+
+Rank
+: 45
