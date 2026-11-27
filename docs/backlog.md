@@ -13740,3 +13740,31 @@ Proof
 
 Rank
 : 7
+
+
+<a id="walleye-busybox-part"></a>
+### The ramdisks' busybox from lab-tools [part_builds] (nixpkgs static aarch64 1.37.0, musl) in place of build-busybox.sh's 1.36.1
+
+Status
+: open
+
+Note
+: From lab-tools 0.53.8 part-busybox-recipe (orchestration 2026-11-27). The ramdisk recipe itself waits on lab-tools part-gen-init-cpio-pin. Same window as decision 2026-11-27-walleye-tools-keep-scripts-until-ramdisk-packs-parts.
+
+Waits
+: the author's NFC tag poll and PON control read run (they use today's images); then with walleye-part-builds-reboot-nfc-up
+
+About
+: walleye-retire-build-scripts
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: [part_builds.busybox] --rebuild proves sha 7593d31b...; the ramdisks rebuild equal; tests/host/ufs-off-image.sh passes; one unattended RAM boot of a busybox-changed image reaches its banner and the way back passes (a version change is tested on the phone)
+
+Rank
+: 30
