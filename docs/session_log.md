@@ -11179,3 +11179,24 @@ Considered
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-mmcli-ask-waits-for-the-modem-s-init"></a>
+### mmcli ask waits for the modem's init
+
+Entry date
+: 2026-11-27
+
+Done
+: modem_boot.rs: the mmcli ask loops on the phone's uptime up to 45 s, records each try with uptime and the DOG_HB dmesg lines; MMCLI_S 63; host test against a fake chroot, 544 pass.
+
+Considered
+: A try-count loop (first version): worst case 44 s only when every ask hangs
+
+Rejected
+: Try count: with mmcli answering at once it ended after 11 s, before the 39-43 s crash (programmer review); replaced by the uptime-bounded loop.
+
+About
+: modem-calls

@@ -14946,10 +14946,10 @@ Rank
 ### The modem boot's mmcli ask waits until a modem is listed or 45 s after modem0 appears, then the daemon log is read to its end
 
 Status
-: open
+: done
 
 Note
-: Coordinator 2026-11-27: the modem's DOG_HB crash (39-43 s, every MM run) falls inside the 45 s ask window; the step records each mmcli -L answer with its time and the crash's dmesg time, so the run tells 'listed', 'never listed' and 'lost in the crash' apart. | From research walleye-modem-mm-primary-port-read-why-no-modem-listed: runs 9 and 10 asked mmcli -L for only 6.6 s; modem0's init was still in ModemManager's 5 s PDC carrier-config wait. Change the ask in procedures/steps/src/modem_boot.rs (MMCLI_TRIES, MMCLI_S, MMCLI_COMMAND, the window guard) so it keeps asking up to ~45 s, then the read. No change to the phone image.
+: Built 2026-11-27: the ask loops on the phone's uptime until a modem is listed or MMCLI_ASK_COVERS_S=45 s passed (a try count covered only 11 s when mmcli answers at once: the programmer review found it); MMCLI_S 35->63; mmcli.txt gains ---mmcli-tries (each try with uptime) and ---mmcli-crash (DOG_HB dmesg lines). Proof: the_ask_keeps_asking_for_its_seconds_when_mmcli_answers_at_once (host run against a fake chroot) + the bounds test, 544 pass. Not run on the phone. OPEN: the step's guard now needs 113 s left (was 85) and MMCLI_USUAL_S=3 no longer holds when no modem lists; the earlier guards (firmware_to_end_usual_s) do not count the 45 s, so a boot they accept this step may refuse - check the elapsed time at this step on the next run.
 
 About
 : modem-calls

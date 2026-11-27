@@ -94,15 +94,20 @@ pub const IDS_KILL_S: u64 = 2;
 /// prints "Device IDs retrieved:" then ESN, IMEI and MEID lines). Its output holds the phone's IMEI: it is kept ONLY in the run's folder under ~/lab-material (qmi-ids.txt), never printed, logged or committed.
 pub const IDS_COMMAND: &str = "timeout -k 2 15 qmicli -d qrtr://0 --dms-get-ids 2>&1";
 
-/// Where `mm-up` puts the rootfs (build/initramfs-modem/mm-up: `MM_ROOT` defaults to /mm), and the bounds of the mmcli ask: up to `MMCLI_TRIES` tries of `mmcli -L`, `MMCLI_TRY_S` s each and 1 s between (ModemManager probes the modem over qrtr after it starts),
-/// then one `-L` and one `-m 0` for the kept text, each bounded by `MMCLI_TRY_S`; `MMCLI_S` is what the step may take.
+/// Where `mm-up` puts the rootfs (build/initramfs-modem/mm-up: `MM_ROOT` defaults to /mm), and the bounds of the mmcli ask: tries of `mmcli -L` (`MMCLI_TRY_S` s each, 1 s between) until a modem is listed or `MMCLI_ASK_COVERS_S` s of the phone's uptime have passed (ModemManager probes the modem over qrtr after it starts),
+/// then three asks (`-L`, the `-L` that finds the path, `-m`) for the kept text, each bounded by `MMCLI_TRY_S`; `MMCLI_S` is what the step may take.
 pub const MM_ROOT: &str = "/mm";
-pub const MMCLI_TRIES: u64 = 6;
 pub const MMCLI_TRY_S: u64 = 3;
-pub const MMCLI_S: u64 = 35; // the loop's worst case 6 x (3 + 1), the two asks 2 x 3, and 5 s of slack for the phone and the telnet
+/// How long the ask must keep asking: modem0's init waits 5 s for the PDC carrier config and the modem's DOG_HB crash comes at 39-43 s (research walleye-modem-mm-primary-port-read-why-no-modem-listed), so the loop covers 45 s; each try's answer is kept with the phone's uptime (---mmcli-tries) and the crash's dmesg line (---mmcli-crash), so 'listed', 'never listed' and 'lost in the crash' read apart.
+pub const MMCLI_ASK_COVERS_S: u64 = 45;
+pub const MMCLI_S: u64 = 63; // the loop: MMCLI_ASK_COVERS_S 45 + its last try 3 + 1, the three asks after it 3 x 3, the dmesg line, and 5 s of slack for the phone and the telnet
 /// What ModemManager lists, asked in the chroot by mmcli (ModemManager 1.24.2 cli/mmcli-manager.c: `-L, --list-modems`, `-m, --modem` takes an index or path; research walleye-mmcli-list-words). The `-m 0` text holds the equipment id (an IMEI): the kept file is redacted.
 /// The sections are the ones tests/health/base/modem-mm-starts.sh reads.
-pub const MMCLI_COMMAND: &str = "i=0; while [ $i -lt 6 ]; do timeout 3 chroot /mm /env/bin/mmcli -L 2>&1 | grep -q /Modem/ && break; i=$((i+1)); sleep 1; done; echo ---mmcli-L; timeout 3 chroot /mm /env/bin/mmcli -L 2>&1; echo ---mmcli-m0; P=$(timeout 3 chroot /mm /env/bin/mmcli -L 2>&1 | grep -o '/org/freedesktop/ModemManager1/Modem/[0-9]*' | head -n 1); timeout 3 chroot /mm /env/bin/mmcli -m \"${P:-0}\" 2>&1; echo ---end";
+pub const MMCLI_TEMPLATE: &str = "t=$(cut -d. -f1 /proc/uptime); echo ---mmcli-tries; while :; do o=$(timeout 3 chroot /mm /env/bin/mmcli -L 2>&1); echo \"up $(cut -d' ' -f1 /proc/uptime) s, asked for COVER_S s from $t: $(echo \"$o\" | head -n 1)\"; echo \"$o\" | grep -q /Modem/ && break; [ $(cut -d. -f1 /proc/uptime) -ge $((t+COVER_S)) ] && break; sleep 1; done; echo ---mmcli-L; timeout 3 chroot /mm /env/bin/mmcli -L 2>&1; echo ---mmcli-m0; P=$(timeout 3 chroot /mm /env/bin/mmcli -L 2>&1 | grep -o '/org/freedesktop/ModemManager1/Modem/[0-9]*' | head -n 1); timeout 3 chroot /mm /env/bin/mmcli -m \"${P:-0}\" 2>&1; echo ---mmcli-crash; dmesg | grep DOG_HB | tail -n 5; echo ---end";
+/// The command for an ask that keeps asking `cover_s` s of the phone's uptime (the step uses `MMCLI_ASK_COVERS_S`; a test uses a few seconds).
+pub fn mmcli_command(cover_s: u64) -> String {
+    MMCLI_TEMPLATE.replace("COVER_S", &cover_s.to_string())
+}
 
 /// The one read over telnet: every remoteproc's name and state, the kernel's modem lines, the daemons' logs, qrtr-lookup's list; marks between the parts.
 pub const READ_COMMAND: &str = "echo ---remoteproc; for d in /sys/class/remoteproc/*; do [ -e $d/name ] || continue; echo \"$(cat $d/name) $(cat $d/state)\"; done; echo ---dmesg; dmesg | grep -i -e remoteproc -e remote.processor -e q6v5 -e mss -e rmtfs -e qrtr -e glink -e sysmon -e modem; echo ---logs; for f in /tmp/*.log; do echo \"== $f\"; cat $f; done; echo ---qrtr; qrtr-lookup 2>&1; echo ---end";
@@ -605,7 +610,10 @@ impl ModemBoot {
         move || {
             let mut sh = u.lab.shell_when_up()?;
             time_left_covers(u.elapsed()?, MMCLI_S + READ_S + IDS_S)?;
-            let text = redact_ids(&sh.run(MMCLI_COMMAND, Duration::from_secs(MMCLI_S))?);
+            let text = redact_ids(&sh.run(
+                &mmcli_command(MMCLI_ASK_COVERS_S),
+                Duration::from_secs(MMCLI_S),
+            )?);
             u.lab.save("mmcli.txt", &text)?;
             u.lab.save(
                 "mmcli-check.txt",
@@ -1303,27 +1311,73 @@ mod mmcli_tests {
             "/../../tests/health/base/modem-mm-starts.sh"
         ))
         .unwrap();
+        let command = mmcli_command(MMCLI_ASK_COVERS_S);
         for section in ["---mmcli-L", "---mmcli-m0"] {
-            assert!(MMCLI_COMMAND.contains(section), "{section}");
+            assert!(command.contains(section), "{section}");
         }
         assert!(check.contains("section mmcli-L"), "the check reads mmcli-L");
         assert!(
-            MMCLI_COMMAND.contains("chroot /mm /env/bin/mmcli -L"),
-            "{MMCLI_COMMAND}"
+            command.contains("chroot /mm /env/bin/mmcli -L"),
+            "{command}"
         );
         assert!(
-            MMCLI_COMMAND.contains("chroot /mm /env/bin/mmcli -m \"${P:-0}\""),
-            "{MMCLI_COMMAND}"
+            command.contains("chroot /mm /env/bin/mmcli -m \"${P:-0}\""),
+            "{command}"
         );
-        assert!(MMCLI_COMMAND.ends_with("echo ---end"), "{MMCLI_COMMAND}");
+        assert!(command.ends_with("echo ---end"), "{command}");
         assert!(
-            MMCLI_COMMAND.contains(&format!("-lt {MMCLI_TRIES} ]"))
-                && MMCLI_COMMAND.contains(&format!("timeout {MMCLI_TRY_S} ")),
+            command.contains(&format!("timeout {MMCLI_TRY_S} "))
+                && command.contains(&format!("+{MMCLI_ASK_COVERS_S}")),
             "the literals are the constants"
         );
-        const { assert!(MMCLI_S > MMCLI_TRIES * (MMCLI_TRY_S + 1) + 2 * MMCLI_TRY_S) };
+        // the loop's last try, its sleep and the three asks after it
+        const { assert!(MMCLI_S > MMCLI_ASK_COVERS_S + (MMCLI_TRY_S + 1) + 3 * MMCLI_TRY_S) };
+        const { assert!(MMCLI_S + READ_S + IDS_S < INIT_WINDOW_S) };
     }
 
+    /// The sections that keep each try with its uptime and the crash's dmesg line sit around the ones the health check reads, before ---end.
+    #[test]
+    fn the_tries_and_the_crash_are_kept_beside_the_sections_the_check_reads() {
+        let command = mmcli_command(MMCLI_ASK_COVERS_S);
+        for kept in ["---mmcli-tries", "---mmcli-crash", "/proc/uptime", "DOG_HB"] {
+            assert!(command.contains(kept), "{kept}");
+        }
+        assert!(command.find("---mmcli-tries") < command.find("---mmcli-L"));
+        assert!(command.find("---mmcli-crash") < command.find("---end"));
+    }
+
+    /// Run on the host against a `chroot` that answers at once with none listed (the case that ended the old ask after 11 s): the ask lasts the asked uptime seconds, and keeps each try with its time.
+    #[test]
+    fn the_ask_keeps_asking_for_its_seconds_when_mmcli_answers_at_once() {
+        let dir = std::env::temp_dir().join(format!("wt-mmcli-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let fake = dir.join("chroot");
+        std::fs::write(&fake, "#!/bin/sh\necho 'No modems were found'\n").unwrap();
+        std::os::unix::fs::PermissionsExt::set_mode(
+            &mut std::fs::metadata(&fake).unwrap().permissions(),
+            0o755,
+        );
+        std::fs::set_permissions(&fake, std::os::unix::fs::PermissionsExt::from_mode(0o755))
+            .unwrap();
+        let path = format!("{}:{}", dir.display(), std::env::var("PATH").unwrap());
+        let began = Instant::now();
+        let out = std::process::Command::new("sh")
+            .args(["-c", &mmcli_command(4)])
+            .env("PATH", path)
+            .output()
+            .unwrap();
+        let took = began.elapsed().as_secs();
+        let text = String::from_utf8_lossy(&out.stdout);
+        std::fs::remove_dir_all(&dir).unwrap();
+        assert!((4..=7).contains(&took), "{took} s\n{text}");
+        let tries = section(&text, "mmcli-tries").unwrap().join("\n");
+        assert!(tries.lines().count() >= 4, "{tries}");
+        assert!(tries.contains("No modems were found"), "{tries}");
+        assert_eq!(
+            mmcli_says(&text),
+            "ModemManager answered: No modems were found (kept in mmcli.txt)"
+        );
+    }
     /// The step's words say how many modems ModemManager listed, never a path's number or an id.
     #[test]
     fn the_words_count_the_modems_listed_and_name_no_id() {
