@@ -9454,3 +9454,22 @@ Found
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-mm-first-try-run-4-mm-up-passes"></a>
+### walleye-modem-mm-first-try-run-4-mm-up-passes
+
+Date
+: 2026-11-27
+
+Brief
+: Fourth ModemManager try (run modem-boot-20261127-165116): 25 of 25 pass; dbus and ModemManager 1.24.2 run in the chroot, MM sees qrtr node 0 services
+
+Question
+: Does mm-up now start dbus and ModemManager on the phone (dbus without --system)?
+
+Found
+: All 25 steps passed, way back 30 s, card, boot chain and slot flags as before, nothing flashed. mm-up ran dbus and ModemManager (bus acquired, 44 plugins, qrtr subsystem, node 0 services added at 43 s). qmicli DMS get-ids answered (kept private). Not yet run: mmcli -L, so the item's proof (modem-mm-starts.sh) is still to write. Side reads: slpi_v2.mdt firmware load fails (known, SLPI); tqftpserv loops on /readwrite/mcfg.tmp WRQ/RRQ and rejects wlanmdsp.mbn and ota_firewall/ruleset - read, not fixed.
+
+About
+: modem-calls
