@@ -61,3 +61,17 @@ state = "trying"
 branch = "topic/ufs-match-android"
 for = "UFS storage on the Pixel 2: reset pin, PHY tables, the card's one quirk, the purge guard"
 state = "trying"
+
+# The kernel of the four PMIC bites (item walleye-wdt2-images-from-tag): the watchdog topic and, on it, the S2 reset type from the property qcom,s2-type (decision 2026-11-27-s2-type-topic-restacked-on-the-wake-topic). UFS off.
+[lists.ufs-off-wdt2]
+base = "v7.3"
+
+[[lists.ufs-off-wdt2.entries]]
+branch = "topic/pmic-wdt-wake-in-suspend"
+for = "the PMIC watchdog that keeps running through suspend"
+state = "trying"
+
+[[lists.ufs-off-wdt2.entries]]
+branch = "topic/pmic-wdt-s2-type"
+for = "the S2 reset type from qcom,s2-type (1 warm, 4 shutdown, 7 hard; hard when absent)"
+state = "trying"

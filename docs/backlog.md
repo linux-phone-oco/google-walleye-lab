@@ -13275,13 +13275,10 @@ Rank
 ### The wdt2-hard and wdt2-warm images rebuilt from an int/ tag, their sha256 in device.toml
 
 Status
-: open
+: done
 
 Note
-: Stopped 2026-11-27 at lpoco bringup kernel assemble: its record check refuses every list of the lane (no carried commit has a TAG(item): subject; topic/pmic-wdt-s2-type has no upstream-item row). Needs from orchestration/upstreams: an upstream-item row for pmic-wdt-s2-type and the form the topics' subjects take (retag, or the check eased); then the list ufs-off-wdt2 (topic/pmic-wdt-wake-in-suspend, topic/pmic-wdt-s2-type, base v7.3) assembles. Session log 2026-11-27-walleye-builder-wdt2-assemble-refused.
-
-Blocked by
-: walleye-topics-retagged
+: Done 2026-11-27: tag int/walleye/ufs-off-wdt2/v7.3/1; images wdt2-hard 6694fef2 and wdt2-warm a9167b4d rebuild equal (research walleye-wdt2-images-built-from-tag); the bites procedure is walleye-wdt-pon-bites-procedure's.
 
 About
 : walleye-pmic-wdt-v1-image

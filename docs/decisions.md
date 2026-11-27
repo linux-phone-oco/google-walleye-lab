@@ -4047,3 +4047,31 @@ Rejected
 
 About
 : walleye-pmic-wdt-v1-image
+
+
+<a id="2026-11-27-s2-type-topic-restacked-on-the-wake-topic"></a>
+### 2026-11-27-s2-type-topic-restacked-on-the-wake-topic
+
+Date
+: 2026-11-27
+
+Brief
+: topic/pmic-wdt-s2-type is restacked on topic/pmic-wdt-wake-in-suspend: the property patch alone, so the two merge in a list
+
+Decision
+: topic/pmic-wdt-s2-type is now one commit, 'Take the S2 reset type from qcom,s2-type', on the tip of topic/pmic-wdt-wake-in-suspend (52c1efae), which already carries the series' reset-type patch (537cf912). Its old tip a6628ef0 (v7.3, reset-type cherry-pick, property) stays as the tag pre-restack/2026-11-27/pmic-wdt-s2-type. The list ufs-off-wdt2 merges the two (tag int/walleye/ufs-off-wdt2/v7.3/1, tree equal to the topic's tip tree). The property patch's own code is unchanged (cherry-pick applied clean).
+
+Why
+: lpoco-bringup kernel assemble stopped on a conflict in pm8916_wdt.c: both topics add pm8916_wdt_set_reset_type from v7.3 and the property patch changes it, so git cannot take both as one change. The reset-type patch is already in the wake topic, so the duplicate commit had no reason to be in the property topic.
+
+Rejected
+: Keeping the topic on v7.3 with its copy of the reset-type patch (the list cannot merge it); putting the property patch into topic/pmic-wdt-wake-in-suspend (a different series: its gen2 and wake patches are held as an RFC, send-back drafts from its subjects); a list of s2-type alone (it lacks the gen2 PON support and the wake patches of the shipped ufs-off kernel); resolving the conflict by hand in the assemble worktree (a tag must be a merge of named branches, never edited)
+
+About
+: walleye-pmic-wdt-v1-image
+
+Amends
+: 2026-11-27-s2-type-topic-stacks-on-the-reset-type-patch
+
+Tracked by
+: walleye-wdt2-images-from-tag
