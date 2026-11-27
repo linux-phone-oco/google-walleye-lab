@@ -14403,10 +14403,10 @@ Rank
 ### modem boot: when mm-up stops, read /tmp/dbus.log and /tmp/ModemManager.log (and the rest of the read) before the way back, keep them
 
 Status
-: open
+: done
 
 Note
-: From run modem-boot-20261127-144810: mm-up stopped (no bus socket) and the logs died with the reboot. Then retry walleye-modem-mm-first-try.
+: Done on the host: mm-up prints dbus.log / ModemManager.log after its stop words (MM_LOGS), and the procedure keeps the read (read.txt, dmesg.txt, daemon-logs.txt) when mm-up stops, before the way back, within the time left; mm-up's output is redacted for ids (review finding). tests/host/modem-boot-selftest.sh seen failing, then pass; steps tests 537 pass. Image rebuilt: ramdisk fccb1f41, image ce993726 (was e6e846bd), device.toml updated, swap twice equal, gate and dtb tests ok. A real run keeping the logs is walleye-modem-mm-first-try's retry. Not run on the phone.
 
 About
 : modem-calls

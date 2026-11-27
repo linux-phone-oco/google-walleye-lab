@@ -10792,3 +10792,24 @@ Considered
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-mm-up-keeps-the-logs-of-a-stop"></a>
+### walleye builder: mm-up keeps the logs of a stop
+
+Entry date
+: 2026-11-27
+
+Done
+: mm-up prints the log of each daemon it started after its stop words (logs under MM_LOGS, default /tmp); the modem boot procedure keeps the read through keep_the_read when mm-up stops, if the time left covers READ_S, with mm-up's output redacted for ids first. Selftest gained two cases (seen failing); a Rust test pins the masking. Programmer review: fixed the unredacted IMEI path, the time guard, the stale comment and the hard-coded /tmp words. Modem ramdisk and image rebuilt from the same nix tools, kernel 3651b543 and dtb cb6ec054: ramdisk fccb1f41, image ce993726, firmware tar unchanged 95ca6961; swap twice equal, AVB, gate, dtb tests ok. device.toml [images.modem] updated. Not run on the phone.
+
+Considered
+: Only the Rust side keeping the read: the shell selftest could not prove it.
+
+Rejected
+: Testing the keep-after-stop branch with a fake shell: Shell is a live telnet type, no seam; the pure parts (masking, words) are tested and the real run is the retry.
+
+About
+: modem-calls

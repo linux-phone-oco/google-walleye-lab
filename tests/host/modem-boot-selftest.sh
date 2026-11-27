@@ -52,10 +52,10 @@ printf '#!/bin/sh\n' > "$T/tree/nix/store/x/bin/ModemManager"; cp "$T/tree/nix/s
 tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf "$T/good.tar" -C "$T/tree" .
 printf 'not a tar' > "$T/junk.tar"
 fresh() { # a new fake phone: its own root, state, log
-  rm -rf "$T/root" "$T/state"; mkdir -p "$T/state"; : > "$T/state/running"; : > "$T/log"
+  rm -rf "$T/root" "$T/state" "$T/logs"; mkdir -p "$T/state" "$T/logs"; : > "$T/state/running"; : > "$T/log"
 }
 run() { # SCRIPT STREAM -> output in $OUT, status in $RC
-  OUT=$(LOG="$T/log" STATE="$T/state" STREAM="$2" MM_PATH="$S:$PATH" MM_ROOT="$T/root" MM_TAR="$T/pushed.tar" MM_WAIT=3 sh "$SRC/$1" 2>&1) && RC=0 || RC=$?
+  OUT=$(LOG="$T/log" STATE="$T/state" STREAM="$2" MM_PATH="$S:$PATH" MM_ROOT="$T/root" MM_LOGS="$T/logs" MM_TAR="$T/pushed.tar" MM_WAIT=3 sh "$SRC/$1" 2>&1) && RC=0 || RC=$?
 }
 line() { grep -n "$1" "$T/log" | head -1 | cut -d: -f1; }
 
@@ -80,8 +80,14 @@ fresh; run rootfs-recv "$T/good.tar"; : > "$T/log"; run mm-up ""
 [ $RC != 0 ] && case "$OUT" in *"run modem-up first"*) [ ! -s "$T/log" ] && ok "no qrtr-ns: mm-up stops and starts nothing" || no "mm-up acted without qrtr-ns" ;; *) no "no-qrtr-ns said: $OUT" ;; esac || no "no-qrtr-ns passed"
 # dbus that never makes its socket: the stop names the log
 fresh; run rootfs-recv "$T/good.tar"; echo qrtr-ns >> "$T/state/running"; : > "$T/log"
-printf '#!/bin/sh\necho "chroot $*" >> "$LOG"\n' > "$S/chroot"; run mm-up ""
-[ $RC != 0 ] && case "$OUT" in *"no socket after 3 s (see /tmp/dbus.log)"*) ok "dbus without a bus socket stops mm-up before ModemManager" ;; *) no "no-socket said: $OUT" ;; esac || no "no-socket passed"
+printf '#!/bin/sh\necho "chroot $*" >> "$LOG"\necho "dbus: fake complaint" >&2\n' > "$S/chroot"; run mm-up ""
+[ $RC != 0 ] && case "$OUT" in *"no socket after 3 s (see $T/logs/dbus.log)"*) ok "dbus without a bus socket stops mm-up before ModemManager" ;; *) no "no-socket said: $OUT" ;; esac || no "no-socket passed"
 ! grep -q "ModemManager --debug" "$T/log" || no "ModemManager started without a bus"
+# the stop prints dbus's log after its words, so the run's mm-up.txt keeps what the reboot would take
+case "$OUT" in *"== dbus.log"*"dbus: fake complaint"*) ok "the stop prints dbus.log (kept by the run before the way back)" ;; *) no "the stop did not print dbus.log: $OUT" ;; esac
+# ModemManager that exits at once: its log is printed too
+fresh; run rootfs-recv "$T/good.tar"; echo qrtr-ns >> "$T/state/running"; : > "$T/log"
+printf '#!/bin/sh\necho "chroot $*" >> "$LOG"\np=$(basename "$2")\n[ "$p" != dbus-daemon ] || { touch "$1/run/dbus/system_bus_socket"; echo dbus-daemon >> "$STATE/running"; }\n[ "$p" != ModemManager ] || echo "mm: fake exit" >&2\n' > "$S/chroot"; run mm-up ""
+[ $RC != 0 ] && case "$OUT" in *"ModemManager is not running"*"== ModemManager.log"*"mm: fake exit"*) ok "a ModemManager that stopped: its log is printed after the words" ;; *) no "mm stop said: $OUT" ;; esac || no "mm stop passed"
 [ $bad -eq 0 ] || { echo "modem-boot-selftest: failed" >&2; exit 1; }
 echo "pass modem-boot-selftest"

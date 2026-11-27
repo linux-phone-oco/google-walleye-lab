@@ -538,16 +538,40 @@ impl ModemBoot {
         }
     }
 
-    /// `mm-up` runs once, after the rootfs is unpacked and `modem-up` has the modem running, and says dbus and ModemManager run; its words are kept (mm-up.txt). ModemManager's own log is in the read that follows.
+    /// `mm-up` runs once, after the rootfs is unpacked and `modem-up` has the modem running, and says dbus and ModemManager run; its words are kept (mm-up.txt). After a stop its output holds the daemons' logs and the read is kept (read.txt, daemon-logs.txt); otherwise ModemManager's log is in the read that follows.
     pub fn the_modemmanager_is_started(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
         move || {
             let mut sh = u.lab.shell_when_up()?;
             time_left_covers(u.elapsed()?, MM_UP_S + READ_S + IDS_S)?;
-            let said = sh.run("mm-up", Duration::from_secs(MM_UP_S))?;
+            let said = redact_ids(&sh.run("mm-up", Duration::from_secs(MM_UP_S))?); // its stop prints daemon logs, which may hold an IMEI
             u.lab.save("mm-up.txt", &said)?;
-            mm_says(&said)
+            let answer = mm_says(&said);
+            if answer.is_err() {
+                // a stop: the logs would die with the way back, so the read is kept now when the time left covers it (its own failure never hides the stop); a timeout of mm-up itself keeps none
+                match time_left_covers(u.elapsed()?, READ_S)
+                    .and_then(|()| u.keep_the_read(&mut sh).map(|_| ()))
+                {
+                    Ok(()) => {}
+                    Err(e) => println!("  the read after the stop was not kept: {e}"),
+                }
+            }
+            answer
         }
+    }
+
+    /// The one read, its check, the kernel log and the daemons' logs, kept in the run's folder (read.txt, modem-up-check.txt, dmesg.txt, daemon-logs.txt); the read's text comes back.
+    fn keep_the_read(&self, sh: &mut crate::phone::Shell) -> Result<String, String> {
+        let text = sh.run(READ_COMMAND, Duration::from_secs(40))?;
+        self.lab.save("read.txt", &redact_ids(&text))?;
+        self.lab.save("modem-up-check.txt", &self.health_check())?;
+        let dmesg = sh.run("dmesg", Duration::from_secs(20))?;
+        self.lab.save("dmesg.txt", &redact_ids(&dmesg))?;
+        let logs = section(&text, "logs")
+            .map(|l| l.join("\n"))
+            .unwrap_or_default();
+        self.lab.save("daemon-logs.txt", &redact_ids(&logs))?;
+        Ok(text)
     }
 
     /// `modem-up` runs once and says the three daemons run; its words are kept (modem-up.txt).
@@ -570,15 +594,7 @@ impl ModemBoot {
         move || {
             let mut sh = u.lab.shell_when_up()?;
             time_left_covers(u.elapsed()?, READ_S + IDS_S)?;
-            let text = sh.run(READ_COMMAND, Duration::from_secs(40))?;
-            u.lab.save("read.txt", &redact_ids(&text))?;
-            u.lab.save("modem-up-check.txt", &u.health_check())?;
-            let dmesg = sh.run("dmesg", Duration::from_secs(20))?;
-            u.lab.save("dmesg.txt", &redact_ids(&dmesg))?;
-            let logs = section(&text, "logs")
-                .map(|l| l.join("\n"))
-                .unwrap_or_default();
-            u.lab.save("daemon-logs.txt", &redact_ids(&logs))?;
+            let text = u.keep_the_read(&mut sh)?;
             let said = judge(&text)?.said();
             u.lab.save(
                 "verdict.txt",
@@ -820,6 +836,17 @@ mod tests {
     }
 
     /// `-d` takes the QRTR URI and `-p` is the proxy flag (libqmi qmicli.c lines 79-104): the command must name the device with -d, and ask nothing but get-ids.
+    /// A stop of mm-up prints daemon logs; an IMEI in them is masked before the answer and the kept file are made.
+    #[test]
+    fn a_stop_with_an_imei_in_a_log_says_it_masked() {
+        let text = "mm-up: ModemManager is not running (see /tmp/ModemManager.log)\n== ModemManager.log\nimei 356938035643809";
+        let e = mm_says(&redact_ids(text)).unwrap_err();
+        assert!(
+            e.contains("ModemManager is not running") && !e.contains("356938035643809"),
+            "{e}"
+        );
+    }
+
     #[test]
     fn the_ids_command_names_the_qrtr_node_with_d_and_asks_only_get_ids() {
         assert!(IDS_COMMAND.contains(" -d qrtr://0 ") && !IDS_COMMAND.contains(" -p "));
