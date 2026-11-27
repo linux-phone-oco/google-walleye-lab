@@ -4209,3 +4209,34 @@ Research
 
 Tracked by
 : walleye-modem-qmicli-in-image
+
+
+<a id="2026-11-27-walleye-mm-runs-in-a-pushed-alpine-rootfs"></a>
+### 2026-11-27-walleye-mm-runs-in-a-pushed-alpine-rootfs
+
+Date
+: 2026-11-27
+
+Brief
+: ModemManager on walleye runs in an Alpine aarch64 rootfs pushed into RAM over USB and chrooted, like the firmware: nothing flashed
+
+Decision
+: Build an Alpine edge aarch64 rootfs tarball on the host (apk-tools-static --root --arch aarch64 --no-scripts: modemmanager, libmm-glib, libqmi, libqrtr-glib, dbus, eudev, busybox), keep it in ~/Projects/walleye-build/images-modem beside the firmware tar, push it with firmware-recv, unpack to tmpfs and run dbus and ModemManager in a chroot with /proc /sys /dev /lib/firmware and /rmtfs bind-mounted; the first try settles udev and polkit.
+
+Why
+: The boot image has only about 10 MB free; the pushed firmware proves the way to carry more; the packages are the ones postmarketOS runs on the same SoC; no flash, no gate change.
+
+Rejected
+: Static ModemManager in the ramdisk (nix pkgsStatic): static glib, gio and gudev unproven and it eats the 10 MB headroom - the fallback if the chroot fails. Rootfs on UFS or the card: refused by the UFS-off gate. ModemManager on the host over a qrtr tunnel: not the product, no mainline qrtr-over-IP in the image. qmicli only: no voice-call state machine, mmcli is what the next items need.
+
+About
+: modem-calls
+
+Research
+: walleye-modem-mm-runs-where-research
+
+Scope
+: walleye builder, walleye keeper
+
+Tracked by
+: walleye-modem-mm-rootfs-build

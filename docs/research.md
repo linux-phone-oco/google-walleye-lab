@@ -9326,3 +9326,27 @@ Found
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-mm-runs-where-research"></a>
+### walleye-modem-mm-runs-where-research
+
+Date
+: 2026-11-27
+
+Brief
+: ModemManager runs on walleye from an Alpine aarch64 rootfs pushed into RAM over USB and chrooted; static-in-ramdisk is the fallback
+
+Question
+: Where does ModemManager run on walleye with nothing flashed?
+
+Found
+: Today's modem image: kernel 15.2 MB + xz ramdisk 8.2 MB in a 32 MiB boot partition, so about 10 MB is free (read from the image header). The firmware (61 MB) is already pushed over the USB network (firmware-recv port 9000) and that works, so a push of more is a proven mechanism. ModemManager (qrtr on by default) finds a qrtr modem through its QrtrBusWatcher, not through udev events, but the daemon still links udev (gudev), dbus and polkit (permissive in Alpine). Alpine edge aarch64 (musl) ships exactly the set pmOS runs: modemmanager 6.7 MB + libmm-glib 1.5 + libqmi 5.5 + glib 5.9 + dbus 0.7 + eudev 1.1 installed, about 25 MB with musl and busybox, roughly 8-10 MB xz. Host has nix, docker and no apk or qemu-user; apk-tools-static x86_64 is on dl-cdn and installs an aarch64 root with --root --arch --no-scripts without running anything of the target.
+Ways: (A) static ModemManager built by nix (pkgsStatic musl) into the ramdisk: nothing to push, but static glib/gio/gudev/dbus is unproven, MM must still find dbus-daemon, and the ~10 MB headroom is also needed by later tools; risk high, hours unknown. (B) Alpine aarch64 rootfs tarball built on the host, pushed over USB into RAM (tmpfs), chroot with /proc /sys /dev, /lib/firmware and /rmtfs bind-mounted from the ramdisk; no flash, boot image unchanged except a small push-and-chroot step in modem-up; the packages are pmOS's own. (C) rootfs on the card/UFS: refused by the UFS-off gate. (D) ModemManager on the host over a qrtr tunnel: no mainline qrtr-over-IP in the image, and the product needs it on the phone. (E) skip ModemManager, drive voice with qmicli: qmicli has no voice-call state machine; the item after this needs mmcli.
+Chosen: B. Unknown and how each is settled: (1) does musl-Alpine MM start with no udevd and no polkitd - run it in a qemu-free way is impossible on the host, so the first phone try (attended by the keeper, RAM only) reads the log; if polkit is a hard stop, rebuild MM with -Dpolkit=no in nix; (2) dbus system bus in a bare chroot needs /run/dbus, a messagebus user and the MM policy file - all in the tar; (3) RAM headroom: the tar unpacked ~30-40 MB of 4 GB, not a risk; (4) the MM qrtr plugin matching walleye's QMI node - settled by mmcli -L in walleye-modem-mm-sees-modem.
+
+Sources
+: alpine-aports-modemmanager,modemmanager-meson-options,modemmanager-base-manager-qrtr,alpine-edge-aarch64-index,pmos-msm8998-wiki,pmaports-oneplus5-mainline-mr3531
+
+About
+: modem-calls

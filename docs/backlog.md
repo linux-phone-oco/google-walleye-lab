@@ -14026,7 +14026,7 @@ Note
 : No SIM yet. If MSS crashes: hold back the ipa module, then try diag-router (nura wiki).
 
 Blocked by
-: walleye-modem-mm-runs-where
+: walleye-modem-mm-first-try
 
 About
 : modem-calls
@@ -14191,10 +14191,10 @@ Rank
 ### Where ModemManager runs on walleye: in the RAM-boot ramdisk (static or with its libs, D-Bus) or a rootfs booted from RAM or the card, with nothing flashed
 
 Status
-: open
+: done
 
 Note
-: From walleye-modem-qmi-ids-read done (PR 1277; coordinator 2026-11-27): today's modem image is a busybox ramdisk with static tools; ModemManager is not in it (build/ and device.toml name none). walleye-modem-mm-sees-modem waits on this.
+: Researched; decision 2026-11-27-walleye-mm-runs-in-a-pushed-alpine-rootfs; steps walleye-modem-mm-rootfs-build, -chroot-in-modem-up, -first-try. Not known yet: whether MM stops on a missing udevd or polkitd (the first try settles it).
 
 About
 : modem-calls
@@ -14210,3 +14210,84 @@ Proof
 
 Rank
 : 21
+
+
+<a id="walleye-modem-mm-rootfs-build"></a>
+### Build the Alpine aarch64 ModemManager rootfs tarball on the host
+
+Status
+: open
+
+Note
+: Decision 2026-11-27-walleye-mm-runs-in-a-pushed-alpine-rootfs. apk-tools-static from dl-cdn, --no-scripts, edge main+community aarch64, versions pinned in device.toml; no modem storage in it. The tar stays out of git (like the firmware tar); build/build-modem-rootfs.sh is in git.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: tests/host/modem-rootfs-selftest.sh (to write): tar lists ModemManager, dbus-daemon, mmcli, qmicli, udevd and fails when one is missing; sha256 recorded
+
+Rank
+: 21
+
+
+<a id="walleye-modem-mm-chroot-in-modem-up"></a>
+### modem-up/firmware-recv: push the rootfs tar, unpack to tmpfs, chroot with binds
+
+Status
+: open
+
+Note
+: Boot image changes only by the script. procedures/modem-boot-on-the-pixel-2.rs takes a second push.
+
+Blocked by
+: walleye-modem-mm-rootfs-build
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: tests/host/modem-boot-selftest (extend): fake-phone run shows rootfs received, mounts made, dbus and ModemManager started in order; image still under 32 MiB
+
+Rank
+: 22
+
+
+<a id="walleye-modem-mm-first-try"></a>
+### First phone try: ModemManager in the chroot; read udev and polkit stops, logs
+
+Status
+: open
+
+Note
+: Keeper's battery rule, RAM only, nothing flashed. If polkit or udev stops it: record the line, queue a rebuild of ModemManager with -Dpolkit=no in modem-tools.nix.
+
+Blocked by
+: walleye-modem-mm-chroot-in-modem-up
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: tests/health/modem-mm-starts.sh (to write): ModemManager up and mmcli -L answers within 60 s after modem-up; broken until then
+
+Rank
+: 23
