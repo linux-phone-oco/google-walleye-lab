@@ -175,6 +175,9 @@ pub struct Settings {
     /// the modem boot: the firmware tar pushed over the USB network (`images.NAME.firmware`, under the images folder) and the sha256 it must have
     pub firmware: PathBuf,
     pub firmware_sha256: String,
+    /// the modem boot's second push: the ModemManager rootfs tar (build/modem-mm-rootfs.nix) and the sha256 it must have (build/modem-mm-rootfs.sha256)
+    pub rootfs: PathBuf,
+    pub rootfs_sha256: String,
     /// stage 2: the partitions the flash may name (`boot_a boot_b`; the run picks the one that is not Android's) and the command that takes our slot's root to the bootloader
     pub flash_allow: String,
     pub to_bootloader: String,
@@ -471,6 +474,8 @@ impl Settings {
             reboot_tool_sha256: String::new(),
             firmware: PathBuf::new(),
             firmware_sha256: String::new(),
+            rootfs: PathBuf::new(),
+            rootfs_sha256: String::new(),
             flash_allow: String::new(),
             to_bootloader: String::new(),
             out_given: None,
@@ -692,6 +697,8 @@ impl Settings {
                 s.image_sha256 = dev(&format!("images.{name}.sha256"));
                 s.firmware = lab.join(&image_dir).join(proc("firmware"));
                 s.firmware_sha256 = proc("firmware_sha256");
+                s.rootfs = lab.join(&image_dir).join(proc("rootfs"));
+                s.rootfs_sha256 = proc("rootfs_sha256");
                 s.bootchain = home_path(&proc("bootchain"));
                 s.by_name = proc("by_name");
                 s.luns = number("luns", proc("luns"));
@@ -879,6 +886,8 @@ impl Settings {
             ("images.alpine-rootfs.sha256", "a1b2"),
             ("firmware", "images-modem/modem-firmware.tar"),
             ("firmware_sha256", "f1f1"),
+            ("rootfs", "images-modem/modem-mm-rootfs.tar"),
+            ("rootfs_sha256", "e5e5"),
             ("backup", "~/backup"),
             ("stage_dir", "/data/local/tmp"),
             ("by_name", "/dev/block/by-name"),

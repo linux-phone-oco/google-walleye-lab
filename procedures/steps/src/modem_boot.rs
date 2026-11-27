@@ -4,6 +4,7 @@
 //! flashed, no slot touched). Over the image's USB network (172.16.43.1) the lab then
 //!   1. starts `firmware-recv` on the phone's telnet and pushes the firmware tar to its port ([`PUSH_PORT`]) - in Rust, with no `nc` on the host: the tar is 61 MB, it does not fit the boot image;
 //!   2. waits for `firmware-recv: done` (the phone unpacked it), then runs `modem-up` (which checks the tar's own SHA256SUMS before it starts qrtr-ns, tqftpserv and rmtfs);
+//!      Then (item walleye-modem-mm-push-in-procedure) it pushes the ModemManager rootfs tar to port 9001 (`rootfs-recv`, sha256 checked first), then `mm-up` runs dbus and ModemManager chrooted; its log is in the read of step 3;
 //!   3. reads the remoteproc states, the kernel's modem lines, the daemons' logs and `qrtr-lookup`, and keeps them in the run's folder.
 //!   4. asks `qmicli -d qrtr://0 --dms-get-ids` (read only), and keeps the answer, which holds the IMEI, only in the run's folder under ~/lab-material (item walleye-modem-qmicli-in-image).
 //!
@@ -30,7 +31,7 @@ use std::time::{Duration, Instant};
 type Done = Result<(), String>;
 
 /// The files of the run's folder; an earlier run of the day's are forgotten at the start (a stale answer is never this run's).
-pub const STALE: [&str; 8] = [
+pub const STALE: [&str; 10] = [
     "read.txt",
     "dmesg.txt",
     "daemon-logs.txt",
@@ -39,6 +40,8 @@ pub const STALE: [&str; 8] = [
     "modem-up-check.txt",
     "verdict.txt",
     "qmi-ids.txt",
+    "rootfs-push.txt",
+    "mm-up.txt",
 ];
 /// The modem's remoteproc: its device's name (see the sources above).
 pub const MSS_NAME: &str = "4080000.remoteproc";
@@ -49,6 +52,11 @@ pub const RECV_COMMAND: &str = "firmware-recv > /tmp/firmware-recv.log 2>&1";
 /// What the receiver prints when the set is unpacked, and what `modem-up` prints when the three daemons run.
 pub const RECV_DONE: &str = "firmware-recv: done";
 pub const UP_DONE: &str = "modem-up: qrtr-ns, tqftpserv and rmtfs run";
+/// The port `rootfs-recv` listens on (build/initramfs-modem/rootfs-recv: `MM_PORT` defaults to 9001), the command that starts it, and the words it and `mm-up` end on (the scripts' own).
+pub const ROOTFS_PORT: u16 = 9001;
+pub const ROOTFS_RECV_COMMAND: &str = "rootfs-recv > /tmp/rootfs-recv.log 2>&1";
+pub const ROOTFS_DONE: &str = "rootfs-recv: done";
+pub const MM_DONE: &str = "mm-up: dbus and ModemManager run";
 /// The init's self-reboot, in seconds from the watchdog's open (build/initramfs-slpi/init: 90 beats of 2 s). Every step must end before it.
 pub const INIT_WINDOW_S: u64 = 180;
 /// Seconds the three daemons are given after `modem-up` before the read (rmtfs writes `start` to the remoteproc once it is ready).
@@ -57,6 +65,9 @@ pub const SETTLE_S: u64 = 8;
 pub const PUSH_S: u64 = 30;
 pub const UP_S: u64 = 20 + SETTLE_S;
 pub const READ_S: u64 = 30;
+/// The rootfs tar (about 185 MiB, research walleye-modem-mm-scripts-fit-the-image: the firmware's 61 MB went in under 25 s, so over 2.4 MB/s, so under 80 s) and `mm-up` (its bus wait is 10 s, then 1 s): the real push time is the next try's to measure.
+pub const ROOTFS_PUSH_S: u64 = 80;
+pub const MM_UP_S: u64 = 20;
 
 /// Seconds the ids read may need (it is cut at `IDS_TIMEOUT_S` by the phone's own `timeout`).
 pub const IDS_S: u64 = 20;
@@ -141,6 +152,31 @@ impl Answer {
     }
 }
 
+/// The kept reads hold no device id: touch::redact's serial, and every run of 14 to 16 digits (an IMEI, which ModemManager's debug log may print) is masked.
+pub fn redact_ids(text: &str) -> String {
+    let text = crate::touch::redact(text);
+    let mut out = String::with_capacity(text.len());
+    let mut run = String::new();
+    let flush = |run: &mut String, out: &mut String| {
+        out.push_str(if (14..=16).contains(&run.len()) {
+            "<id masked>"
+        } else {
+            run
+        });
+        run.clear();
+    };
+    for c in text.chars() {
+        if c.is_ascii_digit() {
+            run.push(c);
+        } else {
+            flush(&mut run, &mut out);
+            out.push(c);
+        }
+    }
+    flush(&mut run, &mut out);
+    out
+}
+
 /// What the ids read says WITHOUT the ids: whether qmicli answered, never a value (the IMEI stays in the kept file). Source of the words: qmicli-dms.c prints
 /// "Device IDs retrieved:" on an answer; every error of qmicli starts `error:`.
 pub fn ids_say(text: &str) -> String {
@@ -183,6 +219,29 @@ pub fn push_says(log: &str) -> Option<Result<(), String>> {
         .map(|l| Err(l.trim().to_string()))
 }
 
+/// `rootfs-recv`'s log: done, or the first line of its own that is not done (every other line it prints ends it: build/initramfs-modem/rootfs-recv); nothing yet is `None`: keep waiting.
+pub fn rootfs_says(log: &str) -> Option<Result<(), String>> {
+    log.lines()
+        .map(str::trim)
+        .find(|l| l.starts_with("rootfs-recv:"))
+        .map(|l| {
+            if l.starts_with(ROOTFS_DONE) {
+                Ok(())
+            } else {
+                Err(l.to_string())
+            }
+        })
+}
+
+/// `mm-up`'s answer: dbus and ModemManager run, or the line that says why not (its text is the whole answer).
+pub fn mm_says(text: &str) -> Done {
+    if text.lines().any(|l| l.trim_start().starts_with(MM_DONE)) {
+        Ok(())
+    } else {
+        Err(format!("mm-up did not start ModemManager: {}", text.trim()))
+    }
+}
+
 /// `modem-up`'s answer: the three daemons run, or the line that says why not (its text is the whole answer).
 pub fn up_says(text: &str) -> Done {
     if text.lines().any(|l| l.trim_start().starts_with(UP_DONE)) {
@@ -210,12 +269,12 @@ pub fn time_left_covers(elapsed: Duration, need_s: u64) -> Done {
 
 /// What the author is told before the run.
 pub fn expect(luns: u64) -> String {
-    format!("The modem boot, about 8 minutes: the modem image is booted once from memory (UFS off by the gate, nothing flashed, no slot changed); over its USB network the lab pushes the 61 MB firmware tar (no nc: a Rust copy to port {PUSH_PORT}), runs modem-up (it checks the tar's own SHA256SUMS first) and reads every remoteproc's state, the kernel's modem lines, the daemons' logs and qrtr-lookup, then asks the modem its device ids over QRTR (qmicli, read only; the answer holds the IMEI, so it is kept in ~/lab-material and never shown). All of it ends inside the image's {INIT_WINDOW_S} s before it restarts the phone by itself; whatever the modem did is the answer. Android is checked back with the card's {luns} disks, the boot chain and the slots' flags read as before.")
+    format!("The modem boot, about 8 minutes: the modem image is booted once from memory (UFS off by the gate, nothing flashed, no slot changed); over its USB network the lab pushes the 61 MB firmware tar (no nc: a Rust copy to port {PUSH_PORT}), runs modem-up (it checks the tar's own SHA256SUMS first), pushes the ModemManager rootfs tar (about 185 MiB, to port {ROOTFS_PORT}; its sha256 checked first) and runs mm-up (dbus and ModemManager in a chroot) and reads every remoteproc's state, the kernel's modem lines, the daemons' logs and qrtr-lookup, then asks the modem its device ids over QRTR (qmicli, read only; the answer holds the IMEI, so it is kept in ~/lab-material and never shown). All of it ends inside the image's {INIT_WINDOW_S} s before it restarts the phone by itself; whatever the modem did is the answer. Android is checked back with the card's {luns} disks, the boot chain and the slots' flags read as before.")
 }
 
 /// What the author is told before the rehearsal.
 pub fn expect_rehearsal(luns: u64) -> String {
-    format!("The rehearsal of the modem boot, about 5 minutes: every step but the boot, the push and the read - the image's and the firmware tar's sha256, the UFS-off gate, the stored boot chain, the card read from Android ({luns} disks and the root hashed), the trips to the bootloader and back, the slots' flags. Nothing is booted or written; the phone ends on Android. No go is needed or read.")
+    format!("The rehearsal of the modem boot, about 5 minutes: every step but the boot, the push and the read - the image's, the firmware tar's and the rootfs tar's sha256, the UFS-off gate, the stored boot chain, the card read from Android ({luns} disks and the root hashed), the trips to the bootloader and back, the slots' flags. Nothing is booted or written; the phone ends on Android. No go is needed or read.")
 }
 
 /// The firmware tar is sent to the phone's receiver: connected within `wait` (the listener starts a moment after `firmware-recv`), the file copied, the write side closed so `nc -l` on the phone ends.
@@ -256,6 +315,17 @@ pub fn push_file(
         .shutdown(Shutdown::Write)
         .map_err(|e| format!("closing the push: {e}"))?;
     Ok(n)
+}
+
+/// One push to a receiver on the phone: what is sent, where, how the receiver is started, whose log says it is done, and what is kept.
+struct Push<'a> {
+    file: &'a std::path::Path,
+    port: u16,
+    command: &'a str,
+    log: &'a str,
+    done: &'a str,
+    says: fn(&str) -> Option<Result<(), String>>,
+    kept: &'a str,
 }
 
 /// The boot: the shared steps of the SLPI boot (they hold for any UFS-off image booted once from memory) and the steps of its own.
@@ -348,6 +418,12 @@ impl ModemBoot {
         self.base.the_gadget_is_up()
     }
 
+    /// The rootfs tar is the declared one (its sha256 is the one `build/modem-mm-rootfs.sha256` recorded and device.toml names).
+    pub fn the_rootfs_is_the_declared_tar(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || host::image_has_sha256(&u.s.rootfs, &u.s.rootfs_sha256)
+    }
+
     /// The receiver is started on the phone, the tar is pushed to it, and the phone says it unpacked it; the receiver's log is kept (push.txt).
     pub fn the_firmware_is_pushed(&self) -> impl FnOnce() -> Done + 'static {
         let u = self.clone();
@@ -355,36 +431,80 @@ impl ModemBoot {
             let mut sh = u.lab.shell_when_up()?;
             time_left_covers(u.elapsed()?, PUSH_S + UP_S + READ_S + IDS_S)?;
             host::image_has_sha256(&u.s.firmware, &u.s.firmware_sha256)?;
-            sh.run("rm -f /tmp/firmware-recv.log", Duration::from_secs(5))?;
-            sh.background(RECV_COMMAND)?;
-            let sent = push_file(
-                &u.s.address,
-                PUSH_PORT,
-                &u.s.firmware,
-                Duration::from_secs(20),
-            )?;
-            let until = Instant::now() + Duration::from_secs(60);
-            loop {
-                let log = sh.run("cat /tmp/firmware-recv.log", Duration::from_secs(10))?;
-                match push_says(&log) {
-                    Some(Ok(())) => {
-                        u.lab
-                            .save("push.txt", &format!("sent {sent} bytes\n{log}"))?;
-                        return Ok(());
-                    }
-                    Some(Err(e)) => {
-                        u.lab
-                            .save("push.txt", &format!("sent {sent} bytes\n{log}"))?;
-                        return Err(e);
-                    }
-                    None if Instant::now() >= until => {
-                        u.lab
-                            .save("push.txt", &format!("sent {sent} bytes\n{log}"))?;
-                        return Err(format!("the phone did not say `{RECV_DONE}` within 60 s of the push; its log: {}", log.trim()));
-                    }
-                    None => std::thread::sleep(Duration::from_secs(2)),
+            u.push(
+                &mut sh,
+                &Push {
+                    file: &u.s.firmware,
+                    port: PUSH_PORT,
+                    command: RECV_COMMAND,
+                    log: "/tmp/firmware-recv.log",
+                    done: RECV_DONE,
+                    says: push_says,
+                    kept: "push.txt",
+                },
+            )
+        }
+    }
+
+    /// The rootfs tar goes to `rootfs-recv` (port 9001) after `modem-up`, the same way; the step counts its own push and all after it (the rootfs, `mm-up`, the read, the ids). Kept as rootfs-push.txt.
+    pub fn the_rootfs_is_pushed(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let mut sh = u.lab.shell_when_up()?;
+            time_left_covers(u.elapsed()?, ROOTFS_PUSH_S + MM_UP_S + READ_S + IDS_S)?;
+            host::image_has_sha256(&u.s.rootfs, &u.s.rootfs_sha256)?;
+            u.push(
+                &mut sh,
+                &Push {
+                    file: &u.s.rootfs,
+                    port: ROOTFS_PORT,
+                    command: ROOTFS_RECV_COMMAND,
+                    log: "/tmp/rootfs-recv.log",
+                    done: ROOTFS_DONE,
+                    says: rootfs_says,
+                    kept: "rootfs-push.txt",
+                },
+            )
+        }
+    }
+
+    /// One push: the receiver is started on the phone, the file is sent to its port, the receiver's log is read until it says done or why not (within 60 s of the push); the log is kept.
+    fn push(&self, sh: &mut crate::phone::Shell, p: &Push) -> Done {
+        sh.run(&format!("rm -f {}", p.log), Duration::from_secs(5))?;
+        sh.background(p.command)?;
+        let sent = push_file(&self.s.address, p.port, p.file, Duration::from_secs(20))?;
+        let until = Instant::now() + Duration::from_secs(60);
+        loop {
+            let log = sh.run(&format!("cat {}", p.log), Duration::from_secs(10))?;
+            let kept = format!("sent {sent} bytes\n{log}");
+            match (p.says)(&log) {
+                Some(Ok(())) => return self.lab.save(p.kept, &kept),
+                Some(Err(e)) => {
+                    self.lab.save(p.kept, &kept)?;
+                    return Err(e);
                 }
+                None if Instant::now() >= until => {
+                    self.lab.save(p.kept, &kept)?;
+                    return Err(format!(
+                        "the phone did not say `{}` within 60 s of the push; its log: {}",
+                        p.done,
+                        log.trim()
+                    ));
+                }
+                None => std::thread::sleep(Duration::from_secs(2)),
             }
+        }
+    }
+
+    /// `mm-up` runs once, after the rootfs is unpacked and `modem-up` has the modem running, and says dbus and ModemManager run; its words are kept (mm-up.txt). ModemManager's own log is in the read that follows.
+    pub fn the_modemmanager_is_started(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let mut sh = u.lab.shell_when_up()?;
+            time_left_covers(u.elapsed()?, MM_UP_S + READ_S + IDS_S)?;
+            let said = sh.run("mm-up", Duration::from_secs(MM_UP_S))?;
+            u.lab.save("mm-up.txt", &said)?;
+            mm_says(&said)
         }
     }
 
@@ -409,15 +529,14 @@ impl ModemBoot {
             let mut sh = u.lab.shell_when_up()?;
             time_left_covers(u.elapsed()?, READ_S + IDS_S)?;
             let text = sh.run(READ_COMMAND, Duration::from_secs(40))?;
-            u.lab.save("read.txt", &crate::touch::redact(&text))?;
+            u.lab.save("read.txt", &redact_ids(&text))?;
             u.lab.save("modem-up-check.txt", &u.health_check())?;
             let dmesg = sh.run("dmesg", Duration::from_secs(20))?;
-            u.lab.save("dmesg.txt", &crate::touch::redact(&dmesg))?;
+            u.lab.save("dmesg.txt", &redact_ids(&dmesg))?;
             let logs = section(&text, "logs")
                 .map(|l| l.join("\n"))
                 .unwrap_or_default();
-            u.lab
-                .save("daemon-logs.txt", &crate::touch::redact(&logs))?;
+            u.lab.save("daemon-logs.txt", &redact_ids(&logs))?;
             let said = judge(&text)?.said();
             u.lab.save(
                 "verdict.txt",
@@ -672,6 +791,35 @@ mod tests {
         const { assert!(IDS_S > IDS_TIMEOUT_S + IDS_KILL_S) };
     }
 
+    /// A 15-digit IMEI in a daemon log is masked, shorter and longer numbers (a timestamp, a byte count) are kept.
+    #[test]
+    fn the_kept_reads_mask_an_imei_and_keep_other_numbers() {
+        let said = redact_ids("IMEI: '000000000000000' at 1795785213 in 61501440 bytes");
+        assert_eq!(said, "IMEI: '<id masked>' at 1795785213 in 61501440 bytes");
+    }
+
+    /// The real entry runs the steps in the order the phone needs: the firmware, modem-up, the rootfs, mm-up (which needs qrtr-ns from modem-up and the rootfs), then the read and the ids.
+    #[test]
+    fn the_entry_runs_the_pushes_and_starts_in_order() {
+        let real = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../procedures/modem-boot-on-the-pixel-2.rs"
+        ))
+        .unwrap();
+        let at = |s: &str| real.find(s).unwrap_or_else(|| panic!("{s}"));
+        let order = [
+            "b.the_firmware_is_pushed",
+            "b.the_modem_is_started",
+            "b.the_rootfs_is_pushed",
+            "b.the_modemmanager_is_started",
+            "b.the_modem_is_read",
+            "b.the_ids_are_read_and_kept_private",
+        ];
+        for w in order.windows(2) {
+            assert!(at(w[0]) < at(w[1]), "{} before {}", w[0], w[1]);
+        }
+    }
+
     /// Every file a step saves is in STALE (read from this file's own text), so a run never keeps an earlier run's answer.
     #[test]
     fn every_file_the_steps_save_is_forgotten_at_the_start() {
@@ -686,6 +834,8 @@ mod tests {
             "dmesg.txt",
             "daemon-logs.txt",
             "verdict.txt",
+            "rootfs-push.txt",
+            "mm-up.txt",
             "qmi-ids.txt",
         ] {
             assert!(
@@ -757,6 +907,114 @@ mod tests {
         assert!(up.contains("sha256sum -c SHA256SUMS"));
     }
 
+    /// The lines a script of the image prints: every `echo "PREFIX: ..."` of its text, quotes and trailing `; exit` cut (the script's own words, never typed here).
+    fn script_says(script: &str, prefix: &str) -> Vec<String> {
+        let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../../build/initramfs-modem/");
+        std::fs::read_to_string(format!("{dir}{script}"))
+            .unwrap()
+            .split("echo \"")
+            .skip(1)
+            .filter_map(|rest| rest.split('"').next())
+            .filter(|w| w.starts_with(prefix))
+            .map(|w| w.to_string())
+            .collect()
+    }
+
+    /// Every word `rootfs-recv` can print (build/initramfs-modem/rootfs-recv): only its `done` is an answer of success, every other line of it ends the push with that line.
+    #[test]
+    fn rootfs_says_what_the_receivers_own_words_say() {
+        let words = script_says("rootfs-recv", "rootfs-recv:");
+        assert!(words.len() >= 6, "{words:?}");
+        for w in &words {
+            let said = rootfs_says(w);
+            if w.starts_with(ROOTFS_DONE) {
+                assert_eq!(said, Some(Ok(())), "{w}");
+            } else {
+                assert_eq!(said, Some(Err(w.clone())), "{w}");
+            }
+        }
+        assert_eq!(rootfs_says(""), None);
+        assert_eq!(rootfs_says("some other noise"), None);
+    }
+
+    /// Every word `mm-up` can print (build/initramfs-modem/mm-up): only its `dbus and ModemManager run` ends well; the others are why it stopped.
+    #[test]
+    fn mm_says_what_mm_ups_own_words_say() {
+        let words = script_says("mm-up", "mm-up:");
+        assert!(words.len() >= 6, "{words:?}");
+        for w in &words {
+            let said = mm_says(w);
+            if w.starts_with(MM_DONE) {
+                assert!(said.is_ok(), "{w}");
+            } else {
+                let e = said.unwrap_err();
+                assert!(e.contains(w.as_str()), "{e}");
+            }
+        }
+        assert!(mm_says("").is_err());
+    }
+
+    /// The port, the done words and the command the lab uses are the receiver's and mm-up's own.
+    #[test]
+    fn the_rootfs_push_names_what_the_images_scripts_say() {
+        let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../../build/initramfs-modem/");
+        let recv = std::fs::read_to_string(format!("{dir}rootfs-recv")).unwrap();
+        assert!(recv.contains(&format!("MM_PORT:-{ROOTFS_PORT}")));
+        assert!(recv.contains(ROOTFS_DONE));
+        assert!(ROOTFS_RECV_COMMAND.starts_with("rootfs-recv "));
+        let up = std::fs::read_to_string(format!("{dir}mm-up")).unwrap();
+        assert!(up.contains(MM_DONE));
+        assert!(up.contains("run modem-up first"));
+    }
+
+    /// The rootfs tar's sha256 in device.toml (both tables) is the one `build/modem-mm-rootfs.sha256` recorded when the tar was built.
+    #[test]
+    fn the_declared_rootfs_sha256_is_the_one_the_build_recorded() {
+        let root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../");
+        let built = std::fs::read_to_string(format!("{root}build/modem-mm-rootfs.sha256")).unwrap();
+        let (sha, name) = built.split_once("  ").unwrap();
+        assert_eq!(name.trim(), "modem-mm-rootfs.tar");
+        let toml = std::fs::read_to_string(format!("{root}device.toml")).unwrap();
+        for table in [
+            "[procedures.modem-boot-on-the-pixel-2]",
+            "[procedures.rehearse-modem-boot-on-the-pixel-2]",
+        ] {
+            let body = toml
+                .split(table)
+                .nth(1)
+                .unwrap()
+                .split("\n[")
+                .next()
+                .unwrap();
+            assert!(
+                body.contains(&format!("rootfs_sha256 = \"{sha}\"")),
+                "{table}"
+            );
+            assert!(
+                body.contains("rootfs = \"images-modem/modem-mm-rootfs.tar\""),
+                "{table}"
+            );
+        }
+    }
+
+    /// The core (firmware, modem-up, read, ids) and the tail the rootfs adds each fit the init's window by themselves, and the rootfs step counts its own push and all after it.
+    #[test]
+    fn the_rootfs_guards_count_the_push_and_everything_after_it() {
+        const { assert!(ROOTFS_PUSH_S + MM_UP_S + READ_S + IDS_S < INIT_WINDOW_S) };
+        const { assert!(ROOTFS_PUSH_S > PUSH_S) };
+        // after the firmware and modem-up (about 25 s counted by the last real run), the rootfs step still fits
+        assert!(time_left_covers(
+            Duration::from_secs(25),
+            ROOTFS_PUSH_S + MM_UP_S + READ_S + IDS_S
+        )
+        .is_ok());
+        assert!(time_left_covers(
+            Duration::from_secs(60),
+            ROOTFS_PUSH_S + MM_UP_S + READ_S + IDS_S
+        )
+        .is_err());
+    }
+
     /// The push sends every byte and closes the write side (the phone's `nc -l` ends on that), tried against a listener of our own on the loopback.
     #[test]
     fn the_push_sends_every_byte_and_ends_the_stream() {
@@ -804,6 +1062,8 @@ mod tests {
             "boot_the_image",
             "the_firmware_is_pushed",
             "the_modem_is_started",
+            "the_rootfs_is_pushed",
+            "the_modemmanager_is_started",
             "the_modem_is_read",
             "the_ids_are_read_and_kept_private",
         ] {
@@ -817,6 +1077,7 @@ mod tests {
             assert!(text.contains("b.way_back()"));
             assert!(text.contains("the_image_is_the_declared_ufs_off_image"));
             assert!(text.contains("the_firmware_is_the_declared_tar"));
+            assert!(text.contains("the_rootfs_is_the_declared_tar"));
         }
         assert!(real.contains("Settings::for_modem_boot()"));
         assert!(rehearsal.contains("Settings::for_rehearse_modem_boot()"));

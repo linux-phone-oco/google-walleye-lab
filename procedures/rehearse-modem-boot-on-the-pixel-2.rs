@@ -27,6 +27,7 @@ fn main() {
     check_from("the battery is good enough", "research:walleye-rootfs-boots-run-5-passed", root.battery_is_good());
     check_from("the image is the declared modem image and UFS is off in it", "research:walleye-modem-image-built", b.the_image_is_the_declared_ufs_off_image());
     check_from("the firmware tar is the declared one", "research:walleye-modem-image-built", b.the_firmware_is_the_declared_tar());
+    check_from("the ModemManager rootfs tar is the declared one", "research:walleye-mm-rootfs-nix-built", b.the_rootfs_is_the_declared_tar());
     check_from("the stored boot chain is whole", "research:walleye-rootfs-boots-run-5-passed", b.the_stored_set_is_good());
     step("say what to expect", b.rehearsal_is_told());
     step("the phone is on Android, adbd as root", root.the_phone_is_on_android_as_root());

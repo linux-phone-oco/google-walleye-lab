@@ -14350,10 +14350,10 @@ Rank
 ### modem-boot procedure: the second push (rootfs tar to port 9001), rootfs-recv, then mm-up after modem-up
 
 Status
-: open
+: done
 
 Note
-: In procedures/steps/src/modem_boot.rs: the rootfs tar (build/modem-mm-rootfs.sha256, kept in images-modem beside the firmware) is pushed with push_file to 9001 after the firmware, then mm-up runs after modem-up; time_left_covers counts the push (research walleye-modem-mm-scripts-fit-the-image: measure the real push time on the next try). The procedure's keys are in device.toml [procedures.modem-boot-on-the-pixel-2] and the rehearsal's.
+: Built: the_rootfs_is_the_declared_tar, the_rootfs_is_pushed (port 9001, rootfs-recv), the_modemmanager_is_started (mm-up) after modem-up; rootfs/rootfs_sha256 in device.toml; kept reads mask 14-16 digit ids. Proof: cargo test in procedures/steps (533 pass; rootfs_says/mm_says read from the scripts' own words). The tar must sit in build/images/images-modem/ on the lab before the try; the firmware step's guard still counts only the core (a late boot is refused at the rootfs step, after the push: the first try measures the real push time).
 
 Blocked by
 : walleye-modem-image-with-mm-scripts
