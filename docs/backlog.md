@@ -13765,3 +13765,31 @@ Proof
 
 Rank
 : 30
+
+
+<a id="walleye-ramdisk-by-roof-writer"></a>
+### build-initramfs.sh packs with lpoco bringup initramfs build in place of gen_init_cpio, then the ramdisk is a recipe
+
+Status
+: open
+
+Note
+: From lab-tools part-gen-init-cpio-pin (docs #947, orchestration via the Top 2026-11-27): the cpio is the same, gzip bytes differ, so walleye's image sha changes once - in the same window as decision 2026-11-27-walleye-tools-keep-scripts-until-ramdisk-packs-parts.
+
+Waits
+: the author's NFC tag poll and PON control read run (they use today's images); goes with walleye-part-builds-reboot-nfc-up and walleye-busybox-part
+
+About
+: walleye-retire-build-scripts
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: the uncompressed cpio equals gen_init_cpio -t 0's for each ramdisk spec; the ramdisks and every image packing them rebuild equal with their new sha256; tests/host/ufs-off-image.sh passes; one unattended RAM boot of a re-shaed image reaches its banner and the way back passes
+
+Rank
+: 30
