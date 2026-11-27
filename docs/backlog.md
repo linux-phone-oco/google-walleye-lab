@@ -14275,7 +14275,7 @@ Note
 : Keeper's battery rule, RAM only, nothing flashed. If polkit or udev stops it: record the line, queue a rebuild of ModemManager with -Dpolkit=no in modem-tools.nix.
 
 Blocked by
-: walleye-modem-image-with-mm-scripts,walleye-modem-mm-push-in-procedure
+: walleye-modem-mm-try-prepared
 
 About
 : modem-calls
@@ -14372,3 +14372,28 @@ Proof
 
 Rank
 : 23
+
+
+<a id="walleye-modem-mm-try-prepared"></a>
+### Ready the ModemManager try: the rootfs tar placed in build/images/images-modem by its nix build, the firmware step's time guard counting the rootfs push, the push waits named, the receiver log path written once
+
+Status
+: open
+
+Note
+: From PR 1287's report (coordinator 2026-11-27): the tar is not on the lab yet, and a late boot would be refused only after the 61 MB firmware push. The push time stays not measured until the try; the guard's throughput is stated as an assumption the try checks.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: the tar at the path device.toml names matches rootfs_sha256 (placed by nix build of build/modem-mm-rootfs.nix, never by hand); a steps test shows the firmware step refuses a boot too late for firmware plus rootfs push (the rootfs tail counted from its size and a stated throughput), and passes one in time; the 20 s and 60 s waits are named constants with their reasons; the receiver's log path is one constant; cargo test passes; a dry run passes
+
+Rank
+: 22
