@@ -10426,3 +10426,24 @@ Rejected
 
 About
 : walleye-modem-mss-proof
+
+---
+
+
+<a id="2026-11-27-walleye-builder-modem-static-tools"></a>
+### walleye builder: static rmtfs, qrtr, tqftpserv by nix
+
+Entry date
+: 2026-11-27
+
+Done
+: Built rmtfs, qrtr-ns and tqftpserv static aarch64 by nix (build/modem-tools.nix): libudev-zero for rmtfs, qrtr without systemd and as a static library, tqftpserv without systemd and with /lib/firmware. Six builds; each failure read from its log. The image (step 4) is next.
+
+Considered
+: A patch to rmtfs sharedmem.c; cross-gcc by hand
+
+Rejected
+: The source patch and hand script: libudev-zero was enough, the nix way stays declared
+
+About
+: walleye-modem-mss-proof
