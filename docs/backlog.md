@@ -10526,6 +10526,9 @@ Status
 Note
 : Parts landed: PRs 1084, 1107, 1110, 1111, 1143, batches 1 (52), 2 (5) and 3 (14) of 2026-11-26, batch 4 (4) and batch 5 (build-display-image) of 2026-11-27; 13 build-*.sh left. Left: display-late and display-any-order-images (dtb and ramdisks are seeds), ufs-match/pmic-wdt-v1 after judging, upstream-dts-image (kept: walleye-upstream-board-dts-next boots its exact dtb), reboot-bin and nfc-up-bin (waits on lab-tools part-ramdisk-packs-parts); seeds z20, l6, ufs-match stay until their kernel has a [kernel_builds] row; pmic-wdt-v1 waits on walleye-wdt-pon-bites-procedure. Rank 6 kept.
 
+Waits
+: lab-tools part-ramdisk-packs-parts (reboot, nfc-up); the seeds' kernels; the PON procedure's runs (pmic-wdt-v1); walleye-upstream-board-dts-next (upstream-dts-image)
+
 Blocked by
 : walleye-next-image-from-an-int-tag
 
