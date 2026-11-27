@@ -9372,3 +9372,25 @@ Sources
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-mm-scripts-fit-the-image"></a>
+### walleye-modem-mm-scripts-fit-the-image
+
+Date
+: 2026-11-27
+
+Brief
+: The modem image has ~10 MB headroom (kernel 15.2 MB + ramdisk 8.2 MB of 32 MiB); rootfs-recv and mm-up add 4.1 KB; the 61 MB push took under 25 s, so ~185 MiB fits the 180 s window
+
+Question
+: Do the rootfs push and chroot scripts fit the 32 MiB modem boot image and the init's 180 s window?
+
+Found
+: Counted: boot-modem.img unpacked (unpack_bootimg): kernel 15241775 B, ramdisk 8246568 B (xz; 21928960 B cpio, 32 files); the two scripts are 1659 B and 2487 B. Run modem-boot-20261127-124252 (research walleye-modem-qmi-ids-read-run-3): push.txt sent 61501440 bytes and the read was at 25 s of the init's 180 s, so the push took under 25 s (over 2.4 MB/s); 185 MiB at that rate is under 80 s: 25 s + 80 s + mm-up leaves the window open but not by a wide margin - the real push time is the next try's to measure (not known yet).
+
+Sources
+: modemmanager-base-manager-qrtr
+
+About
+: modem-calls

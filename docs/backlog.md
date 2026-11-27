@@ -14241,10 +14241,10 @@ Rank
 ### modem-up/firmware-recv: push the rootfs tar, unpack to tmpfs, chroot with binds
 
 Status
-: open
+: done
 
 Note
-: Boot image changes only by the script. procedures/modem-boot-on-the-pixel-2.rs takes a second push.
+: Done: build/initramfs-modem/rootfs-recv (port 9001, tmpfs, unpack) and mm-up (binds, dbus, ModemManager in a chroot), in the ramdisk spec and tests/host/modem-ramdisk.sh; proof tests/host/modem-boot-selftest.sh passes on a fake phone (order read from the log; each stop starts nothing); research walleye-modem-mm-scripts-fit-the-image. The image is NOT rebuilt and the procedure takes no second push yet: items walleye-modem-image-with-mm-scripts and walleye-modem-mm-push-in-procedure.
 
 Blocked by
 : walleye-modem-mm-rootfs-build
@@ -14316,3 +14316,59 @@ Proof
 
 Rank
 : 20
+
+
+<a id="walleye-modem-image-with-mm-scripts"></a>
+### Rebuild the modem image with rootfs-recv and mm-up, and re-prove it
+
+Status
+: open
+
+Note
+: The ramdisk list gained bin/rootfs-recv and bin/mm-up (item walleye-modem-mm-chroot-in-modem-up); the image in images-modem is the old one until this is built. Headroom counted in research walleye-modem-mm-scripts-fit-the-image.
+
+Blocked by
+: walleye-modem-mm-chroot-in-modem-up
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: tests/host/modem-ramdisk.sh passes on the new ramdisk, tests/host/modem-ramdisk-selftest.sh passes, the image's size and sha256 recorded in device.toml [images.modem] (build/build-modem-ramdisk.sh, then build-modem-image.sh; the private material stays out of git and the store)
+
+Rank
+: 22
+
+
+<a id="walleye-modem-mm-push-in-procedure"></a>
+### modem-boot procedure: the second push (rootfs tar to port 9001), rootfs-recv, then mm-up after modem-up
+
+Status
+: open
+
+Note
+: In procedures/steps/src/modem_boot.rs: the rootfs tar (build/modem-mm-rootfs.sha256, kept in images-modem beside the firmware) is pushed with push_file to 9001 after the firmware, then mm-up runs after modem-up; time_left_covers counts the push (research walleye-modem-mm-scripts-fit-the-image: measure the real push time on the next try). The procedure's keys are in device.toml [procedures.modem-boot-on-the-pixel-2] and the rehearsal's.
+
+Blocked by
+: walleye-modem-image-with-mm-scripts
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: cargo test in procedures/steps passes with rootfs_says/mm_says read from the scripts' own words (build/initramfs-modem/rootfs-recv, mm-up), the rehearsal passes with the declared rootfs tar's sha256 checked
+
+Rank
+: 23

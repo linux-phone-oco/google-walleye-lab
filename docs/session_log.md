@@ -10693,3 +10693,24 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-mm-chroot-scripts"></a>
+### walleye builder: the ModemManager chroot scripts
+
+Entry date
+: 2026-11-27
+
+Done
+: Wrote rootfs-recv and mm-up for the modem ramdisk, added them to the ramdisk build spec and its test's expected list, and tests/host/modem-boot-selftest.sh: a fake phone runs both scripts for real with stand-in tools; the test fails when mm-up is broken (checked). Counted the image's headroom.
+
+Considered
+: Pushing the rootfs through the existing firmware-recv with a port argument; the Rust second push in the same change; rebuilding the image here.
+
+Rejected
+: A port argument on firmware-recv: the firmware's script stays as the proven one. The Rust push and the image rebuild: each is its own item (walleye-modem-mm-push-in-procedure, walleye-modem-image-with-mm-scripts), so the procedure never asks for scripts the image lacks.
+
+About
+: modem-calls

@@ -1,0 +1,24 @@
+#!/bin/sh
+# mm-up: run dbus and ModemManager in the pushed rootfs, chrooted, after modem-up has the modem running (item walleye-modem-mm-chroot-in-modem-up; decision 2026-11-27-walleye-mm-runs-in-a-pushed-alpine-rootfs).
+# Order: bind /proc /sys /dev and the firmware folder into the rootfs, a minimal /etc (root and the dbus user), dbus's system bus, then ModemManager over QRTR (-Dqrtr: no udev port is needed for the modem itself).
+# It stops, starting nothing, unless rootfs-recv has unpacked the rootfs and modem-up has started qrtr-ns. Each daemon's output goes to /tmp/NAME.log; this program ends at once, the daemons stay. udevd and polkit are not started: the first try settles them.
+# ENV (defaults are the phone's; MM_PATH is the test's stand-in for PATH): MM_ROOT (/mm), MM_WAIT (seconds the bus socket is waited for, 10).
+export PATH=${MM_PATH:-/bin:/sbin:/usr/bin:/usr/sbin}
+MM_ROOT=${MM_ROOT:-/mm}; MM_WAIT=${MM_WAIT:-10}
+FW=/lib/firmware
+[ -L "$MM_ROOT/env" ] || { echo "mm-up: no ModemManager in $MM_ROOT: push the rootfs first (rootfs-recv)"; exit 1; }
+pidof qrtr-ns > /dev/null || { echo "mm-up: qrtr-ns does not run: run modem-up first"; exit 1; }
+! pidof ModemManager > /dev/null && ! pidof dbus-daemon > /dev/null || { echo "mm-up: dbus or ModemManager already runs: started once only"; exit 1; }
+for d in proc sys dev lib/firmware; do mkdir -p "$MM_ROOT/$d"; done
+mount --bind /proc "$MM_ROOT/proc" && mount --bind /sys "$MM_ROOT/sys" && mount --bind /dev "$MM_ROOT/dev" && mount --bind $FW "$MM_ROOT$FW" || { echo "mm-up: a bind mount failed"; exit 1; }
+mkdir -p "$MM_ROOT/etc" "$MM_ROOT/run/dbus" "$MM_ROOT/var"
+printf 'root:x:0:0:root:/:/bin/sh\nmessagebus:x:100:100:dbus:/:/bin/false\n' > "$MM_ROOT/etc/passwd"
+printf 'root:x:0:\nmessagebus:x:100:\n' > "$MM_ROOT/etc/group"
+setsid chroot "$MM_ROOT" /env/bin/dbus-daemon --system --nofork --nopidfile > /tmp/dbus.log 2>&1 &
+i=0
+while [ ! -e "$MM_ROOT/run/dbus/system_bus_socket" ] && [ "$i" -lt "$MM_WAIT" ]; do sleep 1; i=$((i + 1)); done
+[ -e "$MM_ROOT/run/dbus/system_bus_socket" ] || { echo "mm-up: the system bus has no socket after $MM_WAIT s (see /tmp/dbus.log)"; exit 1; }
+setsid chroot "$MM_ROOT" /env/bin/ModemManager --debug > /tmp/ModemManager.log 2>&1 &
+sleep 1
+pidof ModemManager > /dev/null || { echo "mm-up: ModemManager is not running (see /tmp/ModemManager.log)"; exit 1; }
+echo "mm-up: dbus and ModemManager run in $MM_ROOT (logs in /tmp/dbus.log and /tmp/ModemManager.log)"
