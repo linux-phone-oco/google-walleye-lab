@@ -14578,7 +14578,7 @@ Status
 : in-progress
 
 Note
-: Built on builder/modem-ipa-node: ipa node, CONFIG_QCOM_IPA=y, tests/host/dtb-modem-ipa.sh and kernel-modem-ipa.sh with selftests; dtbs_check names only 'interconnects' (decision 2026-11-27-walleye-ipa-node-ap-loads-no-interconnects, item walleye-msm8998-interconnect-provider). Left: rebuild the kernel tag with the new config (lpoco bringup kernel assemble) and the image (build/build-modem-image.sh), then queue the phone try.
+: Coordinator 2026-11-27 after PR 1306, left for this item before the phone try: (1) ipa_fws (.mdt/.b0x, gsi-loader self) from the phone's own vendor firmware into the pushed firmware tar (today's tar has no ipa file), its new sha256 recorded, read in ~/lab-material, never git; (2) the test kernel goes without 'interconnects' only if drivers/net/ipa (v7.3) treats a missing path as optional - cite the lines; if it fails probe without it, stop and say so; dtbs_check's interconnects error is accepted for this test dtb only, upstream waits on walleye-msm8998-interconnect-provider; (3) kernel assemble and the modem image rebuilt with CONFIG_QCOM_IPA; then the phone try. | Built on builder/modem-ipa-node: ipa node, CONFIG_QCOM_IPA=y, tests/host/dtb-modem-ipa.sh and kernel-modem-ipa.sh with selftests; dtbs_check names only 'interconnects' (decision 2026-11-27-walleye-ipa-node-ap-loads-no-interconnects, item walleye-msm8998-interconnect-provider). Left: rebuild the kernel tag with the new config (lpoco bringup kernel assemble) and the image (build/build-modem-image.sh), then queue the phone try.
 
 About
 : modem-calls
