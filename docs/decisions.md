@@ -4025,3 +4025,25 @@ Scope
 
 Tracked by
 : walleye-part-builds-reboot-nfc-up
+
+
+<a id="2026-11-27-s2-type-topic-stacks-on-the-reset-type-patch"></a>
+### 2026-11-27-s2-type-topic-stacks-on-the-reset-type-patch
+
+Date
+: 2026-11-27
+
+Brief
+: The S2-type patch is topic/pmic-wdt-s2-type: v7.3, the series' reset-type patch, then the property patch
+
+Decision
+: topic/pmic-wdt-s2-type is branched from v7.3 and carries two commits: the cherry-picked 'Set the reset type with S2 disabled, and check it' (it adds pm8916_wdt_set_reset_type, which the property patch changes) and 'Take the S2 reset type from qcom,s2-type'. The property is read by one helper that keeps hard when the property is absent (-EINVAL) and fails the probe on any other read error or an unknown type, and logs the chosen type at debug level: this is review blocker 3 of the old branch. Blockers 1 and 2 (look_for text, the_host_lost_the_phone after the bite) and the smaller fixes belong to the procedure, slice 4 (walleye-wdt-pon-bites-procedure).
+
+Why
+: The kernel's branch rule wants one series on a mainline tag, never a .patch file; the property patch cannot apply on v7.3 alone because set_reset_type is not there. Fixing the read result in the patch is what makes a warm bite never run as hard unnoticed.
+
+Rejected
+: Bringing the old .patch file back (the branch rule forbids it); porting the whole old branch (538 commits behind, its home tools/walleye-tries is gone); branching on topic/pmic-wdt-wake-in-suspend (not a mainline tag, and it would carry the gen2 and wake series along); a dev_dbg line alone, requiring it in the test (a log line can be missing for other reasons, the probe failing is stronger); the binding patch in this commit (its own patch, with dt_binding_check, a later item)
+
+About
+: walleye-pmic-wdt-v1-image
