@@ -7312,10 +7312,10 @@ Rank
 ### Modem: boot remoteproc_mss with factory-image blobs, read-only; rmtfs, pd-mapper, tqftpserv, qrtr
 
 Status
-: open
+: done
 
 Note
-: Host step done 2026-11-19 (research walleye-modem-blobs-found): blobs and rmtfs partitions read into ~/lab-material/walleye/modem-2026-11-19 (adb root, read only). Next: a builder row for a test image with remoteproc_mss + mba/modem firmware in the ramdisk + rmtfs read-only, then one try; no UFS-on image. Host step done (PR 536): the firmware set was read from modem_b. Now blocked by walleye-modem-mss-image.
+: proven by tests/health/base/modem-up.sh on the 2026-11-27 modem try (remoteproc 4080000.remoteproc running, qrtr node 0 lists services 2 and 21, 21 of 21 passed; its selftest passes on the kept read). Not known yet: pd-mapper, tqftpserv, SIM, calls - a new item when wanted.
 
 Blocked by
 : walleye-modem-up-check
