@@ -13942,10 +13942,10 @@ Rank
 ### Second modem boot: modem-up.sh runs live in the boot and passes again (the check measured on a fresh run, not the run it was written from)
 
 Status
-: open
+: done
 
 Note
-: Coordinator 2026-11-27: the proof of walleye-modem-mss-proof was read off the first try's files, the same data the check was built from; one fresh run measures it. Unattended, read-only storage, nothing flashed.
+: proven by bin/attended run modem-boot-on-the-pixel-2, 21 of 21 passed, run modem-boot-20261127-112433: modem-up-check pass, 38 qrtr services, rmtfs opens equal run 1 (research walleye-modem-mss-second-boot); used by run 2
 
 About
 : walleye-modem-mss-proof

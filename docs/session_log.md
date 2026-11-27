@@ -10561,3 +10561,21 @@ Considered
 
 About
 : walleye-modem-mss-proof
+
+---
+
+
+<a id="2026-11-27-1500-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-boot-run-2: modem boot procedure ran once, 21 of 21 passed; modem-up check passes on a fresh run (research walleye-modem-mss-second-boot). Nothing flashed; phone on Android slot b, stock, fastboot reachable; card, boot chain and slot flags equal before and after.
+
+Considered
+: next: walleye-deep-sleep-baseline needs meter and hands, walleye-display-late-probe-poll-stripes-rc waits for an idle slot, walleye-fingerprint-spi-hwid is host-first; the slpi firmware is not in the push (3 slpi_v2.mdt load failures); calls/pd-mapper/SIM unknown, coordinator picks
+
+About
+: walleye-modem-mss-proof

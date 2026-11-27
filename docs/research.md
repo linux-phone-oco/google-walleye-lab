@@ -9247,3 +9247,22 @@ Found
 
 About
 : walleye-modem-mss-proof
+
+
+<a id="walleye-modem-mss-second-boot"></a>
+### walleye-modem-mss-second-boot
+
+Date
+: 2026-11-27
+
+Brief
+: Second modem boot on walleye: same image, fresh run: modem-up-check passes (remoteproc running, 35 services counted by the check, qrtr-lookup 38), rmtfs opens equal run 1
+
+Question
+: Does modem-up.sh pass on a fresh run, not the run it was written from?
+
+Found
+: Run modem-boot-20261127-112433 (bin/attended run modem-boot-on-the-pixel-2, 21 of 21 passed): modem-up-check.txt pass modem-remoteproc-running and pass modem-qrtr-services (35 services; NAS 3, WDS 1, voice 9). verdict: modem running, qrtr-lookup 38 services, read at 25 s of 180 s; the same 3 slpi_v2.mdt firmware-load failure lines as run 1 (slpi firmware not pushed, not the modem's). daemon-logs 76 lines and 7 open lines in both runs. Card, boot chain and both slots' flags equal before and after; phone back on Android.
+
+About
+: walleye-modem-mss-proof
