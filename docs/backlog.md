@@ -14059,6 +14059,9 @@ Status
 Note
 : The author names the number to ring, or rings the phone. Audio is not part of this item.
 
+Waits
+: a SIM placed in the phone by the author (decision 2026-11-27-walleye-modem-stock-android-reference-no-sim-goal)
+
 Blocked by
 : walleye-modem-sim-registers
 
@@ -14089,6 +14092,9 @@ Status
 
 Note
 : Hours: 25-40 for the port once the tone path works. Upstream: the series is not mainline; contribute back through the carriers.
+
+Waits
+: a SIM placed in the phone by the author (decision 2026-11-27-walleye-modem-stock-android-reference-no-sim-goal)
 
 Blocked by
 : walleye-modem-call-signalling,walleye-adsp-q6-mi2s

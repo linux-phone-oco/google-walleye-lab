@@ -4489,3 +4489,31 @@ About
 
 Research
 : walleye-modem-way-back-slow-read-reboot-f-hangs-with-ipa
+
+
+<a id="2026-11-27-walleye-modem-stock-android-reference-no-sim-goal"></a>
+### 2026-11-27-walleye-modem-stock-android-reference-no-sim-goal
+
+Date
+: 2026-11-27
+
+Brief
+: walleye's modem work takes stock Android as its clean-room reference, never LineageOS's modem stack; with no SIM in the phone the goal stops at what works without one
+
+Decision
+: (1) Modem research reads stock Android - its dtb, vendor configs and logs - as the reference; LineageOS's modem stack is not used as one. (2) The phone has no SIM, so the modem goal for now is: modem up, QMI answers, ModemManager lists the modem, and the no-SIM state reported. Calls, SMS and data proofs wait for a SIM and are shown as not known yet.
+
+Why
+: The author, 2026-11-27 (relayed by the Top Coordinator): 'for clean room, i think its better to look at stock android, as on lineageos on walleye the sim cellmodem was working unstably. (walleye currently has no sim installed, just so you know.)'
+
+Rejected
+: LineageOS's modem configuration as a reference: the author saw its cell modem work unstably on walleye.
+
+About
+: modem-calls
+
+Amends
+: 2026-11-27-walleye-calls-signalling-first-audio-last
+
+Scope
+: the walleye lane's modem work and its research leads
