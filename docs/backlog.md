@@ -14784,10 +14784,10 @@ Rank
 ### Why Android took more than 240 s to return after the IPA modem run (check 22), read before any wait is changed
 
 Status
-: open
+: done
 
 Note
-: Coordinator 2026-11-27: three IPA runs (202446, 210717, 213707) stopped at check 22; in run 9 the phone sat in fastboot and a fastboot reboot brought Android in 30 s - read why the way back lands in fastboot after these runs (the modem's DOG_HB crash and a crash-reset path, the reboot reason the way back sends, the bootloader's choice) before any wait or step changes. | From the same run (coordinator 2026-11-27): the phone came back later on Android slot b with its boot chain the same bytes; the stop is read before its fix (decision 2026-11-23-a-stop-is-read-before-the-fix).
+: Read 2026-11-27: reboot -f hangs with ipa bound (ipa .shutdown = ipa_remove); sysrq b ends it; not fastboot. Research walleye-modem-way-back-slow-read-reboot-f-hangs-with-ipa; next items walleye-modem-image-ends-by-sysrq-b, walleye-modem-ipa-unbind-measure.
 
 About
 : modem-calls
@@ -14853,3 +14853,56 @@ Proof
 
 Rank
 : 20
+
+
+<a id="walleye-modem-image-ends-by-sysrq-b"></a>
+### Modem image ends its window with sync and sysrq b
+
+Status
+: open
+
+Note
+: Research walleye-modem-way-back-slow-read-reboot-f-hangs-with-ipa; decision 2026-11-27-walleye-modem-image-ends-by-sysrq-b-with-ipa. Edit the modem image's init (build/initramfs-slpi/init is shared with slpi: a modem-only end, not a change of slpi's). Build only; the run is the keeper's item below.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: modem-boot-on-the-pixel-2 check 22 (phone back on Android within 240 s) passes on an IPA run, and the host journal shows the image's USB gadget gone 180 s (+-5) after it appears
+
+Rank
+: 19
+
+
+<a id="walleye-modem-ipa-unbind-measure"></a>
+### Read whether ipa_remove returns: ipa unbind timed in the modem image
+
+Status
+: open
+
+Note
+: Keeper try after the image ends by sysrq b: over the telnet shell write 1e40000.ipa to /sys/bus/platform/drivers/ipa/unbind, timed, dmesg read, then reboot -f timed; sysrq b stays the way out. Settles whether the fix is in the image or in ipa's shutdown path (kernel).
+
+Blocked by
+: walleye-modem-image-ends-by-sysrq-b
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: a research row with the unbind's time and dmesg lines
+
+Rank
+: 22

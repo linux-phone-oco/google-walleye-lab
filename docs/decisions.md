@@ -4464,3 +4464,28 @@ Amends
 
 Tracked by
 : walleye-modem-mm-udev-replay-by-uevent
+
+
+<a id="2026-11-27-walleye-modem-image-ends-by-sysrq-b-with-ipa"></a>
+### 2026-11-27-walleye-modem-image-ends-by-sysrq-b-with-ipa
+
+Date
+: 2026-11-27
+
+Brief
+: The modem image ends its 180 s window with sync and sysrq b (no device_shutdown) when ipa is bound; back_wait stays 240 s; the hang is settled by a measured unbind
+
+Decision
+: 1) back_wait and the way back's legs are not changed. 2) The modem image's petter ends with 'sync; echo b > /proc/sysrq-trigger' (reboot -f only as the fallback after it) so a bound ipa cannot hold the reboot. 3) In the same image a later keeper try writes the ipa unbind with timestamps to learn whether ipa_remove returns; its answer decides whether the real fix is in the kernel (ipa shutdown path) or only in the image.
+
+Why
+: Measured: image gone 180 s after up in every non-IPA run, 484 s after read in all three IPA runs, the moment sysrq b is sent; reboot -f never ended with ipa bound. Source: ipa .shutdown = ipa_remove. A longer wait would only hide a hang the phone never leaves by itself.
+
+Rejected
+: Raising back_wait: the phone does not come back by itself inside any wait, only sysrq ends it. Dropping ipa from the modem kernel: ipa is the net port ModemManager needs (decision 2026-11-27-walleye-net-port-from-mainline-ipa). Patching ipa's .shutdown in the kernel first: the hang is read from source, not counted; the unbind measure comes first. Putting sysrq b first in the lab's shared way back: it serves every image and belongs to lab-tools after this is counted once.
+
+About
+: modem-calls
+
+Research
+: walleye-modem-way-back-slow-read-reboot-f-hangs-with-ipa
