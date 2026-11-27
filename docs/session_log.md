@@ -10579,3 +10579,21 @@ Considered
 
 About
 : walleye-modem-mss-proof
+
+---
+
+
+<a id="2026-11-27-walleye-builder-qmicli-in-the-modem-image"></a>
+### walleye builder: static qmicli in the modem image
+
+Entry date
+: 2026-11-27
+
+Done
+: build/modem-tools.nix gives a static aarch64 musl qmicli (libqmi 1.38 with QRTR; the empty doc output dropped), sha256 a8dd865f, nix --rebuild equal; tools.sha256, build-modem-ramdisk.sh and tests/host/modem-ramdisk.sh (seen failing first, then pass; selftest has qmicli changed and missing) take it; ramdisk 3bd122c3 and image b769917e rebuilt twice equal, AVB and UFS-off gate pass, firmware tar unchanged (95ca6961); the modem boot procedure has a step that runs qmicli -d qrtr://0 --dms-get-ids and keeps the answer only in lab-material (qmi-ids.txt); 525 steps tests and the dry run (22 steps) pass. Not run on the phone: the first real run is the capture for the ids judge.
+
+Considered
+: qmicli's words are libqmi's own source (qmicli-dms.c), not captured text: the judge says only answered, error or none, never a value.
+
+About
+: modem-calls

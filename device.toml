@@ -257,14 +257,14 @@ dtb = "86550c1e194000fcf89538951b30832d5cede49293d39a7385d99e6c3fea805c"
 ramdisk = "f4b6c1d750e15cc180c76bd031489830b2fa256dc47969f253c81b5681e2d02b"
 
 # The modem image (item walleye-modem-mss-image): UFS OFF; remoteproc_mss okay on the phone's own firmware names; nothing starts at boot. The slpi image's header, size (32 MiB) and AVB footer, with the kernel of [kernel_builds.walleye-ufs-off-modem],
-# the dtb of dt/msm8998-google-walleye-modem.dts (clock_gcc named real, as every image since z3) and the ramdisk of build/build-modem-ramdisk.sh: the slpi init and busybox, static rmtfs, qrtr-ns, qrtr-lookup and tqftpserv (build/modem-tools.nix),
+# the dtb of dt/msm8998-google-walleye-modem.dts (clock_gcc named real, as every image since z3) and the ramdisk of build/build-modem-ramdisk.sh: the slpi init and busybox, static rmtfs, qrtr-ns, qrtr-lookup, tqftpserv and qmicli (build/modem-tools.nix),
 # /bin/modem-up and /bin/firmware-recv, and the phone's own modemst1, modemst2, fsg and fsc reads as /rmtfs/modem_fs1, _fs2, _fsg, _fsc (mode 444; rmtfs runs with -r). The modem firmware (61 MB) is NOT in it - with the kernel it does not fit the 32 MiB
 # boot partition (decision 2026-11-27-walleye-modem-firmware-is-pushed-not-packed): the host pushes build's modem-firmware.tar over the USB network (firmware-recv, then modem-up). PRIVACY: the ramdisk holds the modem's storage partitions, so the
 # image has no [recipe] and never enters the Nix store or the binary cache; it lives in ~/Projects/walleye-build/images-modem (mode 700), the firmware tar beside it. NOT KNOWN YET: that the modem boots, where rmtfs's block belongs on this phone.
 [images.modem]
 path = "images-modem/boot-modem.img"
 kernel_tag = "int/walleye/ufs-off-modem/v7.3/1"
-sha256 = "ae22f9653f3af97869b1dad6c556e12f8b00c0676f898dbb20c6cefccf9c09cc"   # kernel_builds.walleye-ufs-off-modem (sha 3651b543), dtb cb6ec054 after the clock_gcc fix, ramdisk 9721e71d; swapped twice equal
+sha256 = "b769917e939ca994c2baaf6c5e3ac942c611c3608fe5c6fe477be55b42d31abd"   # kernel_builds.walleye-ufs-off-modem (sha 3651b543), dtb cb6ec054 after the clock_gcc fix, ramdisk 3bd122c3 (with the static qmicli, item walleye-modem-qmicli-in-image; was ae22f965 with ramdisk 9721e71d); swapped twice equal
 
 # z20: z21's control (UFS ON, NOT TO BOOT: tests/host/ufs-off-image.sh refuses it by design); no [kernels] list and no procedure names it.
 [images.z20]

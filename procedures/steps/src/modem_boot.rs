@@ -5,6 +5,7 @@
 //!   1. starts `firmware-recv` on the phone's telnet and pushes the firmware tar to its port ([`PUSH_PORT`]) - in Rust, with no `nc` on the host: the tar is 61 MB, it does not fit the boot image;
 //!   2. waits for `firmware-recv: done` (the phone unpacked it), then runs `modem-up` (which checks the tar's own SHA256SUMS before it starts qrtr-ns, tqftpserv and rmtfs);
 //!   3. reads the remoteproc states, the kernel's modem lines, the daemons' logs and `qrtr-lookup`, and keeps them in the run's folder.
+//!   4. asks `qmicli -d qrtr://0 --dms-get-ids` (read only), and keeps the answer, which holds the IMEI, only in the run's folder under ~/lab-material (item walleye-modem-qmicli-in-image).
 //!
 //! Whatever the modem did is the answer. The whole must end inside the init's self-reboot window ([`INIT_WINDOW_S`]); each step says before it starts whether the time left covers it.
 //!
@@ -29,7 +30,7 @@ use std::time::{Duration, Instant};
 type Done = Result<(), String>;
 
 /// The files of the run's folder; an earlier run of the day's are forgotten at the start (a stale answer is never this run's).
-pub const STALE: [&str; 7] = [
+pub const STALE: [&str; 8] = [
     "read.txt",
     "dmesg.txt",
     "daemon-logs.txt",
@@ -37,6 +38,7 @@ pub const STALE: [&str; 7] = [
     "modem-up.txt",
     "modem-up-check.txt",
     "verdict.txt",
+    "qmi-ids.txt",
 ];
 /// The modem's remoteproc: its device's name (see the sources above).
 pub const MSS_NAME: &str = "4080000.remoteproc";
@@ -55,6 +57,15 @@ pub const SETTLE_S: u64 = 8;
 pub const PUSH_S: u64 = 30;
 pub const UP_S: u64 = 20 + SETTLE_S;
 pub const READ_S: u64 = 30;
+
+/// Seconds the ids read may need (it is cut at `IDS_TIMEOUT_S` by the phone's own `timeout`).
+pub const IDS_S: u64 = 20;
+pub const IDS_TIMEOUT_S: u64 = 15;
+/// Seconds after the TERM that busybox `timeout -k` waits before it KILLs qmicli, so the shell always answers inside `IDS_S`.
+pub const IDS_KILL_S: u64 = 2;
+/// The read-only DMS question over QRTR (libqmi src/qmicli/qmicli.c: `-d, --device` takes "device path or QRTR URI (e.g. qrtr://0)", `-p` is the proxy flag; qmicli-dms.c `dms-get-ids`:
+/// prints "Device IDs retrieved:" then ESN, IMEI and MEID lines). Its output holds the phone's IMEI: it is kept ONLY in the run's folder under ~/lab-material (qmi-ids.txt), never printed, logged or committed.
+pub const IDS_COMMAND: &str = "timeout -k 2 15 qmicli -d qrtr://0 --dms-get-ids 2>&1";
 
 /// The one read over telnet: every remoteproc's name and state, the kernel's modem lines, the daemons' logs, qrtr-lookup's list; marks between the parts.
 pub const READ_COMMAND: &str = "echo ---remoteproc; for d in /sys/class/remoteproc/*; do [ -e $d/name ] || continue; echo \"$(cat $d/name) $(cat $d/state)\"; done; echo ---dmesg; dmesg | grep -i -e remoteproc -e remote.processor -e q6v5 -e mss -e rmtfs -e qrtr -e glink -e sysmon -e modem; echo ---logs; for f in /tmp/*.log; do echo \"== $f\"; cat $f; done; echo ---qrtr; qrtr-lookup 2>&1; echo ---end";
@@ -130,6 +141,38 @@ impl Answer {
     }
 }
 
+/// What the ids read says WITHOUT the ids: whether qmicli answered, never a value (the IMEI stays in the kept file). Source of the words: qmicli-dms.c prints
+/// "Device IDs retrieved:" on an answer; every error of qmicli starts `error:`.
+pub fn ids_say(text: &str) -> String {
+    let lines = text.lines().filter(|l| !l.trim().is_empty()).count();
+    if text.contains("Device IDs retrieved:") {
+        format!("qmicli answered the DMS get-ids ({lines} lines, kept in qmi-ids.txt, not shown)")
+    } else if text.lines().any(|l| l.trim_start().starts_with("error:")) {
+        format!("qmicli said an error ({lines} lines, kept in qmi-ids.txt, not shown)")
+    } else {
+        format!("qmicli did not answer ({lines} lines, kept in qmi-ids.txt, not shown)")
+    }
+}
+
+/// The ids answer is written to `qmi-ids.txt` in the run's folder (mode 700, under ~/lab-material), the file itself mode 600, and the sentence that is printed says its shape only.
+/// This is the one place the answer is written: nothing else prints or saves it.
+pub fn keep_the_ids(out: &std::path::Path, text: &str) -> Result<String, String> {
+    use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
+    std::fs::create_dir_all(out).map_err(|e| format!("{}: {e}", out.display()))?;
+    let _ = std::fs::set_permissions(out, std::fs::Permissions::from_mode(0o700));
+    let file = out.join("qmi-ids.txt");
+    let mut f = std::fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .mode(0o600)
+        .open(&file)
+        .map_err(|e| format!("{}: {e}", file.display()))?;
+    std::io::Write::write_all(&mut f, format!("{text}\n").as_bytes())
+        .map_err(|e| format!("{}: {e}", file.display()))?;
+    Ok(ids_say(text))
+}
+
 /// The receiver's log says the set is unpacked, or says why it is not (its own `failed` lines); nothing yet is `None`: keep waiting.
 pub fn push_says(log: &str) -> Option<Result<(), String>> {
     if log.lines().any(|l| l.trim_start().starts_with(RECV_DONE)) {
@@ -167,7 +210,7 @@ pub fn time_left_covers(elapsed: Duration, need_s: u64) -> Done {
 
 /// What the author is told before the run.
 pub fn expect(luns: u64) -> String {
-    format!("The modem boot, about 8 minutes: the modem image is booted once from memory (UFS off by the gate, nothing flashed, no slot changed); over its USB network the lab pushes the 61 MB firmware tar (no nc: a Rust copy to port {PUSH_PORT}), runs modem-up (it checks the tar's own SHA256SUMS first) and reads every remoteproc's state, the kernel's modem lines, the daemons' logs and qrtr-lookup. All of it ends inside the image's {INIT_WINDOW_S} s before it restarts the phone by itself; whatever the modem did is the answer. Android is checked back with the card's {luns} disks, the boot chain and the slots' flags read as before.")
+    format!("The modem boot, about 8 minutes: the modem image is booted once from memory (UFS off by the gate, nothing flashed, no slot changed); over its USB network the lab pushes the 61 MB firmware tar (no nc: a Rust copy to port {PUSH_PORT}), runs modem-up (it checks the tar's own SHA256SUMS first) and reads every remoteproc's state, the kernel's modem lines, the daemons' logs and qrtr-lookup, then asks the modem its device ids over QRTR (qmicli, read only; the answer holds the IMEI, so it is kept in ~/lab-material and never shown). All of it ends inside the image's {INIT_WINDOW_S} s before it restarts the phone by itself; whatever the modem did is the answer. Android is checked back with the card's {luns} disks, the boot chain and the slots' flags read as before.")
 }
 
 /// What the author is told before the rehearsal.
@@ -310,7 +353,7 @@ impl ModemBoot {
         let u = self.clone();
         move || {
             let mut sh = u.lab.shell_when_up()?;
-            time_left_covers(u.elapsed()?, PUSH_S + UP_S + READ_S)?;
+            time_left_covers(u.elapsed()?, PUSH_S + UP_S + READ_S + IDS_S)?;
             host::image_has_sha256(&u.s.firmware, &u.s.firmware_sha256)?;
             sh.run("rm -f /tmp/firmware-recv.log", Duration::from_secs(5))?;
             sh.background(RECV_COMMAND)?;
@@ -350,7 +393,7 @@ impl ModemBoot {
         let u = self.clone();
         move || {
             let mut sh = u.lab.shell_when_up()?;
-            time_left_covers(u.elapsed()?, UP_S + READ_S)?;
+            time_left_covers(u.elapsed()?, UP_S + READ_S + IDS_S)?;
             let said = sh.run("modem-up", Duration::from_secs(20))?;
             u.lab.save("modem-up.txt", &said)?;
             up_says(&said)?;
@@ -364,7 +407,7 @@ impl ModemBoot {
         let u = self.clone();
         move || {
             let mut sh = u.lab.shell_when_up()?;
-            time_left_covers(u.elapsed()?, READ_S)?;
+            time_left_covers(u.elapsed()?, READ_S + IDS_S)?;
             let text = sh.run(READ_COMMAND, Duration::from_secs(40))?;
             u.lab.save("read.txt", &crate::touch::redact(&text))?;
             u.lab.save("modem-up-check.txt", &u.health_check())?;
@@ -384,6 +427,19 @@ impl ModemBoot {
                 ),
             )?;
             println!("  {said}");
+            Ok(())
+        }
+    }
+
+    /// The modem's DMS get-ids is asked over QRTR, read only; the answer holds the IMEI, so it is kept in qmi-ids.txt of the run's folder (~/lab-material, mode 700) and only its shape is printed.
+    /// Whatever qmicli says, the step passes: the modem's answer is the finding (not known yet when the modem is down).
+    pub fn the_ids_are_read_and_kept_private(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let mut sh = u.lab.shell_when_up()?;
+            time_left_covers(u.elapsed()?, IDS_S)?;
+            let text = sh.run(IDS_COMMAND, Duration::from_secs(IDS_S))?;
+            println!("  {}", keep_the_ids(&u.s.out, &text)?);
             Ok(())
         }
     }
@@ -558,6 +614,64 @@ mod tests {
         std::fs::remove_dir_all(&d).unwrap();
     }
 
+    /// The ids read's words are libqmi's own (qmicli-dms.c line 643 `Device IDs retrieved:`; qmicli prints `error: ...` on a failure) - NOT captured from a phone yet: the first real run is the capture.
+    /// Whatever the text, the sentence says no value from it.
+    #[test]
+    fn the_ids_read_is_said_without_its_values() {
+        let up = "[qrtr://0] Device IDs retrieved:\n\t      ESN: 'unknown'\n\t     IMEI: '000000000000000'\n\t     MEID: 'unknown'";
+        let said = ids_say(up);
+        assert!(
+            said.starts_with("qmicli answered the DMS get-ids (4 lines"),
+            "{said}"
+        );
+        assert!(!said.contains("000000000000000"));
+        assert!(ids_say(
+            "error: couldn't create client for the 'dms' service: Timeout was reached"
+        )
+        .starts_with("qmicli said an error"));
+        assert!(ids_say("").starts_with("qmicli did not answer (0 lines"));
+        assert!(ids_say("timeout: killed").starts_with("qmicli did not answer"));
+    }
+
+    /// The answer reaches one file only (mode 600 in a folder of mode 700), the printed sentence holds no value, and a second run replaces it.
+    #[test]
+    fn the_ids_are_kept_in_one_private_file_and_never_in_the_sentence() {
+        use std::os::unix::fs::PermissionsExt;
+        let d = std::env::temp_dir().join(format!("wt-ids-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        let imei = "[qrtr://0] Device IDs retrieved:\n\t     IMEI: '000000000000000'";
+        let said = keep_the_ids(&d, imei).unwrap();
+        assert!(!said.contains("000000000000000"), "{said}");
+        let file = d.join("qmi-ids.txt");
+        assert_eq!(std::fs::read_to_string(&file).unwrap(), format!("{imei}\n"));
+        assert_eq!(
+            std::fs::metadata(&file).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+        assert_eq!(
+            std::fs::metadata(&d).unwrap().permissions().mode() & 0o777,
+            0o700
+        );
+        assert_eq!(std::fs::read_dir(&d).unwrap().count(), 1);
+        keep_the_ids(&d, "error: x").unwrap();
+        assert_eq!(std::fs::read_to_string(&file).unwrap(), "error: x\n");
+        std::fs::remove_dir_all(&d).unwrap();
+    }
+
+    /// `-d` takes the QRTR URI and `-p` is the proxy flag (libqmi qmicli.c lines 79-104): the command must name the device with -d, and ask nothing but get-ids.
+    #[test]
+    fn the_ids_command_names_the_qrtr_node_with_d_and_asks_only_get_ids() {
+        assert!(IDS_COMMAND.contains(" -d qrtr://0 ") && !IDS_COMMAND.contains(" -p "));
+        assert_eq!(IDS_COMMAND.matches("--dms-").count(), 1);
+        assert!(
+            IDS_COMMAND.contains("--dms-get-ids")
+                && !IDS_COMMAND.contains("--nas-")
+                && !IDS_COMMAND.contains("--wds-")
+        );
+        assert!(IDS_COMMAND.starts_with(&format!("timeout -k {IDS_KILL_S} {IDS_TIMEOUT_S} ")));
+        const { assert!(IDS_S > IDS_TIMEOUT_S + IDS_KILL_S) };
+    }
+
     /// Every file a step saves is in STALE (read from this file's own text), so a run never keeps an earlier run's answer.
     #[test]
     fn every_file_the_steps_save_is_forgotten_at_the_start() {
@@ -572,6 +686,7 @@ mod tests {
             "dmesg.txt",
             "daemon-logs.txt",
             "verdict.txt",
+            "qmi-ids.txt",
         ] {
             assert!(
                 text.matches(&format!("\"{name}\"")).count() >= 3,
@@ -603,7 +718,7 @@ mod tests {
     #[test]
     fn the_guards_never_ask_more_after_than_before() {
         const { assert!(PUSH_S + UP_S + READ_S > UP_S + READ_S && UP_S + READ_S > READ_S) };
-        const { assert!(PUSH_S + UP_S + READ_S < INIT_WINDOW_S) };
+        const { assert!(PUSH_S + UP_S + READ_S + IDS_S < INIT_WINDOW_S) };
     }
 
     #[test]
@@ -690,6 +805,7 @@ mod tests {
             "the_firmware_is_pushed",
             "the_modem_is_started",
             "the_modem_is_read",
+            "the_ids_are_read_and_kept_private",
         ] {
             assert!(real.contains(step), "{step}");
             assert!(!rehearsal.contains(step), "{step}");

@@ -19,6 +19,8 @@ cp -a "$W/tree" "$W/other";  chmod 644 "$W/other/rmtfs/modem_fs2"; printf x >> "
 cp -a "$W/tree" "$W/extra";  : > "$W/extra/rmtfs/modem_study";                       want "a fifth file in /rmtfs" "more than the four" extra
 cp -a "$W/tree" "$W/stray"; : > "$W/stray/modem_b.img";                             want "a stray file anywhere" "not exactly the expected" stray
 cp -a "$W/tree" "$W/tool";   printf x >> "$W/tool/bin/rmtfs";                       want "a tool changed" "/bin/rmtfs is not the recorded" tool
+cp -a "$W/tree" "$W/qmi";    printf x >> "$W/qmi/bin/qmicli";                        want "qmicli changed" "/bin/qmicli is not the recorded" qmi
+cp -a "$W/tree" "$W/noqmi";  rm "$W/noqmi/bin/qmicli";                               want "qmicli missing" "/bin/qmicli is not the recorded" noqmi
 cp -a "$W/tree" "$W/up";     printf '#x\n' >> "$W/up/bin/modem-up";                  want "modem-up changed" "/bin/modem-up differs" up
 cp -a "$W/tree" "$W/fw";     : > "$W/fw/lib/firmware/qcom/msm8998/google/walleye/mba.mbn"; want "a firmware file inside" "firmware files are in the ramdisk" fw
 cp -a "$W/tree" "$W/init";   printf '#x\n' >> "$W/init/init";                        want "init changed" "/init differs" init
