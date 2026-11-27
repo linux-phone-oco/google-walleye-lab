@@ -532,6 +532,12 @@ pub fn measure_status(before: &Path, after: &Path) -> Measure {
     }
 }
 
+/// The way back, and only when the phone is back the measures a stop skipped: a phone that did not return cannot be read, so its error stands alone.
+pub fn then_measured(back: impl FnOnce() -> Done, measure: impl FnOnce() -> Done) -> Done {
+    back()?;
+    measure()
+}
+
 /// One state the way back measures after a stop: what it is, what was read before, where the after goes, and the measure.
 struct AfterStop<'a> {
     what: &'static str,
@@ -821,6 +827,20 @@ impl RootfsBoot {
                 return Ok(());
             }
             lab.way_back()
+        }
+    }
+
+    /// The way back of a boot with no ssh (the modem image: its shell is telnet): the shared way back, then what a stop skipped is measured -
+    /// the card, the boot chain and the slots' flags against what was read before ([`Self::the_post_run_is_measured`]). The rehearsal's way back
+    /// only returns the phone; a run that stopped after the boot (mm-up, run 3) needs the reads too, for they say the phone is as it was.
+    /// Only the watching parent runs it, after the child ends, whatever ended it.
+    pub fn way_back_measured(&self) -> impl FnOnce() -> Done + 'static {
+        let (lab, u) = (self.lab.clone(), self.clone());
+        move || {
+            if std::env::var_os(watch::CHILD).is_some() {
+                return Ok(());
+            }
+            then_measured(|| lab.way_back(), || u.the_post_run_is_measured())
         }
     }
 
@@ -2271,6 +2291,30 @@ mod tests {
         let r = rig("halfevidence", "---dmesg-tail\nx\n", 0);
         assert!(r.the_evidence_is_read().is_ok());
         assert!(r.saved(EVIDENCE_FILE).is_err());
+    }
+
+    #[test]
+    fn the_stop_measures_after_the_way_back_and_only_when_the_phone_is_back() {
+        use std::cell::RefCell;
+        let order = RefCell::new(Vec::new());
+        let r = then_measured(
+            || {
+                order.borrow_mut().push("back");
+                Ok(())
+            },
+            || {
+                order.borrow_mut().push("measure");
+                Ok(())
+            },
+        );
+        assert_eq!((r, order.take()), (Ok(()), vec!["back", "measure"]));
+        let r = then_measured(
+            || Err("hold power".into()),
+            || panic!("a phone that did not return was measured"),
+        );
+        assert_eq!(r, Err("hold power".to_string()));
+        let r = then_measured(|| Ok(()), || Err("flags differ".into()));
+        assert_eq!(r, Err("flags differ".to_string()));
     }
 
     #[test]

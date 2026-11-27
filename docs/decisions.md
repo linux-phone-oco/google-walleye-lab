@@ -4324,3 +4324,28 @@ Research
 
 Tracked by
 : walleye-modem-mm-rootfs-dbus-config
+
+
+<a id="2026-11-27-walleye-modem-boot-way-back-measures"></a>
+### 2026-11-27-walleye-modem-boot-way-back-measures
+
+Date
+: 2026-11-27
+
+Brief
+: The modem boot ends in a way back that measures: way back, then card, boot chain and flags against before
+
+Decision
+: RootfsBoot::way_back_measured (the shared lab way back, then the_post_run_is_measured, nothing when the phone did not return) is the modem boot's way back, in place of the rehearsal's way back that only returned the phone.
+
+Why
+: Run 3 stopped at mm-up after the boot: the phone came back, but the parent's way back (rehearsal_way_back) never read the card, boot chain and flags, so 'the phone is as it was' was not said (coordinator 2026-11-27). The measure already existed in RootfsBoot::way_back.
+
+Rejected
+: Using RootfsBoot::way_back whole: it waits device_wait seconds for ssh first, and the modem image has a telnet shell, no ssh. Measuring inside mm-up's step: a stop ends the child, nothing after it runs.
+
+About
+: modem-calls
+
+Research
+: walleye-modem-mm-first-try-run-3-dbus-system-and-config-file
