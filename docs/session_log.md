@@ -10597,3 +10597,21 @@ Considered
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-1700-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-qmi-ids-read: modem boot procedure ran once for real (22 of 22 steps), nothing flashed; modem up, qrtr lists 38 services; qmicli -d qrtr://0 --dms-get-ids said 'URI is not a local file path: (NULL)', no IMEI. Phone on Android slot b, stock, fastboot reachable, card/boot chain/flags equal before and after.
+
+Considered
+: next: builder reads libqmi 1.38 source and the nix build's QRTR support, fixes, then a second run; deep-sleep-baseline needs meter+hands; fingerprint-spi-hwid is host-first
+
+About
+: modem-calls

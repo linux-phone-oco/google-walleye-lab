@@ -13992,10 +13992,10 @@ Rank
 ### Read the modem over QMI, read only: qmicli over qrtr, DMS get-ids (IMEI) and the qrtr service list, on the existing modem image
 
 Status
-: open
+: in-progress
 
 Note
-: First step of decision 2026-11-27-walleye-calls-signalling-first-audio-last. Image: the modem image of 2026-11-27 (nothing flashed). Needs libqmi (qmicli) in the test ramdisk; record whether it is there. No SIM, no witness.
+: Run 1 (2026-11-27): qmicli -d qrtr://0 answered 'URI is not a local file path: (NULL)'; modem up, 38 qrtr services; proof not yet passed. Next (builder): read libqmi 1.38 qmicli device open and the nix build's qrtr flag; fix; one more modem boot run.
 
 Blocked by
 : walleye-modem-qmicli-in-image

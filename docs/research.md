@@ -9288,3 +9288,22 @@ Sources
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-qmicli-qrtr-uri-error"></a>
+### walleye-modem-qmicli-qrtr-uri-error
+
+Date
+: 2026-11-27
+
+Brief
+: First real qmicli run over qrtr://0 on the modem image: 'URI is not a local file path: (NULL)' - no IMEI read, modem itself up (38 qrtr services)
+
+Question
+: Does qmicli -d qrtr://0 --dms-get-ids read the IMEI on the modem image?
+
+Found
+: Run 1 of modem-boot (22 of 22 steps pass, nothing flashed, phone back on Android slot b, card/boot chain/flags equal). remoteproc modem running, qrtr-lookup lists 38 services incl. Voice, NAS, Phonebook; qrtr-ns said already running (kernel ns). qmicli printed one line: error: URI is not a local file path: (NULL) - qmicli treated qrtr://0 as a GFile URI, so this static libqmi build does not take the qrtr transport (or the -d form differs); no DMS answer, no IMEI. Not yet read: libqmi 1.38 source (qmicli device open) and the nix build's QRTR flag (build/modem-tools.nix overrides libqmi with withIntrospection=false withMan=false only). Output kept in ~/lab-material/walleye/modem-boot-20261127-120932/qmi-ids.txt, not git.
+
+About
+: modem-calls
