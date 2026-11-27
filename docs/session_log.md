@@ -11029,3 +11029,24 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-modem-up-binds-the-ipa-after-the-firmware-push"></a>
+### modem-up binds the IPA after the firmware push
+
+Entry date
+: 2026-11-27
+
+Done
+: modem-up now unbinds (if bound) and binds 1e40000.ipa after the firmware check and before the daemons, printing the ipa dmesg lines; tests/host/modem-up-ipa-order.sh (+selftest) pins the order from ipa_probe's own firmware load; ramdisk 7258294c and image 479d018d rebuilt from the recorded kernel Image.gz (sha 0347728b matched) and dtb, all build checks ok; device.toml sha updated; handed to the keeper
+
+Considered
+: build ipa as a module and modprobe it (the OnePlus 5's way): not needed, the built-in driver has no suppress_bind_attrs so sysfs bind re-probes a device whose probe failed with -2
+
+Rejected
+: binding in firmware-recv: the daemons' start is modem-up's, and the set is checked there first; a rehearsal run: it reads the phone, a builder never touches one
+
+About
+: modem-calls

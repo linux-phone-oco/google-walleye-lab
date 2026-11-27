@@ -13,6 +13,18 @@ FW=/lib/firmware/qcom/msm8998/google/walleye
 for p in qrtr-ns tqftpserv rmtfs; do
   ! pidof $p > /dev/null || { echo "modem-up: $p already runs: started once only"; exit 1; }
 done
+# The IPA (net port for ModemManager): the built-in driver probed at boot, before the push, and stopped at -2 (no ipa_fws.mdt yet; run modem-boot-20261127-184720, research walleye-modem-mm-first-try-run-6-ipa-probes-before-firmware).
+# The AP loads GSI firmware itself (qcom,gsi-loader self) inside ipa_probe, so the bind comes now - the set is whole, the modem not yet started. A failed probe leaves the device unbound, and the driver has no suppress_bind_attrs,
+# so /sys/bus/platform/drivers/ipa/bind takes it again; a bound device (the boot's probe passed) is unbound first. Never stops modem-up: the modem is the proof's first part, the net port its second; its lines are printed either way.
+IPA=1e40000.ipa
+IPAD=/sys/bus/platform/drivers/ipa
+if [ -d $IPAD ]; then
+  [ ! -e $IPAD/$IPA ] || echo $IPA > $IPAD/unbind
+  echo $IPA > $IPAD/bind || echo "modem-up: ipa bind of $IPA failed"
+else
+  echo "modem-up: no ipa driver in /sys/bus/platform/drivers: no net port"
+fi
+dmesg | grep -i ipa | tail -n 20 | sed 's/^/modem-up: dmesg: /'
 setsid qrtr-ns -f -v > /tmp/qrtr-ns.log 2>&1 &
 sleep 1
 setsid tqftpserv > /tmp/tqftpserv.log 2>&1 &

@@ -14678,10 +14678,10 @@ Rank
 ### modem-up binds ipa again after the firmware is unpacked, then mm-up: dmesg ipa probe ok, a net device, mmcli -L lists the modem
 
 Status
-: open
+: in-progress
 
 Note
-: Coordinator 2026-11-27 (run 184720 read: ipa probe -2 at 3.8 s, the firmware tar not yet pushed): bind 1e40000.ipa after the firmware unpack and BEFORE modem-up, so GSI is loaded before the modem starts (cite the order from drivers/net/ipa: ipa_probe / the modem SSR notifier). If a built-in driver's failed probe cannot be rebound through /sys/bus/platform/drivers/ipa/bind, build ipa as a module and modprobe it at that point (the OnePlus 5's way); say which and why. | From run 6 (research walleye-modem-mm-first-try-run-6-ipa-probes-before-firmware): ipa probed at 3.8 s before the firmware tar was pushed. Change build/modem-up (ramdisk script): after the unpack, echo 1e40000.ipa > /sys/bus/platform/drivers/ipa/bind (unbind first if bound), print the ipa dmesg lines; rebuild boot-modem.img, update device.toml sha, rehearse; then the keeper runs modem-boot. Builder work.
+: Built 2026-11-27 (builder): build/initramfs-modem/modem-up unbinds 1e40000.ipa if bound, binds it (built-in driver, no suppress_bind_attrs, so /sys/bus/platform/drivers/ipa/bind takes it; no module needed), prints the ipa dmesg lines, all after the SHA256SUMS check and before qrtr-ns/tqftpserv/rmtfs. Order cited: ipa_probe loads ipa_fws itself (gsi-loader self), tests/host/modem-up-ipa-order.sh. Image images-modem/boot-modem.img 479d018d (ramdisk 7258294c; firmware tar unchanged 9073e47e; was 8c632662, kept as boot-modem.img.8c632662). Host tests pass. NOT KNOWN YET: that the bind probes ok on the phone. Next: the keeper's modem-boot run, then modem-mm-listed.
 
 About
 : modem-calls
@@ -14690,7 +14690,7 @@ Opened
 : 2026-11-27
 
 Needs
-: build
+: phone
 
 Proof
 : tests/health/base/modem-calls.sh: modem-mm-listed passes (mmcli -L lists one modem)
