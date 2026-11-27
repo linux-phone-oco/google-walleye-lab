@@ -14590,7 +14590,7 @@ Needs
 : build
 
 Proof
-: modem kernel builds; dtc of msm8998-google-walleye-modem.dts has an ipa node (qcom,msm8998-ipa); test modem-mm-listed still failing
+: the modem kernel builds with CONFIG_QCOM_IPA (and rmnet) in build/walleye-modem.config; the modem dts has an ipa node (qcom,msm8998-ipa) whose every value (reg, interrupts, clocks, interconnects, iommus, smem states, memory regions) is cited in its commit from the wahoo GPL dtsi and checked against the OnePlus 5 patch; who loads IPA's firmware (qcom,gsi-loader self or modem, per the v7.3 binding and the vendor) is settled and cited; dt_binding_check/dtbs_check pass for the node; dtb-modem-mss.sh passes; the image rebuilt equal; modem-mm-listed still failing until the try
 
 Rank
 : 21
