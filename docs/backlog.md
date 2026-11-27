@@ -13833,10 +13833,10 @@ Rank
 ### The modem boot as a procedure: boot image modem from memory, push the firmware tar (firmware-recv, nc), modem-up, read the remoteproc state, the kernel's modem lines and qrtr-lookup
 
 Status
-: open
+: done
 
 Note
-: From the image builder (2026-11-27): the image holds no firmware (decision 2026-11-27-walleye-modem-firmware-is-pushed-not-packed). The procedure, in Rust with argenv beside procedures/slpi-boot-on-the-pixel-2.rs: boot image modem once from memory (UFS off by the gate), over telnet 172.16.43.1 start 'firmware-recv &', push ~/Projects/walleye-build/images-modem/modem-firmware.tar to 172.16.43.1:9000 with nc, run modem-up, then read /sys/class/remoteproc/*/state, dmesg for q6v5/mss/rmtfs/qrtr lines, /tmp/*.log and qrtr-lookup. Its rehearsal (every step but the boot) first. The whole must finish inside the init's 180 s window.
+: Built: procedures/modem-boot-on-the-pixel-2.rs and its rehearsal (steps/src/modem_boot.rs). The push is a Rust TcpStream copy (no nc on the host); each step checks the init's 180 s window. Host proof: 13 modem_boot tests, 519 steps tests, both dry runs. The rehearsal on the phone is the keeper's: walleye-modem-boot-rehearsal-run, which now gates walleye-try-modem-mss.
 
 Blocked by
 : walleye-modem-mss-image
@@ -13867,7 +13867,7 @@ Note
 : From the image builder (2026-11-27): after the procedure. Read-only on the phone's storage (UFS off by the gate, nothing flashed, rmtfs -r on RAM copies). NOT KNOWN YET: that the modem boots, and the address of the rmtfs block (decision 2026-11-27-walleye-modem-rmtfs-region-not-known-yet): the try reads it.
 
 Blocked by
-: walleye-modem-firmware-push-procedure
+: walleye-modem-boot-rehearsal-run
 
 About
 : walleye-modem-mss-proof
@@ -13883,3 +13883,31 @@ Proof
 
 Rank
 : 21
+
+
+<a id="walleye-modem-boot-rehearsal-run"></a>
+### Rehearse the modem boot on the phone: every step but the boot, the push and the read
+
+Status
+: open
+
+Note
+: bin/attended run rehearse-modem-boot-on-the-pixel-2 (no go, nothing booted or written, phone ends on Android; checks the image and firmware tar sha256, the UFS-off gate, the boot chain, the card and the slots' flags before and after). Its dry run and the steps tests passed on the builder's side. Then the real try walleye-try-modem-mss.
+
+Blocked by
+: walleye-modem-firmware-push-procedure
+
+About
+: walleye-modem-mss-proof
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: walleye-modem-boot-rehearsal
+
+Rank
+: 20

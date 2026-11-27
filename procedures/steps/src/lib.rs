@@ -17,6 +17,7 @@ pub mod flash_boot;
 pub mod host;
 pub mod install;
 pub mod lab;
+pub mod modem_boot;
 pub mod nfc_boot;
 pub mod phone;
 pub mod pmic;

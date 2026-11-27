@@ -9206,3 +9206,25 @@ Found
 
 About
 : walleye-modem-mss-proof
+
+
+<a id="walleye-modem-boot-procedure-sources"></a>
+### walleye-modem-boot-procedure-sources
+
+Date
+: 2026-11-27
+
+Brief
+: The modem boot procedure's judged words come from the kernel source and the image's scripts; the host has no nc, so the firmware push is a Rust TcpStream copy
+
+Question
+: Where does each word the modem boot judges come from, and how is the firmware tar pushed from this host?
+
+Found
+: remoteproc name is the device name 4080000.remoteproc (qcom_q6v5_mss.c:2091 devm_rproc_alloc pdev->name; msm8998.dtsi remoteproc@4080000), not 'modem'; auto_boot=false (line 2098) so offline before modem-up is expected; 'powering up NAME' and 'remote processor NAME is now up' are remoteproc_core.c 1935 and 1308 (Linux 7.2.2 tree of porthole). The receiver script (build/initramfs-modem/firmware-recv) listens with nc -l -p 9000 and ends on EOF, so the host copies the tar over a TcpStream and shuts down its write side; nc is not installed on the host (command -v nc empty). The init's self-reboot is 90 beats of 2 s = 180 s from the watchdog open (build/initramfs-slpi/init), so each step checks the time left before it starts. modem-firmware.tar: sha256 95ca6961..., 61501440 bytes, 32 entries (./ and 31 files); the image-row of the manifest takes no extra key, so the tar's path and sha256 sit in the procedure's table. No text of the modem running exists yet: the first real run is the capture.
+
+Sources
+: walleye-modem-image-built
+
+About
+: walleye-modem-mss-proof

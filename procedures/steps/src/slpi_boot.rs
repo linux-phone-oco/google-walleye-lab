@@ -50,7 +50,7 @@ fn state_of(word: &str) -> State {
     }
 }
 
-fn section<'a>(text: &'a str, name: &str) -> Option<Vec<&'a str>> {
+pub(crate) fn section<'a>(text: &'a str, name: &str) -> Option<Vec<&'a str>> {
     let mark = format!("---{name}");
     let mut lines = text.lines().map(str::trim_end);
     lines.find(|l| *l == mark)?;
@@ -82,16 +82,22 @@ pub struct Log {
 
 /// The kernel's lines (a whole log, or the grep of it that [`READ_COMMAND`] makes) judged for the SLPI. A failure is a line of the SLPI's own transport or driver that says `fail`, `error`, `timed out` or `crash`.
 pub fn log_says(text: &str) -> Log {
+    log_says_for(SLPI_NAME, text)
+}
+
+/// The same judgement for the remoteproc called `name` (the modem's is its device name, `4080000.remoteproc`).
+pub fn log_says_for(name: &str, text: &str) -> Log {
     let mut log = Log::default();
+    let name = name.to_ascii_lowercase();
     for line in text.lines() {
         let l = line.to_ascii_lowercase();
-        if l.contains(&format!("powering up {SLPI_NAME}")) {
+        if l.contains(&format!("powering up {name}")) {
             log.started = true;
         }
-        if l.contains(&format!("remote processor {SLPI_NAME} is now up")) {
+        if l.contains(&format!("remote processor {name} is now up")) {
             log.up = true;
         }
-        let about = l.contains(SLPI_NAME)
+        let about = l.contains(&name)
             || l.contains("remoteproc")
             || l.contains("glink")
             || l.contains("qrtr")

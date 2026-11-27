@@ -10468,3 +10468,24 @@ Rejected
 
 About
 : walleye-modem-mss-proof
+
+---
+
+
+<a id="2026-11-27-walleye-builder-modem-boot-procedure"></a>
+### walleye builder: the modem boot procedure
+
+Entry date
+: 2026-11-27
+
+Done
+: modem_boot.rs, the real procedure and its rehearsal, settings keys firmware and firmware_sha256 in the procedure table, slpi_boot's log judgement taken by name. Judged words sourced from the kernel tree (research walleye-modem-boot-procedure-sources). Queued the rehearsal run for the keeper and put it before the first try.
+
+Considered
+: nc from the host as the item says; a [images.modem] firmware key
+
+Rejected
+: nc: not installed on the host, and a Rust copy is testable against a loopback listener. The manifest key: lpoco-attended's manifest model refuses unknown image fields (TOML parse error at [images]), so the tar sits in the procedure's table.
+
+About
+: walleye-modem-mss-proof

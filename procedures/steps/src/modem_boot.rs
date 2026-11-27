@@ -1,0 +1,645 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+//! The modem boot (item walleye-modem-firmware-push-procedure, for the try walleye-try-modem-mss; decision 2026-11-27-walleye-modem-firmware-is-pushed-not-packed): the modem image
+//! ([images.modem]: UFS off by the gate, the static rmtfs, qrtr-ns and tqftpserv, copies of the modem's storage, NO firmware) is booted ONCE from fastboot, from memory (nothing
+//! flashed, no slot touched). Over the image's USB network (172.16.43.1) the lab then
+//!   1. starts `firmware-recv` on the phone's telnet and pushes the firmware tar to its port ([`PUSH_PORT`]) - in Rust, with no `nc` on the host: the tar is 61 MB, it does not fit the boot image;
+//!   2. waits for `firmware-recv: done` (the phone unpacked it), then runs `modem-up` (which checks the tar's own SHA256SUMS before it starts qrtr-ns, tqftpserv and rmtfs);
+//!   3. reads the remoteproc states, the kernel's modem lines, the daemons' logs and `qrtr-lookup`, and keeps them in the run's folder.
+//!
+//! Whatever the modem did is the answer. The whole must end inside the init's self-reboot window ([`INIT_WINDOW_S`]); each step says before it starts whether the time left covers it.
+//!
+//! Where each judged word comes from (no text of the modem running was captured yet: the first real run is the capture):
+//!  - the remoteproc's name is the device's name, `4080000.remoteproc`: qcom_q6v5_mss.c line 2091 `devm_rproc_alloc(&pdev->dev, pdev->name, ...)` and msm8998.dtsi `remoteproc_mss: remoteproc@4080000` (Linux 7.2.2 tree of ~/Projects/walleye-build/porthole);
+//!  - `auto_boot = false` (qcom_q6v5_mss.c line 2098): nothing starts at boot, so state `offline` before `modem-up` is the expected one;
+//!  - `powering up NAME` and `remote processor NAME is now up`: remoteproc_core.c lines 1935 and 1308;
+//!  - the words `firmware-recv: done` and `modem-up: qrtr-ns, tqftpserv and rmtfs run`: the scripts build/initramfs-modem/firmware-recv and modem-up, whose text the image's ramdisk holds;
+//!  - the port 9000 and the folder: the same firmware-recv script.
+
+use crate::host;
+use crate::lab::Lab;
+use crate::rootfs_boot::RootfsBoot;
+use crate::settings::Settings;
+use crate::slpi_boot::{log_says_for, remoteprocs_in, section, services_in, Log, SlpiBoot, State};
+use std::cell::Cell;
+use std::io::Write;
+use std::net::{Shutdown, TcpStream, ToSocketAddrs};
+use std::rc::Rc;
+use std::time::{Duration, Instant};
+
+type Done = Result<(), String>;
+
+/// The files of the run's folder; an earlier run of the day's are forgotten at the start (a stale answer is never this run's).
+pub const STALE: [&str; 6] = [
+    "read.txt",
+    "dmesg.txt",
+    "daemon-logs.txt",
+    "push.txt",
+    "modem-up.txt",
+    "verdict.txt",
+];
+/// The modem's remoteproc: its device's name (see the sources above).
+pub const MSS_NAME: &str = "4080000.remoteproc";
+/// The port `firmware-recv` listens on (build/initramfs-modem/firmware-recv: `nc -l -p 9000`).
+pub const PUSH_PORT: u16 = 9000;
+/// The command that starts the receiver on the phone.
+pub const RECV_COMMAND: &str = "firmware-recv > /tmp/firmware-recv.log 2>&1";
+/// What the receiver prints when the set is unpacked, and what `modem-up` prints when the three daemons run.
+pub const RECV_DONE: &str = "firmware-recv: done";
+pub const UP_DONE: &str = "modem-up: qrtr-ns, tqftpserv and rmtfs run";
+/// The init's self-reboot, in seconds from the watchdog's open (build/initramfs-slpi/init: 90 beats of 2 s). Every step must end before it.
+pub const INIT_WINDOW_S: u64 = 180;
+/// Seconds the three daemons are given after `modem-up` before the read (rmtfs writes `start` to the remoteproc once it is ready).
+pub const SETTLE_S: u64 = 8;
+/// Seconds each phase may need from its start (its own bounds are longer; these are the usual costs), so a step can say whether it and all after it fit.
+pub const PUSH_S: u64 = 30;
+pub const UP_S: u64 = 20 + SETTLE_S;
+pub const READ_S: u64 = 30;
+
+/// The one read over telnet: every remoteproc's name and state, the kernel's modem lines, the daemons' logs, qrtr-lookup's list; marks between the parts.
+pub const READ_COMMAND: &str = "echo ---remoteproc; for d in /sys/class/remoteproc/*; do [ -e $d/name ] || continue; echo \"$(cat $d/name) $(cat $d/state)\"; done; echo ---dmesg; dmesg | grep -i -e remoteproc -e remote.processor -e q6v5 -e mss -e rmtfs -e qrtr -e glink -e sysmon -e modem; echo ---logs; for f in /tmp/*.log; do echo \"== $f\"; cat $f; done; echo ---qrtr; qrtr-lookup 2>&1; echo ---end";
+
+/// What a modem boot read, whole.
+#[derive(Debug, PartialEq)]
+pub struct Answer {
+    /// the modem's remoteproc state, or none when no remoteproc has its name
+    pub mss: Option<State>,
+    pub others: Vec<(String, State)>,
+    pub log: Log,
+    pub services: Result<usize, String>,
+}
+
+/// The answer of a telnet read. Only a read that has not got its parts is an error.
+pub fn judge(text: &str) -> Result<Answer, String> {
+    let all = remoteprocs_in(text)?;
+    let log = log_says_for(
+        MSS_NAME,
+        &section(text, "dmesg")
+            .ok_or("the read has no dmesg part")?
+            .join("\n"),
+    );
+    let services = services_in(text);
+    let (mss, others): (Vec<_>, Vec<_>) = all.into_iter().partition(|(n, _)| n == MSS_NAME);
+    Ok(Answer {
+        mss: mss.into_iter().next().map(|(_, s)| s),
+        others,
+        log,
+        services,
+    })
+}
+
+impl Answer {
+    /// The line the research row records: what was counted, not why.
+    pub fn said(&self) -> String {
+        let state = match &self.mss {
+            Some(State::Running) => "remoteproc modem is running".to_string(),
+            Some(State::Offline) => "remoteproc modem is offline".to_string(),
+            Some(State::Crashed) => "remoteproc modem CRASHED".to_string(),
+            Some(State::Other(w)) => format!("remoteproc modem is {w}"),
+            None => format!(
+                "no remoteproc is named {MSS_NAME} (the ones listed: {})",
+                self.others
+                    .iter()
+                    .map(|(n, _)| n.as_str())
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            ),
+        };
+        let log = match (self.log.started, self.log.up) {
+            (_, true) => "the kernel says the modem processor is now up".to_string(),
+            (true, false) => {
+                "the kernel says it powered the modem up and never that it is up".to_string()
+            }
+            (false, false) => "the kernel does not say it started the modem".to_string(),
+        };
+        let failures = if self.log.failures.is_empty() {
+            "no failure line".to_string()
+        } else {
+            format!(
+                "{} failure line(s), the first: {}",
+                self.log.failures.len(),
+                self.log.failures[0]
+            )
+        };
+        let services = match &self.services {
+            Ok(0) => "qrtr-lookup lists no service".to_string(),
+            Ok(n) => format!("qrtr-lookup lists {n} service(s)"),
+            Err(e) => format!("not known yet: {e}"),
+        };
+        format!("{state}; {log}; {failures}; {services}")
+    }
+}
+
+/// The receiver's log says the set is unpacked, or says why it is not (its own `failed` lines); nothing yet is `None`: keep waiting.
+pub fn push_says(log: &str) -> Option<Result<(), String>> {
+    if log.lines().any(|l| l.trim_start().starts_with(RECV_DONE)) {
+        return Some(Ok(()));
+    }
+    log.lines()
+        .find(|l| l.contains("firmware-recv:") && l.contains("failed"))
+        .map(|l| Err(l.trim().to_string()))
+}
+
+/// `modem-up`'s answer: the three daemons run, or the line that says why not (its text is the whole answer).
+pub fn up_says(text: &str) -> Done {
+    if text.lines().any(|l| l.trim_start().starts_with(UP_DONE)) {
+        Ok(())
+    } else {
+        Err(format!(
+            "modem-up did not start the daemons: {}",
+            text.trim()
+        ))
+    }
+}
+
+/// Whether a step of at most `need` seconds still fits the init's window, `elapsed` seconds in.
+pub fn time_left_covers(elapsed: Duration, need_s: u64) -> Done {
+    let left = INIT_WINDOW_S.saturating_sub(elapsed.as_secs());
+    if left >= need_s {
+        Ok(())
+    } else {
+        Err(format!(
+            "{} s of the init's {INIT_WINDOW_S} s are gone and the step needs {need_s} s: the phone would restart under it",
+            elapsed.as_secs()
+        ))
+    }
+}
+
+/// What the author is told before the run.
+pub fn expect(luns: u64) -> String {
+    format!("The modem boot, about 8 minutes: the modem image is booted once from memory (UFS off by the gate, nothing flashed, no slot changed); over its USB network the lab pushes the 61 MB firmware tar (no nc: a Rust copy to port {PUSH_PORT}), runs modem-up (it checks the tar's own SHA256SUMS first) and reads every remoteproc's state, the kernel's modem lines, the daemons' logs and qrtr-lookup. All of it ends inside the image's {INIT_WINDOW_S} s before it restarts the phone by itself; whatever the modem did is the answer. Android is checked back with the card's {luns} disks, the boot chain and the slots' flags read as before.")
+}
+
+/// What the author is told before the rehearsal.
+pub fn expect_rehearsal(luns: u64) -> String {
+    format!("The rehearsal of the modem boot, about 5 minutes: every step but the boot, the push and the read - the image's and the firmware tar's sha256, the UFS-off gate, the stored boot chain, the card read from Android ({luns} disks and the root hashed), the trips to the bootloader and back, the slots' flags. Nothing is booted or written; the phone ends on Android. No go is needed or read.")
+}
+
+/// The firmware tar is sent to the phone's receiver: connected within `wait` (the listener starts a moment after `firmware-recv`), the file copied, the write side closed so `nc -l` on the phone ends.
+pub fn push_file(
+    address: &str,
+    port: u16,
+    file: &std::path::Path,
+    wait: Duration,
+) -> Result<u64, String> {
+    let until = Instant::now() + wait;
+    let target = (address, port)
+        .to_socket_addrs()
+        .map_err(|e| format!("{address}:{port}: {e}"))?
+        .next()
+        .ok_or_else(|| format!("{address}:{port} names no address"))?;
+    let mut stream = loop {
+        match TcpStream::connect_timeout(&target, Duration::from_secs(3)) {
+            Ok(s) => break s,
+            Err(e) if Instant::now() >= until => {
+                return Err(format!(
+                    "the receiver on {address}:{port} did not answer within {} s: {e}",
+                    wait.as_secs()
+                ))
+            }
+            Err(_) => std::thread::sleep(Duration::from_millis(500)),
+        }
+    };
+    stream
+        .set_write_timeout(Some(Duration::from_secs(10)))
+        .map_err(|e| format!("the push: {e}"))?;
+    let mut f = std::fs::File::open(file).map_err(|e| format!("{}: {e}", file.display()))?;
+    let n = std::io::copy(&mut f, &mut stream)
+        .map_err(|e| format!("pushing {}: {e}", file.display()))?;
+    stream
+        .flush()
+        .map_err(|e| format!("pushing {}: {e}", file.display()))?;
+    stream
+        .shutdown(Shutdown::Write)
+        .map_err(|e| format!("closing the push: {e}"))?;
+    Ok(n)
+}
+
+/// The boot: the shared steps of the SLPI boot (they hold for any UFS-off image booted once from memory) and the steps of its own.
+#[derive(Clone)]
+pub struct ModemBoot {
+    s: Rc<Settings>,
+    lab: Lab,
+    base: SlpiBoot,
+    /// when the image was booted: the init's window counts from here
+    booted: Rc<Cell<Option<Instant>>>,
+}
+
+impl ModemBoot {
+    pub fn new(s: Settings) -> ModemBoot {
+        let base = SlpiBoot::new(s.clone());
+        let s = Rc::new(s);
+        ModemBoot {
+            lab: Lab::new(s.clone()),
+            s,
+            base,
+            booted: Rc::new(Cell::new(None)),
+        }
+    }
+
+    pub fn shared(&self) -> &RootfsBoot {
+        self.base.shared()
+    }
+
+    fn elapsed(&self) -> Result<Duration, String> {
+        self.booted
+            .get()
+            .map(|t| t.elapsed())
+            .ok_or_else(|| "the image was not booted by this run".to_string())
+    }
+
+    /// adb reads the slot (the shared step) after the files of an earlier run of the day are forgotten.
+    pub fn the_slot_is_read_by_adb(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        let shared = self.shared().the_slot_is_read_by_adb();
+        move || {
+            for name in STALE {
+                let _ = std::fs::remove_file(u.s.out.join(name));
+            }
+            shared()
+        }
+    }
+
+    pub fn author_is_told(&self) -> impl FnOnce() -> Done + 'static {
+        let text = expect(self.s.luns);
+        move || {
+            println!("  {text}");
+            Ok(())
+        }
+    }
+
+    pub fn rehearsal_is_told(&self) -> impl FnOnce() -> Done + 'static {
+        let text = expect_rehearsal(self.s.luns);
+        move || {
+            println!("  {text}");
+            Ok(())
+        }
+    }
+
+    pub fn the_image_is_the_declared_ufs_off_image(&self) -> impl FnOnce() -> Done + 'static {
+        self.base.the_image_is_the_declared_ufs_off_image()
+    }
+
+    /// The firmware tar is the declared one (its sha256 is the manifest's): what is pushed is what was packed and recorded.
+    pub fn the_firmware_is_the_declared_tar(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || host::image_has_sha256(&u.s.firmware, &u.s.firmware_sha256)
+    }
+
+    pub fn the_stored_set_is_good(&self) -> impl FnOnce() -> Done + 'static {
+        self.base.the_stored_set_is_good()
+    }
+
+    /// The boot itself, from memory; the init's window starts counting when it has been sent.
+    pub fn boot_the_image(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        let boot = self.base.boot_the_image();
+        move || {
+            boot()?;
+            u.booted.set(Some(Instant::now()));
+            Ok(())
+        }
+    }
+
+    pub fn the_gadget_is_up(&self) -> impl FnOnce() -> Done + 'static {
+        self.base.the_gadget_is_up()
+    }
+
+    /// The receiver is started on the phone, the tar is pushed to it, and the phone says it unpacked it; the receiver's log is kept (push.txt).
+    pub fn the_firmware_is_pushed(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let mut sh = u.lab.shell_when_up()?;
+            time_left_covers(u.elapsed()?, PUSH_S + UP_S + READ_S)?;
+            host::image_has_sha256(&u.s.firmware, &u.s.firmware_sha256)?;
+            sh.run("rm -f /tmp/firmware-recv.log", Duration::from_secs(5))?;
+            sh.background(RECV_COMMAND)?;
+            let sent = push_file(
+                &u.s.address,
+                PUSH_PORT,
+                &u.s.firmware,
+                Duration::from_secs(20),
+            )?;
+            let until = Instant::now() + Duration::from_secs(60);
+            loop {
+                let log = sh.run("cat /tmp/firmware-recv.log", Duration::from_secs(10))?;
+                match push_says(&log) {
+                    Some(Ok(())) => {
+                        u.lab
+                            .save("push.txt", &format!("sent {sent} bytes\n{log}"))?;
+                        return Ok(());
+                    }
+                    Some(Err(e)) => {
+                        u.lab
+                            .save("push.txt", &format!("sent {sent} bytes\n{log}"))?;
+                        return Err(e);
+                    }
+                    None if Instant::now() >= until => {
+                        u.lab
+                            .save("push.txt", &format!("sent {sent} bytes\n{log}"))?;
+                        return Err(format!("the phone did not say `{RECV_DONE}` within 60 s of the push; its log: {}", log.trim()));
+                    }
+                    None => std::thread::sleep(Duration::from_secs(2)),
+                }
+            }
+        }
+    }
+
+    /// `modem-up` runs once and says the three daemons run; its words are kept (modem-up.txt).
+    pub fn the_modem_is_started(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let mut sh = u.lab.shell_when_up()?;
+            time_left_covers(u.elapsed()?, UP_S + READ_S)?;
+            let said = sh.run("modem-up", Duration::from_secs(20))?;
+            u.lab.save("modem-up.txt", &said)?;
+            up_says(&said)?;
+            std::thread::sleep(Duration::from_secs(SETTLE_S));
+            Ok(())
+        }
+    }
+
+    /// The phone is read over telnet and judged; the read, the kernel log and the daemons' logs are kept, the answer too. Whatever the answer is, the step passes.
+    pub fn the_modem_is_read(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let mut sh = u.lab.shell_when_up()?;
+            time_left_covers(u.elapsed()?, READ_S)?;
+            let text = sh.run(READ_COMMAND, Duration::from_secs(40))?;
+            u.lab.save("read.txt", &crate::touch::redact(&text))?;
+            let dmesg = sh.run("dmesg", Duration::from_secs(20))?;
+            u.lab.save("dmesg.txt", &crate::touch::redact(&dmesg))?;
+            let logs = section(&text, "logs")
+                .map(|l| l.join("\n"))
+                .unwrap_or_default();
+            u.lab
+                .save("daemon-logs.txt", &crate::touch::redact(&logs))?;
+            let said = judge(&text)?.said();
+            u.lab.save(
+                "verdict.txt",
+                &format!(
+                    "{said}; read at {} s of the init's {INIT_WINDOW_S} s",
+                    u.elapsed()?.as_secs()
+                ),
+            )?;
+            println!("  {said}");
+            Ok(())
+        }
+    }
+
+    /// The way back, the last step of the run, the shared one (only the watching parent runs it on a failure).
+    pub fn way_back(&self) -> impl FnOnce() -> Done + 'static {
+        self.base.way_back()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Read;
+    use std::net::TcpListener;
+
+    fn read(rproc: &str, dmesg: &str, qrtr: &str) -> String {
+        format!("---remoteproc\n{rproc}\n---dmesg\n{dmesg}\n---logs\n== /tmp/rmtfs.log\n---qrtr\n{qrtr}\n---end")
+    }
+
+    /// kernel format strings (remoteproc_core.c 1935, 1308) filled with the device's name (qcom_q6v5_mss.c 2091); NOT captured from a phone.
+    const SOURCE_UP: &str = "remoteproc remoteproc1: powering up 4080000.remoteproc\nremoteproc remoteproc1: remote processor 4080000.remoteproc is now up";
+
+    #[test]
+    fn the_modem_is_found_by_its_device_name_and_a_running_one_with_services_is_said_up() {
+        let a = judge(&read(
+            "4080000.remoteproc running\n5c00000.remoteproc offline",
+            SOURCE_UP,
+            "  Service Version Instance Node  Port\n       15       1        0    0     2",
+        ))
+        .unwrap();
+        assert_eq!(a.mss, Some(State::Running));
+        assert_eq!(
+            a.others,
+            [("5c00000.remoteproc".to_string(), State::Offline)]
+        );
+        assert_eq!(a.services, Ok(1));
+        assert_eq!(
+            a.said(),
+            "remoteproc modem is running; the kernel says the modem processor is now up; no failure line; qrtr-lookup lists 1 service(s)"
+        );
+    }
+
+    #[test]
+    fn an_offline_modem_before_modem_up_is_an_answer_and_a_missing_one_names_the_ones_listed() {
+        let a = judge(&read(
+            "4080000.remoteproc offline",
+            "",
+            "qrtr-lookup: not found",
+        ))
+        .unwrap();
+        assert_eq!(a.mss, Some(State::Offline));
+        assert!(
+            a.said().contains("does not say it started the modem"),
+            "{}",
+            a.said()
+        );
+        let a = judge(&read("slpi running", "", "")).unwrap();
+        assert!(
+            a.said()
+                .starts_with("no remoteproc is named 4080000.remoteproc (the ones listed: slpi)"),
+            "{}",
+            a.said()
+        );
+    }
+
+    #[test]
+    fn a_modem_failure_line_is_kept() {
+        let a = judge(&read(
+            "4080000.remoteproc crashed",
+            "remoteproc remoteproc1: powering up 4080000.remoteproc\nqcom-q6v5-mss 4080000.remoteproc: fatal error received: x",
+            "",
+        ))
+        .unwrap();
+        assert_eq!(a.mss, Some(State::Crashed));
+        assert_eq!(a.log.failures.len(), 1);
+        assert!(a.said().starts_with("remoteproc modem CRASHED; the kernel says it powered the modem up and never that it is up; 1 failure line(s)"));
+    }
+
+    #[test]
+    fn the_slpi_judgement_is_unchanged_by_the_name_it_is_given() {
+        assert_eq!(crate::slpi_boot::log_says(SOURCE_UP), Log::default());
+        assert!(log_says_for(MSS_NAME, SOURCE_UP).up);
+    }
+
+    #[test]
+    fn the_receiver_is_done_failed_or_not_yet() {
+        // the scripts' own words: build/initramfs-modem/firmware-recv
+        assert_eq!(
+            push_says("firmware-recv: done, 31 files in /lib/firmware/qcom/msm8998/google/walleye"),
+            Some(Ok(()))
+        );
+        assert_eq!(
+            push_says("firmware-recv: tar failed"),
+            Some(Err("firmware-recv: tar failed".into()))
+        );
+        assert_eq!(
+            push_says("firmware-recv: nc failed"),
+            Some(Err("firmware-recv: nc failed".into()))
+        );
+        assert_eq!(push_says(""), None);
+    }
+
+    #[test]
+    fn modem_up_is_said_by_its_own_last_line_and_stops_say_why() {
+        assert!(up_says("modem-up: qrtr-ns, tqftpserv and rmtfs run (logs in /tmp/*.log)").is_ok());
+        let e = up_says(
+            "modem-up: the pushed set does not match its SHA256SUMS (see /tmp/firmware-sums.log)",
+        )
+        .unwrap_err();
+        assert!(e.contains("does not match its SHA256SUMS"), "{e}");
+        assert!(up_says("").is_err());
+    }
+
+    /// Every file a step saves is in STALE (read from this file's own text), so a run never keeps an earlier run's answer.
+    #[test]
+    fn every_file_the_steps_save_is_forgotten_at_the_start() {
+        let text =
+            std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/src/modem_boot.rs"))
+                .unwrap();
+        for name in [
+            "push.txt",
+            "modem-up.txt",
+            "read.txt",
+            "dmesg.txt",
+            "daemon-logs.txt",
+            "verdict.txt",
+        ] {
+            assert!(
+                text.matches(&format!("\"{name}\"")).count() >= 3,
+                "{name} is not named in STALE, a step and this test"
+            );
+            assert!(STALE.contains(&name), "{name}");
+        }
+    }
+
+    /// A push into a listener that never reads ends by its write timeout instead of hanging the run.
+    #[test]
+    fn a_stalled_receiver_ends_the_push() {
+        let l = TcpListener::bind("127.0.0.1:0").unwrap();
+        let port = l.local_addr().unwrap().port();
+        let dir = std::env::temp_dir().join(format!("wt-stall-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("big");
+        std::fs::File::create(&file)
+            .unwrap()
+            .set_len(128 << 20)
+            .unwrap(); // sparse: no RAM
+        let t = std::time::Instant::now();
+        let e = push_file("127.0.0.1", port, &file, Duration::from_secs(2)).unwrap_err();
+        assert!(e.contains("pushing"), "{e}");
+        assert!(t.elapsed() < Duration::from_secs(40));
+        drop(l);
+    }
+
+    #[test]
+    fn the_guards_never_ask_more_after_than_before() {
+        const { assert!(PUSH_S + UP_S + READ_S > UP_S + READ_S && UP_S + READ_S > READ_S) };
+        const { assert!(PUSH_S + UP_S + READ_S < INIT_WINDOW_S) };
+    }
+
+    #[test]
+    fn the_init_window_refuses_a_step_that_would_not_fit() {
+        assert!(time_left_covers(Duration::from_secs(60), 100).is_ok());
+        let e = time_left_covers(Duration::from_secs(100), 100).unwrap_err();
+        assert!(e.contains("100 s of the init's 180 s are gone"), "{e}");
+        assert!(time_left_covers(Duration::from_secs(500), 1).is_err());
+    }
+
+    #[test]
+    fn the_read_command_has_the_marks_the_judge_reads() {
+        for part in ["remoteproc", "dmesg", "logs", "qrtr", "end"] {
+            assert!(READ_COMMAND.contains(&format!("echo ---{part}")), "{part}");
+        }
+        assert!(READ_COMMAND.contains("[ -e $d/name ] || continue"));
+        assert!(READ_COMMAND.contains("qrtr-lookup") && READ_COMMAND.contains("/tmp/*.log"));
+    }
+
+    /// The receiver the push talks to is the one the image holds: port and words are the script's.
+    #[test]
+    fn the_push_names_what_the_images_receiver_script_says() {
+        let script = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../build/initramfs-modem/firmware-recv"
+        ))
+        .unwrap();
+        assert!(script.contains(&format!("nc -l -p {PUSH_PORT}")));
+        assert!(script.contains(RECV_DONE));
+        let up = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../build/initramfs-modem/modem-up"
+        ))
+        .unwrap();
+        assert!(up.contains(UP_DONE));
+        assert!(up.contains("sha256sum -c SHA256SUMS"));
+    }
+
+    /// The push sends every byte and closes the write side (the phone's `nc -l` ends on that), tried against a listener of our own on the loopback.
+    #[test]
+    fn the_push_sends_every_byte_and_ends_the_stream() {
+        let l = TcpListener::bind("127.0.0.1:0").unwrap();
+        let port = l.local_addr().unwrap().port();
+        let dir = std::env::temp_dir().join(format!("wt-push-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("fw.tar");
+        let bytes: Vec<u8> = (0..200_000u32).map(|i| (i % 251) as u8).collect();
+        std::fs::write(&file, &bytes).unwrap();
+        let t = std::thread::spawn(move || {
+            let (mut c, _) = l.accept().unwrap();
+            let mut got = Vec::new();
+            c.read_to_end(&mut got).unwrap(); // returns only if the sender closed its side
+            got
+        });
+        let n = push_file("127.0.0.1", port, &file, Duration::from_secs(5)).unwrap();
+        assert_eq!(n, bytes.len() as u64);
+        assert_eq!(t.join().unwrap(), bytes);
+    }
+
+    #[test]
+    fn a_receiver_that_never_listens_is_named_after_the_wait() {
+        let l = TcpListener::bind("127.0.0.1:0").unwrap();
+        let port = l.local_addr().unwrap().port();
+        drop(l);
+        let e = push_file(
+            "127.0.0.1",
+            port,
+            std::path::Path::new("/nonexistent"),
+            Duration::from_millis(600),
+        )
+        .unwrap_err();
+        assert!(e.contains("did not answer within"), "{e}");
+    }
+
+    /// Read from the entry files themselves: the real run boots, pushes and reads; the rehearsal does none of them; neither reads a go; both end in the shared way back.
+    #[test]
+    fn the_entries_boot_push_and_read_only_in_the_real_run() {
+        let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../../procedures/");
+        let real = std::fs::read_to_string(format!("{dir}modem-boot-on-the-pixel-2.rs")).unwrap();
+        let rehearsal =
+            std::fs::read_to_string(format!("{dir}rehearse-modem-boot-on-the-pixel-2.rs")).unwrap();
+        for step in [
+            "boot_the_image",
+            "the_firmware_is_pushed",
+            "the_modem_is_started",
+            "the_modem_is_read",
+        ] {
+            assert!(real.contains(step), "{step}");
+            assert!(!rehearsal.contains(step), "{step}");
+        }
+        for text in [&real, &rehearsal] {
+            for banned in ["author_has_said_go", "set_active", "the_guard_holds"] {
+                assert!(!text.contains(banned), "{banned}");
+            }
+            assert!(text.contains("b.way_back()"));
+            assert!(text.contains("the_image_is_the_declared_ufs_off_image"));
+            assert!(text.contains("the_firmware_is_the_declared_tar"));
+        }
+        assert!(real.contains("Settings::for_modem_boot()"));
+        assert!(rehearsal.contains("Settings::for_rehearse_modem_boot()"));
+    }
+}
