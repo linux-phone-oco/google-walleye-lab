@@ -13671,10 +13671,10 @@ Status
 : open
 
 Note
-: Measured 2026-11-27 (research walleye-part-builds-nix-bytes-differ, PR 1241): nix's bytes differ from the scripts'. Decision 2026-11-27-walleye-tools-keep-scripts-until-ramdisk-packs-parts: keep the scripts until the ramdisk packs parts and the two attended runs are done; then accept nix's sha256 and re-prove the nfc and pon-read images.
+: Scope (orchestration 2026-11-27, docs #942, lab-tools part-ramdisk-packs-parts done): declare [part_builds.walleye-reboot] with repo, rev (holding the crate and its Cargo.lock), crate, bin and sha 8f141f1b2973fd8fa1eaa433f55c26ca60538395c12407cb39c24c721ecf17f8 (nix rebuilds it equal twice); measure walleye-nfc-up the same way; retire build-reboot-bin.sh and build-nfc-up-bin.sh. [images.walleye-reboot] and every image packing it change sha once: re-prove nfc and pon-read (rebuild equal, UFS-off gate, one no-tag poll run). The ramdisk stays a script until lab-tools part-busybox-recipe. Research walleye-part-builds-nix-bytes-differ.
 
 Waits
-: lab-tools part-ramdisk-packs-parts released; the author's NFC tag poll and PON control read run
+: the author's NFC tag poll and PON control read run (decision 2026-11-27-walleye-tools-keep-scripts-until-ramdisk-packs-parts)
 
 About
 : walleye-retire-build-scripts
