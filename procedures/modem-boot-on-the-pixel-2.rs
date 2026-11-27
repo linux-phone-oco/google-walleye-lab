@@ -44,6 +44,7 @@ fn main() {
     check_from("modem-up checks the set and starts qrtr-ns, tqftpserv and rmtfs", "research:walleye-modem-image-built", b.the_modem_is_started());
     check_from("the rootfs tar is pushed and the phone unpacked it", "research:walleye-modem-mm-scripts-fit-the-image", b.the_rootfs_is_pushed());
     check_from("mm-up runs dbus and ModemManager in the rootfs", "research:walleye-modem-mm-runs-where-research", b.the_modemmanager_is_started());
+    check_from("ModemManager is asked what it lists (mmcli -L, -m 0), ids masked, and the answer is kept", "research:walleye-mmcli-list-words", b.modemmanager_lists_the_modem());
     check_from("the remoteproc states, the kernel's modem lines, the daemons' logs and qrtr-lookup are read and kept", "research:walleye-modem-image-built", b.the_modem_is_read());
     check_from("the modem is asked its device ids over QRTR, read only, and the answer is kept private (the IMEI never printed)", "research:walleye-modem-to-calls-how-it-stands", b.the_ids_are_read_and_kept_private());
     step("the phone is on Android (the way back, if it is not)", b.way_back());

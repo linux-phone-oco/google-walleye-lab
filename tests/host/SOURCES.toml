@@ -397,3 +397,6 @@ source = "research:walleye-mm-rootfs-nix-built"
 
 [scripts."modem-boot-selftest.sh"]
 source = "research:walleye-modem-mm-runs-where-research"
+
+[scripts."modem-mm-starts-selftest.sh"]
+source = "research:walleye-mmcli-list-words"

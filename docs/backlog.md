@@ -14500,10 +14500,10 @@ Rank
 ### The modem boot runs mmcli -L (and mmcli -m 0 with ids redacted) after mm-up, keeps it, and tests/health/base/modem-mm-starts.sh judges it
 
 Status
-: open
+: done
 
 Note
-: From run 4 of mm-first-try (PR 1300): dbus and ModemManager run and see qrtr node 0. walleye-modem-mm-sees-modem waits on this; then one keeper run.
+: Built: tests/health/base/modem-mm-starts.sh, its selftest, and step modemmanager_lists_the_modem (keeps mmcli.txt, ids masked). Proof: selftest, steps tests and dry run pass; no build/ change. The mmcli words are source-cited stand-ins until walleye-modem-mm-sees-modem's keeper run captures them.
 
 About
 : modem-calls
