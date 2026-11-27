@@ -2190,3 +2190,16 @@ By
 
 Takes
 : SUBSYSTEM==net gets ID_MM_CANDIDATE; DRIVERS==ipa net ports get ID_MM_QCOM_SOC and ID_MM_PHYSDEV_UID=qcom-soc (read from the packaged files of modemmanager 1.24.2)
+
+
+<a id="modemmanager-1-24-2-source"></a>
+### ModemManager 1.24.2 source (src/mm-broadband-modem.c, mm-broadband-modem-qmi.c, mm-shared-qmi.c, mm-iface-modem.c)
+
+Url
+: https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/tree/1.24.2
+
+By
+: ModemManager project
+
+Takes
+: primary-port error is non-fatal for QMI modems; qrtr reset warning non-fatal; carrier-config list-configs handler connected only after the response, 5 s timeout, non-fatal

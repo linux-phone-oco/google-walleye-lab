@@ -9744,3 +9744,32 @@ Found
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-mm-primary-port-read-why-no-modem-listed"></a>
+### walleye-modem-mm-primary-port-read-why-no-modem-listed
+
+Date
+: 2026-11-27
+
+Brief
+: Neither 'Couldn't get primary port' nor '/dev/qrtr0 missing' stops MM 1.24.2; mmcli -L (6.6 s after mm-up) asked before modem0 finished init, held 5 s by the PDC list-configs step
+
+Question
+: Why did ModemManager make modem0 over qrtr0 but list no modem, in runs 9 and 10: what do 'no primary port' and '/dev/qrtr0 missing' mean, was MM built with QRTR?
+
+Found
+: Read: ModemManager 1.24.2 source against the kept logs of runs modem-boot-20261127-213707 (9) and -223527 (10); both logs have the same shape, so it is one cause.
+1. QRTR is built in: build/modem-mm-rootfs.nix sets -Dqrtr=true (meson option qrtr, default true) and the log says 'registering 6 subsystems: tty, net, usbmisc, wwan, rpmsg, qrtr'; qcom-soc takes 'wwan, rpmsg, net, qrtr'. Not the cause.
+2. 'Couldn't get primary port' (log line 1782, 50.630 s): mm-broadband-modem.c ports_context_open wants a primary AT port; mm-broadband-modem-qmi.c parent_initialization_started_ready logs it at debug and goes on - its own comment says parent init fails if it cannot grab a primary AT port, 'which isn't really an issue in QMI-based modems'. Not fatal. The log goes on to load capabilities, manufacturer, model, revision.
+3. '/dev/qrtr0: No such file' (<wrn>, 50.503 s): mm-port-qmi reset of the QMI port with data interface rmnet_ipa0 stats a file for the port; qrtr has no device node. port_qmi_reset_ready only warns, then the port is opened (QMI port open operation finished successfully, wda/dpm clients, 'mux-rmnet, raw-ip, 254 multiplexed bearers'). Not fatal; a /dev/qrtr0 would not change what MM does.
+4. What the logs do show: modem0 is created at 50.479 s ('creating modem with plugin qcom-soc and 2 ports', grabbed qrtr0 + rmnet_ipa0), initialization starts at 50.498 s, then the last QMI exchange is PDC 'List Configs' sent at 50.675 s; the modem's List Configs INDICATION (empty configs) arrives at 50.679 s BEFORE the response at 50.681 s. mm-shared-qmi.c list_configs_ready connects the 'list-configs' indication handler only after the response, so the indication is missed and MM waits LOAD_CARRIER_CONFIG_STEP_TIMEOUT_SECS = 5 s (timeout aborts the step; mm-iface-modem.c load_carrier_config_ready only logs 'couldn't load carrier config' at debug and goes on). Both logs end there (run 9 at 50.681, run 10 at 50.666), no line after: MM was waiting, not dead.
+5. Timing: mm-up.txt finished 21:38:35.4, mmcli.txt 21:38:42.0, read.txt 21:38:42.2 (run 10: 22:36:56.8 / 22:37:03.7 / 22:37:03.8): the mmcli ask (6 tries of 'mmcli -L', 1 s apart, then one more -L and one -m 0) took 6.6-6.9 s in both runs, ending about 2 s after modem0's init began. MM exports a modem on D-Bus (what mmcli -L lists) only when its initialization has finished; init was still inside the 5 s carrier-config wait and the steps after it (hardware revision, own numbers, SIM...) when the ask ended.
+So: the likely cause is the ask ending too early, not a missing port. Not known yet: whether modem0 is listed once init finishes (it was never observed past 50.7 s), what state it lands in with no SIM (MM lists a modem in 'failed/sim-missing' too, per its design, not measured here), and whether another step after the carrier config also stalls - the logs do not show beyond 50.68 s.
+What the next phone run must change or capture (no phone change to the image is needed; only the ask and the read): keep asking mmcli -L until a modem is listed or ~45 s after modem0's creation (the 180 s window has room: the ask now takes 35 s of it), then read the MM log to the end, and after that mmcli -m 0. If the list stays empty after the init is done in the log (a line 'modem0 ... state changed' or 'couldn't ...'), the log then names the stopping step.
+
+Sources
+: modemmanager-1-24-2-source
+
+About
+: modem-calls
