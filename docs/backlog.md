@@ -14265,34 +14265,6 @@ Rank
 : 22
 
 
-<a id="walleye-modem-mm-first-try"></a>
-### First phone try: ModemManager in the chroot; read udev and polkit stops, logs
-
-Status
-: open
-
-Note
-: Keeper's battery rule, RAM only, nothing flashed. If polkit or udev stops it: record the line, queue a rebuild of ModemManager with -Dpolkit=no in modem-tools.nix.
-
-Blocked by
-: walleye-modem-mm-up-reads-logs-on-stop
-
-About
-: modem-calls
-
-Opened
-: 2026-11-27
-
-Needs
-: phone
-
-Proof
-: tests/health/modem-mm-starts.sh (to write): ModemManager up and mmcli -L answers within 60 s after modem-up; broken until then
-
-Rank
-: 22
-
-
 <a id="walleye-nix-pin-nixpkgs"></a>
 ### Pin nixpkgs in build/modem-mm-rootfs.nix and modem-tools.nix to a revision
 
@@ -14422,3 +14394,56 @@ Proof
 
 Rank
 : 5
+
+
+<a id="walleye-modem-mm-rootfs-dbus-config"></a>
+### ModemManager rootfs: dbus config in /etc (or --config-file to the store), polkit/udev policy for ModemManager
+
+Status
+: open
+
+Note
+: From run 2 of mm-first-try: dbus-daemon cannot open /etc/dbus-1/system.conf. Rebuild build/modem-mm-rootfs.nix, update the sha256 in device.toml and the image, rehearse; then the keeper retries mm-first-try.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: host: the rootfs tar holds /etc/dbus-1/system.conf (or mm-up passes --config-file); phone: dbus socket up in mm-up
+
+Rank
+: 1
+
+
+<a id="walleye-modem-mm-first-try"></a>
+### First phone try: ModemManager in the chroot; read udev and polkit stops, logs
+
+Status
+: open
+
+Note
+: Run 1 and run 2 stopped at dbus (run 2: /etc/dbus-1/system.conf missing, logs read). Waits for the rootfs rebuild.
+
+Blocked by
+: walleye-modem-mm-rootfs-dbus-config
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: tests/health/modem-mm-starts.sh (to write): ModemManager up and mmcli -L answers within 60 s after modem-up; broken until then
+
+Rank
+: 22

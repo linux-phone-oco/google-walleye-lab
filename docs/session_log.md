@@ -10813,3 +10813,21 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-1520-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Retried mm-first-try (run modem-boot-20261127-151057): checks 1-16 passed, mm-up stopped at dbus: /etc/dbus-1/system.conf missing (logs now read). Way back ran: Android slot b over adb, boot_completed 1, nothing flashed, nothing patched; the after-card/chain/flags checks did not run (stopped before).
+
+Considered
+: next: builder item walleye-modem-mm-rootfs-dbus-config (rank 1, build), then retry mm-first-try; the test tests/health/modem-mm-starts.sh still to write
+
+About
+: modem-calls
