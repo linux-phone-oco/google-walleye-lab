@@ -9130,3 +9130,22 @@ Not done, on purpose: accepting nix's bytes changes the way-back tool the phone 
 
 About
 : walleye-retire-build-scripts
+
+
+<a id="walleye-wdt2-images-built-from-tag"></a>
+### walleye-wdt2-images-built-from-tag
+
+Date
+: 2026-11-27
+
+Brief
+: wdt2-hard and wdt2-warm rebuild equal from the tag int/walleye/ufs-off-wdt2/v7.3/1: sha256 6694fef2 and a9167b4d, UFS-off gate passes
+
+Question
+: Can the two images of the four PMIC bites be made from an int/ tag, rebuilt identical, with the UFS-off gate and an AVB footer?
+
+Found
+: Tag int/walleye/ufs-off-wdt2/v7.3/1 (ea5b65b1) built in the sandbox as [kernel_builds.walleye-wdt2] (hash 8d00ca7e; a second build equal). Dtb: dt/msm8998-google-walleye.dts at lab commit c8e579ca built by hand in a worktree of the tag with the fuel gauge topic's three commits (DTC_FLAGS=-@, clock_gcc set to the real gcc), entering the store from the seed: hard 8394516b; warm adds qcom,s2-type = <1> to the watchdog node (one line differs): d2ebe997. This dts is newer than wdt1-a's: SLPI remoteproc okay (no firmware in the ramdisk), an NFC node, moved carve-outs; it was not run with this kernel. Ramdisk c0bcdf6e: init-wdt2 (from the parked branch) packed as wdt1-a's is; the same packing of init-wdt1 gives a491e1a2 (control). Images are wdt1-a's header and command line (no cmdline key in the recipes, as wdt1-b); image ensure --rebuild equal for both; ufs-off-image.sh passes on both; AVB hash footer in place. NOT KNOWN YET: that either boots; that this dts boots with the watchdog kernel; no phone touched.
+
+About
+: walleye-pmic-wdt-v1-image

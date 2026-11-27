@@ -172,6 +172,17 @@ patches = []
 targets = ["Image.gz"]
 sha256 = "f132e0f2a857f200e1edd70a70bb123caa79c3275c5a5fa634a33e8d4e530baa"
 
+# The kernel of the four PMIC bites (item walleye-wdt2-images-from-tag): the tag int/walleye/ufs-off-wdt2/v7.3/1 (the watchdog topic and, on it, the S2 reset type from qcom,s2-type; UFS off), built with build/walleye.config
+# and build/walleye-wdt.config (CONFIG_DYNAMIC_DEBUG, so the command line's dyndbg shows the driver's lines), in Nix's sandbox as the kernels above. Image.gz holds no dtb: the wdt2 images take theirs as a recipe part.
+[kernel_builds.walleye-wdt2]
+tag = "int/walleye/ufs-off-wdt2/v7.3/1"
+rev = "ea5b65b121907e9c292f1c536e4753cac3591599"          # the commit the tag points at (git rev-parse TAG^{commit})
+epoch = 1795746342                                          # the tagged commit's committer time (git log -1 --format=%ct TAG)
+configs = ["695954ce34021b736e8b3b6231fb35953e7d6c5badf191313fa45faed1a164f3", "ba86b52ad7a4988d386a6eee045492283d35c4f0fc07af2f2b6ef03cb7b2474b"]   # build/walleye.config, build/walleye-wdt.config
+patches = []
+targets = ["Image.gz"]
+sha256 = "8d00ca7e86378418c2f9ac5beff37a927f3571504d95ecab0e436707d9420fe7"
+
 # The kernels the attended procedures' boot_once and back_to_known_good name. Walleye boots only by fastboot boot and nothing is written to it: "kept" names the image the way back returns to, not a kernel stored on the phone.
 [kernels]
 test = ["z21", "nfc", "l7", "b2", "b-d5", "b-d15", "b-d25", "b-d35", "b-d50", "b-s5", "b-r5", "b-r2", "b-rp2", "b-q5", "wdt1-a", "wdt1-b", "pon-read"]   # b-*: the delay bisect's images (its image_prefix)
@@ -805,3 +816,27 @@ sha256 = "ab2cf4c11650bd7c20e7b31fffd4e2437dee9ed431d31baa90cffc6e28a21171"
 [procedures.pon-control-read-on-the-pixel-2]
 off_wait = 60                       # seconds the phone may take to be off (adb and fastboot list nothing) after `adb shell reboot -p`
 hold_wait = 120                     # seconds after the author's ok that the bootloader may take to list the phone (the hold is volume-down and power together)
+
+[images.wdt2-hard]
+path = "images-wdt2/boot-wdt2-hard.img"
+kernel_tag = "int/walleye/ufs-off-wdt2/v7.3/1"
+sha256 = "6694fef24c1a53acb2577a7c84951eb512520e81dc2b19dacc0b9b7bc545e95b"
+
+[images.wdt2-warm]
+path = "images-wdt2/boot-wdt2-warm.img"
+kernel_tag = "int/walleye/ufs-off-wdt2/v7.3/1"
+sha256 = "a9167b4dc18a3c2181df452408bfc8db3036e10db361c60b3eac88727350c548"
+
+# wdt2-hard and wdt2-warm (item walleye-wdt2-images-from-tag; decision 2026-11-20-pon-bites-two-images-and-one-ask-before-the-bite): wdt1-a's header and command line (dyndbg on the watchdog driver) with the kernel of [kernel_builds.walleye-wdt2]
+# (the tag's own sandbox build), the dtb made from this lab's dt/msm8998-google-walleye.dts in a worktree of that tag (the tag has no fuel gauge: its three commits cherry-picked there, as build-kernel.sh does; DTC_FLAGS=-@; clock_gcc set to the real gcc)
+# DTB SOURCE: dt/msm8998-google-walleye.dts as of lab commit c8e579ca, built by hand (make DTC_FLAGS=-@ qcom/msm8998-google-walleye.dtb in a worktree of the tag with the fuel gauge commits), so the dtb enters the store from the seed once; it is NOT wdt1-a's dts: SLPI remoteproc is okay (its firmware is not in the ramdisk), the NFC node and the later carve-outs are in, and none of that was run on the phone with this watchdog kernel.
+# and init-wdt2 as the ramdisk (packed as wdt1-a's is: the same packing of init-wdt1 gives wdt1-a's own ramdisk a491e1a2). warm is hard with one more property in the watchdog node: qcom,s2-type = <1>; the dts names no type, so hard is the driver's default.
+[images.wdt2-hard.recipe]
+control = "wdt1-a"
+kernel = "8d00ca7e86378418c2f9ac5beff37a927f3571504d95ecab0e436707d9420fe7"
+dtb = "8394516ba1bbf69d4d1af1cea7e6b0e536ca64a806bf9bc7a737257f0c214498"
+ramdisk = "c0bcdf6edae72886e40e4599672e53cbcac7aa174675ab052471ec2d6c315451"
+
+[images.wdt2-warm.recipe]
+control = "wdt2-hard"
+dtb = "d2ebe997e821c11bb121fe17d8c5f70a4916b5483ee60027076f8cb8f2b6c291"

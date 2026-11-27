@@ -80,7 +80,12 @@ OUT=$(run "$PNONE" wdt-bite); ck "wdt-bite when the registers cannot be read: re
 OUT=$(run "$PNONE" wdt-bite 7 probe); ck "wdt-bite 7 probe, registers unread, PMIC device registered: armed on the probe's own read-back" "$(printf '%s\n' "$OUT" | grep -c 'type=0x07-by-probe')|$(called)" "1|watchdog -F -T 20 -t 3600 /dev/watchdog1|"
 ck "...that run stays honest: S2 enabled after is unread, said so" "$(printf '%s\n' "$OUT" | grep -c 'after=unread')" 1
 OUT=$(run "$P1" wdt-bite 7 probe); ck "wdt-bite 7 probe with a type that reads 1: still refused (probe only stands in for an unread type)" "$(printf '%s\n' "$OUT" | grep -c 'refused: the S2 type reads 0x01')|$(called)" "1|none"
-OUT=$(run "$PNONE" wdt-bite 1 probe); ck "wdt-bite 1 probe: refused (probe trusts type 7 only)" "$(called)" none
+case $INIT in
+  *init-wdt1) OUT=$(run "$PNONE" wdt-bite 1 probe); ck "wdt-bite 1 probe: refused (probe trusts type 7 only)" "$(called)" none;;
+  *) OUT=$(run "$PNONE" wdt-bite 1 probe); ck "wdt-bite 1 probe, registers unread: armed on the probe's read-back (wdt2: the driver checked the type its dts names)" "$(printf '%s\n' "$OUT" | grep -c 'type=0x01-by-probe')|$(called)" "1|watchdog -F -T 20 -t 3600 /dev/watchdog1|"
+     OUT=$(run "$P7" wdt-bite 7 probe 45); ck "wdt-bite 7 probe 45: the timeout is the third argument" "$(printf '%s\n' "$OUT" | grep -c 'timeout=45')|$(called)" "1|watchdog -F -T 45 -t 3600 /dev/watchdog1|"
+     OUT=$(run "$P7" wdt-bite 7 probe 200); ck "wdt-bite 7 probe 200: refused, the timeout is 1..127 s" "$(printf '%s\n' "$OUT" | grep -c 'TIMEOUT must be 1..127')|$(called)" "1|none";;
+esac
 # an arming that did not happen
 OUT=$(FAKE_NOARM=1 run "$P7" wdt-bite); ck "an applet that runs but S2 never reads enabled: FAILED, and no success line" "$(printf '%s\n' "$OUT" | grep -c 'wdt-arm FAILED: S2 enabled reads no after the arming')|$(printf '%s\n' "$OUT" | grep -c 'wdt-arm armed')" "1|0"
 OUT=$(FAKE_DIE=1 run "$P7" wdt-bite); ck "an applet that exits at once (device not opened): FAILED, and no success line" "$(printf '%s\n' "$OUT" | grep -c 'wdt-arm FAILED: the applet is not running')|$(printf '%s\n' "$OUT" | grep -c 'wdt-arm armed')" "1|0"

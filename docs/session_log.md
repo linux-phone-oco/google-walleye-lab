@@ -10345,3 +10345,24 @@ Rejected
 
 About
 : walleye-pmic-wdt-v1-image
+
+---
+
+
+<a id="2026-11-27-walleye-builder-wdt2-images-from-tag"></a>
+### walleye builder: the wdt2-hard and wdt2-warm images from the tag
+
+Entry date
+: 2026-11-27
+
+Done
+: Restacked topic/pmic-wdt-s2-type on the wake topic (assemble had stopped on a pm8916_wdt.c conflict; old tip kept as tag pre-restack/2026-11-27/pmic-wdt-s2-type, new tip 26389ced read back with ls-remote). Added the list ufs-off-wdt2, assembled and published int/walleye/ufs-off-wdt2/v7.3/1 (read back: ea5b65b1). Declared [kernel_builds.walleye-wdt2] (sha 8d00ca7e, built twice equal) and the images wdt2-hard (6694fef2) and wdt2-warm (a9167b4d) with recipes: dtbs from the lab's dts in a worktree of the tag, ramdisk init-wdt2 taken from the parked branch together with its selftest update (packing control: init-wdt1 packs to wdt1-a's a491e1a2). --rebuild equal for both, UFS-off gate passes, AVB footer in place. The kernel worktree of the tag and scratch units are ended; no phone touched. Not in this change: the bites procedure and its plumbing on the parked branch (items walleye-wdt-bite-pon-reasons-read, walleye-wdt-pon-bites-procedure), the image rows in [kernels] test.
+
+Considered
+: Using the wdt1-a dtb for hard (it was built from the next-based tree, not this tag's).
+
+Rejected
+: Taking the whole parked branch (its procedure and bites.rs are the procedure item's); editing the topic's conflict by hand in the assemble worktree.
+
+About
+: walleye-pmic-wdt-v1-image

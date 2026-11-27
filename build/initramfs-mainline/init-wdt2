@@ -1,0 +1,279 @@
+#!/bin/busybox sh
+# wdt2 (item walleye-wdt-pon-bites-procedure) = wdt1 with three changes for the four PMIC bites: pon-regs reads the whole reason blocks (08..0d, c0..c7) beside the S2 pair, wdt-arm trusts the driver's read-back (`probe`) for any S2 type (the driver of image B sets the type its qcom,s2-type names and fails the probe when it does not read back), and wdt-bite, wdt-reboot and wdt-arm take the timeout in seconds as a third argument (20 when not given; 1..127), so a bite can be armed with time to move the cable. Everything else is wdt1's.
+# wdt1 (item walleye-pmic-wdt-v1-image; decisions 2026-11-19-walleye-pmic-wdt-v1-test-first and -reboot-and-next) = z14 plus the PMIC watchdog try: the init READS the PMIC watchdog, and arms it only on two explicit commands from the shell.
+#  - unarmed part (all of boot): z14 as it was (ACM + ECM, usb0 172.16.43.1, DHCP, telnetd, the command loop on ttyGS0, the banner). The SoC watchdog petter now picks its device BY IDENTITY (sysfs identity qcom_wdt), never "/dev/watchdog": with the PMIC watchdog on, /dev/watchdog may be the PMIC one, and opening it ARMS it. The 180 s self-reboot (reboot -f) stays and now waits while /tmp/hold exists. Nothing at boot opens the PMIC watchdog.
+#  - the banner prints WALLEYE-BANNER-PON (the PON registers, as z10: 0x56 low nibble is the S2 reset type, 0x57 bit 7 is S2 enable; reads only) and WALLEYE-BANNER-WDT (the watchdogs by identity, the S2 type read back, S2 enabled or not, and the two kernel lines "S2 reset control was" (the firmware's type) and "POFF reason": both are dev_dbg lines the command line switches on with dyndbg for drivers/watchdog/pm8916_wdt.c; the second is printed before the type is set, so seeing it and the PMIC device in sysfs shows the probe did not fail: it fails loudly when the read-back differs).
+#  - `wdt-bite [TYPE]` arms the PMIC watchdog at 20 s and never pets it (busybox watchdog -F -T 20 -t 3600), and only when the S2 type reads back as TYPE (default 7: the driver always sets RESET_TYPE_HARD 0x07, the dts cannot choose a type; a read-back of 1 (warm) is the firmware's own type left in place and is refused unless asked for).
+#  - `wdt-reboot [TYPE]` arms the same way, then sync and `reboot -f` (reboot(2): kernel_restart, the reboot notifiers) to prove the stop-on-reboot path: the next banner must read S2 disabled. Neither command is ever run at boot.
+# z14 (backlog walleye-usb-net) = z6 plus USB networking: the gadget gets an ECM function beside the ACM console (one configuration), and after the bind usb0 is 172.16.43.1, udhcpd leases 172.16.43.2 and telnetd answers on it (the way the first images did; tests/host/gadget-up.sh pings and talks telnet). The ACM console and the command loop are z6's, untouched. Kernel and dtb of z7.
+# z6 (backlog walleye-command-loop) = z5's init (banner2's proven banner on /dev/ttyGS0) with the console block REPLACED: no interactive ash (it stayed silent on the raw tty, research walleye-z5b-tried-raw-tty) but a plain
+# read/exec command loop that needs no job control, no prompt and no controlling terminal. The port is opened ONCE (fd 4, raw, no echo, no hangup); then, one line at a time: read a line from fd 4 (a trailing CR dropped),
+# run it with `sh -c` (stdin /dev/null) into /tmp/out, write /tmp/out to fd 4. No end marker of its own: the host reader's command carries its own (`CMD; echo wmsr-PID-N-END`, tests/host/mainline-shell-read.sh), so the answer ends where that echo is.
+# The banner line keeps init-banner's fields and ends with the loop's state: loop=[started=yes|no starts=OPENS cmds=RUN last=[LAST COMMAND, unsafe characters made ?, 40 at most|-] rc=LAST EXIT|- err=[FIRST ERROR LINE|none]]
+# Every banner line starts with WALLEYE-BANNER and ends with `]`, so the reader can leave it out and no line of it ever ends in an end marker. Every 10th beat from beat 3 a WALLEYE-BANNER-INFO line names the busybox applets and the tty flags.
+# The SoC watchdog is opened and petted every 2 s by its own subshell, which after 90 beats (~180 s from the open) does reboot -f, sysrq b behind it.
+# Never exits (an init that ends is a kernel panic); no `set -e`; no special builtin (exec, `:`) carries a redirect that can fail in the main shell (a failed one ends the shell).
+/bin/busybox --install -s /bin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+TTY=/dev/ttyGS0
+SH=/tmp/sh
+STEP=0
+BANNERLOG=/tmp/banner-steps
+say() { STEP=$((STEP+1)); echo "walleye-banner: step $STEP: $*" > /dev/kmsg 2>/dev/null; echo "step $STEP $*" >> $BANNERLOG 2>/dev/null; }
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+mount -t devtmpfs dev /dev 2>/dev/null
+mkdir -p /dev/pts; mount -t devpts devpts /dev/pts 2>/dev/null   # telnetd needs a pty
+mkdir -p /sys/kernel/config /tmp
+true > $BANNERLOG 2>/dev/null
+say "wdt1 init start, kernel $(uname -r)"
+mount -t configfs none /sys/kernel/config
+say "about to start the watchdog petter"
+# the petter: finds the SoC watchdog by its sysfs identity (qcom_wdt; NEVER /dev/watchdog, which may be the PMIC's: opening that arms it), opens it in its own subshell (a failed open ends only it), pets every 2 s,
+# reboots after 90 beats (~180 s), later while /tmp/hold exists. It never opens anything else, so it arms nothing of the PMIC.
+SOCWD=
+n=0
+while [ -z "$SOCWD" ] && [ $n -lt 10 ]; do
+  for d in /sys/class/watchdog/watchdog*; do
+    [ -e "/dev/${d##*/}" ] || continue
+    id=$(cat "$d/identity" 2>/dev/null)
+    [ -n "$id" ] || case $(readlink "$d/device" 2>/dev/null) in *:watchdog) ;; *.watchdog) id=qcom_wdt;; esac
+    [ "$id" = qcom_wdt ] && SOCWD=/dev/${d##*/}
+  done
+  [ -n "$SOCWD" ] || { sleep 1; n=$((n+1)); }
+done
+(
+  if [ -n "$SOCWD" ]; then
+    exec 3> "$SOCWD" || { echo "walleye-banner: SoC watchdog $SOCWD OPEN FAILED" > /dev/kmsg 2>/dev/null; echo "SoC watchdog $SOCWD OPEN FAILED" >> $BANNERLOG; exit 0; }
+    echo "walleye-banner: SoC watchdog $SOCWD open, petting" > /dev/kmsg 2>/dev/null; echo "SoC watchdog $SOCWD open, petting" >> $BANNERLOG
+  fi
+  n=0
+  while [ $n -lt 90 ] || [ -e /tmp/hold ]; do echo >&3 2>/dev/null; n=$((n+1)); sleep 2; done
+  echo "walleye-banner: self-reboot now" > /dev/kmsg 2>/dev/null
+  sync; reboot -f; sleep 5; echo b > /proc/sysrq-trigger
+) &
+[ -n "$SOCWD" ] && say "SoC watchdog $SOCWD (qcom_wdt) found, its petter starts" || say "NO SoC watchdog (qcom_wdt) after ${n}s"
+cat > /bin/pon-regs <<'EOS'
+#!/bin/sh
+# reads only; DBG and NOMOUNT are for the host selftest. The kernel's regmap `registers` file has one fixed-width line "ADDR: VAL" per register and reads only the registers from the file position on: each of the seven is read with one dd of one line
+# (not a scan of the 65536 registers); a line that is not the register asked for (a sparse map) falls back to grep for that register; a failed read shows XX in the kernel's line and ?? here.
+DBG=${DBG:-/sys/kernel/debug}
+# the registers read: the S2 pair the try arms (54 55 56 57), the two the old reader had (5a 5b), the first PON block (08..0d: PON_REASON1, WARM_RESET_REASON1, POFF_REASON1 and their neighbours of the first generation) and the second generation's reason block (c0..c7; c5 is POFF_REASON1 there, as the driver has it). All reads; the whole list is saved by the try, never decoded here.
+PONLIST=${PONLIST:-"08 09 0a 0b 0c 0d 54 55 56 57 5a 5b c0 c1 c2 c3 c4 c5 c6 c7"}
+D=$DBG/regmap
+[ -d "$D" ] || [ -n "${NOMOUNT:-}" ] || mount -t debugfs none "$DBG" 2>/dev/null
+found=0; names=
+for d in "$D"/*; do
+  f=$d/registers
+  [ -f "$f" ] || continue
+  n=${d##*/}; names="$names${names:+,}$n"
+  E=$(head -n1 "$f" 2>/dev/null | wc -c)
+  [ "$E" -gt 4 ] || continue
+  line=; any=0
+  for r in $PONLIST; do
+    l=$(dd if="$f" bs="$E" skip=$((0x800 + 0x$r)) count=1 2>/dev/null)
+    case $l in *8$r:*) ;; *) l=$(grep -E "^0*8$r:" "$f" 2>/dev/null | head -n1);; esac
+    v=$(printf '%s\n' "$l" | sed -n "s/^0*8$r: *\([0-9a-fA-F][0-9a-fA-F]*\).*/\1/p" | head -n1)
+    [ -n "$v" ] && any=1
+    line="$line 0x$r=${v:-??}"
+  done
+  [ $any -eq 1 ] || continue
+  echo "pon-regs$line src=[$n]"; found=1
+done
+if [ $found -eq 0 ]; then
+  dbg=no; [ -d "$D" ] && dbg=yes
+  echo "pon-regs none regmaps=[$names] dbgfs=[$dbg]"
+fi
+EOS
+chmod 755 /bin/pon-regs
+# wdt1: the PMIC watchdog tools. wdt-state reads only (sysfs, dmesg, pon-regs); SYS, PONREGS and DMESG are for the host selftest.
+cat > /bin/wdt-state <<'EOS'
+#!/bin/sh
+SYS=${SYS:-/sys}
+pm=none; soc=none
+for d in "$SYS"/class/watchdog/watchdog*; do
+  id=$(cat "$d/identity" 2>/dev/null)
+  [ -n "$id" ] || case $(readlink "$d/device" 2>/dev/null) in *:watchdog) id="QCOM PM8916 PON WDT";; *.watchdog) id=qcom_wdt;; esac
+  case $id in
+    "QCOM PM8916 PON WDT") pm=${d##*/};;
+    qcom_wdt) soc=${d##*/};;
+  esac
+done
+P=${PONREGS:-$(/bin/pon-regs 2>/dev/null | head -n1)}
+t=$(printf '%s\n' "$P" | sed -n 's/.* 0x56=\([0-9a-fA-F][0-9a-fA-F]\) .*/\1/p')
+c=$(printf '%s\n' "$P" | sed -n 's/.* 0x57=\([0-9a-fA-F][0-9a-fA-F]\) .*/\1/p')
+src=$(printf '%s\n' "$P" | sed -n 's/.* src=\[\([^]]*\)\].*/\1/p' | tr -c 'A-Za-z0-9._\n-' '?')
+if [ -n "$t" ] && [ -n "$c" ]; then
+  ty=$(printf '0x%02x' $((0x$t & 15)))
+  if [ $((0x$c & 128)) -ne 0 ]; then en=yes; else en=no; fi
+else
+  ty=unread; en=unread
+fi
+D=${DMESG:-$(dmesg 2>/dev/null)}
+fw=$(printf '%s\n' "$D" | sed -n 's/.*S2 reset control was \(0x[0-9a-fA-F]*\).*/\1/p' | tail -n1)
+k1=$(printf '%s\n' "$D" | grep 'S2 reset control was' | tail -n1 | cut -c1-90 | tr -c 'A-Za-z0-9 ._=:@,\n-' '?')
+k2=$(printf '%s\n' "$D" | grep 'POFF reason' | tail -n1 | cut -c1-90 | tr -c 'A-Za-z0-9 ._=:@,\n-' '?')
+if [ "$pm" != none ]; then pr=pmic-device-registered; else pr=no-pmic-device; fi
+echo "wdt-state pmic=$pm soc=$soc s2-type=$ty s2-enabled=$en src=${src:-none} firmware-type=${fw:-unseen} probe=$pr kline-type=[$k1] kline-poff=[$k2]"
+EOS
+# wdt-arm TYPE [probe]: the one arming of wdt-bite and wdt-reboot. Refuses unless the PMIC watchdog device exists and the S2 type reads back as TYPE (default 7: what the driver sets). If the PON registers cannot be read at all
+# (pon-regs has not been shown to read on this phone: z10's reader did not), the word `probe` as the second argument trusts the driver's own read-back instead: the probe of patch 1 fails when the read-back differs, so a registered PMIC
+# device means the type read back as 7; it is allowed for any TYPE, only when the registers are unread (a read of another type still refuses; in wdt2 the probe checks the type the dts names). HOLD, WDT_SLEEP_HOLD are for the host selftest.
+# It sets /tmp/hold for 90 s (when none is set) so the 180 s self-reboot cannot fire between the arming and the bite or the clean reboot, and it counts the arming: the applet must be alive after a second AND S2 must read
+# enabled afterwards (or, with `probe`, the applet alive and no read to compare), else it kills the applet (a clean close, the dog stops) and says FAILED.
+cat > /bin/wdt-arm <<'EOS'
+#!/bin/sh
+HOLD=${HOLD:-/tmp/hold}
+case ${1:-7} in [0-9]|1[0-5]) want=${1:-7};; *) echo "wdt-arm refused: TYPE must be 0..15"; exit 1;; esac
+trust=${2:-}
+T=${3:-20}
+case $T in [1-9]|[1-9][0-9]|1[01][0-9]|12[0-7]) ;; *) echo "wdt-arm refused: TIMEOUT must be 1..127 s"; exit 1;; esac
+S=$(/bin/wdt-state)
+pm=$(printf '%s\n' "$S" | sed -n 's/^wdt-state pmic=\([^ ]*\) .*/\1/p')
+ty=$(printf '%s\n' "$S" | sed -n 's/.* s2-type=\([^ ]*\) .*/\1/p')
+en0=$(printf '%s\n' "$S" | sed -n 's/.* s2-enabled=\([^ ]*\) .*/\1/p')
+[ "$pm" != none ] && [ -n "$pm" ] || { echo "wdt-arm refused: no PMIC watchdog device ($S)"; exit 1; }
+case $ty in
+  0x*) [ $((ty)) -eq $((want)) ] || { echo "wdt-arm refused: the S2 type reads $ty, wanted $want ($S)"; exit 1; };;
+  *) if [ "$trust" = probe ]; then ty=$(printf "0x%02x" "$want")-by-probe; else echo "wdt-arm refused: the S2 type is not read ($S); wdt-bite 7 probe trusts the driver's own read-back"; exit 1; fi;;
+esac
+if [ ! -e "$HOLD" ]; then : > "$HOLD"; ( sleep ${WDT_SLEEP_HOLD:-90}; rm -f "$HOLD" ) < /dev/null > /dev/null 2>&1 & fi
+echo "walleye-wdt: arming $pm at $T s, never petted (S2 type $ty; before: enabled=$en0)" > /dev/kmsg 2>/dev/null
+watchdog -F -T $T -t 3600 "/dev/$pm" > /dev/null 2>&1 < /dev/null &
+WP=$!
+sleep 1
+st=$(sed -n 's/^[0-9]* ([^)]*) \(.\).*/\1/p' "/proc/$WP/stat" 2> /dev/null)   # a dead child not yet reaped is a zombie (Z): kill -0 would still say alive
+alive=dead; case $st in ""|Z|X) ;; *) alive=alive;; esac
+en1=$(/bin/wdt-state | sed -n 's/.* s2-enabled=\([^ ]*\) .*/\1/p')
+if [ "$alive" != alive ]; then echo "wdt-arm FAILED: the applet is not running (the device could not be opened or is open already); S2 enabled=$en1"; exit 1; fi
+if [ "$en1" = no ] || { [ "$en1" = unread ] && [ "$trust" != probe ]; }; then kill "$WP" 2> /dev/null; echo "wdt-arm FAILED: S2 enabled reads $en1 after the arming; the applet was stopped"; exit 1; fi
+echo "walleye-wdt: armed $pm, S2 enabled=$en1" > /dev/kmsg 2>/dev/null
+echo "wdt-arm armed $pm type=$ty timeout=$T s2-enabled-before=$en0 after=$en1 hold=90s"
+EOS
+cat > /bin/wdt-bite <<'EOS'
+#!/bin/sh
+# wdt-bite [TYPE [probe [SECONDS]]]: arm the PMIC watchdog at SECONDS (20 when not given) and never pet it; the phone must restart about that long later.
+R=$(/bin/wdt-arm "${1:-7}" "${2:-}" "${3:-20}") || { echo "wdt-bite: $R"; exit 1; }
+echo "wdt-bite: $R; not petted, the bite is due in ${3:-20} s"
+EOS
+cat > /bin/wdt-reboot <<'EOS'
+#!/bin/sh
+# wdt-reboot [TYPE [probe]]: arm the PMIC watchdog at 20 s, then a clean reboot(2) at once: patch 2 must stop the watchdog on the way, so the next boot reads S2 disabled and the phone does not restart again 20 s later.
+# It reboots only after wdt-arm saw the applet alive and S2 enabled (or, with probe, alive and no read), so a next banner with S2 disabled is a change the arming made visible, not an arming that never happened.
+R=$(/bin/wdt-arm "${1:-7}" "${2:-}" "${3:-20}") || { echo "wdt-reboot: $R"; exit 1; }
+echo "wdt-reboot: $R; rebooting cleanly now"
+echo "walleye-wdt: clean reboot with the PMIC watchdog armed" > /dev/kmsg 2>/dev/null
+sync
+reboot -f
+EOS
+chmod 755 /bin/wdt-state /bin/wdt-arm /bin/wdt-bite /bin/wdt-reboot
+G=/sys/kernel/config/usb_gadget/g1
+say "about to create the gadget g1 (1d6b:0104)"
+mkdir -p $G
+echo 0x1d6b > $G/idVendor
+echo 0x0104 > $G/idProduct
+echo 0x0100 > $G/bcdDevice
+echo 0x0200 > $G/bcdUSB
+mkdir -p $G/strings/0x409
+echo "walleye-first-boot" > $G/strings/0x409/serialnumber
+echo "linux-phone-oco" > $G/strings/0x409/manufacturer
+echo "Pixel 2 walleye (mainline banner shell)" > $G/strings/0x409/product
+say "about to mkdir functions/acm.GS0"
+mkdir -p $G/functions/acm.GS0 $G/functions/ecm.usb0
+# the ECM addresses, written before the bind the mainline way (locally administered; the host gets the second, so its interface name stays the same every boot)
+echo "02:42:ac:10:2b:01" > $G/functions/ecm.usb0/dev_addr
+echo "02:42:ac:10:2b:02" > $G/functions/ecm.usb0/host_addr
+# the banner writer, started before the bind: it waits for the tty node, then writes
+(
+  b=0
+  while :; do
+    if [ -c $TTY ]; then
+      S=no; N=0; C=0; LC=-; LR=-; TTYSUM=unknown
+      [ -f $SH.state ] && . $SH.state 2>/dev/null
+      E=$(head -n1 $SH.err 2>/dev/null | tr -d '\r' | cut -c1-80); [ -n "$E" ] || E=none
+      [ -f $SH.state ] || E="console block not run yet"
+      printf "\n%s\n" "WALLEYE-BANNER beat=$b up=$(cut -d' ' -f1 /proc/uptime)s steps=$(wc -l < $BANNERLOG) last=[$(tail -n1 $BANNERLOG)] loop=[started=$S starts=$N cmds=$C last=[$LC] rc=$LR err=[$E]]" > $TTY 2>/dev/null
+      P=$(/bin/pon-regs 2>/dev/null | head -n1); [ -n "$P" ] || P="pon-regs not read yet"
+      printf "\n%s\n" "WALLEYE-BANNER-PON beat=$b [$P]" > $TTY 2>/dev/null
+      W=$(/bin/wdt-state 2>/dev/null); [ -n "$W" ] || W="wdt-state not read yet"
+      printf "\n%s\n" "WALLEYE-BANNER-WDT beat=$b [$W]" > $TTY 2>/dev/null
+      if [ $b -ge 3 ] && [ $((b % 10)) -eq 3 ]; then
+        L=$(busybox --list 2>/dev/null)
+        have() { case "
+$L
+" in *"
+$1
+"*) echo y;; *) echo n;; esac; }
+        printf "\n%s\n" "WALLEYE-BANNER-INFO beat=$b busybox-applets=$(echo "$L" | wc -l) sh=$(have sh) stty=$(have stty) tr=$(have tr) cut=$(have cut) cat=$(have cat) tty=[$TTYSUM]" > $TTY 2>/dev/null
+      fi
+      b=$((b+1))
+    fi
+    sleep 2
+  done
+) &
+say "banner writer started"
+mkdir -p $G/configs/c.1/strings/0x409
+echo "ACM + ECM" > $G/configs/c.1/strings/0x409/configuration
+say "about to symlink acm.GS0 into configs/c.1"
+ln -s $G/functions/acm.GS0 $G/configs/c.1/
+say "about to symlink ecm.usb0 into configs/c.1"
+ln -s $G/functions/ecm.usb0 $G/configs/c.1/
+n=0
+while [ -z "$(ls /sys/class/udc 2>/dev/null)" ] && [ $n -lt 30 ]; do sleep 1; n=$((n+1)); done
+UDC=$(ls /sys/class/udc 2>/dev/null | head -n1)
+if [ -z "$UDC" ]; then say "NO UDC after ${n}s"; else say "about to bind $UDC (waited ${n}s)"; echo "$UDC" > $G/UDC && say "gadget bound to $UDC" || say "bind of $UDC FAILED"; fi
+# z14: the network, in its own subshell so the console below never waits for it: usb0 appears when the gadget is bound; it gets 172.16.43.1, one DHCP lease (172.16.43.2) for the lab host, telnetd with no password (the phone sits on a cable in the lab; the way the first images did)
+(
+  n=0
+  while ! ifconfig usb0 >/dev/null 2>&1 && [ $n -lt 30 ]; do sleep 1; n=$((n+1)); done
+  if ifconfig usb0 172.16.43.1 netmask 255.255.255.0 up; then
+    say "usb0 is 172.16.43.1 (after ${n}s)"
+    udhcpd -S /etc/udhcpd.conf
+    telnetd -l /bin/sh -b 172.16.43.1 && say "telnetd on 172.16.43.1:23"
+  else
+    say "NO usb0 after ${n}s"
+  fi
+) &
+
+# the console, a command loop (backlog walleye-command-loop): the port is opened ONCE here (fd 4) and kept; raw, no echo, no hangup on close (stty). Then forever: read a line, run it, write the answer.
+# State for the banner goes to /tmp/sh.state (shell variables it sources): S started, N opens of the port, C commands run, LC the last command (made safe to source), LR its exit status, TTYSUM the tty flags.
+(
+  n=0; c=0; lc=-; lr=-; ts=unknown
+  CR=$(printf '\r')
+  st() { { echo "S=$1; N=$n; C=$c; LC='$lc'; LR=$lr; TTYSUM=$ts"; } > $SH.state.new 2>/dev/null && mv $SH.state.new $SH.state; }
+  st no
+  while :; do
+    if [ -c $TTY ]; then
+      n=$((n+1))
+      true > $SH.err
+      { command exec 4<> $TTY; } 2>> $SH.err || { st no; sleep 1; continue; }
+      stty -F $TTY raw -echo -hupcl 2>> $SH.err || echo "stty on $TTY failed" >> $SH.err
+      A=" $(stty -F $TTY -a 2>/dev/null | tr '\n;' '  ') "
+      flag() { case "$A" in *" -$1 "*) echo "$1=off";; *" $1 "*) echo "$1=on";; *) echo "$1=?";; esac; }
+      ts="$(flag echo),$(flag icanon),$(flag hupcl)"
+      echo "walleye-init: command loop on $TTY, open $n" > /dev/kmsg 2>/dev/null
+      st yes
+      bad=0
+      while [ $bad -lt 50 ]; do
+        if IFS= read -r line <&4; then
+          bad=0
+          line=${line%"$CR"}
+          [ -n "$line" ] || continue
+          lc=$(printf %s "$line" | tr -c 'A-Za-z0-9 ./_=:-' '?' | cut -c1-40)
+          c=$((c+1)); lr=running; st yes   # the banner shows a command that has not ended
+          sh -c "$line" < /dev/null > /tmp/out 2>&1
+          lr=$?
+          cat /tmp/out >&4 2>/dev/null
+          st yes
+        else
+          bad=$((bad+1)); sleep 0.2
+        fi
+      done
+      echo "walleye-init: command loop on $TTY lost its input, reopening (open $n)" > /dev/kmsg 2>/dev/null
+      exec 4<&-
+    else
+      sleep 1
+    fi
+  done
+) &
+while :; do sleep 3600; done
