@@ -14553,7 +14553,7 @@ Note
 : Run 5 (modem-boot-20261127-172447): mmcli -L runs and says 'No modems were found'; MM stops at no net port (item walleye-modem-net-port). The 180 s window does not cover the 10-minute stay-up; that needs a longer hold in the procedure once a modem is listed.
 
 Blocked by
-: walleye-modem-net-port
+: walleye-modem-net-port-ipa-try
 
 About
 : modem-calls
@@ -14690,7 +14690,7 @@ Opened
 : 2026-11-27
 
 Needs
-: phone
+: build
 
 Proof
 : tests/health/base/modem-calls.sh: modem-mm-listed passes (mmcli -L lists one modem)
