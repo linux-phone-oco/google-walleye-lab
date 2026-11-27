@@ -30,6 +30,7 @@ fn main() {
     check_from("the battery is good enough", "research:walleye-rootfs-boots-run-5-passed", root.battery_is_good());
     check_from("the image is the declared modem image and UFS is off in it", "research:walleye-modem-image-built", b.the_image_is_the_declared_ufs_off_image());
     check_from("the firmware tar is the declared one", "research:walleye-modem-image-built", b.the_firmware_is_the_declared_tar());
+    check_from("the ModemManager rootfs tar is the declared one", "research:walleye-mm-rootfs-nix-built", b.the_rootfs_is_the_declared_tar());
     check_from("the stored boot chain is whole", "research:walleye-rootfs-boots-run-5-passed", b.the_stored_set_is_good());
     step("say what to expect", b.author_is_told());
     step("the phone is on Android, adbd as root", root.the_phone_is_on_android_as_root());
@@ -41,6 +42,8 @@ fn main() {
     check_from("the gadget is up and the shell answers", "research:walleye-modem-image-built", b.the_gadget_is_up());
     check_from("the firmware tar is pushed and the phone unpacked it", "research:walleye-modem-image-built", b.the_firmware_is_pushed());
     check_from("modem-up checks the set and starts qrtr-ns, tqftpserv and rmtfs", "research:walleye-modem-image-built", b.the_modem_is_started());
+    check_from("the rootfs tar is pushed and the phone unpacked it", "research:walleye-modem-mm-scripts-fit-the-image", b.the_rootfs_is_pushed());
+    check_from("mm-up runs dbus and ModemManager in the rootfs", "research:walleye-modem-mm-runs-where-research", b.the_modemmanager_is_started());
     check_from("the remoteproc states, the kernel's modem lines, the daemons' logs and qrtr-lookup are read and kept", "research:walleye-modem-image-built", b.the_modem_is_read());
     check_from("the modem is asked its device ids over QRTR, read only, and the answer is kept private (the IMEI never printed)", "research:walleye-modem-to-calls-how-it-stands", b.the_ids_are_read_and_kept_private());
     step("the phone is on Android (the way back, if it is not)", b.way_back());

@@ -10732,3 +10732,24 @@ Considered
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-mm-push-in-procedure"></a>
+### walleye builder: the modem boot pushes the ModemManager rootfs
+
+Entry date
+: 2026-11-27
+
+Done
+: modem-boot procedure: second push (rootfs tar to 9001), rootfs-recv, mm-up after modem-up; guards count the push; sha256 checked on the host; programmer review fixes: clippy doc line, mm-up wait = guard, entry order pinned, IMEI masked in kept reads.
+
+Considered
+: Guarding the firmware step with the whole chain: sums to 203 s of 180, so each step counts its own tail.
+
+Rejected
+: Running mm-up before the rootfs read: it needs qrtr-ns from modem-up. Counting the rootfs inside the firmware step's guard: it would refuse every run.
+
+About
+: modem-calls
