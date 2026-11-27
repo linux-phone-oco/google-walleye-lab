@@ -1,7 +1,7 @@
 #!/bin/sh
 # walleye-modem-ramdisk, run on the lab host: is the modem image's ramdisk what the item says (item walleye-modem-mss-image)?
 # Passes only when the ramdisk (an xz cpio) holds: the five static tools (rmtfs, qrtr-ns, qrtr-lookup, tqftpserv, qmicli: item walleye-modem-qmicli-in-image) and busybox with the sha256 of build/initramfs-modem/tools.sha256 (each from its own record: the nix build's research walleye-rmtfs-static-nix-ok);
-# the four scripts modem-up, firmware-recv, rootfs-recv and mm-up equal to the files of build/initramfs-modem; /init equal to the slpi ramdisk's init; the four storage copies /rmtfs/modem_fs1, modem_fs2, modem_fsg and modem_fsc
+# the four scripts modem-up, firmware-recv, rootfs-recv and mm-up equal to the files of build/initramfs-modem; /init the slpi ramdisk's init with its window end replaced (build/modem-init.sh); the four storage copies /rmtfs/modem_fs1, modem_fs2, modem_fsg and modem_fsc
 # byte for byte the phone's reads modemst1, modemst2, fsg, fsc (the sha256sums beside them), read-only (mode 444); and NO firmware file and no partition image of any other name (the firmware goes by firmware-recv; the
 # 32 MiB image has no room for it). Read-only; extracts to a temp folder (mode 700) that it removes. Prints `pass|fail|skip walleye-modem-ramdisk modem DETAIL`; exit 0 only on pass.
 # Environment: RAMDISK (the file, no default), MATERIAL (default ~/lab-material/walleye/modem-2026-11-19).
@@ -21,7 +21,9 @@ tool() { sed -n "s/^\([0-9a-f]\{64\}\)  $1\$/\1/p" "$HERE/build/initramfs-modem/
 for t in rmtfs qrtr-ns qrtr-lookup tqftpserv qmicli; do [ -n "$(tool $t)" ] && [ "$(sum "$T/bin/$t")" = "$(tool $t)" ] || say fail "/bin/$t is not the recorded static build"; done
 [ -n "$(tool busybox-arm64)" ] && [ "$(sum "$T/bin/busybox")" = "$(tool busybox-arm64)" ] || say fail "/bin/busybox is not the recorded arm64 build"
 for s in modem-up firmware-recv rootfs-recv mm-up; do cmp -s "$T/bin/$s" "$HERE/build/initramfs-modem/$s" || say fail "/bin/$s differs from build/initramfs-modem/$s"; done
-cmp -s "$T/init" "$HERE/build/initramfs-slpi/init" || say fail "/init differs from build/initramfs-slpi/init"
+# /init is the derivation of slpi's init and build/initramfs-modem/window-end (build/modem-init.sh), byte for byte: the window end stays where slpi's is (decision 2026-11-27-walleye-modem-image-ends-by-sysrq-b-with-ipa)
+sh "$HERE/build/modem-init.sh" "$HERE/build/initramfs-slpi/init" "$HERE/build/initramfs-modem/window-end" > "$T/init.want" 2>/dev/null && cmp -s "$T/init" "$T/init.want" || say fail "/init differs from the derivation of build/initramfs-slpi/init and window-end (the window end is not the modem one, or moved)"
+rm -f "$T/init.want"
 for pr in modem_fs1:modemst1 modem_fs2:modemst2 modem_fsg:fsg modem_fsc:fsc; do
   f=${pr%%:*}; p=${pr#*:}
   want=$(sed -n "s/^\([0-9a-f]\{64\}\)  $p.img\$/\1/p" "$MATERIAL/sha256sums")
@@ -35,4 +37,4 @@ fw=$(find "$T/lib/firmware" -type f | wc -l)
 want="bin/busybox bin/firmware-recv bin/mm-up bin/modem-up bin/qmicli bin/qrtr-lookup bin/qrtr-ns bin/rmtfs bin/rootfs-recv bin/tqftpserv etc/udhcpd.conf init rmtfs/modem_fs1 rmtfs/modem_fs2 rmtfs/modem_fsc rmtfs/modem_fsg"
 got=$(cd "$T" && find . -type f | sed 's|^./||' | sort | tr '\n' ' ' | sed 's/ $//')
 [ "$got" = "$want" ] || say fail "the ramdisk's files are not exactly the expected ones: $got"
-say pass "the five static tools (qmicli among them), busybox, modem-up, firmware-recv, rootfs-recv, mm-up and the slpi init are the recorded ones; /rmtfs holds the phone's modemst1, modemst2, fsg and fsc, read-only; no firmware inside"
+say pass "the five static tools (qmicli among them), busybox, modem-up, firmware-recv, rootfs-recv, mm-up and the derived init are the recorded ones; /rmtfs holds the phone's modemst1, modemst2, fsg and fsc, read-only; no firmware inside"

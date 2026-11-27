@@ -1,5 +1,5 @@
 #!/bin/sh
-# The ramdisk of the modem image (item walleye-modem-mss-image) and the tar of the phone's own modem firmware that the host pushes to it: the ramdisk holds the slpi ramdisk's init and busybox, the static modem tools,
+# The ramdisk of the modem image (item walleye-modem-mss-image) and the tar of the phone's own modem firmware that the host pushes to it: the ramdisk holds the slpi ramdisk's init (its window end replaced: modem-init.sh) and busybox, the static modem tools,
 # and read-only copies of its four modem storage partitions, packed with the roof's lpoco-bringup initramfs build (gen_init_cpio, xz crc32). Nothing here touches the phone.
 #   build-modem-ramdisk.sh WORK_DIR OUT_CPIO_XZ OUT_FIRMWARE_TAR
 # WORK_DIR is a folder of your own (mode 700) that this script fills and the cpio spec names; ENV: MATERIAL (default ~/lab-material/walleye/modem-2026-11-19, the phone's reads
@@ -31,7 +31,10 @@ done
 "$HERE/check-qmicli-qrtr.sh" "$W/qmicli" >&2 || total=$((total+1))
 ck "busybox is the recorded arm64 build" "$(sum "$BUSYBOX")" "$(want busybox-arm64)"
 cp "$BUSYBOX" "$W/busybox"; chmod 755 "$W/busybox"
-cp "$HERE/initramfs-slpi/init" "$HERE/initramfs-slpi/udhcpd.conf" "$HERE/initramfs-modem/modem-up" "$HERE/initramfs-modem/firmware-recv" "$HERE/initramfs-modem/rootfs-recv" "$HERE/initramfs-modem/mm-up" "$W/"
+# The modem image's init is slpi's with ONE line replaced, the end of its 180 s window (build/initramfs-modem/window-end): sync and sysrq b first, because with ipa bound
+# 'reboot -f' runs device_shutdown -> ipa_remove and never ends (decision 2026-11-27-walleye-modem-image-ends-by-sysrq-b-with-ipa). slpi's own init is untouched.
+sh "$HERE/modem-init.sh" "$HERE/initramfs-slpi/init" "$HERE/initramfs-modem/window-end" > "$W/init"
+cp "$HERE/initramfs-slpi/udhcpd.conf" "$HERE/initramfs-modem/modem-up" "$HERE/initramfs-modem/firmware-recv" "$HERE/initramfs-modem/rootfs-recv" "$HERE/initramfs-modem/mm-up" "$W/"
 chmod 755 "$W/init" "$W/modem-up" "$W/firmware-recv" "$W/rootfs-recv" "$W/mm-up"
 # the phone's reads: the material's own sha256sums name each one
 for p in modemst1 modemst2 fsg fsc modem_b; do
