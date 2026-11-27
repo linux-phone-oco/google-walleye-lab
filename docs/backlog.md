@@ -14949,7 +14949,7 @@ Status
 : open
 
 Note
-: From research walleye-modem-mm-primary-port-read-why-no-modem-listed: runs 9 and 10 asked mmcli -L for only 6.6 s; modem0's init was still in ModemManager's 5 s PDC carrier-config wait. Change the ask in procedures/steps/src/modem_boot.rs (MMCLI_TRIES, MMCLI_S, MMCLI_COMMAND, the window guard) so it keeps asking up to ~45 s, then the read. No change to the phone image.
+: Coordinator 2026-11-27: the modem's DOG_HB crash (39-43 s, every MM run) falls inside the 45 s ask window; the step records each mmcli -L answer with its time and the crash's dmesg time, so the run tells 'listed', 'never listed' and 'lost in the crash' apart. | From research walleye-modem-mm-primary-port-read-why-no-modem-listed: runs 9 and 10 asked mmcli -L for only 6.6 s; modem0's init was still in ModemManager's 5 s PDC carrier-config wait. Change the ask in procedures/steps/src/modem_boot.rs (MMCLI_TRIES, MMCLI_S, MMCLI_COMMAND, the window guard) so it keeps asking up to ~45 s, then the read. No change to the phone image.
 
 About
 : modem-calls
