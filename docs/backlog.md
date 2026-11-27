@@ -14216,10 +14216,10 @@ Rank
 ### Build the Alpine aarch64 ModemManager rootfs tarball on the host
 
 Status
-: open
+: done
 
 Note
-: Decision 2026-11-27-walleye-mm-rootfs-built-by-nix (amends 2026-11-27-walleye-mm-runs-in-a-pushed-alpine-rootfs): a nix expression beside build/modem-tools.nix builds the closure, its tar sha256 recorded and rebuilt equal; Alpine (a release branch, checksums recorded) only if nix cannot. No modem storage in it; the tar stays out of git like the firmware tar.
+: Built by build/modem-mm-rootfs.nix (nix, aarch64 glibc closure: ModemManager 1.24.2 polkit/systemd off, qrtr on; dbus, libqmi qrtr, eudev udevd, busybox). Tar 194375680 bytes, sha256 70d239a9aca392b977e98c8fe48d147a306043d7c8b4e3d4accdc2e406134a08 in build/modem-mm-rootfs.sha256; nix build --rebuild equal. Proof tests/host/modem-rootfs.sh passes, selftest 7/7 (tar kept out of git, at the builder's AGENT_BUILD, rebuild with the nix command in the file header). Next: walleye-modem-mm-chroot-in-modem-up (note: 185 MiB tar, check RAM/USB push time; unpacked tmpfs bigger).
 
 About
 : modem-calls
