@@ -11200,3 +11200,24 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-28-ipa-review-1306-1308"></a>
+### Programmer review of PRs 1306 and 1308
+
+Entry date
+: 2026-11-27
+
+Done
+: ideal-agent programmer reviewed both diffs against main and ran the checks: no blocking finding, nothing unsafe for the phone, dts values match the v7.3 tree and fixtures; six gaps in what the checks prove, queued as walleye-ipa-checks-selftest-runs and walleye-ipa-check-values-from-fixtures.
+
+Considered
+: fixing the gaps in this change
+
+Rejected
+: fixing inline: the review item's proof allows queue, and they are build changes with their own proofs
+
+About
+: modem-calls
