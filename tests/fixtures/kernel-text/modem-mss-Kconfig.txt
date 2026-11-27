@@ -1,0 +1,25 @@
+# Captured text: kernel.org v7.3 (git show v7.3:PATH in the lab's linux clone, read 2026-11-27) for item walleye-modem-mss-image: the Kconfig blocks of the symbols build/walleye-modem.config sets.
+# RPMSG_QCOM_SMD and QCOM_AOSS_QMP, which QCOM_Q6V5_MSS lists as 'X || X=n', are =y in the tree's arm64 defconfig (lines 1639 and 1653 of linux-v7.3/arch/arm64/configs/defconfig): so the optional ones stay in.
+# ---- drivers/remoteproc/Kconfig, QCOM_Q6V5_MSS
+config QCOM_Q6V5_MSS
+	tristate "Qualcomm Hexagon V5 self-authenticating modem subsystem support"
+	depends on OF && ARCH_QCOM
+	depends on QCOM_SMEM
+	depends on RPMSG_QCOM_SMD || RPMSG_QCOM_SMD=n
+	depends on RPMSG_QCOM_GLINK_SMEM || RPMSG_QCOM_GLINK_SMEM=n
+	depends on QCOM_SYSMON || QCOM_SYSMON=n
+	depends on RPMSG_QCOM_GLINK || RPMSG_QCOM_GLINK=n
+	depends on QCOM_AOSS_QMP || QCOM_AOSS_QMP=n
+	select MFD_SYSCON
+	select QCOM_MDT_LOADER
+	select QCOM_PIL_INFO
+	select QCOM_Q6V5_COMMON
+	select QCOM_RPROC_COMMON
+	select QCOM_SCM
+	select QCOM_PAS
+# ---- drivers/soc/qcom/Kconfig, QCOM_RMTFS_MEM
+config QCOM_RMTFS_MEM
+	tristate "Qualcomm Remote Filesystem memory driver"
+	select QCOM_SCM
+	default m if ARCH_QCOM
+	help

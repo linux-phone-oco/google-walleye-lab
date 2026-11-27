@@ -367,3 +367,9 @@ source = "research:walleye-modem-blobs-found"
 
 [scripts."dtb-modem-mss-selftest.sh"]
 source = "file:tests/fixtures/phone-text/walleye-running-fdt-memory.cap"
+
+[scripts."kernel-modem-mss.sh"]
+source = "file:tests/fixtures/kernel-text/modem-mss-Kconfig.txt"
+
+[scripts."kernel-modem-mss-selftest.sh"]
+source = "file:tests/fixtures/kernel-text/modem-mss-Kconfig.txt"

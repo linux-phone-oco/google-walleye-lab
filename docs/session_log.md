@@ -10387,3 +10387,24 @@ Rejected
 
 About
 : walleye-modem-mss-proof
+
+---
+
+
+<a id="2026-11-27-walleye-builder-the-modem-image-s-kernel-list"></a>
+### walleye builder: the modem image's kernel list and config
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-mss-image (first ready row). Added list ufs-off-modem (wake topic + fuel gauge rfc, UFS off), assembled it to int/walleye/ufs-off-modem/v7.3/1 (merged clean; the modem dtb builds in that tree and dtb-modem-mss.sh passes on it), and build/walleye-modem.config with QCOM_Q6V5_MSS=y and QCOM_RMTFS_MEM=y; tests/host/kernel-modem-mss.sh (with a 7-case selftest and the v7.3 Kconfig text as fixture) reads defconfig + fragments back =y on linux-v7.3. Left on the item: static rmtfs and tqftpserv, the ramdisk, kernel build, gate, AVB, rebuild, review.
+
+Considered
+: RPMSG_QCOM_SMD and AOSS_QMP are =y in defconfig, so the fragment sets only the two symbols that default =m.
+
+Rejected
+: QRTR_TUN in the fragment: rmtfs and tqftpserv use qrtr sockets, not the tun device. Building the whole image in this run: the userspace tools are a step to prove on their own.
+
+About
+: walleye-modem-mss-proof
