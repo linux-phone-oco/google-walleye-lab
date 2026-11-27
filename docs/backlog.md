@@ -14672,3 +14672,28 @@ Proof
 
 Rank
 : 30
+
+
+<a id="walleye-modem-ipa-review"></a>
+### The programmer review PR 1308 skipped: ipa_fws in the firmware tar, the IPA kernel and image
+
+Status
+: open
+
+Note
+: Coordinator 2026-11-27: the builder landed #1308 without review (small shell, host-tested); the IPA phone try went ahead on the RAM-booted test image, so the review follows it.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: an ideal-agent programmer review of google-walleye-lab #1306 and #1308 recorded; its findings fixed or queued
+
+Rank
+: 30
