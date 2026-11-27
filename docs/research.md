@@ -9149,3 +9149,22 @@ Found
 
 About
 : walleye-pmic-wdt-v1-image
+
+
+<a id="walleye-rmtfs-static-nix-fails"></a>
+### walleye-rmtfs-static-nix-fails
+
+Date
+: 2026-11-27
+
+Brief
+: nixpkgs pkgsStatic rmtfs (1.1.1, pinned nixpkgs c56a87d) cannot be built: marked bad on static, and forced it needs static systemd (libudev), whose link fails
+
+Question
+: Can nix give a static aarch64 rmtfs, tqftpserv and qrtr for the modem ramdisk?
+
+Found
+: With allowUnsupportedSystem and allowBroken the pkgsCross.aarch64-multiplatform.pkgsStatic rmtfs build compiles the whole cross toolchain (about 50 minutes) and then fails: static systemd-260.5 (rmtfs links -ludev) stops in ld on trust/test-persist. rmtfs 1.1.1 uses libudev only in sharedmem.c, to read sysattrs of the rmtfs mem device (parse_hex_sysattr), so a small patch to read /sys/... files directly removes the dependency; then rmtfs, qrtr (libqrtr) and tqftpserv build with the lab's aarch64-linux-gnu-gcc, static, as build-nfc-up-bin.sh does. Source: /nix/store/56pjq2n15v242icv91yw7ngs3flnppbd-source, Makefile LDFLAGS -lqrtr -ludev.
+
+About
+: walleye-modem-mss-proof

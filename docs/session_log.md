@@ -10408,3 +10408,21 @@ Rejected
 
 About
 : walleye-modem-mss-proof
+
+---
+
+
+<a id="2026-11-27-walleye-builder-rmtfs-static-nix-fails"></a>
+### walleye builder: static rmtfs by nix fails
+
+Entry date
+: 2026-11-27
+
+Done
+: Tried pkgsCross aarch64 pkgsStatic rmtfs, tqftpserv, qrtr with the pinned nixpkgs; rmtfs needs static systemd and fails to link after a 50 minute toolchain build; recorded the way on: patch sharedmem.c to read sysfs, build with the lab's cross gcc
+
+Rejected
+: nix pkgsStatic with allowBroken: fails on systemd; the nixpkgs rmtfs-1.3 named in the item is not in the pin (1.1.1)
+
+About
+: walleye-modem-mss-proof
