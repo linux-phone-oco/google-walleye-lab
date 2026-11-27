@@ -2088,3 +2088,43 @@ Url
 
 Takes
 : a recent SoC family case: modem boots, in-kernel pd-mapper, cellular still waits on ModemManager over QMI/qrtr with a SIM
+
+
+<a id="alpine-aports-modemmanager"></a>
+### Alpine aports: community/modemmanager APKBUILD (1.25.95_git20261005)
+
+Url
+: https://gitlab.alpinelinux.org/alpine/aports/-/raw/master/community/modemmanager/APKBUILD
+
+Takes
+: build flags (polkit=permissive, udev via libgudev, dbus), depends: dbus, polkit, libmm-glib
+
+
+<a id="modemmanager-meson-options"></a>
+### ModemManager meson_options.txt
+
+Url
+: https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/raw/main/meson_options.txt
+
+Takes
+: udev, polkit (strict|permissive|no) and qrtr are build options; qrtr default on
+
+
+<a id="modemmanager-base-manager-qrtr"></a>
+### ModemManager src/mm-base-manager.c (QrtrBusWatcher)
+
+Url
+: https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/raw/main/src/mm-base-manager.c
+
+Takes
+: a qrtr modem is found by the QrtrBusWatcher, not by udev events; udev stays a hard dependency of the daemon
+
+
+<a id="alpine-edge-aarch64-index"></a>
+### Alpine edge aarch64 APKINDEX (main, community)
+
+Url
+: https://dl-cdn.alpinelinux.org/alpine/edge/community/aarch64/
+
+Takes
+: installed sizes: modemmanager 6.7 MB, libqmi 5.5 MB, libmm-glib 1.5 MB, glib 5.9 MB, dbus 0.7 MB, eudev 1.1 MB
