@@ -9725,3 +9725,22 @@ About
 
 Material
 : research/modem-calls/2026-11-27/
+
+
+<a id="walleye-modem-mm-first-try-run-10-sysrq-b-ends-ipa-run-in-180s"></a>
+### walleye-modem-mm-first-try-run-10-sysrq-b-ends-ipa-run-in-180s
+
+Date
+: 2026-11-27
+
+Brief
+: Tenth modem try (run modem-boot-20261127-223527): 26 of 26 pass; with ipa bound the image's gadget was gone 180 s after it appeared and Android was back in 30 s
+
+Question
+: Does the sysrq b end bring an IPA run back on Android within 240 s, the gadget gone at 180 s +-5?
+
+Found
+: Run modem-boot-20261127-223527 (nothing flashed; image sha 9e3e3ab2, firmware tar 9073e47e): ipa bound, mmcli -L 'No modems were found', qmicli ids read (kept private), 41 qrtr services, remoteproc modem running. Host journal: image gadget (1d6b:0104) appeared 22:36:14, disconnected 22:39:14 = 180 s; fastboot reboot then Android in 30 s (check 22 passes, was >240 s before). Card, boot chain, slot flags equal before/after. Open: mmcli still lists no modem (item walleye-modem-mm-lists-modem-after-init); slpi_v2.mdt firmware error -2 as before.
+
+About
+: modem-calls
