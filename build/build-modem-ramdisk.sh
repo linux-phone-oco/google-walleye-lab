@@ -30,8 +30,8 @@ done
 "$HERE/check-qmicli-qrtr.sh" "$W/qmicli" >&2 || total=$((total+1))
 ck "busybox is the recorded arm64 build" "$(sum "$BUSYBOX")" "$(want busybox-arm64)"
 cp "$BUSYBOX" "$W/busybox"; chmod 755 "$W/busybox"
-cp "$HERE/initramfs-slpi/init" "$HERE/initramfs-slpi/udhcpd.conf" "$HERE/initramfs-modem/modem-up" "$HERE/initramfs-modem/firmware-recv" "$W/"
-chmod 755 "$W/init" "$W/modem-up" "$W/firmware-recv"
+cp "$HERE/initramfs-slpi/init" "$HERE/initramfs-slpi/udhcpd.conf" "$HERE/initramfs-modem/modem-up" "$HERE/initramfs-modem/firmware-recv" "$HERE/initramfs-modem/rootfs-recv" "$HERE/initramfs-modem/mm-up" "$W/"
+chmod 755 "$W/init" "$W/modem-up" "$W/firmware-recv" "$W/rootfs-recv" "$W/mm-up"
 # the phone's reads: the material's own sha256sums name each one
 for p in modemst1 modemst2 fsg fsc modem_b; do
   ck "$p.img is the phone's read (sha256sums of the material)" "$(sum "$MATERIAL/$p.img")" "$(sed -n "s/^\([0-9a-f]\{64\}\)  $p.img\$/\1/p" "$MATERIAL/sha256sums")"
@@ -62,7 +62,7 @@ rm -f "$TAR.again"
   for d in /bin /sbin /etc /dev /proc /sys /tmp /run /lib /lib/firmware /lib/firmware/qcom /lib/firmware/qcom/msm8998 /lib/firmware/qcom/msm8998/google /lib/firmware/qcom/msm8998/google/walleye /rmtfs; do echo "dir $d 755 0 0"; done
   echo "slink /bin/sh busybox 777 0 0"
   echo "nod /dev/console 600 0 0 c 5 1"; echo "nod /dev/null 666 0 0 c 1 3"
-  for b in busybox rmtfs qrtr-ns qrtr-lookup tqftpserv qmicli modem-up firmware-recv; do echo "file /bin/$b $b 755 0 0"; done
+  for b in busybox rmtfs qrtr-ns qrtr-lookup tqftpserv qmicli modem-up firmware-recv rootfs-recv mm-up; do echo "file /bin/$b $b 755 0 0"; done
   echo "file /init init 755 0 0"; echo "file /etc/udhcpd.conf udhcpd.conf 644 0 0"
   for f in modem_fs1 modem_fs2 modem_fsg modem_fsc; do echo "file /rmtfs/$f storage/$f 444 0 0"; done
 } > "$W/spec"

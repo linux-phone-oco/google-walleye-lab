@@ -1,0 +1,16 @@
+#!/bin/sh
+# rootfs-recv: take the ModemManager rootfs tar from the lab host and unpack it into a tmpfs (item walleye-modem-mm-chroot-in-modem-up; decisions 2026-11-27-walleye-mm-runs-in-a-pushed-alpine-rootfs and 2026-11-27-walleye-mm-rootfs-built-by-nix).
+# The tar (build/modem-mm-rootfs.nix, ~185 MiB) does not fit the 32 MiB boot image, so it goes into RAM over the USB network like the firmware (firmware-recv): on the phone `rootfs-recv &`, on the host `nc -N 172.16.43.1 9001 < modem-mm-rootfs.tar`.
+# One connection; a tmpfs is mounted on $MM_ROOT (once), the tar unpacks into it, the tar is removed; the exit status says whether it worked. Nothing is flashed and nothing of the phone's storage is opened.
+# ENV (defaults are the phone's): MM_ROOT (/mm), MM_PORT (9001), MM_TAR (/tmp/modem-mm-rootfs.tar), MM_SIZE (the tmpfs size, 400m).
+export PATH=${MM_PATH:-/bin:/sbin:/usr/bin:/usr/sbin}
+MM_ROOT=${MM_ROOT:-/mm}; MM_PORT=${MM_PORT:-9001}; MM_TAR=${MM_TAR:-/tmp/modem-mm-rootfs.tar}; MM_SIZE=${MM_SIZE:-400m}
+mkdir -p "$MM_ROOT" || { echo "rootfs-recv: mkdir failed"; exit 1; }
+! mountpoint -q "$MM_ROOT" || { echo "rootfs-recv: $MM_ROOT is already mounted: received once only (umount it to receive again)"; exit 1; }
+mount -t tmpfs -o size="$MM_SIZE" tmpfs "$MM_ROOT" || { echo "rootfs-recv: mount failed"; exit 1; }
+nc -l -p "$MM_PORT" > "$MM_TAR" || { echo "rootfs-recv: nc failed"; exit 1; }
+tar -x -C "$MM_ROOT" -f "$MM_TAR" || { echo "rootfs-recv: tar failed"; exit 1; }
+rm -f "$MM_TAR"
+# env is an absolute symlink into /nix/store: it resolves only inside the chroot, so it is the link that is looked for here
+[ -L "$MM_ROOT/env" ] || { echo "rootfs-recv: no env link in the unpacked rootfs"; exit 1; }
+echo "rootfs-recv: done, the rootfs is in $MM_ROOT"
