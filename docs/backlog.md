@@ -14322,10 +14322,10 @@ Rank
 ### Rebuild the modem image with rootfs-recv and mm-up, and re-prove it
 
 Status
-: open
+: done
 
 Note
-: The ramdisk list gained bin/rootfs-recv and bin/mm-up (item walleye-modem-mm-chroot-in-modem-up); the image in images-modem is the old one until this is built. Headroom counted in research walleye-modem-mm-scripts-fit-the-image.
+: Built: ramdisk c0f407f8, image e6e846bd in images-modem; both host tests pass; device.toml [images.modem] updated. Not run on the phone.
 
 Blocked by
 : walleye-modem-mm-chroot-in-modem-up
