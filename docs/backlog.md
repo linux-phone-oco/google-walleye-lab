@@ -14016,34 +14016,6 @@ Rank
 : 21
 
 
-<a id="walleye-modem-mm-sees-modem"></a>
-### ModemManager over qrtr lists the modem (mmcli -L), SIM absent state read, MSS stays up 10 minutes
-
-Status
-: open
-
-Note
-: No SIM yet. If MSS crashes: hold back the ipa module, then try diag-router (nura wiki).
-
-Blocked by
-: walleye-modem-mm-list-in-boot
-
-About
-: modem-calls
-
-Opened
-: 2026-11-27
-
-Needs
-: phone
-
-Proof
-: tests/health/base/modem-calls.sh: modem-mm-listed passes and modem-qrtr-services still passes after 10 minutes (the OnePlus 5 crash after Wi-Fi/ipa does not show)
-
-Rank
-: 22
-
-
 <a id="walleye-modem-sim-registers"></a>
 ### With a SIM: unlock state, registration on the network, one SMS received
 
@@ -14544,3 +14516,56 @@ Proof
 
 Rank
 : 24
+
+
+<a id="walleye-modem-net-port"></a>
+### A net port for ModemManager's qcom-soc plugin: the Pixel 2 modem's data interface (IPA/rmnet) in the modem test kernel, or the plugin's way without one
+
+Status
+: open
+
+Note
+: From run 5 (research walleye-modem-mm-first-try-run-5-no-net-port): MM probes qrtr0 and creates qcom-soc modem, then 'Failed to find a net port in the QMI modem'. Look first: what mainline gives MSM8998 (ipa is sdm845+; MSM8998 uses the modem's BAM/rmnet?), how the OnePlus 5 / postmarketOS msm8998 gets MM to list its modem, and what the qcom-soc plugin accepts as a net port (ModemManager 1.24 source). Decide before a kernel change.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: research
+
+Proof
+: tests/health/base/modem-calls.sh: modem-mm-listed passes (mmcli -L lists one modem)
+
+Rank
+: 21
+
+
+<a id="walleye-modem-mm-sees-modem"></a>
+### ModemManager over qrtr lists the modem (mmcli -L), SIM absent state read, MSS stays up 10 minutes
+
+Status
+: open
+
+Note
+: Run 5 (modem-boot-20261127-172447): mmcli -L runs and says 'No modems were found'; MM stops at no net port (item walleye-modem-net-port). The 180 s window does not cover the 10-minute stay-up; that needs a longer hold in the procedure once a modem is listed.
+
+Blocked by
+: walleye-modem-net-port
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: tests/health/base/modem-calls.sh: modem-mm-listed passes and modem-qrtr-services still passes after 10 minutes (the OnePlus 5 crash after Wi-Fi/ipa does not show)
+
+Rank
+: 22

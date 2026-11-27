@@ -9495,3 +9495,22 @@ Sources
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-mm-first-try-run-5-no-net-port"></a>
+### walleye-modem-mm-first-try-run-5-no-net-port
+
+Date
+: 2026-11-27
+
+Brief
+: Fifth ModemManager try (run modem-boot-20261127-172447): 26 of 26 pass; mmcli -L 'No modems were found': the qcom-soc plugin grabs qrtr0 then fails 'Failed to find a net port in the QMI modem'
+
+Question
+: Does ModemManager over qrtr list the Pixel 2 modem (mmcli -L) with mmcli -L added to the modem boot?
+
+Found
+: Run 5 (procedure modem-boot-on-the-pixel-2, nothing flashed, back on Android slot b, card/chain/flags equal): 26 of 26 pass. mmcli -L: 'No modems were found'; mmcli -m 0: 'couldn't find modem'. ModemManager's log: qrtr node 0 probed QMI-capable, plugin qcom-soc found, 'creating modem with plugin qcom-soc and 1 ports', then 'couldn't create modem for device qcom-soc: Failed to find a net port in the QMI modem'. So MM reaches the modem and the QMI services (38 listed, dms, uim, wds, wms) but the qcom-soc plugin needs a net port (an rmnet/IPA data interface) and the test kernel has none (no ipa driver loaded; the item's hold-back-ipa advice is the opposite case). Also: qrtr-ns.log 'nameserver already running' (the kernel's or modem's ns holds it; harmless). MSS stayed up for the whole 180 s window; the 10-minute stay-up is not covered by this procedure. qmicli --dms-get-ids still answers over qrtr://0 (kept private). No SIM tried.
+
+About
+: modem-calls
