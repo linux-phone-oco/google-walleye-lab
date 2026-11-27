@@ -14659,10 +14659,10 @@ Rank
 ### The programmer review PR 1308 skipped: ipa_fws in the firmware tar, the IPA kernel and image
 
 Status
-: open
+: done
 
 Note
-: Coordinator 2026-11-27: the builder landed #1308 without review (small shell, host-tested); the IPA phone try went ahead on the RAM-booted test image, so the review follows it.
+: Reviewed 2026-11-28: no blocking finding; gaps queued (walleye-ipa-checks-selftest-runs, walleye-ipa-check-values-from-fixtures).
 
 About
 : modem-calls
@@ -15049,3 +15049,53 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-ipa-checks-selftest-runs"></a>
+### dtb-modem-ipa-selftest.sh runs in the build, and kernel-modem-ipa.sh guards QCOM_IPA's dependencies
+
+Status
+: open
+
+Note
+: Programmer review of #1306/#1308 (2026-11-28) findings 1 and 2: the selftest is never run (not in check.yml or build-modem-image.sh); the fragment check misses QCOM_IPA's depends (olddefconfig would make it m silently). kernel-modem-mss.sh checks its dependency symbols - copy that.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: build-modem-image.sh runs the dtb selftest; kernel-modem-ipa.sh fails when a fragment sets QCOM_AOSS_QMP=m, INTERCONNECT or QCOM_SMEM off (a selftest case each)
+
+Rank
+: 32
+
+
+<a id="walleye-ipa-check-values-from-fixtures"></a>
+### The ipa checks read their expected values from the captured text, and the fixtures are verbatim
+
+Status
+: open
+
+Note
+: Review findings 3, 4, 5, 6: literals typed in check and dts; fixture C2 writes loader: for qcom,gsi-loader and drops lines without markers; the Kconfig help sentence cited is not in the fixture; the dropped iommus mask cell has no captured v7.3 line; tests/host/SOURCES.toml names the .cap only in a comment and lacks NAME=ipa_fws; modem-firmware.sh puts $N in printf/sed (label stays modem); selftest lacks cases for the smp2p-mpss parent, ipa_smp2p_in name, iommus swap, #interrupt-cells.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: a test that every literal of dtb-modem-ipa.sh (333, 432, 0x18e0, 0x18e2, 68) is found in tests/fixtures/kernel-text/msm8998-ipa-sources.txt; fixture block C2 says qcom,gsi-loader; ipa-Kconfig.txt carries the help sentence; the v7.3 #iommu-cells line captured
+
+Rank
+: 34
