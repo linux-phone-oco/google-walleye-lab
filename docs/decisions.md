@@ -4153,3 +4153,31 @@ Scope
 
 Tracked by
 : walleye-modem-mss-image
+
+
+<a id="2026-11-27-walleye-calls-signalling-first-audio-last"></a>
+### 2026-11-27-walleye-calls-signalling-first-audio-last
+
+Date
+: 2026-11-27
+
+Brief
+: Calls on walleye: ModemManager over qrtr first (IMEI, SIM, registration, a call without audio), q6voice audio last, after the ADSP tone path
+
+Decision
+: Take vector A: read QMI over qrtr (qmicli, read only), then ModemManager, then SIM, registration and SMS, then call signalling with a dial and hang-up, and only then in-call audio by porting the q6voice series on top of a working ADSP audio path. First step, which settles the biggest unknown: a read-only qmicli over qrtr DMS get-ids (IMEI) and the service list on the existing modem image.
+
+Why
+: Each step is userspace on mainline, proven by a check, and cheap on the phone (the modem image already boots, 21 of 21 steps). The biggest unknown (does the QMI set answer on this phone) is settled by one read. Audio is the only kernel work, depends on the unproven tone path, and has no mainline code to wait for.
+
+Rejected
+: B port q6voice first: no call to hear, tone path unproven, 25-40 h blind. C oFono plus q6voiced: ModemManager is the shell default (Phosh, Plasma Mobile); q6voiced still serves as the audio opener under A. D Android RIL/libhybris: proprietary, against mainline-first. E wait for OnePlus 5 fixes: nobody is on it, and the first steps need no fix. Data over IPA: out of this decision (MM issue 386, unstable on OnePlus 5); its own item later.
+
+About
+: modem-calls
+
+Research
+: walleye-modem-to-calls-how-it-stands
+
+Scope
+: walleye keeper, walleye builder

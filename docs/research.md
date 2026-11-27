@@ -9266,3 +9266,25 @@ Found
 
 About
 : walleye-modem-mss-proof
+
+
+<a id="walleye-modem-to-calls-how-it-stands"></a>
+### walleye-modem-to-calls-how-it-stands
+
+Date
+: 2026-11-27
+
+Brief
+: Calls need three layers after remoteproc_mss: QMI signalling (ModemManager over qrtr, mainline, now), a SIM, and in-call audio (q6voice, NOT mainline)
+
+Question
+: What does walleye need after remoteproc_mss for calls, in order, and which steps need the author?
+
+Found
+: Layers. (1) Signalling and registration: userspace only. The modem is up (research walleye-modem-mss-first-boot) with qrtr services listed incl. DMS/NAS/WDS/voice ids; libqmi speaks QMI over qrtr and ModemManager (qrtr support, QMI plugin) exposes IMEI, SIM, registration, SMS and the Voice interface (mmcli --voice-create-call). pmOS lists MSM8998 modem Partial, GPS from the modem's PDS works with qrtr alone. rmtfs already served the modem's opens; pd-mapper is in-kernel on new kernels (as on the Mi 9 case); tqftpserv is needed for wlanmdsp.mbn (Wi-Fi), not shown needed for calls; diag-router only if MSS crashes. (2) SIM: nothing registers without one; reading IMEI (DMS get-ids) and the qrtr service set need none. (3) Audio: mainline qdsp6 has the data path only (ASM/AFE/ADM); voice sessions (MVM 0x09, CVS 0x0A, CVP 0x0B) are not upstream. A q6voice series from msm8916-mainline is carried in sdm845-mainline wip/q6voice and sc7280-mainline PR 27; on hardware the call audio is routed modem to codec by the ADSP, a passive control session plus real AFE ports, with q6voiced or a mixer opening the stream. It rests on the ADSP audio path working at all: walleye's tone path (walleye-adsp-q6-mi2s, tas2557) is not proven, so in-call audio comes last. Nobody shows a Pixel 2 doing calls; OnePlus 5 has calls broken. Not known yet: whether the voice QMI service is listed with no SIM, the Pixel 2 earpiece/mic codec route, whether MM crashes the MSS as on OnePlus 5 with the ipa module. Vectors: A QMI/ModemManager first, signalling then audio (chosen); B port q6voice first; C oFono plus q6voiced as on msm8916; D Android RIL via libhybris; E wait for OnePlus 5.
+
+Sources
+: sdm845-mainline-wip-q6voice,q6voiced-daemon,sc7280-mainline-q6voice-pr27,nura-msm8998-wiki,linux-msm-tqftpserv,modemmanager-voice-api,cepheus-mainline-readme,modemmanager-issue-386
+
+About
+: modem-calls

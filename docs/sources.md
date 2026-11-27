@@ -2018,3 +2018,73 @@ Url
 
 Takes
 : QPNP_PON_PERPH_SUBTYPE base+0x05; PON_GEN2_PRIMARY 0x04, PON_GEN2_SECONDARY 0x05; gen2 reasons at 0xC0..
+
+
+<a id="sdm845-mainline-wip-q6voice"></a>
+### sdm845-mainline linux, branch wip/q6voice (ASoC qdsp6 voice: MVM/CVS/CVP)
+
+Url
+: https://gitlab.com/sdm845-mainline/linux/-/tree/wip/q6voice
+
+Takes
+: in-call audio is not mainline; a q6voice series from msm8916-mainline (Gerhold, Knecht) is carried on sdm845 and sc7280 trees
+
+
+<a id="q6voiced-daemon"></a>
+### q6voiced: userspace daemon opening the voice PCM on oFono call signals
+
+Url
+: https://github.com/alexander-pav/q6voiced
+
+Takes
+: with the q6voice driver, a daemon starts the hostless voice stream when a call starts; the modem routes call audio itself
+
+
+<a id="sc7280-mainline-q6voice-pr27"></a>
+### sc7280-mainline PR 27: ASoC q6voice for FP5 (Acayan, on v7.0)
+
+Url
+: https://github.com/sc7280-mainline/linux/pull/27
+
+Takes
+: q6voice ported to a newer kernel and SoC; VoiceMMode1 replaces CS-Voice on newer firmware
+
+
+<a id="nura-msm8998-wiki"></a>
+### Qualcomm Snapdragon 835 (MSM8998) wiki page (postmarketOS wiki mirror)
+
+Url
+: https://wiki.nura.eco/wiki/Qualcomm_Snapdragon_835_(MSM8998)
+
+Takes
+: modem Partial, audio Works on MSM8998; WLAN userspace needs pd-mapper, tqftpserv, qrtr, rmtfs and diag-router when MSS keeps crashing; GPS works from the modem's PDS
+
+
+<a id="linux-msm-tqftpserv"></a>
+### linux-msm/tqftpserv: TFTP server over QRTR
+
+Url
+: https://github.com/linux-msm/tqftpserv
+
+Takes
+: serves modem-requested files (wlanmdsp.mbn, calibration) over qrtr
+
+
+<a id="modemmanager-voice-api"></a>
+### ModemManager: org.freedesktop.ModemManager1.Modem.Voice
+
+Url
+: https://modemmanager.org/
+
+Takes
+: Voice interface handles calls once the modem can register; mmcli drives it
+
+
+<a id="cepheus-mainline-readme"></a>
+### NiHaiden/cepheus_linux_postmarketOS (Mi 9 mainline)
+
+Url
+: https://github.com/NiHaiden/cepheus_linux_postmarketOS
+
+Takes
+: a recent SoC family case: modem boots, in-kernel pd-mapper, cellular still waits on ModemManager over QMI/qrtr with a SIM
