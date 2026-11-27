@@ -14026,7 +14026,7 @@ Note
 : No SIM yet. If MSS crashes: hold back the ipa module, then try diag-router (nura wiki).
 
 Blocked by
-: walleye-modem-qmi-ids-read
+: walleye-modem-mm-runs-where
 
 About
 : modem-calls
@@ -14185,3 +14185,28 @@ Proof
 
 Rank
 : 20
+
+
+<a id="walleye-modem-mm-runs-where"></a>
+### Where ModemManager runs on walleye: in the RAM-boot ramdisk (static or with its libs, D-Bus) or a rootfs booted from RAM or the card, with nothing flashed
+
+Status
+: open
+
+Note
+: From walleye-modem-qmi-ids-read done (PR 1277; coordinator 2026-11-27): today's modem image is a busybox ramdisk with static tools; ModemManager is not in it (build/ and device.toml name none). walleye-modem-mm-sees-modem waits on this.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: research
+
+Proof
+: a research row with sources (ModemManager's QRTR plugin and its needs - dbus, glib, libqmi, libmbim, udev; how postmarketOS and other msm8998 ports run it; walleye's own image limits: 32 MiB boot image, the firmware push, the UFS-off gate) choosing one way with its build and test steps, ending in backlog rows; what it leaves open said as not known yet
+
+Rank
+: 21
