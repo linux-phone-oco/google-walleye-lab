@@ -10543,3 +10543,21 @@ Rejected
 
 About
 : walleye-modem-mss-proof
+
+---
+
+
+<a id="2026-11-27-1300-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Closed walleye-modem-mss-proof on the record of the first modem boot (modem-up check, selftest passes on the kept read); no phone change this run. Phone on Android slot b, stock; fastboot reachable per last stand.
+
+Considered
+: next: walleye-deep-sleep-baseline needs meter and hands, walleye-display-late-probe-poll-stripes-rc waits for an idle slot, walleye-fingerprint-spi-hwid is host-first; calls/pd-mapper/SIM unknown, coordinator picks
+
+About
+: walleye-modem-mss-proof
