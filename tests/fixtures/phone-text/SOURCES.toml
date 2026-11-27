@@ -86,3 +86,6 @@ source = "research:walleye-modem-mss-first-boot"   # read.txt of run modem-boot-
 
 [scripts."walleye-ipa-fws-mdt-readelf.cap"]
 source = "research:walleye-android-read-visit-2026-11-24"   # readelf -lW of firmware/ipa_fws.mdt, the file pulled from the phone's own /vendor/firmware (~/lab-material/walleye/vendor-firmware-2026-11-24, never git): its program-header layout, not its content
+
+[scripts."modem-tqftpserv-20261127-165116.cap"]
+source = "research:walleye-modem-mm-first-try-run-4-mm-up-passes"   # the tqftpserv section of daemon-logs.txt of run modem-boot-20261127-165116 as kept (~/lab-material/walleye/modem-boot-20261127-165116, never git): the modem's requests and tqftpserv's refusals

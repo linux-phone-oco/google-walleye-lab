@@ -11008,3 +11008,24 @@ Considered
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-tqftpserv-wlanmdsp"></a>
+### walleye builder: wlanmdsp.mbn into the modem firmware tar; tqftpserv's clean-log check
+
+Entry date
+: 2026-11-27
+
+Done
+: Read tqftpserv's translate.c and the pinned build's strings against the run-4 log (research walleye-modem-tqftpserv-serves). Test first: tests/host/modem-firmware-served.sh failed on the old tar (wlanmdsp.mbn missing), passes on the new one built by build/build-modem-ramdisk.sh (tar 9073e47e, ramdisk unchanged daa0faaa; selftests ok). device.toml's firmware_sha256 moved in both rows; the tar is in images-modem (old one kept as modem-firmware.tar.46582cc4). New tests/host/modem-tqftpserv-clean.sh judges the next boot's tqftpserv log (no refused /readonly or ota_firewall read, no /readwrite file written 3+ times), selftested on the captured log.
+
+Considered
+: Upgrading tqftpserv to a build that knows /readonly/vendor/firmware/: not needed, the image path serves the same file. Creating /readwrite/ota_firewall in /tmp/tqftpserv in modem-up: the modem only reads it in the capture, who provides it is not known yet.
+
+Rejected
+: Typing the mcfg.tmp fix: the loop's cause is not known yet, so no change was made for it.
+
+About
+: modem-calls

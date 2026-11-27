@@ -9599,3 +9599,25 @@ Found
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-tqftpserv-serves"></a>
+### walleye-modem-tqftpserv-serves
+
+Date
+: 2026-11-27
+
+Brief
+: tqftpserv (pinned build) serves /readonly/firmware/image/NAME from the mss firmware folder, /readwrite from /tmp/tqftpserv: wlanmdsp.mbn was refused for want of the file, the tar now holds it
+
+Question
+: Why did tqftpserv reject wlanmdsp.mbn and ota_firewall/ruleset and loop on /readwrite/mcfg.tmp in run modem-boot-20261127-165116, and where do those files live on Android and in tqftpserv's source?
+
+Found
+: Source (linux-msm/tqftpserv translate.c) and the strings of the pinned build (nixpkgs 619c39f6, tqftpserv 2025-08-01): /readonly/firmware/image/NAME is opened from /lib/firmware/<dirname of each remoteproc's firmware file>/NAME (here qcom/msm8998/google/walleye); /readwrite/ is a directory the build keeps in /tmp/tqftpserv (mkdir of the last component only); the build does not know the prefix /readonly/vendor/firmware/ (newer upstream does), so that request is rejected by the path rule itself. wlanmdsp.mbn: the modem asked the image path first, then the vendor path; on Android it is in /vendor/firmware, the lab's pull (vendor-firmware-2026-11-24, sha256sums) has it (3723164 bytes); it was missing from the firmware tar, so the image-path request failed ENOENT. Fixed: build-modem-ramdisk.sh adds it, checked against the pull's sums; tar sha 9073e47e (38 files). mcfg.tmp is a file the modem writes into /readwrite (the capture shows 9 write requests, each followed by a read and END OF TRANSFER 9) and ota_firewall/ruleset one it reads (a read, no write, in the capture); why the modem repeats the writes, who provides the ruleset and where Android keeps either is NOT KNOWN YET - no copy of either is in ~/lab-material. Proofs: tests/host/modem-firmware-served.sh (the tar, host, passes) and tests/host/modem-tqftpserv-clean.sh (the next boot's log, needs the phone).
+
+Sources
+: linux-msm-tqftpserv
+
+About
+: modem-calls

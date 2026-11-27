@@ -14500,7 +14500,7 @@ Status
 : open
 
 Note
-: Seen in run 4 of mm-first-try (PR 1300). wlanmdsp.mbn is the modem side of the WCN3990 Wi-Fi firmware (relevant to walleye-wifi-wcn3990); this also feeds the docs step modem-file-services.
+: Seen in run 4 of mm-first-try (PR 1300). Built 2026-11-27 (walleye-builder): the firmware tar holds wlanmdsp.mbn (tests/host/modem-firmware-served.sh passes, tar sha 9073e47e); research walleye-modem-tqftpserv-serves. Left for the phone: the next modem boot's tqftpserv log judged by tests/host/modem-tqftpserv-clean.sh; the mcfg.tmp loop and ota_firewall/ruleset : the modem writes mcfg.tmp and reads ota_firewall/ruleset, cause and source not known yet; the first clean boot decides the check's loop threshold.
 
 About
 : modem-calls
@@ -14509,10 +14509,10 @@ Opened
 : 2026-11-27
 
 Needs
-: build
+: phone
 
 Proof
-: the next modem boot's tqftpserv log has no loop on /readwrite/mcfg.tmp and no reject of wlanmdsp.mbn or ota_firewall/ruleset; where each file lives on Android (vendor or persist partition, read in ~/lab-material, never git) and where tqftpserv looks for it (its source) is cited; nothing written to the phone's partitions
+: tests/host/modem-tqftpserv-clean.sh
 
 Rank
 : 24
