@@ -16,13 +16,10 @@ done
 echo "$LIST" | grep -Eq '(^|/)libqrtr-glib[^/]*\.so' || say fail "libqrtr-glib is not in the tar (no QRTR transport)"
 echo "$LIST" | grep -Eq '(^|/)(modemst[12]|modem_fs[12cg]|fsg|fsc|mba\.mbn|modem\.mdt)$' && say fail "modem storage or firmware is inside the tar"
 umask 077; T=$(mktemp -d); trap 'chmod -R u+w "$T"; rm -rf "$T"' EXIT
-tar -xf "$TAR" -C "$T" --wildcards '*/bin/ModemManager' '*/bin/mmcli' 2>/dev/null
-n=0
-for f in $(find "$T" -type f); do
-  file "$f" | grep -q 'ELF 64-bit LSB.*ARM aarch64' || say fail "$(basename "$f") is not an aarch64 ELF"
-  n=$((n+1))
-done
-[ "$n" -ge 2 ] || say fail "ModemManager and mmcli could not be read from the tar"
+tar -xf "$TAR" -C "$T" --wildcards '*/bin/ModemManager' '*/bin/mmcli' '*/bin/dbus-daemon' '*/bin/qmicli' '*/bin/udevd' || say fail "could not extract the five programs from the tar"
+n=$(find "$T" -type f | wc -l)
+[ "$n" -ge 5 ] || say fail "only $n of ModemManager, dbus-daemon, mmcli, qmicli, udevd could be read from the tar"
+[ -z "$(find "$T" -type f -exec sh -c 'file "$1" | grep -q "ELF 64-bit LSB.*ARM aarch64" || echo "$1"' _ {} \;)" ] || say fail "a program in the tar is not an aarch64 ELF"
 want=$(sed -n 's/^\([0-9a-f]\{64\}\)  modem-mm-rootfs.tar$/\1/p' "$HERE/build/modem-mm-rootfs.sha256" 2>/dev/null)
 [ -n "$want" ] || say fail "no sha256 recorded in build/modem-mm-rootfs.sha256"
 got=$(sha256sum "$TAR" | cut -d' ' -f1)

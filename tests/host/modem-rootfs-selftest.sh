@@ -18,5 +18,7 @@ cp -a "$W/tree" "$W/noudev";  find "$W/noudev" -name udevd -exec rm -f {} +;    
 cp -a "$W/tree" "$W/fw";      : > "$W/fw/mba.mbn";                                repack fw;      want "firmware inside" "modem storage or firmware" "$W/fw.tar"
 cp -a "$W/tree" "$W/st";      : > "$W/st/modemst1";                               repack st;      want "modem storage inside" "modem storage or firmware" "$W/st.tar"
 cp -a "$W/tree" "$W/other";   : > "$W/other/extra";                               repack other;   want "a changed tar" "differs from the recorded" "$W/other.tar"
+cp -a "$W/tree" "$W/notelf"; find "$W/notelf" -name ModemManager -type f -exec sh -c 'printf "#!/bin/sh\n" > "$1"' _ {} \; ; repack notelf; want "ModemManager not an ELF" "not an aarch64 ELF" "$W/notelf.tar"
+cp -a "$W/tree" "$W/noqrtr"; find "$W/noqrtr" -name 'libqrtr-glib*' -exec rm -rf {} + ; repack noqrtr; want "no QRTR library" "libqrtr-glib is not in the tar" "$W/noqrtr.tar"
 printf 'not a tar' > "$W/junk"; want "not a tar" "is not a tar" "$W/junk"
 exit $bad
