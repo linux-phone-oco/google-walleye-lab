@@ -97,12 +97,14 @@ pub const IDS_COMMAND: &str = "timeout -k 2 15 qmicli -d qrtr://0 --dms-get-ids 
 /// Where `mm-up` puts the rootfs (build/initramfs-modem/mm-up: `MM_ROOT` defaults to /mm), and the bounds of the mmcli ask: up to `MMCLI_TRIES` tries of `mmcli -L`, `MMCLI_TRY_S` s each and 1 s between (ModemManager probes the modem over qrtr after it starts),
 /// then one `-L` and one `-m 0` for the kept text, each bounded by `MMCLI_TRY_S`; `MMCLI_S` is what the step may take.
 pub const MM_ROOT: &str = "/mm";
-pub const MMCLI_TRIES: u64 = 6;
+pub const MMCLI_TRIES: u64 = 11;
 pub const MMCLI_TRY_S: u64 = 3;
-pub const MMCLI_S: u64 = 35; // the loop's worst case 6 x (3 + 1), the two asks 2 x 3, and 5 s of slack for the phone and the telnet
+/// How long the ask must keep asking: modem0's init waits 5 s for the PDC carrier config and the modem's DOG_HB crash comes at 39-43 s (research walleye-modem-mm-primary-port-read-why-no-modem-listed), so the loop covers 45 s; each try's answer is kept with the phone's uptime (---mmcli-tries) and the crash's dmesg line (---mmcli-crash), so 'listed', 'never listed' and 'lost in the crash' read apart.
+pub const MMCLI_ASK_COVERS_S: u64 = 45;
+pub const MMCLI_S: u64 = 55; // the loop's worst case 11 x (3 + 1), the two asks 2 x 3, the dmesg line, and 5 s of slack for the phone and the telnet
 /// What ModemManager lists, asked in the chroot by mmcli (ModemManager 1.24.2 cli/mmcli-manager.c: `-L, --list-modems`, `-m, --modem` takes an index or path; research walleye-mmcli-list-words). The `-m 0` text holds the equipment id (an IMEI): the kept file is redacted.
 /// The sections are the ones tests/health/base/modem-mm-starts.sh reads.
-pub const MMCLI_COMMAND: &str = "i=0; while [ $i -lt 6 ]; do timeout 3 chroot /mm /env/bin/mmcli -L 2>&1 | grep -q /Modem/ && break; i=$((i+1)); sleep 1; done; echo ---mmcli-L; timeout 3 chroot /mm /env/bin/mmcli -L 2>&1; echo ---mmcli-m0; P=$(timeout 3 chroot /mm /env/bin/mmcli -L 2>&1 | grep -o '/org/freedesktop/ModemManager1/Modem/[0-9]*' | head -n 1); timeout 3 chroot /mm /env/bin/mmcli -m \"${P:-0}\" 2>&1; echo ---end";
+pub const MMCLI_COMMAND: &str = "i=0; echo ---mmcli-tries; while [ $i -lt 11 ]; do o=$(timeout 3 chroot /mm /env/bin/mmcli -L 2>&1); echo \"up $(cut -d' ' -f1 /proc/uptime) s, try $i: $(echo \"$o\" | head -n 1)\"; echo \"$o\" | grep -q /Modem/ && break; i=$((i+1)); sleep 1; done; echo ---mmcli-L; timeout 3 chroot /mm /env/bin/mmcli -L 2>&1; echo ---mmcli-m0; P=$(timeout 3 chroot /mm /env/bin/mmcli -L 2>&1 | grep -o '/org/freedesktop/ModemManager1/Modem/[0-9]*' | head -n 1); timeout 3 chroot /mm /env/bin/mmcli -m \"${P:-0}\" 2>&1; echo ---mmcli-crash; dmesg | grep -i -e DOG_HB -e crash | tail -n 5; echo ---end";
 
 /// The one read over telnet: every remoteproc's name and state, the kernel's modem lines, the daemons' logs, qrtr-lookup's list; marks between the parts.
 pub const READ_COMMAND: &str = "echo ---remoteproc; for d in /sys/class/remoteproc/*; do [ -e $d/name ] || continue; echo \"$(cat $d/name) $(cat $d/state)\"; done; echo ---dmesg; dmesg | grep -i -e remoteproc -e remote.processor -e q6v5 -e mss -e rmtfs -e qrtr -e glink -e sysmon -e modem; echo ---logs; for f in /tmp/*.log; do echo \"== $f\"; cat $f; done; echo ---qrtr; qrtr-lookup 2>&1; echo ---end";
@@ -1322,6 +1324,20 @@ mod mmcli_tests {
             "the literals are the constants"
         );
         const { assert!(MMCLI_S > MMCLI_TRIES * (MMCLI_TRY_S + 1) + 2 * MMCLI_TRY_S) };
+    }
+
+    /// The ask covers 45 s (the DOG_HB crash is at 39-43 s), keeps each try's answer with the phone's uptime and the crash's dmesg line, and the step's guard still fits the 180 s window.
+    #[test]
+    fn the_ask_covers_the_crash_and_keeps_each_answer_with_its_time() {
+        const { assert!(MMCLI_TRIES * (MMCLI_TRY_S + 1) + MMCLI_TRY_S >= MMCLI_ASK_COVERS_S) };
+        const { assert!(MMCLI_S + READ_S + IDS_S < INIT_WINDOW_S) };
+        for kept in ["---mmcli-tries", "---mmcli-crash", "/proc/uptime", "DOG_HB"] {
+            assert!(MMCLI_COMMAND.contains(kept), "{kept}");
+        }
+        // the new sections sit before ---end and the health check's sections still read their own lines
+        let tries = MMCLI_COMMAND.find("---mmcli-tries").unwrap();
+        assert!(tries < MMCLI_COMMAND.find("---mmcli-L").unwrap());
+        assert!(MMCLI_COMMAND.find("---mmcli-crash").unwrap() < MMCLI_COMMAND.find("---end").unwrap());
     }
 
     /// The step's words say how many modems ModemManager listed, never a path's number or an id.

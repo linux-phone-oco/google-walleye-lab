@@ -11179,3 +11179,24 @@ Considered
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-mmcli-ask-waits-for-the-modem-s-init"></a>
+### mmcli ask waits for the modem's init
+
+Entry date
+: 2026-11-27
+
+Done
+: modem_boot.rs: the mmcli ask keeps asking 11 x (3+1) s = 45 s, records each try with uptime and the crash's dmesg lines; step window MMCLI_S 55; test added, 543 pass, command checked with sh -n.
+
+Considered
+: A time-bounded loop on the phone (date arithmetic in busybox sh) instead of a try count
+
+Rejected
+: Time-bounded loop: more shell logic than counting tries, and the constants test pins the count against the 45 s.
+
+About
+: modem-calls
