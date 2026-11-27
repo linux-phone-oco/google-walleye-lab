@@ -9435,3 +9435,22 @@ Sources
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-mm-first-try-run-3-dbus-system-and-config-file"></a>
+### walleye-modem-mm-first-try-run-3-dbus-system-and-config-file
+
+Date
+: 2026-11-27
+
+Brief
+: Third ModemManager try (run modem-boot-20261127-162502): checks 1-16 pass, mm-up stops: dbus-daemon refuses --system with --config-file
+
+Question
+: Does dbus start in the pushed nix rootfs with the store config?
+
+Found
+: dbus.log: '--config-file specified but configuration file /etc/dbus-1/system.conf already requested': --system loads the default system.conf, so --config-file clashes. Fix for the builder: drop --system from build/initramfs-modem/mm-up line 18 (config file alone names the system bus), rebuild the ramdisk and image, then retry. Logs kept in ~/lab-material/walleye/modem-boot-20261127-162502. Phone back on Android slot b; after-card, boot chain and flags checks did not run (stopped before), nothing flashed.
+
+About
+: modem-calls

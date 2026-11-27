@@ -10852,3 +10852,21 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-2030-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-mm-first-try (run 3, modem-boot-20261127-162502): checks 1-16 pass, mm-up stops: dbus-daemon refuses --system with --config-file (logs read). Phone back on Android slot b (adb); nothing flashed; after-card, boot chain and flags checks did not run (stopped before). Nothing patched.
+
+Considered
+: next: builder item walleye-modem-mm-up-no-system-flag (drop --system, rebuild ramdisk and image), then retry mm-first-try
+
+About
+: modem-calls
