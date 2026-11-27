@@ -318,7 +318,7 @@ The drawer is started by `tests/host/display-late-probe.sh` after the modules ar
 
 ```sh
 # the static tools (build/modem-tools.nix, each by its attribute) and the sha256 of each is in build/initramfs-modem/tools.sha256
-for t in rmtfs qrtr tqftpserv qmicli; do nix --extra-experimental-features 'nix-command flakes' build --impure -f build/modem-tools.nix $t -o $AGENT_BUILD/modem-tools-$t; done
+for t in rmtfs qrtr tqftpserv qmicli; do nix --extra-experimental-features nix-command build -f build/modem-tools.nix $t -o $AGENT_BUILD/modem-tools-$t; done
 RMTFS=... QRTR_NS=... QRTR_LOOKUP=... TQFTPSERV=... QMICLI=... build/build-modem-ramdisk.sh WORK_DIR RAMDISK.cpio.xz FIRMWARE.tar
 build/build-modem-image.sh IMAGE_SLPI Image.gz MODEM.dtb RAMDISK.cpio.xz OUT_DIR   # OUT_DIR/boot-modem.img, SHA256SUMS-modem
 ```

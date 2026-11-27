@@ -4271,3 +4271,28 @@ Scope
 
 Tracked by
 : walleye-modem-mm-rootfs-build
+
+
+<a id="2026-11-27-modem-nix-builds-pin-one-nixpkgs"></a>
+### 2026-11-27-modem-nix-builds-pin-one-nixpkgs
+
+Date
+: 2026-11-27
+
+Brief
+: The modem nix builds take nixpkgs from build/nixpkgs-pin.nix: one fetchTarball with its narHash, not the registry
+
+Decision
+: build/modem-tools.nix and build/modem-mm-rootfs.nix import build/nixpkgs-pin.nix (releases.nixos.org tarball of rev 619c39f6eac5, nixpkgs-26.11pre1126808, narHash sha256-3Xq+XlDu5l+UJ0cc+Jigs84+tz7Qu92NgXVHgJwC52M=). No flakes, no --impure needed. Moving the pin means changing url and sha256 together and re-recording every hash that moves.
+
+Why
+: builtins.getFlake nixpkgs follows the registry, so a recorded sha256 held for one revision only. Rebuilt from the pin 2026-11-27: the rootfs tar (70d239a9...) and rmtfs, qrtr-ns, qrtr-lookup, tqftpserv and qmicli all equal their records.
+
+Rejected
+: The lab's flake input: the lab has no flake.nix, and a flake would add a lock file to keep for two expressions. builtins.getFlake with a github: rev: a different tarball than the registry's, so a different narHash and a rebuild of nothing proven.
+
+About
+: modem-calls
+
+Tracked by
+: walleye-nix-pin-nixpkgs

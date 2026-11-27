@@ -10672,3 +10672,24 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-nix-pin-nixpkgs"></a>
+### walleye builder: nixpkgs pinned for the modem builds
+
+Entry date
+: 2026-11-27
+
+Done
+: build/nixpkgs-pin.nix (rev 619c39f6eac5 by fetchTarball and narHash) now feeds modem-tools.nix and modem-mm-rootfs.nix. Rebuilt from it: rootfs tar sha256 70d239a9... equal to build/modem-mm-rootfs.sha256; rmtfs, qrtr-ns, qrtr-lookup, tqftpserv, qmicli equal build/initramfs-modem/tools.sha256. No hash moved, so no image row changes. Build commands lose the flakes flags.
+
+Considered
+: A flake input; getFlake on a github rev.
+
+Rejected
+: Neither: see decision 2026-11-27-modem-nix-builds-pin-one-nixpkgs.
+
+About
+: modem-calls

@@ -4,7 +4,7 @@
 #   build-modem-ramdisk.sh WORK_DIR OUT_CPIO_XZ OUT_FIRMWARE_TAR
 # WORK_DIR is a folder of your own (mode 700) that this script fills and the cpio spec names; ENV: MATERIAL (default ~/lab-material/walleye/modem-2026-11-19, the phone's reads
 # with its sha256sums), BUSYBOX (default ~/Projects/walleye-build/busybox-arm64), RMTFS, QRTR_NS, QRTR_LOOKUP, TQFTPSERV, QMICLI (the nix outputs of build/modem-tools.nix:
-# `nix build --impure -f build/modem-tools.nix NAME -o OUT-NAME` for NAME rmtfs, qrtr, tqftpserv and qmicli: the binaries are OUT-NAME/bin/rmtfs, qrtr-ns, qrtr-lookup, tqftpserv, qmicli). The partitions' contents stay in WORK_DIR and the ramdisk, never in git.
+# `nix build -f build/modem-tools.nix NAME -o OUT-NAME` for NAME rmtfs, qrtr, tqftpserv and qmicli: the binaries are OUT-NAME/bin/rmtfs, qrtr-ns, qrtr-lookup, tqftpserv, qmicli). The partitions' contents stay in WORK_DIR and the ramdisk, never in git.
 # Every check stops the build (docs practice 24): a source whose sha256 is not the recorded one, a missing firmware file, a ramdisk that differs on a second pack.
 set -eu
 W=${1:?usage: build-modem-ramdisk.sh WORK_DIR OUT_CPIO_XZ OUT_FIRMWARE_TAR}
