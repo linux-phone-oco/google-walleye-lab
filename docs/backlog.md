@@ -13659,3 +13659,28 @@ Proof
 
 Rank
 : 8
+
+
+<a id="walleye-part-builds-reboot-nfc-up"></a>
+### Declare [part_builds.walleye-reboot] and [part_builds.walleye-nfc-up] (lab-tools 0.53.7) and retire build-reboot-bin.sh and build-nfc-up-bin.sh
+
+Status
+: open
+
+Note
+: From lab-tools 0.53.7 (recipe-static-binary-part, #466/#467; orchestration 2026-11-27). Needs walleye's lpoco-bringup pin at 0.53.7 or later (rhizoid's hourly bump, or bump it here). Limits: crates.io deps only, the crate stands alone; whether deps, LTO and panic=abort reproduce is not measured yet - a mismatch is read before any fix. Packing parts into a ramdisk is lab-tools part-ramdisk-packs-parts; until then the ramdisk keeps its EXTRA_BIN path.
+
+About
+: walleye-retire-build-scripts
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: lpoco bringup image ensure --rebuild walleye-reboot and walleye-nfc-up each prove the declared sha256; the ramdisks that pack them rebuild equal; tests/host/ufs-off-image.sh passes; the two scripts removed
+
+Rank
+: 7
