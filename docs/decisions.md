@@ -3994,3 +3994,34 @@ Amends
 
 Tracked by
 : walleye-retire-build-scripts
+
+
+<a id="2026-11-27-walleye-tools-keep-scripts-until-ramdisk-packs-parts"></a>
+### 2026-11-27-walleye-tools-keep-scripts-until-ramdisk-packs-parts
+
+Date
+: 2026-11-27
+
+Brief
+: walleye keeps build-reboot-bin.sh and build-nfc-up-bin.sh until lab-tools packs parts into ramdisks; then nix's bytes are accepted and the images re-proven
+
+Decision
+: Option (c) now, (a) later: the two scripts and their [images.*] rows stay. When lab-tools part-ramdisk-packs-parts is released and the attended NFC tag poll and PON control read have run, walleye declares [part_builds.*] with nix's own sha256, packs them by the part ramdisk, and re-proves the nfc and pon-read images (rebuild equal, UFS-off gate, one no-tag poll run).
+
+Why
+: Research walleye-part-builds-nix-bytes-differ: nix's builds differ from the scripts' (other toolchain), and the ramdisk cannot take a part yet, so switching now gains nothing and would change the binaries in the two images the author's attended runs are about to use.
+
+Rejected
+: (a) now: re-proves images just before attended runs, with no ramdisk packing to use the parts; (b) a toolchain matching the old script's from lab-tools: pins a hand toolchain instead of the reproducible nix one.
+
+About
+: walleye-retire-build-scripts
+
+Research
+: walleye-part-builds-nix-bytes-differ
+
+Scope
+: the walleye lane
+
+Tracked by
+: walleye-part-builds-reboot-nfc-up
