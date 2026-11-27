@@ -9228,3 +9228,22 @@ Sources
 
 About
 : walleye-modem-mss-proof
+
+
+<a id="walleye-modem-mss-first-boot"></a>
+### walleye-modem-mss-first-boot
+
+Date
+: 2026-11-27
+
+Brief
+: First modem boot on walleye: remoteproc_mss runs (up 22.5 s), mainline rmtfs_mem 0x88f00000 serves the modem, qrtr lists 38 services
+
+Question
+: Does remoteproc_mss boot on the phone with the pushed factory firmware, and does mainline's rmtfs_mem block work?
+
+Found
+: Run 2026-11-27 10:42 (image modem, nothing flashed, 21 of 21 steps passed, way back 31 s): firmware tar pushed and sha-checked (31 files); '4080000.remoteproc running'; kernel: 'MBA booted without debug policy, loading mpss' then 'remote processor 4080000.remoteproc is now up' at 22.5 s. rmtfs (at the mainline rmtfs_mem 0x88f00000, the region the phone's fdt does not name) answered the modem's opens of modem_fs1, fs2, fsg, fsc (=>0..3); only modem_fsg_oem_1/2 were refused (not in the image, harmless). qrtr-lookup lists 38 services including the modem embedded file system, time, thermal, IPA. The 3 failure lines are the slpi_v2.mdt load (-2): slpi is not in this image's firmware set, expected. qrtr-ns said 'already running': the kernel's ns. Not known yet: calls, SIM, data, whether the rmtfs block is the one Android uses. Files in ~/lab-material/walleye/modem-boot-20261127-104225.
+
+About
+: walleye-modem-mss-proof

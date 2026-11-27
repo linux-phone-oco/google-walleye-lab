@@ -10504,3 +10504,21 @@ Done
 
 Considered
 : next: walleye-try-modem-mss is now unblocked (rank 21): the first modem boot, read-only, image modem, firmware pushed; check whether it needs a go (tad q ready). Then walleye-modem-mss-proof. Earlier open: nfc image NET=43 vs 42 mismatch awaits coordinator.
+
+---
+
+
+<a id="2026-11-27-1130-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-try-modem-mss: the first modem boot passed 21 of 21 (image modem from memory, nothing flashed); remoteproc modem running, 'now up' at 22.5 s, mainline rmtfs_mem 0x88f00000 served the modem's storage opens, qrtr lists 38 services (research walleye-modem-mss-first-boot). Phone back on Android slot b, stock, 31 s; card, boot chain and flags as before. Item done; no go was open, none to close. No bring-up step claimed: ikb step names only docs' steps, tad has no bringup-chain query here.
+
+Considered
+: next: walleye-modem-mss-proof (parent item, open) wants its proof test - calls, pd-mapper, SIM are not known yet; the coordinator picks the next piece. Then walleye-deep-sleep-baseline (needs meter and hands), walleye-display-late-probe-poll-stripes-rc. Earlier open: nfc image NET=43 vs 42 mismatch awaits coordinator.
+
+About
+: walleye-modem-mss-proof
