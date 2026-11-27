@@ -14290,7 +14290,7 @@ Proof
 : tests/health/modem-mm-starts.sh (to write): ModemManager up and mmcli -L answers within 60 s after modem-up; broken until then
 
 Rank
-: 23
+: 22
 
 
 <a id="walleye-nix-pin-nixpkgs"></a>
