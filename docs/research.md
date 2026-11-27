@@ -9703,3 +9703,25 @@ Found
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-way-back-slow-read-reboot-f-hangs-with-ipa"></a>
+### walleye-modem-way-back-slow-read-reboot-f-hangs-with-ipa
+
+Date
+: 2026-11-27
+
+Brief
+: IPA modem runs return in 484 s after the read because 'reboot -f' hangs (ipa's shutdown hook is a full ipa_remove); sysrq b ends it at once; not the modem crash, not fastboot
+
+Question
+: Why did Android take more than 240 s to return after the IPA modem runs (check 22), and does the way back land in fastboot?
+
+Found
+: Host kernel journal (USB events) for 13 runs: the test image's USB gadget (1d6b:0104) vanishes exactly 180 s after it appears in every run without IPA (124252, 165116, 172447, 184720: the petter's 'reboot -f' at 90 beats works, also in the three MM runs that had the DOG_HB crash). In the three IPA runs (202446, 210717, 213707) it stays up 532-533 s: gone 484 s after read.txt each time (20:26:21->20:34:25, 21:08:53->21:16:57, 21:38:42->21:46:46), i.e. 4 s + 240 s (check 22 wait) + 3 s + 240 s (way back leg 1 'reboot -f' waited back_wait=240) - the instant the way back's second leg sends 'echo b > /proc/sysrq-trigger'. So both 'reboot -f' (the image's own petter at 180 s and the lab's leg 1) never ended: reboot(2) runs device_shutdown, and drivers/net/ipa/ipa_main.c (linux 7.2.2) sets .shutdown = ipa_remove, the full teardown (ipa_modem_stop, ipa_teardown, GSI/endpoint exit) on an ipa with no interconnect and a live modem; the watchdog is stopped by the reboot notifier so nothing rescues it. sysrq b skips device_shutdown. Android then returns normally ~45 s later (4ee7 at +20 s, boot completed before the card read). The fastboot (4ee0) blip after Android in run 9 is the post-run slot read: the clean run 112433 shows the same blip after Android returned; the phone did not sit in fastboot (the coordinator's reading is replaced). Boot chain, card, slots unchanged (read before). Not measured: the hang's exact place inside ipa_remove (dmesg after 46 s was never read); it is read from source, not counted. Side finding for walleye-modem-dog-hb-crash: DOG_HB at 39.3-43.5 s is in every ModemManager run, with and without IPA (151057, 162502, 165116, 172447, 184720 have no ipa), so IPA is not its cause.
+
+About
+: modem-calls
+
+Material
+: research/modem-calls/2026-11-27/
