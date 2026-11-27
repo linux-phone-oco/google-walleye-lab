@@ -14836,34 +14836,6 @@ Rank
 : 19
 
 
-<a id="walleye-modem-mm-lists-modem-after-init"></a>
-### MM lists the modem: read why modem0 is not exported (Couldn't get primary port, /dev/qrtr0 missing) and ask mmcli -L after init settles
-
-Status
-: open
-
-Note
-: From run 9 (research walleye-modem-mm-first-try-run-9-net-port-candidate-modem0-created). Read MM's log after 50 s (keep it to the end of the window) and the qcom-soc plugin's primary-port rule first; also ask mmcli -L again at the end of the window. No change before it is read.
-
-Blocked by
-: walleye-modem-mm-primary-port-read
-
-About
-: modem-calls
-
-Opened
-: 2026-11-27
-
-Needs
-: phone
-
-Proof
-: tests/health/base/modem-calls.sh: modem-mm-listed passes (mmcli -L lists one modem)
-
-Rank
-: 20
-
-
 <a id="walleye-modem-image-ends-by-sysrq-b"></a>
 ### Modem image ends its window with sync and sysrq b
 
@@ -14949,10 +14921,10 @@ Rank
 ### Why ModemManager made modem0 over qrtr0 but lists no modem: read run 9's and run 10's daemon logs and ModemManager 1.24.2's qcom-soc / QRTR primary-port code
 
 Status
-: open
+: done
 
 Note
-: Coordinator 2026-11-27: walleye-modem-mm-lists-modem-after-init's note says read first, no change before; both reads are on the host, so they go before another phone run.
+: Read in research walleye-modem-mm-primary-port-read-why-no-modem-listed: not a missing primary port or qrtr; the ask was too short. Next: walleye-modem-mm-ask-waits-for-init, then walleye-modem-mm-lists-modem-after-init.
 
 About
 : modem-calls
@@ -14968,3 +14940,56 @@ Proof
 
 Rank
 : 19
+
+
+<a id="walleye-modem-mm-ask-waits-for-init"></a>
+### The modem boot's mmcli ask waits until a modem is listed or 45 s after modem0 appears, then the daemon log is read to its end
+
+Status
+: open
+
+Note
+: From research walleye-modem-mm-primary-port-read-why-no-modem-listed: runs 9 and 10 asked mmcli -L for only 6.6 s; modem0's init was still in ModemManager's 5 s PDC carrier-config wait. Change the ask in procedures/steps/src/modem_boot.rs (MMCLI_TRIES, MMCLI_S, MMCLI_COMMAND, the window guard) so it keeps asking up to ~45 s, then the read. No change to the phone image.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: tests/host check of the ask's bounds in modem_boot.rs (MMCLI_TRIES/MMCLI_S: the loop's worst case covers 45 s and the step's guard still fits the 180 s window)
+
+Rank
+: 18
+
+
+<a id="walleye-modem-mm-lists-modem-after-init"></a>
+### MM lists the modem: ask mmcli -L until init settles (45 s) and read MM's log to the end
+
+Status
+: open
+
+Note
+: Read done (research walleye-modem-mm-primary-port-read-why-no-modem-listed): 'no primary port' and '/dev/qrtr0 missing' are non-fatal; the ask ended before modem0's init (held 5 s by the PDC list-configs indication arriving before its response). Next: after the ask is lengthened, one modem boot run; capture MM log to the end, mmcli -L, -m 0. If still none, the log names the stopping step.
+
+Blocked by
+: walleye-modem-mm-ask-waits-for-init
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: tests/health/base/modem-calls.sh: modem-mm-listed passes (mmcli -L lists one modem)
+
+Rank
+: 20
