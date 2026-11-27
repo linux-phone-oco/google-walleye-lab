@@ -17,24 +17,21 @@ done
 echo "$LIST" | grep -Eq '(^|/)libqrtr-glib[^/]*\.so' || say fail "libqrtr-glib is not in the tar (no QRTR transport)"
 echo "$LIST" | grep -Eq '(^|/)(modemst[12]|modem_fs[12cg]|fsg|fsc|mba\.mbn|modem\.mdt)$' && say fail "modem storage or firmware is inside the tar"
 # What dbus and ModemManager read at start (item walleye-modem-mm-rootfs-dbus-config; source: run 2's dbus.log, research walleye-modem-mm-first-try-run-2-dbus-no-config, and dbus's own share/dbus-1/system.conf):
-# nix keeps dbus's config in the store, so mm-up starts the daemon with --config-file to the env's share; the file, ModemManager's bus policy in the same share, the messagebus user and group, and dbus-uuidgen (machine-id) must be in the tar.
-MMUP="$HERE/build/initramfs-modem/mm-up"
+# nix keeps dbus's config in the store, so mm-up starts the daemon with --config-file to the env's share (proved by running mm-up in modem-boot-selftest.sh); the file, ModemManager's bus policy in the same share, the messagebus user and group, and dbus-uuidgen (machine-id) must be in the tar.
 echo "$LIST" | grep -Eq -- '-modem-mm-env/share/dbus-1/system\.conf$' || say fail "dbus's share/dbus-1/system.conf is not in the tar (the bus config)"
 echo "$LIST" | grep -Eq -- '-modem-mm-env/share/dbus-1/system\.d/org\.freedesktop\.ModemManager1\.conf$' || say fail "ModemManager's bus policy (system.d/org.freedesktop.ModemManager1.conf) is not in the tar"
 echo "$LIST" | grep -Eq -- '-dbus-[^/]*/bin/dbus-uuidgen$' || say fail "dbus-uuidgen is not in the tar (no machine-id)"
 echo "$LIST" | grep -Eq '^\./etc/passwd$' || say fail "/etc/passwd is not in the tar"
 echo "$LIST" | grep -Eq '^\./etc/group$' || say fail "/etc/group is not in the tar"
-[ -r "$MMUP" ] || say fail "no $MMUP to read the way dbus is started"
-grep -Eq -- '/env/bin/dbus-daemon --system .*--config-file=/env/share/dbus-1/system\.conf' "$MMUP" || say fail "mm-up does not start dbus-daemon with --config-file=/env/share/dbus-1/system.conf"
-grep -Eq 'mkdir -p .*run/dbus' "$MMUP" || say fail "mm-up does not make /run/dbus"
-grep -Eq 'dbus-uuidgen --ensure=/etc/machine-id' "$MMUP" || say fail "mm-up does not make /etc/machine-id with dbus-uuidgen"
 umask 077; T=$(mktemp -d); trap 'chmod -R u+w "$T"; rm -rf "$T"' EXIT
 tar -xf "$TAR" -C "$T" --wildcards '*/bin/ModemManager' '*/bin/mmcli' '*/bin/dbus-daemon' '*/bin/qmicli' '*/bin/udevd' || say fail "could not extract the five programs from the tar"
 n=$(find "$T" -type f | wc -l)
 [ "$n" -ge 5 ] || say fail "only $n of ModemManager, dbus-daemon, mmcli, qmicli, udevd could be read from the tar"
 [ -z "$(find "$T" -type f -exec sh -c 'file "$1" | grep -q "ELF 64-bit LSB.*ARM aarch64" || echo "$1"' _ {} \;)" ] || say fail "a program in the tar is not an aarch64 ELF"
-tar -xOf "$TAR" ./etc/passwd 2>/dev/null | grep -q '^messagebus:' || say fail "/etc/passwd has no messagebus user (the bus config's <user>)"
-tar -xOf "$TAR" ./etc/group 2>/dev/null | grep -q '^messagebus:' || say fail "/etc/group has no messagebus group"
+P=$(tar -xOf "$TAR" ./etc/passwd 2>/dev/null); G=$(tar -xOf "$TAR" ./etc/group 2>/dev/null)
+echo "$P" | grep -q "^root:" || say fail "/etc/passwd has no root (ModemManager runs as root)"
+echo "$P" | grep -q "^messagebus:x:[0-9]*:100:" || say fail "/etc/passwd has no messagebus user with gid 100 (the bus config's <user>)"
+echo "$G" | grep -q "^messagebus:x:100:" || say fail "/etc/group has no messagebus group 100"
 want=$(sed -n 's/^\([0-9a-f]\{64\}\)  modem-mm-rootfs.tar$/\1/p' "$HERE/build/modem-mm-rootfs.sha256" 2>/dev/null)
 [ -n "$want" ] || say fail "no sha256 recorded in build/modem-mm-rootfs.sha256"
 got=$(sha256sum "$TAR" | cut -d' ' -f1)

@@ -12,7 +12,7 @@ want() { # NAME WORD TARFILE
 }
 if out=$(TAR="$TAR" sh "$CHECK"); then echo "ok   the build's tar passes"; else echo "FAIL the build's tar: $out"; bad=1; fi
 mkdir "$W/tree" && tar -xf "$TAR" -C "$W/tree" && chmod -R u+w "$W/tree"
-repack() { (cd "$W/$1" && tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf "$W/$1.tar" .); }
+repack() { (cd "$W/$1" && tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf "$W/$1.tar" .) && rm -rf "$W/$1"; }
 cp -a "$W/tree" "$W/nommcli"; find "$W/nommcli" -name mmcli -exec rm -f {} +;   repack nommcli; want "mmcli missing" "mmcli is not in the tar" "$W/nommcli.tar"
 cp -a "$W/tree" "$W/noudev";  find "$W/noudev" -name udevd -exec rm -f {} +;     repack noudev;  want "udevd missing" "udevd is not in the tar" "$W/noudev.tar"
 cp -a "$W/tree" "$W/fw";      : > "$W/fw/mba.mbn";                                repack fw;      want "firmware inside" "modem storage or firmware" "$W/fw.tar"
