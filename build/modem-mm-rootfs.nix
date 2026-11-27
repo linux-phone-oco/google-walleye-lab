@@ -1,13 +1,13 @@
 # The ModemManager rootfs pushed into the modem image's RAM (decision 2026-11-27-walleye-mm-rootfs-built-by-nix): the aarch64 (glibc) closure of ModemManager (polkit off, systemd off, QRTR on),
 # dbus, mmcli, qmicli (libqmi with its QRTR transport) and udevd (eudev), packed as ONE tar: /nix/store/... closure, `env/` a symlink farm of the programs (env/bin, env/sbin), `etc`, `var/run`, `proc`, `sys`, `dev`, `run`, `tmp` empty mount points.
-#   nix --extra-experimental-features 'nix-command flakes' build --impure -f build/modem-mm-rootfs.nix -o OUT      (OUT/modem-mm-rootfs.tar)
+#   nix build -f build/modem-mm-rootfs.nix -o OUT      (OUT/modem-mm-rootfs.tar)
 #   sha256sum OUT/modem-mm-rootfs.tar > build/modem-mm-rootfs.sha256 (the name inside: modem-mm-rootfs.tar), then TAR=OUT/modem-mm-rootfs.tar sh tests/host/modem-rootfs-selftest.sh
 # The tar is built with sorted names, mtime 0 and owner 0: two builds are byte-equal (the test compares with the record). It stays out of git, like the firmware tar; no modem storage and no firmware inside.
 # Why each override: nixpkgs' ModemManager sets -Dqrtr from withIntrospection (a cross build has none), so qrtr is switched on by hand with libqrtr-glib as an input, as modem-tools.nix does for qmicli;
 # withPolkit/withSystemd off (the phone has neither: the research's own fallback is -Dpolkit=no); libqmi gets the same qrtr switch.
 let
-  pkgs = (import (builtins.getFlake "nixpkgs") { config = { allowUnsupportedSystem = true; allowBroken = true; }; }).pkgsCross.aarch64-multiplatform;
-  host = import (builtins.getFlake "nixpkgs") { };
+  pkgs = (import ./nixpkgs-pin.nix { config = { allowUnsupportedSystem = true; allowBroken = true; }; }).pkgsCross.aarch64-multiplatform;
+  host = import ./nixpkgs-pin.nix { };
   libqrtr-glib = pkgs.libqrtr-glib.overrideAttrs (o: {
     nativeBuildInputs = builtins.filter (d: !(builtins.any (p: builtins.substring 0 (builtins.stringLength p) (d.name or "") == p) [ "gtk-doc" "gobject-introspection" "docbook" ])) (o.nativeBuildInputs or [ ]);
     mesonFlags = (o.mesonFlags or [ ]) ++ [ "-Dintrospection=false" "-Dgtk_doc=false" ];

@@ -14297,10 +14297,10 @@ Rank
 ### Pin nixpkgs in build/modem-mm-rootfs.nix and modem-tools.nix to a revision
 
 Status
-: open
+: done
 
 Note
-: From the programmer review of walleye-modem-mm-rootfs-build: builtins.getFlake nixpkgs follows the registry, so the recorded sha256 holds for one revision only; the tar's sha256 would change with the pin and be re-recorded.
+: Done 2026-11-27: build/nixpkgs-pin.nix; rootfs tar and all five tools rebuilt equal to their recorded sha256 from it (cache-warm), none moved.
 
 About
 : modem-calls
