@@ -14809,10 +14809,10 @@ Rank
 ### mm-up replays the devices by writing add to their uevent files (the chroot's udevadm trigger refuses)
 
 Status
-: in-progress
+: done
 
 Note
-: Built and host-tested 2026-11-27: mm-up replays by uevent writes, image 88ddf088 in images-modem. Waits for one modem boot (the keeper); done when its ModemManager.log shows rmnet_ipa0 a candidate.
+: proven by run modem-boot-20261127-213707 (used by run 9): ModemManager.log shows rmnet_ipa0 allowlisted by plugin tag; modem0 created. mmcli -L still lists none: next item reads why
 
 About
 : modem-calls
@@ -14828,3 +14828,28 @@ Proof
 
 Rank
 : 19
+
+
+<a id="walleye-modem-mm-lists-modem-after-init"></a>
+### MM lists the modem: read why modem0 is not exported (Couldn't get primary port, /dev/qrtr0 missing) and ask mmcli -L after init settles
+
+Status
+: open
+
+Note
+: From run 9 (research walleye-modem-mm-first-try-run-9-net-port-candidate-modem0-created). Read MM's log after 50 s (keep it to the end of the window) and the qcom-soc plugin's primary-port rule first; also ask mmcli -L again at the end of the window. No change before it is read.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: tests/health/base/modem-calls.sh: modem-mm-listed passes (mmcli -L lists one modem)
+
+Rank
+: 20
