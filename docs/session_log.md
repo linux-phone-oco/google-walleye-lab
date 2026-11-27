@@ -10366,3 +10366,24 @@ Rejected
 
 About
 : walleye-pmic-wdt-v1-image
+
+---
+
+
+<a id="2026-11-27-walleye-builder-modem-dtb"></a>
+### walleye builder: the modem variant dtb and its check
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-mss-image (the first ready row, walleye-upstream-panel-series, is made in docs and needs a phone boot). Split off its dtb: dt/msm8998-google-walleye-modem.dts, tests/host/dtb-modem-mss.sh (seen failing on the board dtb, passing on the modem dtb) and its selftest of 10 known bad cases. Left on the image item: kernel list with the fuel gauge topic, config, static rmtfs/tqftpserv, ramdisk, gate, AVB, review.
+
+Considered
+: The ufs-off-wdt2 tag for the dtb: its tree lacks pmi8998_fg, which our board dts enables, so the dtb did not build there; ufs-on/v7.3/1 did.
+
+Rejected
+: Building the whole image in this run: the userspace tools and the kernel list are each a step to prove on their own.
+
+About
+: walleye-modem-mss-proof
