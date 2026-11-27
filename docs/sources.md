@@ -2128,3 +2128,22 @@ Url
 
 Takes
 : installed sizes: modemmanager 6.7 MB, libqmi 5.5 MB, libmm-glib 1.5 MB, glib 5.9 MB, dbus 0.7 MB, eudev 1.1 MB
+
+
+<a id="modemmanager-mmcli-1-24-2"></a>
+### ModemManager 1.24.2 cli/mmcli-manager.c and cli/mmcli-output.c
+
+Url
+: https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/tree/1.24.2/cli
+
+Author
+: ModemManager authors
+
+Year
+: 2024
+
+By
+: freedesktop.org ModemManager
+
+Takes
+: mmcli -L prints 4-space PATH [MANUFACTURER] MODEL per modem (output_modem_info, FOUND_ACTION_PREFIX); 'No modems were found' when none (dump_output_list_human); -m takes an index

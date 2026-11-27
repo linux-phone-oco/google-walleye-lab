@@ -31,7 +31,7 @@ use std::time::{Duration, Instant};
 type Done = Result<(), String>;
 
 /// The files of the run's folder; an earlier run of the day's are forgotten at the start (a stale answer is never this run's).
-pub const STALE: [&str; 10] = [
+pub const STALE: [&str; 12] = [
     "read.txt",
     "dmesg.txt",
     "daemon-logs.txt",
@@ -42,6 +42,8 @@ pub const STALE: [&str; 10] = [
     "qmi-ids.txt",
     "rootfs-push.txt",
     "mm-up.txt",
+    "mmcli.txt",
+    "mmcli-check.txt",
 ];
 /// The modem's remoteproc: its device's name (see the sources above).
 pub const MSS_NAME: &str = "4080000.remoteproc";
@@ -80,6 +82,8 @@ pub const MM_UP_S: u64 = 20;
 pub const AFTER_FIRMWARE_USUAL_S: u64 = 17;
 pub const MM_UP_USUAL_S: u64 = 11;
 pub const ROOTFS_READ_USUAL_S: u64 = 2;
+/// What `mmcli -L` takes when ModemManager answers at once (the tries below are only for a modem it has not probed yet).
+pub const MMCLI_USUAL_S: u64 = 3;
 
 /// Seconds the ids read may need (it is cut at `IDS_TIMEOUT_S` by the phone's own `timeout`).
 pub const IDS_S: u64 = 20;
@@ -89,6 +93,16 @@ pub const IDS_KILL_S: u64 = 2;
 /// The read-only DMS question over QRTR (libqmi src/qmicli/qmicli.c: `-d, --device` takes "device path or QRTR URI (e.g. qrtr://0)", `-p` is the proxy flag; qmicli-dms.c `dms-get-ids`:
 /// prints "Device IDs retrieved:" then ESN, IMEI and MEID lines). Its output holds the phone's IMEI: it is kept ONLY in the run's folder under ~/lab-material (qmi-ids.txt), never printed, logged or committed.
 pub const IDS_COMMAND: &str = "timeout -k 2 15 qmicli -d qrtr://0 --dms-get-ids 2>&1";
+
+/// Where `mm-up` puts the rootfs (build/initramfs-modem/mm-up: `MM_ROOT` defaults to /mm), and the bounds of the mmcli ask: up to `MMCLI_TRIES` tries of `mmcli -L`, `MMCLI_TRY_S` s each and 1 s between (ModemManager probes the modem over qrtr after it starts),
+/// then one `-L` and one `-m 0` for the kept text, each bounded by `MMCLI_TRY_S`; `MMCLI_S` is what the step may take.
+pub const MM_ROOT: &str = "/mm";
+pub const MMCLI_TRIES: u64 = 6;
+pub const MMCLI_TRY_S: u64 = 3;
+pub const MMCLI_S: u64 = 35; // the loop's worst case 6 x (3 + 1), the two asks 2 x 3, and 5 s of slack for the phone and the telnet
+/// What ModemManager lists, asked in the chroot by mmcli (ModemManager 1.24.2 cli/mmcli-manager.c: `-L, --list-modems`, `-m, --modem` takes an index or path; research walleye-mmcli-list-words). The `-m 0` text holds the equipment id (an IMEI): the kept file is redacted.
+/// The sections are the ones tests/health/base/modem-mm-starts.sh reads.
+pub const MMCLI_COMMAND: &str = "i=0; while [ $i -lt 6 ]; do timeout 3 chroot /mm /env/bin/mmcli -L 2>&1 | grep -q /Modem/ && break; i=$((i+1)); sleep 1; done; echo ---mmcli-L; timeout 3 chroot /mm /env/bin/mmcli -L 2>&1; echo ---mmcli-m0; P=$(timeout 3 chroot /mm /env/bin/mmcli -L 2>&1 | grep -o '/org/freedesktop/ModemManager1/Modem/[0-9]*' | head -n 1); timeout 3 chroot /mm /env/bin/mmcli -m \"${P:-0}\" 2>&1; echo ---end";
 
 /// The one read over telnet: every remoteproc's name and state, the kernel's modem lines, the daemons' logs, qrtr-lookup's list; marks between the parts.
 pub const READ_COMMAND: &str = "echo ---remoteproc; for d in /sys/class/remoteproc/*; do [ -e $d/name ] || continue; echo \"$(cat $d/name) $(cat $d/state)\"; done; echo ---dmesg; dmesg | grep -i -e remoteproc -e remote.processor -e q6v5 -e mss -e rmtfs -e qrtr -e glink -e sysmon -e modem; echo ---logs; for f in /tmp/*.log; do echo \"== $f\"; cat $f; done; echo ---qrtr; qrtr-lookup 2>&1; echo ---end";
@@ -254,6 +268,30 @@ pub fn mm_says(text: &str) -> Done {
     }
 }
 
+/// What the kept mmcli text says WITHOUT a path's index or an id: how many modems ModemManager listed, or its own words for none or an error (research walleye-mmcli-list-words).
+pub fn mmcli_says(text: &str) -> String {
+    let listing = section(text, "mmcli-L").unwrap_or_default();
+    let modems = listing.iter().filter(|l| l.contains("/Modem/")).count();
+    if modems > 0 {
+        format!(
+            "ModemManager lists {modems} modem{} (kept in mmcli.txt)",
+            if modems == 1 { "" } else { "s" }
+        )
+    } else if listing
+        .iter()
+        .any(|l| l.starts_with("No modems were found"))
+    {
+        "ModemManager answered: No modems were found (kept in mmcli.txt)".to_string()
+    } else if listing.iter().any(|l| l.starts_with("error:")) {
+        format!(
+            "mmcli said an error ({} lines, kept in mmcli.txt)",
+            listing.len()
+        )
+    } else {
+        "not known yet: mmcli -L printed nothing (kept in mmcli.txt)".to_string()
+    }
+}
+
 /// `modem-up`'s answer: the three daemons run, or the line that says why not (its text is the whole answer).
 pub fn up_says(text: &str) -> Done {
     if text.lines().any(|l| l.trim_start().starts_with(UP_DONE)) {
@@ -285,7 +323,7 @@ fn size_of(path: &std::path::Path) -> Result<u64, String> {
 
 /// The rootfs step and all after it, at the usual costs (the same set as the firmware step's guard, so a boot the firmware guard accepts the rootfs guard accepts after it): its push (from its size), `mm-up`, the read and the ids.
 pub fn rootfs_tail_s(rootfs_bytes: u64) -> u64 {
-    push_s(rootfs_bytes) + MM_UP_USUAL_S + ROOTFS_READ_USUAL_S
+    push_s(rootfs_bytes) + MM_UP_USUAL_S + MMCLI_USUAL_S + ROOTFS_READ_USUAL_S
 }
 
 /// Whether a step of at most `need` seconds still fits the init's window, `elapsed` seconds in.
@@ -543,7 +581,7 @@ impl ModemBoot {
         let u = self.clone();
         move || {
             let mut sh = u.lab.shell_when_up()?;
-            time_left_covers(u.elapsed()?, MM_UP_S + READ_S + IDS_S)?;
+            time_left_covers(u.elapsed()?, MM_UP_S + MMCLI_S + READ_S + IDS_S)?;
             let said = redact_ids(&sh.run("mm-up", Duration::from_secs(MM_UP_S))?); // its stop prints daemon logs, which may hold an IMEI
             u.lab.save("mm-up.txt", &said)?;
             let answer = mm_says(&said);
@@ -557,6 +595,24 @@ impl ModemBoot {
                 }
             }
             answer
+        }
+    }
+
+    /// ModemManager is asked what it lists (mmcli -L, and -m 0 for the modem it lists) in the chroot, after `mm-up` and before the read, so the read's daemon logs hold what ModemManager did about it. Kept as mmcli.txt, ids masked.
+    /// Whatever it says, the step passes: what ModemManager lists is the finding (tests/health/base/modem-mm-starts.sh judges it).
+    pub fn modemmanager_lists_the_modem(&self) -> impl FnOnce() -> Done + 'static {
+        let u = self.clone();
+        move || {
+            let mut sh = u.lab.shell_when_up()?;
+            time_left_covers(u.elapsed()?, MMCLI_S + READ_S + IDS_S)?;
+            let text = redact_ids(&sh.run(MMCLI_COMMAND, Duration::from_secs(MMCLI_S))?);
+            u.lab.save("mmcli.txt", &text)?;
+            u.lab.save(
+                "mmcli-check.txt",
+                &u.health_check_of("modem-mm-starts.sh", "LPOCO_MM_READ", "mmcli.txt"),
+            )?;
+            println!("  {}", mmcli_says(&text));
+            Ok(())
         }
     }
 
@@ -625,6 +681,11 @@ impl ModemBoot {
     /// in modem-up-check.txt and never end the run (the verdict and dmesg are still kept); a lib or a shell that is not there is said, never guessed.
     /// The suite's words (lab-tools health/suite/lib.sh) come from `LPOCO_HEALTH_LIB`, else the lab-tools clone's file.
     fn health_check(&self) -> String {
+        self.health_check_of("modem-up.sh", "LPOCO_MODEM_READ", "read.txt")
+    }
+
+    /// The same for any check of tests/health/base: `check` run with the kept file `kept` in the environment variable `read_env`.
+    fn health_check_of(&self, check: &str, read_env: &str, kept: &str) -> String {
         let lib = std::env::var("LPOCO_HEALTH_LIB").unwrap_or_else(|_| {
             format!(
                 "{}/Projects/linux-phone-oco/lab-tools/health/suite/lib.sh",
@@ -633,8 +694,9 @@ impl ModemBoot {
         });
         health_text(
             &lib,
-            &self.s.lab.join("tests/health/base/modem-up.sh"),
-            &self.s.out.join("read.txt"),
+            &self.s.lab.join("tests/health/base").join(check),
+            read_env,
+            &self.s.out.join(kept),
         )
     }
 
@@ -645,17 +707,26 @@ impl ModemBoot {
 }
 
 /// What `sh CHECK` prints on the kept read, with the suite's words at `lib`; the reasons it could not run are the text, not an error.
-fn health_text(lib: &str, check: &std::path::Path, read: &std::path::Path) -> String {
+fn health_text(
+    lib: &str,
+    check: &std::path::Path,
+    read_env: &str,
+    read: &std::path::Path,
+) -> String {
     if !std::path::Path::new(lib).is_file() {
         return format!("not run: the suite's lib.sh is not at {lib} (set LPOCO_HEALTH_LIB)");
     }
     let mut c = std::process::Command::new("sh");
     c.arg(check)
         .env("LPOCO_HEALTH_LIB", lib)
-        .env("LPOCO_MODEM_READ", read);
+        .env(read_env, read);
     match host::run(c) {
         Ok(said) if said.ok => said.text,
-        Ok(said) => format!("not run: modem-up.sh exited with an error: {}", said.text),
+        Ok(said) => format!(
+            "not run: {} exited with an error: {}",
+            check.display(),
+            said.text
+        ),
         Err(e) => format!("not run: {e}"),
     }
 }
@@ -774,13 +845,13 @@ mod tests {
             "echo \"fail modem-remoteproc-running modem-data via $LPOCO_MODEM_READ\"\n",
         )
         .unwrap();
-        let missing = health_text("/nonexistent/lib.sh", &check, &read);
+        let missing = health_text("/nonexistent/lib.sh", &check, "LPOCO_MODEM_READ", &read);
         assert!(
             missing.starts_with("not run: the suite's lib.sh is not at /nonexistent/lib.sh"),
             "{missing}"
         );
         std::fs::write(&lib, "").unwrap();
-        let said = health_text(lib.to_str().unwrap(), &check, &read);
+        let said = health_text(lib.to_str().unwrap(), &check, "LPOCO_MODEM_READ", &read);
         assert_eq!(
             said,
             format!(
@@ -898,6 +969,7 @@ mod tests {
             "b.the_modem_is_started",
             "b.the_rootfs_is_pushed",
             "b.the_modemmanager_is_started",
+            "b.modemmanager_lists_the_modem",
             "b.the_modem_is_read",
             "b.the_ids_are_read_and_kept_private",
         ];
@@ -923,6 +995,8 @@ mod tests {
             "rootfs-push.txt",
             "mm-up.txt",
             "qmi-ids.txt",
+            "mmcli.txt",
+            "mmcli-check.txt",
         ] {
             assert!(
                 text.matches(&format!("\"{name}\"")).count() >= 3,
@@ -1092,7 +1166,10 @@ mod tests {
     fn the_rootfs_guards_count_the_push_and_everything_after_it() {
         assert_eq!(push_s(ROOTFS_BYTES), 81);
         let tail = rootfs_tail_s(ROOTFS_BYTES);
-        assert_eq!(tail, 81 + MM_UP_USUAL_S + ROOTFS_READ_USUAL_S);
+        assert_eq!(
+            tail,
+            81 + MM_UP_USUAL_S + MMCLI_USUAL_S + ROOTFS_READ_USUAL_S
+        );
         assert!(time_left_covers(Duration::from_secs(25), tail).is_ok());
         assert!(time_left_covers(Duration::from_secs(90), tail).is_err());
     }
@@ -1103,7 +1180,7 @@ mod tests {
         let need = firmware_to_end_usual_s(FIRMWARE_BYTES, ROOTFS_BYTES);
         assert_eq!(
             need,
-            26 + AFTER_FIRMWARE_USUAL_S + 81 + MM_UP_USUAL_S + ROOTFS_READ_USUAL_S
+            26 + AFTER_FIRMWARE_USUAL_S + 81 + MM_UP_USUAL_S + MMCLI_USUAL_S + ROOTFS_READ_USUAL_S
         );
         assert!(need < INIT_WINDOW_S, "{need} s must fit the window");
         let late = Duration::from_secs(INIT_WINDOW_S - need + 1);
@@ -1207,5 +1284,80 @@ mod tests {
         }
         assert!(real.contains("Settings::for_modem_boot()"));
         assert!(rehearsal.contains("Settings::for_rehearse_modem_boot()"));
+    }
+}
+
+#[cfg(test)]
+mod mmcli_tests {
+    use super::*;
+
+    /// mmcli's words are ModemManager 1.24.2's (research walleye-mmcli-list-words): -L prints "    PATH [MANUFACTURER] MODEL" and "No modems were found" with none.
+    const LISTED: &str =
+        "    /org/freedesktop/ModemManager1/Modem/0 [QUALCOMM INCORPORATED] MSM8998";
+
+    /// The kept file's sections are the ones tests/health/base/modem-mm-starts.sh reads, and the commands ask inside the chroot, with the bounds the guard counts.
+    #[test]
+    fn the_command_asks_mmcli_in_the_chroot_and_names_the_sections_the_health_check_reads() {
+        let check = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../tests/health/base/modem-mm-starts.sh"
+        ))
+        .unwrap();
+        for section in ["---mmcli-L", "---mmcli-m0"] {
+            assert!(MMCLI_COMMAND.contains(section), "{section}");
+        }
+        assert!(check.contains("section mmcli-L"), "the check reads mmcli-L");
+        assert!(
+            MMCLI_COMMAND.contains("chroot /mm /env/bin/mmcli -L"),
+            "{MMCLI_COMMAND}"
+        );
+        assert!(
+            MMCLI_COMMAND.contains("chroot /mm /env/bin/mmcli -m \"${P:-0}\""),
+            "{MMCLI_COMMAND}"
+        );
+        assert!(MMCLI_COMMAND.ends_with("echo ---end"), "{MMCLI_COMMAND}");
+        assert!(
+            MMCLI_COMMAND.contains(&format!("-lt {MMCLI_TRIES} ]"))
+                && MMCLI_COMMAND.contains(&format!("timeout {MMCLI_TRY_S} ")),
+            "the literals are the constants"
+        );
+        const { assert!(MMCLI_S > MMCLI_TRIES * (MMCLI_TRY_S + 1) + 2 * MMCLI_TRY_S) };
+    }
+
+    /// The step's words say how many modems ModemManager listed, never a path's number or an id.
+    #[test]
+    fn the_words_count_the_modems_listed_and_name_no_id() {
+        let one = format!(
+            "---mmcli-L\n{LISTED}\n---mmcli-m0\n  Hardware | equipment id: 000000000000000\n---end"
+        );
+        assert_eq!(
+            mmcli_says(&one),
+            "ModemManager lists 1 modem (kept in mmcli.txt)"
+        );
+        let none =
+            "---mmcli-L\nNo modems were found\n---mmcli-m0\nerror: couldn't find modem\n---end";
+        assert_eq!(
+            mmcli_says(none),
+            "ModemManager answered: No modems were found (kept in mmcli.txt)"
+        );
+        let err = "---mmcli-L\nerror: couldn't find the ModemManager process in the bus\n---mmcli-m0\n---end";
+        assert!(
+            mmcli_says(err).starts_with("mmcli said an error"),
+            "{}",
+            mmcli_says(err)
+        );
+        assert!(mmcli_says("---mmcli-L\n---mmcli-m0\n---end").starts_with("not known yet"));
+    }
+
+    /// `mmcli -m 0` prints the modem's equipment id (an IMEI): the kept file has it masked.
+    #[test]
+    fn the_kept_mmcli_text_masks_the_imei() {
+        let kept = redact_ids(
+            "  Hardware | equipment id: 356938035643809\n  System | device id: 0123abcd",
+        );
+        assert!(
+            !kept.contains("356938035643809") && kept.contains("<id masked>"),
+            "{kept}"
+        );
     }
 }

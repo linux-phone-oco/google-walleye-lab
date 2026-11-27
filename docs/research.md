@@ -9473,3 +9473,25 @@ Found
 
 About
 : modem-calls
+
+
+<a id="walleye-mmcli-list-words"></a>
+### walleye-mmcli-list-words
+
+Date
+: 2026-11-27
+
+Brief
+: mmcli -L words from ModemManager 1.24.2: '    PATH [MFR] MODEL' per modem, 'No modems were found' with none, 'error:' when it cannot ask; modem-mm-starts.sh judges them
+
+Question
+: What does mmcli -L print for a listed modem, for none, and when ModemManager cannot be reached, so a check can judge the modem boot's mmcli text?
+
+Found
+: Read at tag 1.24.2: mmcli-manager.c output_modem_info prints prefix (4 spaces) + D-Bus path + '[manufacturer] model' ('manufacturer unknown'/'model unknown' when absent); mmcli-output.c dump_output_list_human prints 'No modems were found' for an empty list; mmcli failures start 'error:'. The proof test tests/host/modem-mm-starts-selftest.sh uses stand-ins made from these format strings, NOT captured from a phone: the first keeper run's mmcli.txt is the capture to replace them.
+
+Sources
+: modemmanager-mmcli-1-24-2
+
+About
+: modem-calls

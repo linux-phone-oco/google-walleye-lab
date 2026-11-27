@@ -10909,3 +10909,24 @@ Considered
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-walleye-builder-mm-list-in-boot"></a>
+### mmcli -L in the modem boot, judged by modem-mm-starts.sh
+
+Entry date
+: 2026-11-27
+
+Done
+: Check tests/health/base/modem-mm-starts.sh + selftest (seen failing first); step modemmanager_lists_the_modem between mm-up and the read: mmcli -L (6 tries) and -m on the path -L printed (index 0 if none) in the /mm chroot, kept as mmcli.txt ids masked, verdict mmcli-check.txt. Programmer review fixed: clippy const assert, MMCLI_S 35 with slack, mm-up guard counts MMCLI_S, -m takes the listed path, health_text names its check. Steps tests 542, clippy -D warnings, selftest and dry run pass; no build/ change. Left (low): retries count tries not time; MMCLI_COMMAND repeats the constants; procedure description not mentioning mmcli; selftests not in CI.
+
+Considered
+: a ramdisk script (image would change)
+
+Rejected
+: a ramdisk script: image would change for no gain
+
+About
+: modem-calls
