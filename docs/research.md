@@ -9665,3 +9665,22 @@ Sources
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-mm-first-try-run-8-udev-trigger-refused-in-chroot"></a>
+### walleye-modem-mm-first-try-run-8-udev-trigger-refused-in-chroot
+
+Date
+: 2026-11-27
+
+Brief
+: Eighth modem try (run 210717): udevd runs and tags qrtr0, but 'udevadm trigger' says 'Running in chroot, ignoring request', so rmnet_ipa0 (made before udevd) stays 'not candidate'
+
+Question
+: With mm-up starting udevd and replaying the devices, does ModemManager take rmnet_ipa0 as the net port and list the modem?
+
+Found
+: Image e008a671, rootfs tar 5484b570, nothing flashed. Checks 1-20 pass; mmcli -L 'No modems were found'. ModemManager.log: qrtr0 'port type hint detected in udev tag: ID_MM_PORT_TYPE_QMI' (udev works for ports made after udevd), but rmnet_ipa0 (platform, driver ipa, made when modem-up bound 1e40000.ipa, before udevd) 'not candidate'. mm-up.txt shows 'Running in chroot, ignoring request.' twice: the chroot's udevadm refuses trigger and settle, so the replay never happened. The rules are right: 80-mm-candidate sets ID_MM_CANDIDATE for SUBSYSTEM net, 77-mm-qcom-soc tags driver ipa. Next: replay by writing add to the devices' uevent files (what trigger does), or start udevd before modem-up binds ipa. The modem crashed once at 40 s (DOG_HB, as run 7); the way back was again slower than 240 s at check 22 (Android answered adb afterwards; card tables and slot flags equal to before; boot-chain files differ only in order, timestamps and loop devices). Run folder: lab-material/walleye/modem-boot-20261127-210717.
+
+About
+: modem-calls

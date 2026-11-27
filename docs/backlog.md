@@ -14734,7 +14734,10 @@ Status
 : open
 
 Note
-: From run 7: rmnet_ipa0 'not candidate' in MM's log. Read MM 1.24.2's rule (porting guide, 77-mm-*.rules, base-manager) first; then host-side fix in mm-up/rootfs, one modem boot. Also look at: DOG_HB modem crash at 40 s, and the way back slower than 240 s.
+: Run 8 (modem-boot-20261127-210717, used by run 8 of this item): udev works but the chroot's udevadm trigger refuses, rmnet_ipa0 not replayed; waits on walleye-modem-mm-udev-replay-by-uevent, then one modem boot
+
+Blocked by
+: walleye-modem-mm-udev-replay-by-uevent
 
 About
 : modem-calls
@@ -14800,3 +14803,28 @@ Proof
 
 Rank
 : 21
+
+
+<a id="walleye-modem-mm-udev-replay-by-uevent"></a>
+### mm-up replays the devices by writing add to their uevent files (the chroot's udevadm trigger refuses)
+
+Status
+: open
+
+Note
+: From run 8 (research walleye-modem-mm-first-try-run-8-udev-trigger-refused-in-chroot): in mm-up replace 'udevadm trigger/settle' by echo add > /sys/class/net/*/uevent (and the other classes MM reads) with udevd running, then settle by waiting for ID_MM_CANDIDATE in /run/udev/data; or start udevd before ipa binds. Then one modem boot.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: tests/host/modem-mm-starts-selftest.sh passes with a fake phone whose udevadm refuses, and a real modem boot lists rmnet_ipa0 as a candidate
+
+Rank
+: 19
