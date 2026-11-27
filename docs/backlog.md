@@ -8122,6 +8122,9 @@ Status
 Note
 : From the readiness note (docs research/upstream-forks/2026-11-19/upstream-readiness.md rows 7 to 9 and class c): the board dts is close (reviewed; open: author and SoB, carve-out and ramoops provenance, one boot of this exact dtb); the APSS watchdog and the charger are separate SoC patches. HOME (2026-11-20, upstreams coordinator, docs decision 2026-11-20-outgoing-items-live-in-upstream, docs #726): the series is made in docs under upstream/linux-arm-msm/walleye-board-dts/ (docs item walleye-board-dts), where the v0 two patches were copied unchanged; our research folder research/walleye-first-fastboot-boot/2026-11-19-upstream-dts/ stays as the v0 record and points there. COVER LETTER: the v0 letter says 'this exact file has not booted yet'; the try walleye-upstream-dts-tried-boots (boot-upstream-dts.img, 2026-11-19) booted the board dts to a gadget shell on v7.3, so the next letter says so: verify first that the dtb in that image is the series' dts file (compare the built dtb or rebuild from the series), then say it with the try's faults (psci PC mode -3, serial probe -2 from the overlay stub, spmi 'no reg property') as they are. Nothing is sent without the author's go.
 
+Waits
+: the upstreams lane makes the series in docs (decision 2026-11-20-outgoing-items-live-in-upstream); walleye's part is the one boot of the exact series, queued when it hands over an image
+
 About
 : walleye-display-s6e3fa5
 
@@ -8146,6 +8149,9 @@ Status
 
 Note
 : Mainline v7.3 has panel-samsung-s6e3fa7 and others but no s6e3fa5. The docs upstream-readiness note (2026-11-19) listed the panel as local only, 'WIP, never built'; it now builds, binds and lights the glass (display try 2026-11-19). The driver's on/off command sequence is the phone's own dtbo's. HOME (2026-11-20, upstreams coordinator, docs decision 2026-11-20-outgoing-items-live-in-upstream, docs #726): the series is made in docs under upstream/dri-devel/walleye-panel-s6e3fa5/, not in this repository; the cover letter says what really booted (the panel lit on mainline with the L7 load order, not yet from the board dts at boot: item walleye-display-dts-any-order). Nothing is sent without the author's go.
+
+Waits
+: the upstreams lane makes the series in docs (decision 2026-11-20-outgoing-items-live-in-upstream); walleye's part is the one boot of the exact series, queued when it hands over an image
 
 About
 : walleye-display-s6e3fa5
