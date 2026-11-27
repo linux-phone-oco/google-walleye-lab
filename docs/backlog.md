@@ -14026,7 +14026,7 @@ Note
 : No SIM yet. If MSS crashes: hold back the ipa module, then try diag-router (nura wiki).
 
 Blocked by
-: walleye-modem-mm-first-try
+: walleye-modem-mm-list-in-boot
 
 About
 : modem-calls
@@ -14494,3 +14494,53 @@ Proof
 
 Rank
 : 45
+
+
+<a id="walleye-modem-mm-list-in-boot"></a>
+### The modem boot runs mmcli -L (and mmcli -m 0 with ids redacted) after mm-up, keeps it, and tests/health/base/modem-mm-starts.sh judges it
+
+Status
+: open
+
+Note
+: From run 4 of mm-first-try (PR 1300): dbus and ModemManager run and see qrtr node 0. walleye-modem-mm-sees-modem waits on this; then one keeper run.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: modem-mm-starts.sh prints pass|fail|skip from mmcli's own words (cited from ModemManager 1.24 source), passes on a stand-in listing one modem and fails on 'No modems were found'; the modem boot keeps mmcli.txt with the IMEI/ids redacted; steps tests and a dry run pass; ramdisk and image rebuilt equal
+
+Rank
+: 21
+
+
+<a id="walleye-modem-tqftpserv-serves-what-the-modem-asks"></a>
+### tqftpserv serves what the modem asks: a writable /readwrite (mcfg.tmp loop), wlanmdsp.mbn and ota_firewall/ruleset from the phone's own partitions, read only
+
+Status
+: open
+
+Note
+: Seen in run 4 of mm-first-try (PR 1300). wlanmdsp.mbn is the modem side of the WCN3990 Wi-Fi firmware (relevant to walleye-wifi-wcn3990); this also feeds the docs step modem-file-services.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: the next modem boot's tqftpserv log has no loop on /readwrite/mcfg.tmp and no reject of wlanmdsp.mbn or ota_firewall/ruleset; where each file lives on Android (vendor or persist partition, read in ~/lab-material, never git) and where tqftpserv looks for it (its source) is cited; nothing written to the phone's partitions
+
+Rank
+: 24
