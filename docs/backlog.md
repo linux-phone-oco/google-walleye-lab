@@ -7318,7 +7318,7 @@ Note
 : Host step done 2026-11-19 (research walleye-modem-blobs-found): blobs and rmtfs partitions read into ~/lab-material/walleye/modem-2026-11-19 (adb root, read only). Next: a builder row for a test image with remoteproc_mss + mba/modem firmware in the ramdisk + rmtfs read-only, then one try; no UFS-on image. Host step done (PR 536): the firmware set was read from modem_b. Now blocked by walleye-modem-mss-image.
 
 Blocked by
-: walleye-try-modem-mss
+: walleye-modem-up-check
 
 About
 : modem-calls
@@ -13908,6 +13908,31 @@ Needs
 
 Proof
 : walleye-modem-boot-rehearsal
+
+Rank
+: 20
+
+
+<a id="walleye-modem-up-check"></a>
+### A suite check that the modem is up: remoteproc_mss running and qrtr lists the modem's services, read in the modem boot
+
+Status
+: open
+
+Note
+: From research walleye-modem-mss-first-boot (coordinator 2026-11-27). The service ids it requires are named from the run's qrtr-lookup list with their sources (the QMI service ids in libqmi or the kernel's qrtr docs), not guessed; NAS/WDS/voice present or absent is printed, not assumed. Then one modem boot proves walleye-modem-mss-proof.
+
+About
+: walleye-modem-mss-proof
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: tests/health/base/modem-up.sh prints pass|fail|skip with the services counted, passes on the kept files of run modem-boot-20261127-1042 and fails on a stand-in without the remoteproc line; the modem boot procedure runs it; a docs tests row says it proves present
 
 Rank
 : 20
