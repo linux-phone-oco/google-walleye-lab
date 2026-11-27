@@ -13998,7 +13998,7 @@ Note
 : Run 1 (2026-11-27): qmicli -d qrtr://0 answered 'URI is not a local file path: (NULL)'; modem up, 38 qrtr services; proof not yet passed. Next (builder): read libqmi 1.38 qmicli device open and the nix build's qrtr flag; fix; one more modem boot run.
 
 Blocked by
-: walleye-modem-qmicli-in-image
+: walleye-modem-qmicli-qrtr-enabled
 
 About
 : modem-calls
@@ -14157,6 +14157,31 @@ Needs
 
 Proof
 : build/modem-tools.nix also gives a static qmicli with qrtr support (sha256 recorded, rebuilds equal); the modem ramdisk and image rebuilt equal with it; UFS-off gate and AVB pass; the modem boot procedure runs qmicli -d qrtr://0 --dms-get-ids after modem-up (-d: libqmi's -p is the proxy flag, decision 2026-11-27-walleye-qmicli-names-the-node-with-d-not-p) and keeps its output only in ~/lab-material (the IMEI never in git, a log or a commit); dry run and steps tests pass
+
+Rank
+: 20
+
+
+<a id="walleye-modem-qmicli-qrtr-enabled"></a>
+### qmicli built with libqmi's QRTR transport (qrtr=true, libqrtr-glib), so -d qrtr://0 opens node 0
+
+Status
+: open
+
+Note
+: From run 2026-11-27 of walleye-modem-qmi-ids-read (PR 1274): 'URI is not a local file path: (NULL)' - libqmi built without QRTR treats -d as a file path (coordinator's reading; the builder confirms it in libqmi's source before the change). Then one modem boot re-runs the read.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: build/modem-tools.nix builds libqmi with its qrtr option on and libqrtr-glib static (named from libqmi 1.38's meson_options.txt and nixpkgs' libqmi expression, cited); a host check of the binary proves QRTR is compiled in (qmicli's own help or version listing qrtr, or the qrtr-glib symbols present) and is shown to fail on today's a8dd865f; ramdisk and image rebuilt equal; UFS-off gate and AVB pass
 
 Rank
 : 20
