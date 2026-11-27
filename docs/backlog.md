@@ -14750,3 +14750,53 @@ Proof
 
 Rank
 : 20
+
+
+<a id="walleye-modem-dog-hb-crash"></a>
+### Why the modem crashed once at 40 s with DOG_HB task starvation in the IPA run, and whether IPA causes it
+
+Status
+: open
+
+Note
+: From research walleye-modem-mm-first-try-run-7-ipa-bound-net-port-not-candidate (coordinator 2026-11-27). The modem restarted and ran again; nothing on the phone changed.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: research
+
+Proof
+: a research row with sources: run 202446's dmesg and daemon logs against runs without IPA (1042, 112433, which ran clean), the OnePlus 5's ipa autoload block in pmaports (its reason, cited), and what DOG_HB starvation means in the modem's own logs; it says whether IPA, the rebind timing, tqftpserv's mcfg.tmp loop or something else is the likely cause, as not known yet where not measured, ending in backlog rows
+
+Rank
+: 21
+
+
+<a id="walleye-modem-way-back-slow-read"></a>
+### Why Android took more than 240 s to return after the IPA modem run (check 22), read before any wait is changed
+
+Status
+: open
+
+Note
+: From the same run (coordinator 2026-11-27): the phone came back later on Android slot b with its boot chain the same bytes; the stop is read before its fix (decision 2026-11-23-a-stop-is-read-before-the-fix).
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: research
+
+Proof
+: a research row reading run 202446's way-back log: what the phone did between the reboot and adb (a ramdump or crash path after the modem fault, a fastboot pause, a slow first boot), with timestamps, compared with the clean runs' return times; a wait is changed only with that measured reason
+
+Rank
+: 21
