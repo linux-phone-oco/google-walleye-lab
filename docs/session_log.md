@@ -10522,3 +10522,24 @@ Considered
 
 About
 : walleye-modem-mss-proof
+
+---
+
+
+<a id="2026-11-27-walleye-builder-the-modem-up-suite-check"></a>
+### walleye builder: the modem-up suite check
+
+Entry date
+: 2026-11-27
+
+Done
+: tests/health/base/modem-up.sh: remoteproc 4080000.remoteproc running and node-0 qrtr services 2 and 21 listed (NAS, WDS, voice printed, not required); tests/host/modem-up-selftest.sh passes on the first modem boot's read (fixture modem-read-20261127-104225.cap) and fails on a copy without the remoteproc line, without services, without 2, without 21; the modem boot keeps its output as modem-up-check.txt (evidence, never ends the run). Programmer review: 6 findings fixed.
+
+Considered
+: Wiring the selftest into check.yml: CI has no lab-tools lib.sh.
+
+Rejected
+: Counting node-1 (apps side) services as the modem's: only node 0 rows count.
+
+About
+: walleye-modem-mss-proof

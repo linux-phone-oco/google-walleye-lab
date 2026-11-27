@@ -385,3 +385,6 @@ source = "research:walleye-rmtfs-static-nix-ok"
 
 [scripts."modem-ramdisk-selftest.sh"]
 source = "research:walleye-rmtfs-static-nix-ok"
+
+[scripts."modem-up-selftest.sh"]
+source = "research:walleye-modem-mss-first-boot"
