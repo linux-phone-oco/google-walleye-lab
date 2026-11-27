@@ -56,6 +56,10 @@ for e in mdt b00 b01 b02 b03 b04; do
   cp "$VENDOR/firmware/ipa_fws.$e" "$W/firmware/"
 done
 ck "the ipa_fws files are whole by their mdt (tests/host/modem-firmware.sh)" "$(NAME=ipa_fws FW_DIR="$W/firmware" sh "$HERE/../tests/host/modem-firmware.sh" | cut -d' ' -f1)" pass
+# wlanmdsp.mbn: the modem asks tqftpserv for it (/readonly/firmware/image/wlanmdsp.mbn, then /readonly/vendor/firmware/..., a prefix the pinned tqftpserv build does not know; run modem-boot-20261127-165116, research walleye-modem-tqftpserv-serves);
+# on Android it is a file of /vendor/firmware, so the phone's pull has it; the pinned build serves /readonly/firmware/image/NAME from /lib/firmware/<the mss firmware's folder>/NAME, where the tar puts it
+ck "wlanmdsp.mbn is the phone's pull (sha256sums of the vendor material)" "$(sum "$VENDOR/firmware/wlanmdsp.mbn")" "$(sed -n "s|^\([0-9a-f]\{64\}\)  ./firmware/wlanmdsp.mbn\$|\1|p" "$VENDOR/sha256sums")"
+cp "$VENDOR/firmware/wlanmdsp.mbn" "$W/firmware/"
 # the firmware is NOT in the ramdisk: 61 MB (34 MB xz) with the kernel does not fit the 32 MiB boot partition (decision 2026-11-27-walleye-modem-firmware-is-pushed-not-packed).
 # It goes to the phone as one tar over the USB network (firmware-recv), with its own sha256 list that modem-up checks.
 (cd "$W/firmware" && rm -f SHA256SUMS && sha256sum -- * > SHA256SUMS)
@@ -63,6 +67,7 @@ rm -f "$TAR"
 tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner --mode=u=rw,go=r -c -C "$W/firmware" -f "$TAR" .
 tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner --mode=u=rw,go=r -c -C "$W/firmware" -f "$TAR.again" .
 ck "a second tar gives the same bytes" "$(sum "$TAR.again")" "$(sum "$TAR")"
+ck "the tar holds what the modem asked for and was refused (tests/host/modem-firmware-served.sh)" "$(TAR="$TAR" VENDOR="$VENDOR" sh "$HERE/../tests/host/modem-firmware-served.sh" | cut -d' ' -f1)" pass
 rm -f "$TAR.again"
 # the spec (built here: one line per file, the names rmtfs reads)
 {

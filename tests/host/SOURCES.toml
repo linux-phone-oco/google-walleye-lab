@@ -412,3 +412,15 @@ source = "file:tests/fixtures/kernel-text/ipa-Kconfig.txt"
 
 [scripts."kernel-modem-ipa-selftest.sh"]
 source = "file:tests/fixtures/kernel-text/ipa-Kconfig.txt"
+
+[scripts."modem-firmware-served.sh"]
+source = "file:tests/fixtures/phone-text/modem-tqftpserv-20261127-165116.cap"
+
+[scripts."modem-firmware-served-selftest.sh"]
+source = "file:tests/fixtures/phone-text/modem-tqftpserv-20261127-165116.cap"
+
+[scripts."modem-tqftpserv-clean.sh"]
+source = "file:tests/fixtures/phone-text/modem-tqftpserv-20261127-165116.cap"
+
+[scripts."modem-tqftpserv-clean-selftest.sh"]
+source = "file:tests/fixtures/phone-text/modem-tqftpserv-20261127-165116.cap"

@@ -1,0 +1,41 @@
+[TQFTP] WRQ: /readwrite/server_check.txt (octet)
+tqftpserv: failed to open ota_firewall/ruleset: No such file or directory
+invalid path /readonly/vendor/firmware/wlanmdsp.mbn, rejecting
+tqftpserv: failed to open mcfg.tmp: No such file or directory
+[TQFTP] RRQ: /readwrite/ota_firewall/ruleset (mode=octet rsize=0 seek=0)
+[TQFTP] unable to open /readwrite/ota_firewall/ruleset (2), reject
+[TQFTP] RRQ: /readonly/firmware/image/wlanmdsp.mbn (mode=octet rsize=0 seek=0)
+[TQFTP] unable to open /readonly/firmware/image/wlanmdsp.mbn (2), reject
+[TQFTP] RRQ: /readonly/vendor/firmware/wlanmdsp.mbn (mode=octet rsize=0 seek=0)
+[TQFTP] unable to open /readonly/vendor/firmware/wlanmdsp.mbn (2), reject
+[TQFTP] RRQ: /readwrite/mcfg.tmp (mode=octet rsize=0 seek=0)
+[TQFTP] unable to open /readwrite/mcfg.tmp (2), reject
+[TQFTP] WRQ: /readwrite/mcfg.tmp (octet)
+[TQFTP] RRQ: /readwrite/mcfg.tmp (mode=octet rsize=0 seek=0)
+[TQFTP] Remote returned END OF TRANSFER: 9 - End of Transfer
+[TQFTP] WRQ: /readwrite/mcfg.tmp (octet)
+[TQFTP] RRQ: /readwrite/mcfg.tmp (mode=octet rsize=0 seek=0)
+[TQFTP] Remote returned END OF TRANSFER: 9 - End of Transfer
+[TQFTP] WRQ: /readwrite/mcfg.tmp (octet)
+[TQFTP] RRQ: /readwrite/mcfg.tmp (mode=octet rsize=0 seek=0)
+[TQFTP] Remote returned END OF TRANSFER: 9 - End of Transfer
+[TQFTP] WRQ: /readwrite/mcfg.tmp (octet)
+[TQFTP] RRQ: /readwrite/mcfg.tmp (mode=octet rsize=0 seek=0)
+[TQFTP] Remote returned END OF TRANSFER: 9 - End of Transfer
+[TQFTP] WRQ: /readwrite/mcfg.tmp (octet)
+[TQFTP] RRQ: /readwrite/mcfg.tmp (mode=octet rsize=0 seek=0)
+[TQFTP] Remote returned END OF TRANSFER: 9 - End of Transfer
+[TQFTP] WRQ: /readwrite/mcfg.tmp (octet)
+[TQFTP] RRQ: /readwrite/mcfg.tmp (mode=octet rsize=0 seek=0)
+[TQFTP] Remote returned END OF TRANSFER: 9 - End of Transfer
+[TQFTP] WRQ: /readwrite/mcfg.tmp (octet)
+[TQFTP] RRQ: /readwrite/mcfg.tmp (mode=octet rsize=0 seek=0)
+[TQFTP] Remote returned END OF TRANSFER: 9 - End of Transfer
+[TQFTP] WRQ: /readwrite/mcfg.tmp (octet)
+[TQFTP] RRQ: /readwrite/mcfg.tmp (mode=octet rsize=0 seek=0)
+[TQFTP] Remote returned END OF TRANSFER: 9 - End of Transfer
+[TQFTP] WRQ: /readwrite/mcfg.tmp (octet)
+[TQFTP] RRQ: /readwrite/mcfg.tmp (mode=octet rsize=0 seek=0)
+[TQFTP] Remote returned END OF TRANSFER: 9 - End of Transfer
+[TQFTP] WRQ: /readwrite/mcfg.tmptqftpserv: failed to open ota_firewall/ruleset: No such file or directory
+invalid path /readonly/vendor/firmware/wlanmdsp.mbn, rejecting
