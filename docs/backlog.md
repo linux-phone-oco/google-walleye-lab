@@ -14522,10 +14522,10 @@ Rank
 ### A net port for ModemManager's qcom-soc plugin: the Pixel 2 modem's data interface (IPA/rmnet) in the modem test kernel, or the plugin's way without one
 
 Status
-: open
+: done
 
 Note
-: From run 5 (research walleye-modem-mm-first-try-run-5-no-net-port): MM probes qrtr0 and creates qcom-soc modem, then 'Failed to find a net port in the QMI modem'. Look first: what mainline gives MSM8998 (ipa is sdm845+; MSM8998 uses the modem's BAM/rmnet?), how the OnePlus 5 / postmarketOS msm8998 gets MM to list its modem, and what the qcom-soc plugin accepts as a net port (ModemManager 1.24 source). Decide before a kernel change.
+: Researched: decision 2026-11-27-walleye-net-port-from-mainline-ipa; steps walleye-modem-net-port-ipa-node, -ipa-try, fallback -mm-nonet.
 
 About
 : modem-calls
@@ -14569,3 +14569,84 @@ Proof
 
 Rank
 : 22
+
+
+<a id="walleye-modem-net-port-ipa-node"></a>
+### ipa node and CONFIG_QCOM_IPA in the modem test kernel (host build)
+
+Status
+: open
+
+Note
+: Values: wahoo GPL dtsi ipa node + OnePlus 5 pmaports patch; carve-outs: the phone's 0x95b00000 ipa/gpu block. gsi-loader per what the phone's modem does.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: modem kernel builds; dtc of msm8998-google-walleye-modem.dts has an ipa node (qcom,msm8998-ipa); test modem-mm-listed still failing
+
+Rank
+: 21
+
+
+<a id="walleye-modem-net-port-ipa-try"></a>
+### Modem boot with ipa: dmesg ipa probe, a net device, then mmcli -L lists the modem
+
+Status
+: open
+
+Note
+: Watch MSS stay up (OnePlus 5 ipa stability issue). If ipa cannot probe: item walleye-modem-net-port-mm-nonet.
+
+Blocked by
+: walleye-modem-net-port-ipa-node
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: tests/health/base/modem-calls.sh: modem-mm-listed passes (mmcli -L lists one modem)
+
+Rank
+: 21
+
+
+<a id="walleye-modem-net-port-mm-nonet"></a>
+### Fallback: ModemManager patched to accept a QMI modem with no net port
+
+Status
+: open
+
+Note
+: Only if the ipa try shows ipa cannot work here. Check upstream first (issue 386 thread).
+
+Blocked by
+: walleye-modem-net-port-ipa-try
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: research
+
+Proof
+: modem-mm-listed passes with a nix-built MM carrying the patch
+
+Rank
+: 40
