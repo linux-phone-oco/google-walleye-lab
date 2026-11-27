@@ -13668,7 +13668,10 @@ Status
 : open
 
 Note
-: 2026-11-27 builder: measured, not declared. nix's part build gives other bytes than the declared ones (research walleye-part-builds-nix-bytes-differ): reboot 8f141f1b vs fd73925b, nfc-up 50a85d99 vs ab2cf4c1; the scripts still reproduce theirs. Pin lpoco-bringup 0.53.7 landed. Next: the coordinator picks (a) accept nix's bytes (rows renamed or consumers moved, nfc ramdisk/image rebuilt and re-proved by the keeper), (b) a matching toolchain from lab-tools, or (c) keep the scripts. Scripts stay until then.
+: Measured 2026-11-27 (research walleye-part-builds-nix-bytes-differ, PR 1241): nix's bytes differ from the scripts'. Decision 2026-11-27-walleye-tools-keep-scripts-until-ramdisk-packs-parts: keep the scripts until the ramdisk packs parts and the two attended runs are done; then accept nix's sha256 and re-prove the nfc and pon-read images.
+
+Waits
+: lab-tools part-ramdisk-packs-parts released; the author's NFC tag poll and PON control read run
 
 About
 : walleye-retire-build-scripts
@@ -13683,4 +13686,4 @@ Proof
 : lpoco bringup image ensure --rebuild walleye-reboot and walleye-nfc-up each prove the declared sha256; the ramdisks that pack them rebuild equal; tests/host/ufs-off-image.sh passes; the two scripts removed
 
 Rank
-: 7
+: 30

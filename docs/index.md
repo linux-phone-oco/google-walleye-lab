@@ -3,7 +3,7 @@
 # Index
 
 - [Backlog](backlog.md): 545
-- [Decisions](decisions.md): 148
+- [Decisions](decisions.md): 149
 - [Devices](devices.md): 0
 - [Hardware](hardware.md): 4
 - [Parts](parts.md): 22
