@@ -11161,3 +11161,21 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-2345-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-image-sysrq-b-run: modem boot run modem-boot-20261127-223527 (nothing flashed), 26/26 pass, ipa bound, gadget gone at 180 s, Android back in 30 s; card, boot chain and flags equal. Item done. Phone on Android slot b, stock. Nothing patched.
+
+Considered
+: next: walleye-modem-mm-lists-modem-after-init (read MM's log and qcom-soc primary-port rule, ask mmcli -L after init settles), then walleye-modem-ipa-unbind-measure
+
+About
+: modem-calls

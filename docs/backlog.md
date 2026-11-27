@@ -14918,10 +14918,10 @@ Rank
 ### Run the modem image with the sysrq b end on an IPA run: phone back on Android within 240 s
 
 Status
-: open
+: done
 
 Note
-: Image images-modem/boot-modem.img sha256 9e3e3ab2b823bd84b4efa2c2f8106f47b1a86a5594de35ab330616479b872b12 ([images.modem]); firmware tar unchanged (9073e47e). Decision 2026-11-27-walleye-modem-image-ends-by-sysrq-b-with-ipa, part 3 (a measured ipa unbind with timestamps) is a later try.
+: proven by run modem-boot-20261127-223527: check 22 passes (Android in 30 s), gadget gone 180 s after it appeared (22:36:14 to 22:39:14); research walleye-modem-mm-first-try-run-10-sysrq-b-ends-ipa-run-in-180s
 
 Blocked by
 : walleye-modem-image-ends-by-sysrq-b
