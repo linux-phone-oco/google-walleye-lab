@@ -14977,7 +14977,7 @@ Note
 : Read done (research walleye-modem-mm-primary-port-read-why-no-modem-listed): 'no primary port' and '/dev/qrtr0 missing' are non-fatal; the ask ended before modem0's init (held 5 s by the PDC list-configs indication arriving before its response). Next: after the ask is lengthened, one modem boot run; capture MM log to the end, mmcli -L, -m 0. If still none, the log names the stopping step.
 
 Blocked by
-: walleye-modem-mm-ask-waits-for-init
+: walleye-modem-guards-count-the-ask
 
 About
 : modem-calls
@@ -14993,3 +14993,28 @@ Proof
 
 Rank
 : 20
+
+
+<a id="walleye-modem-guards-count-the-ask"></a>
+### The modem boot's earlier guards count the mmcli ask as its real bound (45 s), not MMCLI_USUAL_S = 3
+
+Status
+: open
+
+Note
+: From PR 1331's report (coordinator 2026-11-27): the ask step needs 113 s left, while modem_boot.rs:331, 1179 and 1191 count the ask as 3 s, so a boot the early guards accept may push 61 MB + 185 MiB and be refused at the ask. Before walleye-modem-mm-lists-modem-after-init.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: build
+
+Proof
+: steps tests: a boot with time enough for firmware, rootfs push, mm-up and a 3 s ask but not a 45 s ask is refused at the firmware step (before any push), and one with time for the 45 s ask passes every guard; MMCLI_USUAL_S replaced by the ask's bound (one constant, its reason named); cargo test passes
+
+Rank
+: 18
