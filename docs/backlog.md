@@ -13967,10 +13967,10 @@ Rank
 ### From modem up to calls: what walleye needs after remoteproc_mss - pd-mapper, tqftpserv, QMI over qrtr (libqmi, ModemManager), IMEI read, the SIM, voice (q6voice/audio)
 
 Status
-: open
+: done
 
 Note
-: From research walleye-modem-mss-first-boot (coordinator 2026-11-27). Ends in backlog rows for the lane, the first a read-only IMEI/NAS read over QMI.
+: Researched 2026-11-27: research walleye-modem-to-calls-how-it-stands, decision 2026-11-27-walleye-calls-signalling-first-audio-last, steps walleye-modem-qmi-ids-read .. walleye-modem-q6voice-port.
 
 About
 : modem-calls
@@ -13986,3 +13986,149 @@ Proof
 
 Rank
 : 21
+
+
+<a id="walleye-modem-qmi-ids-read"></a>
+### Read the modem over QMI, read only: qmicli over qrtr, DMS get-ids (IMEI) and the qrtr service list, on the existing modem image
+
+Status
+: open
+
+Note
+: First step of decision 2026-11-27-walleye-calls-signalling-first-audio-last. Image: the modem image of 2026-11-27 (nothing flashed). Needs libqmi (qmicli) in the test ramdisk; record whether it is there. No SIM, no witness.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: tests/health/base/modem-calls.sh: modem-imei-read passes (a 15-digit IMEI read) on the modem boot's output; the IMEI is kept in ~/lab-material, not git
+
+Rank
+: 21
+
+
+<a id="walleye-modem-mm-sees-modem"></a>
+### ModemManager over qrtr lists the modem (mmcli -L), SIM absent state read, MSS stays up 10 minutes
+
+Status
+: open
+
+Note
+: No SIM yet. If MSS crashes: hold back the ipa module, then try diag-router (nura wiki).
+
+Blocked by
+: walleye-modem-qmi-ids-read
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: tests/health/base/modem-calls.sh: modem-mm-listed passes and modem-qrtr-services still passes after 10 minutes (the OnePlus 5 crash after Wi-Fi/ipa does not show)
+
+Rank
+: 22
+
+
+<a id="walleye-modem-sim-registers"></a>
+### With a SIM: unlock state, registration on the network, one SMS received
+
+Status
+: open
+
+Note
+: Say before: what to expect (state registered, operator name) and what to check. The author places the SIM and sends the SMS.
+
+Waits
+: a SIM placed in the phone by the author
+
+Blocked by
+: walleye-modem-mm-sees-modem
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: tests/health/base/modem-calls.sh: modem-sim-present and modem-registered pass; an SMS reaches mmcli -m 0 --messaging-list-sms (the author sends it)
+
+Rank
+: 23
+
+Witness
+: person
+
+
+<a id="walleye-modem-call-signalling"></a>
+### Call signalling without audio: mmcli --voice-create-call, start, hangup; an incoming call is seen
+
+Status
+: open
+
+Note
+: The author names the number to ring, or rings the phone. Audio is not part of this item.
+
+Blocked by
+: walleye-modem-sim-registers
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: tests/health/base/modem-calls.sh: modem-call-signalling passes (the call reaches state active or ringing-out, then terminated)
+
+Rank
+: 24
+
+Witness
+: person
+
+
+<a id="walleye-modem-q6voice-port"></a>
+### Call audio: diff the q6voice series (sdm845-mainline wip/q6voice, sc7280-mainline PR 27) against walleye's kernel and the Pixel 2 earpiece/mic route; go or no-go for a port
+
+Status
+: open
+
+Note
+: Hours: 25-40 for the port once the tone path works. Upstream: the series is not mainline; contribute back through the carriers.
+
+Blocked by
+: walleye-modem-call-signalling,walleye-adsp-q6-mi2s
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: research
+
+Proof
+: a research row with the series' patch list, the walleye ADSP route (earpiece, mic, AFE ports) and a go or no-go; test call-audio-heard (a person) stays unknown until a call is heard
+
+Rank
+: 40
