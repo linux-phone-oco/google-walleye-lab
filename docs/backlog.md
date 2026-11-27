@@ -13936,3 +13936,53 @@ Proof
 
 Rank
 : 20
+
+
+<a id="walleye-modem-boot-run-2"></a>
+### Second modem boot: modem-up.sh runs live in the boot and passes again (the check measured on a fresh run, not the run it was written from)
+
+Status
+: open
+
+Note
+: Coordinator 2026-11-27: the proof of walleye-modem-mss-proof was read off the first try's files, the same data the check was built from; one fresh run measures it. Unattended, read-only storage, nothing flashed.
+
+About
+: walleye-modem-mss-proof
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: procedures/modem-boot-on-the-pixel-2.rs run once: modem-up-check.txt prints pass with the services counted; the count and the rmtfs opens are compared with run modem-boot-20261127-1042 in the research row; the phone back on Android slot b
+
+Rank
+: 20
+
+
+<a id="walleye-modem-to-calls-way"></a>
+### From modem up to calls: what walleye needs after remoteproc_mss - pd-mapper, tqftpserv, QMI over qrtr (libqmi, ModemManager), IMEI read, the SIM, voice (q6voice/audio)
+
+Status
+: open
+
+Note
+: From research walleye-modem-mss-first-boot (coordinator 2026-11-27). Ends in backlog rows for the lane, the first a read-only IMEI/NAS read over QMI.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-27
+
+Needs
+: research
+
+Proof
+: a research row with sources (postmarketOS msm8998 devices, linux-msm, ModemManager QRTR support, the first boot's 38 services) naming the steps in order, each with its proof test, and which needs the author (a SIM placed, a call)
+
+Rank
+: 21
