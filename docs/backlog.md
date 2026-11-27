@@ -14787,7 +14787,7 @@ Status
 : open
 
 Note
-: From the same run (coordinator 2026-11-27): the phone came back later on Android slot b with its boot chain the same bytes; the stop is read before its fix (decision 2026-11-23-a-stop-is-read-before-the-fix).
+: Coordinator 2026-11-27: three IPA runs (202446, 210717, 213707) stopped at check 22; in run 9 the phone sat in fastboot and a fastboot reboot brought Android in 30 s - read why the way back lands in fastboot after these runs (the modem's DOG_HB crash and a crash-reset path, the reboot reason the way back sends, the bootloader's choice) before any wait or step changes. | From the same run (coordinator 2026-11-27): the phone came back later on Android slot b with its boot chain the same bytes; the stop is read before its fix (decision 2026-11-23-a-stop-is-read-before-the-fix).
 
 About
 : modem-calls
@@ -14802,7 +14802,7 @@ Proof
 : a research row reading run 202446's way-back log: what the phone did between the reboot and adb (a ramdump or crash path after the modem fault, a fastboot pause, a slow first boot), with timestamps, compared with the clean runs' return times; a wait is changed only with that measured reason
 
 Rank
-: 21
+: 20
 
 
 <a id="walleye-modem-mm-udev-replay-by-uevent"></a>
