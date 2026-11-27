@@ -9684,3 +9684,22 @@ Found
 
 About
 : modem-calls
+
+
+<a id="walleye-modem-mm-first-try-run-9-net-port-candidate-modem0-created"></a>
+### walleye-modem-mm-first-try-run-9-net-port-candidate-modem0-created
+
+Date
+: 2026-11-27
+
+Brief
+: Ninth modem try (run modem-boot-20261127-213707): rmnet_ipa0 allowlisted by plugin tag after the uevent replay; MM makes modem0 over qrtr0 but mmcli -L still lists none
+
+Question
+: Does the uevent replay make rmnet_ipa0 a candidate, and does MM then list a modem?
+
+Found
+: Run stopped at check 22 (Android not back in 240 s; fastboot reboot then brought it back in 30 s; card, boot chain, slots equal). mm-up replayed 108 devices. ModemManager.log: '(net/rmnet_ipa0) port allowed: device is allowlisted by plugin (tag)', then qrtr0 probed QMI-capable, modem0 created, capabilities cdma-evdo/gsm-umts/lte, manufacturer/model/revision loaded. Warnings: could not reset QMI port qrtr0 (/dev/qrtr0 No such file); 'couldn't start parent initialization: Couldn't get primary port'; pds/oma services not supported. mmcli -L (asked about 46-48 s) said No modems were found while init was still running; the log ends at 50.7 s so the later state is not known yet. ipa probe still failed -2 at 3.8 s before the firmware push, bound at 20 s. Modem DOG_HB crash at 40 s again. Run material in ~/lab-material/walleye/modem-boot-20261127-213707 (private, not in git).
+
+About
+: modem-calls

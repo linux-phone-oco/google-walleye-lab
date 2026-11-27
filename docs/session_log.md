@@ -11125,3 +11125,18 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-2250-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-mm-udev-replay-by-uevent: modem boot run modem-boot-20261127-213707 (nothing flashed): rmnet_ipa0 is now allowlisted by plugin tag, modem0 created over qrtr0, but mmcli -L still 'No modems were found' (asked while init ran; MM warns /dev/qrtr0 missing, no primary port). Item done. Way back again took >240 s (check 22) and fastboot reboot brought Android in 30 s; card, chain, slots equal. Phone on Android slot b, stock, nothing patched.
+
+Considered
+: next: walleye-modem-mm-lists-modem-after-init (read MM's primary-port rule, keep the log to the window's end); also the slow way back and the DOG_HB crash at 40 s
