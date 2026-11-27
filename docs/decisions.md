@@ -4517,3 +4517,31 @@ Amends
 
 Scope
 : the walleye lane's modem work and its research leads
+
+
+<a id="2026-11-28-walleye-modem-push-the-rootfs-compressed"></a>
+### 2026-11-28-walleye-modem-push-the-rootfs-compressed
+
+Date
+: 2026-11-27
+
+Brief
+: The modem boot fits its window by pushing the rootfs compressed, not by cutting the mmcli ask; a longer window only if that still does not fit
+
+Decision
+: 1) The ModemManager rootfs is pushed compressed (gzip or xz, whichever busybox in the modem ramdisk unpacks and gives the smaller measured size), built by nix beside the plain tar, its sha256 recorded and rebuilt equal; rootfs-recv unpacks it; the push time is computed from the compressed size. 2) Every guard then counts the ask at its real bound (45 s). 3) Only if firmware + compressed push + mm-up + 45 s ask + read still exceed INIT_WINDOW_S (180) is the window raised, with the way back's wait re-derived and said in the PR.
+
+Why
+: PR 1334: counting the 45 s ask needs 182 s of a 180 s window; the push of the 194,375,680-byte tar at 2.4 MB/s is 81 s, the largest share; a nix closure compresses well, and a smaller push shortens every modem run.
+
+Rejected
+: Cutting the ask below ~43 s minus elapsed: it cuts the window of the question the run exists to answer. Raising the window first: it lengthens every run and moves the way back's timing, without removing the push's cost.
+
+About
+: modem-calls
+
+Scope
+: the walleye modem boot
+
+Tracked by
+: walleye-modem-guards-count-the-ask
