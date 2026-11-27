@@ -10930,3 +10930,21 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-27-2330-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-27
+
+Done
+: Took walleye-modem-mm-sees-modem: ran the prepared modem boot (run modem-boot-20261127-172447), 26 of 26 pass. mmcli -L runs: 'No modems were found' - MM's qcom-soc plugin fails 'Failed to find a net port in the QMI modem' (research walleye-modem-mm-first-try-run-5-no-net-port). Item stays open, now blocked by new item walleye-modem-net-port (research). Phone on Android slot b (adb), stock, nothing flashed; card, boot chain, flags equal before and after. Nothing patched.
+
+Considered
+: next: walleye-modem-net-port (what gives MSM8998 a net port for MM; ipa/rmnet), then re-run; next phone item by rank: walleye-deep-sleep-baseline (needs a meter and the author's hands), display-late-probe, fingerprint-spi-hwid
+
+About
+: modem-calls
