@@ -27,6 +27,7 @@ for t in rmtfs qrtr-ns qrtr-lookup tqftpserv qmicli; do
   ck "$t is the recorded static build (tools.sha256)" "$(sum "$src")" "$(want "$t")"
   cp "$src" "$W/$t"; chmod 755 "$W/$t"
 done
+ck "qmicli has libqmi's QRTR transport (build/check-qmicli-qrtr.sh)" "$("$HERE/check-qmicli-qrtr.sh" "$W/qmicli" >/dev/null 2>&1 && echo yes || echo no)" yes
 ck "busybox is the recorded arm64 build" "$(sum "$BUSYBOX")" "$(want busybox-arm64)"
 cp "$BUSYBOX" "$W/busybox"; chmod 755 "$W/busybox"
 cp "$HERE/initramfs-slpi/init" "$HERE/initramfs-slpi/udhcpd.conf" "$HERE/initramfs-modem/modem-up" "$HERE/initramfs-modem/firmware-recv" "$W/"

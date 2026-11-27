@@ -14,11 +14,21 @@ let
       sed -i "s/shared_library('qrtr'/static_library('qrtr'/; /version: meson.project_version(),/d" lib/meson.build
     '';
   });
+  libqrtr-glib = pkgs.libqrtr-glib.overrideAttrs (o: {
+    nativeBuildInputs = builtins.filter (d: !(builtins.any (p: builtins.substring 0 (builtins.stringLength p) (d.name or "") == p) [ "gtk-doc" "gobject-introspection" "docbook" ])) (o.nativeBuildInputs or [ ]);
+    mesonFlags = (o.mesonFlags or [ ]) ++ [ "-Dintrospection=false" "-Dgtk_doc=false" ];
+  });
 in {
   rmtfs = pkgs.rmtfs.override { udev = pkgs.libudev-zero; inherit qrtr; };
   inherit qrtr;
   tqftpserv = (pkgs.tqftpserv.override { inherit qrtr; systemdLibs = pkgs.zstd; }).overrideAttrs (o: { postPatch = ""; });
-  # qmicli (item walleye-modem-qmicli-in-image): libqmi 1.38 with its QRTR transport (libqrtr-glib), no introspection, no man pages, no udev (libgudev is for the MBIM/QMI-over-cdc-wdm hotplug that the ramdisk does not have)
+  # qmicli (items walleye-modem-qmicli-in-image, walleye-modem-qmicli-qrtr-enabled): libqmi 1.38 with its QRTR transport, no introspection, no man pages, no udev (libgudev is for the MBIM/QMI-over-cdc-wdm hotplug that the ramdisk does not have)
+  # nixpkgs' libqmi expression sets `-Dqrtr` (libqmi 1.38 meson_options.txt) from withIntrospection and adds libqrtr-glib only then: with introspection off the transport was left out and `-d qrtr://0` read as a file path.
+  # So qrtr is switched on by hand and libqrtr-glib (static, its introspection and docs off) is a build input.
   # (no gi-docgen means the `doc` output stays empty and nix refuses the build: it is dropped from outputs)
-  qmicli = (pkgs.libqmi.override { withIntrospection = false; withMan = false; }).overrideAttrs (o: { outputs = [ "out" "dev" ]; });
+  qmicli = (pkgs.libqmi.override { withIntrospection = false; withMan = false; }).overrideAttrs (o: {
+    outputs = [ "out" "dev" ];
+    buildInputs = (o.buildInputs or [ ]) ++ [ libqrtr-glib ];
+    mesonFlags = (builtins.filter (f: f != "-Dqrtr=false") (o.mesonFlags or [ ])) ++ [ "-Dqrtr=true" ];
+  });
 }
