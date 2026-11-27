@@ -373,3 +373,15 @@ source = "file:tests/fixtures/kernel-text/modem-mss-Kconfig.txt"
 
 [scripts."kernel-modem-mss-selftest.sh"]
 source = "file:tests/fixtures/kernel-text/modem-mss-Kconfig.txt"
+
+[scripts."modem-firmware.sh"]
+source = "research:walleye-modem-blobs-found"
+
+[scripts."modem-firmware-selftest.sh"]
+source = "file:tests/fixtures/phone-text/walleye-modem-mdt-readelf.cap"
+
+[scripts."modem-ramdisk.sh"]
+source = "research:walleye-rmtfs-static-nix-ok"
+
+[scripts."modem-ramdisk-selftest.sh"]
+source = "research:walleye-rmtfs-static-nix-ok"
