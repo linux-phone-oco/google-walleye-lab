@@ -9871,3 +9871,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-osfact-nfc-image-packed-equal"></a>
+### walleye-osfact-nfc-image-packed-equal
+
+Date
+: 2026-11-28
+
+Brief
+: osfact NFC image packed: the NFC image's kernel and dtb with a slpi-init ramdisk carrying walleye-nfc-up; boot.img 1ef4ccd2 built twice equal, UFS-off gate pass; not yet booted
+
+Question
+: Can osfact 0.4.1 pack walleye's NFC parts (the nfc kernel, the nfc@28 dtb, walleye-nfc-up in the ramdisk) with the same Alpine profile as run 4?
+
+Found
+: Parts: kernel Image-nfc.gz 78dbbff6 and qcom/msm8998-google-walleye.dtb 86550c1e (images.nfc.recipe's kernel and dtb, unchanged), ramdisk bef06abe (build/initramfs-osfact-nfc: slpi's init unchanged, busybox arm64, /bin/walleye-nfc-up ab2cf4c1; no firmware), built twice equal; tests/host/osfact-nfc-ramdisk.sh passes and fails on the display ramdisk and on the roof-init NFC ramdisk. osfact 0.4.1 pack now with the display image's alpine.toml 03f8b902: rootfs 351fd4b6 and root.tar.gz 0e4dad64 (both equal run 4 and the display image), boot.img 1ef4ccd2 twice equal, ufs-off-image.sh pass, lpoco-bringup image check 12 ok. Nothing in osfact needed to change. NOT KNOWN YET: that nfc0 appears under osfact's chroot and DEV_UP acks on this image; never booted.
+
+About
+: nfc
+
+Material
+: research/nfc/2026-11-28/

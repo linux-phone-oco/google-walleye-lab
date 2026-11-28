@@ -433,3 +433,6 @@ source = "research:walleye-modem-mm-first-try-run-6-ipa-probes-before-firmware"
 
 [scripts."osfact-display-ramdisk.sh"]
 source = "research:walleye-ramroot-b-a5-v5-run-2-check-15-passes"
+
+[scripts."osfact-nfc-ramdisk.sh"]
+source = "research:walleye-nfc-poll-in-tool-built"

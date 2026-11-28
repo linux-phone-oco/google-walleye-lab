@@ -1,0 +1,5 @@
+78dbbff60f21ad372947d05c7c375632bb79a4dc2aeac1da4142f170ca117607  parts/kernel (Image-nfc.gz of images-nfc)
+bef06abe23ae363c689324973ad1321596ce03a539e0bda69c8a112476df3530  parts/ramdisk (build/initramfs-osfact-nfc, built twice equal)
+86550c1e194000fcf89538951b30832d5cede49293d39a7385d99e6c3fea805c  parts/qcom/msm8998-google-walleye.dtb (msm8998-google-walleye-nfc.dtb of images-nfc)
+03f8b9025da5b893ed86a3d2a2e10b139fcd428ed6a227971201d3043644b52c  alpine.toml
+1ef4ccd2d123d0d393f9b7b026303693ad02d7cfbdca60b2ade65dcf5b5d9004  boot.img (osfact 0.4.1 pack now, built twice equal; rootfs.img 351fd4b6e9c3, root.tar.gz 0e4dad64a31d)
