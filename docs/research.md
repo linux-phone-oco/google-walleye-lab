@@ -9833,3 +9833,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-osfact-install-run-4-install-passes-health-partial"></a>
+### walleye-osfact-install-run-4-install-passes-health-partial
+
+Date
+: 2026-11-28
+
+Brief
+: osfact 0.3.0 install, run 4 on walleye: pack equal, install steps 1-3 PASS (/sbin/init present); touch present on the image; modem and NFC not on it; way back worked
+
+Question
+: Does osfact 0.3.0 install take the Alpine image onto walleye past the enter check, and do modem-up, NFC present and touch hold on it?
+
+Found
+: Pack with lab-tools' alpine.toml at osfact-v0.3.0 (required_paths sbin/init): rootfs.img 351fd4b6 built twice equal, boot.img f1e54660 (UFS-off gate pass, same as run 3), root.tar.gz 0e4dad64 (lists ./sbin/init). From Android b by adb reboot bootloader, install now ran steps 1 boot, 2 push, 3 enter in 26.8 s and the check test -e /mm/sbin/init held at once (install.log 59 lines). Two such runs (the first left the image up for ~10 min before the phone fell back to Android b by itself; the second probed over telnet 172.16.43.1:23 then sysrq b): on the image uname 7.3.0 aarch64, /mm holds the Alpine tree, input has Synaptics S3708AR (rmi4 probed, fw id 2520908) = touch PRESENT; no /dev/nfc* and no NFC probe lines = this kernel/boot image carries no NFC part (not known yet whether the Alpine root could; the NFC image is another boot); remoteproc0 4080000.remoteproc and 1 slpi both offline, ipa probe fails -2 for qcom/msm8998/google/walleye/ipa_fws.mdt (firmware not in this ramdisk), the Alpine root has no ModemManager/mmcli/dbus/udev (packages alpine-base, openssh, e2fsprogs) = modem-up NOT shown on this image. Way back: sysrq b, adb get-state device, slot _b, nothing flashed. The chroot's init ran no visible service yet (the root has no /proc of its own: ps inside chroot empty; not measured). So the install command is proven; the image's health parts are partial: touch yes, modem and NFC no.
+
+About
+: walleye-bootimage
