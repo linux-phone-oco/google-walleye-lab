@@ -15118,7 +15118,7 @@ Status
 : open
 
 Note
-: Runnable 2026-11-28 (orchestration): osfact-v0.1.1 packs for real (lab-tools #498, #499); use OSFACT_VERSION=0.1.1 until rhizoid's bump of bin/install-osfact.sh lands. Pack walleye's REAL parts (kernel, dtb from the ufs-off int/ tag), not lab-tools' fixture stand-ins; the packed boot.img must pass tests/host/ufs-off-image.sh before any fastboot boot (coordinator: no image boots without the UFS-off gate); the [install.root] PROPOSED values are measured by this run. | From docs decision 2026-11-27-osfact-own-rust-in-lab-tools (lab-tools item image-factory-any-distro-any-phone). When lab-tools osfact-walleye-two-distros has landed: build walleye's Alpine image with osfact pack now from this lab's device.toml (its [install] table added by lab-tools osfact-device-declaration), install it with the install command it prints - the same writes install-rootfs and install-boot make today (system_{other} by dd from Android, boot_{other} by fastboot, set_active, the way back) under the coordinator's go - and boot it. Debian after Alpine, as its own run. No bootloader, GPT bytes of ours, erase or purge. Not ready before the build: it waits on it. | Split 2026-11-28 on the Top's word (the author is often away): this unattended run first; the author's look on the glass is walleye-osfact-image-witnessed, after this passes.
+: Run 1 (2026-11-28): pack and boot from RAM pass; push stops, receiver status never read (research walleye-osfact-install-run-1-push-stops). Waits on the cause: probably the backgrounded receiver in the telnet shell (lab-tools osfact).
 
 Blocked by
 : walleye-install-osfact
