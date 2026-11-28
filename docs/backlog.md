@@ -15087,10 +15087,10 @@ Status
 : open
 
 Note
-: Split from walleye-osfact-image-installs (2026-11-28, the Top's word): only after the unattended run passes.
+: The author looks only when the image has everything found working (his word 2026-11-28 via the Top): display, touch, NFC, modem - checked against walleye's how-it-stands list before his go, anything else found working added as its own item first.
 
 Blocked by
-: walleye-osfact-image-installs
+: walleye-osfact-image-display,walleye-osfact-image-nfc,walleye-osfact-image-modem
 
 About
 : walleye-bootimage
@@ -15199,7 +15199,7 @@ Status
 : open
 
 Note
-: Seen by orchestration on the lpoco-attended bump PR (google-walleye-lab #1360), 2026-11-28; passed on rerun.
+: Seen by orchestration on #1360 and again on #1396 (2026-11-28): it fails walleye PRs at random; fixed first (coordinator), ahead of the osfact display. Passed on rerun both times.
 
 About
 : modem-calls
@@ -15214,7 +15214,7 @@ Proof
 : the test runs on a fake clock (or a bound with a margin named from the code), so it passes 200 runs in a row under cargo test with the CPU loaded (stress-ng --timeout), and still fails on the old ask code
 
 Rank
-: 25
+: 17
 
 
 <a id="walleye-install-osfact"></a>
@@ -15293,3 +15293,28 @@ Proof
 
 Rank
 : 19
+
+
+<a id="walleye-osfact-image-display"></a>
+### The osfact walleye image shows the console and a login prompt on the glass, as alpine-rootfs-v5 did
+
+Status
+: open
+
+Note
+: The author, 2026-11-28 (relayed by the Top): he looks at the osfact image only 'if that image has everything that we discovered working and made working'. Display first, then NFC and the modem (one agent at a time).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: an osfact-packed image (one command, from RAM, nothing flashed) built from the display parts and kernel list that made alpine-rootfs-v5 light the glass, with its getty on the console and the console loglevel; an unattended run reads the panel/DRM state (DSI-1 connected, the panel bound, a CRTC active, fbcon on it) and passes; the way back returns Android; no witness needed for this run
+
+Rank
+: 18
