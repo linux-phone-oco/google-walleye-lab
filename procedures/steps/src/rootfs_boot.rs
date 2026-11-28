@@ -1541,21 +1541,15 @@ impl RootfsBoot {
         }
     }
 
-    /// The rw write only: the phone is back on Android, so the previous boot's console is read (`adb root`, then [`crate::rw_write::PSTORE_COMMAND`], read only),
+    /// The rw write only: the phone is back on Android, so the previous boot's console is read ([`Android::previous_console`], read only),
     /// kept in the run's folder and judged ([`crate::rw_write::the_stop_in_the_console`]): a refusal of the init was lost once to the reboot after it
     /// (research walleye-rw-run-1-refused-by-booted-slot). A read that cannot be made is said as not known yet, never as a failure of the way back.
     fn the_stop_is_read_in_the_pstore(&self) {
         if !self.rw || self.rehearsal {
             return;
         }
-        let _ = self.android.adb(&["root"]);
-        std::thread::sleep(Duration::from_secs(3));
-        match self
-            .android
-            .adb(&["shell", crate::rw_write::PSTORE_COMMAND])
-        {
-            Ok(text) if !text.contains("Permission denied") => {
-                let text = crate::touch::redact(&text);
+        match self.android.previous_console() {
+            Ok(text) => {
                 println!("the previous boot's console, read from Android:\n{text}");
                 if let Err(e) = self.lab.save(crate::rw_write::PSTORE_FILE, &text) {
                     println!("NOT KNOWN YET: the console could not be kept: {e}");
@@ -1565,7 +1559,6 @@ impl RootfsBoot {
                     crate::rw_write::the_stop_in_the_console(&text).said()
                 );
             }
-            Ok(_) => println!("NOT KNOWN YET: the pstore is closed to adb (no root)"),
             Err(e) => println!("NOT KNOWN YET: the pstore could not be read: {e}"),
         }
     }

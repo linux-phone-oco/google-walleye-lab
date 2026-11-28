@@ -11,6 +11,7 @@ use crate::android::Android;
 use crate::display_boot::{drm_command, drm_of, drm_problem, loop_is_done};
 use crate::display_delay::{score, Row};
 use crate::lab::Lab;
+use crate::lpoco_attended::{group, Group, Kind, Step};
 use crate::settings::Settings;
 use crate::touch::redact;
 use std::rc::Rc;
@@ -323,23 +324,48 @@ impl DisplaySmmu {
         }
     }
 
-    /// After the way back, on Android: the previous boot's console is read (`adb root`, then [`crate::rw_write::PSTORE_COMMAND`], read only), kept as `pstore-console.txt` in the
-    /// run's folder and judged ([`console_verdict`]). The ramoops node of B-r5-smmu has stock Android's layout (decision 2026-11-28-walleye-display-try-needs-its-console-first), so a
-    /// try that dies before its gadget still leaves its last lines here. A read that cannot be made is said as not known yet; this step never fails the run.
+    /// The console read is owed: a group of one check that Android answers as root (so the pstore can be read at all), opened BEFORE the phone is booted. Its way back is
+    /// [`DisplaySmmu::the_console_is_read_in_the_pstore`]; way backs run the last begun first, so after `phone_ready`'s own has put Android up. A run that fails or panics
+    /// anywhere after it reads the console of the boot that died (review of builder/ramoops-console 2026-11-28, finding 1); a run that passes has `leave_known_good`
+    /// settle it, and reads the console once as its last step.
+    pub fn the_console_is_owed(&self) -> Group {
+        let d = self.clone();
+        group(
+            "the console of the boot is owed",
+            [Step::new(
+                Kind::Check,
+                "Android answers as root, so the pstore can be read after the try",
+                move || {
+                    if d.lab.in_fastboot()? {
+                        Ok(()) // the gate accepts a phone in fastboot; the read brings Android up
+                    } else {
+                        d.android.is_up_as_root()
+                    }
+                },
+            )
+            .sourced("decision:2026-11-28-walleye-display-try-needs-its-console-first")],
+        )
+        .way_back(Step::new(
+            Kind::Do,
+            "the previous boot's console is read from Android's pstore and judged",
+            self.the_console_is_read_in_the_pstore(),
+        ))
+    }
+
+    /// On Android again: the previous boot's console is read ([`Android::previous_console`]), kept as `pstore-console.txt` in the run's folder and judged ([`console_verdict`]).
+    /// The ramoops node of B-r5-smmu has stock Android's layout (decision 2026-11-28-walleye-display-try-needs-its-console-first), so a try that dies before its gadget still
+    /// leaves its last lines here. It runs as the way back of [`DisplaySmmu::the_console_is_owed`] after a failed run, and as the last step of a passing one. A read that cannot
+    /// be made is said as not known yet; this step never fails the run.
     pub fn the_console_is_read_in_the_pstore(&self) -> impl FnOnce() -> Done + 'static {
         let d = self.clone();
         move || {
-            let _ = d.android.adb(&["root"]);
-            std::thread::sleep(Duration::from_secs(3));
-            match d.android.adb(&["shell", crate::rw_write::PSTORE_COMMAND]) {
-                Ok(text) if !text.contains("Permission denied") => {
-                    let text = redact(&text);
+            match d.android.previous_console() {
+                Ok(text) => {
                     if let Err(e) = d.lab.save(crate::rw_write::PSTORE_FILE, &text) {
                         println!("NOT KNOWN YET: the console could not be kept: {e}");
                     }
                     println!("  {}", console_verdict(&text));
                 }
-                Ok(_) => println!("NOT KNOWN YET: the pstore is closed to adb (no root)"),
                 Err(e) => println!("NOT KNOWN YET: the pstore could not be read: {e}"),
             }
             Ok(())
@@ -526,5 +552,65 @@ mod tests {
     fn the_report_says_the_crtc_state_is_not_known_yet_rather_than_missing() {
         let s = signs_of(CLEAN, PS, ANDROID_CMDLINE, DRM_OK);
         assert!(report(&s).contains("crtc_active not known yet"));
+    }
+
+    fn source(path: &str) -> String {
+        std::fs::read_to_string(format!("{}/{path}", env!("CARGO_MANIFEST_DIR"))).unwrap()
+    }
+
+    /// Review of builder/ramoops-console (2026-11-28), finding 1: the console read ran only after a run that reached its end, so a failed run's console - the one the
+    /// try exists to keep - was never read. Like rootfs_boot's `the_stop_is_read_in_the_pstore`, the read is owed: a group opened BEFORE the phone is booted carries it as
+    /// its way back (way backs run the last begun first, so it runs after phone_ready's own way back has put Android up), and a passing run reads it once, after
+    /// leave_known_good, which settles that way back.
+    #[test]
+    fn the_console_is_read_in_the_way_back_a_failed_run_owes() {
+        let own = source("src/display_smmu.rs");
+        let owed = own
+            .split("pub fn the_console_is_owed(&self)")
+            .nth(1)
+            .expect("DisplaySmmu::the_console_is_owed")
+            .split("\n    }\n")
+            .next()
+            .unwrap();
+        assert!(
+            owed.contains(".way_back(") && owed.contains("the_console_is_read_in_the_pstore()"),
+            "{owed}"
+        );
+        let procedure = source("../display-smmu-on-on-the-pixel-2.rs");
+        let at = |what: &str| procedure.find(what).unwrap_or_else(|| panic!("{what}"));
+        assert!(
+            at("run_group(smmu.the_console_is_owed())") < at("run_group(ready)"),
+            "the owed console read must be opened before the phone is booted"
+        );
+        assert!(
+            at("steps::leave_known_good()") < at("smmu.the_console_is_read_in_the_pstore()"),
+            "a passing run reads the console once, after the way back"
+        );
+    }
+
+    /// Review finding 2: `adb root` plus a 3 s sleep raced adbd. The wait is Android's own (`is_up_as_root`), shared with rootfs_boot: neither caller carries the command
+    /// or the sleep.
+    #[test]
+    fn both_callers_read_the_console_through_the_one_android_read() {
+        let android = source("src/android.rs");
+        assert!(android.contains("pub fn previous_console(&self)"));
+        let read = android
+            .split("pub fn previous_console(&self)")
+            .nth(1)
+            .unwrap()
+            .split("\n    }\n")
+            .next()
+            .unwrap();
+        assert!(
+            read.contains("is_up_as_root()") && read.contains("PSTORE_COMMAND"),
+            "{read}"
+        );
+        for file in ["src/display_smmu.rs", "src/rootfs_boot.rs"] {
+            let text = source(file);
+            let code = text.split("#[cfg(test)]").next().unwrap();
+            assert!(code.contains("previous_console()"), "{file}");
+            assert!(!code.contains("PSTORE_COMMAND"), "{file}");
+            assert!(!code.contains("adb(&[\"root\"])"), "{file}");
+        }
     }
 }

@@ -11542,3 +11542,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-28-the-display-try-s-console-is-read-in-an-owed-way"></a>
+### The display try's console is read in an owed way back
+
+Entry date
+: 2026-11-28
+
+Done
+: the_console_is_owed group (check + way back = pstore read) opens before run_group(ready); Android::previous_console (is_up_as_root, no adb root + sleep) serves the display try and rootfs_boot; two source tests; dry run lists the group first; 561 tests pass; programmer review findings 1-3 fixed
+
+Considered
+: a phone in fastboot at the owed check: accepted, the read brings Android up
+
+Rejected
+: a second read after a passing run's way back being owed too: leave_known_good settles the owed group, so the entry's last step reads once. The doubled wait when the owed check itself times out: kept, rare and harmless
+
+About
+: walleye-display-s6e3fa5

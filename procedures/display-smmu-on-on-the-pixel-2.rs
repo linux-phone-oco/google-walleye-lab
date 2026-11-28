@@ -5,7 +5,7 @@
 //! signs read once the init says it is through the 13 modules: no `iommu.passthrough` on the command line, no arm-smmu context fault, no `rcg` warning, no DSI -110,
 //! the DSI-1 connector connected, the panel bound, drm initialized, the CRTC's thread in ps (its debugfs state is kept, not judged: no captured text of it yet);
 //! then the way back to Android, and the previous boot's console read from its pstore (kept as pstore-console.txt, judged: does it hold our kernel's lines?). NO person step: the glass is not looked at. The readings are kept in ~/lab-material/walleye/display-smmu-on-DAY/.
-//! A failed step or a panic ends with the way back to Android (the phone_ready group's own); a signal runs the owed way backs too.
+//! A failed step or a panic ends with the way back to Android (the phone_ready group's own), then the console read from the pstore (the owed group's); a signal runs the owed way backs too.
 //!   procedures/display-smmu-on-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml, keys listed in procedures/steps/src/settings.rs)
 //!
 //! ```cargo
@@ -30,6 +30,7 @@ fn main() {
     let kernel = smmu.kernel();
     let ready = steps::phone_ready(&kernel); // built first: a kernel [kernels] test does not list ends the run before the phone is touched
     step("take the phone to fastboot", smmu.phone_is_in_fastboot());
+    run_group(smmu.the_console_is_owed()); // before the phone is booted: a failed run reads the console of the boot that died in its way back, after Android is up
     run_group(ready); // boots [images.b-r5-smmu] from memory, nothing flashed, its gadget on the bus
     step(
         "the shell answers and the image has its delay",
