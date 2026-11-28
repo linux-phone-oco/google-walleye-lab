@@ -41,13 +41,11 @@ for p in record:$want_record console:$want_console pmsg:$want_pmsg; do
 done
 fdtget -d none "$DTB" "$N" ecc-size > "$T/ecc" 2>&1
 [ "$(cat "$T/ecc")" = none ] || say fail "ecc-size is set ($(cat "$T/ecc")), stock has none"
-# the kernel has the ramoops backend: an image's kernel is b-r5's (the recipe changes only dtb and command line); b-r5's captured boot registers ramoops (research walleye-display-reset-image-b-r5-tried-signs-vanish)
+# the kernel has the ramoops backend: the parameter names of pstore/ram (ramoops.console_size ...) are in its decompressed Image. This replaces "the kernel is b-r5's" (2026-11-28, item
+# walleye-display-identity-client-list-image: B-r5-smmu-id's kernel is a new build, so its bytes are not b-r5's); the backend itself is what the stock layout needs. The unpacked kernel part ends
+# with the appended dtb: gzip reads the stream and says so after its end, which is not a failure here.
 if [ -r "$T/p/kernel" ]; then
-  B5=$(lpoco-bringup image ensure b-r5 --device "${DEVICE_TOML:-device.toml}" --dry-run 2>&1 | sed -n 's/.*(\(\/[^)]*\))$/\1/p' | tail -n 1)
-  [ -r "$B5" ] || say skip "b-r5 is not in the store: not known yet"
-  lpoco-bringup image unpack "$B5" --device "${DEVICE_TOML:-device.toml}" --out "$T/b5" > /dev/null 2>&1 || say fail "cannot unpack b-r5"
-  # the unpacked kernel part ends with the appended dtb: compare the bytes before it (boot.toml says where the dtb is appended)
-  kpart() { n=$(sed -n 's/.*appended to the kernel at \([0-9]*\)$/\1/p' "$1/boot.toml"); [ -n "$n" ] && head -c "$n" "$1/kernel"; }
-  [ "$(kpart "$T/b5" | sha256sum)" = "$(kpart "$T/p" | sha256sum)" ] || say fail "the kernel is not b-r5's: ramoops backend not shown"
+  n=$(gzip -dc < "$T/p/kernel" 2>/dev/null | grep -ac 'ramoops\.console_size')
+  [ "${n:-0}" -ge 1 ] || say fail "the kernel part names no ramoops.console_size parameter: the ramoops backend is not shown"
 fi
 say pass "$IN: ramoops at $got_reg, record $want_record, console $want_console, pmsg $want_pmsg, no ecc: stock's layout"

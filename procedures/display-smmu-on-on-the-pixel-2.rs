@@ -31,7 +31,7 @@ fn main() {
     let ready = steps::phone_ready(&kernel); // built first: a kernel [kernels] test does not list ends the run before the phone is touched
     step("take the phone to fastboot", smmu.phone_is_in_fastboot());
     run_group(smmu.the_console_is_owed()); // before the phone is booted: a failed run reads the console of the boot that died in its way back, after Android is up
-    run_group(ready); // boots [images.b-r5-smmu] from memory, nothing flashed, its gadget on the bus
+    run_group(ready); // boots the image the manifest names ([procedures.display-smmu-on-on-the-pixel-2] image) from memory, nothing flashed, its gadget on the bus
     step(
         "the shell answers and the image has its delay",
         smmu.shell_answers_and_the_image_has_its_delay(),

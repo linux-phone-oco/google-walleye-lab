@@ -4719,3 +4719,31 @@ Research
 
 Scope
 : walleye keeper, kernel tree
+
+
+<a id="2026-11-28-walleye-display-identity-image-old-kernel-config"></a>
+### 2026-11-28-walleye-display-identity-image-old-kernel-config
+
+Date
+: 2026-11-28
+
+Brief
+: The identity-client image's kernel keeps the config of the display kernel it replaces; its ramdisk takes the new kernel's modules
+
+Decision
+: B-r5-smmu-id is built from the display-smmu-id list with the config fragments of lab commit e121ca26 (the day of the old kernel), so its .config equals the old one and the only change is the one arm-smmu-qcom line; the 13 display modules and depmod files in its ramdisk are the new build's (module version strings must match the kernel), the rest of the ramdisk, the dtb and the command line are B-r5-smmu's.
+
+Why
+: A try that changes one thing: today's walleye.config builds QRTR, PAS and SYSMON in, which would change the boot's early path and mix a second change into the SMMU try. The old config is reproduced line for line, and the ramdisk method is proved on the old modules (cpio byte-equal).
+
+Rejected
+: Today's fragments: a second change in the same try. A Nix [kernel_builds] row: it builds Image.gz only, no modules, and the ramdisk needs them at the same version. Old modules in the ramdisk: insmod refuses a version mismatch. Editing build/walleye.config back: other images (SLPI, modem) rest on it.
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-identity-client-list-image-built
+
+Scope
+: walleye builder, display images
