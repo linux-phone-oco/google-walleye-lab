@@ -300,12 +300,13 @@ checksum = "02b614978e47ce529faee66579f2b2fe19c94aa96d910a6a9a8043b2b02d8175"
 
 [[package]]
 name = "lpoco-attended"
-version = "0.46.14"
-source = "git+https://github.com/linux-phone-oco/lab-tools?tag=lpoco-attended-v0.46.14#f0f7640469a7aab95e441ac482ed4e2889c586d9"
+version = "0.46.15"
+source = "git+https://github.com/linux-phone-oco/lab-tools?tag=lpoco-attended-v0.46.15#567f4d82c1d18865424c8fee443ff6e223bb3c2a"
 dependencies = [
  "argenv-resolve",
  "lpoco-manifest",
  "serde",
+ "serde_json",
  "sha2",
  "signal-hook",
  "toml",
