@@ -4772,3 +4772,28 @@ About
 
 Scope
 : the walleye lane's osfact image
+
+
+<a id="2026-11-28-walleye-osfact-display-nfc-kernel-old-config-nfc-overlay"></a>
+### 2026-11-28-walleye-osfact-display-nfc-kernel-old-config-nfc-overlay
+
+Date
+: 2026-11-28
+
+Brief
+: The combined osfact image keeps the identity image's kernel config and display dtb and adds only NFC: a config fragment and a dtb overlay
+
+Decision
+: The kernel is the tag int/walleye/display-smmu-id/v7.3/1 built with the config of the identity image (build-display-late.sh of lab e121ca26) plus build/walleye-nfc.config; the dtb is B-r5-smmu's with dt/msm8998-google-walleye-nfc.dtso applied. One procedure (osfact-display-nfc-on-the-pixel-2) reads the display's and the NFC's signs in one boot.
+
+Why
+: Nothing of the proven display changes but the five NFC symbols and the NFC nodes, and each is checked against the image that proved it; a failure in the keeper's run then points at the join, not at a new base.
+
+Rejected
+: Today's walleye.config (QRTR, PAS, SYSMON built in: another kernel than the one the display was built on); compiling today's walleye-display dts (its memory map differs from the proven display dtb); a second boot per part.
+
+About
+: walleye-bootimage
+
+Research
+: walleye-osfact-display-nfc-image-packed-equal

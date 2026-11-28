@@ -1,0 +1,13 @@
+ok   magic: ANDROID!
+ok   header version: 0
+ok   size within partition: 33554432 of 33554432 bytes
+ok   kernel offset: 0x8000
+ok   ramdisk offset: 0x1000000
+ok   tags offset: 0x100
+ok   second address: 0x0
+ok   page size: 4096
+ok   os words: 15.0.0 2026-11
+ok   cmdline: "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3"
+ok   appended dtb: 92299 bytes after the kernel
+ok   qcom,msm-id: 0x124 0x20001
+/home/mll/.cache/agent-build/991ca0/pack-a/boot.img: 12 ok, 0 failed

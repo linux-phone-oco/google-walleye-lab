@@ -201,6 +201,8 @@ jobs:
           : > build/images/images-display-reset-smmu/boot-b-r5-smmu.img
           mkdir -p build/images/images-display-reset-smmu-id
           : > build/images/images-display-reset-smmu-id/boot-b-r5-smmu-id.img
+          mkdir -p build/images/images-osfact-display-nfc
+          : > build/images/images-osfact-display-nfc/boot-osfact-display-nfc.img
           bin/attended check
       - name: no procedure, script or brief calls a bare lpoco-attended; bin/attended runs the one the steps crate is locked to
         run: sh tests/host/no-bare-lpoco-attended.sh

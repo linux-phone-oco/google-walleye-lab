@@ -1,0 +1,46 @@
+// SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
+/*
+ * The Pixel 2's NFC controller as an overlay on a built walleye dtb that does not carry it (item walleye-osfact-image-display-and-nfc): the display image's
+ * dtb (B-r5-smmu's, c6d840a7: the mdss reset, ramoops as stock Android lays it) plus the nodes of dt/msm8998-google-walleye.dts that the NFC image's dtb
+ * has - the two pin states on tlmm, blsp2_i2c2 okay and its nfc@28. Every value is that file's (its comment names the research: walleye-nfc-android-dtb-read,
+ * walleye-nfc-clock-and-minus-121); nothing is new here. An overlay, so no image already declared in device.toml changes its dtb by this file, and the
+ * display dtb stays the seed it is. build/osfact-display-nfc-dtb.sh applies it and checks the nodes equal the NFC image's.
+ */
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+&tlmm {
+	nfc_irq_pins: nfc-irq-state {
+		pins = "gpio92";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
+	nfc_ctl_pins: nfc-ctl-state {
+		pins = "gpio12", "gpio116";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+};
+
+&blsp2_i2c2 {
+	status = "okay";
+
+	nfc@28 {
+		compatible = "nxp,pn553", "nxp,nxp-nci-i2c";
+		reg = <0x28>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <92 IRQ_TYPE_LEVEL_HIGH>;
+
+		enable-gpios = <&tlmm 116 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&nfc_irq_pins &nfc_ctl_pins>;
+	};
+};

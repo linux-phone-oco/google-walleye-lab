@@ -451,3 +451,6 @@ source = "file:tests/fixtures/kernel-text/ramoops-params-v7.3.txt"
 
 [scripts."tests-never-notify-selftest.sh"]
 source = "file:procedures/steps/.cargo/config.toml"
+
+[scripts."osfact-display-nfc-ramdisk.sh"]
+source = "research:walleye-osfact-display-nfc-image-packed-equal"

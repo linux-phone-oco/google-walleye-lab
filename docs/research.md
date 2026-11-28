@@ -10132,3 +10132,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-osfact-display-nfc-image-packed-equal"></a>
+### walleye-osfact-display-nfc-image-packed-equal
+
+Date
+: 2026-11-28
+
+Brief
+: osfact display+NFC image packed: identity-list kernel with NFC built in, display dtb plus nfc@28, 13 modules, walleye-nfc-up; boot.img 5e294989 built twice equal, UFS-off gate pass; not booted
+
+Question
+: Can one osfact boot.img carry the display (B-r5-smmu-id's identity-list kernel line, the mdss reset dtb, ramoops as stock) and NFC (nxp-nci built in, nfc@28, walleye-nfc-up)?
+
+Found
+: Kernel: tag int/walleye/display-smmu-id/v7.3/1 built by build-display-late.sh of lab commit e121ca26 with build/walleye-nfc.config; its .config differs from the identity image's only in RFKILL, NFC, NFC_NCI, NFC_NXP_NCI, NFC_NXP_NCI_I2C (m to y), Image.gz 6e5f25f8, version 7.3.0-00011-gb24d9bc68235-dirty. Dtb 3d02d74e: B-r5-smmu's c6d840a7 with dt/msm8998-google-walleye-nfc.dtso (the nodes of walleye.dts the NFC dtb 86550c1e has) by fdtoverlay; build/osfact-display-nfc-dtb.sh checks nfc@28's compatible, reg, interrupts and enable-gpios, the pins and i2c status equal the NFC image's, and the mdss reset, ramoops size, panel and UFS-off kept; built twice equal. Ramdisk d6a6ff80: slpi's init plus display-load, the 13 modules of this kernel, /bin/walleye-nfc-up of the proven NFC ramdisk, delay 5; tests/host/osfact-display-nfc-ramdisk.sh passes and fails on the display-only and the NFC-only ramdisks. osfact 0.4.1 pack now: boot.img 5e294989 twice equal, root.tar.gz 0e4dad64 (as run 4), ufs-off-image.sh pass, lpoco-bringup image check 12 ok, command line without iommu.passthrough. NOT KNOWN YET: that the glass lights and nfc0 acks on this kernel; never booted.
+
+About
+: walleye-bootimage
+
+Material
+: research/nfc/2026-11-28-osfact-display-nfc/
