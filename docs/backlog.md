@@ -13497,6 +13497,7 @@ Status
 
 Note
 : From walleye-pon-read-after-bite-the-way. Phone off by adb reboot -p (cable in, then out), author holds power+volume-down once, lab fastboot-boots the reader image and saves 0xC0..0xCB raw; states what outlives a key press and the bootloader.
+go until 2026-11-28T02:25:47+01:00, outcomes: If pon-block passes its PON_PERPH_SUBTYPE check and 0xC0/0xC2/0xC5/0xC7 show the power-key (KPDPWR) power-on and no warm-reset reason, then PON registers survive the power-off, the key press and the bootloader, so the bite procedure can read a bite's reason in our image. If the subtype check passes but the reason registers read cleared (zero), then the bootloader or the key path clears them, so the bite read needs another reader (Android's getprop bootreason). If pon-block prints 'none' or the subtype check fails, then regmap debugfs does not show the PON block on this image, so the next reader is Android's getprop. Author's go 2026-11-28: 'ye go PON' (relayed by the Top Coordinator).
 
 Blocked by
 : walleye-pon-block-reads-type
@@ -13518,6 +13519,9 @@ Rank
 
 Witness
 : person
+
+Go until
+: 2026-11-28T02:25:47+01:00
 
 
 <a id="walleye-wdt-pon-control-procedure"></a>
