@@ -15165,3 +15165,28 @@ Proof
 
 Rank
 : 19
+
+
+<a id="walleye-device-arch-declared"></a>
+### device.toml declares [device] arch = "aarch64" for osfact, with every reader of device.toml moved to a release that reads it
+
+Status
+: open
+
+Note
+: Coordinator 2026-11-28, for osfact (lab-tools decision 2026-11-28-osfact-pack-reads-arch-from-the-declaration). Three readers parse device.toml: lpoco-lab (pin is device.toml's #:schema line; 0.54.2 reads arch), lpoco-bringup (bin/install-bringup.sh; 0.54.2 reads it), and lpoco-attended locked in procedures/steps/Cargo.lock (still refuses it: PR 1351's 'attended tries' check). The coordinator's two pin edits are on branch coordinator/device-arch (PR 1351, closed); move the lpoco-attended lock to a revision on lpoco-manifest 0.55.0, or ask lab-tools for one. serial_env stays out of [device] until the manifest reads it.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: device.toml has arch = "aarch64"; bin/check-device-toml.sh passes against its pinned lpoco-lab (0.54.2 or later) and the newest; make land-check passes with bin/install-bringup.sh's lpoco-bringup (0.54.2 or later); the procedures/steps crate's locked lpoco-attended reads it, so 'the attended tries prove themselves' passes (cargo test and lpoco-attended check); all checks of the PR pass
+
+Rank
+: 1
