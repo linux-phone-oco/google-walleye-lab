@@ -15133,7 +15133,7 @@ Proof
 : unattended, within the standing go: the osfact-built Alpine image of walleye boots from RAM by its one command (fastboot boot, never flash), the proven parts' health checks pass on it (modem-up, NFC present, touch), and the declared way back returns the phone to Android slot b with card, boot chain and flags equal; nothing flashed
 
 Rank
-: 90
+: 1
 
 
 <a id="walleye-modem-boot-takes-osfact-push"></a>
