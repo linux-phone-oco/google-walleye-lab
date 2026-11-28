@@ -15639,10 +15639,10 @@ Status
 : in-progress
 
 Note
-: run 1 (research walleye-display-identity-client-list-run-1-clean-panel-sign-blind): SMMU-on passes, signs 0; stopped only at panel_bound (blind on a cmdline without dyndbg). Next: check 10 reads the panel from sysfs (driver bound), then the same one command again
+: Coordinator 2026-11-28: the one display+NFC run (procedures/osfact-display-nfc-on-the-pixel-2.rs, same identity-list kernel) goes first and also reads the panel's sysfs link; if its panel-driver text is kept, this rerun is not needed and closes on that capture. | run 1 (research walleye-display-identity-client-list-run-1-clean-panel-sign-blind): SMMU-on passes, signs 0; stopped only at panel_bound (blind on a cmdline without dyndbg). Next: check 10 reads the panel from sysfs (driver bound), then the same one command again
 
 Blocked by
-: walleye-display-identity-client-list-image
+: walleye-osfact-image-display
 
 About
 : walleye-display-s6e3fa5
