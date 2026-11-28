@@ -1,0 +1,16 @@
+#!/bin/busybox sh
+# The display half of the osfact display image (item walleye-osfact-image-display): b-a5's own loop (build/initramfs-ramroot/init, step 1) on its own, so the gadget, telnet and the
+# push of the osfact install run beside it. Waits until the uptime has reached /display-delay (5 s: the delay the modules were proven at), then insmod every line of /display-modules.list,
+# each said to the kernel log as `walleye-display: LINE` and `walleye-display: ok` or `FAILED rc=N` (the lines the display scorers already read). Ends when the list is done.
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+D=$(cat /display-delay 2>/dev/null)
+case "$D" in ''|*[!0-9]*) D=0;; esac
+while [ "$(cut -d. -f1 /proc/uptime)" -lt "$D" ]; do sleep 1; done
+echo "walleye-display: delay $D s reached at uptime $(cut -d. -f1 /proc/uptime) s" > /dev/kmsg 2>/dev/null
+while IFS= read -r line; do
+  [ -n "$line" ] || continue
+  echo "walleye-display: $line" > /dev/kmsg 2>/dev/null
+  if $line < /dev/null; then echo "walleye-display: ok" > /dev/kmsg 2>/dev/null; else rc=$?; echo "walleye-display: FAILED rc=$rc" > /dev/kmsg 2>/dev/null; fi
+done < /display-modules.list
+echo "walleye-display: modules done" > /dev/kmsg 2>/dev/null
+dmesg -n 3   # the glass keeps the getty prompt last: kernel messages above level 3 stay off the console (v5 of the root did the same, research walleye-ramroot-b-a5-v5-console-loglevel-built)
