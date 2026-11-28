@@ -11503,3 +11503,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-28-1540-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-28
+
+Done
+: run 1 of walleye-display-reset-smmu-on-try: stopped at step 5, image gave no gadget, way back passed; phone on Android slot b, stock, nothing flashed, adb device
+
+Considered
+: next: not retried (a try failing for a reason the logs do not show goes to the coordinator): SMMU-on image needs a console (fastboot oem / ramoops of its own boot) before a second try; fall back walleye-display-map-splash-before-attach
+
+About
+: walleye-display-s6e3fa5

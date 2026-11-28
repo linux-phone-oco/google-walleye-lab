@@ -9962,3 +9962,22 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-28-smmu-on-captures/
+
+
+<a id="walleye-display-smmu-on-run-1-no-gadget-from-b-r5-smmu"></a>
+### walleye-display-smmu-on-run-1-no-gadget-from-b-r5-smmu
+
+Date
+: 2026-11-28
+
+Brief
+: B-r5-smmu run 1 (SMMU on, from RAM): left fastboot, no gadget on the bus, phone back as Android b after 57 s; no text of our kernel kept
+
+Question
+: Does b-r5-smmu (MDSS reset, SMMU on) boot to its shell with a clean display?
+
+Found
+: Step 5 (boot b-r5-smmu once) stopped: left fastboot after 15 s, 1d6b:0104 never on the bus, came back as Android b after 57 s, way back passed. pstore holds no mainline kernel text (no 'Linux version 6'); console-ramoops has only Android's 4.4.302 boot, whose init oopsed at 17.9 s in persistent_ram_save_old/__memcpy_fromio (ramoops region unreadable after our try) and restarted. So the SMMU-on image died before its gadget with no log; reason not known yet. Readings in ~/lab-material/walleye/display-smmu-on-keeper-run1/. Nothing flashed, slots b current, Android up.
+
+About
+: walleye-display-s6e3fa5
