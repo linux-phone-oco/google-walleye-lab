@@ -1,4 +1,4 @@
-#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.54.3/manifest/device.schema.json
+#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.54.4/manifest/device.schema.json
 # ^ the lpoco-lab release this file follows: editors complete and check from its schema, CI reads the file with that release.
 # This phone's manifest - the only file a new phone's lab needs to say. Every tool reads it:
 # lpoco lab (linux-phone-oco/lab-tools) finds it like cargo finds Cargo.toml, or by --device.
@@ -172,6 +172,7 @@ check = "test -e /mm/sbin/init"    # PROPOSED, with command
 
 [install.way_back]
 command = "sync; echo b > /proc/sysrq-trigger"   # the first half of build/initramfs-modem/window-end (it then sleeps 5 and reboot -f)
+back_on = ["adb", "-s", "{serial}", "get-state"]  # the known good is stock Android, which answers adb (lab-tools #492: pack refuses a way back without it; osfact's walleye fixture has this line)
 
 [tools]
 adb = "adb"
