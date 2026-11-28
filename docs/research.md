@@ -10072,3 +10072,22 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-28-identity-image/
+
+
+<a id="walleye-display-identity-client-list-run-1-clean-panel-sign-blind"></a>
+### walleye-display-identity-client-list-run-1-clean-panel-sign-blind
+
+Date
+: 2026-11-28
+
+Brief
+: B-r5-smmu-id (SMMU on, from RAM) passes the iommu group; faults 0, rcg 0, DSI -110 0, 13/13, drm+fb0+fbcon up; the run's panel_bound sign is blind on this cmdline
+
+Question
+: Does B-r5-smmu-id (identity-client line, SMMU on) pass 'Adding to iommu group 0' and keep the display clean?
+
+Found
+: Run 20261128-175948 (procedures/display-smmu-on-on-the-pixel-2.rs, image b-r5-smmu-id, nothing flashed): the kernel passed 'c900000.display-subsystem: Adding to iommu group 0' (1.06 s) and ran on; modules 13/13 at 6.2 s; msm_dpu bound c994000.dsi, drm initialized msm 1.13.0, fb0 msmdrmfb, console switched to the frame buffer at 6.49 s; passthrough_on_cmdline no, smmu_faults 0, rcg_warnings 0, dsi_110 0, connector connected, CRTC thread listed. The procedure stopped at check 10 only on panel_bound=no: that sign needs the line 'panel-samsung-s6e3fa5 c994000.dsi.0:' which earlier runs printed through dyndbg words on their command line; the SMMU-on cmdline has none, so the panel driver prints nothing on success. Not known yet: crtc_active, and whether the glass lit (not looked at). pstore: no console-ramoops after the way back (the boot ended normally); phone back on Android slot b by way back. The identity-client line answers the SMMU-on death at iommu probe: line goes to iommu/linux-arm-msm (upstream item iommu-arm-smmu-qcom-msm8998-mdss-identity) once the panel sign is judged by something this cmdline can show (sysfs: the panel device bound to its driver).
+
+About
+: walleye-display-s6e3fa5

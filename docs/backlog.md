@@ -15639,10 +15639,10 @@ Rank
 ### Try B-r5-smmu-id once from RAM: does the console pass 'Adding to iommu group 0' and the display stay clean (smmu_faults 0, rcg 0, dsi_110 0)?
 
 Status
-: open
+: in-progress
 
 Note
-: The procedure's [procedures.display-smmu-on-on-the-pixel-2] image is now b-r5-smmu-id (sha256 840755cf392d7829547e7799e41b22318ec3627e8efe7d2a95cdfc1eb438faa8; dry run walks 12 steps). Decision 2026-11-28-walleye-display-identity-client-list-first: if it passes, the one line goes to iommu/linux-arm-msm (upstream item iommu-arm-smmu-qcom-msm8998-mdss-identity); if a fault window remains, then stock's map-before-attach. Nothing else on the phone changes.
+: run 1 (research walleye-display-identity-client-list-run-1-clean-panel-sign-blind): SMMU-on passes, signs 0; stopped only at panel_bound (blind on a cmdline without dyndbg). Next: check 10 reads the panel from sysfs (driver bound), then the same one command again
 
 Blocked by
 : walleye-display-identity-client-list-image
@@ -15661,3 +15661,28 @@ Proof
 
 Rank
 : 17
+
+
+<a id="walleye-display-smmu-panel-sign-from-sysfs"></a>
+### The SMMU-on procedure judges the panel from sysfs, not from a dyndbg line
+
+Status
+: open
+
+Note
+: Run 1 of walleye-display-identity-client-list-try: all signs clean, check 10 stopped on panel_bound (needs 'panel-samsung-s6e3fa5 c994000.dsi.0' printed by dyndbg words the SMMU-on cmdline lacks). The step reads /sys/bus/mipi-dsi/devices/*/driver (or the c994000.dsi.0 device's driver link) as root over the shell and keeps it as panel-driver.txt; captured-text tested; then the keeper reruns the try's one command.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: cargo test of procedures/steps display_smmu: panel_is_bound passes on captured run 20261128-175948 text (dmesg + a sysfs driver-bound reading) and fails when the panel device is unbound
+
+Rank
+: 16

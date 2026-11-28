@@ -11620,3 +11620,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-28-1815-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-28
+
+Done
+: walleye-keeper run 1 of walleye-display-identity-client-list-try: B-r5-smmu-id from RAM (nothing flashed) passed the iommu group, SMMU on, faults 0, rcg 0, DSI -110 0, 13/13, drm and fbcon up; stopped at check 10 only on the blind panel_bound sign; way back ran, phone Android slot b, adb device, stock z21 kept, fastboot reachable; research walleye-display-identity-client-list-run-1-clean-panel-sign-blind
+
+Considered
+: next: build item walleye-display-smmu-panel-sign-from-sysfs (check reads the panel's driver link from sysfs), then the keeper reruns procedures/display-smmu-on-on-the-pixel-2.rs once; the upstream line goes to iommu/linux-arm-msm after that run passes
+
+About
+: walleye-display-s6e3fa5
