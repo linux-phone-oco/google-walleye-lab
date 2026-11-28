@@ -11563,3 +11563,21 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-28-1640-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-28
+
+Done
+: run 2 of walleye-display-reset-smmu-on-try: B-r5-smmu from RAM stopped at step 6 (no gadget), way back passed; its console now survives in pstore and ends at 1.119 s 'display-subsystem: Adding to iommu group 0' (research walleye-display-smmu-on-run-2-dies-at-display-subsystem-iommu-group); phone on Android slot b, stock, nothing flashed, adb device
+
+Considered
+: next: the fallback walleye-display-map-splash-before-attach (decision 2026-11-28-walleye-display-try-needs-its-console-first said it waits on this console: it now says); not retried, the coordinator decides; the build file for b-r5-smmu was stale and the run replaced it by the ensured store image
+
+About
+: walleye-display-s6e3fa5
