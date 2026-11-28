@@ -15020,34 +15020,6 @@ Rank
 : 18
 
 
-<a id="walleye-osfact-image-installs"></a>
-### An osfact image installed on walleye with osfact's install command, and booting: the first of walleye's one rolling image
-
-Status
-: open
-
-Note
-: From docs decision 2026-11-27-osfact-own-rust-in-lab-tools (lab-tools item image-factory-any-distro-any-phone). When lab-tools osfact-walleye-two-distros has landed: build walleye's Alpine image with osfact pack now from this lab's device.toml (its [install] table added by lab-tools osfact-device-declaration), install it with the install command it prints - the same writes install-rootfs and install-boot make today (system_{other} by dd from Android, boot_{other} by fastboot, set_active, the way back) under the coordinator's go - and boot it. Debian after Alpine, as its own run. No bootloader, GPT bytes of ours, erase or purge. Not ready before the build: it waits on it.
-
-Waits
-: lab-tools osfact-walleye-alpine-skeleton landed (linux-phone-oco/docs base)
-
-Opened
-: 2026-11-27
-
-Needs
-: phone
-
-Proof
-: the osfact-built Alpine image of walleye boots from RAM by its one command (fastboot boot, never flash), the proven parts' health checks pass on it (modem-up, NFC present, touch), and the declared way back returns the phone to Android slot b with card, boot chain and flags equal; the author witnesses
-
-Rank
-: 90
-
-Witness
-: person
-
-
 <a id="walleye-ipa-checks-selftest-runs"></a>
 ### dtb-modem-ipa-selftest.sh runs in the build, and kernel-modem-ipa.sh guards QCOM_IPA's dependencies
 
@@ -15127,3 +15099,31 @@ Rank
 
 Witness
 : person
+
+
+<a id="walleye-osfact-image-installs"></a>
+### An osfact image installed on walleye with osfact's install command, and booting: the first of walleye's one rolling image
+
+Status
+: open
+
+Note
+: From docs decision 2026-11-27-osfact-own-rust-in-lab-tools (lab-tools item image-factory-any-distro-any-phone). When lab-tools osfact-walleye-two-distros has landed: build walleye's Alpine image with osfact pack now from this lab's device.toml (its [install] table added by lab-tools osfact-device-declaration), install it with the install command it prints - the same writes install-rootfs and install-boot make today (system_{other} by dd from Android, boot_{other} by fastboot, set_active, the way back) under the coordinator's go - and boot it. Debian after Alpine, as its own run. No bootloader, GPT bytes of ours, erase or purge. Not ready before the build: it waits on it. | Split 2026-11-28 on the Top's word (the author is often away): this unattended run first; the author's look on the glass is walleye-osfact-image-witnessed, after this passes.
+
+Waits
+: lab-tools osfact-walleye-alpine-skeleton landed (linux-phone-oco/docs base)
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-27
+
+Needs
+: phone
+
+Proof
+: unattended, within the standing go: the osfact-built Alpine image of walleye boots from RAM by its one command (fastboot boot, never flash), the proven parts' health checks pass on it (modem-up, NFC present, touch), and the declared way back returns the phone to Android slot b with card, boot chain and flags equal; nothing flashed
+
+Rank
+: 90
