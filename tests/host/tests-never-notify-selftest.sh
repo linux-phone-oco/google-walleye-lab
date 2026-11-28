@@ -19,7 +19,8 @@ run() { HOME="$T/home" ATTENDED_ROOT="$T/root" bin/attended "$@" 2>/dev/null | h
 case $(run check) in notify=/nonexistent/*) ;; *) say fail "check reads a notify file: $(run check)" ;; esac
 case $(run run x --dry-run) in notify=/nonexistent/*) ;; *) say fail "a dry run reads a notify file: $(run run x --dry-run)" ;; esac
 case $(LPOCO_ATTENDED_NOTIFY="$T/home/.config/lpoco-attended/notify" run check) in notify=/nonexistent/*) ;; *) say fail "check let a given notify file through" ;; esac
-[ "$(run run x)" = "notify=unset" ] || say fail "the real run was changed: $(run run x)"
+real=$(env -u LPOCO_ATTENDED_NOTIFY HOME="$T/home" ATTENDED_ROOT="$T/root" bin/attended run x 2>/dev/null | head -n1)
+[ "$real" = "notify=unset" ] || say fail "the real run was changed: $real"
 grep -q 'LPOCO_ATTENDED_NOTIFY' procedures/steps/.cargo/config.toml 2>/dev/null || say fail "procedures/steps/.cargo/config.toml does not pin LPOCO_ATTENDED_NOTIFY"
 grep -q 'LPOCO_ATTENDED_NOTIFY' .github/workflows/check.yml || say fail "the CI workflow does not pin LPOCO_ATTENDED_NOTIFY"
 say pass "check and dry run name no notify file, the real run is unchanged, cargo test and CI pin it"
