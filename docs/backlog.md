@@ -15461,7 +15461,7 @@ Status
 : open
 
 Note
-: Coordinator 2026-11-28 after run 2 (console at 'Adding to iommu group 0', 'preserved 0 boot mappings'): also read mainline arm-smmu-qcom's client list (qcom_smmu_client_of_match: an identity default domain and preserved boot SMRs for listed display controllers) - is qcom,msm8998-mdss on it, and would adding it (an upstream-sized patch) keep the splash safe until msm resets MDSS? Compare with stock's map-before-attach and pick one. | Stock: mdss_mdp_splash_iommu_attach (iova=phys, read-only, before attach, unmapped when the splash is released). Upstream form: reserved-memory with iommu-addresses plus msm_iommu_new applying the device's direct regions (iommu_get_resv_regions) to its domain before iommu_attach_device. Only if the try fails; dropped if it passes.
+: Researched 2026-11-28 (PR 1427): fallback only; waits on walleye-display-identity-client-list-try
 
 Blocked by
 : walleye-display-identity-client-list-try
