@@ -15308,10 +15308,10 @@ Opened
 : 2026-11-28
 
 Needs
-: build
+: phone
 
 Proof
-: an osfact-packed image (one command, from RAM, nothing flashed) built from the display parts and kernel list that made alpine-rootfs-v5 light the glass, with its getty on the console and the console loglevel; an unattended run reads the panel/DRM state (DSI-1 connected, the panel bound, a CRTC active, fbcon on it) and passes; the way back returns Android; no witness needed for this run
+: keeper: osfact pack now (parts in ~/Projects/walleye-build/osfact-display, boot.img sha256 a0e696542b7c02725eaa2dc5fdcd1fd061616b29125f19a537ebe0e14dd6bd02, built twice equal), osfact install now from Android; then read over telnet 172.16.43.1:23 that card0-DSI-1 reads connected, the s6e3fa5 panel is bound, a CRTC is active, fbcon is on the DRM device and tty1 shows the getty; nothing flashed; way back returns Android slot b. If the glass stays dark: the command line (iommu.passthrough=1) is the first suspect, a per-image cmdline in osfact
 
 Rank
 : 18

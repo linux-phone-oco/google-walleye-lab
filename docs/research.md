@@ -9852,3 +9852,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-osfact-display-image-packed-equal"></a>
+### walleye-osfact-display-image-packed-equal
+
+Date
+: 2026-11-28
+
+Brief
+: osfact display image packed: b-a5's kernel, dtb and 13 display modules in a slpi-init ramdisk; boot.img a0e69654 built twice equal, UFS-off gate pass; not yet booted
+
+Question
+: Can osfact 0.4.0 pack walleye's display parts (the b-a5 kernel, dtb and modules) with the Alpine root, with its getty on tty1?
+
+Found
+: Parts: kernel (b-a5's, 15677205 bytes, dtb cut off) and qcom/msm8998-google-walleye.dtb (b-a5's appended dtb, equal), ramdisk 6cdc91c9 (build/initramfs-osfact-display: slpi init plus /bin/display-load, 13 modules, delay 5 s, dmesg -n 3), built twice equal; tests/host/osfact-display-ramdisk.sh passes (init = slpi's plus one line; modules equal b-a5's byte for byte). osfact 0.4.0 pack now with lab-tools' alpine.toml: rootfs 351fd4b6 (same as run 4), boot.img a0e69654 (twice equal, ufs-off-image.sh pass), root.tar.gz 0e4dad64; install --dry-run shows the binds proc, sys, dev, dev-pts, run before the chroot; the root's /etc/inittab has getty on tty1. device.toml gains [install.root] binds and its schema pin moves to lpoco-lab-v0.54.12 (0.54.9 refused binds; 0.54.12 reads the file). NOT KNOWN YET: that the glass lights - the command line is device.toml's [boot] (no iommu.passthrough=1, which b-a5 had); never booted.
+
+About
+: walleye-display-s6e3fa5

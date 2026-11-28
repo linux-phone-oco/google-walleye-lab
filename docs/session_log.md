@@ -11425,3 +11425,21 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-28-walleye-osfact-display-image-built-queued-for"></a>
+### walleye: osfact display image built, queued for the keeper
+
+Entry date
+: 2026-11-28
+
+Done
+: Built the ramdisk part for the osfact display image (build/initramfs-osfact-display, tests/host/osfact-display-ramdisk.sh), declared [install.root] binds and moved device.toml's lpoco-lab schema to v0.54.12; osfact 0.4.0 packed boot.img a0e69654 twice equal. The item is queued for the phone keeper; nothing was booted.
+
+Considered
+: A per-image command line: osfact has none, so the first run shows whether iommu.passthrough=1 is needed.
+
+About
+: walleye-display-s6e3fa5

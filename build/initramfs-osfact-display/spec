@@ -1,0 +1,47 @@
+dir /bin 755 0 0
+dir /sbin 755 0 0
+dir /etc 755 0 0
+dir /dev 755 0 0
+dir /proc 755 0 0
+dir /sys 755 0 0
+dir /tmp 755 0 0
+dir /run 755 0 0
+dir /lib 755 0 0
+slink /bin/sh busybox 777 0 0
+nod /dev/console 600 0 0 c 5 1
+nod /dev/null 666 0 0 c 1 3
+dir /lib/modules 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/clients 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/display 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/msm 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/panel 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/scheduler 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/media 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/media/cec 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/media/cec/core 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/soc 755 0 0
+dir /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/soc/qcom 755 0 0
+file /bin/busybox busybox 755 0 0
+file /bin/display-load display-load 755 0 0
+file /init init 755 0 0
+file /etc/udhcpd.conf udhcpd.conf 644 0 0
+file /display-delay display-delay 644 0 0
+file /display-modules.list display-modules.list 644 0 0
+file /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm.ko lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm.ko 644 0 0
+file /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_kms_helper.ko lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_kms_helper.ko 644 0 0
+file /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/clients/drm_client_lib.ko lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/clients/drm_client_lib.ko 644 0 0
+file /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/media/cec/core/cec.ko lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/media/cec/core/cec.ko 644 0 0
+file /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/display/drm_display_helper.ko lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/display/drm_display_helper.ko 644 0 0
+file /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/display/drm_dp_aux_bus.ko lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/display/drm_dp_aux_bus.ko 644 0 0
+file /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/scheduler/gpu-sched.ko lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/scheduler/gpu-sched.ko 644 0 0
+file /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_exec.ko lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_exec.ko 644 0 0
+file /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_gpuvm.ko lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_gpuvm.ko 644 0 0
+file /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/soc/qcom/mdt_loader.ko lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/soc/qcom/mdt_loader.ko 644 0 0
+file /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/soc/qcom/ubwc_config.ko lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/soc/qcom/ubwc_config.ko 644 0 0
+file /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/msm/msm.ko lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/msm/msm.ko 644 0 0
+file /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/panel/panel-samsung-s6e3fa5.ko lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/panel/panel-samsung-s6e3fa5.ko 644 0 0
