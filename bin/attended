@@ -8,4 +8,8 @@ REV=$(cargo metadata --locked --format-version 1 --manifest-path "$HERE/procedur
 ROOT=${ATTENDED_ROOT:-$HOME/.cache/walleye-attended}/$REV
 [ -x "$ROOT/bin/lpoco-attended" ] || cargo install --locked --quiet --git https://github.com/linux-phone-oco/lab-tools --rev "$REV" --root "$ROOT" lpoco-attended >&2
 cd "$HERE"
+# a check or a dry run never reaches the author's phone: its notify file is pinned to a path nothing is at (a real run is unchanged)
+for a in "$@"; do
+	case $a in check | --dry-run) export LPOCO_ATTENDED_NOTIFY=/nonexistent/walleye-test-no-notify ;; esac
+done
 exec "$ROOT/bin/lpoco-attended" "$@"

@@ -36,3 +36,14 @@ pub mod transport;
 pub mod ufs;
 pub mod watch;
 pub mod wdt0;
+
+#[cfg(test)]
+mod tests_never_notify {
+    /// `.cargo/config.toml` pins the notify file to nowhere for every `cargo test` here (item walleye-tests-never-reach-the-authors-notify).
+    #[test]
+    fn the_notify_file_a_test_sees_is_nowhere() {
+        let p = std::env::var("LPOCO_ATTENDED_NOTIFY")
+            .expect("cargo's [env] pins LPOCO_ATTENDED_NOTIFY");
+        assert!(!std::path::Path::new(&p).exists(), "{p} exists");
+    }
+}

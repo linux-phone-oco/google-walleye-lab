@@ -15723,10 +15723,10 @@ Rank
 ### Every walleye test spawn sets LPOCO_ATTENDED_NOTIFY to nowhere, so only a real procedure run can reach the author's phone
 
 Status
-: open
+: done
 
 Note
-: The builder taking this continues in the same session to walleye-osfact-image-display-and-nfc (decision 2026-11-28-walleye-osfact-parts-join-in-one-build-and-run). | Lab-tools decision 2026-11-28-a-test-never-reaches-the-authors-notify-file (orchestration): lab-tools' tests flooded the author's ntfy topic through ~/.config/lpoco-attended/notify; walleye's tests run on the same lab. Before the Top restores his file (it is notify.paused).
+: Done: procedures/steps/.cargo/config.toml pins LPOCO_ATTENDED_NOTIFY (force) for every cargo test (test the_notify_file_a_test_sees_is_nowhere); bin/attended pins it for check and --dry-run, a real run unchanged; check.yml sets it for every job; proof tests/host/tests-never-notify-selftest.sh (seen failing first, then pass); 566 steps tests pass, clippy and fmt clean.
 
 About
 : walleye-bootimage
