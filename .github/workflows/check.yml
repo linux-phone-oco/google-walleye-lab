@@ -192,6 +192,8 @@ jobs:
           : > build/images/images-z21/boot-z21.img
           mkdir -p build/images/images-display-delay
           for n in 5 15 25 35 50; do : > build/images/images-display-delay/boot-b-d$n.img; done
+          mkdir -p build/images/images-display-reset-smmu
+          : > build/images/images-display-reset-smmu/boot-b-r5-smmu.img
           bin/attended check
       - name: no procedure, script or brief calls a bare lpoco-attended; bin/attended runs the one the steps crate is locked to
         run: sh tests/host/no-bare-lpoco-attended.sh
