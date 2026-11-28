@@ -11386,3 +11386,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-28-1000-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-28
+
+Done
+: walleye-keeper run 4 of walleye-osfact-image-installs on osfact 0.3.0: install passes (boot from RAM, push, unpack, /sbin/init), way back worked; touch present on the image; modem and NFC not on it. Android slot b, stock, nothing flashed; adb sees the serial as device.
+
+Considered
+: next: the packed root and parts carry what modem and NFC checks need (ipa firmware, ModemManager, dbus, udev; the nfc kernel/dtb) and mount proc/sys/dev in the chroot; then rerun
+
+About
+: walleye-bootimage
