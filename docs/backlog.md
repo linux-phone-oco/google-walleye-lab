@@ -14722,7 +14722,7 @@ Note
 : Run 6 (modem-boot-20261127-184720, used by run 6 of this item): 26/26 pass, ipa probe failed -2 for want of ipa_fws.mdt before the push. Blocked by the rebind item.
 
 Blocked by
-: walleye-modem-net-port-ipa-rebind-after-push
+: walleye-modem-mm-lists-modem-after-init
 
 About
 : modem-calls
@@ -14750,7 +14750,7 @@ Note
 : Run 8 (modem-boot-20261127-210717, used by run 8 of this item): udev works but the chroot's udevadm trigger refuses, rmnet_ipa0 not replayed; waits on walleye-modem-mm-udev-replay-by-uevent, then one modem boot
 
 Blocked by
-: walleye-modem-mm-udev-replay-by-uevent
+: walleye-modem-mm-lists-modem-after-init
 
 About
 : modem-calls
@@ -15119,6 +15119,9 @@ Status
 
 Note
 : From docs decision 2026-11-27-osfact-own-rust-in-lab-tools (lab-tools item image-factory-any-distro-any-phone). When lab-tools osfact-walleye-two-distros has landed: build walleye's Alpine image with osfact pack now from this lab's device.toml (its [install] table added by lab-tools osfact-device-declaration), install it with the install command it prints - the same writes install-rootfs and install-boot make today (system_{other} by dd from Android, boot_{other} by fastboot, set_active, the way back) under the coordinator's go - and boot it. Debian after Alpine, as its own run. No bootloader, GPT bytes of ours, erase or purge. Not ready before the build: it waits on it. | Split 2026-11-28 on the Top's word (the author is often away): this unattended run first; the author's look on the glass is walleye-osfact-image-witnessed, after this passes.
+
+Waits
+: an osfact binary released by lab-tools (none on 2026-11-28: no osfact tag) and lab-tools osfact-walleye-alpine-skeleton done (in progress; osfact-walleye-two-distros and osfact-device-declaration open, linux-phone-oco/docs base); device.toml's [install] values stay PROPOSED until this run measures them
 
 About
 : walleye-bootimage
