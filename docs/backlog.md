@@ -13500,10 +13500,10 @@ Note
 go until 2026-11-28T18:34:41+01:00, outcomes: If pon-block passes its PON_PERPH_SUBTYPE check and 0xC0/0xC2/0xC5/0xC7 show the power-key (KPDPWR) power-on and no warm-reset reason, then PON registers survive power-off, the key press and the bootloader, so the bite procedure can read a bite's reason in our image. If the subtype passes but the reason registers read cleared, then the bootloader or the key path clears them, so the bite read needs Android's getprop bootreason. If pon-block prints 'none' or the subtype fails, regmap debugfs does not show the PON block here, so Android's getprop is next. Also the first live test of the ntfy ask path (lpoco-attended 0.46.15): the record says whether each ask reached his phone and his reply was taken. Author's go 2026-11-28: 'ok go PON' (relayed by the Top).
 
 Waits
-: the author's notify file restored by the Top (moved to notify.paused 2026-11-28 after lab-tools' token-fix tests flooded his phone through it), lpoco-attended with the optional token on walleye's main, and a new go from the author (the 2026-11-28 go lapsed at 18:34 unused)
+: the author's notify file restored by the Top after walleye's tests can no longer reach it, and a new go from the author (lpoco-attended 0.46.16 with the optional token is on main, #1436)
 
 Blocked by
-: walleye-pon-block-reads-type
+: walleye-tests-never-reach-the-authors-notify
 
 About
 : walleye-pmic-wdt-v1-image
@@ -15714,3 +15714,28 @@ Proof
 
 Rank
 : 18
+
+
+<a id="walleye-tests-never-reach-the-authors-notify"></a>
+### Every walleye test spawn sets LPOCO_ATTENDED_NOTIFY to nowhere, so only a real procedure run can reach the author's phone
+
+Status
+: open
+
+Note
+: Lab-tools decision 2026-11-28-a-test-never-reaches-the-authors-notify-file (orchestration): lab-tools' tests flooded the author's ntfy topic through ~/.config/lpoco-attended/notify; walleye's tests run on the same lab. Before the Top restores his file (it is notify.paused).
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: procedures/steps' cargo test (via .cargo/config.toml [env] or the test harness), every bin/attended check/dry-run path the CI and tests/ run, and the CI workflow env all set LPOCO_ATTENDED_NOTIFY to a path that does not exist; a test that tries to notify with a stand-in notify file in HOME shows nothing is sent (or the read refuses); the real bin/attended run is unchanged
+
+Rank
+: 15
