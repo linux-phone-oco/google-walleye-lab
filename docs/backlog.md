@@ -15464,7 +15464,7 @@ Note
 : Coordinator 2026-11-28 after run 2 (console at 'Adding to iommu group 0', 'preserved 0 boot mappings'): also read mainline arm-smmu-qcom's client list (qcom_smmu_client_of_match: an identity default domain and preserved boot SMRs for listed display controllers) - is qcom,msm8998-mdss on it, and would adding it (an upstream-sized patch) keep the splash safe until msm resets MDSS? Compare with stock's map-before-attach and pick one. | Stock: mdss_mdp_splash_iommu_attach (iova=phys, read-only, before attach, unmapped when the splash is released). Upstream form: reserved-memory with iommu-addresses plus msm_iommu_new applying the device's direct regions (iommu_get_resv_regions) to its domain before iommu_attach_device. Only if the try fails; dropped if it passes.
 
 Blocked by
-: walleye-display-reset-smmu-on-try
+: walleye-display-identity-client-list-try
 
 About
 : walleye-display-s6e3fa5
@@ -15602,6 +15602,31 @@ Needs
 
 Proof
 : a source test that the read is part of the way back that runs after a failed step (as rootfs_boot's the_stop_is_read_in_the_pstore); one shared Android read for both callers waiting for root with is_up_as_root; the tool's tests pass
+
+Rank
+: 17
+
+
+<a id="walleye-display-identity-client-list-try"></a>
+### B-r5-smmu with qcom,msm8998-mdss on the SMMU identity client list: one RAM try
+
+Status
+: open
+
+Note
+: Decision 2026-11-28-walleye-display-identity-client-list-first. Edit arm-smmu-qcom.c qcom_smmu_client_of_match (one line), rebuild B-r5-smmu twice equal, keep stock ramoops layout. Pass: console beyond 'Adding to iommu group 0', display-boot-clean passes with the board command line (no iommu.passthrough). Pass leads to an upstream patch; fail goes to walleye-display-map-splash-before-attach.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: phone
+
+Proof
+: tests/health/base/display-boot-clean.sh
 
 Rank
 : 17

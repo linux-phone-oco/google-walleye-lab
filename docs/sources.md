@@ -2242,3 +2242,16 @@ By
 
 Takes
 : The GPL wahoo dts the stock dtb is built from (read here from the phone's own boot_a dtb, research/walleye-display-s6e3fa5/2026-11-28): mmss_smmu has qcom,skip-init and qcom,no-smr-check; splash_region@9d600000 size 0x2400000; IPA has qcom,smmu-s1-bypass and qcom,smmu-disable-htw, ap SID 0x18e0, uc 0x18e2
+
+
+<a id="v73-arm-smmu-qcom-def-domain-type"></a>
+### arm-smmu-qcom.c qcom_smmu_def_domain_type: client list gives an identity default domain
+
+Url
+: https://github.com/torvalds/linux/blob/master/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c
+
+By
+: mainline
+
+Takes
+: a device on qcom_smmu_client_of_match gets IOMMU_DOMAIN_IDENTITY as default; sdm845-mdss and sdm670-mdss are on it, msm8998-mdss is not
