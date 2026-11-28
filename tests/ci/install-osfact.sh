@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 # Proof of bin/install-osfact.sh against a stand-in release (file://): it installs the pinned osfact and prints its path;
 # a download whose sha256 differs from the release's is refused and kept nowhere; a --version that is not the pinned one
-# is refused; a second run keeps the installed program. The real release's text (osfact-v0.1.0: `osfact 0.1.0`, the
+# is refused; a second run keeps the installed program. The real release's text (`osfact X.Y.Z`, the
 # asset name osfact-x86_64 and its .sha256 line) is the shape the stand-in copies (lab-tools #496, item walleye-install-osfact).
 set -eu
 here=$(cd "$(dirname "$0")/../.." && pwd)
@@ -19,11 +19,11 @@ refused() { # NAME VERSION WORDS
   grep -q "$3" "$w/err" || fail "$1: did not say '$3'"
 }
 
-rel 0.1.0 "0.1.0"
-p=$(run 0.1.0) || fail "a good release is not installed"
-[ "$p" = "$w/bin/osfact-0.1.0" ] || fail "path printed is '$p'"
-[ "$("$p" --version)" = "osfact 0.1.0" ] || fail "the installed program is not the release's"
-touch "$p.kept"; [ "$(run 0.1.0)" = "$p" ] || fail "second run"
+rel 9.8.7 "9.8.7"
+p=$(run 9.8.7) || fail "a good release is not installed"
+[ "$p" = "$w/bin/osfact-9.8.7" ] || fail "path printed is '$p'"
+[ "$("$p" --version)" = "osfact 9.8.7" ] || fail "the installed program is not the release's"
+touch "$p.kept"; [ "$(run 9.8.7)" = "$p" ] || fail "second run"
 
 rel 0.2.0 "0.2.0"; echo "0000000000000000000000000000000000000000000000000000000000000000  osfact-x86_64" >"$w/rel/osfact-v0.2.0/osfact-x86_64.sha256"
 refused "wrong sha256" 0.2.0 "does not match the release's checksum"
