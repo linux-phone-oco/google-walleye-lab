@@ -15301,6 +15301,9 @@ Status
 Note
 : The author, 2026-11-28 (relayed by the Top): he looks at the osfact image only 'if that image has everything that we discovered working and made working'. Display first, then NFC and the modem (one agent at a time).
 
+Waits
+: lab-tools: a per-image kernel cmdline in osfact, so the display image carries iommu.passthrough=1 as B-a5 did (decision 2026-11-19-walleye-display-iommu-reading: the display nodes kill the boot through the SMMU) without putting it in every image's cmdline (the modem's IPA path runs without it); then repack and the keeper's run
+
 About
 : walleye-display-s6e3fa5
 
