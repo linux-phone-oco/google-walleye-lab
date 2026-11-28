@@ -4573,3 +4573,31 @@ Scope
 
 Tracked by
 : walleye-nfc-nxp-nci-node
+
+
+<a id="2026-11-28-walleye-osfact-skeleton-proven-parts-grow-it"></a>
+### 2026-11-28-walleye-osfact-skeleton-proven-parts-grow-it
+
+Date
+: 2026-11-28
+
+Brief
+: walleye's osfact image is a proven walking skeleton (run 4); the modem and NFC grow the same image as their own items
+
+Decision
+: walleye-osfact-image-installs is done on run 4 (PR 1392): the osfact 0.3.0 Alpine image boots from RAM by its one command, the root is pushed, checked and entered (/sbin/init), touch is present, and the declared way back returns Android slot b with nothing flashed. Its proof's modem and NFC checks move to walleye-osfact-image-modem and walleye-osfact-image-nfc, each growing the same image.
+
+Why
+: The author's walking-skeleton order (osfact first; lab-tools decision 2026-11-28-osfact-is-first-released-with-the-walking): the skeleton is the boot, the enter and the way back; parts follow on it rather than holding it open.
+
+Rejected
+: Keeping the install item open until the modem and NFC are in the image: it would hold the skeleton's proof, and lab-tools' osfact-walleye-alpine-skeleton, on parts the skeleton does not need.
+
+About
+: walleye-bootimage
+
+Scope
+: the walleye lane's osfact image
+
+Tracked by
+: walleye-osfact-image-modem
