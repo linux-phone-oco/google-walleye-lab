@@ -15009,7 +15009,10 @@ Status
 : open
 
 Note
-: Decision 2026-11-28-walleye-modem-push-the-rootfs-compressed (coordinator, after PR 1334's 182 > 180): compress the rootfs push first (busybox-unpackable, measured ratio, nix-built, sha recorded), then count the ask at 45 s in every guard; raise INIT_WINDOW_S only if it still does not fit, with the way back's wait re-derived. Image and procedure rebuilt; steps tests prove a too-late boot is refused before any push.
+: Coordinator 2026-11-28: the compressed push of decision 2026-11-28-walleye-modem-push-the-rootfs-compressed now comes from osfact (walleye-modem-boot-takes-osfact-push); this item keeps only the guards counting the 45 s ask against osfact's push time.
+
+Blocked by
+: walleye-modem-boot-takes-osfact-push
 
 About
 : modem-calls
@@ -15134,3 +15137,31 @@ Proof
 
 Rank
 : 90
+
+
+<a id="walleye-modem-boot-takes-osfact-push"></a>
+### The modem boot takes osfact's root-to-RAM push (compressed, sha256 checked on the device, entered by chroot) in place of its own rootfs-recv push
+
+Status
+: open
+
+Note
+: Orchestration 2026-11-28: walleye's pushed-rootfs way (decisions 2026-11-27-walleye-mm-runs-in-a-pushed-alpine-rootfs, 2026-11-28-walleye-modem-push-the-rootfs-compressed) moved into osfact (lab-tools #482, decision 2026-11-28-osfact-enter-by-chroot); walleye adopts it rather than keeping its own.
+
+Waits
+: lab-tools osfact skeleton done: osfact-pack-writes-the-ram-root-plan, osfact-install-way-back-confirmed-and-quoted, manifest-device-arch (linux-phone-oco/docs base)
+
+About
+: modem-calls
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: procedures/steps/src/modem_boot.rs pushes and enters the ModemManager root by osfact's steps (lab-tools #482's install), rootfs-recv and the own push removed; the time guards use osfact's compressed push size; cargo test and a dry run pass; a modem boot then shows mm-up running in the osfact-entered root
+
+Rank
+: 19
