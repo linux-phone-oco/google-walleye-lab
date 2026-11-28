@@ -11239,3 +11239,21 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-28-0140-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-28
+
+Done
+: Took walleye-wdt-pon-control-read (go open to 02:25). Dry run of procedures/pon-control-read-on-the-pixel-2.rs passed (13 steps). Real run stopped at ask 4: nobody answered in 300 s, so the phone was not touched (no power-off, nothing flashed). Phone on Android slot b, adb device, stock. The go was not used by a run, so it is left open until 02:25.
+
+Considered
+: next: re-run the same one command (procedures/pon-control-read-on-the-pixel-2.rs) when the author is at the phone and says ok; ask 4 waits only 300 s
+
+About
+: walleye-wdt-pon-control-read
