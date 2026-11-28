@@ -15199,7 +15199,7 @@ Status
 : open
 
 Note
-: Seen by orchestration on the lpoco-attended bump PR (google-walleye-lab #1360), 2026-11-28; passed on rerun.
+: Seen by orchestration on #1360 and again on #1396 (2026-11-28): it fails walleye PRs at random; fixed first (coordinator), ahead of the osfact display. Passed on rerun both times.
 
 About
 : modem-calls
@@ -15214,7 +15214,7 @@ Proof
 : the test runs on a fake clock (or a bound with a margin named from the code), so it passes 200 runs in a row under cargo test with the CPU loaded (stress-ng --timeout), and still fails on the old ask code
 
 Rank
-: 25
+: 17
 
 
 <a id="walleye-install-osfact"></a>
