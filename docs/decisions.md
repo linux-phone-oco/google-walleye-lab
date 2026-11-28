@@ -4747,3 +4747,28 @@ Research
 
 Scope
 : walleye builder, display images
+
+
+<a id="2026-11-28-walleye-osfact-parts-join-in-one-build-and-run"></a>
+### 2026-11-28-walleye-osfact-parts-join-in-one-build-and-run
+
+Date
+: 2026-11-28
+
+Brief
+: Proven parts join walleye's osfact image together: one builder session packs every ready part into one image, one keeper run checks them all
+
+Decision
+: When a slot comes, one builder session takes the items in order without ending between them (now: the notify guard, then walleye-osfact-image-display-and-nfc, one image carrying the display on the identity-list kernel and NFC), and one keeper run boots it and checks each part's signs in the same boot (display: 0 SMMU faults, fbcon; NFC: nfc0, DEV_UP, the no-tag poll). Each part keeps its own proof row, recorded from that run. The modem joins the same way next.
+
+Why
+: The author, 2026-11-28 (relayed by the Top): 'i thought with all that it should be easy to bring working pieces together'; each part's own build and run multiplied the sessions and phone runs, not the work.
+
+Rejected
+: One build and one phone run per part: the same proofs, at several times the handoffs.
+
+About
+: walleye-bootimage
+
+Scope
+: the walleye lane's osfact image

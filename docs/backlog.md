@@ -15279,6 +15279,9 @@ Status
 Note
 : From run 4 (PR 1392). Parts only, walleye's data: the nfc kernel/dtb (UFS-off with nxp-nci and the nfc@28 node, images.nfc's kernel_tag and dtb) and walleye-nfc-up in the ramdisk, packed by osfact with the same profile; if it needs anything of osfact's, say so to orchestration. UFS-off gate before any boot. The tag poll stays parked (decision 2026-11-28-walleye-nfc-tag-poll-waits-no-tag).
 
+Blocked by
+: walleye-osfact-image-display-and-nfc
+
 About
 : nfc
 
@@ -15305,7 +15308,7 @@ Note
 : The author, 2026-11-28 (relayed by the Top): he looks at the osfact image only 'if that image has everything that we discovered working and made working'. Display first, then NFC and the modem (one agent at a time).
 
 Blocked by
-: walleye-display-reset-smmu-on-try
+: walleye-osfact-image-display-and-nfc
 
 About
 : walleye-display-s6e3fa5
@@ -15723,7 +15726,7 @@ Status
 : open
 
 Note
-: Lab-tools decision 2026-11-28-a-test-never-reaches-the-authors-notify-file (orchestration): lab-tools' tests flooded the author's ntfy topic through ~/.config/lpoco-attended/notify; walleye's tests run on the same lab. Before the Top restores his file (it is notify.paused).
+: The builder taking this continues in the same session to walleye-osfact-image-display-and-nfc (decision 2026-11-28-walleye-osfact-parts-join-in-one-build-and-run). | Lab-tools decision 2026-11-28-a-test-never-reaches-the-authors-notify-file (orchestration): lab-tools' tests flooded the author's ntfy topic through ~/.config/lpoco-attended/notify; walleye's tests run on the same lab. Before the Top restores his file (it is notify.paused).
 
 About
 : walleye-bootimage
@@ -15739,3 +15742,28 @@ Proof
 
 Rank
 : 15
+
+
+<a id="walleye-osfact-image-display-and-nfc"></a>
+### One osfact walleye image carrying the display (B-r5-smmu-id's identity-list kernel and dtb) and NFC (walleye-nfc-up, the nxp-nci node) - packed once
+
+Status
+: open
+
+Note
+: Decision 2026-11-28-walleye-osfact-parts-join-in-one-build-and-run: the same builder session takes it right after walleye-tests-never-reach-the-authors-notify, without ending between. Then one keeper run proves walleye-osfact-image-display and walleye-osfact-image-nfc together.
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: osfact pack gives one boot.img with both parts (the identity-list kernel with NFC built in and the nfc@28 node in its dtb, walleye-nfc-up in the ramdisk), built twice equal, UFS-off gate, no iommu.passthrough, ramoops as B-r5-smmu; a procedure (or osfact install's checks) reads the display signs and the NFC signs in one boot, dry run passes; never booted
+
+Rank
+: 16
