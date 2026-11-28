@@ -4,7 +4,7 @@
 //! command line, so the SMMU stays on. The gate, the phone to fastboot, the image from memory (nothing flashed), the shell answering with the image's delay of 5 s, then the
 //! signs read once the init says it is through the 13 modules: no `iommu.passthrough` on the command line, no arm-smmu context fault, no `rcg` warning, no DSI -110,
 //! the DSI-1 connector connected, the panel bound, drm initialized, the CRTC's thread in ps (its debugfs state is kept, not judged: no captured text of it yet);
-//! then the way back to Android. NO person step: the glass is not looked at. The readings are kept in ~/lab-material/walleye/display-smmu-on-DAY/.
+//! then the way back to Android, and the previous boot's console read from its pstore (kept as pstore-console.txt, judged: does it hold our kernel's lines?). NO person step: the glass is not looked at. The readings are kept in ~/lab-material/walleye/display-smmu-on-DAY/.
 //! A failed step or a panic ends with the way back to Android (the phone_ready group's own); a signal runs the owed way backs too.
 //!   procedures/display-smmu-on-on-the-pixel-2.rs [--dry-run] [--log FILE]   (its values: device.toml, keys listed in procedures/steps/src/settings.rs)
 //!
@@ -41,4 +41,5 @@ fn main() {
         smmu.the_signs_are_read_and_judged(),
     );
     run_group(steps::leave_known_good()); // LAST: the declared way back (device.toml [kernels]), then Android answers
+    step("the previous boot's console is read from Android's pstore and judged", smmu.the_console_is_read_in_the_pstore());
 }

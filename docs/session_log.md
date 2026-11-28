@@ -11521,3 +11521,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-28-walleye-ramoops-console-image"></a>
+### B-r5-smmu's console takes stock's ramoops layout
+
+Entry date
+: 2026-11-28
+
+Done
+: Read stock's ramoops sizes from the dtbo entry 3, fixed the node in B-r5-smmu's dtb (new sha 0715ecd0, rebuilt equal twice), added tests/host/image-ramoops-stock-layout.sh and the way back's pstore read and judge; next: walleye-display-reset-smmu-on-try runs again
+
+Considered
+: A new image name; changing the shared dts (every earlier image keeps its dtb byte for byte)
+
+Rejected
+: Editing dt/msm8998-google-walleye.dts: it would change every image built from it
+
+About
+: walleye-display-s6e3fa5

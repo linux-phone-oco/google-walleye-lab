@@ -1,0 +1,37 @@
+# fdtdump of the stock dtbo entry 3 (androidboot.dtbo_idx=3), captured 2026-11-28 from ~/Projects/walleye-build/control/dtbo/entry.3 (the phone's own dtbo.img read earlier, entry 3); lines 2215-2250 of its dump: the ramoops region and the ramoops platform node's overlay.
+            ramoops_region {
+                compatible = "removed-dma-pool";
+                no-map;
+                reg = <0x00000000 0xa1100000 0x00000000 0x00200000>;
+                phandle = <0x00000017>;
+            };
+            alt_ramoops_region {
+                compatible = "removed-dma-pool";
+                no-map;
+                reg = <0x00000000 0xa3800000 0x00000000 0x00200000>;
+                phandle = <0x00000018>;
+            };
+            ramoops_meta_region@affff000 {
+                compatible = "removed-dma-pool";
+                no-map;
+                reg = <0x00000000 0xaffff000 0x00000000 0x00001000>;
+                phandle = <0x00000019>;
+            };
+            htc_rtel_region@0 {
+                compatible = "shared-dma-pool";
+                reusable;
+                reg = <0x00000000 0xa1800000 0x00000000 0x02000000>;
+                phandle = <0x0000001a>;
+            };
+        };
+    };
+    fragment@75 {
+        target = <0xffffffff>;
+        __overlay__ {
+            compatible = "ramoops";
+            memory-region = <0x00000017>;
+            alt-memory-region = <0x00000018>;
+            record-size = <0x00000000 0x00020000>;
+            console-size = <0x00000000 0x00100000>;
+            pmsg-size = <0x00000000 0x00080000>;
+        };
