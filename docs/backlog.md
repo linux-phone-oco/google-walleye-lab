@@ -15436,7 +15436,7 @@ Note
 : run 1 (2026-11-28 keeper): stopped at step 5, no gadget from b-r5-smmu, back on Android after 57 s, no kernel text kept; see research walleye-display-smmu-on-run-1-no-gadget-from-b-r5-smmu. Not retried: coordinator decides
 
 Blocked by
-: walleye-display-image-console-in-ramoops
+: walleye-display-console-read-in-owed-way-back
 
 About
 : walleye-display-s6e3fa5
@@ -15604,4 +15604,4 @@ Proof
 : a source test that the read is part of the way back that runs after a failed step (as rootfs_boot's the_stop_is_read_in_the_pstore); one shared Android read for both callers waiting for root with is_up_as_root; the tool's tests pass
 
 Rank
-: 18
+: 17
