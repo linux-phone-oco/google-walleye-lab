@@ -87,6 +87,8 @@ jobs:
         run: sh tests/host/image-recipe-selftest.sh
       - name: the header check passes a header equal to the recipe and fails a word more or less, also in the additional field (stand-ins, no store)
         run: sh tests/host/image-header-equals-recipe-selftest.sh
+      - name: the iommu.passthrough check fails b-r5 and passes b-r5-smmu (the text unpack_bootimg printed for each)
+        run: sh tests/host/image-without-iommu-passthrough-selftest.sh
   cmdline-budget:
     name: every recipe's command line stays within the header budget
     runs-on: ubuntu-latest

@@ -1,0 +1,15 @@
+boot magic: ANDROID!
+kernel_size: 15768943
+kernel load address: 0x00008000
+ramdisk size: 1752668
+ramdisk load address: 0x01000000
+second bootloader size: 0
+second bootloader load address: 0x00000000
+kernel tags load address: 0x00000100
+page size: 4096
+os version: 15.0.0
+os patch level: 2026-11
+boot image header version: 0
+product name: 
+command line args: clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3
+additional command line args: 

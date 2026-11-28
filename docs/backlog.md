@@ -15405,10 +15405,10 @@ Rank
 ### Build B-r5 without iommu.passthrough=1: same kernel, dtb (resets = MDSS_BCR) and ramdisk, command line the board's own
 
 Status
-: open
+: done
 
 Note
-: From research walleye-iommu-stock-android-maps-splash-before-attach. Control: b-r5 (device.toml images.b-r5); change only the command line.
+: B-r5-smmu 7e67cb5091c9bfbb8ea33a567a0ec70f03d3c9120839c85e49a1c18a06ed96b7 built twice equal ([images.b-r5-smmu]); gate, header check, image check and the new iommu.passthrough host test pass. Not booted: a try needs a procedure for the keeper (follow-up for the coordinator).
 
 About
 : walleye-display-s6e3fa5
