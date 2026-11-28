@@ -10154,3 +10154,22 @@ About
 
 Material
 : research/nfc/2026-11-28-osfact-display-nfc/
+
+
+<a id="walleye-osfact-display-nfc-run-1-nfc-passes-dmesg-silent"></a>
+### walleye-osfact-display-nfc-run-1-nfc-passes-dmesg-silent
+
+Date
+: 2026-11-28
+
+Brief
+: osfact-display-nfc run 1: stopped at check 13 (dmesg no answer in 20 s on the telnet shell); checks 1-12 pass, nfc0 opened and DEV_UP acked; way back Android b
+
+Question
+: Does the osfact display+NFC image pass its run: display clean on the combined kernel and nfc-present?
+
+Found
+: Checks 1-12 passed: image sha as declared, UFS off, left fastboot 15 s, USB 1d6b:0104 after 18 s, shell answered, nfc-present passes (nfc0 from nxp-nci), nfc0 opened and the chip answered NCI init (DEV_UP after CORE_RESET and CORE_INIT; gpio116 moved with the open), poll: no target (no tag in the lab, as decided). Check 13 stopped: dmesg was not answered within 20 s on the shell, so the display signs (no passthrough, faults, warnings, connected, drm) are not known yet on this image - not a display fail. The way back ran, phone Android slot b, adb device; pstore empty (nothing of our console to read, not known yet). The display half's proof still open; the glass and getty need the Alpine root. Next: read why dmesg hangs on this image (a kmsg reader blocked on the console? the earlier B-r5-smmu-id runs read dmesg fine) before any change to the check.
+
+About
+: walleye-display-s6e3fa5

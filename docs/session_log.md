@@ -11680,3 +11680,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-28-2045-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-28
+
+Done
+: walleye-keeper run 1 of osfact-display-nfc-on-the-pixel-2: checks 1-12 pass (NFC half: nfc-present passes, nfc0 DEV_UP acked); stopped at check 13, dmesg not answered in 20 s; way back ran, Android slot b, adb device, stock z21 kept, fastboot reachable; research walleye-osfact-display-nfc-run-1-nfc-passes-dmesg-silent. No go was open on these items, nothing to close.
+
+Considered
+: next: read why dmesg stalls on the osfact image (shell, not display) before touching check 13; then rerun the same command once; walleye-osfact-image-display and -nfc stay open
+
+About
+: walleye-display-s6e3fa5
