@@ -5,6 +5,9 @@ on:
     branches: [main]
 permissions:
   contents: read
+env:
+  # nothing in CI reaches the author's phone (item walleye-tests-never-reach-the-authors-notify)
+  LPOCO_ATTENDED_NOTIFY: /nonexistent/walleye-ci-no-notify
 jobs:
   shell:
     name: shell scripts
@@ -201,6 +204,8 @@ jobs:
           bin/attended check
       - name: no procedure, script or brief calls a bare lpoco-attended; bin/attended runs the one the steps crate is locked to
         run: sh tests/host/no-bare-lpoco-attended.sh
+      - name: a check or dry run through bin/attended never reads the author's notify file
+        run: sh tests/host/tests-never-notify-selftest.sh
       - name: the stripe drawer (frame, struct sizes), clippy clean (no phone)
         run: |
           cd tools/walleye-stripes

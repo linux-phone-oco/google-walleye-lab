@@ -1,0 +1,4 @@
+# A test of this crate never reaches the author's phone: the notify file is pinned to a path nothing is at, whatever HOME holds
+# (lab-tools decision 2026-11-28-a-test-never-reaches-the-authors-notify-file; item walleye-tests-never-reach-the-authors-notify).
+[env]
+LPOCO_ATTENDED_NOTIFY = { value = "/nonexistent/walleye-test-no-notify", force = true }

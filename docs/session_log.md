@@ -11638,3 +11638,24 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-28-walleye-tests-never-notify"></a>
+### Tests never reach the author's notify file
+
+Entry date
+: 2026-11-28
+
+Done
+: Pinned LPOCO_ATTENDED_NOTIFY to a path nothing is at in cargo's [env] for procedures/steps, in bin/attended for check and --dry-run, and in CI's workflow env; a host selftest with a stub runner and a stand-in HOME notify file proves it; real run unchanged.
+
+Considered
+: Setting it in each test; chose cargo [env] force=true, one place for every spawn.
+
+Rejected
+: Pinning it in bin/attended for real runs too: the real run must still reach the author.
+
+About
+: walleye-bootimage
