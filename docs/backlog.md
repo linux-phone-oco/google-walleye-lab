@@ -15274,10 +15274,10 @@ Rank
 ### The osfact walleye image carries NFC: the nfc kernel/dtb parts and walleye-nfc-up; nfc-present passes on it
 
 Status
-: open
+: done
 
 Note
-: From run 4 (PR 1392). Parts only, walleye's data: the nfc kernel/dtb (UFS-off with nxp-nci and the nfc@28 node, images.nfc's kernel_tag and dtb) and walleye-nfc-up in the ramdisk, packed by osfact with the same profile; if it needs anything of osfact's, say so to orchestration. UFS-off gate before any boot. The tag poll stays parked (decision 2026-11-28-walleye-nfc-tag-poll-waits-no-tag).
+: proven by the osfact display+NFC run 1 (PR 1447): nfc-present passes, nfc0 present, DEV_UP acked in the one osfact image; no tag poll (decision 2026-11-28-walleye-nfc-tag-poll-waits-no-tag)
 
 About
 : nfc
@@ -15303,6 +15303,9 @@ Status
 
 Note
 : The author, 2026-11-28 (relayed by the Top): he looks at the osfact image only 'if that image has everything that we discovered working and made working'. Display first, then NFC and the modem (one agent at a time).
+
+Blocked by
+: walleye-osfact-display-dmesg-read-fixed
 
 About
 : walleye-display-s6e3fa5
@@ -15761,3 +15764,28 @@ Proof
 
 Rank
 : 16
+
+
+<a id="walleye-osfact-display-dmesg-read-fixed"></a>
+### Why dmesg gave no answer in 20 s on the osfact display+NFC image's shell, read from run 1's kept files, and the procedure's display read fixed
+
+Status
+: open
+
+Note
+: Coordinator 2026-11-28: before walleye-osfact-image-display reruns, so the one rerun does not stall the same way.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: the cause read from run 1's files (research walleye-osfact-display-nfc-run-1-nfc-passes-dmesg-silent and its lab-material folder) and said before the change (decision 2026-11-23-a-stop-is-read-before-the-fix); the display step's read then answers within its bound on a stand-in shell of that output's size (e.g. the log kept to a file on the phone and fetched, or a bounded read); steps tests and a dry run pass
+
+Rank
+: 17
