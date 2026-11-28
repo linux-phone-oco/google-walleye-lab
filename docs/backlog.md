@@ -15249,10 +15249,7 @@ Status
 : open
 
 Note
-: From run 4 (PR 1392). walleye's data: its own Alpine profile (ModemManager, dbus, udev in the package set; today runs use lab-tools' fixture alpine.toml) and ipa_fws in the parts' ramdisk; lab-tools': the binds (osfact-enter-binds). The pieces exist in walleye's modem boot (build/modem-mm-rootfs.nix, the firmware tar, mm-up's binds).
-
-Waits
-: lab-tools osfact-enter-binds released (proc, sys and dev bound in the chroot, a declared list in [install.root]); orchestration sends the tag
+: binds readable on main 2026-11-28 (lpoco-attended 0.46.13 on lpoco-manifest 0.56.7, #1401; osfact 0.4.0, #1398): add [install.root] binds (proc, sys, dev) to device.toml, moving device.toml's lpoco-lab pin to a release that reads it if bin/check-device-toml.sh refuses it. | From run 4 (PR 1392). walleye's data: its own Alpine profile (ModemManager, dbus, udev in the package set; today runs use lab-tools' fixture alpine.toml) and ipa_fws in the parts' ramdisk; lab-tools': the binds (osfact-enter-binds). The pieces exist in walleye's modem boot (build/modem-mm-rootfs.nix, the firmware tar, mm-up's binds).
 
 About
 : modem-calls
