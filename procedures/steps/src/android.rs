@@ -109,6 +109,18 @@ impl Android {
         }
     }
 
+    /// The previous boot's console, read from Android's pstore (read only): adbd answers as root first ([`Android::is_up_as_root`], which waits for it - an `adb root` and a
+    /// fixed sleep raced adbd, review of builder/ramoops-console 2026-11-28), then [`crate::rw_write::PSTORE_COMMAND`]. The serial is redacted. A pstore closed to adb is an
+    /// error, never an empty console. A phone left in fastboot is rebooted to Android first (`is_up`). Shared by the rw write and the display try, which both read it before any other reboot.
+    pub fn previous_console(&self) -> Result<String, String> {
+        self.is_up_as_root()?;
+        let text = self.adb(&["shell", crate::rw_write::PSTORE_COMMAND])?;
+        if text.contains("Permission denied") {
+            return Err("the pstore is closed to adb (no root)".to_string());
+        }
+        Ok(crate::touch::redact(&text))
+    }
+
     /// The sha256 of `blocks` blocks of a file or partition on the phone (all of it when None), read as root over adb and hashed ON the phone (`dd | sha256sum`: one line crosses usb).
     /// The read is bounded (`ReadBound`): a stalled stream ends it, once retried, naming the partition (no byte count: only the digest comes back). A `dd` that failed is read from its own `dd=N` line, never taken for a short read.
     pub fn sha256(&self, path: &str, blocks: Option<u64>) -> Result<String, String> {

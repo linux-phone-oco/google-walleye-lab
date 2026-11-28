@@ -15586,10 +15586,10 @@ Rank
 ### The SMMU-on try's pstore console read runs in the owed way back, so a failed run's console is read too
 
 Status
-: open
+: done
 
 Note
-: Programmer review of branch builder/ramoops-console (2026-11-28) findings 1, 2: the step now runs only after a run that reaches its end; adb root plus a 3 s sleep races adbd.
+: built 2026-11-28: the_console_is_owed group (way back reads the pstore) opened before run_group(ready); Android::previous_console shared with rootfs_boot (is_up_as_root); source tests + dry run; reviewed. Next: the SMMU-on try's run, queued by the keeper's own item.
 
 About
 : walleye-display-s6e3fa5
