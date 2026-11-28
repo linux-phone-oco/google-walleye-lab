@@ -11581,3 +11581,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-28-1745-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-28
+
+Done
+: run 3 of walleye-wdt-pon-control-read: bin/attended run stopped at ask 4 - the ntfy ask path (lpoco-attended 0.46.15, its first live test) did not reach the author: 'notify has no token' (the file has server, topic, reply_topic, no token line), nobody answered the terminal in 300 s; phone untouched (stopped before power-off), Android slot b, stock, nothing flashed, adb device; the go was not spent (no read happened) and stays open to 2026-11-28T18:34:41+01:00
+
+Considered
+: next: lab-tools to say what the notify file needs (a token line? or the runner reads another key) and fix the ask path; then the same one command again while the go is open or after a new go; not retried, not patched around
+
+About
+: walleye-pmic-wdt-v1-image
