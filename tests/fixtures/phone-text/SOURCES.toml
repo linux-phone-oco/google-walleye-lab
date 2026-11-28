@@ -98,3 +98,6 @@ source = "file:research/walleye-display-s6e3fa5/2026-11-28-smmu-on-captures/b-d5
 
 [scripts."display-b-a5-ps-20261123.cap"]
 source = "file:research/walleye-display-s6e3fa5/2026-11-28-smmu-on-captures/b-a5-alpine-login-read-2026-11-23.txt"
+
+[scripts."display-b-r5-smmu-id-dmesg-20261128.cap"]
+source = "file:research/walleye-display-s6e3fa5/2026-11-28-smmu-on-captures/b-r5-smmu-id-run-20261128-175948-dmesg.txt"

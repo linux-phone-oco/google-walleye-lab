@@ -10113,3 +10113,22 @@ Sources
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="the-smmu-on-procedure-reads-the-panel-from-sysfs"></a>
+### the-smmu-on-procedure-reads-the-panel-from-sysfs
+
+Date
+: 2026-11-28
+
+Brief
+: The SMMU-on procedure reads the panel from sysfs into panel-driver.txt; panel_bound is 'not known yet' while the log is silent
+
+Question
+: How does the SMMU-on procedure judge the panel when the cmdline has no dyndbg words?
+
+Found
+: Real run 20261128-175948 dmesg (now a fixture, tests/fixtures/phone-text) is silent about the panel: panel_sign is None, reported 'not known yet', verdict says panel_bound and crtc active not judged; a failed probe or panel lines without a DSI bind are Some(false). The step reads /sys/bus/mipi-dsi/devices/* (driver link, of_node compatible) and keeps panel-driver.txt; nothing judges it until a real run's text exists (item walleye-display-panel-sign-judge-from-capture). 565 steps tests, dry run, walleye-sources pass; not run on the phone.
+
+About
+: walleye-display-s6e3fa5

@@ -15667,10 +15667,10 @@ Rank
 ### The SMMU-on procedure judges the panel from sysfs, not from a dyndbg line
 
 Status
-: open
+: done
 
 Note
-: Coordinator 2026-11-28 (the builder's question): capture first - the next keeper run of walleye-display-identity-client-list-try records the real text; then walleye-display-panel-sign-judge-from-capture writes the judge from that capture.
+: Built 2026-11-28; next keeper run of walleye-display-identity-client-list-try keeps panel-driver.txt, then walleye-display-panel-sign-judge-from-capture.
 
 About
 : walleye-display-s6e3fa5
