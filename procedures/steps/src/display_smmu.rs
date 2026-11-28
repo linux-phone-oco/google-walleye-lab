@@ -7,6 +7,7 @@
 //! Nothing is written to the phone and nobody is asked: the glass is not looked at (decision 2026-11-19-walleye-display-console-before-eyes).
 //! Each method is one step of procedures/display-smmu-on-on-the-pixel-2.rs. The checks' expected words come from captured text (tests/fixtures/phone-text/SOURCES.toml).
 
+use crate::android::Android;
 use crate::display_boot::{drm_command, drm_of, drm_problem, loop_is_done};
 use crate::display_delay::{score, Row};
 use crate::lab::Lab;
@@ -163,18 +164,44 @@ pub fn report(s: &Signs) -> String {
     )
 }
 
+/// The kernel version lines of a console that are not Android's (`Linux version` 5 and up (Android's own is 4.4)): the proof that the pstore holds the mainline boot, not only Android's own 4.4 one.
+pub fn mainline_boot_lines(console: &str) -> Vec<&str> {
+    console
+        .lines()
+        .filter(|l| {
+            l.split("Linux version ")
+                .nth(1)
+                .and_then(|v| v.split('.').next())
+                .and_then(|major| major.parse::<u32>().ok())
+                .is_some_and(|major| major >= 5)
+        })
+        .collect()
+}
+
+/// What the previous boot's console says, judged: the mainline kernel's own lines are there or they are not (no failure: the way back has already passed).
+pub fn console_verdict(console: &str) -> String {
+    let lines = mainline_boot_lines(console);
+    match lines.first() {
+        Some(first) => format!("console-ramoops holds the mainline boot ({} version line(s): {})", lines.len(), first.trim()),
+        None => "console-ramoops holds no mainline kernel line (no 'Linux version' 5 or higher): our kernel's console did not survive, or Android's pstore could not read it".to_string(),
+    }
+}
+
 /// The SMMU-on try: its settings and the lab it shares with the other tries. Cheap to clone: each step takes its own.
 #[derive(Clone)]
 pub struct DisplaySmmu {
     s: Rc<Settings>,
     lab: Lab,
+    android: Android,
 }
 
 impl DisplaySmmu {
     pub fn new(s: Settings) -> DisplaySmmu {
         let s = Rc::new(s);
+        let lab = Lab::new(s.clone());
         DisplaySmmu {
-            lab: Lab::new(s.clone()),
+            lab: lab.clone(),
+            android: Android::new(s.clone(), lab.clone()),
             s,
         }
     }
@@ -295,6 +322,29 @@ impl DisplaySmmu {
             }
         }
     }
+
+    /// After the way back, on Android: the previous boot's console is read (`adb root`, then [`crate::rw_write::PSTORE_COMMAND`], read only), kept as `pstore-console.txt` in the
+    /// run's folder and judged ([`console_verdict`]). The ramoops node of B-r5-smmu has stock Android's layout (decision 2026-11-28-walleye-display-try-needs-its-console-first), so a
+    /// try that dies before its gadget still leaves its last lines here. A read that cannot be made is said as not known yet; this step never fails the run.
+    pub fn the_console_is_read_in_the_pstore(&self) -> impl FnOnce() -> Done + 'static {
+        let d = self.clone();
+        move || {
+            let _ = d.android.adb(&["root"]);
+            std::thread::sleep(Duration::from_secs(3));
+            match d.android.adb(&["shell", crate::rw_write::PSTORE_COMMAND]) {
+                Ok(text) if !text.contains("Permission denied") => {
+                    let text = redact(&text);
+                    if let Err(e) = d.lab.save(crate::rw_write::PSTORE_FILE, &text) {
+                        println!("NOT KNOWN YET: the console could not be kept: {e}");
+                    }
+                    println!("  {}", console_verdict(&text));
+                }
+                Ok(_) => println!("NOT KNOWN YET: the pstore is closed to adb (no root)"),
+                Err(e) => println!("NOT KNOWN YET: the pstore could not be read: {e}"),
+            }
+            Ok(())
+        }
+    }
 }
 
 #[cfg(test)]
@@ -330,6 +380,21 @@ mod tests {
     }
 
     const DRM_OK: &str = "card0\ncard0-DSI-1\nrenderD128\nversion\ndsi=connected\n"; // the shape of ~/lab-material/walleye/display-boot-20261126-084113/drm.txt
+
+    /// Android's own 4.4.302 oops text, read from its pstore (research walleye-first-fastboot-boot, 2026-11-18-pk5l2-tried/android-oops-excerpt.txt).
+    const ANDROID_PSTORE: &str = include_str!("../../../research/walleye-first-fastboot-boot/2026-11-18-pk5l2-tried/android-oops-excerpt.txt");
+
+    #[test]
+    fn a_console_with_the_mainline_boot_is_said_to_hold_it() {
+        assert_eq!(mainline_boot_lines(CLEAN).len(), 1);
+        assert!(console_verdict(CLEAN).contains("holds the mainline boot"));
+    }
+
+    #[test]
+    fn android_s_own_console_holds_no_mainline_line() {
+        assert!(mainline_boot_lines(ANDROID_PSTORE).is_empty());
+        assert!(console_verdict(ANDROID_PSTORE).contains("holds no mainline kernel line"));
+    }
 
     #[test]
     fn the_captured_b_r5_log_has_passthrough_on_its_command_line() {

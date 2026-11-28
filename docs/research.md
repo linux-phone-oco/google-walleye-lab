@@ -9981,3 +9981,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-ramoops-stock-layout-image-built"></a>
+### walleye-ramoops-stock-layout-image-built
+
+Date
+: 2026-11-28
+
+Brief
+: B-r5-smmu's ramoops node now has stock Android's layout (record 0x20000, console 0x100000, pmsg 0x80000, no ecc); image 0715ecd0 rebuilt equal twice, UFS-off passes
+
+Question
+: What does stock Android's ramoops node say, and does B-r5-smmu's match it, so the way back's pstore read shows our kernel's console?
+
+Found
+: The stock dtbo entry 3 (fdtdump captured in the material folder): ramoops_region 0xa1100000 size 0x200000, record-size 0x20000, console-size 0x100000, pmsg-size 0x80000, no ecc-size. Our node (decision 2026-11-17) had record 0x80000 and console 0x20000 and no pmsg: the sysfs values read earlier were taken in the wrong order, so stock's pstore cut our region into other zones and oopsed in persistent_ram_save_old (run 1). B-r5-smmu's dtb (b-r5's, 95f3a8a0) now carries stock's three sizes (c6d840a7, fdtput on the unpacked dtb); the kernel is b-r5's (PSTORE_RAM, ramoops registered in its captured boot). Image 0715ecd0 rebuilt from its recipe equal twice; tests/host/image-ramoops-stock-layout.sh passes it and fails the old image; ufs-off-image.sh passes. The procedure's way back now keeps the pstore console as pstore-console.txt and judges whether it holds a mainline 'Linux version' line (559 steps tests pass, dry run 11 steps). Not known yet: that stock's pstore then shows our lines; that is the next run.
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-28-ramoops/

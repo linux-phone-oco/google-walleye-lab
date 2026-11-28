@@ -442,3 +442,6 @@ source = "research:walleye-iommu-stock-android-maps-splash-before-attach"
 
 [scripts."image-without-iommu-passthrough-selftest.sh"]
 source = "file:tests/fixtures/image-text/b-r5-unpack-info.txt"
+
+[scripts."image-ramoops-stock-layout.sh"]
+source = "file:tests/fixtures/dtb-text/stock-dtbo3-ramoops.txt"

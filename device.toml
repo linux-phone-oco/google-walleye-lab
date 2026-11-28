@@ -478,10 +478,11 @@ dtb = "95f3a8a05e7ced21e9cf86758143a83bb8e4b7c5f0fa6bb6c2385ce8adf30778"      # 
 # Stock Android keeps the SMMU on; B-r5's MDSS reset removes the scan-out, so the SMMU can stay on. Kernel, dtb (resets = MDSS_BCR), ramdisk and header words are b-r5's; only the command line changes.
 [images.b-r5-smmu]
 path = "images-display-reset-smmu/boot-b-r5-smmu.img"
-sha256 = "7e67cb5091c9bfbb8ea33a567a0ec70f03d3c9120839c85e49a1c18a06ed96b7"
+sha256 = "0715ecd011da38d9a176fb04ea17aa68100b5e0b5c1f82cf085fef6d76e0574a"   # was 7e67cb50 (run 1, PR 1418) before the ramoops node took stock Android's layout
 
 [images.b-r5-smmu.recipe]
 control = "b-r5"
+dtb = "c6d840a79fb0c0c2e77ce939de5d503f71274d1e9e0add7fcc566ab35696a87e"      # b-r5s dtb with its ramoops node laid out as stock Android lays it: record-size 0x20000, console-size 0x100000, pmsg-size 0x80000, no ecc (stock dtbo entry 3, the ramoops fragment; ~/Projects/walleye-build/control/dtbo/entry.3)
 cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3"
 
 # The registers image B-q5 (item walleye-display-scanout-registers): B-d5 whose init also reads the DPU, interface, pingpong and DSI registers with devmem (read only) at 4, 10 and 30 s and says them to the kernel log

@@ -15561,10 +15561,10 @@ Rank
 ### The SMMU-on display image writes its console to ramoops where stock Android's pstore reads it, and the way back shows those lines
 
 Status
-: open
+: done
 
 Note
-: Decision 2026-11-28-walleye-display-try-needs-its-console-first; run 1 PR 1418. Then walleye-display-reset-smmu-on-try runs again.
+: Image b-r5-smmu 0715ecd0 (dtb c6d840a7: stock's ramoops sizes), research walleye-ramoops-stock-layout-image-built; the keeper's next run is walleye-display-reset-smmu-on-try.
 
 About
 : walleye-display-s6e3fa5
@@ -15580,3 +15580,28 @@ Proof
 
 Rank
 : 17
+
+
+<a id="walleye-display-console-read-in-owed-way-back"></a>
+### The SMMU-on try's pstore console read runs in the owed way back, so a failed run's console is read too
+
+Status
+: open
+
+Note
+: Programmer review of branch builder/ramoops-console (2026-11-28) findings 1, 2: the step now runs only after a run that reaches its end; adb root plus a 3 s sleep races adbd.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: a source test that the read is part of the way back that runs after a failed step (as rootfs_boot's the_stop_is_read_in_the_pstore); one shared Android read for both callers waiting for root with is_up_as_root; the tool's tests pass
+
+Rank
+: 18
