@@ -11610,7 +11610,7 @@ Entry date
 : 2026-11-28
 
 Done
-: One-line topic on v7.3 (OURS tag, checkpatch clean, pushed), list display-smmu-id assembled to int/walleye/display-smmu-id/v7.3/1 and published, kernel and modules built with the old display kernel's config, ramdisk repacked with the new modules (method proved on the old ones), image B-r5-smmu-id built twice equal, gates pass, the SMMU-on procedure names it, its try queued for the keeper (walleye-display-identity-client-list-try); the ramoops check now looks for the backend itself.
+: One-line topic on v7.3 (OURS tag, checkpatch clean, pushed), list display-smmu-id assembled to int/walleye/display-smmu-id/v7.3/1 and published, kernel and modules built with the old display kernel's config, ramdisk repacked with the new modules (method proved on the old ones), image B-r5-smmu-id packed twice equal and rebuilt from its recipe (kernel and ramdisk are seeds), gates pass, the SMMU-on procedure names it, its try queued for the keeper (walleye-display-identity-client-list-try); the ramoops check now looks for pstore/ram in the kernel part, with a selftest.
 
 Considered
 : Where the kernel's modules and ramdisk come from, and which config.

@@ -445,3 +445,6 @@ source = "file:tests/fixtures/image-text/b-r5-unpack-info.txt"
 
 [scripts."image-ramoops-stock-layout.sh"]
 source = "file:tests/fixtures/dtb-text/stock-dtbo3-ramoops.txt"
+
+[scripts."image-ramoops-stock-layout-selftest.sh"]
+source = "file:tests/fixtures/kernel-text/ramoops-params-v7.3.txt"

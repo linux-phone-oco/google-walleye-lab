@@ -489,8 +489,8 @@ cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walley
 # The identity-client image B-r5-smmu-id (item walleye-display-identity-client-list-image; decision 2026-11-28-walleye-display-identity-client-list-first; upstream item iommu-arm-smmu-qcom-msm8998-mdss-identity):
 # B-r5-smmu with a kernel of the list display-smmu-id (kernel/topics.toml; tag int/walleye/display-smmu-id/v7.3/1 = the tree of the display images' kernel, 7430c717a94c, plus one line adding qcom,msm8998-mdss to arm-smmu-qcom's identity clients;
 # `git diff --stat 7430c717a94c TAG` shows that one file). The kernel is build/build-display-late.sh of lab commit e121ca26 (walleye.config and walleye-display-late.config of the day the old kernel was built: today's walleye.config
-# has QRTR, PAS and SYSMON built in, which the old one did not) on the tag's tree: its .config equals the old out-display-late/.config line for line (no comment lines). Its 13 display modules carry the new kernel's version in the ramdisk
-# (modules are checked against it), the rest of the ramdisk, the dtb (ramoops as stock Android lays it), header words and command line (no iommu.passthrough) are B-r5-smmu's. Built twice equal; never booted.
+# has QRTR, PAS and SYSMON built in, which the old one did not) on the tag's tree: its .config equals the old out-display-late/.config (diff of both files, comments included, exit 0). Its 13 display modules carry the new kernel's version in the ramdisk
+# (modules are checked against it), the rest of the ramdisk, the dtb (ramoops as stock Android lays it), header words and command line (no iommu.passthrough) are B-r5-smmu's. The image is rebuilt from these parts twice equal (ensure, ensure --rebuild); the kernel and the ramdisk are seeds, not proved by a rebuild. Never booted.
 [images.b-r5-smmu-id]
 path = "images-display-reset-smmu-id/boot-b-r5-smmu-id.img"
 kernel_tag = "int/walleye/display-smmu-id/v7.3/1"
@@ -529,10 +529,10 @@ delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of
 image_prefix = "b-d"                # the images are named PREFIX+delay in [images.*]: b-d5, b-d15 ...; the splash image B-s5 is run with delays = "5" and image_prefix = "b-s" (set both, run, put them back)
 modules = 13                        # the display modules each init loads, each said "walleye-display: ok": a row with fewer says nothing about the signs (the ramdisk's /display-modules.list has this many lines)
 
-# The SMMU-on display try (item walleye-display-smmu-on-procedure; procedures/display-smmu-on-on-the-pixel-2.rs): image B-r5-smmu from memory, nothing flashed, then the signs read:
+# The SMMU-on display try (item walleye-display-smmu-on-procedure; procedures/display-smmu-on-on-the-pixel-2.rs): the image below (B-r5-smmu-id since 2026-11-28; B-r5-smmu before) from memory, nothing flashed, then the signs read:
 # no iommu.passthrough on the command line, no arm-smmu context fault, rcg warning or DSI -110, the connector connected, the panel bound, drm initialized. Unattended; the glass is not looked at.
 [procedures.display-smmu-on-on-the-pixel-2]
-image = "b-r5-smmu-id"                # the name of its [images.NAME] (path, sha256)
+image = "b-r5-smmu-id"              # the name of its [images.NAME] (path, sha256)
 delay = 5                           # seconds of uptime at which the init loads the display modules (B-r5's own, in /display-delay)
 modules = 13                        # the display modules the init must say ok for
 

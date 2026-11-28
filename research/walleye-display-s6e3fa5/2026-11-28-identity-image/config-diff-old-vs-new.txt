@@ -1,1 +1,1 @@
-diff exit 0 (0 = no line differs)
+diff exit 0 (0 = no line differs); compared: the .config of out-display-late (the old display kernel) and of out-display-smmu-id with comment lines (#) dropped; the whole files, comments included, are equal too

@@ -15614,7 +15614,7 @@ Status
 : done
 
 Note
-: Built 2026-11-28 (research walleye-display-identity-client-list-image-built): topic/iommu-arm-smmu-qcom-msm8998-mdss-identity 310884979b57 (checkpatch clean), tag int/walleye/display-smmu-id/v7.3/1, image b-r5-smmu-id 840755cf, built twice equal, gates pass. Never booted: its try is walleye-display-identity-client-list-try.
+: Built 2026-11-28 (research walleye-display-identity-client-list-image-built): topic/iommu-arm-smmu-qcom-msm8998-mdss-identity 310884979b57 (checkpatch clean), tag int/walleye/display-smmu-id/v7.3/1, image b-r5-smmu-id 840755cf, image packed twice equal and rebuilt from its recipe by ensure (kernel and ramdisk are seeds), gates pass. Never booted: its try is walleye-display-identity-client-list-try.
 
 About
 : walleye-display-s6e3fa5

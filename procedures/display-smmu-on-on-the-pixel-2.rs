@@ -1,6 +1,6 @@
 #!/usr/bin/env rust-script
 //! The display with the SMMU on, as one command (item walleye-display-smmu-on-procedure; decisions 2026-11-28-walleye-display-smmu-on-reset-first and
-//! 2026-11-28-walleye-iommu-stays-on-per-device-fix; research walleye-display-reset-smmu-on-image-built). Image B-r5-smmu is B-r5 (the MDSS reset) with the board's own
+//! 2026-11-28-walleye-iommu-stays-on-per-device-fix; research walleye-display-reset-smmu-on-image-built). Image B-r5-smmu (since 2026-11-28 B-r5-smmu-id, the same plus the identity-client kernel line) is B-r5 (the MDSS reset) with the board's own
 //! command line, so the SMMU stays on. The gate, the phone to fastboot, the image from memory (nothing flashed), the shell answering with the image's delay of 5 s, then the
 //! signs read once the init says it is through the 13 modules: no `iommu.passthrough` on the command line, no arm-smmu context fault, no `rcg` warning, no DSI -110,
 //! the DSI-1 connector connected, the panel bound, drm initialized, the CRTC's thread in ps (its debugfs state is kept, not judged: no captured text of it yet);

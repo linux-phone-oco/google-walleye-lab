@@ -89,6 +89,8 @@ jobs:
         run: sh tests/host/image-header-equals-recipe-selftest.sh
       - name: the iommu.passthrough check fails b-r5 and passes b-r5-smmu (the text unpack_bootimg printed for each)
         run: sh tests/host/image-without-iommu-passthrough-selftest.sh
+      - name: the ramoops layout check's kernel test passes a kernel part naming ramoops.console_size, also with the dtb after the gzip stream, and fails the same lines without it (the lines the v7.3 build printed)
+        run: sh tests/host/image-ramoops-stock-layout-selftest.sh
   cmdline-budget:
     name: every recipe's command line stays within the header budget
     runs-on: ubuntu-latest
