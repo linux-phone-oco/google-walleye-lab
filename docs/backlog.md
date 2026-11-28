@@ -15118,7 +15118,7 @@ Status
 : open
 
 Note
-: Run 2 (2026-11-28, osfact 0.1.2): boot from RAM and the push PASS; step 3 (enter) stops: 'test -e /mm/sbin/init' did not hold within 10 s; way back fine, Android b (research walleye-osfact-install-run-2-push-passes-enter-check-stops). Next: a lab-tools read of what the enter step does on the device (unpack into /mm? how long?) and its output kept; then rerun with the same parts (pack: osfact 0.1.2 pack now --device device.toml --distro <osfact fixtures/distros/alpine.toml> --parts <kernel, ramdisk, qcom/msm8998-google-walleye.dtb from images-modem/boot-modem.img>). | Retry 2026-11-28 on osfact 0.1.2 (lab-tools #501). Run 1 (PR 1378) stopped at the push.
+: Run 3 on osfact 0.2.0 (lab-tools #506, #508): install.log keeps every line sent and answer; device.toml check_wait = 60 (PROPOSED, a bound for the gunzip), lpoco-lab 0.54.9. Same parts as run 2. | Run 2 (2026-11-28, osfact 0.1.2): boot from RAM and the push PASS; step 3 (enter) stops: 'test -e /mm/sbin/init' did not hold within 10 s; way back fine, Android b (research walleye-osfact-install-run-2-push-passes-enter-check-stops). Next: a lab-tools read of what the enter step does on the device (unpack into /mm? how long?) and its output kept; then rerun with the same parts (pack: osfact 0.1.2 pack now --device device.toml --distro <osfact fixtures/distros/alpine.toml> --parts <kernel, ramdisk, qcom/msm8998-google-walleye.dtb from images-modem/boot-modem.img>). | Retry 2026-11-28 on osfact 0.1.2 (lab-tools #501). Run 1 (PR 1378) stopped at the push.
 
 Blocked by
 : walleye-install-osfact

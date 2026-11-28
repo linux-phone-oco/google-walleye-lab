@@ -1,4 +1,4 @@
-#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.54.4/manifest/device.schema.json
+#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.54.9/manifest/device.schema.json
 # ^ the lpoco-lab release this file follows: editors complete and check from its schema, CI reads the file with that release.
 # This phone's manifest - the only file a new phone's lab needs to say. Every tool reads it:
 # lpoco lab (linux-phone-oco/lab-tools) finds it like cargo finds Cargo.toml, or by --device.
@@ -169,6 +169,7 @@ path = "/mm"                       # the folder the root is unpacked into (a tmp
 size_mib = 400                     # rootfs-recv's MM_SIZE
 command = "/sbin/init"             # PROPOSED for the Alpine image (mm-up starts dbus, udevd and ModemManager under /env/bin instead)
 check = "test -e /mm/sbin/init"    # PROPOSED, with command
+check_wait = 60                    # PROPOSED: a bound for the gunzip of /tmp/root.tar.gz into the 400 MiB tmpfs (osfact's default 10 s stopped run 2, PR 1381); run 3's install.log measures it
 
 [install.way_back]
 command = "sync; echo b > /proc/sysrq-trigger"   # the first half of build/initramfs-modem/window-end (it then sleeps 5 and reboot -f)
