@@ -15329,6 +15329,9 @@ Status
 Note
 : Orchestration 2026-11-28 (lab-tools osfact-cmdline-by-part): one rolling image composes each part's cmdline pieces; the display part declares iommu.passthrough=1 (decision 2026-11-19-walleye-display-iommu-reading), so the modem must be measured under it.
 
+Blocked by
+: walleye-iommu-how-android-and-mainline-map-display-and-modem
+
 About
 : modem-calls
 
@@ -15371,3 +15374,28 @@ Proof
 
 Rank
 : 20
+
+
+<a id="walleye-iommu-how-android-and-mainline-map-display-and-modem"></a>
+### How stock Android and mainline map walleye's display and modem through the SMMU, ending in the narrowest setting that keeps the display lit and the modem's SMMU on
+
+Status
+: open
+
+Note
+: The author, 2026-11-28 (relayed by the Top): 'how is that we dont know that ? isnt android uses linux kernel ? and cant we see how its done in stock android ?' Before walleye-modem-ipa-under-iommu-passthrough runs; one agent, the phone stays on Android. Stock Android is the reference (decision 2026-11-27-walleye-modem-stock-android-reference-no-sim-goal).
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: research
+
+Proof
+: a research row with sources: (1) stock Android read off the phone, read only over adb with nothing changed - /proc/cmdline, the stock dtb's display (mdss, dsi) and IPA/modem nodes, their iommus, the SMMU context banks, any reserved-memory for the splash framebuffer; (2) mainline: reserved-memory 'iommu-addresses' identity mapping for a bootloader framebuffer, the arm-smmu qcom identity-domain quirks for MDSS, and what msm8998/sdm845 boards upstream do; it names the narrowest setting, its dts/cmdline form, and what the phone test then checks
+
+Rank
+: 18
