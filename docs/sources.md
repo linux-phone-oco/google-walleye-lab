@@ -2203,3 +2203,42 @@ By
 
 Takes
 : primary-port error is non-fatal for QMI modems; qrtr reset warning non-fatal; carrier-config list-configs handler connected only after the response, 5 s timeout, non-fatal
+
+
+<a id="lineage-wahoo-mdss-splash-iommu-attach"></a>
+### android_kernel_google_wahoo drivers/video/fbdev/msm/mdss_mdp_splash_logo.c: mdss_mdp_splash_iommu_attach
+
+Url
+: https://github.com/LineageOS/android_kernel_google_wahoo/blob/lineage-18.1/drivers/video/fbdev/msm/mdss_mdp_splash_logo.c
+
+By
+: Google/Qualcomm
+
+Takes
+: Stock Android maps the splash region 1:1 (iova = phys, read-only) in the MDP's own SMMU domain, then attaches; it unmaps when the splash is released
+
+
+<a id="v7-arm-smmu-qcom-client-list-no-msm8998"></a>
+### arm-smmu-qcom.c qcom_smmu_client_of_match (identity default-domain list)
+
+Url
+: https://github.com/torvalds/linux/blob/master/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c
+
+By
+: kernel.org
+
+Takes
+: The list names sdm845-mdss, sdm670-mdss, sc7180-mdss and others but not qcom,msm8998-mdss; it sets the default domain only, while msm_iommu_new() still allocates its own paging domain (drivers/gpu/drm/msm/msm_iommu.c:744)
+
+
+<a id="walleye-stock-dtb-smmu-nodes"></a>
+### walleye stock boot_a dtb: mmss_smmu, smmu_mdp_unsec_cb, ipa smmu nodes, cont_splash_mem
+
+Url
+: https://github.com/LineageOS/android_kernel_google_wahoo/tree/lineage-18.1/arch/arm64/boot/dts/qcom
+
+By
+: Google
+
+Takes
+: The GPL wahoo dts the stock dtb is built from (read here from the phone's own boot_a dtb, research/walleye-display-s6e3fa5/2026-11-28): mmss_smmu has qcom,skip-init and qcom,no-smr-check; splash_region@9d600000 size 0x2400000; IPA has qcom,smmu-s1-bypass and qcom,smmu-disable-htw, ap SID 0x18e0, uc 0x18e2

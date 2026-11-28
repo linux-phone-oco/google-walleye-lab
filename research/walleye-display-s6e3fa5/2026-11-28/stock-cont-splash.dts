@@ -1,0 +1,5 @@
+		cont_splash_mem: splash_region@9d600000 {
+			reg = <0x00 0x9d600000 0x00 0x2400000>;
+			label = "cont_splash_mem";
+			phandle = <0x184>;
+		};

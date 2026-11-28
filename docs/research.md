@@ -9893,3 +9893,28 @@ About
 
 Material
 : research/nfc/2026-11-28/
+
+
+<a id="walleye-iommu-stock-android-maps-splash-before-attach"></a>
+### walleye-iommu-stock-android-maps-splash-before-attach
+
+Date
+: 2026-11-28
+
+Brief
+: Stock Android keeps the SMMU on and maps the splash 1:1 in the MDP's own domain before attaching; mainline msm has no such step; B-r5's MDSS reset removes the scan-out instead
+
+Question
+: How do stock Android and mainline map walleye's display and modem through the SMMU, and what is the narrowest setting that keeps the display lit with the SMMU on?
+
+Found
+: STOCK (read from the phone's own boot_a dtb and the GPL wahoo source, phone untouched): (1) mmss_smmu@cd00000 carries qcom,skip-init and qcom,no-smr-check, i.e. the bootloader's stream mappings are kept, as upstream qcom_smmu_cfg_probe also does. (2) mdss has two context banks, smmu_mdp_unsec (SID 0) and smmu_mdp_sec (SID 1). (3) mdss_mdp_splash_iommu_attach maps the splash region iova=phys, IOMMU_READ, into the MDP's own domain BEFORE the first attach, and unmaps it when the splash is released: the SMMU stays on, the live scan-out never faults. (4) The dtb reserves cont_splash_mem at 0x9d600000 size 0x2400000 (to 0x9fa00000), not at 0x9d400000 as OnePlus 5 and our B-s5 draft; run faults seen at iova 0x9d4e1400, 0x9d608500, 0x9d6f1500 span both, so the real framebuffer address is not known yet. (5) IPA: qcom,smmu-s1-bypass and qcom,smmu-disable-htw on the node, ipa_smmu_ap SID 0x18e0 (iova 0x10000000+0x40000000), uc 0x18e2 (0x40000000+0x20000000) on the anoc2 smmu: stock already runs the modem's IPA stage-1 bypassed, so the SMMU being on is not what protects it there. MAINLINE: the identity client list (qcom_smmu_client_of_match) has sdm845-mdss, sdm670-mdss, sc7180-mdss and others but not qcom,msm8998-mdss; and it only sets the default domain: msm_iommu_new (msm_iommu.c:744) calls iommu_paging_domain_alloc and attaches its own domain, so the list does not stop the faults even if msm8998 were added. reserved-memory iommu-addresses are applied by the IOMMU core to default domains only, so msm's domain does not get them either (research walleye-display-handover-how-others-found). RESULT ALREADY IN HAND: B-r5 (mdss resets = MDSS_BCR, upstream msm_mdss_reset) removed the scan-out, faults 0, rcg 0, DSI -110 0 at 5 s. Not known yet: whether B-r5 ran with iommu.passthrough=1 (b-a5's command line had it; b-d5's is not recorded here), so whether the reset also stays clean with the SMMU fully on; that is one RAM try. Not known yet: the modem's IPA under translation (no msm8998 ipa node upstream).
+
+Sources
+: lineage-wahoo-mdss-splash-iommu-attach,walleye-stock-dtb-smmu-nodes,v7-arm-smmu-qcom-client-list-no-msm8998,v73-arm-smmu-qcom-msm-iommu-source
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-28/

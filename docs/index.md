@@ -2,14 +2,14 @@
 
 # Index
 
-- [Backlog](backlog.md): 609
-- [Decisions](decisions.md): 171
+- [Backlog](backlog.md): 614
+- [Decisions](decisions.md): 172
 - [Devices](devices.md): 0
 - [Hardware](hardware.md): 4
 - [Parts](parts.md): 22
-- [Research](research.md): 465
+- [Research](research.md): 466
 - [Session Log](session_log.md): 597
-- [Sources](sources.md): 166
+- [Sources](sources.md): 169
 - [Steps](steps.md): 117
 - [Summaries](summaries.md): 1
 - [Test Results](test_results.md): 0
