@@ -15436,7 +15436,7 @@ Note
 : One unattended RAM try, nothing flashed. Pass: smmu faults 0, rcg 0, DSI -110 0 with the SMMU on. Fail: go to walleye-display-map-splash-before-attach.
 
 Blocked by
-: walleye-display-reset-smmu-on-image
+: walleye-display-smmu-on-procedure
 
 About
 : walleye-display-s6e3fa5
@@ -15530,3 +15530,28 @@ Proof
 
 Rank
 : 21
+
+
+<a id="walleye-display-smmu-on-procedure"></a>
+### A procedure that boots B-r5-smmu from RAM and judges display-boot-clean (no SMMU faults, the panel lit), and the review #1413 skipped
+
+Status
+: open
+
+Note
+: From PR 1413 (coordinator 2026-11-28): the image is built (7e67cb50...96b7) but no procedure runs it; walleye-display-reset-smmu-on-try waits on this.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: procedures/display-smmu-on-on-the-pixel-2.rs (or a named-image part of the display-at-boot procedure, not the PREFIX+delay bisect) boots [images.B-r5-smmu] from RAM, reads the display-boot-clean signs (dmesg arm-smmu faults counted, DSI-1 connected, the panel bound, a CRTC active), and takes the way back; dry run and steps tests pass; an ideal-agent programmer review of #1413 and this change recorded
+
+Rank
+: 17
