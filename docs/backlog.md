@@ -15433,7 +15433,10 @@ Status
 : open
 
 Note
-: One unattended RAM try, nothing flashed. Pass: smmu faults 0, rcg 0, DSI -110 0 with the SMMU on. Fail: go to walleye-display-map-splash-before-attach.
+: One unattended RAM try, nothing flashed, by procedures/display-smmu-on-on-the-pixel-2.rs (built, dry run passes). Pass: the signs of display-boot-clean zero with the SMMU on. Fail: go to walleye-display-map-splash-before-attach.
+
+Waits
+: none
 
 Blocked by
 : walleye-display-smmu-on-procedure
@@ -15448,7 +15451,7 @@ Needs
 : phone
 
 Proof
-: tests/health/base/display-boot-clean.sh
+: procedures/display-smmu-on-on-the-pixel-2.rs
 
 Rank
 : 18
@@ -15536,10 +15539,10 @@ Rank
 ### A procedure that boots B-r5-smmu from RAM and judges display-boot-clean (no SMMU faults, the panel lit), and the review #1413 skipped
 
 Status
-: open
+: done
 
 Note
-: From PR 1413 (coordinator 2026-11-28): the image is built (7e67cb50...96b7) but no procedure runs it; walleye-display-reset-smmu-on-try waits on this.
+: Built and reviewed; dry run and 554 steps tests pass. Run it from the keeper: procedures/display-smmu-on-on-the-pixel-2.rs (walleye-display-reset-smmu-on-try). First run keeps drm-state.txt: capture it as a fixture to judge CRTC active.
 
 About
 : walleye-display-s6e3fa5

@@ -32,7 +32,8 @@ const DRM_INITIALIZED: &str = "[drm] Initialized msm";
 /// The kernel thread of the first CRTC, as `ps` lists it (`[card0-crtc0]`).
 const CRTC_THREAD: &str = "card0-crtc0";
 /// The phone's own state of the DRM device, saved for the next reading and not judged yet (no captured text of it).
-pub const DRM_STATE_COMMAND: &str = "cat /sys/kernel/debug/dri/0/state 2>&1";
+pub const DRM_STATE_COMMAND: &str =
+    "mount -t debugfs none /sys/kernel/debug 2>/dev/null; cat /sys/kernel/debug/dri/0/state 2>&1";
 
 /// The command line the kernel printed, in one string: its chunks of the `Kernel command line:` lines of the log.
 pub fn kernel_command_line(dmesg: &str) -> String {
@@ -51,6 +52,20 @@ pub fn has_passthrough(cmdline: &str) -> bool {
     cmdline
         .split_whitespace()
         .any(|w| w.starts_with(PASSTHROUGH))
+}
+
+/// Whether the log's command line has the passthrough word; `None` when the log has no command line.
+pub fn command_line_has_passthrough(dmesg: &str) -> Option<bool> {
+    let line = kernel_command_line(dmesg);
+    (!line.is_empty()).then(|| has_passthrough(&line))
+}
+
+/// The display controller's own failure lines (`[dpu error]enc35 pp0 disable autorefresh failed`), the fourth sign of tests/health/base/display-boot-clean.sh.
+pub fn autorefresh_failures(dmesg: &str) -> usize {
+    dmesg
+        .lines()
+        .filter(|l| l.contains("disable autorefresh failed"))
+        .count()
 }
 
 /// The panel is bound: the DSI host is bound to the display controller, the panel driver printed its lines and did not say its probe failed.
@@ -74,7 +89,9 @@ pub fn crtc_thread_is_listed(ps: &str) -> bool {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Signs {
     pub row: Row,
-    pub passthrough: bool,
+    /// `None`: the log has no kernel command line to read, which is not a pass
+    pub passthrough: Option<bool>,
+    pub autorefresh_failures: usize,
     pub connected: Option<String>,
     pub panel_bound: bool,
     pub drm_initialized: bool,
@@ -84,7 +101,13 @@ pub struct Signs {
 /// One reading judged: every reason the boot is not display-boot-clean with the SMMU on, none when it is.
 pub fn problems(s: &Signs) -> Vec<String> {
     let mut out = Vec::new();
-    if s.passthrough {
+    if s.passthrough.is_none() {
+        out.push(
+            "the kernel log has no command line to read: whether the SMMU is on is not known"
+                .to_string(),
+        );
+    }
+    if s.passthrough == Some(true) {
         out.push("the kernel command line still has iommu.passthrough: the SMMU is off, this is not the SMMU-on image".to_string());
     }
     if !s.row.loaded() {
@@ -100,6 +123,7 @@ pub fn problems(s: &Signs) -> Vec<String> {
             "rcg didn't update its configuration warnings",
         ),
         (s.row.dsi_110, "DSI -110 timeouts"),
+        (s.autorefresh_failures, "disable autorefresh failed lines"),
     ] {
         if n > 0 {
             out.push(format!("{n} {what}"));
@@ -125,7 +149,7 @@ pub fn report(s: &Signs) -> String {
     let yes = |b: bool| if b { "yes" } else { "no" };
     format!(
         "passthrough_on_cmdline {}\nsmmu_faults {}\nrcg_warnings {}\ndsi_110 {}\nmodules_ok {} of {}\nconnector {}\npanel_bound {}\ndrm_initialized {}\ncrtc_thread {}\ncrtc_active not known yet (debugfs state kept in drm-state.txt, no captured text to judge it by)\nverdict {}\n",
-        yes(s.passthrough),
+        s.passthrough.map_or("not known", yes),
         s.row.smmu_faults,
         s.row.rcg_warnings,
         s.row.dsi_110,
@@ -135,7 +159,7 @@ pub fn report(s: &Signs) -> String {
         yes(s.panel_bound),
         yes(s.drm_initialized),
         yes(s.crtc_listed),
-        if problems(s).is_empty() { "display-boot-clean" } else { "not clean" },
+        if problems(s).is_empty() { "display-boot-clean (crtc active not judged)" } else { "not clean" },
     )
 }
 
@@ -251,7 +275,8 @@ impl DisplaySmmu {
             d.lab.save("drm-state.txt", &redact(&state))?;
             let signs = Signs {
                 row,
-                passthrough: has_passthrough(&kernel_command_line(&dmesg)),
+                passthrough: command_line_has_passthrough(&dmesg),
+                autorefresh_failures: autorefresh_failures(&dmesg),
                 connected: drm_problem(&drm_of(&drm)),
                 panel_bound: panel_is_bound(&dmesg),
                 drm_initialized: drm_is_initialized(&dmesg),
@@ -295,7 +320,8 @@ mod tests {
     fn signs_of(dmesg: &str, ps: &str, cmdline: &str, connected: &str) -> Signs {
         Signs {
             row: row_of(dmesg),
-            passthrough: has_passthrough(cmdline),
+            passthrough: Some(has_passthrough(cmdline)),
+            autorefresh_failures: autorefresh_failures(dmesg),
             connected: drm_problem(&drm_of(connected)),
             panel_bound: panel_is_bound(dmesg),
             drm_initialized: drm_is_initialized(dmesg),
@@ -307,7 +333,7 @@ mod tests {
 
     #[test]
     fn the_captured_b_r5_log_has_passthrough_on_its_command_line() {
-        assert!(has_passthrough(&kernel_command_line(CLEAN)));
+        assert_eq!(command_line_has_passthrough(CLEAN), Some(true));
     }
 
     #[test]
@@ -377,7 +403,16 @@ mod tests {
 
     #[test]
     fn a_failed_panel_probe_is_not_a_bound_panel() {
-        let failed = format!("{CLEAN}[   6.9] panel-samsung-s6e3fa5 c994000.dsi.0: probe with driver panel-samsung-s6e3fa5 failed with error -22\n");
+        let probe = CLEAN
+            .lines()
+            .find(|l| l.contains("probe with driver msm_serial failed"))
+            .expect("the capture has a failed probe line"); // a real line, the driver named by the panel's
+        let failed = format!(
+            "{CLEAN}{}\n",
+            probe
+                .replace("msm_serial c16f000.serial", PANEL)
+                .replace("msm_serial", "panel-samsung-s6e3fa5")
+        );
         assert!(!panel_is_bound(&failed));
     }
 
@@ -390,6 +425,36 @@ mod tests {
             .collect();
         assert!(crtc_thread_is_listed(PS));
         assert!(!crtc_thread_is_listed(&without));
+    }
+
+    #[test]
+    fn a_log_without_its_command_line_is_not_a_pass() {
+        let cut: String = CLEAN
+            .lines()
+            .filter(|l| !l.contains(CMDLINE))
+            .map(|l| format!("{l}\n"))
+            .collect();
+        assert_eq!(command_line_has_passthrough(&cut), None);
+        let mut s = signs_of(&cut, PS, ANDROID_CMDLINE, DRM_OK);
+        s.passthrough = command_line_has_passthrough(&cut);
+        assert!(problems(&s)
+            .iter()
+            .any(|l| l.contains("no command line to read")));
+    }
+
+    #[test]
+    fn autorefresh_failures_are_counted_from_the_captured_log_with_signs() {
+        assert_eq!(autorefresh_failures(SIGNS), 1);
+        assert_eq!(autorefresh_failures(CLEAN), 0);
+        assert!(problems(&signs_of(SIGNS, PS, ANDROID_CMDLINE, DRM_OK))
+            .iter()
+            .any(|l| l.contains("autorefresh")));
+    }
+
+    #[test]
+    fn the_drm_state_command_mounts_debugfs_first() {
+        assert!(DRM_STATE_COMMAND.starts_with("mount -t debugfs none /sys/kernel/debug"));
+        assert!(DRM_STATE_COMMAND.contains("/sys/kernel/debug/dri/0/state"));
     }
 
     #[test]
