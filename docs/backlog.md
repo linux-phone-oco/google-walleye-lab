@@ -15433,7 +15433,7 @@ Status
 : open
 
 Note
-: One unattended RAM try, nothing flashed, by procedures/display-smmu-on-on-the-pixel-2.rs (built, dry run passes). Pass: the signs of display-boot-clean zero with the SMMU on. Fail: go to walleye-display-map-splash-before-attach.
+: run 1 (2026-11-28 keeper): stopped at step 5, no gadget from b-r5-smmu, back on Android after 57 s, no kernel text kept; see research walleye-display-smmu-on-run-1-no-gadget-from-b-r5-smmu. Not retried: coordinator decides
 
 Blocked by
 : walleye-display-smmu-on-procedure
