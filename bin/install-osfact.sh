@@ -3,7 +3,7 @@
 # the asset for this machine, checked against the release's own sha256 and against --version before it is kept. Prints
 # the program's path (one line). The version line below is the one rhizoid's edge bumps. Place by environment.
 set -eu
-version="${OSFACT_VERSION:-0.2.0}"
+version="${OSFACT_VERSION:-0.3.0}"
 [ "$(uname -m)" = x86_64 ] || { echo "install-osfact: no osfact release asset for $(uname -m)" >&2; exit 1; }
 name="osfact-x86_64"
 base="${OSFACT_BASE:-https://github.com/linux-phone-oco/lab-tools/releases/download}/osfact-v$version"
