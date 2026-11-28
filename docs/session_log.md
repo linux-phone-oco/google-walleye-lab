@@ -11353,3 +11353,18 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-28-0800-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-28
+
+Done
+: walleye-keeper run 2 of walleye-osfact-image-installs on osfact 0.1.2: pack equal (boot.img f1e54660, UFS-off gate pass), boot from RAM and the push PASS, step 3 enter stops on its 10 s check 'test -e /mm/sbin/init'; the way back worked. Android slot b, stock, nothing flashed; adb sees the serial as device.
+
+Considered
+: next: lab-tools: what osfact's enter step does on the device and why the check fails in 10 s (unpack time vs no unpack step), keep the shell output; then rerun with the same parts

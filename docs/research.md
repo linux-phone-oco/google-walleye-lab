@@ -9795,3 +9795,22 @@ Sources
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-osfact-install-run-2-push-passes-enter-check-stops"></a>
+### walleye-osfact-install-run-2-push-passes-enter-check-stops
+
+Date
+: 2026-11-28
+
+Brief
+: osfact 0.1.2 install, run 2 on the real walleye: boot from RAM and the push pass; step 3 stops: test -e /mm/sbin/init did not hold within 10 s; way back worked
+
+Question
+: Does osfact 0.1.2 install take the Alpine image onto walleye past the push, with its proposed [install.root] values?
+
+Found
+: Same parts as run 1 (kernel, ramdisk, dtb split from the proven modem image), repacked with osfact 0.1.2: rootfs built twice equal 9e0868be, boot.img f1e54660 (tests/host/ufs-off-image.sh pass), root.tar.gz 65471751. From Android b by adb reboot bootloader, install now: step 1 (fastboot boot from RAM, telnet 172.16.43.1:23) passed; step 2 (push, receiver nc -l -p 9001, sha256 checked on the device) PASSED - the 0.1.2 receiver start (lab-tools #501) cures run 1's stop; step 3 (enter root) failed: the check 'test -e /mm/sbin/init' did not hold within 10 s of the start; osfact then ran the way back (sysrq b) and adb get-state answered: Android slot b, stock, nothing flashed. Not known yet: whether the 10 s is too short for the device to untar the 7.6 MB gz into the 400 MiB /mm tmpfs (the modem boot's uncompressed 194 MB push took ~81 s), or whether /mm is never made and unpacked by the install (the plan's enter step names path, size_mib, command, check but the proposed receive/to/path may need a device-side unpack step osfact does not run). osfact prints no device-side output at the stop, so the cause is not read; the next try should have the shell's output kept (a file) or the check's wait made configurable - a lab-tools item.
+
+About
+: walleye-bootimage

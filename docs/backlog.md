@@ -15118,7 +15118,7 @@ Status
 : open
 
 Note
-: Retry 2026-11-28 on osfact 0.1.2 (lab-tools #501: the push receiver starts on its own line with </dev/null; OSFACT_VERSION=0.1.2 until rhizoid's bump). Run 1 (PR 1378) stopped at the push. | Run 1 (2026-11-28): pack and boot from RAM pass; push stops, receiver status never read (research walleye-osfact-install-run-1-push-stops). Waits on the cause: probably the backgrounded receiver in the telnet shell (lab-tools osfact).
+: Run 2 (2026-11-28, osfact 0.1.2): boot from RAM and the push PASS; step 3 (enter) stops: 'test -e /mm/sbin/init' did not hold within 10 s; way back fine, Android b (research walleye-osfact-install-run-2-push-passes-enter-check-stops). Next: a lab-tools read of what the enter step does on the device (unpack into /mm? how long?) and its output kept; then rerun with the same parts (pack: osfact 0.1.2 pack now --device device.toml --distro <osfact fixtures/distros/alpine.toml> --parts <kernel, ramdisk, qcom/msm8998-google-walleye.dtb from images-modem/boot-modem.img>). | Retry 2026-11-28 on osfact 0.1.2 (lab-tools #501). Run 1 (PR 1378) stopped at the push.
 
 Blocked by
 : walleye-install-osfact
