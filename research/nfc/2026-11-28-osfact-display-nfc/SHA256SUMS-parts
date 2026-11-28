@@ -1,0 +1,5 @@
+6e5f25f85ca9cf6e0d52f75a6daa8eaeef4db9165caddace5e039dcd11a9100e  parts/kernel
+d6a6ff80ec24d80f9286197db1e1ee71e77d01272055dbf7c07ec6fa5224e7d0  parts/ramdisk
+3d02d74e9534fb2de0278a74327760a05a0dc15a7215f78824ea70ab84894131  parts/qcom/msm8998-google-walleye.dtb
+03f8b9025da5b893ed86a3d2a2e10b139fcd428ed6a227971201d3043644b52c  alpine.toml
+5e294989e7b3054fa5da4b8b7ee450d334a1bdfbbcb8babcefe71457ecf34478  ../images-osfact-display-nfc/boot-osfact-display-nfc.img

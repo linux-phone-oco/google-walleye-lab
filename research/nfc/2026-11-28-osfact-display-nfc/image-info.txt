@@ -1,0 +1,13 @@
+[boot]
+header_version = 0
+base = 0x0
+kernel_offset = 0x8000
+ramdisk_offset = 0x1000000
+tags_offset = 0x100
+pagesize = 4096
+os_version = "15.0.0"
+os_patch_level = "2026-11"
+cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3"
+# kernel 15845708 bytes, ramdisk 1758672 bytes, second 0 bytes; the image is 33554432 bytes
+# a device tree of 92299 bytes is appended to the kernel at 15753409
+msm_id = [0x124, 0x20001]

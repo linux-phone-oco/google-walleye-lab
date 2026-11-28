@@ -1,0 +1,1 @@
+pass walleye-ufs-off image: 1 dtb(s), no UFS node is on, alone or merged with dtbo entry 3; command line names no ufs;

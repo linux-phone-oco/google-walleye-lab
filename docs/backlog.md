@@ -15279,9 +15279,6 @@ Status
 Note
 : From run 4 (PR 1392). Parts only, walleye's data: the nfc kernel/dtb (UFS-off with nxp-nci and the nfc@28 node, images.nfc's kernel_tag and dtb) and walleye-nfc-up in the ramdisk, packed by osfact with the same profile; if it needs anything of osfact's, say so to orchestration. UFS-off gate before any boot. The tag poll stays parked (decision 2026-11-28-walleye-nfc-tag-poll-waits-no-tag).
 
-Blocked by
-: walleye-osfact-image-display-and-nfc
-
 About
 : nfc
 
@@ -15292,7 +15289,7 @@ Needs
 : phone
 
 Proof
-: keeper: osfact pack now (parts in ~/Projects/walleye-build/osfact-nfc, boot.img sha256 1ef4ccd2d123d0d393f9b7b026303693ad02d7cfbdca60b2ade65dcf5b5d9004, built twice equal), osfact install now from Android; then over telnet 172.16.43.1:23 tests/health/base/nfc-present.sh passes (nfc0 present) and walleye-nfc-up --index 0 --poll 10 acks DEV_UP (the tag poll ends no target: decision 2026-11-28-walleye-nfc-tag-poll-waits-no-tag); the way back returns Android
+: the keeper's run of bin/attended run osfact-display-nfc-on-the-pixel-2 (shared with walleye-osfact-image-display): the keeper reads nfc/verdict.txt and nfc/open.txt in the run folder - nfc-present passes (nfc0), walleye-nfc-up acks DEV_UP, the no-tag poll ends no target (the run itself passes whatever NFC says); the way back returns Android
 
 Rank
 : 19
@@ -15307,9 +15304,6 @@ Status
 Note
 : The author, 2026-11-28 (relayed by the Top): he looks at the osfact image only 'if that image has everything that we discovered working and made working'. Display first, then NFC and the modem (one agent at a time).
 
-Blocked by
-: walleye-osfact-image-display-and-nfc
-
 About
 : walleye-display-s6e3fa5
 
@@ -15320,7 +15314,7 @@ Needs
 : phone
 
 Proof
-: keeper: osfact pack now (parts in ~/Projects/walleye-build/osfact-display, boot.img sha256 a0e696542b7c02725eaa2dc5fdcd1fd061616b29125f19a537ebe0e14dd6bd02, built twice equal), osfact install now from Android; then read over telnet 172.16.43.1:23 that card0-DSI-1 reads connected, the s6e3fa5 panel is bound, a CRTC is active, fbcon is on the DRM device and tty1 shows the getty; nothing flashed; way back returns Android slot b. If the glass stays dark: the command line (iommu.passthrough=1) is the first suspect, a per-image cmdline in osfact
+: the keeper's run of bin/attended run osfact-display-nfc-on-the-pixel-2: the display half passes (13 modules ok, no iommu.passthrough, no SMMU fault, DSI-1 connected, drm initialized, CRTC listed); the glass and the getty on tty1 need the Alpine root of an osfact install and stay this item's open proof (the boot from RAM here has no root); the way back returns Android
 
 Rank
 : 18
@@ -15748,10 +15742,10 @@ Rank
 ### One osfact walleye image carrying the display (B-r5-smmu-id's identity-list kernel and dtb) and NFC (walleye-nfc-up, the nxp-nci node) - packed once
 
 Status
-: open
+: done
 
 Note
-: Decision 2026-11-28-walleye-osfact-parts-join-in-one-build-and-run: the same builder session takes it right after walleye-tests-never-reach-the-authors-notify, without ending between. Then one keeper run proves walleye-osfact-image-display and walleye-osfact-image-nfc together.
+: Done: boot.img 5e294989 (osfact 0.4.1 pack now, twice equal, UFS-off gate, no iommu.passthrough, ramoops as B-r5-smmu), parts in ~/Projects/walleye-build/osfact-display-nfc, [images.osfact-display-nfc], procedures/osfact-display-nfc-on-the-pixel-2.rs (dry run passes in bin/attended check), research walleye-osfact-display-nfc-image-packed-equal, decision 2026-11-28-walleye-osfact-display-nfc-kernel-old-config-nfc-overlay. Never booted.
 
 About
 : walleye-bootimage

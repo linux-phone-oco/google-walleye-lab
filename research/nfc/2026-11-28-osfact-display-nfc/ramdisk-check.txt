@@ -1,0 +1,1 @@
+pass walleye-osfact-display-nfc-ramdisk display+nfc init = display image's (slpi's plus the display-load line); /bin/walleye-nfc-up is the proven tool byte for byte; 13 modules of 7.3.0-00011-gb24d9bc68235-dirty are the build's byte for byte; delay is the identity image's; busybox is the recorded arm64 build; no userland.tar, no firmware

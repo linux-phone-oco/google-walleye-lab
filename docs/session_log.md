@@ -11659,3 +11659,24 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-28-walleye-osfact-display-nfc-image-built"></a>
+### walleye: osfact display+NFC image built, queued for the keeper
+
+Entry date
+: 2026-11-28
+
+Done
+: Built the combined image: identity-list kernel with NFC built in (config fragment on the identity build), display dtb plus an NFC overlay, ramdisk with the 13 modules of that kernel and walleye-nfc-up; osfact pack boot.img 5e294989 twice equal, gate and image check pass. Added [images.osfact-display-nfc], the procedure osfact-display-nfc-on-the-pixel-2 reading display and NFC signs in one boot (dry run passes), three build/test scripts. The display and NFC items are unblocked and share one keeper run; nothing booted.
+
+Considered
+: A new kernel list tag: no kernel source changed, only config, so the existing tag stays.
+
+Rejected
+: Today's walleye.config and dts: they are not the display's proven base.
+
+About
+: walleye-bootimage

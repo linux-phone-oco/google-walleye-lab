@@ -1,0 +1,12 @@
+ok   nfc@28 compatible equals the NFC image's
+ok   nfc@28 reg equals the NFC image's
+ok   nfc@28 interrupts equals the NFC image's
+ok   nfc@28 enable-gpios equals the NFC image's
+ok   the i2c bus is okay
+ok   the irq pins as the NFC image has them
+ok   the control pins as the NFC image has them
+ok   mdss reset kept (the display seed's)
+ok   ramoops record size kept (as stock Android)
+ok   panel kept
+ok   UFS stays off
+3d02d74e9534fb2de0278a74327760a05a0dc15a7215f78824ea70ab84894131  /home/mll/.cache/agent-build/991ca0/combine/combined2.dtb
