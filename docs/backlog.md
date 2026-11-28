@@ -15435,9 +15435,6 @@ Status
 Note
 : One unattended RAM try, nothing flashed, by procedures/display-smmu-on-on-the-pixel-2.rs (built, dry run passes). Pass: the signs of display-boot-clean zero with the SMMU on. Fail: go to walleye-display-map-splash-before-attach.
 
-Waits
-: none
-
 Blocked by
 : walleye-display-smmu-on-procedure
 
