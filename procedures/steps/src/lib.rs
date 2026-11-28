@@ -11,6 +11,7 @@ pub mod cmdline_cut;
 pub mod display;
 pub mod display_boot;
 pub mod display_delay;
+pub mod display_smmu;
 #[cfg(test)]
 mod fixture;
 pub mod flash_boot;

@@ -241,7 +241,7 @@ sha256 = "0347728b82e416fbdc4c90c7ef7abef3ad3216366fb45cd207560a7e4b7aa1ad"   # 
 
 # The kernels the attended procedures' boot_once and back_to_known_good name. Walleye boots only by fastboot boot and nothing is written to it: "kept" names the image the way back returns to, not a kernel stored on the phone.
 [kernels]
-test = ["z21", "nfc", "l7", "b2", "b-d5", "b-d15", "b-d25", "b-d35", "b-d50", "b-s5", "b-r5", "b-r2", "b-rp2", "b-q5", "wdt1-a", "wdt1-b", "pon-read"]   # b-*: the delay bisect's images (its image_prefix)
+test = ["z21", "nfc", "l7", "b2", "b-d5", "b-d15", "b-d25", "b-d35", "b-d50", "b-s5", "b-r5", "b-r5-smmu", "b-r2", "b-rp2", "b-q5", "wdt1-a", "wdt1-b", "pon-read"]   # b-*: the delay bisect's images (its image_prefix)
 boot = "fastboot"                   # a test image is booted from memory (its [images.NAME]), nothing written: boot_once and phone_ready read this
 kept = "z21"
 # How the phone comes back to Android after a try (lpoco-attended 0.46.3 runs each line in this folder, as argv, in order, then waits for `back_on` to answer; a test image has no systemd, so the library's `systemctl reboot` does not fit):
@@ -511,6 +511,13 @@ ramdisk = "55c1145efc535fbee6a42e877bc403fb445a7818f48a36a144aeafee8b7bcb08"   #
 delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of uptime at which each image's init loads the display modules; an image b-dN must exist for each
 image_prefix = "b-d"                # the images are named PREFIX+delay in [images.*]: b-d5, b-d15 ...; the splash image B-s5 is run with delays = "5" and image_prefix = "b-s" (set both, run, put them back)
 modules = 13                        # the display modules each init loads, each said "walleye-display: ok": a row with fewer says nothing about the signs (the ramdisk's /display-modules.list has this many lines)
+
+# The SMMU-on display try (item walleye-display-smmu-on-procedure; procedures/display-smmu-on-on-the-pixel-2.rs): image B-r5-smmu from memory, nothing flashed, then the signs read:
+# no iommu.passthrough on the command line, no arm-smmu context fault, rcg warning or DSI -110, the connector connected, the panel bound, drm initialized. Unattended; the glass is not looked at.
+[procedures.display-smmu-on-on-the-pixel-2]
+image = "b-r5-smmu"                 # the name of its [images.NAME] (path, sha256)
+delay = 5                           # seconds of uptime at which the init loads the display modules (B-r5's own, in /display-delay)
+modules = 13                        # the display modules the init must say ok for
 
 # The Alpine hardware-test rootfs v2: v1 plus root's authorized_keys (the lab-only key ~/lab-material/walleye/walleye-lab-ed25519.pub; the private key never in the image),
 # built by tools/walleye-rootfs --build now --authorized-key, twice with this one sha256, 54+ checks ok (root's .ssh 700, authorized_keys 600, no private key in the image).

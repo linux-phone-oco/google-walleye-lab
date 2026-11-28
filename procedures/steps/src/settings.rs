@@ -34,6 +34,7 @@ pub const DISPLAY_PROCEDURE: &str = "display stripes on the Pixel 2";
 pub const DISPLAY_BOOT_PROCEDURE: &str = "display at boot on the Pixel 2";
 pub const UFS_PROCEDURE: &str = "UFS matched image on the Pixel 2";
 pub const DISPLAY_DELAY_PROCEDURE: &str = "display delay bisect on the Pixel 2";
+pub const DISPLAY_SMMU_PROCEDURE: &str = "display smmu on on the Pixel 2";
 pub const INSTALL_PROCEDURE: &str = "install rootfs on the Pixel 2";
 pub const REHEARSE_INSTALL_PROCEDURE: &str = "rehearse install rootfs on the Pixel 2";
 pub const ROOTFS_BOOT_PROCEDURE: &str = "rootfs boots on the Pixel 2";
@@ -72,6 +73,7 @@ pub enum Try {
     Display,
     DisplayBoot,
     DisplayDelay,
+    DisplaySmmu,
     Ufs,
     Install,
     RootfsBoot,
@@ -211,6 +213,13 @@ impl Settings {
     /// The display delay bisect's settings, read from the device's `device.toml` (call after `procedure(...)`).
     pub fn for_display_delay() -> Settings {
         Settings::read_linked(Try::DisplayDelay, &|k| dev(k).to_string(), &|k| {
+            proc(k).to_string()
+        })
+    }
+
+    /// The SMMU-on display try's settings, read from the device's `device.toml` (call after `procedure(...)`).
+    pub fn for_display_smmu() -> Settings {
+        Settings::read_linked(Try::DisplaySmmu, &|k| dev(k).to_string(), &|k| {
             proc(k).to_string()
         })
     }
@@ -765,6 +774,15 @@ impl Settings {
                 s.modules = number("modules", proc("modules"));
                 s.out = s.out_dir("display-boot");
             }
+            Try::DisplaySmmu => {
+                let name = proc("image");
+                s.image_name = name.clone();
+                s.image = image(&name);
+                s.image_sha256 = dev(&format!("images.{name}.sha256"));
+                s.delays = vec![number("delay", proc("delay"))];
+                s.modules = number("modules", proc("modules"));
+                s.out = s.out_dir("display-smmu-on");
+            }
             Try::DisplayDelay => {
                 s.delays = proc("delays")
                     .split_whitespace()
@@ -981,6 +999,7 @@ mod tests {
             (Try::DisplayBoot, DISPLAY_BOOT_PROCEDURE),
             (Try::Ufs, UFS_PROCEDURE),
             (Try::DisplayDelay, DISPLAY_DELAY_PROCEDURE),
+            (Try::DisplaySmmu, DISPLAY_SMMU_PROCEDURE),
             (Try::Install, INSTALL_PROCEDURE),
             (Try::Install, REHEARSE_INSTALL_PROCEDURE),
             (Try::RootfsBoot, ROOTFS_BOOT_PROCEDURE),
