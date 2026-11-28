@@ -15670,7 +15670,7 @@ Status
 : open
 
 Note
-: Run 1 of walleye-display-identity-client-list-try: all signs clean, check 10 stopped on panel_bound (needs 'panel-samsung-s6e3fa5 c994000.dsi.0' printed by dyndbg words the SMMU-on cmdline lacks). The step reads /sys/bus/mipi-dsi/devices/*/driver (or the c994000.dsi.0 device's driver link) as root over the shell and keeps it as panel-driver.txt; captured-text tested; then the keeper reruns the try's one command.
+: Coordinator 2026-11-28 (the builder's question): capture first - the next keeper run of walleye-display-identity-client-list-try records the real text; then walleye-display-panel-sign-judge-from-capture writes the judge from that capture.
 
 About
 : walleye-display-s6e3fa5
@@ -15682,7 +15682,35 @@ Needs
 : build
 
 Proof
-: cargo test of procedures/steps display_smmu: panel_is_bound passes on captured run 20261128-175948 text (dmesg + a sysfs driver-bound reading) and fails when the panel device is unbound
+: the display-smmu-on procedure reads /sys/bus/mipi-dsi/devices/*/driver (and the panel's of_node compatible) after the boot and keeps it as panel-driver.txt; until a real run's text exists, the panel_bound sign reports 'not known yet' (not pass, not fail) and the run's verdict says so; steps tests and a dry run pass; no typed fixture (decision 2026-11-23-a-stop-is-read-before-the-fix's stand-in rule)
 
 Rank
 : 16
+
+
+<a id="walleye-display-panel-sign-judge-from-capture"></a>
+### The panel_bound sign judged from the captured panel-driver.txt of a real SMMU-on run
+
+Status
+: open
+
+Note
+: Follows the capture (walleye-display-smmu-panel-sign-from-sysfs) and the keeper rerun.
+
+Blocked by
+: walleye-display-identity-client-list-try
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: panel_bound passes on the captured panel-driver.txt of the identity-client run (copied as a fixture with its run id) and fails on that text with the driver link removed; steps tests pass
+
+Rank
+: 18
