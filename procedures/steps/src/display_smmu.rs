@@ -3,7 +3,7 @@
 //! 2026-11-28-walleye-iommu-stays-on-per-device-fix; research walleye-display-reset-smmu-on-image-built): image B-r5-smmu (since 2026-11-28 B-r5-smmu-id, with the identity-client kernel line), B-r5 with the board's own
 //! command line (no `iommu.passthrough=1`), booted once from memory. The MDSS reset (B-r5's dtb) removes the bootloader's scan-out, so the SMMU can stay on;
 //! the try reads whether it did: the kernel command line has no passthrough word, no arm-smmu context fault, no `rcg` warning and no DSI -110 after the
-//! init loaded the 13 display modules, the DSI-1 connector reads connected, the panel is bound, drm is initialized, and the CRTC's thread is there.
+//! init loaded the 13 display modules, the DSI-1 connector reads connected, drm is initialized, the panel is read from sysfs and not judged yet (its dmesg sign is `None` while the log is silent), and the CRTC's thread is there.
 //! Nothing is written to the phone and nobody is asked: the glass is not looked at (decision 2026-11-19-walleye-display-console-before-eyes).
 //! Each method is one step of procedures/display-smmu-on-on-the-pixel-2.rs. The checks' expected words come from captured text (tests/fixtures/phone-text/SOURCES.toml).
 
@@ -33,6 +33,9 @@ const PANEL_FAILED: &str = "probe with driver panel-samsung-s6e3fa5 failed";
 const DRM_INITIALIZED: &str = "[drm] Initialized msm";
 /// The kernel thread of the first CRTC, as `ps` lists it (`[card0-crtc0]`).
 const CRTC_THREAD: &str = "card0-crtc0";
+/// What the kernel says of each DSI peripheral (the panel): the driver it is bound to and its devicetree compatible, kept as panel-driver.txt and not judged yet
+/// (no captured text of it; item walleye-display-panel-sign-judge-from-capture writes the judge from the first run's).
+pub const PANEL_DRIVER_COMMAND: &str = "for d in /sys/bus/mipi-dsi/devices/*; do echo \"== $d\"; ls -l \"$d/driver\" 2>&1; cat \"$d/of_node/compatible\" 2>&1 | tr '\\0' ' '; echo; done 2>&1";
 /// The phone's own state of the DRM device, saved for the next reading and not judged yet (no captured text of it).
 pub const DRM_STATE_COMMAND: &str =
     "mount -t debugfs none /sys/kernel/debug 2>/dev/null; cat /sys/kernel/debug/dri/0/state 2>&1";
@@ -77,6 +80,21 @@ pub fn panel_is_bound(dmesg: &str) -> bool {
         && !dmesg.contains(PANEL_FAILED)
 }
 
+/// The panel sign the log can give: `Some(false)` when the driver said its probe failed or printed its lines with no DSI bind, `Some(true)` when the DSI host is bound and the driver printed its lines, `None` when it printed nothing
+/// (the SMMU-on command line has no dyndbg words, so a bound panel is silent): not known yet, to be judged from the sysfs read kept as panel-driver.txt once a real
+/// run's text exists (item walleye-display-panel-sign-judge-from-capture).
+pub fn panel_sign(dmesg: &str) -> Option<bool> {
+    if dmesg.contains(PANEL_FAILED) {
+        Some(false)
+    } else if panel_is_bound(dmesg) {
+        Some(true)
+    } else if dmesg.lines().any(|l| l.contains(PANEL)) {
+        Some(false) // its lines, but the DSI host never bound
+    } else {
+        None
+    }
+}
+
 /// drm said it initialized msm and the framebuffer device came up on it.
 pub fn drm_is_initialized(dmesg: &str) -> bool {
     dmesg.contains(DRM_INITIALIZED) && dmesg.contains("msmdrmfb frame buffer device")
@@ -95,7 +113,8 @@ pub struct Signs {
     pub passthrough: Option<bool>,
     pub autorefresh_failures: usize,
     pub connected: Option<String>,
-    pub panel_bound: bool,
+    /// `None`: the log is silent about the panel - not known yet, neither a pass nor a fail
+    pub panel_bound: Option<bool>,
     pub drm_initialized: bool,
     pub crtc_listed: bool,
 }
@@ -134,9 +153,14 @@ pub fn problems(s: &Signs) -> Vec<String> {
     if let Some(why) = &s.connected {
         out.push(why.clone());
     }
+    if s.panel_bound == Some(false) {
+        out.push("the panel driver said its probe failed".to_string());
+    }
     for (ok, what) in [
-        (s.panel_bound, "the panel is not bound (no 'bound c994000.dsi' with the panel driver's lines, or its probe failed)"),
-        (s.drm_initialized, "drm did not initialize msm with its framebuffer device"),
+        (
+            s.drm_initialized,
+            "drm did not initialize msm with its framebuffer device",
+        ),
         (s.crtc_listed, "no card0-crtc0 thread in ps"),
     ] {
         if !ok {
@@ -144,6 +168,17 @@ pub fn problems(s: &Signs) -> Vec<String> {
         }
     }
     out
+}
+
+/// The run's verdict: what is judged clean says what it did not judge (the CRTC's state; the panel while the log is silent about it).
+fn verdict(s: &Signs) -> &'static str {
+    if !problems(s).is_empty() {
+        "not clean"
+    } else if s.panel_bound.is_none() {
+        "display-boot-clean (panel_bound and crtc active not judged)"
+    } else {
+        "display-boot-clean (crtc active not judged)"
+    }
 }
 
 /// The signs as they are kept: one line each, said and saved.
@@ -158,10 +193,13 @@ pub fn report(s: &Signs) -> String {
         s.row.modules_ok,
         s.row.modules_want,
         s.connected.as_deref().unwrap_or("connected"),
-        yes(s.panel_bound),
+        s.panel_bound.map_or(
+            "not known yet (sysfs read kept in panel-driver.txt, no captured text to judge it by)",
+            yes,
+        ),
         yes(s.drm_initialized),
         yes(s.crtc_listed),
-        if problems(s).is_empty() { "display-boot-clean (crtc active not judged)" } else { "not clean" },
+        verdict(s),
     )
 }
 
@@ -301,12 +339,14 @@ impl DisplaySmmu {
             d.lab.save("drm.txt", &drm)?;
             d.lab.save("ps.txt", &ps)?;
             d.lab.save("drm-state.txt", &redact(&state))?;
+            let panel = sh.run(PANEL_DRIVER_COMMAND, Duration::from_secs(10))?;
+            d.lab.save("panel-driver.txt", &redact(&panel))?;
             let signs = Signs {
                 row,
                 passthrough: command_line_has_passthrough(&dmesg),
                 autorefresh_failures: autorefresh_failures(&dmesg),
                 connected: drm_problem(&drm_of(&drm)),
-                panel_bound: panel_is_bound(&dmesg),
+                panel_bound: panel_sign(&dmesg),
                 drm_initialized: drm_is_initialized(&dmesg),
                 crtc_listed: crtc_thread_is_listed(&ps),
             };
@@ -399,7 +439,7 @@ mod tests {
             passthrough: Some(has_passthrough(cmdline)),
             autorefresh_failures: autorefresh_failures(dmesg),
             connected: drm_problem(&drm_of(connected)),
-            panel_bound: panel_is_bound(dmesg),
+            panel_bound: panel_sign(dmesg),
             drm_initialized: drm_is_initialized(dmesg),
             crtc_listed: crtc_thread_is_listed(ps),
         }
@@ -444,7 +484,7 @@ mod tests {
             "13 of 13 modules ok and the init through its list: {:?}",
             s.row
         );
-        assert!(s.panel_bound && s.drm_initialized && s.crtc_listed);
+        assert!(s.panel_bound == Some(true) && s.drm_initialized && s.crtc_listed);
         assert_eq!(problems(&s), Vec::<String>::new());
         assert!(report(&s).contains("verdict display-boot-clean"));
     }
@@ -552,6 +592,64 @@ mod tests {
     fn the_report_says_the_crtc_state_is_not_known_yet_rather_than_missing() {
         let s = signs_of(CLEAN, PS, ANDROID_CMDLINE, DRM_OK);
         assert!(report(&s).contains("crtc_active not known yet"));
+    }
+
+    /// B-r5-smmu-id's real run (20261128-175948, SMMU on, no dyndbg words): the DSI host bound, the panel module inserted, and no line of the panel driver's own.
+    const SMMU_ON_RUN: &str =
+        include_str!("../../../tests/fixtures/phone-text/display-b-r5-smmu-id-dmesg-20261128.cap");
+
+    #[test]
+    fn the_real_smmu_on_log_is_silent_about_the_panel_so_it_is_not_known_yet() {
+        assert!(SMMU_ON_RUN.contains(DSI_BOUND));
+        assert_eq!(panel_sign(SMMU_ON_RUN), None);
+        let mut s = signs_of(SMMU_ON_RUN, PS, ANDROID_CMDLINE, DRM_OK);
+        s.passthrough = command_line_has_passthrough(SMMU_ON_RUN);
+        assert_eq!(s.passthrough, Some(false));
+        assert_eq!(problems(&s), Vec::<String>::new());
+        let said = report(&s);
+        assert!(said.contains("panel_bound not known yet"), "{said}");
+        assert!(
+            said.contains("verdict display-boot-clean (panel_bound and crtc active not judged)"),
+            "{said}"
+        );
+    }
+
+    #[test]
+    fn a_log_with_the_panel_lines_is_bound_and_one_with_its_failed_probe_is_not() {
+        assert_eq!(panel_sign(CLEAN), Some(true));
+        let probe = CLEAN
+            .lines()
+            .find(|l| l.contains("probe with driver msm_serial failed"))
+            .expect("the capture has a failed probe line");
+        let failed = format!(
+            "{CLEAN}{}\n",
+            probe.replace("msm_serial", "panel-samsung-s6e3fa5")
+        );
+        assert_eq!(panel_sign(&failed), Some(false));
+        let p = problems(&signs_of(&failed, PS, ANDROID_CMDLINE, DRM_OK));
+        assert!(
+            p.iter()
+                .any(|l| l.contains("panel driver said its probe failed")),
+            "{p:?}"
+        );
+    }
+
+    #[test]
+    fn the_panel_lines_with_no_dsi_bind_are_a_known_fail_not_an_unknown() {
+        let no_bind: String = CLEAN
+            .lines()
+            .filter(|l| !l.contains(DSI_BOUND))
+            .map(|l| format!("{l}\n"))
+            .collect();
+        assert_eq!(panel_sign(&no_bind), Some(false));
+    }
+
+    #[test]
+    fn the_procedure_reads_the_panel_driver_from_sysfs_and_keeps_it() {
+        assert!(PANEL_DRIVER_COMMAND.contains("/sys/bus/mipi-dsi/devices/"));
+        assert!(PANEL_DRIVER_COMMAND.contains("of_node/compatible"));
+        let own = source("src/display_smmu.rs");
+        assert!(own.contains("d.lab.save(\"panel-driver.txt\""));
     }
 
     fn source(path: &str) -> String {

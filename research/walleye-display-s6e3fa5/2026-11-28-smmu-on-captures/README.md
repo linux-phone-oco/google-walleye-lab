@@ -7,3 +7,4 @@ Whole texts a phone printed, kept so the procedure's checks name their source (t
 - `b-a5-alpine-login-read-2026-11-23.txt`: B-a5's read over ssh, ~/lab-material/walleye/alpine-login-20261123-061501/read.txt; its `ps` lists the `card0-crtc0` thread.
 
 Not captured yet: a debugfs DRM state reading (a CRTC's `active=`), so "a CRTC is active" is recorded, not judged, until the first run's text is kept.
+- `b-r5-smmu-id-run-20261128-175948-dmesg.txt`: kernel log of B-r5-smmu-id (SMMU on, no dyndbg words), ~/lab-material/walleye/display-smmu-on-20261128-175948/dmesg.txt: the DSI host bound, the panel module inserted, no line of the panel driver's own (so its panel sign is not known yet).
