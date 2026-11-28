@@ -15318,3 +15318,56 @@ Proof
 
 Rank
 : 18
+
+
+<a id="walleye-modem-image-iommu-passthrough"></a>
+### A modem image variant whose cmdline adds iommu.passthrough=1, everything else equal to the proven modem image
+
+Status
+: open
+
+Note
+: Orchestration 2026-11-28 (lab-tools osfact-cmdline-by-part): one rolling image composes each part's cmdline pieces; the display part declares iommu.passthrough=1 (decision 2026-11-19-walleye-display-iommu-reading), so the modem must be measured under it.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: the variant's boot.img differs from images-modem/boot-modem.img only in the cmdline (iommu.passthrough=1 added; shown by a header diff); rebuilt equal twice; UFS-off gate and AVB pass; the modem boot procedure takes it by a named image
+
+Rank
+: 20
+
+
+<a id="walleye-modem-ipa-under-iommu-passthrough"></a>
+### Does the modem's IPA path still work with iommu.passthrough=1? One modem boot of the variant
+
+Status
+: open
+
+Note
+: If they cannot share it, the display and modem pieces need a resolution (a narrower flag than passthrough, e.g. per-device iommu settings) before both are in one image.
+
+Blocked by
+: walleye-modem-image-iommu-passthrough
+
+About
+: modem-calls
+
+Opened
+: 2026-11-28
+
+Needs
+: phone
+
+Proof
+: procedures/modem-boot-on-the-pixel-2.rs on the variant: modem-up passes and ipa binds with rmnet_ipa0 present (as run 10 without the flag), or the run shows where IPA or the modem differs; the research row says whether the display's flag and the modem can share one image; nothing flashed, way back to Android
+
+Rank
+: 20
