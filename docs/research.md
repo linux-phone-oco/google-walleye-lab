@@ -9814,3 +9814,22 @@ Found
 
 About
 : walleye-bootimage
+
+
+<a id="walleye-osfact-install-run-3-rootfs-has-no-sbin-init"></a>
+### walleye-osfact-install-run-3-rootfs-has-no-sbin-init
+
+Date
+: 2026-11-28
+
+Brief
+: osfact 0.2.0 install, run 3 on walleye: push and unpack pass (unpack 2.6 s); the enter check fails because the built root has no /sbin/init; way back worked
+
+Question
+: Does osfact 0.2.0 install take the Alpine image onto walleye past the enter check, with check_wait 60?
+
+Found
+: Same parts and same boot.img f1e54660 (UFS-off gate pass), root.tar.gz 65471751, rootfs.img 9e0868be (built twice equal). From Android b by adb reboot bootloader, install now: step 1 and 2 passed (sha256 checked on the device); step 3: mkdir, tmpfs 400m, gzip -dc | tar -x ended status 0 in 2.6 s (install.log 24.1 s to 26.7 s), setsid chroot /mm /sbin/init sent, then test -e /mm/sbin/init status 1 every second for 60 s; way back (sysrq b) and adb get-state answered at 109 s: Android slot b, stock, nothing flashed. Cause read from the tarball: root.tar.gz lists no ./sbin/init and no init or openrc-init entry anywhere (bin/sh is the only busybox applet link seen; sbin has apk, e2fsck, ifupdown links); Alpine makes /sbin/init as a busybox applet link in the busybox package's post-install script, which the osfact rootfs build (apk without scripts) does not run. So the 10 s bound (run 2) was never the cause; check_wait 60 stays unmeasured as a need (unpack took 2.6 s). Fix is lab-tools': the root build must make the busybox applet links (busybox --install -s, or run apk's scripts) and a test that the packed root holds sbin/init; then rerun with the same parts. The install.log kept every line (lab-tools #506/#508 worked).
+
+About
+: walleye-bootimage
