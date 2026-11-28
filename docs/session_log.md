@@ -11443,3 +11443,21 @@ Considered
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-28-walleye-osfact-nfc-image-built-queued-for"></a>
+### walleye: osfact NFC image built, queued for the keeper
+
+Entry date
+: 2026-11-28
+
+Done
+: Built the ramdisk part for the osfact NFC image (build/initramfs-osfact-nfc, tests/host/osfact-nfc-ramdisk.sh), packed with the NFC image's own kernel and dtb: boot.img 1ef4ccd2 twice equal, UFS-off gate pass. The item is queued for the phone keeper; nothing was booted.
+
+Considered
+: Adding a line to the init that opens nfc0 at boot: the open stays the host's over the shell, as the NFC boot procedure does it.
+
+About
+: nfc

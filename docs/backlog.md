@@ -15283,10 +15283,10 @@ Opened
 : 2026-11-28
 
 Needs
-: build
+: phone
 
 Proof
-: an osfact-packed image where tests/health/base/nfc-present.sh passes (nfc0 present, DEV_UP acked); the way back returns Android
+: keeper: osfact pack now (parts in ~/Projects/walleye-build/osfact-nfc, boot.img sha256 1ef4ccd2d123d0d393f9b7b026303693ad02d7cfbdca60b2ade65dcf5b5d9004, built twice equal), osfact install now from Android; then over telnet 172.16.43.1:23 tests/health/base/nfc-present.sh passes (nfc0 present) and walleye-nfc-up --index 0 --poll 10 acks DEV_UP (the tag poll ends no target: decision 2026-11-28-walleye-nfc-tag-poll-waits-no-tag); the way back returns Android
 
 Rank
 : 19
