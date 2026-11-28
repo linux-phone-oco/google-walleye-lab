@@ -10091,3 +10091,25 @@ Found
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-identity-client-list-run-1-witnessed"></a>
+### walleye-display-identity-client-list-run-1-witnessed
+
+Date
+: 2026-11-28
+
+Brief
+: The author saw B-r5-smmu-id's boot text and a blinking cursor on the glass (SMMU on, run 20261128-175948): the display works with the SMMU on, witnessed
+
+Question
+: Did the glass show the SMMU-on identity-client image's console during run 20261128-175948?
+
+Found
+: The author, 2026-11-28 (relayed by the Top, during the keeper's B-r5-smmu-id RAM try): 'i saw text on the screen of what was booting just now, with a blinking cursor, so display was working on whatever was booting just now, i think'. Matched by time: run display-smmu-on-20261128-175948 started 17:59:48, its files kept at 18:00:33 (~/lab-material/walleye), the newest phone run, none after it before his word. It agrees with the run's own read (research walleye-display-identity-client-list-run-1-clean-panel-sign-blind): smmu_faults 0, rcg 0, dsi -110 0, drm + fb0 + fbcon up at 6.5 s. The panel_bound sign is still not known yet (capture pending); his look is a witness of the glass, not the sign.
+
+Sources
+: walleye-display-identity-client-list-run-1-clean-panel-sign-blind
+
+About
+: walleye-display-s6e3fa5
