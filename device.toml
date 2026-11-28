@@ -241,7 +241,7 @@ sha256 = "0347728b82e416fbdc4c90c7ef7abef3ad3216366fb45cd207560a7e4b7aa1ad"   # 
 
 # The kernels the attended procedures' boot_once and back_to_known_good name. Walleye boots only by fastboot boot and nothing is written to it: "kept" names the image the way back returns to, not a kernel stored on the phone.
 [kernels]
-test = ["z21", "nfc", "l7", "b2", "b-d5", "b-d15", "b-d25", "b-d35", "b-d50", "b-s5", "b-r5", "b-r5-smmu", "b-r2", "b-rp2", "b-q5", "wdt1-a", "wdt1-b", "pon-read"]   # b-*: the delay bisect's images (its image_prefix)
+test = ["z21", "nfc", "l7", "b2", "b-d5", "b-d15", "b-d25", "b-d35", "b-d50", "b-s5", "b-r5", "b-r5-smmu", "b-r5-smmu-id", "b-r2", "b-rp2", "b-q5", "wdt1-a", "wdt1-b", "pon-read"]   # b-*: the delay bisect's images (its image_prefix)
 boot = "fastboot"                   # a test image is booted from memory (its [images.NAME]), nothing written: boot_once and phone_ready read this
 kept = "z21"
 # How the phone comes back to Android after a try (lpoco-attended 0.46.3 runs each line in this folder, as argv, in order, then waits for `back_on` to answer; a test image has no systemd, so the library's `systemctl reboot` does not fit):
@@ -485,6 +485,22 @@ control = "b-r5"
 dtb = "c6d840a79fb0c0c2e77ce939de5d503f71274d1e9e0add7fcc566ab35696a87e"      # b-r5s dtb with its ramoops node laid out as stock Android lays it: record-size 0x20000, console-size 0x100000, pmsg-size 0x80000, no ecc (stock dtbo entry 3, the ramoops fragment; ~/Projects/walleye-build/control/dtbo/entry.3)
 cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3"
 
+
+# The identity-client image B-r5-smmu-id (item walleye-display-identity-client-list-image; decision 2026-11-28-walleye-display-identity-client-list-first; upstream item iommu-arm-smmu-qcom-msm8998-mdss-identity):
+# B-r5-smmu with a kernel of the list display-smmu-id (kernel/topics.toml; tag int/walleye/display-smmu-id/v7.3/1 = the tree of the display images' kernel, 7430c717a94c, plus one line adding qcom,msm8998-mdss to arm-smmu-qcom's identity clients;
+# `git diff --stat 7430c717a94c TAG` shows that one file). The kernel is build/build-display-late.sh of lab commit e121ca26 (walleye.config and walleye-display-late.config of the day the old kernel was built: today's walleye.config
+# has QRTR, PAS and SYSMON built in, which the old one did not) on the tag's tree: its .config equals the old out-display-late/.config (diff of both files, comments included, exit 0). Its 13 display modules carry the new kernel's version in the ramdisk
+# (modules are checked against it), the rest of the ramdisk, the dtb (ramoops as stock Android lays it), header words and command line (no iommu.passthrough) are B-r5-smmu's. The image is rebuilt from these parts twice equal (ensure, ensure --rebuild); the kernel and the ramdisk are seeds, not proved by a rebuild. Never booted.
+[images.b-r5-smmu-id]
+path = "images-display-reset-smmu-id/boot-b-r5-smmu-id.img"
+kernel_tag = "int/walleye/display-smmu-id/v7.3/1"
+sha256 = "840755cf392d7829547e7799e41b22318ec3627e8efe7d2a95cdfc1eb438faa8"
+
+[images.b-r5-smmu-id.recipe]
+control = "b-r5-smmu"
+kernel = "a3066ebfec0037459b2f5a55d4e4d3e8c7f7230bef931f408d572237ba0e0b57"   # Image.gz of the tag int/walleye/display-smmu-id/v7.3/1 (the old kernel's, c52b5608, plus the one line); the dtb appended to it is the control's
+ramdisk = "29eb65035843aec333eb5f0dd93028172353076f771525bd94976b413115053a"   # B-r5-smmu's ramdisk with its 13 modules, their depmod files and /display-modules.list of the new kernel (cpio equal to the old one when given the old modules; xz -6e --check=crc32 as the old one's bytes)
+cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3"   # the control's: no iommu.passthrough
 # The registers image B-q5 (item walleye-display-scanout-registers): B-d5 whose init also reads the DPU, interface, pingpong and DSI registers with devmem (read only) at 4, 10 and 30 s and says them to the kernel log
 # (script retired, rebuilt from its recipe; kernel, dtb, command line, header words, size and the 5 s delay are B-d5's). Run: delays = "5" and image_prefix = "b-q" (set both, run, put them back); the run waits for
 # the init's "registers: done" and keeps regs-d5.txt (the register table, which registers change between the samples) beside dmesg-d5.txt in the lab's material.
@@ -513,10 +529,10 @@ delays = "5 15 25 35 50"           # the delays tried, in this order, seconds of
 image_prefix = "b-d"                # the images are named PREFIX+delay in [images.*]: b-d5, b-d15 ...; the splash image B-s5 is run with delays = "5" and image_prefix = "b-s" (set both, run, put them back)
 modules = 13                        # the display modules each init loads, each said "walleye-display: ok": a row with fewer says nothing about the signs (the ramdisk's /display-modules.list has this many lines)
 
-# The SMMU-on display try (item walleye-display-smmu-on-procedure; procedures/display-smmu-on-on-the-pixel-2.rs): image B-r5-smmu from memory, nothing flashed, then the signs read:
+# The SMMU-on display try (item walleye-display-smmu-on-procedure; procedures/display-smmu-on-on-the-pixel-2.rs): the image below (B-r5-smmu-id since 2026-11-28; B-r5-smmu before) from memory, nothing flashed, then the signs read:
 # no iommu.passthrough on the command line, no arm-smmu context fault, rcg warning or DSI -110, the connector connected, the panel bound, drm initialized. Unattended; the glass is not looked at.
 [procedures.display-smmu-on-on-the-pixel-2]
-image = "b-r5-smmu"                 # the name of its [images.NAME] (path, sha256)
+image = "b-r5-smmu-id"              # the name of its [images.NAME] (path, sha256)
 delay = 5                           # seconds of uptime at which the init loads the display modules (B-r5's own, in /display-delay)
 modules = 13                        # the display modules the init must say ok for
 

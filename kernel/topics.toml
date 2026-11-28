@@ -89,3 +89,22 @@ state = "trying"
 branch = "topic/walleye-fuel-gauge-rfc"
 for = "the PMI8998 fuel gauge (carried: others' patches)"
 state = "trying"
+
+# The kernel of the SMMU-on display try with the identity client (item walleye-display-identity-client-list-image; decision 2026-11-28-walleye-display-identity-client-list-first): the tree the display images' kernel was built from (the watchdog archive at e123d3bff and the fuel gauge RFC: v7.3 + 7 commits, 7430c717a94c, build-display-late.sh's tree), and on it the one line adding qcom,msm8998-mdss to arm-smmu-qcom's identity clients. UFS off.
+[lists.display-smmu-id]
+base = "v7.3"
+
+[[lists.display-smmu-id.entries]]
+branch = "archive/pmic-wdt-e123d3bff"
+for = "the PMIC watchdog as the display images' kernel carries it (e123d3bff)"
+state = "trying"
+
+[[lists.display-smmu-id.entries]]
+branch = "topic/walleye-fuel-gauge-rfc"
+for = "the PMI8998 fuel gauge (carried: others' patches; the board dts enables pmi8998_fg)"
+state = "trying"
+
+[[lists.display-smmu-id.entries]]
+branch = "topic/iommu-arm-smmu-qcom-msm8998-mdss-identity"
+for = "qcom,msm8998-mdss on arm-smmu-qcom's identity clients: the display's default domain does not translate while the bootloader scan-out is live"
+state = "trying"

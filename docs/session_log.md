@@ -11599,3 +11599,24 @@ Considered
 
 About
 : walleye-pmic-wdt-v1-image
+
+---
+
+
+<a id="2026-11-28-walleye-display-identity-client-list-image"></a>
+### walleye: B-r5-smmu-id built from the identity-client topic
+
+Entry date
+: 2026-11-28
+
+Done
+: One-line topic on v7.3 (OURS tag, checkpatch clean, pushed), list display-smmu-id assembled to int/walleye/display-smmu-id/v7.3/1 and published, kernel and modules built with the old display kernel's config, ramdisk repacked with the new modules (method proved on the old ones), image B-r5-smmu-id packed twice equal and rebuilt from its recipe (kernel and ramdisk are seeds), gates pass, the SMMU-on procedure names it, its try queued for the keeper (walleye-display-identity-client-list-try); the ramoops check now looks for pstore/ram in the kernel part, with a selftest.
+
+Considered
+: Where the kernel's modules and ramdisk come from, and which config.
+
+Rejected
+: Today's config; a Nix kernel row (no modules); old modules in the new ramdisk. Not booted: nothing here touches the phone.
+
+About
+: walleye-display-s6e3fa5

@@ -8,6 +8,15 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 STOCK=${STOCK:-$HERE/../fixtures/dtb-text/stock-dtbo3-ramoops.txt}
 IN=${1:-}
 say() { echo "$1 walleye-image-ramoops-stock-layout $2"; [ "$1" = pass ]; exit $?; }
+# the kernel part names the ramoops parameters (pstore/ram is built in): ramoops.console_size and its siblings are in the decompressed Image (tests/fixtures/kernel-text/ramoops-params-v7.3.txt: the
+# lines the v7.3 build printed). It shows pstore/ram, not that the console is registered with it (PSTORE_CONSOLE is the build's own setting). The unpacked kernel part ends with the appended dtb:
+# gzip reads the stream and says so after its end, which is not a failure here.
+kernel_names_ramoops() { gzip -dc < "$1" 2>/dev/null | grep -aq 'ramoops\.console_size'; }
+if [ "$IN" = --kernel-part ]; then # the kernel part alone (tests/host/image-ramoops-stock-layout-selftest.sh proves it)
+  [ -r "${2:-}" ] || say fail "usage: image-ramoops-stock-layout.sh --kernel-part FILE"
+  kernel_names_ramoops "$2" || say fail "$2 names no ramoops.console_size parameter"
+  say pass "$2 names ramoops.console_size"
+fi
 [ -n "$IN" ] || say fail "usage: image-ramoops-stock-layout.sh IMAGE|DTB"
 for c in fdtget unpack_bootimg awk; do command -v "$c" >/dev/null || say skip "$c not installed: not known yet"; done
 [ -r "$IN" ] || say skip "no file at $IN: not known yet"
@@ -41,13 +50,8 @@ for p in record:$want_record console:$want_console pmsg:$want_pmsg; do
 done
 fdtget -d none "$DTB" "$N" ecc-size > "$T/ecc" 2>&1
 [ "$(cat "$T/ecc")" = none ] || say fail "ecc-size is set ($(cat "$T/ecc")), stock has none"
-# the kernel has the ramoops backend: an image's kernel is b-r5's (the recipe changes only dtb and command line); b-r5's captured boot registers ramoops (research walleye-display-reset-image-b-r5-tried-signs-vanish)
+# the kernel names the ramoops parameters. This replaces "the kernel is b-r5's, bytes equal" (2026-11-28, item walleye-display-identity-client-list-image: B-r5-smmu-id's kernel is a new build, so its bytes are not b-r5's).
 if [ -r "$T/p/kernel" ]; then
-  B5=$(lpoco-bringup image ensure b-r5 --device "${DEVICE_TOML:-device.toml}" --dry-run 2>&1 | sed -n 's/.*(\(\/[^)]*\))$/\1/p' | tail -n 1)
-  [ -r "$B5" ] || say skip "b-r5 is not in the store: not known yet"
-  lpoco-bringup image unpack "$B5" --device "${DEVICE_TOML:-device.toml}" --out "$T/b5" > /dev/null 2>&1 || say fail "cannot unpack b-r5"
-  # the unpacked kernel part ends with the appended dtb: compare the bytes before it (boot.toml says where the dtb is appended)
-  kpart() { n=$(sed -n 's/.*appended to the kernel at \([0-9]*\)$/\1/p' "$1/boot.toml"); [ -n "$n" ] && head -c "$n" "$1/kernel"; }
-  [ "$(kpart "$T/b5" | sha256sum)" = "$(kpart "$T/p" | sha256sum)" ] || say fail "the kernel is not b-r5's: ramoops backend not shown"
+  kernel_names_ramoops "$T/p/kernel" || say fail "the kernel part names no ramoops.console_size parameter: pstore/ram is not shown"
 fi
 say pass "$IN: ramoops at $got_reg, record $want_record, console $want_console, pmsg $want_pmsg, no ecc: stock's layout"

@@ -1,0 +1,11 @@
+ramoops.record_size
+ramoops.console_size
+ramoops.ftrace_size
+ramoops.pmsg_size
+ramoops.mem_address
+ramoops.mem_name
+ramoops.mem_size
+ramoops.mem_type
+ramoops.max_reason
+ramoops.ecc
+ramoops.dump_oops

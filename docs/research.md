@@ -10047,3 +10047,28 @@ Sources
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-identity-client-list-image-built"></a>
+### walleye-display-identity-client-list-image-built
+
+Date
+: 2026-11-28
+
+Brief
+: B-r5-smmu-id built: B-r5-smmu's kernel plus the one identity-client line, image packed twice equal, gates pass; never booted
+
+Question
+: Can B-r5-smmu's kernel be rebuilt from a named kernel list with only the identity-client line added, and made into an image the SMMU-on procedure takes?
+
+Found
+: Topic topic/iommu-arm-smmu-qcom-msm8998-mdss-identity (310884979b57, OURS subject, checkpatch --strict 0/0/0, pushed to the fork and read back) on list display-smmu-id (kernel/topics.toml: v7.3 + archive/pmic-wdt-e123d3bff + topic/walleye-fuel-gauge-rfc + the topic) assembled to int/walleye/display-smmu-id/v7.3/1 (tag 636a2884, published; git diff --stat against the old display kernel's tree 7430c717a94c: that one file, 1 line). Built with lab commit e121ca26's build-display-late.sh and fragments (today's walleye.config builds QRTR, PAS, SYSMON in, which the old kernel did not; with the day's fragments the .config equals the old out-display-late/.config line for line, diff exit 0, 13 modules, same set). Modules carry the new version 7.3.0-00011-gb24d9bc68235-dirty, so the ramdisk is rebuilt: cpio from the old listing with the new modules; given the old modules it equals the old cpio byte for byte, and xz -6e --check=crc32 equals the old ramdisk's bytes (method proved on a known case). lpoco bringup image swap on b-r5-smmu with its own parts gives B-r5-smmu's sha 0715ecd0 (proved). New image sha256 840755cf392d7829547e7799e41b22318ec3627e8efe7d2a95cdfc1eb438faa8: the image packed twice from the same parts equal, and ensure and ensure --rebuild from its recipe equal (kernel and ramdisk are seeds: ensure says "not proved, it has no recipe"; the kernel build itself is not shown reproducible) (recipe: control b-r5-smmu, kernel a3066ebf, ramdisk 29eb6503, cmdline as control). Gates: ufs-off-image pass, image-without-iommu-passthrough pass, image-header-equals-recipe pass, lpoco-bringup image check 12 ok 0 failed, image-ramoops-stock-layout pass (its kernel test now looks for the ramoops parameters, ramoops.console_size in the decompressed Image; b-r5 still fails on its dtb; a gzip of /bin/true as kernel fails it). The display-smmu-on procedure names the image in device.toml and its dry run walks 12 steps on b-r5-smmu-id. NOT KNOWN YET: how it boots (never booted); whether the line stops the death at 'Adding to iommu group 0'; that the modem's and IPA's streams are untouched. The parts a3066ebf (kernel) and 29eb6503 (ramdisk) are in this machine's nix store from a seed, not in a binary cache: another machine needs them from the material folder's recipe (build/build-display-late.sh at e121ca26 on the tag, mkspec.sh).
+
+Sources
+: v73-arm-smmu-qcom-def-domain-type
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-28-identity-image/

@@ -27,3 +27,9 @@ lab's dts or the board file's change has a topic of its own. The series' `README
 The kernel of image U-d5 (item walleye-install-ufs-root-display-image) is the branch `wip/walleye/ufs-root-display` of the fork (pushed 2026-11-23, ac7eefecb;
 a worktree of the clone builds it): `topic/ufs-match-android` plus the commits of `topic/walleye-mdss-reset` and `topic/walleye-panel-s6e3fa5`. It is built by
 `build/build-display-late.sh` with `EXTRA_CONFIG="build/walleye-diag.config build/walleye-ufs-root.config"` and made into the image by `build/build-ufs-root-display-image.sh` (retired 2026-11-25: [images.ufs-root-display.recipe] in device.toml rebuilds it, `lpoco bringup image ensure ufs-root-display`).
+
+## The display kernel with the identity client (2026-11-28)
+
+List `display-smmu-id` of `topics.toml` (tag `int/walleye/display-smmu-id/v7.3/1`): the tree the display images' kernel was built from (v7.3, `archive/pmic-wdt-e123d3bff`, `topic/walleye-fuel-gauge-rfc`; commit 7430c717a94c) and on it
+`topic/iommu-arm-smmu-qcom-msm8998-mdss-identity` (one line, upstream item `iommu-arm-smmu-qcom-msm8998-mdss-identity`). Image B-r5-smmu-id takes it; how it was built and proved is research
+`walleye-display-identity-client-list-image-built` (material: research/walleye-display-s6e3fa5/2026-11-28-identity-image/).

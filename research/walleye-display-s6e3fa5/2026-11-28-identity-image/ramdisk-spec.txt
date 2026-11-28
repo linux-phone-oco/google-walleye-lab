@@ -1,0 +1,58 @@
+dir /bin 755 0 0
+dir /sbin 755 0 0
+dir /etc 755 0 0
+dir /dev 755 0 0
+dir /proc 755 0 0
+dir /sys 755 0 0
+dir /tmp 755 0 0
+dir /run 755 0 0
+nod /dev/console 600 0 0 c 5 1
+nod /dev/null 666 0 0 c 1 3
+file /bin/busybox /home/mll/.cache/agent-build/c85670/stage/bin/busybox 755 0 0
+slink /bin/sh busybox 777 0 0
+file /init /home/mll/.cache/agent-build/c85670/stage/init 755 0 0
+file /etc/udhcpd.conf /home/mll/.cache/agent-build/c85670/stage/etc/udhcpd.conf 644 0 0
+file /display-modules.list /home/mll/.cache/agent-build/c85670/stage/display-modules.list 644 0 0
+file /display-delay /home/mll/.cache/agent-build/c85670/stage/display-delay 644 0 0
+file /bin/walleye-stripes /home/mll/.cache/agent-build/c85670/stage/bin/walleye-stripes 755 0 0
+dir /lib 755 0 0
+dir /lib/modules 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/clients 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/display 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/scheduler 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/msm 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/panel 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/media 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/media/cec 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/media/cec/core 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/soc 755 0 0
+dir /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/soc/qcom 755 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/drm.ko /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/drm.ko 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/drm_kms_helper.ko /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/drm_kms_helper.ko 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/clients/drm_client_lib.ko /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/clients/drm_client_lib.ko 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/display/drm_display_helper.ko /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/display/drm_display_helper.ko 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/display/drm_dp_aux_bus.ko /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/display/drm_dp_aux_bus.ko 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/scheduler/gpu-sched.ko /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/scheduler/gpu-sched.ko 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/drm_exec.ko /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/drm_exec.ko 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/drm_gpuvm.ko /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/drm_gpuvm.ko 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/msm/msm.ko /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/msm/msm.ko 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/panel/panel-samsung-s6e3fa5.ko /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/gpu/drm/panel/panel-samsung-s6e3fa5.ko 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/media/cec/core/cec.ko /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/media/cec/core/cec.ko 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/soc/qcom/mdt_loader.ko /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/soc/qcom/mdt_loader.ko 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/soc/qcom/ubwc_config.ko /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/kernel/drivers/soc/qcom/ubwc_config.ko 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.dep /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.dep 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.dep.bin /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.dep.bin 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.alias /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.alias 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.alias.bin /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.alias.bin 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.softdep /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.softdep 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.weakdep /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.weakdep 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.symbols /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.symbols 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.symbols.bin /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.symbols.bin 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.builtin.bin /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.builtin.bin 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.builtin.alias.bin /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.builtin.alias.bin 644 0 0
+file /lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.devname /home/mll/.cache/agent-build/c85670/out-display-smmu-id/modroot/lib/modules/7.3.0-00011-gb24d9bc68235-dirty/modules.devname 644 0 0

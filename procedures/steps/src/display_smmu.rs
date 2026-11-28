@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 //! The SMMU-on display try's steps (item walleye-display-smmu-on-procedure; decisions 2026-11-28-walleye-display-smmu-on-reset-first and
-//! 2026-11-28-walleye-iommu-stays-on-per-device-fix; research walleye-display-reset-smmu-on-image-built): image B-r5-smmu, B-r5 with the board's own
+//! 2026-11-28-walleye-iommu-stays-on-per-device-fix; research walleye-display-reset-smmu-on-image-built): image B-r5-smmu (since 2026-11-28 B-r5-smmu-id, with the identity-client kernel line), B-r5 with the board's own
 //! command line (no `iommu.passthrough=1`), booted once from memory. The MDSS reset (B-r5's dtb) removes the bootloader's scan-out, so the SMMU can stay on;
 //! the try reads whether it did: the kernel command line has no passthrough word, no arm-smmu context fault, no `rcg` warning and no DSI -110 after the
 //! init loaded the 13 display modules, the DSI-1 connector reads connected, the panel is bound, drm is initialized, and the CRTC's thread is there.
@@ -353,7 +353,7 @@ impl DisplaySmmu {
     }
 
     /// On Android again: the previous boot's console is read ([`Android::previous_console`]), kept as `pstore-console.txt` in the run's folder and judged ([`console_verdict`]).
-    /// The ramoops node of B-r5-smmu has stock Android's layout (decision 2026-11-28-walleye-display-try-needs-its-console-first), so a try that dies before its gadget still
+    /// The ramoops node of B-r5-smmu and B-r5-smmu-id has stock Android's layout (decision 2026-11-28-walleye-display-try-needs-its-console-first), so a try that dies before its gadget still
     /// leaves its last lines here. It runs as the way back of [`DisplaySmmu::the_console_is_owed`] after a failed run, and as the last step of a passing one. A read that cannot
     /// be made is said as not known yet; this step never fails the run.
     pub fn the_console_is_read_in_the_pstore(&self) -> impl FnOnce() -> Done + 'static {

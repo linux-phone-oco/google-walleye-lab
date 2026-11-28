@@ -15607,42 +15607,14 @@ Rank
 : 17
 
 
-<a id="walleye-display-identity-client-list-try"></a>
-### B-r5-smmu with qcom,msm8998-mdss on the SMMU identity client list: one RAM try
-
-Status
-: open
-
-Note
-: Decision 2026-11-28-walleye-display-identity-client-list-first. Edit arm-smmu-qcom.c qcom_smmu_client_of_match (one line), rebuild B-r5-smmu twice equal, keep stock ramoops layout. Pass: console beyond 'Adding to iommu group 0', display-boot-clean passes with the board command line (no iommu.passthrough). Pass leads to an upstream patch; fail goes to walleye-display-map-splash-before-attach.
-
-Blocked by
-: walleye-display-identity-client-list-image
-
-About
-: walleye-display-s6e3fa5
-
-Opened
-: 2026-11-28
-
-Needs
-: phone
-
-Proof
-: tests/health/base/display-boot-clean.sh
-
-Rank
-: 17
-
-
 <a id="walleye-display-identity-client-list-image"></a>
 ### B-r5-smmu-id: B-r5-smmu's kernel plus one line adding qcom,msm8998-mdss to arm-smmu-qcom's qcom_smmu_client_of_match
 
 Status
-: open
+: done
 
 Note
-: Decision 2026-11-28-walleye-display-identity-client-list-first (research PRs 1427, 1428): the IOMMU core attaches the default translating domain at probe_device, before mdss resets; an identity default domain avoids it, msm swaps its own in after the reset.
+: Built 2026-11-28 (research walleye-display-identity-client-list-image-built): topic/iommu-arm-smmu-qcom-msm8998-mdss-identity 310884979b57 (checkpatch clean), tag int/walleye/display-smmu-id/v7.3/1, image b-r5-smmu-id 840755cf, image packed twice equal and rebuilt from its recipe by ensure (kernel and ramdisk are seeds), gates pass. Never booted: its try is walleye-display-identity-client-list-try.
 
 About
 : walleye-display-s6e3fa5
@@ -15658,3 +15630,31 @@ Proof
 
 Rank
 : 16
+
+
+<a id="walleye-display-identity-client-list-try"></a>
+### Try B-r5-smmu-id once from RAM: does the console pass 'Adding to iommu group 0' and the display stay clean (smmu_faults 0, rcg 0, dsi_110 0)?
+
+Status
+: open
+
+Note
+: The procedure's [procedures.display-smmu-on-on-the-pixel-2] image is now b-r5-smmu-id (sha256 840755cf392d7829547e7799e41b22318ec3627e8efe7d2a95cdfc1eb438faa8; dry run walks 12 steps). Decision 2026-11-28-walleye-display-identity-client-list-first: if it passes, the one line goes to iommu/linux-arm-msm (upstream item iommu-arm-smmu-qcom-msm8998-mdss-identity); if a fault window remains, then stock's map-before-attach. Nothing else on the phone changes.
+
+Blocked by
+: walleye-display-identity-client-list-image
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: phone
+
+Proof
+: procedures/display-smmu-on-on-the-pixel-2.rs
+
+Rank
+: 17
