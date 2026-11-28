@@ -11404,3 +11404,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-28-mmcli-ask-test-fake-clock"></a>
+### The mmcli ask test runs on a fake clock
+
+Entry date
+: 2026-11-28
+
+Done
+: mmcli_command_on takes the uptime file; the test moves a fake uptime with a fake sleep, fake timeout and chroot. 200 runs under stress-ng: 0 failures; a stop cut to t+2 fails it.
+
+Considered
+: A wider wall-time bound (4..=7 s).
+
+Rejected
+: A wider bound: still depends on CPU load, only moves the flake.
+
+About
+: modem-calls

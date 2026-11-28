@@ -15196,10 +15196,10 @@ Rank
 ### modem_boot::mmcli_tests::the_ask_keeps_asking_for_its_seconds_when_mmcli_answers_at_once is timing-dependent: it failed once in 'the attended tries prove themselves' and passed on rerun
 
 Status
-: open
+: done
 
 Note
-: Seen by orchestration on #1360 and again on #1396 (2026-11-28): it fails walleye PRs at random; fixed first (coordinator), ahead of the osfact display. Passed on rerun both times.
+: Done 2026-11-28 (walleye-builder): the ask's clock is a placeholder (mmcli_command_on); the test runs on a fake uptime file moved only by a fake sleep, with fake timeout and chroot - no wall time. 200 runs under stress-ng --cpu 24: 0 failures; with the stop cut to t+2 the test fails (102 vs 104).
 
 About
 : modem-calls

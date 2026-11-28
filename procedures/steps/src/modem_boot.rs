@@ -103,10 +103,17 @@ pub const MMCLI_ASK_COVERS_S: u64 = 45;
 pub const MMCLI_S: u64 = 63; // the loop: MMCLI_ASK_COVERS_S 45 + its last try 3 + 1, the three asks after it 3 x 3, the dmesg line, and 5 s of slack for the phone and the telnet
 /// What ModemManager lists, asked in the chroot by mmcli (ModemManager 1.24.2 cli/mmcli-manager.c: `-L, --list-modems`, `-m, --modem` takes an index or path; research walleye-mmcli-list-words). The `-m 0` text holds the equipment id (an IMEI): the kept file is redacted.
 /// The sections are the ones tests/health/base/modem-mm-starts.sh reads.
-pub const MMCLI_TEMPLATE: &str = "t=$(cut -d. -f1 /proc/uptime); echo ---mmcli-tries; while :; do o=$(timeout 3 chroot /mm /env/bin/mmcli -L 2>&1); echo \"up $(cut -d' ' -f1 /proc/uptime) s, asked for COVER_S s from $t: $(echo \"$o\" | head -n 1)\"; echo \"$o\" | grep -q /Modem/ && break; [ $(cut -d. -f1 /proc/uptime) -ge $((t+COVER_S)) ] && break; sleep 1; done; echo ---mmcli-L; timeout 3 chroot /mm /env/bin/mmcli -L 2>&1; echo ---mmcli-m0; P=$(timeout 3 chroot /mm /env/bin/mmcli -L 2>&1 | grep -o '/org/freedesktop/ModemManager1/Modem/[0-9]*' | head -n 1); timeout 3 chroot /mm /env/bin/mmcli -m \"${P:-0}\" 2>&1; echo ---mmcli-crash; dmesg | grep DOG_HB | tail -n 5; echo ---end";
+pub const MMCLI_TEMPLATE: &str = "t=$(cut -d. -f1 UPTIME_FILE); echo ---mmcli-tries; while :; do o=$(timeout 3 chroot /mm /env/bin/mmcli -L 2>&1); echo \"up $(cut -d' ' -f1 UPTIME_FILE) s, asked for COVER_S s from $t: $(echo \"$o\" | head -n 1)\"; echo \"$o\" | grep -q /Modem/ && break; [ $(cut -d. -f1 UPTIME_FILE) -ge $((t+COVER_S)) ] && break; sleep 1; done; echo ---mmcli-L; timeout 3 chroot /mm /env/bin/mmcli -L 2>&1; echo ---mmcli-m0; P=$(timeout 3 chroot /mm /env/bin/mmcli -L 2>&1 | grep -o '/org/freedesktop/ModemManager1/Modem/[0-9]*' | head -n 1); timeout 3 chroot /mm /env/bin/mmcli -m \"${P:-0}\" 2>&1; echo ---mmcli-crash; dmesg | grep DOG_HB | tail -n 5; echo ---end";
 /// The command for an ask that keeps asking `cover_s` s of the phone's uptime (the step uses `MMCLI_ASK_COVERS_S`; a test uses a few seconds).
 pub fn mmcli_command(cover_s: u64) -> String {
-    MMCLI_TEMPLATE.replace("COVER_S", &cover_s.to_string())
+    mmcli_command_on(cover_s, "/proc/uptime")
+}
+
+/// The same command reading its clock from `uptime_file` (the phone's is /proc/uptime; a test hands it a fake clock it moves itself).
+pub fn mmcli_command_on(cover_s: u64, uptime_file: &str) -> String {
+    MMCLI_TEMPLATE
+        .replace("COVER_S", &cover_s.to_string())
+        .replace("UPTIME_FILE", uptime_file)
 }
 
 /// The one read over telnet: every remoteproc's name and state, the kernel's modem lines, the daemons' logs, qrtr-lookup's list; marks between the parts.
@@ -1346,32 +1353,46 @@ mod mmcli_tests {
         assert!(command.find("---mmcli-crash") < command.find("---end"));
     }
 
-    /// Run on the host against a `chroot` that answers at once with none listed (the case that ended the old ask after 11 s): the ask lasts the asked uptime seconds, and keeps each try with its time.
+    /// Run on the host against a fake clock: `chroot` answers at once with none listed (the case that ended the old ask after 11 s), and the only thing that moves the clock is the loop's `sleep 1` (a fake `sleep` adds its seconds to the uptime file), so no wall time or CPU load enters the count. The ask lasts the asked uptime seconds, and keeps each try with its time.
     #[test]
     fn the_ask_keeps_asking_for_its_seconds_when_mmcli_answers_at_once() {
         let dir = std::env::temp_dir().join(format!("wt-mmcli-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
-        let fake = dir.join("chroot");
-        std::fs::write(&fake, "#!/bin/sh\necho 'No modems were found'\n").unwrap();
-        std::os::unix::fs::PermissionsExt::set_mode(
-            &mut std::fs::metadata(&fake).unwrap().permissions(),
-            0o755,
+        let clock = dir.join("uptime");
+        std::fs::write(&clock, "100.00 50.00\n").unwrap();
+        let tool = |name: &str, body: &str| {
+            let file = dir.join(name);
+            std::fs::write(&file, format!("#!/bin/sh\n{body}\n")).unwrap();
+            std::fs::set_permissions(&file, std::os::unix::fs::PermissionsExt::from_mode(0o755))
+                .unwrap();
+        };
+        tool("chroot", "echo 'No modems were found'");
+        // `timeout N CMD` runs CMD with no deadline: a loaded host cannot end a try early
+        tool("timeout", "shift; exec \"$@\"");
+        tool(
+            "sleep",
+            &format!(
+                "n=$(cut -d. -f1 {c}); echo \"$((n + $1)).00 0.00\" > {c}",
+                c = clock.display()
+            ),
         );
-        std::fs::set_permissions(&fake, std::os::unix::fs::PermissionsExt::from_mode(0o755))
-            .unwrap();
         let path = format!("{}:{}", dir.display(), std::env::var("PATH").unwrap());
-        let began = Instant::now();
         let out = std::process::Command::new("sh")
-            .args(["-c", &mmcli_command(4)])
+            .args(["-c", &mmcli_command_on(4, &clock.display().to_string())])
             .env("PATH", path)
             .output()
             .unwrap();
-        let took = began.elapsed().as_secs();
-        let text = String::from_utf8_lossy(&out.stdout);
+        let text = String::from_utf8_lossy(&out.stdout).into_owned();
+        let ended_at = std::fs::read_to_string(&clock).unwrap();
         std::fs::remove_dir_all(&dir).unwrap();
-        assert!((4..=7).contains(&took), "{took} s\n{text}");
+        // started at 100 s, asked for 4 s: the loop sleeps from 100 to 104 and stops there
+        assert_eq!(ended_at.trim(), "104.00 0.00", "\n{text}");
         let tries = section(&text, "mmcli-tries").unwrap().join("\n");
-        assert!(tries.lines().count() >= 4, "{tries}");
+        assert_eq!(tries.lines().count(), 5, "{tries}");
+        assert!(
+            tries.contains("up 100.00 s, asked for 4 s from 100"),
+            "{tries}"
+        );
         assert!(tries.contains("No modems were found"), "{tries}");
         assert_eq!(
             mmcli_says(&text),
