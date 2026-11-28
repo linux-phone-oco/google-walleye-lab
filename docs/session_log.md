@@ -11368,3 +11368,21 @@ Done
 
 Considered
 : next: lab-tools: what osfact's enter step does on the device and why the check fails in 10 s (unpack time vs no unpack step), keep the shell output; then rerun with the same parts
+
+---
+
+
+<a id="2026-11-28-0930-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-28
+
+Done
+: walleye-keeper run 3 of walleye-osfact-image-installs on osfact 0.2.0: pack equal (boot.img f1e54660, UFS-off gate pass), boot from RAM, push and unpack PASS (unpack 2.6 s), enter stops: the packed root has no /sbin/init (research walleye-osfact-install-run-3-rootfs-has-no-sbin-init); way back worked. Android slot b, stock, nothing flashed; adb sees the serial as device.
+
+Considered
+: next: lab-tools: osfact's root build makes the busybox applet links (/sbin/init) and tests the packed root for it; then rerun with the same parts (parts copy in a build dir: kernel, ramdisk, qcom/msm8998-google-walleye.dtb from images-modem/boot-modem.img)
+
+About
+: walleye-bootimage
