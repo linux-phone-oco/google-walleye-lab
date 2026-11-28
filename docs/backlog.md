@@ -15221,10 +15221,10 @@ Rank
 ### bin/install-osfact.sh installs osfact from its pinned lab-tools release (sha256 checked), as bin/install-bringup.sh does lpoco-bringup
 
 Status
-: open
+: done
 
 Note
-: Ready 2026-11-28: osfact-v0.1.0 released (lab-tools #496), assets osfact-x86_64 and osfact-x86_64.sha256, sha256 37c05a50ead774b0d89b697c46f48a7e9b89bdf1f397aebbb21e1a3be911d6d8 (orchestration's check). Written as bin/install-bringup.sh: tag osfact-v$version, asset osfact-x86_64, sha256 checked before keeping, --version checked, the path printed; its version line exactly version="${OSFACT_VERSION:-0.1.0}" (rhizoid's edge bumps it). Orchestration 2026-11-28: no cargo install at a commit.
+: Done 2026-11-28: bin/install-osfact.sh (tag osfact-v0.1.0, asset osfact-x86_64, sha256 and --version checked before the file is kept), proved by tests/ci/install-osfact.sh against a stand-in release (installs, second run keeps, wrong sha256 and wrong --version refused and nothing kept) and run for real against the release: path printed, a 0.1.1 asked for is refused (404). Installed osfact: install now --dry-run read lab-tools' walleye-ram plan; pack now with this lab's device.toml and lab-tools' alpine.toml fixture reached the package build and stopped there (apk: UNTRUSTED APKINDEX signature, no such package alpine-base) - Alpine's keys are the next item's (walleye-osfact-image-installs) to settle, not the installer's.
 
 About
 : walleye-bootimage

@@ -233,3 +233,9 @@ jobs:
       - run: sh bin/check-device-toml.sh
         env:
           GH_TOKEN: ${{ github.token }}
+  install-osfact:
+    name: bin/install-osfact.sh installs the pinned release, refuses a wrong checksum and version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sh tests/ci/install-osfact.sh
