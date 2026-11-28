@@ -15174,10 +15174,7 @@ Status
 : open
 
 Note
-: Scope widened 2026-11-28 (orchestration): with arch, device.toml gets osfact's [install.connection|root|way_back] tables (lpoco-lab 0.54.2 reads them), their values from walleye's proven boot (fastboot boot, net 43, the modem image's way back) and cited; [device] serial_env only with the lpoco-lab release lab-tools manifest-device-serial-env makes (orchestration sends its tag). | Coordinator 2026-11-28, for osfact (lab-tools decision 2026-11-28-osfact-pack-reads-arch-from-the-declaration). Three readers parse device.toml: lpoco-lab (pin is device.toml's #:schema line; 0.54.2 reads arch), lpoco-bringup (bin/install-bringup.sh; 0.54.2 reads it), and lpoco-attended locked in procedures/steps/Cargo.lock (still refuses it: PR 1351's 'attended tries' check). The coordinator's two pin edits are on branch coordinator/device-arch (PR 1351, closed); move the lpoco-attended lock to a revision on lpoco-manifest 0.55.0, or ask lab-tools for one. serial_env stays out of [device] until the manifest reads it.
-
-Waits
-: lab-tools releases: an lpoco-attended on the lpoco-manifest that reads arch (rhizoid's bump of its pin from 0.54.0 to 0.55.0) and the lpoco-lab release of manifest-device-serial-env; orchestration sends both tags, then arch and serial_env land together
+: Ready 2026-11-28 (orchestration): procedures lock lpoco-attended 0.46.9 (#1360, lpoco-manifest 0.56.0, reads arch, [install] and serial_env); pin lpoco-lab and lpoco-bringup to 0.54.3 (device.toml's #:schema line, bin/install-bringup.sh) and land arch, serial_env and the [install] tables in one change, values from walleye's proven boot and cited.
 
 About
 : walleye-bootimage
@@ -15193,3 +15190,28 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-mmcli-ask-test-flaky"></a>
+### modem_boot::mmcli_tests::the_ask_keeps_asking_for_its_seconds_when_mmcli_answers_at_once is timing-dependent: it failed once in 'the attended tries prove themselves' and passed on rerun
+
+Status
+: open
+
+Note
+: Seen by orchestration on the lpoco-attended bump PR (google-walleye-lab #1360), 2026-11-28; passed on rerun.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: the test runs on a fake clock (or a bound with a margin named from the code), so it passes 200 runs in a row under cargo test with the CPU loaded (stress-ng --timeout), and still fails on the old ask code
+
+Rank
+: 25
