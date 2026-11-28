@@ -6500,6 +6500,9 @@ Status
 Note
 : run 3: the no-tag poll ran and ended 'no target' (research walleye-nfc-poll-no-tag-run). Left: the tag poll, a tag on the phone's back under the author's go.
 
+Waits
+: no NFC tag in the lab; later its proof is surya and walleye over NFC peer-to-peer, not now (decision 2026-11-28-walleye-nfc-tag-poll-waits-no-tag)
+
 Blocked by
 : walleye-nfc-poll-run-no-tag
 

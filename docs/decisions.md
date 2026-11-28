@@ -4545,3 +4545,31 @@ Scope
 
 Tracked by
 : walleye-modem-guards-count-the-ask
+
+
+<a id="2026-11-28-walleye-nfc-tag-poll-waits-no-tag"></a>
+### 2026-11-28-walleye-nfc-tag-poll-waits-no-tag
+
+Date
+: 2026-11-28
+
+Brief
+: walleye's NFC tag poll waits: the lab has no NFC tag; its later form is surya and walleye talking over NFC peer-to-peer, not now
+
+Decision
+: walleye-nfc-nxp-nci-node's tag poll stays parked with no new NFC work. When NFC is taken up again, its proof is surya and walleye exchanging over NFC (peer-to-peer), not a tag.
+
+Why
+: The author, 2026-11-28 (relayed by the Top Coordinator): 'i dont have anything with nfc at the moment. i think later on we can use surya to communicate with walleye over nfc, but not now to not spread our efforts thin'
+
+Rejected
+: Buying or borrowing a tag now, or starting the peer-to-peer work now: the author asked not to spread the efforts thin.
+
+About
+: nfc
+
+Scope
+: the walleye lane's NFC work
+
+Tracked by
+: walleye-nfc-nxp-nci-node
