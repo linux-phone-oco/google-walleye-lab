@@ -9,13 +9,18 @@ HERE=$(cd "$(dirname "$0")/../.." && pwd)
 say() { echo "$1 walleye-osfact-display-ramdisk display $2"; [ "$1" = pass ]; exit $?; }
 [ -r "${RAMDISK:-}" ] && [ -r "${BA5_RAMDISK:-}" ] || say skip "need RAMDISK=file and BA5_RAMDISK=file: not known yet"
 for c in xz cpio sha256sum diff; do command -v $c >/dev/null || say skip "$c not installed: not known yet"; done
+sum() { [ -f "$1" ] && sha256sum "$1" | cut -d" " -f1; }
 umask 077; T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 mkdir "$T/ours" "$T/b-a5"
 (cd "$T/ours" && xz -dc "$(realpath "$RAMDISK")" | cpio -id --quiet 2>/dev/null)
 (cd "$T/b-a5" && xz -dc "$(realpath "$BA5_RAMDISK")" | cpio -id --quiet 2>/dev/null)
 [ -f "$T/ours/init" ] || say fail "$RAMDISK is not an xz cpio with an /init"
+# the b-a5 reference is the ramdisk device.toml's [images.b-a5.recipe] names (read from it, not retyped)
+want_ba5=$(awk '/^\[images.b-a5.recipe\]/{f=1;next} f&&/^ramdisk = /{gsub(/[^0-9a-f]/,"",$3);print $3;exit}' "$HERE/device.toml")
+[ -n "$want_ba5" ] && [ "$(sum "$BA5_RAMDISK")" = "$want_ba5" ] || say fail "BA5_RAMDISK is not the ramdisk of [images.b-a5.recipe] in device.toml"
+# what the kernel needs of the cpio: /init and /bin/display-load executable, /bin/sh a link to busybox
+xz -dc "$RAMDISK" | cpio -tv 2>/dev/null | awk '$NF=="init"||$NF=="bin/display-load"{ if ($1!="-rwxr-xr-x") bad=1 } $0 ~ /bin\/sh -> busybox/ {l=1} END{exit !(l&&!bad)}' || say fail "/init or /bin/display-load is not mode 755, or /bin/sh is not a link to busybox"
 [ -f "$T/b-a5/display-modules.list" ] || say fail "$BA5_RAMDISK is not the b-a5 ramdisk (no display-modules.list)"
-sum() { [ -f "$1" ] && sha256sum "$1" | cut -d' ' -f1; }
 want_bb=$(sed -n 's/^\([0-9a-f]\{64\}\)  busybox-arm64$/\1/p' "$HERE/build/initramfs-modem/tools.sha256")
 [ -n "$want_bb" ] && [ "$(sum "$T/ours/bin/busybox")" = "$want_bb" ] || say fail "/bin/busybox is not the recorded arm64 build"
 # /init: slpi's init and one added line, nothing else (diff prints exactly that line)
@@ -24,7 +29,7 @@ added=$(diff "$HERE/build/initramfs-slpi/init" "$T/ours/init" | grep -c '^[<>]')
 cmp -s "$T/ours/init" "$HERE/build/initramfs-osfact-display/init" || say fail "/init differs from build/initramfs-osfact-display/init"
 cmp -s "$T/ours/bin/display-load" "$HERE/build/initramfs-osfact-display/display-load" || say fail "/bin/display-load differs from the file in build/initramfs-osfact-display"
 for f in display-delay display-modules.list; do cmp -s "$T/ours/$f" "$T/b-a5/$f" || say fail "/$f is not b-a5's"; done
-n=0
+n=0   # 13: device.toml [procedures.display-at-boot-on-the-pixel-2] modules
 while IFS= read -r line; do
   [ -n "$line" ] || continue
   m=${line#insmod }

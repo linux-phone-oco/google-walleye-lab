@@ -25,3 +25,7 @@ Kept outside git in `~/Projects/walleye-build/osfact-display/` (parts, SHA256SUM
 NOT KNOWN YET: the command line. osfact packs `device.toml` `[boot] cmdline`, which lacks b-a5's `iommu.passthrough=1` (the dyndbg
 words are diagnostic only). If the glass stays dark or the gadget is lost with the shell kept, that is the first suspect, and the
 fix is a per-image command line in osfact (lab-tools), not a change of `[boot]`.
+
+Also NOT KNOWN YET: the gadget's UDC bind and the msm probe both start at about 5 s (b-a5 had no gadget); and the init's petter ends the
+run after about 180 s, so the prompt stays on the glass that long. Not checked by the test: that PARTS' kernel is b-a5's (the dtb is cut
+off it; compare with b-a5's first 15677205 bytes) and a self-test of the check (as modem-ramdisk-selftest.sh).
