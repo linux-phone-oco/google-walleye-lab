@@ -11314,3 +11314,24 @@ Considered
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-28-walleye-bin-install-osfact-sh-installs-the"></a>
+### walleye: bin/install-osfact.sh installs the pinned osfact
+
+Entry date
+: 2026-11-28
+
+Done
+: Wrote tests/ci/install-osfact.sh first (failed: no script), then bin/install-osfact.sh as install-bringup.sh does lpoco-bringup, plus a CI job. Ran it against the real osfact-v0.1.0 release (sha256 37c05a50...d6d8, 'osfact 0.1.0').
+
+Considered
+: OSFACT_BASE override so the test serves a stand-in release over file://.
+
+Rejected
+: cargo install at a commit (orchestration 2026-11-28); keeping the download before the --version check (the check runs on the temporary file, so a wrong program is never kept).
+
+About
+: walleye-bootimage
