@@ -474,6 +474,16 @@ sha256 = "6dc0239e93b4f4b3a01aa1fd3c308aa5208d16f9545b900bfcc38f1ea70904d8"
 control = "b-d5"
 dtb = "95f3a8a05e7ced21e9cf86758143a83bb8e4b7c5f0fa6bb6c2385ce8adf30778"      # the dtb with resets = <&mmcc MDSS_BCR> on mdss; kernel, ramdisk, header and cmdline are b-d5s
 
+# The SMMU-on image B-r5-smmu (item walleye-display-reset-smmu-on-image; research walleye-iommu-stock-android-maps-splash-before-attach): B-r5 with the board's own command line ([boot] cmdline: no iommu.passthrough=1, no dyndbg words).
+# Stock Android keeps the SMMU on; B-r5's MDSS reset removes the scan-out, so the SMMU can stay on. Kernel, dtb (resets = MDSS_BCR), ramdisk and header words are b-r5's; only the command line changes.
+[images.b-r5-smmu]
+path = "images-display-reset-smmu/boot-b-r5-smmu.img"
+sha256 = "7e67cb5091c9bfbb8ea33a567a0ec70f03d3c9120839c85e49a1c18a06ed96b7"
+
+[images.b-r5-smmu.recipe]
+control = "b-r5"
+cmdline = "clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3"
+
 # The registers image B-q5 (item walleye-display-scanout-registers): B-d5 whose init also reads the DPU, interface, pingpong and DSI registers with devmem (read only) at 4, 10 and 30 s and says them to the kernel log
 # (script retired, rebuilt from its recipe; kernel, dtb, command line, header words, size and the 5 s delay are B-d5's). Run: delays = "5" and image_prefix = "b-q" (set both, run, put them back); the run waits for
 # the init's "registers: done" and keeps regs-d5.txt (the register table, which registers change between the samples) beside dmesg-d5.txt in the lab's material.

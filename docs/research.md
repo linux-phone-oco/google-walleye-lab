@@ -9918,3 +9918,25 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-28/
+
+
+<a id="walleye-display-reset-smmu-on-image-built"></a>
+### walleye-display-reset-smmu-on-image-built
+
+Date
+: 2026-11-28
+
+Brief
+: B-r5-smmu built: b-r5 with the board's own command line (no iommu.passthrough); rebuilt equal, gates pass; not yet booted
+
+Question
+: Can b-r5 be rebuilt with only the command line changed to the board's own, so the SMMU stays on as in stock Android?
+
+Found
+: lpoco-bringup image swap on b-r5 with [boot] cmdline gave one sha256 twice (7e67cb5091c9bfbb8ea33a567a0ec70f03d3c9120839c85e49a1c18a06ed96b7); header differs from b-r5 in 215 of 4096 bytes only; device.toml [images.b-r5-smmu.recipe] (control b-r5, cmdline) ensures equal; ufs-off-image.sh pass, lpoco-bringup image check 12 ok 0 failed, image-header-equals-recipe pass, new image-without-iommu-passthrough pass on it and fail on b-r5 (selftest on the captured unpack text of both). NOT KNOWN YET: how it boots; no procedure runs it (the delay bisect names PREFIX+delay), the coordinator queues the try.
+
+Sources
+: walleye-iommu-stock-android-maps-splash-before-attach
+
+About
+: walleye-display-s6e3fa5

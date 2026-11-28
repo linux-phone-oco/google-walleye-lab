@@ -11461,3 +11461,24 @@ Considered
 
 About
 : nfc
+
+---
+
+
+<a id="2026-11-28-walleye-display-reset-smmu-on-image"></a>
+### B-r5-smmu built: b-r5 without iommu.passthrough
+
+Entry date
+: 2026-11-28
+
+Done
+: [images.b-r5-smmu] recipe in device.toml (control b-r5, board's own cmdline), built twice equal; tests/host/image-without-iommu-passthrough.sh and its selftest, sourced and in check.yml
+
+Considered
+: series file with lpoco-bringup image bisect (needs no sha in device.toml, but ensure and the header check read device.toml recipes)
+
+Rejected
+: keeping the dyndbg words: the item says the board's own line, and device.toml [boot] cmdline has none
+
+About
+: walleye-display-s6e3fa5
