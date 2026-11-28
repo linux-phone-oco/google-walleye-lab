@@ -11221,3 +11221,21 @@ Rejected
 
 About
 : modem-calls
+
+---
+
+
+<a id="2026-11-28-walleye-how-it-stands"></a>
+### walleye: how it stands (parked for osfact)
+
+Entry date
+: 2026-11-28
+
+Done
+: Parked 2026-11-28 on the author's word (relayed by the Top): osfact first; walleye starts nothing until lab-tools has no ready item or the Top says so. Proven on the phone, nothing flashed: NFC chip answers NCI init and a no-tag poll ends clean (#1218, #1221); modem: remoteproc_mss up (#1265, #1270), QMI DMS ids read over qrtr (#1277), ModemManager 1.24.2 runs in a pushed nix rootfs chroot (#1300) and takes rmnet_ipa0 with IPA bound (#1315, #1321); the IPA run now ends by sysrq b and Android returns in 30 s (#1327). Step claim remoteprocs-running partial. Images: modem (int/walleye/ufs-off-modem/v7.3/1, boot-modem.img 9e3e3ab2, firmware tar 9073e47e, rootfs 5484b570), nfc 019b0dce, pon-read 3f4fe056, wdt2-hard/warm (int/walleye/ufs-off-wdt2/v7.3/1); nix builds pinned to nixpkgs 619c39f6eac5.
+
+Considered
+: next on resume: walleye-modem-guards-count-the-ask (decision 2026-11-28-walleye-modem-push-the-rootfs-compressed), then walleye-modem-mm-lists-modem-after-init (phone); research walleye-modem-dog-hb-crash (DOG_HB at ~40 s in every MM run, not IPA). Parked for the author's hands: NFC tag poll, PON control read. No SIM: calls/SMS/data not known yet (decision 2026-11-27-walleye-modem-stock-android-reference-no-sim-goal). Waiting on lab-tools: walleye-osfact-image-installs.
+
+About
+: walleye-bootimage
