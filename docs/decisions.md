@@ -4691,3 +4691,31 @@ Scope
 
 Tracked by
 : walleye-display-image-console-in-ramoops
+
+
+<a id="2026-11-28-walleye-display-identity-client-list-first"></a>
+### 2026-11-28-walleye-display-identity-client-list-first
+
+Date
+: 2026-11-28
+
+Brief
+: Add qcom,msm8998-mdss to the arm-smmu-qcom identity client list (with B-r5's reset) as the next SMMU-on try; map-before-attach only if it fails
+
+Decision
+: Next SMMU-on display try: B-r5-smmu plus one kernel line adding qcom,msm8998-mdss to qcom_smmu_client_of_match, run from RAM by the keeper. If the console passes 'Adding to iommu group 0' and the display stays clean (smmu_faults 0, rcg 0, dsi_110 0), send the line to iommu/linux-arm-msm as a mainline-sized patch (precedent sdm845, sdm670). If a fault window between identity and msm's attach remains, then and only then do stock's way: msm_iommu_new maps the splash 1:1 after attach, from a reserved-memory iommu-addresses node once the framebuffer address is measured.
+
+Why
+: It acts at the place the death is (default-domain attach before the reset), is one line, has two upstream precedents, touches only the display SMMU, and one RAM try settles it. Nothing on the phone changes in the research.
+
+Rejected
+: Map-before-attach in msm (stock's way): too late for the death, which precedes msm's domain, and likely impossible before attach on arm-smmu; kept as the fallback. reserved-memory iommu-addresses alone: reaches default domains only and needs the unknown framebuffer address. iommu.passthrough=1: known clean but turns the SMMU off for every device, which the modem and IPA work should not rest on. Leaving it to the reset alone: run 2 died before the reset could run.
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-display-splash-identity-default-domain-before-reset
+
+Scope
+: walleye keeper, kernel tree

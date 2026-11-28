@@ -10025,3 +10025,25 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-28/
+
+
+<a id="walleye-display-splash-identity-default-domain-before-reset"></a>
+### walleye-display-splash-identity-default-domain-before-reset
+
+Date
+: 2026-11-28
+
+Brief
+: SMMU-on death is the default-domain attach at iommu probe, before mdss resets; qcom,msm8998-mdss on the identity client list would skip it, msm swaps in its own domain after the reset
+
+Question
+: Is qcom,msm8998-mdss on mainline's identity client list, and would adding it keep the splash safe until msm resets MDSS? How does that compare with stock's map-before-attach?
+
+Found
+: Read in the kernel tree (wt-k-display, e123d3bff47d): qcom_smmu_client_of_match (arm-smmu-qcom.c:406) has sdm845-mdss and sdm670-mdss, not msm8998-mdss; qcom_smmu_def_domain_type returns IOMMU_DOMAIN_IDENTITY for a match. ORDER: 'Adding to iommu group 0' for c900000.display-subsystem (run 2's last line) is the IOMMU core's probe_device, which runs before the mdss driver probes; it attaches the default (translating, empty) domain while the bootloader scan-out is live, so context faults start before msm_mdss_reset (msm_mdss.c:372, in msm_mdss_init) can run. This fits decision 'display nodes kill the boot through the SMMU' (g1/g2/g3: the mdss iommus property is what kills it). With an identity default domain the attach does not translate, the reset in mdss probe stops the scan-out, and msm_iommu_new (msm_iommu.c:744-774) later allocates and attaches its own domain with nothing live. So the client-list entry is sufficient for B-r5's reset path; my earlier row (stock-android-maps-splash-before-attach) said the list does not stop faults of msm's own domain - true, but harmless once the reset has run. Stock's map-before-attach (iova=phys) is the alternative; upstream form (reserved-memory iommu-addresses, applied by of_iommu to default domains only, of_iommu.c:231) needs the real framebuffer address, which is not known yet (stock reserves 0x9d600000+0x2400000; run faults span 0x9d4e1400-0x9d6f1500). Not known yet: that no fault occurs between identity default and msm's attach (not measured - one RAM try with the entry added); that the identity entry does not disturb the modem's or IPA's streams (different SMMU, mmss_smmu is display only: not measured); whether iommu_map before attach works on arm-smmu (page-table ops exist only after attach: read as likely not, not tested).
+
+Sources
+: v73-arm-smmu-qcom-def-domain-type,v73-arm-smmu-qcom-msm-iommu-source,lineage-wahoo-mdss-splash-iommu-attach
+
+About
+: walleye-display-s6e3fa5
