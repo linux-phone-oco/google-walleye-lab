@@ -15096,3 +15096,34 @@ Proof
 
 Rank
 : 34
+
+
+<a id="walleye-osfact-image-witnessed"></a>
+### The author sees the osfact-built walleye image on the glass (the witnessed look)
+
+Status
+: open
+
+Note
+: Split from walleye-osfact-image-installs (2026-11-28, the Top's word): only after the unattended run passes.
+
+Blocked by
+: walleye-osfact-image-installs
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-28
+
+Needs
+: phone
+
+Proof
+: the same one command boots the image from RAM while the author watches; his word on what the glass shows is recorded; the way back returns Android on slot b, nothing flashed
+
+Rank
+: 30
+
+Witness
+: person
