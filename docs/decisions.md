@@ -4601,3 +4601,34 @@ Scope
 
 Tracked by
 : walleye-osfact-image-modem
+
+
+<a id="2026-11-28-walleye-iommu-stays-on-per-device-fix"></a>
+### 2026-11-28-walleye-iommu-stays-on-per-device-fix
+
+Date
+: 2026-11-28
+
+Brief
+: walleye keeps the SMMU on: iommu.passthrough=1 was a bring-up shortcut and goes away; the display gets the upstream per-device answer for msm8998
+
+Decision
+: The display part does not declare iommu.passthrough=1. walleye-iommu-how-android-and-mainline-map-display-and-modem picks the upstream per-device answer for msm8998 (the qcom SMMU identity-domain client list for MDSS, reserved-memory iommu-addresses for the bootloader framebuffer, or the splash handover of decision 2026-11-19-walleye-display-early-load-splash-handover), cited from upstream sources and stock Android's dtb; the display part declares that. walleye-modem-image-iommu-passthrough and walleye-modem-ipa-under-iommu-passthrough are dropped, superseded by the per-device fix.
+
+Why
+: The author, 2026-11-28 (relayed by the Top): 'stock android has that protection on, mainline kernel has that protection on, why the fuck we need to toggle it off in the first place ?'
+
+Rejected
+: A global iommu.passthrough=1 in the image: it turns off a protection both stock Android and mainline keep on, and forces every part (the modem's IPA too) to be re-proven under it.
+
+About
+: walleye-display-s6e3fa5
+
+Amends
+: 2026-11-19-walleye-display-iommu-reading
+
+Scope
+: the walleye lane's display and its osfact image
+
+Tracked by
+: walleye-iommu-how-android-and-mainline-map-display-and-modem
