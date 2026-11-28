@@ -11335,3 +11335,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-28-0630-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-28
+
+Done
+: walleye-keeper run on walleye-osfact-image-installs: packed the Alpine image with osfact 0.1.1 (equal twice, UFS-off gate pass) and tried install now four times; boot from RAM works, the push step stops (research walleye-osfact-install-run-1-push-stops); the way back worked each time; Android slot b, stock, bootchain hashes equal to before. Item left open.
+
+Considered
+: next: osfact install must start its background receiver with stdin from /dev/null (or read status without the tty) - a lab-tools item; then rerun install with the same parts (kept under the keeper's build dir, rebuilt by the pack command in the research)
+
+About
+: walleye-bootimage

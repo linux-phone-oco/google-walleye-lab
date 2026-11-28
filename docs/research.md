@@ -9773,3 +9773,25 @@ Sources
 
 About
 : modem-calls
+
+
+<a id="walleye-osfact-install-run-1-push-stops"></a>
+### walleye-osfact-install-run-1-push-stops
+
+Date
+: 2026-11-28
+
+Brief
+: osfact 0.1.1 install, run 1 on the real walleye: pack passes (built twice equal, UFS-off gate pass), boot from RAM works, the push step stops: the receiver's status never read
+
+Question
+: Does osfact's install take the Alpine image onto walleye with its proposed [install.root] values?
+
+Found
+: Parts: kernel, dtb and ramdisk split from the proven modem image (images-modem/boot-modem.img, msm-id 0x124/0x20001, kernel gz ok). osfact pack now (OSFACT_VERSION=0.1.1, fixture alpine.toml) built rootfs twice equal (9e0868be), boot.img f1e54660 (32 MiB, tests/host/ufs-off-image.sh pass), root.tar.gz 65471751 (7.6 MB). install now: step 1 (fastboot boot from RAM, telnet 172.16.43.1:23) passed three times; step 2 (push) failed twice with 'the receiver did not end within 60 s of the push' (receive 'nc -l -p 9001', and again with 'nc -w 5 -l -p 9001', so not nc waiting for the peer), and once with Connection refused when receive carried '< /dev/null' (the word reached nc as an argument, so no listener). The way back (sysrq b, adb get-state) worked every time. After: by-name table, boot_a/b, dtbo_a/b, abl, xbl hashes equal to before, slot b; /proc/partitions md5 differs (not read further: loop/zram lines vary by boot, NOT KNOWN YET). Not known yet: why the status file is never read as a number - suspects: the backgrounded receiver reads the telnet shell's tty (stopped), or the status text is not parsed. Probing by hand over telnet is hard: the 180 s window and the pty line editing cut the output; the next try should have osfact (or a host script) leave the shell's output in a file.
+
+Sources
+: none
+
+About
+: walleye-bootimage
