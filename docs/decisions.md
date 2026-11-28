@@ -4663,3 +4663,31 @@ Amends
 
 Tracked by
 : walleye-display-reset-smmu-on-try
+
+
+<a id="2026-11-28-walleye-display-try-needs-its-console-first"></a>
+### 2026-11-28-walleye-display-try-needs-its-console-first
+
+Date
+: 2026-11-28
+
+Brief
+: Before another SMMU-on display try, the image's console must survive a failed boot in a ramoops stock Android reads
+
+Decision
+: No retry and no fallback try yet. B-r5-smmu (and every display try image after it) gets a ramoops node matching stock Android's pstore (address, size, record and console sizes, ecc), so the way back's console-ramoops read (2026-11-24) shows the mainline boot's last lines. Then the same try runs again; the fallback (map splash before attach) waits on what that console says.
+
+Why
+: Run 1 (PR 1418) left fastboot and never put its gadget on the bus, and pstore held only Android's own later boot, with an oops in persistent_ram_save_old at 17.9 s - a sign the region held something Android could not read. A try failing for a reason no log shows is not retried blind.
+
+Rejected
+: Retrying the same image: the same blind stop. Going straight to the map-splash-before-attach fallback: it changes the kernel without knowing why the boot died.
+
+About
+: walleye-display-s6e3fa5
+
+Scope
+: the walleye lane's display tries
+
+Tracked by
+: walleye-display-image-console-in-ramoops
