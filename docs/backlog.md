@@ -15302,7 +15302,7 @@ Note
 : The author, 2026-11-28 (relayed by the Top): he looks at the osfact image only 'if that image has everything that we discovered working and made working'. Display first, then NFC and the modem (one agent at a time).
 
 Blocked by
-: walleye-iommu-how-android-and-mainline-map-display-and-modem
+: walleye-display-reset-smmu-on-try
 
 About
 : walleye-display-s6e3fa5
