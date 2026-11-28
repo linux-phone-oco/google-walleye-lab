@@ -15120,6 +15120,9 @@ Status
 Note
 : From docs decision 2026-11-27-osfact-own-rust-in-lab-tools (lab-tools item image-factory-any-distro-any-phone). When lab-tools osfact-walleye-two-distros has landed: build walleye's Alpine image with osfact pack now from this lab's device.toml (its [install] table added by lab-tools osfact-device-declaration), install it with the install command it prints - the same writes install-rootfs and install-boot make today (system_{other} by dd from Android, boot_{other} by fastboot, set_active, the way back) under the coordinator's go - and boot it. Debian after Alpine, as its own run. No bootloader, GPT bytes of ours, erase or purge. Not ready before the build: it waits on it. | Split 2026-11-28 on the Top's word (the author is often away): this unattended run first; the author's look on the glass is walleye-osfact-image-witnessed, after this passes.
 
+Waits
+: osfact pack now builds walleye's Alpine image for real: on 2026-11-28 (PR 1373) it stopped at apk - UNTRUSTED APKINDEX signature, no such package alpine-base (Alpine's signing keys not in osfact's build); lab-tools' to fix
+
 Blocked by
 : walleye-install-osfact
 
