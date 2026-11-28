@@ -15115,10 +15115,10 @@ Witness
 ### An osfact image installed on walleye with osfact's install command, and booting: the first of walleye's one rolling image
 
 Status
-: in-progress
+: done
 
 Note
-: Run 4 (2026-11-28, osfact 0.3.0): install steps 1-3 PASS; way back PASS; touch present on the image; modem-up and NFC not on it (research walleye-osfact-install-run-4-install-passes-health-partial). Next: lab-tools/walleye: the Alpine root needs the modem's firmware (ipa_fws, mcfg etc. from the phone's own partitions) and ModemManager+dbus+udev, and a mounted /proc,/sys,/dev inside the chroot; NFC needs the nfc boot's kernel/dtb in the packed parts. Then rerun.
+: proven by run 4 (PR 1392, osfact 0.3.0): boot from RAM, root pushed, checked and entered (/sbin/init), touch present (Synaptics S3708AR), way back to Android slot b, nothing flashed; modem and NFC moved to their own items (decision 2026-11-28-walleye-osfact-skeleton-proven-parts-grow-it)
 
 Blocked by
 : walleye-install-osfact
@@ -15240,3 +15240,53 @@ Proof
 
 Rank
 : 1
+
+
+<a id="walleye-osfact-image-modem"></a>
+### The osfact walleye image carries the modem: ModemManager, dbus and udev in its root, ipa_fws in its ramdisk, proc/sys/dev in the chroot; modem-up passes on it
+
+Status
+: open
+
+Note
+: From run 4 of the osfact image (PR 1392). The pieces exist in walleye's own modem boot (build/modem-mm-rootfs.nix, the firmware tar with ipa_fws, mm-up's binds); they move into osfact's root and parts, lab-tools' side where osfact's profile or plan needs it.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: an osfact-packed image (same one command, from RAM, nothing flashed) where tests/health/base/modem-up.sh passes and ModemManager runs; the way back returns Android
+
+Rank
+: 20
+
+
+<a id="walleye-osfact-image-nfc"></a>
+### The osfact walleye image carries NFC: the nfc kernel/dtb parts and walleye-nfc-up; nfc-present passes on it
+
+Status
+: open
+
+Note
+: From run 4 of the osfact image (PR 1392): this boot image has no NFC. The tag poll stays parked (decision 2026-11-28-walleye-nfc-tag-poll-waits-no-tag).
+
+About
+: nfc
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: an osfact-packed image where tests/health/base/nfc-present.sh passes (nfc0 present, DEV_UP acked); the way back returns Android
+
+Rank
+: 30
