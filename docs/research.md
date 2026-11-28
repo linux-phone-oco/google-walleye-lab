@@ -9940,3 +9940,25 @@ Sources
 
 About
 : walleye-display-s6e3fa5
+
+
+<a id="walleye-display-smmu-on-procedure-built"></a>
+### walleye-display-smmu-on-procedure-built
+
+Date
+: 2026-11-28
+
+Brief
+: SMMU-on display procedure built: B-r5-smmu from RAM, signs read from captured-text-tested checks; dry run and 554 steps tests pass; not run on the phone
+
+Question
+: What procedure runs B-r5-smmu and judges display-boot-clean?
+
+Found
+: procedures/display-smmu-on-on-the-pixel-2.rs boots [images.b-r5-smmu] from RAM (image ensured from its recipe, sha256 checked), then reads: no iommu.passthrough on the command line (a log without a command line is unknown, not a pass), arm-smmu faults, rcg warnings, DSI -110, autorefresh failures (the four of tests/health/base/display-boot-clean.sh), connector connected, panel bound, drm initialized, card0-crtc0 thread. CRTC active is not judged: no captured debugfs state text; the run mounts debugfs and keeps drm-state.txt, its text to be captured by the first run. Programmer review of #1413 (image equals b-r5 but the command line, host checks pass) and of this change: findings folded in (debugfs mount, unknown command line, autorefresh sign).
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-28-smmu-on-captures/

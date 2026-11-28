@@ -89,3 +89,12 @@ source = "research:walleye-android-read-visit-2026-11-24"   # readelf -lW of fir
 
 [scripts."modem-tqftpserv-20261127-165116.cap"]
 source = "research:walleye-modem-mm-first-try-run-4-mm-up-passes"   # the tqftpserv section of daemon-logs.txt of run modem-boot-20261127-165116 as kept (~/lab-material/walleye/modem-boot-20261127-165116, never git): the modem's requests and tqftpserv's refusals
+
+[scripts."display-b-r5-clean-dmesg-d5-20261120.cap"]
+source = "file:research/walleye-display-s6e3fa5/2026-11-28-smmu-on-captures/b-r5-passthrough-clean-dmesg-d5-2026-11-20.txt"
+
+[scripts."display-b-d5-signs-dmesg-d5-20261126.cap"]
+source = "file:research/walleye-display-s6e3fa5/2026-11-28-smmu-on-captures/b-d5-signs-dmesg-d5-2026-11-26.txt"
+
+[scripts."display-b-a5-ps-20261123.cap"]
+source = "file:research/walleye-display-s6e3fa5/2026-11-28-smmu-on-captures/b-a5-alpine-login-read-2026-11-23.txt"

@@ -11482,3 +11482,24 @@ Rejected
 
 About
 : walleye-display-s6e3fa5
+
+---
+
+
+<a id="2026-11-28-walleye-display-smmu-on-procedure"></a>
+### walleye: the SMMU-on display procedure
+
+Entry date
+: 2026-11-28
+
+Done
+: Built procedures/display-smmu-on-on-the-pixel-2.rs and steps/src/display_smmu.rs on captured dmesg and ps text; dry run and tests pass; programmer review of #1413 and the change, findings folded in.
+
+Considered
+: Reusing the delay bisect with an image prefix (the name b-r5-smmu is not PREFIX+delay); judging CRTC active from debugfs (no captured text).
+
+Rejected
+: A typed stand-in for the debugfs state: CRTC active stays not known yet until the first run's text is kept.
+
+About
+: walleye-display-s6e3fa5

@@ -1,0 +1,678 @@
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x51af8014]
+[    0.000000] Linux version 7.3.0-00007-g7430c717a94c-dirty (mll@grig) (clang version 23.1.5, LLD 23.1.5) #1 SMP PREEMPT Thu Nov 19 12:24:06 CET 2026
+[    0.000000] KASLR enabled
+[    0.000000] Machine model: Google Pixel 2
+[    0.000000] printk: debug: ignoring loglevel setting.
+[    0.000000] efi: UEFI not found.
+[    0.000000] [Firmware Bug]: Kernel image misaligned at boot, please fix your bootloader!
+[    0.000000] OF: reserved mem: 0x00000000bfffc000..0x00000000bfffffff (16 KiB) nomap non-reusable mpss-metadata
+[    0.000000] OF: reserved mem: 0x0000000085800000..0x0000000085dfffff (6144 KiB) nomap non-reusable memory@85800000
+[    0.000000] OF: reserved mem: 0x0000000085e00000..0x0000000085efffff (1024 KiB) nomap non-reusable memory@85e00000
+[    0.000000] OF: reserved mem: 0x0000000086000000..0x00000000861fffff (2048 KiB) nomap non-reusable smem-mem@86000000
+[    0.000000] OF: reserved mem: 0x0000000086200000..0x0000000088efffff (46080 KiB) nomap non-reusable memory@86200000
+[    0.000000] OF: reserved mem: 0x0000000088f00000..0x00000000890fffff (2048 KiB) nomap non-reusable memory@88f00000
+[    0.000000] OF: reserved mem: 0x000000008ab00000..0x000000008b1fffff (7168 KiB) nomap non-reusable memory@8ab00000
+[    0.000000] OF: reserved mem: 0x000000008b200000..0x000000008cbfffff (26624 KiB) nomap non-reusable memory@8b200000
+[    0.000000] OF: reserved mem: 0x000000008cc00000..0x00000000943fffff (122880 KiB) nomap non-reusable memory@8cc00000
+[    0.000000] OF: reserved mem: 0x0000000095200000..0x000000009520ffff (64 KiB) nomap non-reusable memory@95200000
+[    0.000000] OF: reserved mem: 0x0000000095210000..0x0000000095214fff (20 KiB) nomap non-reusable memory@95210000
+[    0.000000] OF: reserved mem: 0x0000000095600000..0x00000000956fffff (1024 KiB) nomap non-reusable memory@95600000
+[    0.000000] OF: reserved mem: 0x0000000095700000..0x00000000957fffff (1024 KiB) nomap non-reusable memory@95700000
+[    0.000000] OF: reserved mem: 0x0000000094400000..0x00000000948fffff (5120 KiB) nomap non-reusable memory@94400000
+[    0.000000] OF: reserved mem: 0x0000000094900000..0x0000000094afffff (2048 KiB) nomap non-reusable memory@94900000
+[    0.000000] OF: reserved mem: 0x0000000094b00000..0x00000000951fffff (7168 KiB) nomap non-reusable memory@94b00000
+[    0.000000] OF: reserved mem: 0x00000000a1100000..0x00000000a12fffff (2048 KiB) map non-reusable ramoops@a1100000
+[    0.000000] NUMA: Faking a node at [mem 0x0000000080000000-0x000000017e4bffff]
+[    0.000000] NODE_DATA(0) allocated [mem 0x17dc4c380-0x17dc4ea7f]
+[    0.000000] cma: Reserved 32 MiB at 0x00000000fe000000
+[    0.000000] psci: probing for conduit method from DT.
+[    0.000000] psci: PSCIv1.0 detected in firmware.
+[    0.000000] psci: Using standard PSCI v0.2 function IDs
+[    0.000000] psci: MIGRATE_INFO_TYPE not supported.
+[    0.000000] psci: SMC Calling Convention v1.0
+[    0.000000] psci: OSI mode supported.
+[    0.000000] psci: [Firmware Bug]: failed to set PC mode: -3
+[    0.000000] Zone ranges:
+[    0.000000]   DMA      [mem 0x0000000080000000-0x00000000ffffffff]
+[    0.000000]   DMA32    empty
+[    0.000000]   Normal   [mem 0x0000000100000000-0x000000017e4bffff]
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000080000000-0x00000000857fffff]
+[    0.000000]   node   0: [mem 0x0000000085800000-0x0000000085efffff]
+[    0.000000]   node   0: [mem 0x0000000085f00000-0x0000000085ffffff]
+[    0.000000]   node   0: [mem 0x0000000086000000-0x00000000890fffff]
+[    0.000000]   node   0: [mem 0x0000000089100000-0x000000008aafffff]
+[    0.000000]   node   0: [mem 0x000000008ab00000-0x0000000095214fff]
+[    0.000000]   node   0: [mem 0x0000000095215000-0x00000000955fffff]
+[    0.000000]   node   0: [mem 0x0000000095600000-0x00000000957fffff]
+[    0.000000]   node   0: [mem 0x0000000095800000-0x00000000bfffbfff]
+[    0.000000]   node   0: [mem 0x00000000bfffc000-0x00000000bfffffff]
+[    0.000000]   node   0: [mem 0x00000000c0000000-0x000000017e4bffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000080000000-0x000000017e4bffff]
+[    0.000000] On node 0, zone Normal: 6976 pages in unavailable ranges
+[    0.000000] percpu: Embedded 26 pages/cpu s67416 r8192 d30888 u106496
+[    0.000000] pcpu-alloc: s67416 r8192 d30888 u106496 alloc=26*4096
+[    0.000000] pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 [0] 4 [0] 5 [0] 6 [0] 7 
+[    0.000000] Detected VIPT I-cache on CPU0
+[    0.000000] CPU features: detected: GICv3 CPU interface
+[    0.000000] CPU features: detected: Spectre-v4
+[    0.000000] CPU features: kernel page table isolation forced ON by KASLR
+[    0.000000] CPU features: detected: Kernel page table isolation (KPTI)
+[    0.000000] CPU features: detected: ARM erratum 845719
+[    0.000000] alternatives: applying boot alternatives
+[    0.000000] Kernel command line: clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3 dyndbg="file drivers/gpio/gpiolib.c +p; file drivers/gpio/gpiolib-of.c +p; file drivers/pinctrl/core.c +p; file drivers/pinctrl/devicetree.c +p; file drivers/pinctrl/qcom/pinctrl-spmi-gpio.c +p" iommu.passthrough=1 androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=0000002b-0000-0000-0000-000000000000 androidboot.bootdevice=1da4000.ufshc androidboot.serialno=REDACTED androidboot.wificountrycode=00 androidboot.boottime=1BLL:221,1BLE:746,2BLL:871,2BLE:3543,SW:10017,KL:0,KD:2335,ODT:75,AVB:38 androidboot.baseband=msm mdss_mdp.panel=1:dsi:0:htc,mdss_dsi_samsung_s6e3fa5_1080p_cmd:1:none:cfg:single_dsi androidboot.fpsensor=fpc1075 androidboot.fpmodule=ofilm androidboot.usbradioflag=0 androidboot.temp_protect_ignore=0 androidboot.hardware.ufs=64GB,Hynix androidboot.mid=G011A androidboot.hardware.sku=G011A androidboot.revision=MP1 \
+[    0.000000] Kernel command line: androidboot.ddrsize=4GB androidboot.ddrinfo=000000FF androidboot.hardware.ddr=4096MB,Micron,LPDDR4 androidboot.bootloader=mw8998-003.0085.00 androidboot.bootreason=reboot androidboot.cid=00000000 androidboot.hardware.color=VEN00 androidboot.theme=1 androidboot.sf=1 androidboot.msm.hw_ver_id=2005E0E1 androidboot.qf.st=2 androidboot.pk=g-pxl-p androidboot.slot_suffix=_b skip_initramfs rootwait ro init=/init
+[    0.000000] printk: log buffer data + meta data: 131072 + 557056 = 688128 bytes
+[    0.000000] Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+[    0.000000] software IO TLB: area num 8.
+[    0.000000] software IO TLB: mapped [mem 0x00000000fa000000-0x00000000fe000000] (64MB)
+[    0.000000] Fallback order for Node 0: 0 
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 1041600
+[    0.000000] Policy zone: Normal
+[    0.000000] mem auto-init: stack:all(zero), heap alloc:off, heap free:off
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=8, Nodes=1
+[    0.000000] rcu: Preemptible hierarchical RCU implementation.
+[    0.000000] rcu:     RCU event tracing is enabled.
+[    0.000000] rcu:     RCU restricting CPUs from NR_CPUS=512 to nr_cpu_ids=8.
+[    0.000000]  Trampoline variant of Tasks RCU enabled.
+[    0.000000]  Tracing variant of Tasks RCU enabled.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=8
+[    0.000000] RCU Tasks: Setting shift to 3 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=8.
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] GICv3: 608 SPIs implemented
+[    0.000000] GICv3: 0 Extended SPIs implemented
+[    0.000000] Root IRQ handler: gic_handle_irq
+[    0.000000] GICv3: GICv3 features: 16 PPIs
+[    0.000000] GICv3: GICD_CTLR.DS=0, SCR_EL3.FIQ=1
+[    0.000000] GICv3: CPU0: found redistributor 0 region 0:0x0000000017b00000
+[    0.000000] ITS: No ITS available, not enabling LPIs
+[    0.000000] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[    0.000000] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.000000] arch_timer: cp15 timer running at 19.20MHz (virt).
+[    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x46d987e47, max_idle_ns: 440795202767 ns
+[    0.000000] sched_clock: 56 bits at 19MHz, resolution 52ns, wraps every 4398046511078ns
+[    0.004120] Console: colour dummy device 80x25
+[    0.004131] printk: legacy console [tty0] enabled
+[    0.004908] Calibrating delay loop (skipped), value calculated using timer frequency.. 38.40 BogoMIPS (lpj=76800)
+[    0.004928] pid_max: default: 32768 minimum: 301
+[    0.005275] Mount-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.005299] Mountpoint-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.005584] VFS: Finished mounting rootfs on nullfs
+[    0.007401] rcu: Hierarchical SRCU implementation.
+[    0.007413] rcu:     Max phase no-delay instances is 1000.
+[    0.007598] Timer migration: 1 hierarchy levels; 8 children per group; 1 crossnode level
+[    0.022023] EFI services will not be available.
+[    0.022513] smp: Bringing up secondary CPUs ...
+[    0.024268] Detected VIPT I-cache on CPU1
+[    0.024387] GICv3: CPU1: found redistributor 1 region 0:0x0000000017b20000
+[    0.024456] CPU1: Booted secondary processor 0x0000000001 [0x51af8014]
+[    0.026128] Detected VIPT I-cache on CPU2
+[    0.026223] GICv3: CPU2: found redistributor 2 region 0:0x0000000017b40000
+[    0.026275] CPU2: Booted secondary processor 0x0000000002 [0x51af8014]
+[    0.027851] Detected VIPT I-cache on CPU3
+[    0.027946] GICv3: CPU3: found redistributor 3 region 0:0x0000000017b60000
+[    0.027997] CPU3: Booted secondary processor 0x0000000003 [0x51af8014]
+[    0.029924] CPU features: detected: Spectre-v2
+[    0.029952] CPU features: detected: Spectre-BHB
+[    0.029979] Detected VIPT I-cache on CPU4
+[    0.030286] GICv3: CPU4: found redistributor 100 region 0:0x0000000017b80000
+[    0.030381] CPU4: Booted secondary processor 0x0000000100 [0x51af8001]
+[    0.032332] Detected VIPT I-cache on CPU5
+[    0.032641] GICv3: CPU5: found redistributor 101 region 0:0x0000000017ba0000
+[    0.032731] CPU5: Booted secondary processor 0x0000000101 [0x51af8001]
+[    0.034682] Detected VIPT I-cache on CPU6
+[    0.034997] GICv3: CPU6: found redistributor 102 region 0:0x0000000017bc0000
+[    0.035088] CPU6: Booted secondary processor 0x0000000102 [0x51af8001]
+[    0.037001] Detected VIPT I-cache on CPU7
+[    0.037329] GICv3: CPU7: found redistributor 103 region 0:0x0000000017be0000
+[    0.037419] CPU7: Booted secondary processor 0x0000000103 [0x51af8001]
+[    0.037685] smp: Brought up 1 node, 8 CPUs
+[    0.037828] SMP: Total of 8 processors activated.
+[    0.037836] CPU: All CPU(s) started at EL1
+[    0.037863] CPU features: detected: 32-bit EL0 Support
+[    0.037872] CPU features: detected: 32-bit EL1 Support
+[    0.037883] CPU features: detected: CRC32 instructions
+[    0.037898] CPU features: detected: PMUv3
+[    0.037991] alternatives: applying system-wide alternatives
+[    0.041179] Memory: 3701560K/4166400K available (18240K kernel code, 6118K rwdata, 14904K rodata, 3072K init, 700K bss, 425272K reserved, 32768K cma-reserved)
+[    0.042643] devtmpfs: initialized
+[    0.064769] posixtimers hash table entries: 4096 (order: 4, 65536 bytes, linear)
+[    0.064998] futex hash table entries: 2048 (131072 bytes on 1 NUMA nodes, total 128 KiB, linear).
+[    0.065779] 2G module region forced by RANDOMIZE_MODULE_REGION_FULL
+[    0.065833] 0 pages in range for non-PLT usage
+[    0.065843] 513472 pages in range for PLT usage
+[    0.066478] pinctrl core: initialized pinctrl subsystem
+[    0.081621] faux_driver reg-dummy: no of_node; not parsing pinctrl DT
+[    0.082332] DMI: not present or invalid.
+[    0.088006] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.090740] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.091460] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.091557] audit: initializing netlink subsys (disabled)
+[    0.091820] audit: type=2000 audit(0.084:1): state=initialized audit_enabled=0 res=1
+[    0.106804] thermal_sys: Registered thermal governor 'step_wise'
+[    0.106822] thermal_sys: Registered thermal governor 'power_allocator'
+[    0.107063] cpuidle: using governor menu
+[    0.108421] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+[    0.108778] ASID allocator initialised with 32768 entries
+[    0.120088] Serial: AMBA PL011 UART driver
+[    0.124780] pstore: Using crash dump compression: deflate
+[    0.124826] printk: legacy console [ramoops-1] enabled
+[    0.126308] pstore: Registered ramoops as persistent store backend
+[    0.126346] ramoops: using 0x200000@0xa1100000, ecc: 0
+[    0.162663] /soc@0/display-subsystem@c900000/phy@c994400: Fixed dependency cycle(s) with /soc@0/clock-controller@c8c0000
+[    0.162762] /soc@0/clock-controller@c8c0000: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/phy@c994400
+[    0.162938] /soc@0/display-subsystem@c900000/dsi@c994000: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/display-controller@c901000
+[    0.163138] /soc@0/display-subsystem@c900000/display-controller@c901000: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/dsi@c994000
+[    0.163714] /soc@0/display-subsystem@c900000/dsi@c994000/panel@0: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/dsi@c994000
+[    0.163831] /soc@0/display-subsystem@c900000/dsi@c994000: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/dsi@c994000/panel@0
+[    0.164497] /soc@0/interrupt-controller@17a00000: Fixed dependency cycle(s) with /soc@0/interrupt-controller@17a00000
+[    0.180285] msm8998-pinctrl 3400000.pinctrl: try to register 154 pins ...
+[    0.180345] pinctrl core: registered pin 0 (GPIO_0) on 3400000.pinctrl
+[    0.180393] pinctrl core: registered pin 1 (GPIO_1) on 3400000.pinctrl
+[    0.180436] pinctrl core: registered pin 2 (GPIO_2) on 3400000.pinctrl
+[    0.180490] pinctrl core: registered pin 3 (GPIO_3) on 3400000.pinctrl
+[    0.180533] pinctrl core: registered pin 4 (GPIO_4) on 3400000.pinctrl
+[    0.180572] pinctrl core: registered pin 5 (GPIO_5) on 3400000.pinctrl
+[    0.180612] pinctrl core: registered pin 6 (GPIO_6) on 3400000.pinctrl
+[    0.180651] pinctrl core: registered pin 7 (GPIO_7) on 3400000.pinctrl
+[    0.180691] pinctrl core: registered pin 8 (GPIO_8) on 3400000.pinctrl
+[    0.180730] pinctrl core: registered pin 9 (GPIO_9) on 3400000.pinctrl
+[    0.180768] pinctrl core: registered pin 10 (GPIO_10) on 3400000.pinctrl
+[    0.180808] pinctrl core: registered pin 11 (GPIO_11) on 3400000.pinctrl
+[    0.180847] pinctrl core: registered pin 12 (GPIO_12) on 3400000.pinctrl
+[    0.180886] pinctrl core: registered pin 13 (GPIO_13) on 3400000.pinctrl
+[    0.180925] pinctrl core: registered pin 14 (GPIO_14) on 3400000.pinctrl
+[    0.180963] pinctrl core: registered pin 15 (GPIO_15) on 3400000.pinctrl
+[    0.181001] pinctrl core: registered pin 16 (GPIO_16) on 3400000.pinctrl
+[    0.181040] pinctrl core: registered pin 17 (GPIO_17) on 3400000.pinctrl
+[    0.181078] pinctrl core: registered pin 18 (GPIO_18) on 3400000.pinctrl
+[    0.181117] pinctrl core: registered pin 19 (GPIO_19) on 3400000.pinctrl
+[    0.181155] pinctrl core: registered pin 20 (GPIO_20) on 3400000.pinctrl
+[    0.181193] pinctrl core: registered pin 21 (GPIO_21) on 3400000.pinctrl
+[    0.181231] pinctrl core: registered pin 22 (GPIO_22) on 3400000.pinctrl
+[    0.181270] pinctrl core: registered pin 23 (GPIO_23) on 3400000.pinctrl
+[    0.181308] pinctrl core: registered pin 24 (GPIO_24) on 3400000.pinctrl
+[    0.181347] pinctrl core: registered pin 25 (GPIO_25) on 3400000.pinctrl
+[    0.181385] pinctrl core: registered pin 26 (GPIO_26) on 3400000.pinctrl
+[    0.181423] pinctrl core: registered pin 27 (GPIO_27) on 3400000.pinctrl
+[    0.181462] pinctrl core: registered pin 28 (GPIO_28) on 3400000.pinctrl
+[    0.181500] pinctrl core: registered pin 29 (GPIO_29) on 3400000.pinctrl
+[    0.181539] pinctrl core: registered pin 30 (GPIO_30) on 3400000.pinctrl
+[    0.181578] pinctrl core: registered pin 31 (GPIO_31) on 3400000.pinctrl
+[    0.181617] pinctrl core: registered pin 32 (GPIO_32) on 3400000.pinctrl
+[    0.181655] pinctrl core: registered pin 33 (GPIO_33) on 3400000.pinctrl
+[    0.181694] pinctrl core: registered pin 34 (GPIO_34) on 3400000.pinctrl
+[    0.181732] pinctrl core: registered pin 35 (GPIO_35) on 3400000.pinctrl
+[    0.181771] pinctrl core: registered pin 36 (GPIO_36) on 3400000.pinctrl
+[    0.181809] pinctrl core: registered pin 37 (GPIO_37) on 3400000.pinctrl
+[    0.181848] pinctrl core: registered pin 38 (GPIO_38) on 3400000.pinctrl
+[    0.181886] pinctrl core: registered pin 39 (GPIO_39) on 3400000.pinctrl
+[    0.181924] pinctrl core: registered pin 40 (GPIO_40) on 3400000.pinctrl
+[    0.181962] pinctrl core: registered pin 41 (GPIO_41) on 3400000.pinctrl
+[    0.182000] pinctrl core: registered pin 42 (GPIO_42) on 3400000.pinctrl
+[    0.182039] pinctrl core: registered pin 43 (GPIO_43) on 3400000.pinctrl
+[    0.182077] pinctrl core: registered pin 44 (GPIO_44) on 3400000.pinctrl
+[    0.182115] pinctrl core: registered pin 45 (GPIO_45) on 3400000.pinctrl
+[    0.182154] pinctrl core: registered pin 46 (GPIO_46) on 3400000.pinctrl
+[    0.182192] pinctrl core: registered pin 47 (GPIO_47) on 3400000.pinctrl
+[    0.182230] pinctrl core: registered pin 48 (GPIO_48) on 3400000.pinctrl
+[    0.182269] pinctrl core: registered pin 49 (GPIO_49) on 3400000.pinctrl
+[    0.182307] pinctrl core: registered pin 50 (GPIO_50) on 3400000.pinctrl
+[    0.182345] pinctrl core: registered pin 51 (GPIO_51) on 3400000.pinctrl
+[    0.182384] pinctrl core: registered pin 52 (GPIO_52) on 3400000.pinctrl
+[    0.182422] pinctrl core: registered pin 53 (GPIO_53) on 3400000.pinctrl
+[    0.182461] pinctrl core: registered pin 54 (GPIO_54) on 3400000.pinctrl
+[    0.182499] pinctrl core: registered pin 55 (GPIO_55) on 3400000.pinctrl
+[    0.182538] pinctrl core: registered pin 56 (GPIO_56) on 3400000.pinctrl
+[    0.182576] pinctrl core: registered pin 57 (GPIO_57) on 3400000.pinctrl
+[    0.182615] pinctrl core: registered pin 58 (GPIO_58) on 3400000.pinctrl
+[    0.182653] pinctrl core: registered pin 59 (GPIO_59) on 3400000.pinctrl
+[    0.182691] pinctrl core: registered pin 60 (GPIO_60) on 3400000.pinctrl
+[    0.182729] pinctrl core: registered pin 61 (GPIO_61) on 3400000.pinctrl
+[    0.182768] pinctrl core: registered pin 62 (GPIO_62) on 3400000.pinctrl
+[    0.182817] pinctrl core: registered pin 63 (GPIO_63) on 3400000.pinctrl
+[    0.182858] pinctrl core: registered pin 64 (GPIO_64) on 3400000.pinctrl
+[    0.182898] pinctrl core: registered pin 65 (GPIO_65) on 3400000.pinctrl
+[    0.182936] pinctrl core: registered pin 66 (GPIO_66) on 3400000.pinctrl
+[    0.182975] pinctrl core: registered pin 67 (GPIO_67) on 3400000.pinctrl
+[    0.183014] pinctrl core: registered pin 68 (GPIO_68) on 3400000.pinctrl
+[    0.183053] pinctrl core: registered pin 69 (GPIO_69) on 3400000.pinctrl
+[    0.183092] pinctrl core: registered pin 70 (GPIO_70) on 3400000.pinctrl
+[    0.183131] pinctrl core: registered pin 71 (GPIO_71) on 3400000.pinctrl
+[    0.183170] pinctrl core: registered pin 72 (GPIO_72) on 3400000.pinctrl
+[    0.183209] pinctrl core: registered pin 73 (GPIO_73) on 3400000.pinctrl
+[    0.183248] pinctrl core: registered pin 74 (GPIO_74) on 3400000.pinctrl
+[    0.183287] pinctrl core: registered pin 75 (GPIO_75) on 3400000.pinctrl
+[    0.183326] pinctrl core: registered pin 76 (GPIO_76) on 3400000.pinctrl
+[    0.183365] pinctrl core: registered pin 77 (GPIO_77) on 3400000.pinctrl
+[    0.183404] pinctrl core: registered pin 78 (GPIO_78) on 3400000.pinctrl
+[    0.183442] pinctrl core: registered pin 79 (GPIO_79) on 3400000.pinctrl
+[    0.183481] pinctrl core: registered pin 80 (GPIO_80) on 3400000.pinctrl
+[    0.183520] pinctrl core: registered pin 81 (GPIO_81) on 3400000.pinctrl
+[    0.183559] pinctrl core: registered pin 82 (GPIO_82) on 3400000.pinctrl
+[    0.183597] pinctrl core: registered pin 83 (GPIO_83) on 3400000.pinctrl
+[    0.183636] pinctrl core: registered pin 84 (GPIO_84) on 3400000.pinctrl
+[    0.183675] pinctrl core: registered pin 85 (GPIO_85) on 3400000.pinctrl
+[    0.183714] pinctrl core: registered pin 86 (GPIO_86) on 3400000.pinctrl
+[    0.183753] pinctrl core: registered pin 87 (GPIO_87) on 3400000.pinctrl
+[    0.183791] pinctrl core: registered pin 88 (GPIO_88) on 3400000.pinctrl
+[    0.183830] pinctrl core: registered pin 89 (GPIO_89) on 3400000.pinctrl
+[    0.183869] pinctrl core: registered pin 90 (GPIO_90) on 3400000.pinctrl
+[    0.183908] pinctrl core: registered pin 91 (GPIO_91) on 3400000.pinctrl
+[    0.183946] pinctrl core: registered pin 92 (GPIO_92) on 3400000.pinctrl
+[    0.183985] pinctrl core: registered pin 93 (GPIO_93) on 3400000.pinctrl
+[    0.184049] pinctrl core: registered pin 94 (GPIO_94) on 3400000.pinctrl
+[    0.184091] pinctrl core: registered pin 95 (GPIO_95) on 3400000.pinctrl
+[    0.184131] pinctrl core: registered pin 96 (GPIO_96) on 3400000.pinctrl
+[    0.184170] pinctrl core: registered pin 97 (GPIO_97) on 3400000.pinctrl
+[    0.184210] pinctrl core: registered pin 98 (GPIO_98) on 3400000.pinctrl
+[    0.184249] pinctrl core: registered pin 99 (GPIO_99) on 3400000.pinctrl
+[    0.184287] pinctrl core: registered pin 100 (GPIO_100) on 3400000.pinctrl
+[    0.184328] pinctrl core: registered pin 101 (GPIO_101) on 3400000.pinctrl
+[    0.184368] pinctrl core: registered pin 102 (GPIO_102) on 3400000.pinctrl
+[    0.184407] pinctrl core: registered pin 103 (GPIO_103) on 3400000.pinctrl
+[    0.184446] pinctrl core: registered pin 104 (GPIO_104) on 3400000.pinctrl
+[    0.184486] pinctrl core: registered pin 105 (GPIO_105) on 3400000.pinctrl
+[    0.184525] pinctrl core: registered pin 106 (GPIO_106) on 3400000.pinctrl
+[    0.184564] pinctrl core: registered pin 107 (GPIO_107) on 3400000.pinctrl
+[    0.184603] pinctrl core: registered pin 108 (GPIO_108) on 3400000.pinctrl
+[    0.184642] pinctrl core: registered pin 109 (GPIO_109) on 3400000.pinctrl
+[    0.184681] pinctrl core: registered pin 110 (GPIO_110) on 3400000.pinctrl
+[    0.184720] pinctrl core: registered pin 111 (GPIO_111) on 3400000.pinctrl
+[    0.184759] pinctrl core: registered pin 112 (GPIO_112) on 3400000.pinctrl
+[    0.184798] pinctrl core: registered pin 113 (GPIO_113) on 3400000.pinctrl
+[    0.184837] pinctrl core: registered pin 114 (GPIO_114) on 3400000.pinctrl
+[    0.184876] pinctrl core: registered pin 115 (GPIO_115) on 3400000.pinctrl
+[    0.184915] pinctrl core: registered pin 116 (GPIO_116) on 3400000.pinctrl
+[    0.184955] pinctrl core: registered pin 117 (GPIO_117) on 3400000.pinctrl
+[    0.184993] pinctrl core: registered pin 118 (GPIO_118) on 3400000.pinctrl
+[    0.185033] pinctrl core: registered pin 119 (GPIO_119) on 3400000.pinctrl
+[    0.185071] pinctrl core: registered pin 120 (GPIO_120) on 3400000.pinctrl
+[    0.185111] pinctrl core: registered pin 121 (GPIO_121) on 3400000.pinctrl
+[    0.185149] pinctrl core: registered pin 122 (GPIO_122) on 3400000.pinctrl
+[    0.185197] pinctrl core: registered pin 123 (GPIO_123) on 3400000.pinctrl
+[    0.185238] pinctrl core: registered pin 124 (GPIO_124) on 3400000.pinctrl
+[    0.185277] pinctrl core: registered pin 125 (GPIO_125) on 3400000.pinctrl
+[    0.185317] pinctrl core: registered pin 126 (GPIO_126) on 3400000.pinctrl
+[    0.185356] pinctrl core: registered pin 127 (GPIO_127) on 3400000.pinctrl
+[    0.185396] pinctrl core: registered pin 128 (GPIO_128) on 3400000.pinctrl
+[    0.185436] pinctrl core: registered pin 129 (GPIO_129) on 3400000.pinctrl
+[    0.185475] pinctrl core: registered pin 130 (GPIO_130) on 3400000.pinctrl
+[    0.185514] pinctrl core: registered pin 131 (GPIO_131) on 3400000.pinctrl
+[    0.185553] pinctrl core: registered pin 132 (GPIO_132) on 3400000.pinctrl
+[    0.185592] pinctrl core: registered pin 133 (GPIO_133) on 3400000.pinctrl
+[    0.185631] pinctrl core: registered pin 134 (GPIO_134) on 3400000.pinctrl
+[    0.185670] pinctrl core: registered pin 135 (GPIO_135) on 3400000.pinctrl
+[    0.185709] pinctrl core: registered pin 136 (GPIO_136) on 3400000.pinctrl
+[    0.185748] pinctrl core: registered pin 137 (GPIO_137) on 3400000.pinctrl
+[    0.185787] pinctrl core: registered pin 138 (GPIO_138) on 3400000.pinctrl
+[    0.185825] pinctrl core: registered pin 139 (GPIO_139) on 3400000.pinctrl
+[    0.185864] pinctrl core: registered pin 140 (GPIO_140) on 3400000.pinctrl
+[    0.185902] pinctrl core: registered pin 141 (GPIO_141) on 3400000.pinctrl
+[    0.185941] pinctrl core: registered pin 142 (GPIO_142) on 3400000.pinctrl
+[    0.185979] pinctrl core: registered pin 143 (GPIO_143) on 3400000.pinctrl
+[    0.186018] pinctrl core: registered pin 144 (GPIO_144) on 3400000.pinctrl
+[    0.186057] pinctrl core: registered pin 145 (GPIO_145) on 3400000.pinctrl
+[    0.186096] pinctrl core: registered pin 146 (GPIO_146) on 3400000.pinctrl
+[    0.186134] pinctrl core: registered pin 147 (GPIO_147) on 3400000.pinctrl
+[    0.186173] pinctrl core: registered pin 148 (GPIO_148) on 3400000.pinctrl
+[    0.186211] pinctrl core: registered pin 149 (GPIO_149) on 3400000.pinctrl
+[    0.186250] pinctrl core: registered pin 150 (SDC2_CLK) on 3400000.pinctrl
+[    0.186289] pinctrl core: registered pin 151 (SDC2_CMD) on 3400000.pinctrl
+[    0.186328] pinctrl core: registered pin 152 (SDC2_DATA) on 3400000.pinctrl
+[    0.186367] pinctrl core: registered pin 153 (UFS_RESET) on 3400000.pinctrl
+[    0.189302] msm8998-pinctrl 3400000.pinctrl: no hogs found
+[    0.189479] gpiochip_find_base_unlocked: found new base at 512
+[    0.189672] gpio gpiochip0: (3400000.pinctrl): created GPIO range 0->149 ==> 3400000.pinctrl PIN 0->149
+[    0.191039] gpio gpiochip0: registered GPIOs 512 to 661 on 3400000.pinctrl
+[    0.204630] /soc@0/display-subsystem@c900000: Fixed dependency cycle(s) with /soc@0/clock-controller@c8c0000
+[    0.234611] HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
+[    0.234665] HugeTLB: 0 KiB vmemmap can be freed for a 1.00 GiB page
+[    0.234710] HugeTLB: registered 32.0 MiB page size, pre-allocated 0 pages
+[    0.234748] HugeTLB: 0 KiB vmemmap can be freed for a 32.0 MiB page
+[    0.234787] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+[    0.234824] HugeTLB: 0 KiB vmemmap can be freed for a 2.00 MiB page
+[    0.234862] HugeTLB: registered 64.0 KiB page size, pre-allocated 0 pages
+[    0.234898] HugeTLB: 0 KiB vmemmap can be freed for a 64.0 KiB page
+[    0.239920] ACPI: Interpreter disabled.
+[    0.252763] reg-fixed-voltage vph-pwr-regulator: using DT '/vph-pwr-regulator' for '(default)' GPIO lookup
+[    0.252864] of_get_named_gpiod_flags: can't parse 'gpios' property of node '/vph-pwr-regulator[0]'
+[    0.253007] of_get_named_gpiod_flags: can't parse 'gpio' property of node '/vph-pwr-regulator[0]'
+[    0.253093] reg-fixed-voltage vph-pwr-regulator: using lookup tables for GPIO lookup
+[    0.253142] reg-fixed-voltage vph-pwr-regulator: No GPIO consumer (default) found
+[    0.254171] iommu: Default domain type: Passthrough (set via kernel command line)
+[    0.255238] SCSI subsystem initialized
+[    0.255527] libata version 3.00 loaded.
+[    0.256082] usbcore: registered new interface driver usbfs
+[    0.256277] usbcore: registered new interface driver hub
+[    0.256395] usbcore: registered new device driver usb
+[    0.259796] pps_core: LinuxPPS API ver. 1 registered
+[    0.259841] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    0.259908] PTP clock support registered
+[    0.260434] EDAC MC: Ver: 3.0.0
+[    0.262568] scmi_core: SCMI protocol bus registered
+[    0.262831] qcom_scm: convention: smc arm 64
+[    0.263039] qcom_scm firmware:scm: SHM Bridge not supported
+[    0.263483] qcom_scm firmware:scm: qseecom: found qseecom with version 0x1001000
+[    0.263605] qcom_scm firmware:scm: qseecom: untested machine, skipping
+[    0.269688] FPGA manager framework
+[    0.272132] vgaarb: loaded
+[    0.273800] clocksource: Switched to clocksource arch_sys_counter
+[    0.274527] VFS: Disk quotas dquot_6.6.0
+[    0.274608] VFS: Dquot-cache hash table entries: 512 (4096 bytes)
+[    0.275252] pnp: PnP ACPI: disabled
+[    0.285186] s3: Bringing 0uV into 1352000-1352000uV
+[    0.285505] s4: Bringing 0uV into 1800000-1800000uV
+[    0.285597] bob: Bringing 0uV into 3312000-3312000uV
+[    0.285701] s5: Bringing 0uV into 1904000-1904000uV
+[    0.285885] s7: Bringing 0uV into 900000-900000uV
+[    0.286034] l1: Bringing 0uV into 880000-880000uV
+[    0.286176] l2: Bringing 0uV into 1200000-1200000uV
+[    0.286523] l12: Bringing 0uV into 1800000-1800000uV
+[    0.286697] l6: Bringing 0uV into 1808000-1808000uV
+[    0.286858] l28: Bringing 0uV into 3008000-3008000uV
+[    0.287026] l20: Bringing 0uV into 2960000-2960000uV
+[    0.287182] l26: Bringing 0uV into 1200000-1200000uV
+[    0.287334] l24: Bringing 0uV into 3088000-3088000uV
+[    0.287500] l14: Bringing 0uV into 1800000-1800000uV
+[    0.287656] l22: Bringing 0uV into 3000000-3000000uV
+[    0.290392] NET: Registered PF_INET protocol family
+[    0.290861] IP idents hash table entries: 65536 (order: 7, 524288 bytes, linear)
+[    0.299295] tcp_listen_portaddr_hash hash table entries: 2048 (order: 3, 32768 bytes, linear)
+[    0.299437] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.299506] TCP established hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[    0.300012] TCP bind hash table entries: 32768 (order: 8, 1048576 bytes, linear)
+[    0.302067] TCP: Hash tables configured (established 32768 bind 32768)
+[    0.302271] UDP hash table entries: 2048 (order: 5, 131072 bytes, linear)
+[    0.302959] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    0.303713] RPC: Registered named UNIX socket transport module.
+[    0.303763] RPC: Registered udp transport module.
+[    0.303799] RPC: Registered tcp transport module.
+[    0.303832] RPC: Registered tcp-with-tls transport module.
+[    0.303865] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.303912] PCI: CLS 0 bytes, default 64
+[    0.304185] Unpacking initramfs...
+[    0.313908] kvm [1]: HYP mode not available
+[    0.316369] Initialise system trusted keyrings
+[    0.316637] workingset: timestamp_bits=42 (anon: 37) max_order=20 bucket_order=0 (anon: 0)
+[    0.317428] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.318009] NFS: Registering the id_resolver key type
+[    0.318088] Key type id_resolver registered
+[    0.318126] Key type id_legacy registered
+[    0.318210] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[    0.318252] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
+[    0.319161] Key type asymmetric registered
+[    0.319209] Asymmetric key parser 'x509' registered
+[    0.319317] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 243)
+[    0.319367] io scheduler mq-deadline registered
+[    0.319407] io scheduler kyber registered
+[    0.319512] io scheduler bfq registered
+[    0.380474] ledtrig-cpu: registered to indicate activity on CPUs
+[    0.555017] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[    0.559293] serial8250 serial8250: no of_node; not parsing pinctrl DT
+[    0.568978] msm_serial: driver initialized
+[    0.571366] SuperH (H)SCI(F) driver initialized
+[    0.572555] STM32 USART driver initialized
+[    0.587285] arm-smmu 1680000.iommu: probing hardware configuration...
+[    0.587345] arm-smmu 1680000.iommu: SMMUv2 with:
+[    0.587420] arm-smmu 1680000.iommu:  stage 1 translation
+[    0.587470] arm-smmu 1680000.iommu:  address translation ops
+[    0.587511] arm-smmu 1680000.iommu:  non-coherent table walk
+[    0.587552] arm-smmu 1680000.iommu:  (IDR0.CTTW overridden by FW configuration)
+[    0.587600] arm-smmu 1680000.iommu:  stream matching with 16 register groups
+[    0.587670] arm-smmu 1680000.iommu:  6 context banks (0 stage-2 only)
+[    0.588073] arm-smmu 1680000.iommu:  Supported page sizes: 0x63315000
+[    0.588128] arm-smmu 1680000.iommu:  Stage-1: 36-bit VA -> 36-bit IPA
+[    0.588213] arm-smmu 1680000.iommu:  preserved 0 boot mappings
+[    0.591848] arm-smmu 16c0000.iommu: probing hardware configuration...
+[    0.591908] arm-smmu 16c0000.iommu: SMMUv2 with:
+[    0.591975] arm-smmu 16c0000.iommu:  stage 1 translation
+[    0.592026] arm-smmu 16c0000.iommu:  address translation ops
+[    0.592068] arm-smmu 16c0000.iommu:  non-coherent table walk
+[    0.592110] arm-smmu 16c0000.iommu:  (IDR0.CTTW overridden by FW configuration)
+[    0.592157] arm-smmu 16c0000.iommu:  stream matching with 14 register groups
+[    0.592227] arm-smmu 16c0000.iommu:  10 context banks (0 stage-2 only)
+[    0.592584] arm-smmu 16c0000.iommu:  Supported page sizes: 0x63315000
+[    0.592640] arm-smmu 16c0000.iommu:  Stage-1: 36-bit VA -> 36-bit IPA
+[    0.592723] arm-smmu 16c0000.iommu:  preserved 0 boot mappings
+[    0.611603] loop: module loaded
+[    0.615811] megasas: 07.734.00.00-rc1
+[    0.634218] spmi_pmic_arb 800f000.spmi: PMIC arbiter version v3 (0x30000000)
+[    0.654544] qcom-spmi-gpio 800f000.spmi:pmic@0:gpio@c000: try to register 26 pins ...
+[    0.654618] pinctrl core: registered pin 0 (gpio1) on 800f000.spmi:pmic@0:gpio@c000
+[    0.654673] pinctrl core: registered pin 1 (gpio2) on 800f000.spmi:pmic@0:gpio@c000
+[    0.654723] pinctrl core: registered pin 2 (gpio3) on 800f000.spmi:pmic@0:gpio@c000
+[    0.654769] pinctrl core: registered pin 3 (gpio4) on 800f000.spmi:pmic@0:gpio@c000
+[    0.654816] pinctrl core: registered pin 4 (gpio5) on 800f000.spmi:pmic@0:gpio@c000
+[    0.654861] pinctrl core: registered pin 5 (gpio6) on 800f000.spmi:pmic@0:gpio@c000
+[    0.654905] pinctrl core: registered pin 6 (gpio7) on 800f000.spmi:pmic@0:gpio@c000
+[    0.654950] pinctrl core: registered pin 7 (gpio8) on 800f000.spmi:pmic@0:gpio@c000
+[    0.654995] pinctrl core: registered pin 8 (gpio9) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655039] pinctrl core: registered pin 9 (gpio10) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655100] pinctrl core: registered pin 10 (gpio11) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655148] pinctrl core: registered pin 11 (gpio12) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655194] pinctrl core: registered pin 12 (gpio13) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655239] pinctrl core: registered pin 13 (gpio14) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655284] pinctrl core: registered pin 14 (gpio15) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655329] pinctrl core: registered pin 15 (gpio16) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655374] pinctrl core: registered pin 16 (gpio17) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655418] pinctrl core: registered pin 17 (gpio18) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655463] pinctrl core: registered pin 18 (gpio19) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655507] pinctrl core: registered pin 19 (gpio20) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655551] pinctrl core: registered pin 20 (gpio21) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655595] pinctrl core: registered pin 21 (gpio22) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655640] pinctrl core: registered pin 22 (gpio23) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655684] pinctrl core: registered pin 23 (gpio24) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655729] pinctrl core: registered pin 24 (gpio25) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655772] pinctrl core: registered pin 25 (gpio26) on 800f000.spmi:pmic@0:gpio@c000
+[    0.655826] qcom-spmi-gpio 800f000.spmi:pmic@0:gpio@c000: no hogs found
+[    0.655993] gpiochip_find_base_unlocked: found new base at 662
+[    0.656065] gpio gpiochip1: (800f000.spmi:pmic@0:gpio@c000): created GPIO range 0->25 ==> 800f000.spmi:pmic@0:gpio@c000 PIN 0->25
+[    0.656575] gpio gpiochip1: registered GPIOs 662 to 687 on 800f000.spmi:pmic@0:gpio@c000
+[    0.665441] qcom-spmi-gpio 800f000.spmi:pmic@2:gpio@c000: try to register 14 pins ...
+[    0.665509] pinctrl core: registered pin 0 (gpio1) on 800f000.spmi:pmic@2:gpio@c000
+[    0.665563] pinctrl core: registered pin 1 (gpio2) on 800f000.spmi:pmic@2:gpio@c000
+[    0.665611] pinctrl core: registered pin 2 (gpio3) on 800f000.spmi:pmic@2:gpio@c000
+[    0.665656] pinctrl core: registered pin 3 (gpio4) on 800f000.spmi:pmic@2:gpio@c000
+[    0.665700] pinctrl core: registered pin 4 (gpio5) on 800f000.spmi:pmic@2:gpio@c000
+[    0.665745] pinctrl core: registered pin 5 (gpio6) on 800f000.spmi:pmic@2:gpio@c000
+[    0.665818] pinctrl core: registered pin 6 (gpio7) on 800f000.spmi:pmic@2:gpio@c000
+[    0.665864] pinctrl core: registered pin 7 (gpio8) on 800f000.spmi:pmic@2:gpio@c000
+[    0.665909] pinctrl core: registered pin 8 (gpio9) on 800f000.spmi:pmic@2:gpio@c000
+[    0.665954] pinctrl core: registered pin 9 (gpio10) on 800f000.spmi:pmic@2:gpio@c000
+[    0.665999] pinctrl core: registered pin 10 (gpio11) on 800f000.spmi:pmic@2:gpio@c000
+[    0.666044] pinctrl core: registered pin 11 (gpio12) on 800f000.spmi:pmic@2:gpio@c000
+[    0.666089] pinctrl core: registered pin 12 (gpio13) on 800f000.spmi:pmic@2:gpio@c000
+[    0.666133] pinctrl core: registered pin 13 (gpio14) on 800f000.spmi:pmic@2:gpio@c000
+[    0.666188] qcom-spmi-gpio 800f000.spmi:pmic@2:gpio@c000: no hogs found
+[    0.666377] gpiochip_find_base_unlocked: found new base at 688
+[    0.666446] gpio gpiochip2: (800f000.spmi:pmic@2:gpio@c000): created GPIO range 0->13 ==> 800f000.spmi:pmic@2:gpio@c000 PIN 0->13
+[    0.666934] gpio gpiochip2: registered GPIOs 688 to 701 on 800f000.spmi:pmic@2:gpio@c000
+[    0.678329] spmi spmi-0: node /soc@0/spmi@800f000/qcom,pm8998@0 err (-22) does not have 'reg' property
+[    0.678422] spmi spmi-0: node /soc@0/spmi@800f000/qcom,pmi8998@3 err (-22) does not have 'reg' property
+[    0.680571] mdio_bus fixed-0: using lookup tables for GPIO lookup
+[    0.680631] mdio_bus fixed-0: No GPIO consumer reset found
+[    0.686652] tun: Universal TUN/TAP device driver, 1.6
+[    0.688312] VFIO - User Level meta-driver version: 0.3
+[    0.707233] usbcore: registered new interface driver usb-storage
+[    0.725456] i2c_dev: i2c /dev entries driver
+[    0.743766] input: pm8941_pwrkey as /devices/platform/soc@0/800f000.spmi/spmi-0/0-00/800f000.spmi:pmic@0:pon@800/800f000.spmi:pmic@0:pon@800:pwrkey/input/input0
+[    0.793686] psci-cpuidle psci-cpuidle: no of_node; not parsing pinctrl DT
+[    0.852540] clocksource: arch_mmio_counter: mask: 0xffffffffffffff max_cycles: 0x46d987e47, max_idle_ns: 440795202767 ns
+[    0.852626] arch-timer-mmio 17920000.timer: mmio timer running at 19.20MHz (virt)
+[    0.854264] usbcore: registered new interface driver usbhid
+[    0.854316] usbhid: USB HID core driver
+[    0.863459] qcom_glink_ssr remoteproc:glink-edge.glink_ssr.-1.-1: no of_node; not parsing pinctrl DT
+[    0.893876] qcom,qfprom 784000.qfprom: using DT '/soc@0/qfprom@784000' for 'wp' GPIO lookup
+[    0.893976] of_get_named_gpiod_flags: can't parse 'wp-gpios' property of node '/soc@0/qfprom@784000[0]'
+[    0.894059] of_get_named_gpiod_flags: can't parse 'wp-gpio' property of node '/soc@0/qfprom@784000[0]'
+[    0.894129] qcom,qfprom 784000.qfprom: using lookup tables for GPIO lookup
+[    0.894173] qcom,qfprom 784000.qfprom: No GPIO consumer wp found
+[    0.912345] icc_smd_rpm icc_smd_rpm: no of_node; not parsing pinctrl DT
+[    0.914010] NET: Registered PF_INET6 protocol family
+[    0.916259] Segment Routing with IPv6
+[    0.916384] In-situ OAM (IOAM) with IPv6
+[    0.916542] NET: Registered PF_PACKET protocol family
+[    0.916775] Key type dns_resolver registered
+[    0.993625] registered taskstats version 1
+[    0.994179] Loading compiled-in X.509 certificates
+[    1.016031] Demotion targets for Node 0: null
+[    1.050914] reg-fixed-voltage regulator-tps61099-vbus: using DT '/regulator-tps61099-vbus' for '(default)' GPIO lookup
+[    1.051234] of_get_named_gpiod_flags: parsed 'gpios' property of node '/regulator-tps61099-vbus[0]' - status (0)
+[    1.051341] gpio gpiochip1: Persistence not supported for GPIO 4
+[    1.055360] reg-fixed-voltage regulator-touch-power: using DT '/regulator-touch-power' for '(default)' GPIO lookup
+[    1.055499] of_get_named_gpiod_flags: parsed 'gpios' property of node '/regulator-touch-power[0]' - status (0)
+[    1.055595] gpio gpiochip2: Persistence not supported for GPIO 1
+[    1.122030] msm_serial c1b0000.serial: msm_serial: detected port #0
+[    1.122206] msm_serial c1b0000.serial: uartclk = 19200000
+[    1.122867] c1b0000.serial: ttyMSM0 MMIO:0x000000000c1b0000 (irq = 46, base_baud = 1200000) is a MSM
+[    1.128112] pinctrl core: add 4 pinctrl maps
+[    1.128263] pinctrl core: add 4 pinctrl maps
+[    1.128347] msm8998-pinctrl 3400000.pinctrl: found group selector 8 for gpio8
+[    1.128416] msm8998-pinctrl 3400000.pinctrl: found group selector 9 for gpio9
+[    1.128467] msm8998-pinctrl 3400000.pinctrl: found group selector 8 for gpio8
+[    1.128514] msm8998-pinctrl 3400000.pinctrl: found group selector 9 for gpio9
+[    1.128594] msm8998-pinctrl 3400000.pinctrl: found group selector 8 for gpio8
+[    1.128667] msm8998-pinctrl 3400000.pinctrl: found group selector 9 for gpio9
+[    1.128715] msm8998-pinctrl 3400000.pinctrl: found group selector 8 for gpio8
+[    1.128760] msm8998-pinctrl 3400000.pinctrl: found group selector 9 for gpio9
+[    1.128882] msm_serial c16f000.serial: msm_serial: detected port #1
+[    1.128947] qcom_cc_clk_hw_get: invalid index 3351654288
+[    1.128991] msm_serial c16f000.serial: probe with driver msm_serial failed with error -2
+[    1.136935] arm-smmu cd00000.iommu: probing hardware configuration...
+[    1.136993] arm-smmu cd00000.iommu: SMMUv2 with:
+[    1.137063] arm-smmu cd00000.iommu:  stage 1 translation
+[    1.137114] arm-smmu cd00000.iommu:  address translation ops
+[    1.137156] arm-smmu cd00000.iommu:  non-coherent table walk
+[    1.137197] arm-smmu cd00000.iommu:  (IDR0.CTTW overridden by FW configuration)
+[    1.137244] arm-smmu cd00000.iommu:  stream matching with 54 register groups
+[    1.137323] arm-smmu cd00000.iommu:  17 context banks (0 stage-2 only)
+[    1.138421] arm-smmu cd00000.iommu:  Supported page sizes: 0x63315000
+[    1.138478] arm-smmu cd00000.iommu:  Stage-1: 32-bit VA -> 36-bit IPA
+[    1.138564] arm-smmu cd00000.iommu:  preserved 0 boot mappings
+[    1.141985] platform c900000.display-subsystem: Adding to iommu group 0
+[    1.171134] pinctrl core: add 4 pinctrl maps
+[    1.171275] pinctrl core: add 4 pinctrl maps
+[    1.171378] msm8998-pinctrl 3400000.pinctrl: found group selector 87 for gpio87
+[    1.171454] msm8998-pinctrl 3400000.pinctrl: found group selector 87 for gpio87
+[    1.171536] msm8998-pinctrl 3400000.pinctrl: found group selector 88 for gpio88
+[    1.171602] msm8998-pinctrl 3400000.pinctrl: found group selector 88 for gpio88
+[    1.171674] msm8998-pinctrl 3400000.pinctrl: found group selector 87 for gpio87
+[    1.171737] msm8998-pinctrl 3400000.pinctrl: found group selector 87 for gpio87
+[    1.171810] msm8998-pinctrl 3400000.pinctrl: found group selector 88 for gpio88
+[    1.171874] msm8998-pinctrl 3400000.pinctrl: found group selector 88 for gpio88
+[    1.176829] pinctrl core: add 2 pinctrl maps
+[    1.176954] pinctrl core: add 2 pinctrl maps
+[    1.177109] msm8998-pinctrl 3400000.pinctrl: found group selector 125 for gpio125
+[    1.177192] msm8998-pinctrl 3400000.pinctrl: found group selector 125 for gpio125
+[    1.177295] msm8998-pinctrl 3400000.pinctrl: found group selector 89 for gpio89
+[    1.177378] msm8998-pinctrl 3400000.pinctrl: found group selector 89 for gpio89
+[    1.226548] rmi4_i2c 0-0020: registering I2C-connected sensor
+[    1.226774] rmi4_physical rmi4-00: no of_node; not parsing pinctrl DT
+[    1.261837] rmi4_f01 rmi4-00.fn01: no of_node; not parsing pinctrl DT
+[    1.264530] rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: S3708AR, fw id: 2520908
+[    1.266107] rmi4_f12 rmi4-00.fn12: no of_node; not parsing pinctrl DT
+[    1.279406] input: Synaptics S3708AR as /devices/platform/soc@0/c179000.qup/i2c-0/0-0020/rmi4-00/input/input1
+[    1.291862] netconsole: network logging started
+[    1.292447] pinctrl core: add 6 pinctrl maps
+[    1.292577] pinctrl core: add 6 pinctrl maps
+[    1.292701] msm8998-pinctrl 3400000.pinctrl: found group selector 40 for gpio40
+[    1.292840] msm8998-pinctrl 3400000.pinctrl: found group selector 121 for gpio121
+[    1.292966] msm8998-pinctrl 3400000.pinctrl: found group selector 126 for gpio126
+[    1.293027] msm8998-pinctrl 3400000.pinctrl: found group selector 40 for gpio40
+[    1.293099] msm8998-pinctrl 3400000.pinctrl: found group selector 121 for gpio121
+[    1.293170] msm8998-pinctrl 3400000.pinctrl: found group selector 126 for gpio126
+[    1.293259] msm8998-pinctrl 3400000.pinctrl: found group selector 40 for gpio40
+[    1.293377] msm8998-pinctrl 3400000.pinctrl: found group selector 121 for gpio121
+[    1.293497] msm8998-pinctrl 3400000.pinctrl: found group selector 126 for gpio126
+[    1.293555] msm8998-pinctrl 3400000.pinctrl: found group selector 40 for gpio40
+[    1.293626] msm8998-pinctrl 3400000.pinctrl: found group selector 121 for gpio121
+[    1.293698] msm8998-pinctrl 3400000.pinctrl: found group selector 126 for gpio126
+[    1.293993] gpio-keys soc@0:gpio_keys: using DT '/soc@0/gpio_keys/vol_up' for '(default)' GPIO lookup
+[    1.294120] of_get_named_gpiod_flags: parsed 'gpios' property of node '/soc@0/gpio_keys/vol_up[0]' - status (0)
+[    1.294233] gpio gpiochip0: Persistence not supported for GPIO 126
+[    1.294471] gpio-keys soc@0:gpio_keys: using DT '/soc@0/gpio_keys/power_key' for '(default)' GPIO lookup
+[    1.294581] of_get_named_gpiod_flags: parsed 'gpios' property of node '/soc@0/gpio_keys/power_key[0]' - status (0)
+[    1.294679] gpio gpiochip0: Persistence not supported for GPIO 40
+[    1.294885] gpio-keys soc@0:gpio_keys: using DT '/soc@0/gpio_keys/vol_down' for '(default)' GPIO lookup
+[    1.294991] of_get_named_gpiod_flags: parsed 'gpios' property of node '/soc@0/gpio_keys/vol_down[0]' - status (0)
+[    1.295085] gpio gpiochip0: Persistence not supported for GPIO 121
+[    1.295519] input: soc@0:gpio_keys as /devices/platform/soc@0/soc@0:gpio_keys/input/input2
+[    1.299102] clk: Not disabling unused clocks
+[    1.299182] PM: genpd: Disabling unused power domains
+[    1.834553] Freeing initrd memory: 1708K
+[    1.838262] Freeing unused kernel memory: 3072K
+[    1.839169] Run /init as init process
+[    1.839294]   with arguments:
+[    1.839337]     /init
+[    1.839373]   with environment:
+[    1.839405]     HOME=/
+[    1.839441]     TERM=linux
+[    1.883000] walleye-banner: step 1: late init start, kernel 7.3.0-00007-g7430c717a94c-dirty
+[    1.887483] walleye-banner: step 2: about to start the watchdog petter
+[    1.888000] walleye-banner: step 3: about to create the gadget g1 (1d6b:0104)
+[    1.896798] walleye-banner: step 4: about to mkdir functions/acm.GS0
+[    1.903308] walleye-banner: step 5: banner writer started
+[    1.906030] walleye-banner: step 6: about to symlink acm.GS0 into configs/c.1
+[    1.909599] walleye-banner: step 7: about to symlink ecm.usb0 into configs/c.1
+[    1.929625] walleye-banner: step 8: about to bind a800000.usb (waited 0s)
+[    1.929910] configfs-gadget.g1 gadget.0: no of_node; not parsing pinctrl DT
+[    1.930680] configfs-gadget.g1 gadget.0: HOST MAC 02:42:ac:10:2b:02
+[    1.930704] configfs-gadget.g1 gadget.0: MAC 02:42:ac:10:2b:01
+[    1.934503] walleye-banner: step 9: gadget bound to a800000.usb
+[    1.951814] walleye-banner: step 10: usb0 is 172.16.43.1 (after 0s)
+[    1.961558] walleye-banner: step 11: telnetd on 172.16.43.1:23
+[    2.365186] walleye-init: command loop on /dev/ttyGS0, open 1
+[    5.974853] walleye-display: delay 5 s reached at uptime 5 s
+[    5.974968] walleye-banner: step 10: display modules: loading
+[    5.975275] walleye-display: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm.ko
+[    6.007047] walleye-display: ok
+[    6.007314] walleye-display: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_kms_helper.ko
+[    6.025642] walleye-display: ok
+[    6.025949] walleye-display: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/clients/drm_client_lib.ko
+[    6.034756] walleye-display: ok
+[    6.035017] walleye-display: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/media/cec/core/cec.ko
+[    6.046178] walleye-display: ok
+[    6.046476] walleye-display: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/display/drm_display_helper.ko
+[    6.065209] walleye-display: ok
+[    6.065496] walleye-display: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/display/drm_dp_aux_bus.ko
+[    6.074948] walleye-display: ok
+[    6.075226] walleye-display: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/scheduler/gpu-sched.ko
+[    6.085219] walleye-display: ok
+[    6.085471] walleye-display: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_exec.ko
+[    6.093819] walleye-display: ok
+[    6.094081] walleye-display: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/drm_gpuvm.ko
+[    6.103343] walleye-display: ok
+[    6.103601] walleye-display: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/soc/qcom/mdt_loader.ko
+[    6.113038] walleye-display: ok
+[    6.113303] walleye-display: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/soc/qcom/ubwc_config.ko
+[    6.122706] walleye-display: ok
+[    6.122955] walleye-display: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/msm/msm.ko
+[    6.236860] walleye-display: ok
+[    6.237156] walleye-display: insmod /lib/modules/7.3.0-00007-g7430c717a94c-dirty/kernel/drivers/gpu/drm/panel/panel-samsung-s6e3fa5.ko
+[    6.241842] walleye-display: ok
+[    6.242006] walleye-banner: step 11: display modules: done
+[    6.251722] pinctrl core: add 2 pinctrl maps
+[    6.251865] pinctrl core: add 2 pinctrl maps
+[    6.251952] pinctrl core: add 2 pinctrl maps
+[    6.252028] pinctrl core: add 2 pinctrl maps
+[    6.252207] msm8998-pinctrl 3400000.pinctrl: found group selector 94 for gpio94
+[    6.252292] msm8998-pinctrl 3400000.pinctrl: found group selector 94 for gpio94
+[    6.252389] msm8998-pinctrl 3400000.pinctrl: found group selector 10 for gpio10
+[    6.252446] msm8998-pinctrl 3400000.pinctrl: found group selector 10 for gpio10
+[    6.252547] msm8998-pinctrl 3400000.pinctrl: found group selector 94 for gpio94
+[    6.252619] msm8998-pinctrl 3400000.pinctrl: found group selector 94 for gpio94
+[    6.252703] msm8998-pinctrl 3400000.pinctrl: found group selector 10 for gpio10
+[    6.252754] msm8998-pinctrl 3400000.pinctrl: found group selector 10 for gpio10
+[    6.253488] panel-samsung-s6e3fa5 c994000.dsi.0: using DT '/soc@0/display-subsystem@c900000/dsi@c994000/panel@0' for 'reset' GPIO lookup
+[    6.253653] of_get_named_gpiod_flags: parsed 'reset-gpios' property of node '/soc@0/display-subsystem@c900000/dsi@c994000/panel@0[0]' - status (0)
+[    6.253855] gpio gpiochip0: Persistence not supported for GPIO 94
+[    6.254519] msm_dpu c901000.display-controller: bound c994000.dsi (ops dsi_ops [msm])
+[    6.267210] [drm:dpu_kms_hw_init:1168] dpu hardware revision:0x30000000
+[    6.302593] [drm] Initialized msm 1.13.0 for c901000.display-controller on minor 0
+[    6.302880] msm_dpu c901000.display-controller: no GPU device was found
+[    6.543983] Console: switching to colour frame buffer device 135x120
+[    6.593542] msm_dpu c901000.display-controller: [drm] fb0: msmdrmfb frame buffer device
