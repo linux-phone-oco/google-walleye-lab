@@ -15118,7 +15118,7 @@ Status
 : open
 
 Note
-: Run 1 (2026-11-28): pack and boot from RAM pass; push stops, receiver status never read (research walleye-osfact-install-run-1-push-stops). Waits on the cause: probably the backgrounded receiver in the telnet shell (lab-tools osfact).
+: Retry 2026-11-28 on osfact 0.1.2 (lab-tools #501: the push receiver starts on its own line with </dev/null; OSFACT_VERSION=0.1.2 until rhizoid's bump). Run 1 (PR 1378) stopped at the push. | Run 1 (2026-11-28): pack and boot from RAM pass; push stops, receiver status never read (research walleye-osfact-install-run-1-push-stops). Waits on the cause: probably the backgrounded receiver in the telnet shell (lab-tools osfact).
 
 Blocked by
 : walleye-install-osfact
