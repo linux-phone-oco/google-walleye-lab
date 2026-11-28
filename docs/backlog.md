@@ -15301,8 +15301,8 @@ Status
 Note
 : The author, 2026-11-28 (relayed by the Top): he looks at the osfact image only 'if that image has everything that we discovered working and made working'. Display first, then NFC and the modem (one agent at a time).
 
-Waits
-: lab-tools: a per-image kernel cmdline in osfact, so the display image carries iommu.passthrough=1 as B-a5 did (decision 2026-11-19-walleye-display-iommu-reading: the display nodes kill the boot through the SMMU) without putting it in every image's cmdline (the modem's IPA path runs without it); then repack and the keeper's run
+Blocked by
+: walleye-iommu-how-android-and-mainline-map-display-and-modem
 
 About
 : walleye-display-s6e3fa5
@@ -15324,10 +15324,10 @@ Rank
 ### A modem image variant whose cmdline adds iommu.passthrough=1, everything else equal to the proven modem image
 
 Status
-: open
+: dropped
 
 Note
-: Orchestration 2026-11-28 (lab-tools osfact-cmdline-by-part): one rolling image composes each part's cmdline pieces; the display part declares iommu.passthrough=1 (decision 2026-11-19-walleye-display-iommu-reading), so the modem must be measured under it.
+: dropped 2026-11-28: superseded by the per-device fix (decision 2026-11-28-walleye-iommu-stays-on-per-device-fix, the author's word)
 
 Blocked by
 : walleye-iommu-how-android-and-mainline-map-display-and-modem
@@ -15352,10 +15352,10 @@ Rank
 ### Does the modem's IPA path still work with iommu.passthrough=1? One modem boot of the variant
 
 Status
-: open
+: dropped
 
 Note
-: If they cannot share it, the display and modem pieces need a resolution (a narrower flag than passthrough, e.g. per-device iommu settings) before both are in one image.
+: dropped 2026-11-28: superseded by the per-device fix (decision 2026-11-28-walleye-iommu-stays-on-per-device-fix, the author's word)
 
 Blocked by
 : walleye-modem-image-iommu-passthrough
@@ -15395,7 +15395,7 @@ Needs
 : research
 
 Proof
-: a research row with sources: (1) stock Android read off the phone, read only over adb with nothing changed - /proc/cmdline, the stock dtb's display (mdss, dsi) and IPA/modem nodes, their iommus, the SMMU context banks, any reserved-memory for the splash framebuffer; (2) mainline: reserved-memory 'iommu-addresses' identity mapping for a bootloader framebuffer, the arm-smmu qcom identity-domain quirks for MDSS, and what msm8998/sdm845 boards upstream do; it names the narrowest setting, its dts/cmdline form, and what the phone test then checks
+: a research row with sources that picks the upstream per-device answer for msm8998's display with the SMMU on (the qcom SMMU identity-domain client list for MDSS, reserved-memory iommu-addresses for the bootloader framebuffer, or the splash handover), read against stock Android's dtb and /proc/cmdline off the phone (read only) and upstream msm8998/sdm845 boards; it names the dts/driver form the display part declares, and what the display run then checks; iommu.passthrough=1 is not an answer (decision 2026-11-28-walleye-iommu-stays-on-per-device-fix)
 
 Rank
 : 18
