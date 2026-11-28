@@ -10,7 +10,7 @@
 [device]
 codename = "google-walleye"        # the Pixel 2; fastboot serial FA81N1A00790; until Linux runs it speaks only fastboot
 arch = "aarch64"                    # the machine kind of the Pixel 2's packages (osfact reads it; lab-tools 0.54.3 osfact/tests/fixtures/google-walleye/device.toml, the MSM8998 is a 64-bit ARM SoC)
-serial_env = "WALLEYE_SERIAL"       # the environment variable of the phone's fastboot serial (the same fixture; plans/walleye-ram.toml names it so)
+serial_env = "WALLEYE_SERIAL"       # the environment variable of the phone's fastboot serial (lab-tools 0.54.3 osfact/tests/fixtures/google-walleye/device.toml; nothing in this lab reads it yet: the serial is [fastboot] serial)
 
 [connection]
 user = "user"                      # the phone's user
@@ -134,7 +134,7 @@ rndis = false
 # What the attended tries (procedures/*.rs, plumbing in procedures/steps) read about this phone; each fact in the table that
 # owns it (decision 2026-11-19-attended-keys-in-the-manifest). Every key is read at the top of main: a missing one fails --dry-run.
 # How an image of this phone reaches it, as osfact reads it (lab-tools 0.54.3, items osfact-device-declaration and
-# osfact-pack-writes-the-ram-root-plan; item walleye-device-arch-declared). Every value is walleye's own today:
+# osfact-pack-writes-the-ram-root-plan; item walleye-device-arch-declared). Proven by walleye today: the steps, address, shell_port, port, path, size_mib and way_back (sources below); PROPOSALS of lab-tools for an Alpine image, not yet run on the phone (NOT KNOWN YET until walleye-osfact-image-installs): receive, to, wait, command, check:
 #   [[install.step]]: procedures/install-rootfs-on-the-pixel-2.rs (rootfs by dd from Android to the slot Android is not on)
 #     and install-boot-on-the-pixel-2.rs (boot.img by fastboot to that slot's boot partition, then set_active); {other} is that slot, read at the run;
 #   [install.*]: the modem boot's push into RAM (build/initramfs-modem/rootfs-recv, procedures/steps/src/modem_boot.rs: port 9001, /mm tmpfs,
@@ -162,16 +162,16 @@ wait = 60                          # seconds the shell may take to answer after 
 
 [install.root]
 port = 9001                        # the device's port the receiver listens on (rootfs-recv's MM_PORT)
-receive = "nc -l -p 9001"          # the receiver, on the device
-to = "/tmp/root.tar.gz"            # where it writes the compressed root image
-wait = 60                          # seconds the whole push may take
+receive = "nc -l -p 9001"          # PROPOSED (the modem boot's receiver is build/initramfs-modem/rootfs-recv)
+to = "/tmp/root.tar.gz"            # PROPOSED: the compressed shape of decision 2026-11-28-walleye-modem-push-the-rootfs-compressed; rootfs-recv writes /tmp/modem-mm-rootfs.tar uncompressed today
+wait = 60                          # PROPOSED, assumes the compressed size (not measured; the uncompressed 194 MB push takes about 81 s)
 path = "/mm"                       # the folder the root is unpacked into (a tmpfs; rootfs-recv's MM_ROOT)
 size_mib = 400                     # rootfs-recv's MM_SIZE
-command = "/sbin/init"             # started in the chroot
-check = "test -e /mm/sbin/init"    # must succeed once it is started
+command = "/sbin/init"             # PROPOSED for the Alpine image (mm-up starts dbus, udevd and ModemManager under /env/bin instead)
+check = "test -e /mm/sbin/init"    # PROPOSED, with command
 
 [install.way_back]
-command = "sync; echo b > /proc/sysrq-trigger"   # the booted image restarts the phone (window-end)
+command = "sync; echo b > /proc/sysrq-trigger"   # the first half of build/initramfs-modem/window-end (it then sleeps 5 and reboot -f)
 
 [tools]
 adb = "adb"
