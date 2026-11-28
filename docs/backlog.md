@@ -15430,10 +15430,10 @@ Rank
 ### Try the SMMU-on B-r5 once from slot b at 5 s: faults, rcg warnings and DSI -110 counted
 
 Status
-: open
+: done
 
 Note
-: run 2 (2026-11-28, used by run 2, research walleye-display-smmu-on-run-2-dies-at-display-subsystem-iommu-group): console-ramoops now holds our kernel; it ends at 1.119 s 'c900000.display-subsystem: Adding to iommu group 0' (arm-smmu: preserved 0 boot mappings), no gadget, Android b back after 57 s. Not retried: the same image dies the same way; the fallback (map splash before attach, decision 2026-11-28-walleye-display-smmu-on-reset-first) is the coordinator's call
+: measured, failing (run 2, PR 1425): with the MDSS_BCR reset and the SMMU on, the boot's console ends at 1.119 s 'c900000.display-subsystem: Adding to iommu group 0' after 'arm-smmu preserved 0 boot mappings'; the reset alone does not keep the live splash safe. Fallback next (decision 2026-11-28-walleye-display-smmu-on-reset-first).
 
 Blocked by
 : walleye-display-console-read-in-owed-way-back
@@ -15461,7 +15461,7 @@ Status
 : open
 
 Note
-: Stock: mdss_mdp_splash_iommu_attach (iova=phys, read-only, before attach, unmapped when the splash is released). Upstream form: reserved-memory with iommu-addresses plus msm_iommu_new applying the device's direct regions (iommu_get_resv_regions) to its domain before iommu_attach_device. Only if the try fails; dropped if it passes.
+: Coordinator 2026-11-28 after run 2 (console at 'Adding to iommu group 0', 'preserved 0 boot mappings'): also read mainline arm-smmu-qcom's client list (qcom_smmu_client_of_match: an identity default domain and preserved boot SMRs for listed display controllers) - is qcom,msm8998-mdss on it, and would adding it (an upstream-sized patch) keep the splash safe until msm resets MDSS? Compare with stock's map-before-attach and pick one. | Stock: mdss_mdp_splash_iommu_attach (iova=phys, read-only, before attach, unmapped when the splash is released). Upstream form: reserved-memory with iommu-addresses plus msm_iommu_new applying the device's direct regions (iommu_get_resv_regions) to its domain before iommu_attach_device. Only if the try fails; dropped if it passes.
 
 Blocked by
 : walleye-display-reset-smmu-on-try
@@ -15479,7 +15479,7 @@ Proof
 : tests/health/base/display-boot-clean.sh
 
 Rank
-: 19
+: 17
 
 
 <a id="walleye-display-splash-region-real-address"></a>
