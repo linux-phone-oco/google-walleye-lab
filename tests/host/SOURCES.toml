@@ -448,3 +448,6 @@ source = "file:tests/fixtures/dtb-text/stock-dtbo3-ramoops.txt"
 
 [scripts."image-ramoops-stock-layout-selftest.sh"]
 source = "file:tests/fixtures/kernel-text/ramoops-params-v7.3.txt"
+
+[scripts."tests-never-notify-selftest.sh"]
+source = "file:procedures/steps/.cargo/config.toml"

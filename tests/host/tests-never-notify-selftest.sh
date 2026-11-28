@@ -8,6 +8,7 @@ say() { echo "$1 walleye-tests-never-notify $2"; [ "$1" = pass ]; exit $?; }
 command -v cargo >/dev/null && command -v jq >/dev/null || say skip "cargo or jq not installed: not known yet"
 cd "$HERE" || say fail "no repository"
 REV=$(cargo metadata --locked --format-version 1 --manifest-path procedures/steps/Cargo.toml | jq -er '.packages[] | select(.name == "lpoco-attended") | .source | sub(".*#"; "")') || say fail "no locked revision"
+export CARGO_HOME=${CARGO_HOME:-$HOME/.cargo} RUSTUP_HOME=${RUSTUP_HOME:-$HOME/.rustup}  # the stand-in HOME below must not hide the toolchain
 T=$(mktemp -d) || say fail "no temp dir"
 trap 'rm -rf "$T"' EXIT
 mkdir -p "$T/home/.config/lpoco-attended" "$T/root/$REV/bin"
