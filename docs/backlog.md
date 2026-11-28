@@ -15249,7 +15249,10 @@ Status
 : open
 
 Note
-: From run 4 of the osfact image (PR 1392). The pieces exist in walleye's own modem boot (build/modem-mm-rootfs.nix, the firmware tar with ipa_fws, mm-up's binds); they move into osfact's root and parts, lab-tools' side where osfact's profile or plan needs it.
+: From run 4 (PR 1392). walleye's data: its own Alpine profile (ModemManager, dbus, udev in the package set; today runs use lab-tools' fixture alpine.toml) and ipa_fws in the parts' ramdisk; lab-tools': the binds (osfact-enter-binds). The pieces exist in walleye's modem boot (build/modem-mm-rootfs.nix, the firmware tar, mm-up's binds).
+
+Waits
+: lab-tools osfact-enter-binds released (proc, sys and dev bound in the chroot, a declared list in [install.root]); orchestration sends the tag
 
 About
 : modem-calls
@@ -15274,7 +15277,7 @@ Status
 : open
 
 Note
-: From run 4 of the osfact image (PR 1392): this boot image has no NFC. The tag poll stays parked (decision 2026-11-28-walleye-nfc-tag-poll-waits-no-tag).
+: From run 4 (PR 1392). Parts only, walleye's data: the nfc kernel/dtb (UFS-off with nxp-nci and the nfc@28 node, images.nfc's kernel_tag and dtb) and walleye-nfc-up in the ramdisk, packed by osfact with the same profile; if it needs anything of osfact's, say so to orchestration. UFS-off gate before any boot. The tag poll stays parked (decision 2026-11-28-walleye-nfc-tag-poll-waits-no-tag).
 
 About
 : nfc
@@ -15289,4 +15292,4 @@ Proof
 : an osfact-packed image where tests/health/base/nfc-present.sh passes (nfc0 present, DEV_UP acked); the way back returns Android
 
 Rank
-: 30
+: 19
