@@ -15616,6 +15616,9 @@ Status
 Note
 : Decision 2026-11-28-walleye-display-identity-client-list-first. Edit arm-smmu-qcom.c qcom_smmu_client_of_match (one line), rebuild B-r5-smmu twice equal, keep stock ramoops layout. Pass: console beyond 'Adding to iommu group 0', display-boot-clean passes with the board command line (no iommu.passthrough). Pass leads to an upstream patch; fail goes to walleye-display-map-splash-before-attach.
 
+Blocked by
+: walleye-display-identity-client-list-image
+
 About
 : walleye-display-s6e3fa5
 
@@ -15630,3 +15633,28 @@ Proof
 
 Rank
 : 17
+
+
+<a id="walleye-display-identity-client-list-image"></a>
+### B-r5-smmu-id: B-r5-smmu's kernel plus one line adding qcom,msm8998-mdss to arm-smmu-qcom's qcom_smmu_client_of_match
+
+Status
+: open
+
+Note
+: Decision 2026-11-28-walleye-display-identity-client-list-first (research PRs 1427, 1428): the IOMMU core attaches the default translating domain at probe_device, before mdss resets; an identity default domain avoids it, msm swaps its own in after the reset.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: a commit on a topic branch of linux-phone-oco/linux, its subject tagged OURS(item) and checkpatch-clean, fit for upstream (iommu/arm-smmu-qcom: Add msm8998 MDSS to the identity clients); a kernel list assembled to an int/ tag; image B-r5-smmu-id built twice equal, UFS-off gate passes, no iommu.passthrough in its cmdline, ramoops as B-r5-smmu; the display-smmu-on procedure takes it by name; never booted
+
+Rank
+: 16
