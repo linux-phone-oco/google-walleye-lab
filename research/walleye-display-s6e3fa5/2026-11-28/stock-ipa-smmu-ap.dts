@@ -1,0 +1,6 @@
+			ipa_smmu_ap: ipa_smmu_ap {
+				compatible = "qcom,ipa-smmu-ap-cb";
+				iommus = <0x64 0x18e0>;
+				qcom,iova-mapping = <0x10000000 0x40000000>;
+				phandle = <0x276>;
+			};

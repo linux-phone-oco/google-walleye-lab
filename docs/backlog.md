@@ -15380,10 +15380,10 @@ Rank
 ### How stock Android and mainline map walleye's display and modem through the SMMU, ending in the narrowest setting that keeps the display lit and the modem's SMMU on
 
 Status
-: open
+: done
 
 Note
-: The author, 2026-11-28 (relayed by the Top): 'how is that we dont know that ? isnt android uses linux kernel ? and cant we see how its done in stock android ?' Before walleye-modem-ipa-under-iommu-passthrough runs; one agent, the phone stays on Android. Stock Android is the reference (decision 2026-11-27-walleye-modem-stock-android-reference-no-sim-goal).
+: Answered: research walleye-iommu-stock-android-maps-splash-before-attach, decision 2026-11-28-walleye-display-smmu-on-reset-first.
 
 About
 : walleye-display-s6e3fa5
@@ -15399,3 +15399,134 @@ Proof
 
 Rank
 : 18
+
+
+<a id="walleye-display-reset-smmu-on-image"></a>
+### Build B-r5 without iommu.passthrough=1: same kernel, dtb (resets = MDSS_BCR) and ramdisk, command line the board's own
+
+Status
+: open
+
+Note
+: From research walleye-iommu-stock-android-maps-splash-before-attach. Control: b-r5 (device.toml images.b-r5); change only the command line.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: tests/host/ufs-off-image.sh and the AVB check pass, rebuild identical, and a host test that the image's command line has no iommu.passthrough
+
+Rank
+: 17
+
+
+<a id="walleye-display-reset-smmu-on-try"></a>
+### Try the SMMU-on B-r5 once from slot b at 5 s: faults, rcg warnings and DSI -110 counted
+
+Status
+: open
+
+Note
+: One unattended RAM try, nothing flashed. Pass: smmu faults 0, rcg 0, DSI -110 0 with the SMMU on. Fail: go to walleye-display-map-splash-before-attach.
+
+Blocked by
+: walleye-display-reset-smmu-on-image
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: phone
+
+Proof
+: tests/health/base/display-boot-clean.sh
+
+Rank
+: 18
+
+
+<a id="walleye-display-map-splash-before-attach"></a>
+### If the reset alone is not clean with the SMMU on: msm maps the reserved splash region 1:1 in its own domain before attach (stock Android's way), as a patch for dri-devel/iommu
+
+Status
+: open
+
+Note
+: Stock: mdss_mdp_splash_iommu_attach (iova=phys, read-only, before attach, unmapped when the splash is released). Upstream form: reserved-memory with iommu-addresses plus msm_iommu_new applying the device's direct regions (iommu_get_resv_regions) to its domain before iommu_attach_device. Only if the try fails; dropped if it passes.
+
+Blocked by
+: walleye-display-reset-smmu-on-try
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: research
+
+Proof
+: tests/health/base/display-boot-clean.sh
+
+Rank
+: 19
+
+
+<a id="walleye-display-splash-region-real-address"></a>
+### Read where the bootloader's framebuffer really is (stock dtb says 0x9d600000+0x2400000, OnePlus reserves 0x9d400000)
+
+Status
+: open
+
+Note
+: Settles which region a reserved-memory node declares; walleye's dts reserves nothing now.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: phone
+
+Proof
+: a research row naming the framebuffer address and size, from a read-only look (bootloader_log node, the fault iovas of a run, or MDP's SSPP/pingpong base-address registers via devmem in a b-q5 style run)
+
+Rank
+: 20
+
+
+<a id="walleye-modem-ipa-dts-under-smmu"></a>
+### IPA node with iommus on the anoc2 SMMU (SIDs 0x18e0 ap, 0x18e2 uc) and the SMMU on: ipa probes and the modem stays up
+
+Status
+: open
+
+Note
+: Stock gives IPA qcom,smmu-s1-bypass + disable-htw, so stock itself does not depend on translation for IPA; upstream sdm845 ipa runs behind a translating SMMU. Replaces dropped walleye-modem-ipa-under-iommu-passthrough. Read the sdm845 ipa dts and the msm8998 ipa series (pmaports MR 3531) before the node.
+
+About
+: modem-calls
+
+Opened
+: 2026-11-28
+
+Needs
+: research
+
+Proof
+: tests/health/base modem test for ipa bound (the one walleye-modem-ipa-* items use) passes with no iommu.passthrough on the command line
+
+Rank
+: 21

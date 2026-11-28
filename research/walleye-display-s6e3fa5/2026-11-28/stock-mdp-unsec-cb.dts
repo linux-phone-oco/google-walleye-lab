@@ -1,0 +1,8 @@
+			smmu_mdp_unsec: qcom,smmu_mdp_unsec_cb {
+				compatible = "qcom,smmu_mdp_unsec";
+				iommus = <0xc7 0x00>;
+				gdsc-mmagic-mdss-supply = <0x2c>;
+				clocks = <0x3e 0xdb4b31e6 0x2b 0x49a394f4 0x2b 0x4825baf4 0x2b 0xc365ac39>;
+				clock-names = "mmss_noc_axi_clk", "mmss_noc_ahb_clk", "mmss_smmu_ahb_clk", "mmss_smmu_axi_clk";
+				phandle = <0x3ae>;
+			};

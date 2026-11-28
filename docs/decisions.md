@@ -4632,3 +4632,34 @@ Scope
 
 Tracked by
 : walleye-iommu-how-android-and-mainline-map-display-and-modem
+
+
+<a id="2026-11-28-walleye-display-smmu-on-reset-first"></a>
+### 2026-11-28-walleye-display-smmu-on-reset-first
+
+Date
+: 2026-11-28
+
+Brief
+: SMMU stays on: the MDSS reset (B-r5) is tried without iommu.passthrough first; stock Android's map-before-attach is the fallback
+
+Decision
+: Chosen: the display part declares resets = <&mmcc MDSS_BCR> on mdss (already decided 2026-11-20) and no iommu.passthrough. First step: B-r5's image with the board's own command line, one RAM try (backlog walleye-display-reset-smmu-on-image, -try), proof display-boot-clean. Fallback, only if it fails: stock Android's step, mapping the reserved splash region iova=phys in msm's own domain before attach (walleye-display-map-splash-before-attach), after the real region is read (walleye-display-splash-region-real-address). The modem's IPA is its own item (walleye-modem-ipa-dts-under-smmu).
+
+Why
+: Stock Android keeps the SMMU on and never lets the live scan-out fault: it maps the splash before attaching. The reset removes the scan-out, so nothing reads the splash when msm attaches, at the cost of one property already upstream-shaped (msm_mdss_reset); B-r5 measured 0 faults. The only open point is whether that run had passthrough, one try settles it.
+
+Rejected
+: Adding qcom,msm8998-mdss to the identity client list: sets the default domain only, msm allocates its own paging domain, faults stay. reserved-memory iommu-addresses alone: applied to default domains only. simple-framebuffer on the splash (OnePlus way): never loads msm, no panel control. iommu.passthrough=1: the author's decision 2026-11-28-walleye-iommu-stays-on-per-device-fix. Stock's map-before-attach first: needs a new msm patch and the unread region address, dearer than a property that already measured clean.
+
+About
+: walleye-display-s6e3fa5
+
+Research
+: walleye-iommu-stock-android-maps-splash-before-attach
+
+Amends
+: 2026-11-28-walleye-iommu-stays-on-per-device-fix
+
+Tracked by
+: walleye-display-reset-smmu-on-try
