@@ -15174,7 +15174,7 @@ Status
 : open
 
 Note
-: Coordinator 2026-11-28, for osfact (lab-tools decision 2026-11-28-osfact-pack-reads-arch-from-the-declaration). Three readers parse device.toml: lpoco-lab (pin is device.toml's #:schema line; 0.54.2 reads arch), lpoco-bringup (bin/install-bringup.sh; 0.54.2 reads it), and lpoco-attended locked in procedures/steps/Cargo.lock (still refuses it: PR 1351's 'attended tries' check). The coordinator's two pin edits are on branch coordinator/device-arch (PR 1351, closed); move the lpoco-attended lock to a revision on lpoco-manifest 0.55.0, or ask lab-tools for one. serial_env stays out of [device] until the manifest reads it.
+: Scope widened 2026-11-28 (orchestration): with arch, device.toml gets osfact's [install.connection|root|way_back] tables (lpoco-lab 0.54.2 reads them), their values from walleye's proven boot (fastboot boot, net 43, the modem image's way back) and cited; [device] serial_env only with the lpoco-lab release lab-tools manifest-device-serial-env makes (orchestration sends its tag). | Coordinator 2026-11-28, for osfact (lab-tools decision 2026-11-28-osfact-pack-reads-arch-from-the-declaration). Three readers parse device.toml: lpoco-lab (pin is device.toml's #:schema line; 0.54.2 reads arch), lpoco-bringup (bin/install-bringup.sh; 0.54.2 reads it), and lpoco-attended locked in procedures/steps/Cargo.lock (still refuses it: PR 1351's 'attended tries' check). The coordinator's two pin edits are on branch coordinator/device-arch (PR 1351, closed); move the lpoco-attended lock to a revision on lpoco-manifest 0.55.0, or ask lab-tools for one. serial_env stays out of [device] until the manifest reads it.
 
 About
 : walleye-bootimage
