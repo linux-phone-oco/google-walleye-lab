@@ -10003,3 +10003,25 @@ About
 
 Material
 : research/walleye-display-s6e3fa5/2026-11-28-ramoops/
+
+
+<a id="walleye-display-smmu-on-run-2-dies-at-display-subsystem-iommu-group"></a>
+### walleye-display-smmu-on-run-2-dies-at-display-subsystem-iommu-group
+
+Date
+: 2026-11-28
+
+Brief
+: B-r5-smmu run 2 (SMMU on): console-ramoops holds our kernel to 1.119 s; last line 'c900000.display-subsystem: Adding to iommu group 0', then nothing, no gadget
+
+Question
+: Where does the SMMU-on B-r5-smmu boot die, now that its console survives in Android's pstore?
+
+Found
+: Run 2 (2026-11-28 16:28, same image as run 1, ramoops in stock layout): left fastboot, no gadget on the bus, Android b back after 57 s. console-ramoops (34 KB, kept) holds the bootloader's log and then our kernel from 0.000 s: msm_serial ttyMSM0 at 1.100, arm-smmu cd00000.iommu probed at 1.113-1.115 (17 context banks, preserved 0 boot mappings), then 'platform c900000.display-subsystem: Adding to iommu group 0' at 1.119 - the last kernel line; no panic, no oops, no smmu fault text. The boot stops there (hang or reset with no console line). Fits research walleye-iommu-stock-android-maps-splash-before-attach: SMMU on, the MDP's scan-out of the bootloader splash goes unmapped the moment the display-subsystem joins an iommu group (preserved 0 boot mappings). Not shown: whether it is a hang or a silent reset, and the cause beyond that fits.
+
+About
+: walleye-display-s6e3fa5
+
+Material
+: research/walleye-display-s6e3fa5/2026-11-28/

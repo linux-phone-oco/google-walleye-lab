@@ -15433,7 +15433,7 @@ Status
 : open
 
 Note
-: run 1 (2026-11-28 keeper): stopped at step 5, no gadget from b-r5-smmu, back on Android after 57 s, no kernel text kept; see research walleye-display-smmu-on-run-1-no-gadget-from-b-r5-smmu. Not retried: coordinator decides
+: run 2 (2026-11-28, used by run 2, research walleye-display-smmu-on-run-2-dies-at-display-subsystem-iommu-group): console-ramoops now holds our kernel; it ends at 1.119 s 'c900000.display-subsystem: Adding to iommu group 0' (arm-smmu: preserved 0 boot mappings), no gadget, Android b back after 57 s. Not retried: the same image dies the same way; the fallback (map splash before attach, decision 2026-11-28-walleye-display-smmu-on-reset-first) is the coordinator's call
 
 Blocked by
 : walleye-display-console-read-in-owed-way-back

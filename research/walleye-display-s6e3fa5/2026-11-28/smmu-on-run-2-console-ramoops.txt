@@ -1,0 +1,617 @@
+èÿ0¡
+
+UEFI Start     [ 1117] SEC
+PROD Mode   : On
+DEBUG Mode  : On
+ASLR        : On
+Timer Delta : +8 mS
+RAM Entry 0 : Base 0x0000000080000000  Size 0x0000000080000000
+RAM Entry 1 : Base 0x0000000100000000  Size 0x000000007E4C0000
+UEFI Ver    : 4.2.200623.BOOT.XF.1.2.2.c1-00052-M8998LZB-1
+Build Info  : 64b Jun 23 2020 02:15:02
+Boot Device : UFS
+ufs_ffu: SKhynix H28U74301AMR D003
+match vendor:SKhynix, product id:H28U74301AMR
+FFU is successful to D003
+ffu success
+PID=0x1BC
+PCBID=0x80
+PCBID2=0x4
+BOMID=0x4
+DisplayDxe: Panel_CDP_PowerUp!
+DisplayDxe: ID Pin:0
+Display SelectedPanel:26
+DisplayDxe: Resolution 1080x1920 (1 intf)
+DisplayDxe: Panel_CDP_Reset!
+set dsi_Backlight_Value: 98
+LoadSecureApps: Load app from partition(keymaster): Status = 0x0, AppId = 65537
+Trusty qsee load failed: 1
+LoadSecureApps: Load app from partition(lockbooter): Status = 0x0, AppId = 131074
+ESEProtocolInit is called 
+ESEProtocolInit done 
+-----------------------------
+Platform Init  [ 1810] BDS
+UEFI Ver   : 4.2.200623.BOOT.XF.1.2.2.c1-00052-M8998LZB-1
+Platform   : MTP
+Chip Name  : MSM8998
+Chip Ver   : 2.1
+Core 0 Freq: 1555 MHz
+-----------------------------
+PmicDxe:: PmicFgSram_ReadBattID: BATT_ID_2 = 22971 
+PmicDxe:: PmicFgSram_ReadBattID: BATT_ID_2 = 22971 
+UEFI Total : 716 ms
+POST Time      [ 1833] OS Loader
+Successfully erase ramdump partition
+Loader Build Info: May  8 2020 03:31:29
+ddr_vendor is Micron(0xFF)
+First RTC time: 1980-08-05, 02:22:22
+Bypass RESET_DEVINFO
+VB: RWDeviceState: Succeed using rpmb!
+ActiveSlot: _b
+Write Permission: 0x3FF9FC3C
+QseecomStartApp lockbooter call success status=0, AppId=131074
+LockBooterGetFlag:ID = 21 Status = 0 
+OemLockMessageHandler: provisioning is disabled
+Need shut down?
+BootReason 0x2
+ConfigDefaultReason: no need to change Bootreason: 2
+Recovery command: 32 bootonce-bootloader
+Launching fastboot
+Fastboot Build Info: May  8 2020 03:31:28
+Fastboot: Initializing...
+ActiveSlot: _b
+Unlock value = 1
+Fastboot: Processing commands
+ddr_vendor is Micron(0xFF)
+Handling Cmd: getvar:product
+Handling Cmd: getvar:serialno
+Handling Cmd: getvar:unlocked
+Handling Cmd: getvar:slot-count
+Handling Cmd: getvar:version-bootloader
+Handling Cmd: getvar:version-baseband
+Handling Cmd: getvar:current-slot
+Handling Cmd: getvar:slot-unbootable:a
+Handling Cmd: getvar:slot-successful:a
+Handling Cmd: getvar:slot-retry-count:a
+Handling Cmd: getvar:slot-unbootable:b
+Handling Cmd: getvar:slot-successful:b
+Handling Cmd: getvar:slot-retry-count:b
+Handling Cmd: getvar:current-slot
+Handling Cmd: getvar:slot-unbootable:a
+Handling Cmd: getvar:slot-successful:a
+Handling Cmd: getvar:slot-retry-count:a
+Handling Cmd: getvar:slot-unbootable:b
+Handling Cmd: getvar:slot-successful:b
+Handling Cmd: getvar:slot-retry-count:b
+Handling Cmd: download:02000000
+Download Finished
+Handling Cmd: boot
+avb_slot_verify.c:432: DEBUG: Loading vbmeta struct from partition 'vbmeta_b'.
+avb_slot_verify.c:627: ERROR: vbmeta_b: Public key used to sign data rejected.
+avb_slot_verify.c:692: DEBUG: vbmeta_b: VERIFICATION_DISABLED bit is set.
+avb_slot_verify.c:317: DEBUG: dtbo_b: Loading entire partition.
+State: Unlocked, AvbSlotVerify returned ERROR_PUBLIC_KEY_REJECTED, continue boot
+VB2: Authenticate complete! boot state is: orange
+VB2: boot state: orange(1)
+Exit key detection timer
+No Ffbm cookie found, ignore: Not Found
+Memory Base Address: 0x80000000
+Decompressing kernel image start: 10327 ms
+Decompressing kernel image done: 12662 ms
+Device tree exact match the board: <0x124 0x20001> == <0x124 0x20001>
+DTB offset is incorrect, kernel image does not have appended DTB
+WARNING: DeviceTreeAppended returned fail; fallback to SocDeviceTreeAppended
+Device tree exact match the board: <0x124 0x20001> == <0x124 0x20001>
+Memory Base Address: 0x80000000
+Overlaying SOC & DEV dtb start: 12674 ms
+Overlaying SOC & DEV dtb done: 12749 ms
+  Note: libufdt heap usage: 528248 bytes
+get_wifi_country_code: 0x0 
+GetBoardFpId: value1(0) fp_id(0)
+GetBoardFpId: eFpIdRet:0 fp_id:0
+ PON Reason is 33 cold_boot:1 charger path: 1
+Get Cert FingerPrint: 0xDD1DC642
+ddr_vendor is Micron(0xFF)
+IsRebootByKey 0
+IsRebootByKey 0
+OEM SecureBoot: 0x00303030
+HW Security has been enabled !
+It's production key device
+CmdLine : Write 1179(4096)
+Cmdline: clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3 androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=0000002b-0000-0000-0000-000000000000 androidboot.
+RAM Partitions
+Adding Base: 0x0000000080000000 Available Length: 0x0000000080000000 
+Adding Base: 0x0000000100000000 Available Length: 0x000000007E4C0000 
+ERROR: Could not get splash memory region node
+kaslr-Seed is added to chosen node
+dtb_calibration_data_set enter
+wifi_eeprom: 2048-byte added
+bt_flash: 6-byte added
+aud_cali_data: 1024-byte added
+gyro_flash: 768-byte added
+setting_get_disp_cali_data OK
+disp_flash: 1280-byte added
+Appending radio node data info FDT
+radio node htc_smem_app_run_mode: 4-byte data added
+radio node htc_smem_radio_dbg_flag: 4-byte data added
+radio node htc_rom_ver: 16-byte data added
+radio node htc_smem_pid: 4-byte data added
+radio node sku_id: 48-byte data added
+radio node htc_smem_factory_reset: 4-byte data added
+Updating /chosen/radio subnode, ret:0
+Last RTC time: 1980-08-05, 02:22:42
+
+Shutting Down UEFI Boot Services: 22855 ms
+BDS: LogFs sync skipped, Unsupported
+App Log Flush : 0 ms
+Exit BS  [    0.000000] Booting Linux on physical CPU 0x0000000000 [0x51af8014]
+[    0.000000] Linux version 7.3.0-00007-g7430c717a94c-dirty (mll@grig) (clang version 23.1.5, LLD 23.1.5) #1 SMP PREEMPT Thu Nov 19 12:24:06 CET 2026
+[    0.000000] KASLR enabled
+[    0.000000] Machine model: Google Pixel 2
+[    0.000000] printk: debug: ignoring loglevel setting.
+[    0.000000] efi: UEFI not found.
+[    0.000000] [Firmware Bug]: Kernel image misaligned at boot, please fix your bootloader!
+[    0.000000] OF: reserved mem: 0x00000000bfffc000..0x00000000bfffffff (16 KiB) nomap non-reusable mpss-metadata
+[    0.000000] OF: reserved mem: 0x0000000085800000..0x0000000085dfffff (6144 KiB) nomap non-reusable memory@85800000
+[    0.000000] OF: reserved mem: 0x0000000085e00000..0x0000000085efffff (1024 KiB) nomap non-reusable memory@85e00000
+[    0.000000] OF: reserved mem: 0x0000000086000000..0x00000000861fffff (2048 KiB) nomap non-reusable smem-mem@86000000
+[    0.000000] OF: reserved mem: 0x0000000086200000..0x0000000088efffff (46080 KiB) nomap non-reusable memory@86200000
+[    0.000000] OF: reserved mem: 0x0000000088f00000..0x00000000890fffff (2048 KiB) nomap non-reusable memory@88f00000
+[    0.000000] OF: reserved mem: 0x000000008ab00000..0x000000008b1fffff (7168 KiB) nomap non-reusable memory@8ab00000
+[    0.000000] OF: reserved mem: 0x000000008b200000..0x000000008cbfffff (26624 KiB) nomap non-reusable memory@8b200000
+[    0.000000] OF: reserved mem: 0x000000008cc00000..0x00000000943fffff (122880 KiB) nomap non-reusable memory@8cc00000
+[    0.000000] OF: reserved mem: 0x0000000095200000..0x000000009520ffff (64 KiB) nomap non-reusable memory@95200000
+[    0.000000] OF: reserved mem: 0x0000000095210000..0x0000000095214fff (20 KiB) nomap non-reusable memory@95210000
+[    0.000000] OF: reserved mem: 0x0000000095600000..0x00000000956fffff (1024 KiB) nomap non-reusable memory@95600000
+[    0.000000] OF: reserved mem: 0x0000000095700000..0x00000000957fffff (1024 KiB) nomap non-reusable memory@95700000
+[    0.000000] OF: reserved mem: 0x0000000094400000..0x00000000948fffff (5120 KiB) nomap non-reusable memory@94400000
+[    0.000000] OF: reserved mem: 0x0000000094900000..0x0000000094afffff (2048 KiB) nomap non-reusable memory@94900000
+[    0.000000] OF: reserved mem: 0x0000000094b00000..0x00000000951fffff (7168 KiB) nomap non-reusable memory@94b00000
+[    0.000000] OF: reserved mem: 0x00000000a1100000..0x00000000a12fffff (2048 KiB) map non-reusable ramoops@a1100000
+[    0.000000] NUMA: Faking a node at [mem 0x0000000080000000-0x000000017e4bffff]
+[    0.000000] NODE_DATA(0) allocated [mem 0x17dc4c300-0x17dc4e9ff]
+[    0.000000] cma: Reserved 32 MiB at 0x00000000fe000000
+[    0.000000] psci: probing for conduit method from DT.
+[    0.000000] psci: PSCIv1.0 detected in firmware.
+[    0.000000] psci: Using standard PSCI v0.2 function IDs
+[    0.000000] psci: MIGRATE_INFO_TYPE not supported.
+[    0.000000] psci: SMC Calling Convention v1.0
+[    0.000000] psci: OSI mode supported.
+[    0.000000] psci: [Firmware Bug]: failed to set PC mode: -3
+[    0.000000] Zone ranges:
+[    0.000000]   DMA      [mem 0x0000000080000000-0x00000000ffffffff]
+[    0.000000]   DMA32    empty
+[    0.000000]   Normal   [mem 0x0000000100000000-0x000000017e4bffff]
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000080000000-0x00000000857fffff]
+[    0.000000]   node   0: [mem 0x0000000085800000-0x0000000085efffff]
+[    0.000000]   node   0: [mem 0x0000000085f00000-0x0000000085ffffff]
+[    0.000000]   node   0: [mem 0x0000000086000000-0x00000000890fffff]
+[    0.000000]   node   0: [mem 0x0000000089100000-0x000000008aafffff]
+[    0.000000]   node   0: [mem 0x000000008ab00000-0x0000000095214fff]
+[    0.000000]   node   0: [mem 0x0000000095215000-0x00000000955fffff]
+[    0.000000]   node   0: [mem 0x0000000095600000-0x00000000957fffff]
+[    0.000000]   node   0: [mem 0x0000000095800000-0x00000000bfffbfff]
+[    0.000000]   node   0: [mem 0x00000000bfffc000-0x00000000bfffffff]
+[    0.000000]   node   0: [mem 0x00000000c0000000-0x000000017e4bffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000080000000-0x000000017e4bffff]
+[    0.000000] On node 0, zone Normal: 6976 pages in unavailable ranges
+[    0.000000] percpu: Embedded 26 pages/cpu s67416 r8192 d30888 u106496
+[    0.000000] pcpu-alloc: s67416 r8192 d30888 u106496 alloc=26*4096
+[    0.000000] pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 [0] 4 [0] 5 [0] 6 [0] 7 
+[    0.000000] Detected VIPT I-cache on CPU0
+[    0.000000] CPU features: detected: GICv3 CPU interface
+[    0.000000] CPU features: detected: Spectre-v4
+[    0.000000] CPU features: kernel page table isolation forced ON by KASLR
+[    0.000000] CPU features: detected: Kernel page table isolation (KPTI)
+[    0.000000] CPU features: detected: ARM erratum 845719
+[    0.000000] alternatives: applying boot alternatives
+[    0.000000] Kernel command line: clk_ignore_unused ignore_loglevel panic=5 androidboot.hardware=walleye androidboot.console=ttyMSM0 androidboot.dtbo_idx=3 androidboot.verifiedbootstate=orange androidboot.keymaster=1 root=PARTUUID=0000002b-0000-0000-0000-000000000000 androidboot.bootdevice=1da4000.ufshc androidboot.serialno=FA81N1A00790 androidboot.wificountrycode=00 androidboot.boottime=1BLL:221,1BLE:745,2BLL:867,2BLE:8528,SW:10016,KL:0,KD:2335,ODT:75,AVB:37 androidboot.baseband=msm mdss_mdp.panel=1:dsi:0:htc,mdss_dsi_samsung_s6e3fa5_1080p_cmd:1:none:cfg:single_dsi androidboot.fpsensor=fpc1075 androidboot.fpmodule=ofilm androidboot.usbradioflag=0 androidboot.temp_protect_ignore=0 androidboot.hardware.ufs=64GB,Hynix androidboot.mid=G011A androidboot.hardware.sku=G011A androidboot.revision=MP1 androidboot.ddrsize=4GB androidboot.ddrinfo=000000FF androidboot.hardware.ddr=4096MB,Micron,LPDDR4 androidboot.bootloader=mw8998-003.0085.00 androidboot.bootreason=reboot androidboot.cid=00000000 androidboot.hardware.color=VEN00 \
+[    0.000000] Kernel command line: androidboot.theme=1 androidboot.sf=1 androidboot.msm.hw_ver_id=2005E0E1 androidboot.qf.st=2 androidboot.pk=g-pxl-p androidboot.slot_suffix=_b skip_initramfs rootwait ro init=/init
+[    0.000000] printk: log buffer data + meta data: 131072 + 557056 = 688128 bytes
+[    0.000000] Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+[    0.000000] software IO TLB: area num 8.
+[    0.000000] software IO TLB: mapped [mem 0x00000000fa000000-0x00000000fe000000] (64MB)
+[    0.000000] Fallback order for Node 0: 0 
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 1041600
+[    0.000000] Policy zone: Normal
+[    0.000000] mem auto-init: stack:all(zero), heap alloc:off, heap free:off
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=8, Nodes=1
+[    0.000000] rcu: Preemptible hierarchical RCU implementation.
+[    0.000000] rcu: 	RCU event tracing is enabled.
+[    0.000000] rcu: 	RCU restricting CPUs from NR_CPUS=512 to nr_cpu_ids=8.
+[    0.000000] 	Trampoline variant of Tasks RCU enabled.
+[    0.000000] 	Tracing variant of Tasks RCU enabled.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=8
+[    0.000000] RCU Tasks: Setting shift to 3 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=8.
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] GICv3: 608 SPIs implemented
+[    0.000000] GICv3: 0 Extended SPIs implemented
+[    0.000000] Root IRQ handler: gic_handle_irq
+[    0.000000] GICv3: GICv3 features: 16 PPIs
+[    0.000000] GICv3: GICD_CTLR.DS=0, SCR_EL3.FIQ=1
+[    0.000000] GICv3: CPU0: found redistributor 0 region 0:0x0000000017b00000
+[    0.000000] ITS: No ITS available, not enabling LPIs
+[    0.000000] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[    0.000000] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.000000] arch_timer: cp15 timer running at 19.20MHz (virt).
+[    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x46d987e47, max_idle_ns: 440795202767 ns
+[    0.000000] sched_clock: 56 bits at 19MHz, resolution 52ns, wraps every 4398046511078ns
+[    0.004080] Console: colour dummy device 80x25
+[    0.004091] printk: legacy console [tty0] enabled
+[    0.004817] Calibrating delay loop (skipped), value calculated using timer frequency.. 38.40 BogoMIPS (lpj=76800)
+[    0.004837] pid_max: default: 32768 minimum: 301
+[    0.005187] Mount-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.005211] Mountpoint-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.005498] VFS: Finished mounting rootfs on nullfs
+[    0.007312] rcu: Hierarchical SRCU implementation.
+[    0.007324] rcu: 	Max phase no-delay instances is 1000.
+[    0.007510] Timer migration: 1 hierarchy levels; 8 children per group; 1 crossnode level
+[    0.014201] EFI services will not be available.
+[    0.014620] smp: Bringing up secondary CPUs ...
+[    0.016369] Detected VIPT I-cache on CPU1
+[    0.016490] GICv3: CPU1: found redistributor 1 region 0:0x0000000017b20000
+[    0.016559] CPU1: Booted secondary processor 0x0000000001 [0x51af8014]
+[    0.018234] Detected VIPT I-cache on CPU2
+[    0.018330] GICv3: CPU2: found redistributor 2 region 0:0x0000000017b40000
+[    0.018382] CPU2: Booted secondary processor 0x0000000002 [0x51af8014]
+[    0.019954] Detected VIPT I-cache on CPU3
+[    0.020050] GICv3: CPU3: found redistributor 3 region 0:0x0000000017b60000
+[    0.020100] CPU3: Booted secondary processor 0x0000000003 [0x51af8014]
+[    0.022024] CPU features: detected: Spectre-v2
+[    0.022053] CPU features: detected: Spectre-BHB
+[    0.022081] Detected VIPT I-cache on CPU4
+[    0.022388] GICv3: CPU4: found redistributor 100 region 0:0x0000000017b80000
+[    0.022482] CPU4: Booted secondary processor 0x0000000100 [0x51af8001]
+[    0.024428] Detected VIPT I-cache on CPU5
+[    0.024736] GICv3: CPU5: found redistributor 101 region 0:0x0000000017ba0000
+[    0.024825] CPU5: Booted secondary processor 0x0000000101 [0x51af8001]
+[    0.026778] Detected VIPT I-cache on CPU6
+[    0.027091] GICv3: CPU6: found redistributor 102 region 0:0x0000000017bc0000
+[    0.027181] CPU6: Booted secondary processor 0x0000000102 [0x51af8001]
+[    0.029096] Detected VIPT I-cache on CPU7
+[    0.029417] GICv3: CPU7: found redistributor 103 region 0:0x0000000017be0000
+[    0.029508] CPU7: Booted secondary processor 0x0000000103 [0x51af8001]
+[    0.029775] smp: Brought up 1 node, 8 CPUs
+[    0.029916] SMP: Total of 8 processors activated.
+[    0.029925] CPU: All CPU(s) started at EL1
+[    0.029952] CPU features: detected: 32-bit EL0 Support
+[    0.029961] CPU features: detected: 32-bit EL1 Support
+[    0.029972] CPU features: detected: CRC32 instructions
+[    0.029987] CPU features: detected: PMUv3
+[    0.030079] alternatives: applying system-wide alternatives
+[    0.033297] Memory: 3701556K/4166400K available (18240K kernel code, 6118K rwdata, 14904K rodata, 3072K init, 700K bss, 425276K reserved, 32768K cma-reserved)
+[    0.034778] devtmpfs: initialized
+[    0.055669] posixtimers hash table entries: 4096 (order: 4, 65536 bytes, linear)
+[    0.055816] futex hash table entries: 2048 (131072 bytes on 1 NUMA nodes, total 128 KiB, linear).
+[    0.056230] 2G module region forced by RANDOMIZE_MODULE_REGION_FULL
+[    0.056251] 0 pages in range for non-PLT usage
+[    0.056255] 513472 pages in range for PLT usage
+[    0.062579] DMI: not present or invalid.
+[    0.064948] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.066021] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    0.066156] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.066189] audit: initializing netlink subsys (disabled)
+[    0.066382] audit: type=2000 audit(0.064:1): state=initialized audit_enabled=0 res=1
+[    0.071716] thermal_sys: Registered thermal governor 'step_wise'
+[    0.071735] thermal_sys: Registered thermal governor 'power_allocator'
+[    0.071855] cpuidle: using governor menu
+[    0.072359] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+[    0.072615] ASID allocator initialised with 32768 entries
+[    0.076526] Serial: AMBA PL011 UART driver
+[    0.078087] pstore: Using crash dump compression: deflate
+[    0.078104] printk: legacy console [ramoops-1] enabled
+[    0.078863] pstore: Registered ramoops as persistent store backend
+[    0.078922] ramoops: using 0x200000@0xa1100000, ecc: 0
+[    0.115773] /soc@0/display-subsystem@c900000/phy@c994400: Fixed dependency cycle(s) with /soc@0/clock-controller@c8c0000
+[    0.115873] /soc@0/clock-controller@c8c0000: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/phy@c994400
+[    0.116048] /soc@0/display-subsystem@c900000/dsi@c994000: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/display-controller@c901000
+[    0.116244] /soc@0/display-subsystem@c900000/display-controller@c901000: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/dsi@c994000
+[    0.116831] /soc@0/display-subsystem@c900000/dsi@c994000/panel@0: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/dsi@c994000
+[    0.116949] /soc@0/display-subsystem@c900000/dsi@c994000: Fixed dependency cycle(s) with /soc@0/display-subsystem@c900000/dsi@c994000/panel@0
+[    0.117616] /soc@0/interrupt-controller@17a00000: Fixed dependency cycle(s) with /soc@0/interrupt-controller@17a00000
+[    0.151272] /soc@0/display-subsystem@c900000: Fixed dependency cycle(s) with /soc@0/clock-controller@c8c0000
+[    0.181191] HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
+[    0.181249] HugeTLB: 0 KiB vmemmap can be freed for a 1.00 GiB page
+[    0.181296] HugeTLB: registered 32.0 MiB page size, pre-allocated 0 pages
+[    0.181335] HugeTLB: 0 KiB vmemmap can be freed for a 32.0 MiB page
+[    0.181376] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+[    0.181413] HugeTLB: 0 KiB vmemmap can be freed for a 2.00 MiB page
+[    0.181454] HugeTLB: registered 64.0 KiB page size, pre-allocated 0 pages
+[    0.181491] HugeTLB: 0 KiB vmemmap can be freed for a 64.0 KiB page
+[    0.186538] ACPI: Interpreter disabled.
+[    0.200602] iommu: Default domain type: Translated
+[    0.200656] iommu: DMA domain TLB invalidation policy: strict mode
+[    0.201705] SCSI subsystem initialized
+[    0.201971] libata version 3.00 loaded.
+[    0.202519] usbcore: registered new interface driver usbfs
+[    0.202664] usbcore: registered new interface driver hub
+[    0.202796] usbcore: registered new device driver usb
+[    0.206164] pps_core: LinuxPPS API ver. 1 registered
+[    0.206209] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    0.206288] PTP clock support registered
+[    0.206762] EDAC MC: Ver: 3.0.0
+[    0.208922] scmi_core: SCMI protocol bus registered
+[    0.209179] qcom_scm: convention: smc arm 64
+[    0.209384] qcom_scm firmware:scm: SHM Bridge not supported
+[    0.209824] qcom_scm firmware:scm: qseecom: found qseecom with version 0x1001000
+[    0.209945] qcom_scm firmware:scm: qseecom: untested machine, skipping
+[    0.215834] FPGA manager framework
+[    0.218188] vgaarb: loaded
+[    0.219777] clocksource: Switched to clocksource arch_sys_counter
+[    0.220521] VFS: Disk quotas dquot_6.6.0
+[    0.220599] VFS: Dquot-cache hash table entries: 512 (4096 bytes)
+[    0.221226] pnp: PnP ACPI: disabled
+[    0.231222] s3: Bringing 0uV into 1352000-1352000uV
+[    0.231555] s4: Bringing 0uV into 1800000-1800000uV
+[    0.231605] bob: Bringing 0uV into 3312000-3312000uV
+[    0.231695] s5: Bringing 0uV into 1904000-1904000uV
+[    0.231912] s7: Bringing 0uV into 900000-900000uV
+[    0.232098] l1: Bringing 0uV into 880000-880000uV
+[    0.232242] l2: Bringing 0uV into 1200000-1200000uV
+[    0.232512] l12: Bringing 0uV into 1800000-1800000uV
+[    0.232719] l6: Bringing 0uV into 1808000-1808000uV
+[    0.232908] l28: Bringing 0uV into 3008000-3008000uV
+[    0.233107] l20: Bringing 0uV into 2960000-2960000uV
+[    0.233316] l26: Bringing 0uV into 1200000-1200000uV
+[    0.233515] l24: Bringing 0uV into 3088000-3088000uV
+[    0.233741] l14: Bringing 0uV into 1800000-1800000uV
+[    0.233923] l22: Bringing 0uV into 3000000-3000000uV
+[    0.236904] NET: Registered PF_INET protocol family
+[    0.237356] IP idents hash table entries: 65536 (order: 7, 524288 bytes, linear)
+[    0.245800] tcp_listen_portaddr_hash hash table entries: 2048 (order: 3, 32768 bytes, linear)
+[    0.245940] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.246007] TCP established hash table entries: 32768 (order: 6, 262144 bytes, linear)
+[    0.246508] TCP bind hash table entries: 32768 (order: 8, 1048576 bytes, linear)
+[    0.248556] TCP: Hash tables configured (established 32768 bind 32768)
+[    0.248759] UDP hash table entries: 2048 (order: 5, 131072 bytes, linear)
+[    0.249446] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    0.250203] RPC: Registered named UNIX socket transport module.
+[    0.250257] RPC: Registered udp transport module.
+[    0.250293] RPC: Registered tcp transport module.
+[    0.250327] RPC: Registered tcp-with-tls transport module.
+[    0.250361] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.250407] PCI: CLS 0 bytes, default 64
+[    0.250718] Unpacking initramfs...
+[    0.259960] kvm [1]: HYP mode not available
+[    0.262303] Initialise system trusted keyrings
+[    0.262561] workingset: timestamp_bits=42 (anon: 37) max_order=20 bucket_order=0 (anon: 0)
+[    0.263344] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.263923] NFS: Registering the id_resolver key type
+[    0.264001] Key type id_resolver registered
+[    0.264039] Key type id_legacy registered
+[    0.264112] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[    0.264155] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
+[    0.265075] Key type asymmetric registered
+[    0.265124] Asymmetric key parser 'x509' registered
+[    0.265244] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 242)
+[    0.265295] io scheduler mq-deadline registered
+[    0.265337] io scheduler kyber registered
+[    0.265457] io scheduler bfq registered
+[    0.323805] ledtrig-cpu: registered to indicate activity on CPUs
+[    0.497123] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[    0.510902] msm_serial: driver initialized
+[    0.513234] SuperH (H)SCI(F) driver initialized
+[    0.514235] STM32 USART driver initialized
+[    0.528793] arm-smmu 1680000.iommu: probing hardware configuration...
+[    0.528854] arm-smmu 1680000.iommu: SMMUv2 with:
+[    0.528928] arm-smmu 1680000.iommu: 	stage 1 translation
+[    0.528978] arm-smmu 1680000.iommu: 	address translation ops
+[    0.529021] arm-smmu 1680000.iommu: 	non-coherent table walk
+[    0.529061] arm-smmu 1680000.iommu: 	(IDR0.CTTW overridden by FW configuration)
+[    0.529108] arm-smmu 1680000.iommu: 	stream matching with 16 register groups
+[    0.529177] arm-smmu 1680000.iommu: 	6 context banks (0 stage-2 only)
+[    0.529594] arm-smmu 1680000.iommu: 	Supported page sizes: 0x63315000
+[    0.529650] arm-smmu 1680000.iommu: 	Stage-1: 36-bit VA -> 36-bit IPA
+[    0.529735] arm-smmu 1680000.iommu: 	preserved 0 boot mappings
+[    0.533349] arm-smmu 16c0000.iommu: probing hardware configuration...
+[    0.533411] arm-smmu 16c0000.iommu: SMMUv2 with:
+[    0.533476] arm-smmu 16c0000.iommu: 	stage 1 translation
+[    0.533526] arm-smmu 16c0000.iommu: 	address translation ops
+[    0.533567] arm-smmu 16c0000.iommu: 	non-coherent table walk
+[    0.533607] arm-smmu 16c0000.iommu: 	(IDR0.CTTW overridden by FW configuration)
+[    0.533654] arm-smmu 16c0000.iommu: 	stream matching with 14 register groups
+[    0.533725] arm-smmu 16c0000.iommu: 	10 context banks (0 stage-2 only)
+[    0.534081] arm-smmu 16c0000.iommu: 	Supported page sizes: 0x63315000
+[    0.534137] arm-smmu 16c0000.iommu: 	Stage-1: 36-bit VA -> 36-bit IPA
+[    0.534220] arm-smmu 16c0000.iommu: 	preserved 0 boot mappings
+[    0.552812] loop: module loaded
+[    0.556960] megasas: 07.734.00.00-rc1
+[    0.574953] spmi_pmic_arb 800f000.spmi: PMIC arbiter version v3 (0x30000000)
+[    0.616494] spmi spmi-0: node /soc@0/spmi@800f000/qcom,pm8998@0 err (-22) does not have 'reg' property
+[    0.616593] spmi spmi-0: node /soc@0/spmi@800f000/qcom,pmi8998@3 err (-22) does not have 'reg' property
+[    0.624640] tun: Universal TUN/TAP device driver, 1.6
+[    0.626188] VFIO - User Level meta-driver version: 0.3
+[    0.644886] usbcore: registered new interface driver usb-storage
+[    0.662973] i2c_dev: i2c /dev entries driver
+[    0.680931] input: pm8941_pwrkey as /devices/platform/soc@0/800f000.spmi/spmi-0/0-00/800f000.spmi:pmic@0:pon@800/800f000.spmi:pmic@0:pon@800:pwrkey/input/input0
+[    0.797025] clocksource: arch_mmio_counter: mask: 0xffffffffffffff max_cycles: 0x46d987e47, max_idle_ns: 440795202767 ns
+[    0.797121] arch-timer-mmio 17920000.timer: mmio timer running at 19.20MHz (virt)
+[    0.800092] usbcore: registered new interface driver usbhid
+[    0.800153] usbhid: USB HID core driver
+[    0.894064] NET: Registered PF_INET6 protocol family
+[    0.896530] Segment Routing with IPv6
+[    0.896750] In-situ OAM (IOAM) with IPv6
+[    0.897031] NET: Registered PF_PACKET protocol family
+[    0.897274] Key type dns_resolver registered
+[    0.974825] registered taskstats version 1
+[    0.975329] Loading compiled-in X.509 certificates
+[    0.997520] Demotion targets for Node 0: null
+[    1.099623] msm_serial c1b0000.serial: msm_serial: detected port #0
+[    1.099839] msm_serial c1b0000.serial: uartclk = 19200000
+[    1.100496] c1b0000.serial: ttyMSM0 MMIO:0x000000000c1b0000 (irq = 46, base_baud = 1200000) is a MSM
+[    1.105994] msm_serial c16f000.serial: msm_serial: detected port #1
+[    1.106076] qcom_cc_clk_hw_get: invalid index 3351654288
+[    1.106126] msm_serial c16f000.serial: probe with driver msm_serial failed with error -2
+[    1.113994] arm-smmu cd00000.iommu: probing hardware configuration...
+[    1.114056] arm-smmu cd00000.iommu: SMMUv2 with:
+[    1.114128] arm-smmu cd00000.iommu: 	stage 1 translation
+[    1.114179] arm-smmu cd00000.iommu: 	address translation ops
+[    1.114220] arm-smmu cd00000.iommu: 	non-coherent table walk
+[    1.114261] arm-smmu cd00000.iommu: 	(IDR0.CTTW overridden by FW configuration)
+[    1.114308] arm-smmu cd00000.iommu: 	stream matching with 54 register groups
+[    1.114384] arm-smmu cd00000.iommu: 	17 context banks (0 stage-2 only)
+[    1.115428] arm-smmu cd00000.iommu: 	Supported page sizes: 0x63315000
+[    1.115482] arm-smmu cd00000.iommu: 	Stage-1: 32-bit VA -> 36-bit IPA
+[    1.115568] arm-smmu cd00000.iommu: 	preserved 0 boot mappings
+[    1.119017] platform c900000.display-subsystem: Adding to iommu group 0
+èÿ0¡
+
+UEFI Start     [ 1149] SEC
+PROD Mode   : On
+DEBUG Mode  : On
+ASLR        : On
+--- VERSION INFO ---
+HYP:TZ:--- HYP boot info ---
+CPU : WarmEntry  : WarmExit   : WarmBoot_Marker
+  0 : 0x00000019 : 0x0000001A : 0x0000004C
+  1 : 0x0000002D : 0x0000002D : 0x00000087
+  2 : 0x00000004 : 0x00000004 : 0x0000000C
+  3 : 0x00000005 : 0x00000005 : 0x0000000F
+  4 : 0x00000003 : 0x00000003 : 0x00000009
+  5 : 0x00000009 : 0x00000009 : 0x0000001B
+  6 : 0x00000001 : 0x00000001 : 0x00000003
+  7 : 0x00000002 : 0x00000002 : 0x00000006
+--- HYP RING BUFF ---
+HYP Version Info: QC_IMAGE_VERSION_STRING=TZ.BF.4.0.6-00251
+
+
+HYP Version Info: IMAGE_VARIANT_STRING=RAGAANAAA
+
+
+OEM Version Info: OEM_IMAGE_VERSION_STRING=CRM
+
+
+(0)
+
+
+SMMU Info: VMID 4 not support
+
+
+SMMU Info: VMID 4 not support
+
+
+Initializing PIL
+
+
+
+--- TZ LOG END ---
+
+Timer Delta : +7 mS
+RAM Entry 0 : Base 0x0000000080000000  Size 0x0000000080000000
+RAM Entry 1 : Base 0x0000000100000000  Size 0x000000007E4C0000
+UEFI Ver    : 4.2.200623.BOOT.XF.1.2.2.c1-00052-M8998LZB-1
+Build Info  : 64b Jun 23 2020 02:15:02
+Boot Device : UFS
+ufs_ffu: SKhynix H28U74301AMR D003
+match vendor:SKhynix, product id:H28U74301AMR
+FFU is successful to D003
+ffu success
+PID=0x1BC
+PCBID=0x80
+PCBID2=0x4
+BOMID=0x4
+DisplayDxe: Panel_CDP_PowerUp!
+DisplayDxe: ID Pin:0
+Display SelectedPanel:26
+DisplayDxe: Resolution 1080x1920 (1 intf)
+DisplayDxe: Panel_CDP_Reset!
+set dsi_Backlight_Value: 98
+LoadSecureApps: Load app from partition(keymaster): Status = 0x0, AppId = 65537
+Trusty qsee load failed: 1
+LoadSecureApps: Load app from partition(lockbooter): Status = 0x0, AppId = 131074
+ESEProtocolInit is called 
+ESEProtocolInit done 
+-----------------------------
+Platform Init  [ 1845] BDS
+UEFI Ver   : 4.2.200623.BOOT.XF.1.2.2.c1-00052-M8998LZB-1
+Platform   : MTP
+Chip Name  : MSM8998
+Chip Ver   : 2.1
+Core 0 Freq: 1555 MHz
+-----------------------------
+PmicDxe:: PmicFgSram_ReadBattID: BATT_ID_2 = 22971 
+PmicDxe:: PmicFgSram_ReadBattID: BATT_ID_2 = 22971 
+UEFI Total : 720 ms
+POST Time      [ 1869] OS Loader
+Successfully erase ramdump partition
+Loader Build Info: May  8 2020 03:31:29
+ddr_vendor is Micron(0xFF)
+First RTC time: 1980-08-05, 02:23:08
+Bypass RESET_DEVINFO
+VB: RWDeviceState: Succeed using rpmb!
+ActiveSlot: _b
+Write Permission: 0x3FF9FC3C
+QseecomStartApp lockbooter call success status=0, AppId=131074
+LockBooterGetFlag:ID = 21 Status = 0 
+OemLockMessageHandler: provisioning is disabled
+Need shut down?
+BootReason 0x0
+ConfigDefaultReason: no need to change Bootreason: 0
+Recovery command: 32 bootonce-bootloader
+set deault pmic reboot reason to WDT
+LockBooterSendCmd:ID = 22, Data = 0, Status = 0 
+HtcSec_KSCounterClear = 0
+ PON Reason is 33 cold_boot:1 charger path: 1
+Booting from slot (_b)
+avb_slot_verify.c:432: DEBUG: Loading vbmeta struct from partition 'vbmeta_b'.
+avb_slot_verify.c:627: ERROR: vbmeta_b: Public key used to sign data rejected.
+avb_slot_verify.c:692: DEBUG: vbmeta_b: VERIFICATION_DISABLED bit is set.
+avb_slot_verify.c:317: DEBUG: boot_b: Loading entire partition.
+avb_slot_verify.c:317: DEBUG: dtbo_b: Loading entire partition.
+State: Unlocked, AvbSlotVerify returned ERROR_PUBLIC_KEY_REJECTED, continue boot
+VB2: Authenticate complete! boot state is: orange
+VB2: boot state: orange(1)
+No Ffbm cookie found, ignore: Not Found
+Memory Base Address: 0x80000000
+Decompressing lz4 kernel image start: 2113 ms
+Decompressing lz4 kernel image done: 2208 ms
+Device tree exact match the board: <0x124 0x20001> == <0x124 0x20001>
+DTB offset is incorrect, kernel image does not have appended DTB
+WARNING: DeviceTreeAppended returned fail; fallback to SocDeviceTreeAppended
+Device tree exact match the board: <0x124 0x20001> == <0x124 0x20001>
+Memory Base Address: 0x80000000
+Overlaying SOC & DEV dtb start: 2209 ms
+Overlaying SOC & DEV dtb done: 2352 ms
+  Note: libufdt heap usage: 1149528 bytes
+get_wifi_country_code: 0x0 
+GetBoardFpId: value1(0) fp_id(0)
+GetBoardFpId: eFpIdRet:0 fp_id:0
+ PON Reason is 33 cold_boot:1 charger path: 1
+Get Cert FingerPrint: 0xDD1DC642
+ddr_vendor is Micron(0xFF)
+IsRebootByKey 0
+IsRebootByKey 0
+OEM SecureBoot: 0x00303030
+HW Security has been enabled !
+It's production key device
+CmdLine : Write 1345(4096)
+Cmdline: androidboot.hardware=walleye androidboot.console=ttyMSM0 lpm_levels.sleep_disabled=1 user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 service_locator.enable=1 swiotlb=2048 firmware_class.path=/vendor/firmware loop.max_part=7 raid=noautodetect us
+RAM Partitions
+Adding Base: 0x0000000080000000 Available Length: 0x0000000080000000 
+Adding Base: 0x0000000100000000 Available Length: 0x000000007E4C0000 
+kaslr-Seed is added to chosen node
+dtb_calibration_data_set enter
+wifi_eeprom: 2048-byte added
+bt_flash: 6-byte added
+aud_cali_data: 1024-byte added
+gyro_flash: 768-byte added
+setting_get_disp_cali_data OK
+disp_flash: 1280-byte added
+Appending radio node data info FDT
+radio node htc_smem_app_run_mode: 4-byte data added
+radio node htc_smem_radio_dbg_flag: 4-byte data added
+radio node htc_rom_ver: 16-byte data added
+radio node htc_smem_pid: 4-byte data added
+radio node sku_id: 48-byte data added
+radio node htc_smem_factory_reset: 4-byte data added
+Updating /chosen/radio subnode, ret:0
+Last RTC time: 1980-08-05, 02:23:19
+
+Shutting Down UEFI Boot Services: 12549 ms
+BDS: LogFs sync skipped, Unsupported
+App Log Flush : 0 ms
+Exit BS  
