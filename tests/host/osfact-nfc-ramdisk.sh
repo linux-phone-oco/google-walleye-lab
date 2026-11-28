@@ -1,6 +1,6 @@
 #!/bin/sh
 # walleye-osfact-nfc-ramdisk, run on the lab host: is the ramdisk of the osfact NFC image what the item says (item walleye-osfact-image-nfc)?
-# Passes only when the ramdisk (an xz cpio) holds: /init equal to build/initramfs-slpi/init (NO added line: the NFC open is the host's, over the shell, as the NFC boot procedure does it) and to
+# Passes only when the ramdisk (an xz or gzip cpio) holds: /init equal to build/initramfs-slpi/init (NO added line: the NFC open is the host's, over the shell, as the NFC boot procedure does it) and to
 # build/initramfs-osfact-nfc/init; /bin/walleye-nfc-up byte for byte the one of the proven NFC ramdisk (NFC_RAMDISK, the part device.toml's [images.nfc.recipe] names, f4b6c1d7: the opener that
 # acked DEV_UP, research walleye-nfc-poll-no-tag-run); busybox with the sha256 of build/initramfs-modem/tools.sha256 (arm64); modes of /init and the tool 755, /bin/sh a link
 # to busybox; and NO userland.tar and NO firmware (the root comes by the osfact push; NFC needs none). Read-only; extracts to a temp folder (mode 700) that it removes.
@@ -24,7 +24,8 @@ want_bb=$(sed -n 's/^\([0-9a-f]\{64\}\)  busybox-arm64$/\1/p' "$HERE/build/initr
 [ -n "$want_bb" ] && [ "$(sum "$T/ours/bin/busybox")" = "$want_bb" ] || say fail "/bin/busybox is not the recorded arm64 build"
 cmp -s "$T/ours/init" "$HERE/build/initramfs-slpi/init" || say fail "/init differs from build/initramfs-slpi/init"
 cmp -s "$T/ours/init" "$HERE/build/initramfs-osfact-nfc/init" || say fail "/init differs from build/initramfs-osfact-nfc/init"
+cmp -s "$T/ours/etc/udhcpd.conf" "$HERE/build/initramfs-slpi/udhcpd.conf" || say fail "/etc/udhcpd.conf differs from build/initramfs-slpi/udhcpd.conf"
 cmp -s "$T/ours/bin/walleye-nfc-up" "$T/nfc/bin/walleye-nfc-up" || say fail "/bin/walleye-nfc-up is not the proven NFC ramdisk's, byte for byte"
 [ ! -e "$T/ours/userland.tar" ] || say fail "a userland.tar is in the ramdisk (the root comes by the osfact push)"
-[ ! -e "$T/ours/lib/firmware/qcom" ] || [ -z "$(ls -A "$T/ours/lib/firmware/qcom/msm8998/google/walleye" 2>/dev/null)" ] || say fail "firmware is in the ramdisk (NFC needs none)"
-say pass "init = slpi's, unchanged; /bin/walleye-nfc-up is the proven NFC ramdisk's byte for byte; busybox is the recorded arm64 build; no userland.tar, no firmware"
+[ ! -e "$T/ours/lib/firmware" ] || say fail "firmware is in the ramdisk (NFC needs none)"
+say pass "init = slpi's, unchanged; /bin/walleye-nfc-up is the proven tool (the NFC ramdisk's) byte for byte; udhcpd.conf is slpi's; busybox is the recorded arm64 build; no userland.tar, no firmware"

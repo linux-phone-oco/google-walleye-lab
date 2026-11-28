@@ -23,3 +23,6 @@ Kept outside git in `~/Projects/walleye-build/osfact-nfc/` (parts, alpine.toml, 
 
 NOT KNOWN YET: that nfc0 appears under osfact's chroot (the proof reads /sys/class/nfc/nfc0 on the booted image; the root's own /sys is bound by `[install.root] binds`);
 the controller's clock and the pins' drive strength (research walleye-nfc-clock-and-minus-121). The tag poll stays parked (decision 2026-11-28-walleye-nfc-tag-poll-waits-no-tag).
+
+Also NOT KNOWN YET: DEV_UP under this init (slpi's); it was acked only under the roof's generated init (the NFC image, research walleye-nfc-poll-no-tag-run). The test does not check
+the kernel and dtb parts (their sha256 are device.toml's `[images.nfc.recipe]`; research/nfc/2026-11-28/SHA256SUMS).
