@@ -15121,7 +15121,10 @@ Note
 : From docs decision 2026-11-27-osfact-own-rust-in-lab-tools (lab-tools item image-factory-any-distro-any-phone). When lab-tools osfact-walleye-two-distros has landed: build walleye's Alpine image with osfact pack now from this lab's device.toml (its [install] table added by lab-tools osfact-device-declaration), install it with the install command it prints - the same writes install-rootfs and install-boot make today (system_{other} by dd from Android, boot_{other} by fastboot, set_active, the way back) under the coordinator's go - and boot it. Debian after Alpine, as its own run. No bootloader, GPT bytes of ours, erase or purge. Not ready before the build: it waits on it. | Split 2026-11-28 on the Top's word (the author is often away): this unattended run first; the author's look on the glass is walleye-osfact-image-witnessed, after this passes.
 
 Waits
-: an osfact binary released by lab-tools (none on 2026-11-28: no osfact tag) and lab-tools osfact-walleye-alpine-skeleton done (in progress; osfact-walleye-two-distros and osfact-device-declaration open, linux-phone-oco/docs base); device.toml's [install] values stay PROPOSED until this run measures them
+: lab-tools osfact-walleye-alpine-skeleton closes with this run (in-progress on purpose, orchestration 2026-11-28)
+
+Blocked by
+: walleye-install-osfact
 
 About
 : walleye-bootimage
@@ -15215,3 +15218,31 @@ Proof
 
 Rank
 : 25
+
+
+<a id="walleye-install-osfact"></a>
+### bin/install-osfact.sh installs osfact from its pinned lab-tools release (sha256 checked), as bin/install-bringup.sh does lpoco-bringup
+
+Status
+: open
+
+Note
+: Orchestration 2026-11-28: no cargo install at a commit (rejected: a second way to pin a tool outside rhizoid's graph).
+
+Waits
+: lab-tools osfact-first-release: osfact-v0.1.0 with a prebuilt x86_64 binary and its .sha256 (decision 2026-11-28-osfact-is-first-released-with-the-walking); orchestration sends the tag and adds rhizoid's graph edge to this script
+
+About
+: walleye-bootimage
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: bin/install-osfact.sh installs the pinned osfact-vX.Y.Z, refuses a sha256 mismatch and a wrong --version, and is the version rhizoid's edge bumps; osfact pack and osfact install now --dry-run run with it on this lab's device.toml
+
+Rank
+: 1
