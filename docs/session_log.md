@@ -11257,3 +11257,21 @@ Considered
 
 About
 : walleye-wdt-pon-control-read
+
+---
+
+
+<a id="2026-11-28-0205-how-the-phone-stands"></a>
+### How the phone stands
+
+Entry date
+: 2026-11-28
+
+Done
+: PON control read, two more tries with the author said to be at the phone. Try 1: ask 4 answered ok (relayed by the Top Coordinator), the phone was powered off by adb, ask 7 (hold volume-down+power) got no ok in 300 s and the phone never reached fastboot, so it stayed off until the author pressed power; Android came back by itself (adb device). Try 2 (answer limit 600 s): no answer to ask 4, run stopped, phone untouched. Phone on Android slot b, stock. The read itself has not happened; the go (to 02:25) is not used by a completed run.
+
+Considered
+: next: the author must answer each ask within the limit; start the run only once he has said he is at the phone, and send the hold line the moment ask 7 is due (the phone is off from then, so its wait should be generous: --answer-limit 600)
+
+About
+: walleye-wdt-pon-control-read
