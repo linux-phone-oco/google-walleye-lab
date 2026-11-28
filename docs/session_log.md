@@ -11296,3 +11296,21 @@ Rejected
 
 About
 : walleye-bootimage
+
+---
+
+
+<a id="2026-11-28-walleye-keeper-no-runnable-item"></a>
+### How the phone stands: no runnable item
+
+Entry date
+: 2026-11-28
+
+Done
+: Phone on Android slot b, stock, adb device; nothing changed, no run made. The top ready item walleye-osfact-image-installs cannot run: osfact has no binary (not released, not on PATH), lab-tools osfact-walleye-two-distros and osfact-device-declaration are open, and device.toml's [install] tables still say PROPOSED; its own note says it waits on the build. Next ready modem items (mm-net-port-candidate, net-port-ipa-try) are overtaken by runs 9 and 10 (modem0 created, ipa bound, mmcli -L lists none), the true next being walleye-modem-mm-lists-modem-after-init, blocked by walleye-modem-guards-count-the-ask.
+
+Considered
+: next: lab-tools lands osfact-device-declaration and osfact-walleye-two-distros, then walleye-osfact-image-installs runs; tad ready lists it before its build because the wait is only in its note, not a blocker edge - add the blocker
+
+About
+: walleye-bootimage
