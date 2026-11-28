@@ -14,7 +14,7 @@ name = "walleye_tries"
 # Ctrl-C and a hang-up reach the watching parent, which then runs the way back
 ctrlc = { version = "3", features = ["termination"] }
 # the runner every attended procedure shares; its release is the tag
-lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.46.14" }
+lpoco-attended = { git = "https://github.com/linux-phone-oco/lab-tools", tag = "lpoco-attended-v0.46.15" }
 # the procedure's own choice (the pin) is declared once, as the runner's options are
 argenv-resolve = "0.4"
 # the recipe of an image is read from the manifest
