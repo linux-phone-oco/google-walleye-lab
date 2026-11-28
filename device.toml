@@ -1,4 +1,4 @@
-#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.53.5/manifest/device.schema.json
+#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.54.3/manifest/device.schema.json
 # ^ the lpoco-lab release this file follows: editors complete and check from its schema, CI reads the file with that release.
 # This phone's manifest - the only file a new phone's lab needs to say. Every tool reads it:
 # lpoco lab (linux-phone-oco/lab-tools) finds it like cargo finds Cargo.toml, or by --device.
@@ -9,6 +9,8 @@
 
 [device]
 codename = "google-walleye"        # the Pixel 2; fastboot serial FA81N1A00790; until Linux runs it speaks only fastboot
+arch = "aarch64"                    # the machine kind of the Pixel 2's packages (osfact reads it; lab-tools 0.54.3 osfact/tests/fixtures/google-walleye/device.toml, the MSM8998 is a 64-bit ARM SoC)
+serial_env = "WALLEYE_SERIAL"       # the environment variable of the phone's fastboot serial (the same fixture; plans/walleye-ram.toml names it so)
 
 [connection]
 user = "user"                      # the phone's user
@@ -131,6 +133,46 @@ rndis = false
 
 # What the attended tries (procedures/*.rs, plumbing in procedures/steps) read about this phone; each fact in the table that
 # owns it (decision 2026-11-19-attended-keys-in-the-manifest). Every key is read at the top of main: a missing one fails --dry-run.
+# How an image of this phone reaches it, as osfact reads it (lab-tools 0.54.3, items osfact-device-declaration and
+# osfact-pack-writes-the-ram-root-plan; item walleye-device-arch-declared). Every value is walleye's own today:
+#   [[install.step]]: procedures/install-rootfs-on-the-pixel-2.rs (rootfs by dd from Android to the slot Android is not on)
+#     and install-boot-on-the-pixel-2.rs (boot.img by fastboot to that slot's boot partition, then set_active); {other} is that slot, read at the run;
+#   [install.*]: the modem boot's push into RAM (build/initramfs-modem/rootfs-recv, procedures/steps/src/modem_boot.rs: port 9001, /mm tmpfs,
+#     the USB gadget address 172.16.43.1 on telnet port 23; decisions 2026-11-27-walleye-mm-runs-in-a-pushed-alpine-rootfs and
+#     2026-11-28-walleye-modem-push-the-rootfs-compressed), the way back its init's window end (build/initramfs-modem/window-end: sync; sysrq b).
+# Nothing here writes anything by itself: osfact prints the install command; the run is under the coordinator's go.
+[[install.step]]
+write = "rootfs"
+to = "system_{other}"
+via = "android-dd"
+
+[[install.step]]
+write = "boot"
+to = "boot_{other}"
+via = "fastboot"
+
+[[install.step]]
+activate = "{other}"
+via = "fastboot"
+
+[install.connection]
+address = "172.16.43.1"            # the USB gadget's address of the booted image
+shell_port = 23                    # telnetd, no login
+wait = 60                          # seconds the shell may take to answer after the boot
+
+[install.root]
+port = 9001                        # the device's port the receiver listens on (rootfs-recv's MM_PORT)
+receive = "nc -l -p 9001"          # the receiver, on the device
+to = "/tmp/root.tar.gz"            # where it writes the compressed root image
+wait = 60                          # seconds the whole push may take
+path = "/mm"                       # the folder the root is unpacked into (a tmpfs; rootfs-recv's MM_ROOT)
+size_mib = 400                     # rootfs-recv's MM_SIZE
+command = "/sbin/init"             # started in the chroot
+check = "test -e /mm/sbin/init"    # must succeed once it is started
+
+[install.way_back]
+command = "sync; echo b > /proc/sysrq-trigger"   # the booted image restarts the phone (window-end)
+
 [tools]
 adb = "adb"
 fastboot = "fastboot"

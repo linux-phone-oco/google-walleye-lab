@@ -11275,3 +11275,24 @@ Considered
 
 About
 : walleye-wdt-pon-control-read
+
+---
+
+
+<a id="2026-11-28-device-toml-declares-arch-serial-env-and-the"></a>
+### device.toml declares arch, serial_env and the install tables
+
+Entry date
+: 2026-11-28
+
+Done
+: Added [device] arch/serial_env and the [install] tables to device.toml from lab-tools 0.54.3's google-walleye fixture, checked against walleye's modem boot and install procedures; moved the schema pin to 0.54.3.
+
+Considered
+: Copying the fixture's [install.root] receiver and command as they are: they are lab-tools' proposal for an osfact Alpine image, the modem boot's own receiver is rootfs-recv.
+
+Rejected
+: Inventing values the phone has not shown: the root's command and check stay the fixture's until walleye-osfact-image-installs runs them.
+
+About
+: walleye-bootimage
