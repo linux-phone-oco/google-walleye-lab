@@ -1,4 +1,4 @@
-#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.53.5/manifest/device.schema.json
+#:schema https://raw.githubusercontent.com/linux-phone-oco/lab-tools/lpoco-lab-v0.54.2/manifest/device.schema.json
 # ^ the lpoco-lab release this file follows: editors complete and check from its schema, CI reads the file with that release.
 # This phone's manifest - the only file a new phone's lab needs to say. Every tool reads it:
 # lpoco lab (linux-phone-oco/lab-tools) finds it like cargo finds Cargo.toml, or by --device.
@@ -9,6 +9,7 @@
 
 [device]
 codename = "google-walleye"        # the Pixel 2; fastboot serial FA81N1A00790; until Linux runs it speaks only fastboot
+arch = "aarch64"                   # MSM8998 (Kryo 280, ARMv8-A); osfact reads it (lab-tools decision 2026-11-28-osfact-pack-reads-arch-from-the-declaration)
 
 [connection]
 user = "user"                      # the phone's user
