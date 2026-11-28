@@ -15030,7 +15030,7 @@ Note
 : From docs decision 2026-11-27-osfact-own-rust-in-lab-tools (lab-tools item image-factory-any-distro-any-phone). When lab-tools osfact-walleye-two-distros has landed: build walleye's Alpine image with osfact pack now from this lab's device.toml (its [install] table added by lab-tools osfact-device-declaration), install it with the install command it prints - the same writes install-rootfs and install-boot make today (system_{other} by dd from Android, boot_{other} by fastboot, set_active, the way back) under the coordinator's go - and boot it. Debian after Alpine, as its own run. No bootloader, GPT bytes of ours, erase or purge. Not ready before the build: it waits on it.
 
 Waits
-: lab-tools osfact-walleye-two-distros landed (linux-phone-oco/docs base)
+: lab-tools osfact-walleye-alpine-skeleton landed (linux-phone-oco/docs base)
 
 Opened
 : 2026-11-27
@@ -15039,7 +15039,7 @@ Needs
 : phone
 
 Proof
-: procedures/rootfs-boots-on-the-pixel-2.rs passes on the osfact-built image, and the image's sha256 equals the one osfact's install.toml names
+: the osfact-built Alpine image of walleye boots from RAM by its one command (fastboot boot, never flash), the proven parts' health checks pass on it (modem-up, NFC present, touch), and the declared way back returns the phone to Android slot b with card, boot chain and flags equal; the author witnesses
 
 Rank
 : 90
