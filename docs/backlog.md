@@ -15436,7 +15436,7 @@ Note
 : run 1 (2026-11-28 keeper): stopped at step 5, no gadget from b-r5-smmu, back on Android after 57 s, no kernel text kept; see research walleye-display-smmu-on-run-1-no-gadget-from-b-r5-smmu. Not retried: coordinator decides
 
 Blocked by
-: walleye-display-smmu-on-procedure
+: walleye-display-image-console-in-ramoops
 
 About
 : walleye-display-s6e3fa5
@@ -15552,6 +15552,31 @@ Needs
 
 Proof
 : procedures/display-smmu-on-on-the-pixel-2.rs (or a named-image part of the display-at-boot procedure, not the PREFIX+delay bisect) boots [images.B-r5-smmu] from RAM, reads the display-boot-clean signs (dmesg arm-smmu faults counted, DSI-1 connected, the panel bound, a CRTC active), and takes the way back; dry run and steps tests pass; an ideal-agent programmer review of #1413 and this change recorded
+
+Rank
+: 17
+
+
+<a id="walleye-display-image-console-in-ramoops"></a>
+### The SMMU-on display image writes its console to ramoops where stock Android's pstore reads it, and the way back shows those lines
+
+Status
+: open
+
+Note
+: Decision 2026-11-28-walleye-display-try-needs-its-console-first; run 1 PR 1418. Then walleye-display-reset-smmu-on-try runs again.
+
+About
+: walleye-display-s6e3fa5
+
+Opened
+: 2026-11-28
+
+Needs
+: build
+
+Proof
+: b-r5-smmu's dtb has a ramoops node with stock Android's address, size, record, console sizes and ecc (cited from the stock dtb read in research walleye-iommu-how-android-and-mainline-map-display-and-modem) and CONFIG_PSTORE_RAM in its kernel; host checks show both; image rebuilt equal, UFS-off gate passes; the display-smmu-on procedure's way back keeps console-ramoops as a file and judges whether it holds mainline lines
 
 Rank
 : 17
