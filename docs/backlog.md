@@ -15171,10 +15171,10 @@ Rank
 ### device.toml declares [device] arch = "aarch64" for osfact, with every reader of device.toml moved to a release that reads it
 
 Status
-: open
+: done
 
 Note
-: Ready 2026-11-28 (orchestration): procedures lock lpoco-attended 0.46.9 (#1360, lpoco-manifest 0.56.0, reads arch, [install] and serial_env); pin lpoco-lab and lpoco-bringup to 0.54.3 (device.toml's #:schema line, bin/install-bringup.sh) and land arch, serial_env and the [install] tables in one change, values from walleye's proven boot and cited.
+: Done 2026-11-28: device.toml declares arch = aarch64, serial_env = WALLEYE_SERIAL and the [install] tables (steps, connection, root, way_back), values from the modem boot and the install procedures, cited in the file; its #:schema pin moved to lpoco-lab-v0.54.3; install-bringup.sh already pins lpoco-bringup 0.54.3; the procedures lock lpoco-attended 0.46.9. check-device-toml.sh passes against 0.54.3 and 0.54.4; bin/attended check passes. The install tables' root values (nc -l -p 9001, /sbin/init, 60 s waits) are lab-tools' fixture's proposal for the Alpine image, not yet run on the phone: NOT KNOWN YET until walleye-osfact-image-installs.
 
 About
 : walleye-bootimage
